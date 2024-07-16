@@ -1,6 +1,5 @@
 {
-  "name": "nuxt-ui-pro-template-saas",
-  "private": true,
+  "name": "web",
   "type": "module",
   "scripts": {
     "build": "nuxt build",
@@ -9,7 +8,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "contentful-typescript-codegen": "contentful-typescript-codegen --output @types/generated/contentful.d.ts"
   },
   "dependencies": {
     "@iconify-json/heroicons": "^1.1.21",
@@ -25,10 +25,16 @@
   "devDependencies": {
     "@nuxt/eslint": "^0.3.13",
     "@nuxthq/studio": "^2.0.3",
+    "assert": "^2.1.0",
+    "contentful-management": "^11.29.0",
+    "contentful-typescript-codegen": "^3.4.0",
     "eslint": "^9.6.0",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
     "vue-tsc": "^2.0.26"
   },
   "resolutions": {
     "nuxt-og-image": "3.0.0-rc.56"
-  }
+  },
+  "version": "0.0.0"
 }
