@@ -34,9 +34,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     // Temporary workaround for prerender regression. see https://github.com/nuxt/nuxt/issues/27490
-    '/': { prerender: true },
-    '/api/search.json': { prerender: true },
-    '/docs': { redirect: '/docs/getting-started', prerender: false }
+    '/': { prerender: true }
   },
 
   devtools: {
