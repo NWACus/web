@@ -1,44 +1,44 @@
 <script setup lang="ts">
 import type { NavItem } from '@nuxt/content'
+import type { EntryCollection } from 'contentful'
+import type { TypeLogoSkeleton } from '~~/types/generated/contentful'
+
+const avalancheCenter = useAvalancheCenter()
+const { data, status, error, refresh } = await useFetch<EntryCollection<TypeLogoSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/logos.json', {
+  method: 'GET',
+  query: { avalanche_center: avalancheCenter }
+})
 
 const navigation = inject<Ref<NavItem[]>>('navigation', ref([]))
 
 const links = [{
-  label: 'Docs',
-  to: '/docs'
-}, {
-  label: 'Pricing',
-  to: '/pricing'
-}, {
-  label: 'Blog',
-  to: '/blog'
+  label: 'About',
+  to: '/about'
 }]
 </script>
 
 <template>
   <UHeader :links="links">
     <template #logo>
-      Nuxt UI Pro <UBadge
-        label="SaaS"
-        variant="subtle"
-        class="mb-0.5"
-      />
+      <div v-if="error">
+        {{ error }}
+      </div>
+      <div class="group flex flex-row items-center justify-center">
+        <NuxtImg
+          v-if="data && data.items && data.items[0]?.fields.icon?.fields.file"
+          provider="contentful"
+          width="32px"
+          height="32px"
+          :src="data.items[0]?.fields.icon?.fields.file.url"
+          class="rounded-xl m-2 transform transition-transform duration-200 group-hover:scale-105"
+        />
+        <span class="text-gray-900 dark:text-white text-l font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200">{{ avalancheCenter }}</span>
+      </div>
     </template>
 
     <template #right>
-      <UButton
-        label="Sign in"
-        color="gray"
-        to="/login"
-      />
-      <UButton
-        label="Sign up"
-        icon="i-heroicons-arrow-right-20-solid"
-        trailing
-        color="black"
-        to="/signup"
-        class="hidden lg:flex"
-      />
+      <AvalancheCenterSelector />
+      <UColorModeButton size="sm" />
     </template>
 
     <template #panel>

@@ -1,3 +1,5 @@
+import { cjsInterop } from 'vite-plugin-cjs-interop'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: ['@nuxt/ui-pro'],
@@ -42,7 +44,7 @@ export default defineNuxtConfig({
   },
 
   typescript: {
-    strict: false
+    strict: true
   },
 
   future: {
@@ -55,6 +57,31 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  image: {
+    contentful: {}
+  },
+
+  vite: {
+    plugins: [
+      cjsInterop({
+        dependencies: [
+          'contentful'
+        ]
+      })
+    ]
+  },
+
+  runtimeConfig: {
+    supportedCenters: ['NWAC', 'SNFAC', 'SAC'],
+    defaultCenter: 'NWAC',
+
+    contentful: {
+      spaceId: process.env.CONTENTFUL_SPACE_ID,
+      environment: process.env.CONTENTFUL_ENVIRONMENT,
+      apiAccessToken: process.env.CONTENTFUL_CONTENT_DELIVERY_API_ACCESS_TOKEN
     }
   },
 
