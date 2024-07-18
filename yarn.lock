@@ -15614,6 +15614,7 @@ __metadata:
     cf-content-types-generator: "npm:^2.15.3"
     contentful: "npm:^10.12.8"
     contentful-management: "npm:^11.29.0"
+    date-fns: "npm:^3.6.0"
     eslint: "npm:^9.6.0"
     nuxt: "npm:^3.12.3"
     nuxt-og-image: "npm:^3.0.0-rc.59"

@@ -1,5 +1,5 @@
 import * as contentful from 'contentful'
-import type {TypeGroupSkeleton} from '~~/types/generated/contentful';
+import type {TypeGroupOrderSkeleton} from '~~/types/generated/contentful';
 
 export default eventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -35,9 +35,10 @@ export default eventHandler(async (event) => {
     accessToken: config.contentful.apiAccessToken
   })
 
-  const groups = await client.getEntries<TypeGroupSkeleton>({
-    'content_type': 'group',
-    'metadata.tags.sys.id[all]': [query.avalanche_center.toLowerCase()]
+  const groups = await client.getEntries<TypeGroupOrderSkeleton>({
+    'content_type': 'groupOrder',
+    'metadata.tags.sys.id[all]': [query.avalanche_center.toLowerCase()],
+    'include': '5'
   })
 
   return groups

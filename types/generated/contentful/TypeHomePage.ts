@@ -1,8 +1,11 @@
 import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleCode } from "contentful";
+import type { TypeForecastMapSkeleton } from "./TypeForecastMap";
+import type { TypeNewsSkeleton } from "./TypeNews";
 
 export interface TypeHomePageFields {
     centerId?: EntryFieldTypes.Symbol;
-    centerLogo?: EntryFieldTypes.AssetLink;
+    forecast?: EntryFieldTypes.EntryLink<TypeForecastMapSkeleton>;
+    news?: EntryFieldTypes.EntryLink<TypeNewsSkeleton>;
 }
 
 export type TypeHomePageSkeleton = EntrySkeletonType<TypeHomePageFields, "homePage">;

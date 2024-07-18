@@ -1,18 +1,36 @@
 <script setup lang="ts">
 import type { EntryCollection } from 'contentful'
-import type { TypeGroupSkeleton } from '~~/types/generated/contentful'
+import type { TypeGroup, TypeGroupOrderSkeleton } from '~~/types/generated/contentful'
 
 const avalancheCenter = useAvalancheCenter()
-const { data, status, error, refresh } = await useFetch<EntryCollection<TypeGroupSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/about.json', {
+const { data, status, error, refresh } = await useFetch<EntryCollection<TypeGroupOrderSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/about.json', {
   method: 'GET',
   query: { avalanche_center: avalancheCenter }
 })
+
+const groups = computed(
+  (): TypeGroup<'WITHOUT_UNRESOLVABLE_LINKS', 'en'>[] => {
+    const groups: TypeGroup<'WITHOUT_UNRESOLVABLE_LINKS', 'en'>[] = []
+    if (data.value) {
+      for (const grouping of data.value.items) {
+        if (grouping.fields.groups) {
+          for (const group of grouping.fields.groups) {
+            if (group) {
+              groups.push(group)
+            }
+          }
+        }
+      }
+    }
+    return groups
+  }
+)
 </script>
 
 <template>
   <UContainer v-if="data">
     <UCard
-      v-for="group in data.items"
+      v-for="group in groups"
       :key="group.sys.id"
       class="m-8"
     >
@@ -35,7 +53,6 @@ const { data, status, error, refresh } = await useFetch<EntryCollection<TypeGrou
         </div>
       </template>
     </UCard>
-
     <NuxtPage />
   </UContainer>
 </template>

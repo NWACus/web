@@ -4,7 +4,8 @@ export interface TypeBiographyFields {
     firstName: EntryFieldTypes.Symbol;
     lastName: EntryFieldTypes.Symbol;
     email?: EntryFieldTypes.Symbol;
-    title: EntryFieldTypes.Symbol;
+    title?: EntryFieldTypes.Symbol;
+    startDate?: EntryFieldTypes.Date;
     biography?: EntryFieldTypes.Text;
     photo: EntryFieldTypes.AssetLink;
 }

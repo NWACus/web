@@ -1,10 +1,12 @@
-export { isTypeBiography } from "./TypeBiography";
-export type { TypeBiography, TypeBiographyFields, TypeBiographySkeleton } from "./TypeBiography";
-export { isTypeGroup } from "./TypeGroup";
-export type { TypeGroup, TypeGroupFields, TypeGroupSkeleton } from "./TypeGroup";
-export { isTypeHomePage } from "./TypeHomePage";
-export type { TypeHomePage, TypeHomePageFields, TypeHomePageSkeleton } from "./TypeHomePage";
-export { isTypeLogo } from "./TypeLogo";
-export type { TypeLogo, TypeLogoFields, TypeLogoSkeleton } from "./TypeLogo";
-export { isTypeQuestionAndAnswer } from "./TypeQuestionAndAnswer";
-export type { TypeQuestionAndAnswer, TypeQuestionAndAnswerFields, TypeQuestionAndAnswerSkeleton } from "./TypeQuestionAndAnswer";
+export { isTypeBiography } from './TypeBiography'
+export type { TypeBiography, TypeBiographyFields, TypeBiographySkeleton } from './TypeBiography'
+export { isTypeGroup } from './TypeGroup'
+export type { TypeGroup, TypeGroupFields, TypeGroupSkeleton } from './TypeGroup'
+export { isTypeGroupOrder } from './TypeGroupOrder'
+export type { TypeGroupOrder, TypeGroupOrderFields, TypeGroupOrderSkeleton } from './TypeGroupOrder'
+export { isTypeHomePage } from './TypeHomePage'
+export type { TypeHomePage, TypeHomePageFields, TypeHomePageSkeleton } from './TypeHomePage'
+export { isTypeLogo } from './TypeLogo'
+export type { TypeLogo, TypeLogoFields, TypeLogoSkeleton } from './TypeLogo'
+export { isTypeQuestionAndAnswer } from './TypeQuestionAndAnswer'
+export type { TypeQuestionAndAnswer, TypeQuestionAndAnswerFields, TypeQuestionAndAnswerSkeleton } from './TypeQuestionAndAnswer'

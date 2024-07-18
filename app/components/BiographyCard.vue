@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { format, parseISO } from 'date-fns'
 import { type TypeBiography } from '~~/types/generated/contentful'
 
 const props = defineProps<{
   person: TypeBiography<'WITHOUT_UNRESOLVABLE_LINKS', 'en'>
 }>()
 const modalOpen = ref(false)
+const formatDate = (date: string) => format(parseISO(date), 'MMMM yyyy')
 </script>
 
 <template>
@@ -25,8 +27,17 @@ const modalOpen = ref(false)
       <h2 class="text-gray-900 dark:text-white text-l font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200">
         {{ props.person.fields.firstName }} {{ props.person.fields.lastName }}
       </h2>
-      <div class="text-sm text-gray-500 dark:text-gray-400">
+      <div
+        v-if="props.person.fields.title"
+        class="text-sm text-gray-500 dark:text-gray-400"
+      >
         {{ props.person.fields.title }}
+      </div>
+      <div
+        v-if="props.person.fields.startDate"
+        class="text-sm text-gray-600 dark:text-gray-500"
+      >
+        Since {{ formatDate(props.person.fields.startDate) }}
       </div>
     </div>
   </UCard>
