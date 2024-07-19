@@ -7,7 +7,7 @@ if (typeof route.params.avalancheCenter !== 'string') {
   throw createError({ statusCode: 500, statusMessage: `Bad avalanche center: ${route.params.avalancheCenter}`, fatal: true })
 }
 const avalancheCenter = route.params.avalancheCenter.toUpperCase()
-const { data, status, error, refresh } = await useFetch<EntryCollection<TypeGroupOrderSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/about.json', {
+const { data, status, error, refresh } = await useFetch<EntryCollection<TypeGroupOrderSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/staff.json', {
   method: 'GET',
   query: { avalanche_center: avalancheCenter }
 })
