@@ -3,22 +3,26 @@ import type { NavItem } from '@nuxt/content'
 import type { EntryCollection } from 'contentful'
 import type { TypeLogoSkeleton } from '~~/types/generated/contentful'
 
-const avalancheCenter = useAvalancheCenter()
+const props = defineProps<{ avalancheCenter: string }>()
+const avalancheCenter = props.avalancheCenter
 const { data, status, error, refresh } = await useFetch<EntryCollection<TypeLogoSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/logos.json', {
   method: 'GET',
-  query: { avalanche_center: avalancheCenter }
+  query: { avalanche_center: avalancheCenter.toUpperCase() }
 })
 
 const navigation = inject<Ref<NavItem[]>>('navigation', ref([]))
 
 const links = [{
   label: 'About',
-  to: '/about'
+  to: '/' + avalancheCenter.toLowerCase() + '/about'
 }]
 </script>
 
 <template>
-  <UHeader :links="links">
+  <UHeader
+    :to="'/' + avalancheCenter"
+    :links="links"
+  >
     <template #logo>
       <div v-if="error">
         {{ error }}
@@ -32,7 +36,7 @@ const links = [{
           :src="data.items[0]?.fields.icon?.fields.file.url"
           class="rounded-xl m-2 transform transition-transform duration-200 group-hover:scale-105"
         />
-        <span class="text-gray-900 dark:text-white text-l font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200">{{ avalancheCenter }}</span>
+        <span class="text-gray-900 dark:text-white text-l font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200">{{ avalancheCenter.toUpperCase() }}</span>
       </div>
     </template>
 

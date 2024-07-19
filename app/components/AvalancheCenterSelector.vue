@@ -2,12 +2,20 @@
 import type { EntryCollection } from 'contentful'
 import type { AllAvalancheCenterCapabilities } from '~~/types/nationalAvalancheCenter/capabilities'
 import type { TypeLogoSkeleton } from '~~/types/generated/contentful'
-import { useAvalancheCenter } from '~/composables/states'
 
-const avalancheCenter = useAvalancheCenter()
+const route = useRoute()
+const avalancheCenter = computed(
+  () => {
+    if (typeof route.params.avalancheCenter !== 'string') {
+      return ''
+    } else {
+      return route.params.avalancheCenter
+    }
+  }
+)
 
 const logosResult = await useFetch<EntryCollection<TypeLogoSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/logos.json', {
-  method: 'GET',
+  method: 'GET'
 })
 const capabilitiesResult = await useFetch<AllAvalancheCenterCapabilities>('https://forecasts.avalanche.org', {
   method: 'GET',
@@ -20,7 +28,8 @@ const items = [capabilitiesResult.data.value?.centers.filter(item => supported.i
   ({
     label: item.id,
     icon: logosResult.data.value?.items.find(logo => logo.metadata.tags.map(tag => tag.sys.id).includes(item.id.toLowerCase()))?.fields.icon?.fields.file?.url,
-    click: () => avalancheCenter.value = item.id
+    to: '/' + item.id.toLowerCase(),
+    disabled: avalancheCenter.value.toUpperCase() === item.id
   })
 ) || []]
 </script>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ParsedContent } from '@nuxt/content'
 import type { NuxtError } from '#app'
 
 useSeoMeta({
@@ -23,7 +22,7 @@ useHead({
 
 <template>
   <div>
-    <AppHeader />
+    <AppHeader :avalanche-cente="$route.params.avalancheCenter || 'mwac' " />
 
     <UMain>
       <UContainer>
