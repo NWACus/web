@@ -628,10 +628,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@contentful/rich-text-html-renderer@npm:^16.6.6":
+  version: 16.6.6
+  resolution: "@contentful/rich-text-html-renderer@npm:16.6.6"
+  dependencies:
+    "@contentful/rich-text-types": "npm:^16.8.1"
+    escape-html: "npm:^1.0.3"
+  checksum: 10c0/2ba8abe96dec825e76b0d255f8ab8175d4a7ee33826b1bd90984cfcd7e270f2fbf61a03c33a73aa7dde7cb30aa6088ad7ded0f06e6823df1618f20efb5a2a504
+  languageName: node
+  linkType: hard
+
 "@contentful/rich-text-types@npm:^16.0.2, @contentful/rich-text-types@npm:^16.3.0":
   version: 16.7.0
   resolution: "@contentful/rich-text-types@npm:16.7.0"
   checksum: 10c0/146a369e192272d34250e61b3a6d2f047f01b9bb004269763470484f41824f74a5ee087e72acf1f90bf9337edef59fee8e585d2d5a8d815036350edf18315b05
+  languageName: node
+  linkType: hard
+
+"@contentful/rich-text-types@npm:^16.8.1":
+  version: 16.8.1
+  resolution: "@contentful/rich-text-types@npm:16.8.1"
+  checksum: 10c0/c3d44ddc1088ebd4b195aff217b759c4a9713f432d54f392411860f708ace7faa98366a75dcc62fa9fc422942eeeb953134af02d813c83aba8ebffe73bd35d8e
   languageName: node
   linkType: hard
 
@@ -15602,6 +15619,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "web@workspace:."
   dependencies:
+    "@contentful/rich-text-html-renderer": "npm:^16.6.6"
     "@iconify-json/heroicons": "npm:^1.1.21"
     "@iconify-json/simple-icons": "npm:^1.1.109"
     "@nuxt/content": "npm:^2.13.1"

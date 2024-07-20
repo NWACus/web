@@ -11,9 +11,6 @@ const avalancheCenter = route.params.avalancheCenter
     <AppHeader :avalanche-center="avalancheCenter" />
 
     <UMain>
-      <div class="flex flex-col items-center content-center justify-center">
-        <span class="flex m-12 text-gray-900 dark:text-white text-l font-semibold truncate hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200">This space intentionally left blank.</span>
-      </div>
       <NuxtPage />
     </UMain>
 

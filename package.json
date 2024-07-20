@@ -12,6 +12,7 @@
     "generate-contentful-types": "cf-content-types-generator --v10 --out types/generated/contentful --typeguard --spaceId ${CONTENTFUL_SPACE_ID} --token ${CONTENTFUL_MANAGEMENT_API_ACCESS_TOKEN}"
   },
   "dependencies": {
+    "@contentful/rich-text-html-renderer": "^16.6.6",
     "@iconify-json/heroicons": "^1.1.21",
     "@iconify-json/simple-icons": "^1.1.109",
     "@nuxt/content": "^2.13.1",
