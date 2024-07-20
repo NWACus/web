@@ -24,7 +24,7 @@ const blockType = computed(
   }
 )
 
-const isInline = (node: Node) => Object.keys(INLINES).includes(node.nodeType)
+const isInline = (node: Node) => Object.values(INLINES).includes(node.nodeType)
 const isText = (node: Node) => node.nodeType === 'text'
 </script>
 

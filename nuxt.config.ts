@@ -33,9 +33,8 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/**': { isr: true },
-    '/api/*': { cache: { maxAge: 60 * 60 }, cors: true },
-    '/about': { redirect: '/about/staff' }
+    '/:avalancheCenter/about/**': { isr: true },
+    '/api/**': { cache: { maxAge: 60 * 60 }, cors: true }
   },
 
   devtools: {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Node, Block } from '@contentful/rich-text-types'
-import { Text, INLINES, BLOCKS } from '@contentful/rich-text-types'
+import { INLINES, BLOCKS } from '@contentful/rich-text-types'
+import type { Asset } from 'contentful'
 import {
   ProseH1,
   ProseH2,
@@ -9,7 +10,6 @@ import {
   ProseH5,
   ProseH6,
   ProseP,
-  UPage,
   ProseOl,
   ProseUl,
   ProseLi,
@@ -17,9 +17,9 @@ import {
   ProseBlockquote,
   ProseTable,
   ProseTr,
-  ProseTbody,
+  ProseTd,
   ProseTh,
-  UPageBody
+  UPageBody, NuxtImg
 } from '#components'
 
 const props = defineProps<{
@@ -58,18 +58,23 @@ const blockType = computed(
       [BLOCKS.HR]: { component: ProseHr, props: {} },
       [BLOCKS.QUOTE]: { component: ProseBlockquote, props: {} },
       [BLOCKS.EMBEDDED_ENTRY]: { component: '', props: {} },
-      [BLOCKS.EMBEDDED_ASSET]: { component: '', props: {} }, // TODO: use NuxtImage
+      [BLOCKS.EMBEDDED_ASSET]: { component: NuxtImg, props: {
+        provider: 'contentful',
+        src: props.block.data.target?.fields.file?.url,
+        width: props.block.data.target?.fields.file?.details.image?.width,
+        height: props.block.data.target?.fields.file?.details.image?.height
+      } },
       [BLOCKS.EMBEDDED_RESOURCE]: { component: '', props: {} },
       [BLOCKS.TABLE]: { component: ProseTable, props: {} },
       [BLOCKS.TABLE_ROW]: { component: ProseTr, props: {} },
-      [BLOCKS.TABLE_CELL]: { component: ProseTbody, props: {} },
+      [BLOCKS.TABLE_CELL]: { component: ProseTd, props: {} },
       [BLOCKS.TABLE_HEADER_CELL]: { component: ProseTh, props: {} }
     }[props.block.nodeType]
   }
 )
 
-const isInline = (node: Node) => Object.keys(INLINES).includes(node.nodeType)
-const isBlock = (node: Node) => Object.keys(BLOCKS).includes(node.nodeType)
+const isInline = (node: Node) => Object.values(INLINES).includes(node.nodeType)
+const isBlock = (node: Node) => Object.values(BLOCKS).includes(node.nodeType)
 const isText = (node: Node) => node.nodeType === 'text'
 </script>
 
@@ -86,11 +91,11 @@ const isText = (node: Node) => node.nodeType === 'text'
         :block="child"
       />
       <RichTextInline
-        v-if="isInline(child)"
+        v-else-if="isInline(child)"
         :block="child"
       />
       <RichTextText
-        v-if="isText(child)"
+        v-else-if="isText(child)"
         :block="child"
       />
     </template>

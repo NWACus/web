@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EntryCollection } from 'contentful'
+import type { TocLink } from '@nuxt/content'
 import type { TypeGroup, TypeGroupOrderSkeleton } from '~~/types/generated/contentful'
 
 const route = useRoute()
@@ -29,34 +30,42 @@ const groups = computed(
     return groups
   }
 )
+
+const headingKebabCase = (heading: string) => encodeURIComponent(heading.toLowerCase().replaceAll(/\s+/g, '-'))
+
+const links = computed<TocLink[]>(
+  () => groups.value.map(group => ({ id: headingKebabCase(group.fields.name), text: group.fields.name, depth: 2 }))
+)
 </script>
 
 <template>
-  <UContainer v-if="data">
-    <UCard
-      v-for="group in groups"
-      :key="group.sys.id"
-      class="m-8"
-    >
-      <template #header>
-        <h1 class="text-gray-900 dark:text-white text-xl font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200">
+  <UPage>
+    <template #right>
+      <UContentToc :links="links" />
+    </template>
+
+    <UPageBody :prose="true">
+      <template
+        v-for="group in groups"
+        :key="group.sys.id"
+      >
+        <ProseH2 :id="headingKebabCase(group.fields.name)">
           {{ group.fields.name }}
-        </h1>
+        </ProseH2>
+        <UCard>
+          <div class="flex flex-row flex-wrap items-center justify-center not-prose">
+            <template
+              v-for="member in group.fields.member"
+              :key="member.sys.id"
+            >
+              <BiographyCard
+                v-if="member"
+                :person="member"
+              />
+            </template>
+          </div>
+        </UCard>
       </template>
-      <template #default>
-        <div class="flex flex-row flex-wrap items-center justify-center">
-          <template
-            v-for="member in group.fields.member"
-            :key="member.sys.id"
-          >
-            <BiographyCard
-              v-if="member"
-              :person="member"
-            />
-          </template>
-        </div>
-      </template>
-    </UCard>
-    <NuxtPage />
-  </UContainer>
+    </UPageBody>
+  </UPage>
 </template>
