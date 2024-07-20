@@ -33,7 +33,8 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/**': { isr: true }
+    '/**': { isr: true },
+    '/about': { redirect: '/about/staff' }
   },
 
   devtools: {

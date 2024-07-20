@@ -14,7 +14,7 @@ const navigation = inject<Ref<NavItem[]>>('navigation', ref([]))
 
 const links = [{
   label: 'About',
-  to: '/' + avalancheCenter.toLowerCase() + '/about'
+  to: '/' + avalancheCenter.toLowerCase() + '/about/staff'
 }]
 </script>
 
