@@ -7,7 +7,11 @@ const props = defineProps<{
 
 <template>
     <UCard>
-        <h1> {{ props.news.fields.newsTitle }}</h1>
-        <div> {{ props.news.fields.newsDescription }}</div>
+        <div class="text-gray-900 dark:text-white text-l font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200">{{ props.news.fields.newsTitle }}</div>
+
+        <RichTextDocument
+            v-if="props.news.fields.newsDescription"
+            :rich-text="props.news.fields.newsDescription"
+        />
     </UCard>
 </template>

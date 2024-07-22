@@ -12,15 +12,21 @@ const { data, status, error, refresh } = await useFetch<EntryCollection<TypeLogo
 
 const navigation = inject<Ref<NavItem[]>>('navigation', ref([]))
 
-const links = [{
+const links = [
+  {
+  label: 'Observations',
+  to: '/' + avalancheCenter.toLowerCase() + '/observations'  
+  },
+  {
   label: 'About',
-  to: '/' + avalancheCenter.toLowerCase() + '/about/staff'
-}]
+  to: '/' + avalancheCenter.toLowerCase() + '/about/staff'  
+  }
+]
 </script>
 
 <template>
   <UHeader
-    :to="'/' + avalancheCenter"
+    :to="'/' + avalancheCenter + '/home'"
     :links="links"
   >
     <template #logo>
