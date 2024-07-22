@@ -21,6 +21,9 @@ const links = [
   label: 'Blog',
   to: '/' + avalancheCenter.toLowerCase() + '/blog'
 }, {
+  label: 'Observations',
+  to: '/' + avalancheCenter.toLowerCase() + '/observations'  
+}, {
   label: 'About',
   to: '/' + avalancheCenter.toLowerCase() + '/about/staff'  
   }

@@ -37,7 +37,12 @@ export default defineNuxtConfig({
     '/:avalancheCenter/home/**': { isr: true },
     '/:avalancheCenter/about/**': { isr: true },
     '/:avalancheCenter/observations/**': { isr: true },
+<<<<<<< HEAD
     '/api/**': { cors: true }
+=======
+    '/api/**': { cors: true },
+    '/*': { cors: true }
+>>>>>>> e985e3c (adding home and obs pages)
   },
 
   devtools: {
