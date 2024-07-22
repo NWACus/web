@@ -2,9 +2,6 @@ import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleC
 
 export interface TypeSimpleArticleFields {
     internalTitle: EntryFieldTypes.Symbol;
-    title: EntryFieldTypes.Symbol;
-    slug: EntryFieldTypes.Symbol;
-    body: EntryFieldTypes.RichText;
 }
 
 export type TypeSimpleArticleSkeleton = EntrySkeletonType<TypeSimpleArticleFields, "simpleArticle">;

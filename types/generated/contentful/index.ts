@@ -26,3 +26,5 @@ export { isTypeSimpleArticle } from "./TypeSimpleArticle";
 export type { TypeSimpleArticle, TypeSimpleArticleFields, TypeSimpleArticleSkeleton } from "./TypeSimpleArticle";
 export { isTypeTwoColumns } from "./TypeTwoColumns";
 export type { TypeTwoColumns, TypeTwoColumnsFields, TypeTwoColumnsSkeleton } from "./TypeTwoColumns";
+export { isTypeTest } from "./TypeTest";
+export type { TypeTest, TypeTestFields, TypeTestSkeleton } from "./TypeTest";
