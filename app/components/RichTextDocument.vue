@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EntryFields } from 'contentful'
-import { BLOCKS, type Node } from '@contentful/rich-text-types'
+import { BLOCKS } from '@contentful/rich-text-types'
 
 import type { TocLink } from '@nuxt/content'
 

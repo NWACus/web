@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Node, Block } from '@contentful/rich-text-types'
 import { INLINES, BLOCKS } from '@contentful/rich-text-types'
-import type { Asset } from 'contentful'
 import {
   ProseH1,
   ProseH2,
@@ -21,6 +20,7 @@ import {
   ProseTh,
   UPageBody, NuxtImg
 } from '#components'
+import RichTextEmbeddedEntry from '~/components/RichTextEmbeddedEntry.vue'
 
 const props = defineProps<{
   block: Block
@@ -57,7 +57,7 @@ const blockType = computed(
       [BLOCKS.LIST_ITEM]: { component: ProseLi, props: {} },
       [BLOCKS.HR]: { component: ProseHr, props: {} },
       [BLOCKS.QUOTE]: { component: ProseBlockquote, props: {} },
-      [BLOCKS.EMBEDDED_ENTRY]: { component: '', props: {} },
+      [BLOCKS.EMBEDDED_ENTRY]: { component: RichTextEmbeddedEntry, props: { entry: props.block.data.target } },
       [BLOCKS.EMBEDDED_ASSET]: { component: NuxtImg, props: {
         provider: 'contentful',
         src: props.block.data.target?.fields.file?.url,

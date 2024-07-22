@@ -44,12 +44,5 @@ const links = [{
       <AvalancheCenterSelector />
       <UColorModeButton size="sm" />
     </template>
-
-    <template #panel>
-      <UNavigationTree
-        :links="mapContentNavigation(navigation)"
-        default-open
-      />
-    </template>
   </UHeader>
 </template>

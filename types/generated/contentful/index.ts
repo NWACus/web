@@ -1,14 +1,24 @@
-export { isTypeAbout } from './TypeAbout'
-export type { TypeAbout, TypeAboutFields, TypeAboutSkeleton } from './TypeAbout'
-export { isTypeBiography } from './TypeBiography'
-export type { TypeBiography, TypeBiographyFields, TypeBiographySkeleton } from './TypeBiography'
-export { isTypeGroup } from './TypeGroup'
-export type { TypeGroup, TypeGroupFields, TypeGroupSkeleton } from './TypeGroup'
-export { isTypeGroupOrder } from './TypeGroupOrder'
-export type { TypeGroupOrder, TypeGroupOrderFields, TypeGroupOrderSkeleton } from './TypeGroupOrder'
-export { isTypeLogo } from './TypeLogo'
-export type { TypeLogo, TypeLogoFields, TypeLogoSkeleton } from './TypeLogo'
-export { isTypeQuestionAndAnswer } from './TypeQuestionAndAnswer'
-export type { TypeQuestionAndAnswer, TypeQuestionAndAnswerFields, TypeQuestionAndAnswerSkeleton } from './TypeQuestionAndAnswer'
-export { isTypeSimpleArticle } from './TypeSimpleArticle'
-export type { TypeSimpleArticle, TypeSimpleArticleFields, TypeSimpleArticleSkeleton } from './TypeSimpleArticle'
+export { isTypeAbout } from "./TypeAbout";
+export type { TypeAbout, TypeAboutFields, TypeAboutSkeleton } from "./TypeAbout";
+export { isTypeBiography } from "./TypeBiography";
+export type { TypeBiography, TypeBiographyFields, TypeBiographySkeleton } from "./TypeBiography";
+export { isTypeForecastMap } from "./TypeForecastMap";
+export type { TypeForecastMap, TypeForecastMapFields, TypeForecastMapSkeleton } from "./TypeForecastMap";
+export { isTypeGroup } from "./TypeGroup";
+export type { TypeGroup, TypeGroupFields, TypeGroupSkeleton } from "./TypeGroup";
+export { isTypeGroupOrder } from "./TypeGroupOrder";
+export type { TypeGroupOrder, TypeGroupOrderFields, TypeGroupOrderSkeleton } from "./TypeGroupOrder";
+export { isTypeHomePage } from "./TypeHomePage";
+export type { TypeHomePage, TypeHomePageFields, TypeHomePageSkeleton } from "./TypeHomePage";
+export { isTypeLogo } from "./TypeLogo";
+export type { TypeLogo, TypeLogoFields, TypeLogoSkeleton } from "./TypeLogo";
+export { isTypeNews } from "./TypeNews";
+export type { TypeNews, TypeNewsFields, TypeNewsSkeleton } from "./TypeNews";
+export { isTypeOneColumn } from "./TypeOneColumn";
+export type { TypeOneColumn, TypeOneColumnFields, TypeOneColumnSkeleton } from "./TypeOneColumn";
+export { isTypeQuestionAndAnswer } from "./TypeQuestionAndAnswer";
+export type { TypeQuestionAndAnswer, TypeQuestionAndAnswerFields, TypeQuestionAndAnswerSkeleton } from "./TypeQuestionAndAnswer";
+export { isTypeSimpleArticle } from "./TypeSimpleArticle";
+export type { TypeSimpleArticle, TypeSimpleArticleFields, TypeSimpleArticleSkeleton } from "./TypeSimpleArticle";
+export { isTypeTwoColumns } from "./TypeTwoColumns";
+export type { TypeTwoColumns, TypeTwoColumnsFields, TypeTwoColumnsSkeleton } from "./TypeTwoColumns";

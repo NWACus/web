@@ -29,11 +29,11 @@ export default eventHandler(async (event) => {
     accessToken: config.contentful.apiAccessToken
   })
 
-  const groups = await client.getEntries<TypeArticleSkeleton>({
+  const entries = await client.getEntries<TypeArticleSkeleton>({
     'content_type': 'simpleArticle',
     'fields.slug': [query.slug],
     'include': '5'
   })
 
-  return groups
+  return entries
 })
