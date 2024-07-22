@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { Node, Inline } from '@contentful/rich-text-types'
+import type { Inline } from '@contentful/rich-text-types'
 import { INLINES } from '@contentful/rich-text-types'
 import { ProseA } from '#components'
+import RichTextBlockChild from '~/components/RichTextBlockChild.vue'
 
 const props = defineProps<{
   block: Inline
@@ -23,9 +24,6 @@ const blockType = computed(
     }[props.block.nodeType]
   }
 )
-
-const isInline = (node: Node) => Object.values(INLINES).includes(node.nodeType)
-const isText = (node: Node) => node.nodeType === 'text'
 </script>
 
 <template>
@@ -33,17 +31,10 @@ const isText = (node: Node) => node.nodeType === 'text'
     :is="blockType.component"
     v-bind="blockType.props"
   >
-    <template
-      v-for="child in props.block.content"
-    >
-      <RichTextInline
-        v-if="isInline(child)"
-        :block="child"
-      />
-      <RichTextText
-        v-if="isText(child)"
-        :block="child"
-      />
-    </template>
+    <RichTextBlockChild
+      v-for="(child, index) in props.block.content"
+      :key="`${String($.vnode.key)}-${index}`"
+      :block="child"
+    />
   </component>
 </template>

@@ -1,10 +1,12 @@
 import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleCode } from "contentful";
+import type { TypeEmbeddedYouTubeVideoSkeleton } from "./TypeEmbeddedYouTubeVideo";
 import type { TypeSimpleArticleSkeleton } from "./TypeSimpleArticle";
 import type { TypeTwoColumnsSkeleton } from "./TypeTwoColumns";
 
 export interface TypeOneColumnFields {
+    internalTitle: EntryFieldTypes.Symbol;
     layout: EntryFieldTypes.Symbol<"One Column - Full Screen (100%)">;
-    content: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeOneColumnSkeleton | TypeSimpleArticleSkeleton | TypeTwoColumnsSkeleton>>;
+    content: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeEmbeddedYouTubeVideoSkeleton | TypeOneColumnSkeleton | TypeSimpleArticleSkeleton | TypeTwoColumnsSkeleton>>;
 }
 
 export type TypeOneColumnSkeleton = EntrySkeletonType<TypeOneColumnFields, "oneColumn">;

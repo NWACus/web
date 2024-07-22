@@ -2,6 +2,7 @@ import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleC
 import type { TypeBiographySkeleton } from "./TypeBiography";
 
 export interface TypeGroupFields {
+    internalName: EntryFieldTypes.Symbol;
     name: EntryFieldTypes.Symbol;
     member: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeBiographySkeleton>>;
 }

@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import type { Entry } from 'contentful'
 import {
-  isTypeEmbeddedYouTubeVideo,
-  isTypeOneColumn, isTypeSimpleArticle, isTypeTwoColumns, type TypeEmbeddedYouTubeVideoSkeleton,
+  isTypeOneColumn, isTypeSimpleArticle, isTypeTwoColumns,
   type TypeOneColumnSkeleton,
   type TypeSimpleArticleSkeleton,
   type TypeTwoColumnsSkeleton
 } from '~~/types/generated/contentful'
-import EmbeddedRichText from '~/components/EmbeddedRichText.vue'
-import TwoColumns from '~/components/TwoColumns.vue'
-import OneColumn from '~/components/OneColumn.vue'
-import EmbeddedYouTubePlayer from '~/components/EmbeddedYouTubePlayer.vue'
+import OneColumnPage from '~/components/OneColumnPage.vue'
+import TwoColumnsPage from '~/components/TwoColumnsPage.vue'
+import SimpleArticlePage from '~/components/SimpleArticlePage.vue'
 
 const props = defineProps<{
-  entry: Entry<TypeOneColumnSkeleton | TypeSimpleArticleSkeleton | TypeTwoColumnsSkeleton | TypeEmbeddedYouTubeVideoSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>
+  entry: Entry<TypeOneColumnSkeleton | TypeSimpleArticleSkeleton | TypeTwoColumnsSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>
 }>()
 
 if (!props.entry) {
@@ -23,13 +21,11 @@ if (!props.entry) {
 const componentType = computed(
   () => {
     if (isTypeOneColumn(props.entry)) {
-      return OneColumn
+      return OneColumnPage
     } else if (isTypeTwoColumns(props.entry)) {
-      return TwoColumns
+      return TwoColumnsPage
     } else if (isTypeSimpleArticle(props.entry)) {
-      return EmbeddedRichText
-    } else if (isTypeEmbeddedYouTubeVideo(props.entry)) {
-      return EmbeddedYouTubePlayer
+      return SimpleArticlePage
     } else {
       throw createError({ statusCode: 500, statusMessage: `Invalid article`, fatal: true })
     }

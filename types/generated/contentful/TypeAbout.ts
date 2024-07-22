@@ -1,8 +1,10 @@
 import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleCode } from "contentful";
+import type { TypeArticleSkeleton } from "./TypeArticle";
 import type { TypeSimpleArticleSkeleton } from "./TypeSimpleArticle";
 
 export interface TypeAboutFields {
-    articles: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeSimpleArticleSkeleton>>;
+    internalName: EntryFieldTypes.Symbol;
+    articles: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeArticleSkeleton | TypeSimpleArticleSkeleton>>;
 }
 
 export type TypeAboutSkeleton = EntrySkeletonType<TypeAboutFields, "about">;

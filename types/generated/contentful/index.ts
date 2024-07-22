@@ -1,7 +1,11 @@
 export { isTypeAbout } from "./TypeAbout";
 export type { TypeAbout, TypeAboutFields, TypeAboutSkeleton } from "./TypeAbout";
+export { isTypeArticle } from "./TypeArticle";
+export type { TypeArticle, TypeArticleFields, TypeArticleSkeleton } from "./TypeArticle";
 export { isTypeBiography } from "./TypeBiography";
 export type { TypeBiography, TypeBiographyFields, TypeBiographySkeleton } from "./TypeBiography";
+export { isTypeEmbeddedYouTubeVideo } from "./TypeEmbeddedYouTubeVideo";
+export type { TypeEmbeddedYouTubeVideo, TypeEmbeddedYouTubeVideoFields, TypeEmbeddedYouTubeVideoSkeleton } from "./TypeEmbeddedYouTubeVideo";
 export { isTypeForecastMap } from "./TypeForecastMap";
 export type { TypeForecastMap, TypeForecastMapFields, TypeForecastMapSkeleton } from "./TypeForecastMap";
 export { isTypeGroup } from "./TypeGroup";

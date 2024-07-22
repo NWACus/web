@@ -11,5 +11,8 @@ if (!props.block) {
 </script>
 
 <template>
-  <RichTextBlock :block="block" />
+  <RichTextBlock
+    :key="`${String($.vnode.key)}-block`"
+    :block="block"
+  />
 </template>

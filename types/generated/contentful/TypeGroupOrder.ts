@@ -2,6 +2,7 @@ import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleC
 import type { TypeGroupSkeleton } from "./TypeGroup";
 
 export interface TypeGroupOrderFields {
+    internalName: EntryFieldTypes.Symbol;
     groups?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeGroupSkeleton>>;
 }
 

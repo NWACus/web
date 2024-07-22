@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Node, Block } from '@contentful/rich-text-types'
-import { INLINES, BLOCKS } from '@contentful/rich-text-types'
+import type { Block } from '@contentful/rich-text-types'
+import { BLOCKS } from '@contentful/rich-text-types'
 import {
   ProseH1,
   ProseH2,
@@ -21,6 +21,7 @@ import {
   UPageBody, NuxtImg
 } from '#components'
 import RichTextEmbeddedEntry from '~/components/RichTextEmbeddedEntry.vue'
+import RichTextBlockChild from '~/components/RichTextBlockChild.vue'
 
 const props = defineProps<{
   block: Block
@@ -72,10 +73,6 @@ const blockType = computed(
     }[props.block.nodeType]
   }
 )
-
-const isInline = (node: Node) => Object.values(INLINES).includes(node.nodeType)
-const isBlock = (node: Node) => Object.values(BLOCKS).includes(node.nodeType)
-const isText = (node: Node) => node.nodeType === 'text'
 </script>
 
 <template>
@@ -83,21 +80,10 @@ const isText = (node: Node) => node.nodeType === 'text'
     :is="blockType.component"
     v-bind="blockType.props"
   >
-    <template
-      v-for="child in props.block.content"
-    >
-      <RichTextBlock
-        v-if="isBlock(child)"
-        :block="child"
-      />
-      <RichTextInline
-        v-else-if="isInline(child)"
-        :block="child"
-      />
-      <RichTextText
-        v-else-if="isText(child)"
-        :block="child"
-      />
-    </template>
+    <RichTextBlockChild
+      v-for="(child, index) in props.block.content"
+      :key="`${String($.vnode.key)}-${index}`"
+      :block="child"
+    />
   </component>
 </template>

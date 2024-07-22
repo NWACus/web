@@ -21,7 +21,7 @@ const mapping: Record<string, string> = {
 }
 
 const classes = computed(
-  () => props.block.marks.map(mark => mapping[mark.type])
+  () => props.block.marks.map(mark => mapping[mark.type]).join(' ')
 )
 </script>
 

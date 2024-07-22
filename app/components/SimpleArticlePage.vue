@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import type { EntryFields } from 'contentful'
 import { BLOCKS } from '@contentful/rich-text-types'
 
 import type { TocLink } from '@nuxt/content'
+import type { Entry } from 'contentful'
+import type { TypeSimpleArticleSkeleton } from '~~/types/generated/contentful'
 
 const props = defineProps<{
-  richText: EntryFields.RichText
+  entry: Entry<TypeSimpleArticleSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>
 }>()
 
-if (!props.richText) {
+if (!props.entry) {
   throw createError({ statusCode: 404, statusMessage: `Article not found`, fatal: true })
 }
 
@@ -26,7 +27,7 @@ const headingKebabCase = (heading: string) => encodeURIComponent(heading.toLower
 const links = computed<TocLink[]>(
   () => {
     const links: TocLink[] = []
-    for (const node of props.richText.content) {
+    for (const node of props.entry.fields.body.content) {
       if (!Object.keys(headerDepth).includes(node.nodeType)) {
         continue
       }
@@ -64,7 +65,8 @@ const links = computed<TocLink[]>(
 
     <UPageBody :prose="true">
       <RichTextTopLevelBlock
-        v-for="block in props.richText.content"
+        v-for="(block, index) in props.entry.fields.body.content"
+        :key="`${props.entry.sys.id}-block-${index}`"
         :block="block"
       />
     </UPageBody>

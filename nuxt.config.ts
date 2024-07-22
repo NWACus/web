@@ -12,7 +12,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxthq/studio',
     '@vueuse/nuxt',
-    'nuxt-og-image'
+    'nuxt-og-image',
+    '@nuxt/scripts'
   ],
 
   hooks: {
@@ -34,7 +35,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/:avalancheCenter/about/**': { isr: true },
-    '/api/**': { cache: { maxAge: 60 * 60 }, cors: true }
+    '/api/**': { cors: true }
   },
 
   devtools: {

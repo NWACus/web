@@ -1,11 +1,13 @@
 import type { ChainModifiers, Entry, EntryFieldTypes, EntrySkeletonType, LocaleCode } from "contentful";
+import type { TypeEmbeddedYouTubeVideoSkeleton } from "./TypeEmbeddedYouTubeVideo";
 import type { TypeOneColumnSkeleton } from "./TypeOneColumn";
 import type { TypeSimpleArticleSkeleton } from "./TypeSimpleArticle";
 
 export interface TypeTwoColumnsFields {
+    internalTitle: EntryFieldTypes.Symbol;
     layout: EntryFieldTypes.Symbol<"Two Columns - Even Split (50%/50%)" | "Two Columns - Left Aside (25%/75%)" | "Two Columns - Left Heavy (66%/33%)" | "Two Columns - Right Aside (75%/25%)" | "Two Columns - Right Heavy (33%/66%)">;
-    leftContent: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeOneColumnSkeleton | TypeSimpleArticleSkeleton>>;
-    rightContent: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeOneColumnSkeleton | TypeSimpleArticleSkeleton>>;
+    leftContent: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeEmbeddedYouTubeVideoSkeleton | TypeOneColumnSkeleton | TypeSimpleArticleSkeleton | TypeTwoColumnsSkeleton>>;
+    rightContent: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TypeEmbeddedYouTubeVideoSkeleton | TypeOneColumnSkeleton | TypeSimpleArticleSkeleton | TypeTwoColumnsSkeleton>>;
 }
 
 export type TypeTwoColumnsSkeleton = EntrySkeletonType<TypeTwoColumnsFields, "twoColumns">;

@@ -30,9 +30,9 @@ export default eventHandler(async (event) => {
   })
 
   const entries = await client.getEntries<TypeArticleSkeleton>({
-    'content_type': 'simpleArticle',
+    'content_type': 'article',
     'fields.slug': [query.slug],
-    'include': '5'
+    'include': '10'
   })
 
   return entries
