@@ -28,7 +28,7 @@ const items = [capabilitiesResult.data.value?.centers.filter(item => supported.i
   ({
     label: item.id,
     icon: logosResult.data.value?.items.find(logo => logo.metadata.tags.map(tag => tag.sys.id).includes(item.id.toLowerCase()))?.fields.icon?.fields.file?.url,
-    to: '/' + item.id.toLowerCase(),
+    to: '/' + item.id.toLowerCase() + '/home',
     disabled: avalancheCenter.value.toUpperCase() === item.id
   })
 ) || []]

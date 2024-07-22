@@ -37,8 +37,7 @@ export default defineNuxtConfig({
     '/:avalancheCenter/home/**': { isr: true },
     '/:avalancheCenter/about/**': { isr: true },
     '/:avalancheCenter/observations/**': { isr: true },
-    '/api/**': { cors: true },
-    '/*': { cors: true }
+    '/api/**': { cors: true }
   },
 
   devtools: {
