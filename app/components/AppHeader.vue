@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { NavItem } from '@nuxt/content'
 import type { EntryCollection } from 'contentful'
 import type { TypeLogoSkeleton } from '~~/types/generated/contentful'
 
@@ -10,6 +9,7 @@ const { data, status, error, refresh } = await useFetch<EntryCollection<TypeLogo
   query: { avalanche_center: avalancheCenter.toUpperCase() }
 })
 
+<<<<<<< HEAD
 const navigation = inject<Ref<NavItem[]>>('navigation', ref([]))
 
 const links = [
@@ -18,6 +18,9 @@ const links = [
   to: '/' + avalancheCenter.toLowerCase() + '/observations'  
   },
   {
+  label: 'Blog',
+  to: '/' + avalancheCenter.toLowerCase() + '/blog'
+}, {
   label: 'About',
   to: '/' + avalancheCenter.toLowerCase() + '/about/staff'  
   }

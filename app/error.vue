@@ -22,7 +22,7 @@ useHead({
 
 <template>
   <div>
-    <AppHeader :avalanche-cente="$route.params.avalancheCenter || 'mwac' " />
+    <AppHeader :avalanche-center="$route.params.avalancheCenter || 'mwac' " />
 
     <UMain>
       <UContainer>
