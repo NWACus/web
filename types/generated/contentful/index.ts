@@ -4,6 +4,8 @@ export { isTypeArticle } from "./TypeArticle";
 export type { TypeArticle, TypeArticleFields, TypeArticleSkeleton } from "./TypeArticle";
 export { isTypeBiography } from "./TypeBiography";
 export type { TypeBiography, TypeBiographyFields, TypeBiographySkeleton } from "./TypeBiography";
+export { isTypeBlogPost } from "./TypeBlogPost";
+export type { TypeBlogPost, TypeBlogPostFields, TypeBlogPostSkeleton } from "./TypeBlogPost";
 export { isTypeEmbeddedYouTubeVideo } from "./TypeEmbeddedYouTubeVideo";
 export type { TypeEmbeddedYouTubeVideo, TypeEmbeddedYouTubeVideoFields, TypeEmbeddedYouTubeVideoSkeleton } from "./TypeEmbeddedYouTubeVideo";
 export { isTypeForecastMap } from "./TypeForecastMap";
