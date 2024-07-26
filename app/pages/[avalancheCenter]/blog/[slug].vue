@@ -59,7 +59,6 @@ const links = computed<TocLink[]>(
     return links
   }
 )
-console.log(JSON.stringify(links.value))
 </script>
 
 <template>
