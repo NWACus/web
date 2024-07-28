@@ -2,10 +2,11 @@
 import { format, parseISO } from 'date-fns'
 import { type TypeBiography } from '~~/types/generated/contentful'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   person: TypeBiography<'WITHOUT_UNRESOLVABLE_LINKS', 'en'>
-}>()
-const modalOpen = ref(false)
+  open: boolean
+}>(), { open: false })
+const modalOpen = ref(props.open)
 const formatDate = (date: string) => format(parseISO(date), 'MMMM yyyy')
 </script>
 

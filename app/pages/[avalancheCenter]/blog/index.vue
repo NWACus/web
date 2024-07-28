@@ -33,7 +33,7 @@ const blogs = computed(
       description: blog.fields.subtitle,
       image: { provider: 'contentful', src: blog.fields.image?.fields.file?.url },
       date: new Date(blog.fields.date).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' }),
-      authors: blog.fields.author?.map(author => ({ name: `${author?.fields.firstName} ${author?.fields.lastName}`, avatar: { provider: 'contentful', src: author?.fields.photo?.fields.file?.url || '' } }))
+      authors: blog.fields.author?.map(author => ({ name: `${author?.fields.firstName} ${author?.fields.lastName}`, avatar: { provider: 'contentful', src: author?.fields.photo?.fields.file?.url || '' }, to: `/${route.params.avalancheCenter}/about/staff?member=` + encodeURIComponent(`${author?.fields.firstName} ${author?.fields.lastName}`) }))
     }))
     return blogs
   }
