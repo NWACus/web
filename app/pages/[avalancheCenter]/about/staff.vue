@@ -31,6 +31,15 @@ const groups = computed(
   }
 )
 
+const selectedMember = computed(
+  () => {
+    if (typeof route.query.member !== 'string') {
+      return ''
+    }
+    return route.query.member
+  }
+)
+
 const headingKebabCase = (heading: string) => encodeURIComponent(heading.toLowerCase().replaceAll(/\s+/g, '-'))
 
 const links = computed<TocLink[]>(
@@ -61,6 +70,7 @@ const links = computed<TocLink[]>(
               <BiographyCard
                 v-if="member"
                 :person="member"
+                :open="`${member.fields.firstName} ${member.fields.lastName}` === selectedMember"
               />
             </template>
           </div>

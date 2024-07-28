@@ -9,6 +9,9 @@ const route = useRoute()
 if (typeof route.params.slug !== 'string') {
   throw createError({ statusCode: 500, statusMessage: `Bad blog slug: ${route.params.slug}`, fatal: true })
 }
+if (typeof route.params.avalancheCenter !== 'string') {
+  throw createError({ statusCode: 500, statusMessage: `Bad avalanche center: ${route.params.avalancheCenter}`, fatal: true })
+}
 const { data, status, error, refresh } = await useFetch<EntryCollection<TypeBlogPostSkeleton, 'WITHOUT_UNRESOLVABLE_LINKS', 'en'>>('/api/blog.json', {
   method: 'GET',
   query: { slug: route.params.slug }
@@ -75,6 +78,7 @@ const links = computed<TocLink[]>(
         <UButton
           v-for="(author, index) in data.items[0].fields.author"
           :key="index"
+          :to="`/${route.params.avalancheCenter}/about/staff?member=` + encodeURIComponent(`${author?.fields.firstName} ${author?.fields.lastName}`)"
           color="white"
           target="_blank"
           size="sm"
