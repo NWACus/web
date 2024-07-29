@@ -10,6 +10,9 @@ const { data, status, error, refresh } = await useFetch<EntryCollection<TypeLogo
 })
 
 const links = [{
+  label: 'Events',
+  to: '/' + avalancheCenter.toLowerCase() + '/events'
+}, {
   label: 'Blog',
   to: '/' + avalancheCenter.toLowerCase() + '/blog'
 }, {

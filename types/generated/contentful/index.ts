@@ -8,6 +8,8 @@ export { isTypeBlogPost } from "./TypeBlogPost";
 export type { TypeBlogPost, TypeBlogPostFields, TypeBlogPostSkeleton } from "./TypeBlogPost";
 export { isTypeEmbeddedYouTubeVideo } from "./TypeEmbeddedYouTubeVideo";
 export type { TypeEmbeddedYouTubeVideo, TypeEmbeddedYouTubeVideoFields, TypeEmbeddedYouTubeVideoSkeleton } from "./TypeEmbeddedYouTubeVideo";
+export { isTypeEvent } from "./TypeEvent";
+export type { TypeEvent, TypeEventFields, TypeEventSkeleton } from "./TypeEvent";
 export { isTypeForecastMap } from "./TypeForecastMap";
 export type { TypeForecastMap, TypeForecastMapFields, TypeForecastMapSkeleton } from "./TypeForecastMap";
 export { isTypeGroup } from "./TypeGroup";
