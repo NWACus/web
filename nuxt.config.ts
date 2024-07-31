@@ -38,7 +38,7 @@ export default defineNuxtConfig({
     '/:avalancheCenter/about/**': { isr: true },
     '/:avalancheCenter/observations/**': { isr: true },
     '/:avalancheCenter/forecast/**': { isr: true },
-    '/api/**': { cors: true }
+    '/api/**': { cors: true },
   },
 
   devtools: {
@@ -88,4 +88,5 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2024-07-11'
+  
 })
