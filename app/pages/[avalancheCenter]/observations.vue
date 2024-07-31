@@ -1,20 +1,20 @@
 <script setup lang="ts">
+import type { NavigationTree } from '#ui-pro/types'
+
 const route = useRoute()
 if (typeof route.params.avalancheCenter !== 'string') {
   throw createError({ statusCode: 500, statusMessage: `Bad avalanche center: ${route.params.avalancheCenter}`, fatal: true })
 }
 
-const avalancheCenter = route.params.avalancheCenter
 </script>
 
 <template>
-  <div>
-    <AppHeader :avalanche-center="avalancheCenter" />
-    
     <UMain>
-      <NuxtPage />
+      <UContainer>
+        <UPage>
+          <Observations />
+          <NuxtPage />
+        </UPage>
+      </UContainer>
     </UMain>
-    
-    <AppFooter />
-  </div>
-</template>
+  </template>

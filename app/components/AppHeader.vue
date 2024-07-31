@@ -16,14 +16,21 @@ const links = [{
   label: 'Blog',
   to: '/' + avalancheCenter.toLowerCase() + '/blog'
 }, {
+  label: 'Observations',
+  to: '/' + avalancheCenter.toLowerCase() + '/observations'  
+}, {
+  label: 'Forecast',
+  to: '/' + avalancheCenter.toLowerCase() + '/forecast'  
+}, {
   label: 'About',
-  to: '/' + avalancheCenter.toLowerCase() + '/about/staff'
-}]
+  to: '/' + avalancheCenter.toLowerCase() + '/about/staff'  
+  }
+]
 </script>
 
 <template>
   <UHeader
-    :to="'/' + avalancheCenter"
+    :to="'/' + avalancheCenter + '/home'"
     :links="links"
   >
     <template #logo>
