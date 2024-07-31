@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { type TypeNews } from '~~/types/generated/contentful'
+import { type TypeForecastMap, type TypeNews } from '~~/types/generated/contentful'
+
 const props = defineProps<{
-  forecast: TypeForecastMap<'WITHOUT_UNRESOLVABLE_LINKS', 'en'>,
+  avalancheCenter: string
+  forecast: TypeForecastMap<'WITHOUT_UNRESOLVABLE_LINKS', 'en'>
   news: TypeNews<'WITHOUT_UNRESOLVABLE_LINKS', 'en'>
 }>()
 </script>
 
 <template>
-    <div class="flex flex-row  gap-x-8 mx-20">
-        <ForecastMapCard
-          v-if="props.forecast"
-          :forecast="props.forecast"/>
+  <div class="flex flex-row  gap-x-8 mx-20">
+    <ForecastMapCard
+      v-if="props.forecast"
+      :forecast="props.forecast"
+      :avalanche-center="props.avalancheCenter"
+    />
 
-      <NewsCard
-          v-if="props.news"
-          :news="props.news"/>
-    </div>
+    <NewsCard
+      v-if="props.news"
+      :news="props.news"
+    />
+  </div>
 </template>

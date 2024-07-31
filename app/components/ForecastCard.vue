@@ -1,11 +1,17 @@
 <script setup lang="ts">
-
-const route = useRoute()
-const avalancheCenter = route.params.avalancheCenter.toUpperCase()
+const props = defineProps<{ avalancheCenter: string }>()
+const avalancheCenter = props.avalancheCenter
 </script>
 
 <template>
-    <UCard>
-        <component :is="'script'" src="https://du6amfiq9m9h7.cloudfront.net/loader/nac-widget-loader.min.js" data-widget="forecast" :data-center="avalancheCenter"></component>
-    </UCard>
+  <UCard>
+    <ClientOnly>
+      <component
+        :is="'script'"
+        src="https://du6amfiq9m9h7.cloudfront.net/loader/nac-widget-loader.min.js"
+        data-widget="forecast"
+        :data-center="avalancheCenter.toUpperCase()"
+      />
+    </ClientOnly>
+  </UCard>
 </template>

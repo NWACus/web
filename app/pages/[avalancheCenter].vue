@@ -10,11 +10,11 @@ const avalancheCenter = route.params.avalancheCenter
 <template>
   <div>
     <AppHeader :avalanche-center="avalancheCenter" />
-    
+
     <UMain>
       <NuxtPage />
     </UMain>
-    
+
     <AppFooter />
   </div>
 </template>

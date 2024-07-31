@@ -2138,9 +2138,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/scripts@npm:^0.6.4":
-  version: 0.6.4
-  resolution: "@nuxt/scripts@npm:0.6.4"
+"@nuxt/scripts@npm:^0.6.5":
+  version: 0.6.5
+  resolution: "@nuxt/scripts@npm:0.6.5"
   dependencies:
     "@nuxt/devtools-kit": "npm:^1.3.9"
     "@nuxt/devtools-ui-kit": "npm:^1.3.9"
@@ -2164,13 +2164,13 @@ __metadata:
     shiki: "npm:^1.10.3"
     sirv: "npm:^2.0.4"
     std-env: "npm:^3.7.0"
-    third-party-capital: "npm:^1.0.31"
+    third-party-capital: "npm:^2.1.1"
     ufo: "npm:^1.5.3"
     unimport: "npm:^3.7.2"
     unplugin: "npm:^1.11.0"
     unstorage: "npm:^1.10.2"
     valibot: "npm:^0.36.0"
-  checksum: 10c0/518f8479cf17356d34b2371070517594bf05e2a9ae5b93c01b2dfcaf902d565ecf93c332ad766ff247d414764d969779f0b85c642d46bea207d997a8f6849f4f
+  checksum: 10c0/5c580d6404715cf1efa93f2713bf951ba3b296f6f93bd44b663d2748ae1c23deb27e2dd0f97def0719da4c0ae8022e952cb2dbfd7648b80f1549c658131a8d66
   languageName: node
   linkType: hard
 
@@ -14509,12 +14509,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"third-party-capital@npm:^1.0.31":
-  version: 1.1.1
-  resolution: "third-party-capital@npm:1.1.1"
+"third-party-capital@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "third-party-capital@npm:2.1.1"
   dependencies:
     semver: "npm:^7.6.2"
-  checksum: 10c0/2333c2d5d0a05cb8fe593f2c38fef77148bcde0e2fb23d31fd60dac78f107a4ae3989eacb1da61a35b028c5e5c7966580c18564447bc971b65564077199f4da3
+  checksum: 10c0/66b56f48d97bdc818c3ed4b0d0d41c854ce9d6f2862f2026c2e14b81d33ebe226b962c3a10cbe6d2ed3f3690ab11457ea0c6aadcffdf2f54c0c7f6b4ad216f47
   languageName: node
   linkType: hard
 
@@ -14747,6 +14747,13 @@ __metadata:
   version: 1.5.3
   resolution: "ufo@npm:1.5.3"
   checksum: 10c0/1df10702582aa74f4deac4486ecdfd660e74be057355f1afb6adfa14243476cf3d3acff734ccc3d0b74e9bfdefe91d578f3edbbb0a5b2430fe93cd672370e024
+  languageName: node
+  linkType: hard
+
+"ufo@npm:^1.5.4":
+  version: 1.5.4
+  resolution: "ufo@npm:1.5.4"
+  checksum: 10c0/b5dc4dc435c49c9ef8890f1b280a19ee4d0954d1d6f9ab66ce62ce64dd04c7be476781531f952a07c678d51638d02ad4b98e16237be29149295b0f7c09cda765
   languageName: node
   linkType: hard
 
@@ -15732,7 +15739,7 @@ __metadata:
     "@nuxt/eslint": "npm:^0.3.13"
     "@nuxt/fonts": "npm:^0.7.1"
     "@nuxt/image": "npm:^1.7.0"
-    "@nuxt/scripts": "npm:^0.6.4"
+    "@nuxt/scripts": "npm:^0.6.5"
     "@nuxt/ui-pro": "npm:^1.3.1"
     "@nuxthq/studio": "npm:^2.0.3"
     "@vueuse/nuxt": "npm:^10.11.0"
@@ -15744,6 +15751,7 @@ __metadata:
     nuxt: "npm:^3.12.3"
     nuxt-og-image: "npm:^3.0.0-rc.59"
     prettier: "npm:^3.3.3"
+    ufo: "npm:^1.5.4"
     vite-plugin-cjs-interop: "npm:^2.1.1"
     vue-tsc: "npm:^2.0.26"
     vue-youtube-embed: "npm:^2.2.2"

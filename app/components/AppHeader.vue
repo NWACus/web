@@ -10,21 +10,21 @@ const { data, status, error, refresh } = await useFetch<EntryCollection<TypeLogo
 })
 
 const links = [{
+  label: 'Forecast',
+  to: '/' + avalancheCenter.toLowerCase() + '/forecast'
+}, {
+  label: 'Observations',
+  to: '/' + avalancheCenter.toLowerCase() + '/observations'
+}, {
   label: 'Events',
   to: '/' + avalancheCenter.toLowerCase() + '/events'
 }, {
   label: 'Blog',
   to: '/' + avalancheCenter.toLowerCase() + '/blog'
 }, {
-  label: 'Observations',
-  to: '/' + avalancheCenter.toLowerCase() + '/observations'  
-}, {
-  label: 'Forecast',
-  to: '/' + avalancheCenter.toLowerCase() + '/forecast'  
-}, {
   label: 'About',
-  to: '/' + avalancheCenter.toLowerCase() + '/about/staff'  
-  }
+  to: '/' + avalancheCenter.toLowerCase() + '/about/staff'
+}
 ]
 </script>
 
