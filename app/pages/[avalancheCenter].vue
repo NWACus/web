@@ -14,7 +14,7 @@ const avalancheCenter = route.params.avalancheCenter
     <UMain>
       <NuxtPage />
     </UMain>
-
+    
     <AppFooter />
   </div>
 </template>
