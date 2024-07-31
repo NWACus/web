@@ -39,6 +39,10 @@ export default defineNuxtConfig({
     '/:avalancheCenter/observations/**': { isr: true },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    '/:avalancheCenter/forecast/**': { isr: true },
+>>>>>>> 45fe1be (add forecast page)
     '/api/**': { cors: true }
 =======
     '/api/**': { cors: true },
