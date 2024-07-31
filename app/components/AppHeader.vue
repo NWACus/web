@@ -9,7 +9,6 @@ const { data, status, error, refresh } = await useFetch<EntryCollection<TypeLogo
   query: { avalanche_center: avalancheCenter.toUpperCase() }
 })
 
-<<<<<<< HEAD
 const links = [
   {
 label: 'Events',
@@ -20,6 +19,9 @@ label: 'Events',
 }, {
   label: 'Observations',
   to: '/' + avalancheCenter.toLowerCase() + '/observations'  
+}, {
+  label: 'Forecast',
+  to: '/' + avalancheCenter.toLowerCase() + '/forecast'  
 }, {
   label: 'About',
   to: '/' + avalancheCenter.toLowerCase() + '/about/staff'  
