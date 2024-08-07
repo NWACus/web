@@ -8,12 +8,15 @@ const avalancheCenter = props.avalancheCenter
     Observations
   </div>
 
+  <div class="absolute left-0 w-screen top-25">
   <ClientOnly>
-    <component
-      :is="'script'"
-      src="https://du6amfiq9m9h7.cloudfront.net/loader/nac-widget-loader.min.js"
-      data-widget="observations"
-      :data-center="avalancheCenter.toUpperCase()"
-    />
-  </ClientOnly>
+      <component
+        :is="'script'"
+        src="https://du6amfiq9m9h7.cloudfront.net/loader/nac-widget-loader.min.js"
+        data-widget="observations"
+        :data-center="avalancheCenter.toUpperCase()"
+      />
+    </ClientOnly>
+  </div>
+
 </template>

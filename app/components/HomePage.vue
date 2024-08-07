@@ -9,16 +9,20 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-row  gap-x-8 mx-20">
-    <ForecastMapCard
-      v-if="props.forecast"
-      :forecast="props.forecast"
-      :avalanche-center="props.avalancheCenter"
-    />
+  <div class="flex gap-x-8">
+    <div class="flex-1">
+      <ForecastMapCard
+        v-if="props.forecast"
+        :forecast="props.forecast"
+        :avalanche-center="props.avalancheCenter"
+      />
+    </div>
 
-    <NewsCard
-      v-if="props.news"
-      :news="props.news"
-    />
+    <div class="flex-1">
+      <NewsCard
+        v-if="props.news"
+        :news="props.news"
+      />
+    </div>
   </div>
 </template>
