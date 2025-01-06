@@ -1,6 +1,7 @@
 import type { CheckboxField, TextField } from 'payload'
 
 import { formatSlugHook } from './formatSlug'
+import { ensureUniqueSlug } from '@/fields/slug/ensureUniqueSlug'
 
 type Overrides = {
   slugOverrides?: Partial<TextField>
@@ -33,7 +34,7 @@ export const slugField: Slug = (fieldToUse = 'title', overrides = {}) => {
     ...(slugOverrides || {}),
     hooks: {
       // Kept this in for hook or API based updates
-      beforeValidate: [formatSlugHook(fieldToUse)],
+      beforeValidate: [formatSlugHook(fieldToUse), ensureUniqueSlug],
     },
     admin: {
       position: 'sidebar',

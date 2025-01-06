@@ -7,22 +7,17 @@ import {
 } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
-
-import { anyone } from '../access/anyone'
-import { authenticated } from '../access/authenticated'
+import { tenantField } from '@/fields/TenantField'
+import { accessByTenant } from '@/access/byTenant'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  access: {
-    create: authenticated,
-    delete: authenticated,
-    read: anyone,
-    update: authenticated,
-  },
+  access: accessByTenant('media'),
   fields: [
+    tenantField,
     {
       name: 'alt',
       type: 'text',

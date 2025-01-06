@@ -1,26 +1,50 @@
 import type { CollectionConfig } from 'payload'
 
-import { authenticated } from '../../access/authenticated'
+import { externalUsersLogin } from './endpoints/externalUsersLogin'
+import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
+import { accessByGlobalRoleOrTenantDomain } from '@/collections/Users/access/byGlobalRoleOrTenantDomain'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  access: {
-    admin: authenticated,
-    create: authenticated,
-    delete: authenticated,
-    read: authenticated,
-    update: authenticated,
-  },
+  access: accessByGlobalRoleOrTenantDomain,
   admin: {
-    defaultColumns: ['name', 'email'],
-    useAsTitle: 'name',
+    useAsTitle: 'email',
   },
   auth: true,
+  endpoints: [externalUsersLogin],
   fields: [
     {
       name: 'name',
       type: 'text',
+      index: true,
+      required: true,
+      saveToJWT: true,
     },
+    {
+      name: 'globalRoles',
+      type: 'join',
+      access: {
+        read: () => true,
+      },
+      collection: 'globalRoleAssignments',
+      on: 'user',
+      saveToJWT: true,
+      maxDepth: 2,
+    },
+    {
+      name: 'roles',
+      type: 'join',
+      access: {
+        read: () => true,
+      },
+      collection: 'roleAssignments',
+      on: 'user',
+      saveToJWT: true,
+      maxDepth: 3,
+    },
+    // TODO: maybe add a set of associated tenants here or something to allow tenant admins to see you
   ],
-  timestamps: true,
+  hooks: {
+    afterLogin: [setCookieBasedOnDomain],
+  },
 }

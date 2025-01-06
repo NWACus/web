@@ -1,21 +1,24 @@
-// storage-adapter-import-placeholder
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
 
-import sharp from 'sharp' // sharp-import
+import sharp from 'sharp'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { Categories } from './collections/Categories'
-import { Media } from './collections/Media'
-import { Pages } from './collections/Pages'
-import { Posts } from './collections/Posts'
-import { Users } from './collections/Users'
+import { Categories } from '@/collections/Categories'
+import { Media } from '@/collections/Media'
+import { Pages } from '@/collections/Pages'
+import { Posts } from '@/collections/Posts'
+import { Users } from '@/collections/Users'
+import { Tenants } from '@/collections/Tenants'
+import { Roles } from '@/collections/Roles'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { RoleAssignments } from '@/collections/RoleAssignments'
+import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -29,6 +32,7 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: ['@/components/BeforeDashboard'],
+      beforeNavLinks: ['@/components/TenantSelector#TenantSelectorRSC'],
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -64,12 +68,11 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Categories, Media, Pages, Posts, Users, Tenants, Roles, RoleAssignments, GlobalRoleAssignments],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins: [
     ...plugins,
-    // storage-adapter-placeholder
   ],
   secret: process.env.PAYLOAD_SECRET,
   sharp,

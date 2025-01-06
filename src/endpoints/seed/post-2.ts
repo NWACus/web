@@ -228,4 +228,7 @@ export const post2: Partial<Post> = {
   },
   relatedPosts: [], // this is populated by the seed script
   title: 'Global Gaze: Beyond the Headlines',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  tenant: '{{TENANT_ID}}'
 }

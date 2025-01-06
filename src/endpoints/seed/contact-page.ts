@@ -45,4 +45,7 @@ export const contact: Partial<Page> = {
     },
   ],
   title: 'Contact',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  tenant: '{{TENANT_ID}}'
 }

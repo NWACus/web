@@ -1,20 +1,15 @@
 import type { CollectionConfig } from 'payload'
-
-import { anyone } from '../access/anyone'
-import { authenticated } from '../access/authenticated'
+import { tenantField } from '@/fields/TenantField'
+import { accessByTenant } from '@/access/byTenant'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
-  access: {
-    create: authenticated,
-    delete: authenticated,
-    read: anyone,
-    update: authenticated,
-  },
+  access: accessByTenant('categories'),
   admin: {
     useAsTitle: 'title',
   },
   fields: [
+    tenantField,
     {
       name: 'title',
       type: 'text',

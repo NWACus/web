@@ -18,6 +18,10 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
+  'roles',
+  'globalRoleAssignments',
+  'roleAssignments',
+  'tenants'
 ]
 const globals: GlobalSlug[] = ['header', 'footer']
 
@@ -58,23 +62,37 @@ export const seed = async ({
 
   await Promise.all(
     collections.map((collection) => payload.db.deleteMany({ collection, req, where: {} })),
-  )
+  ).catch(payload.logger.error)
 
   await Promise.all(
     collections
       .filter((collection) => Boolean(payload.collections[collection].config.versions))
       .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
-  )
+  ).catch(payload.logger.error)
 
-  payload.logger.info(`— Seeding demo author and user...`)
+  payload.logger.info(`— Clearing users...`)
 
   await payload.delete({
     collection: 'users',
     depth: 0,
     where: {
-      email: {
-        equals: 'demo-author@example.com',
-      },
+      or: [
+        {
+          email: {
+            contains: 'avy.com',
+          },
+        },
+        {
+          email: {
+            contains: 'nwac.us',
+          },
+        },
+        {
+          email: {
+            contains: 'sierraavalanchecenter.org',
+          },
+        },
+      ],
     },
   })
 
@@ -95,8 +113,319 @@ export const seed = async ({
     ),
   ])
 
+  payload.logger.info(`— Seeding roles...`)
+
+  const everythingRole = await payload
+    .create({
+      collection: 'roles',
+      data: {
+        name: 'Admin',
+        rules: [
+          {
+            collections: ['*'],
+            actions: ['*'],
+          },
+        ],
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!everythingRole) {
+    payload.logger.error('Creating everythingRole returned null...')
+    return
+  }
+
+  const userAdministratorRole = await payload
+    .create({
+      collection: 'roles',
+      data: {
+        name: 'User Administrator',
+        rules: [
+          {
+            collections: ['roleAssignments'],
+            actions: ['create', 'update'],
+          },
+        ],
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!userAdministratorRole) {
+    payload.logger.error('Creating userAdministratorRole returned null...')
+    return
+  }
+
+  const contributorRole = await payload
+    .create({
+      collection: 'roles',
+      data: {
+        name: 'Contributor',
+        rules: [
+          {
+            collections: ['posts', 'pages', 'categories', 'media'],
+            actions: ['create', 'update'],
+          },
+        ],
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!contributorRole) {
+    payload.logger.error('Creating contributorRole returned null...')
+    return
+  }
+
+  const viewerRole = await payload
+    .create({
+      collection: 'roles',
+      data: {
+        name: 'Viewer',
+        rules: [
+          {
+            collections: ['*'],
+            actions: ['read'],
+          },
+        ],
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!viewerRole) {
+    payload.logger.error('Creating viewerRole returned null...')
+    return
+  }
+
+  payload.logger.info(`— Seeding tenants...`)
+
+  const nwacTenant = await payload
+    .create({
+      collection: 'tenants',
+      data: {
+        name: 'Northwest Avalanche Center',
+        slug: 'nwac',
+        domains: [{ domain: 'nwac.us' }],
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!nwacTenant) {
+    payload.logger.error('Creating NWAC tenant returned null...')
+    return
+  }
+
+  const sacTenant = await payload
+    .create({
+      collection: 'tenants',
+      data: {
+        name: 'Sierra Avalanche Center',
+        slug: 'sac',
+        domains: [{ domain: 'sierraavalanchecenter.org' }],
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!sacTenant) {
+    payload.logger.error('Creating NWAC tenant returned null...')
+    return
+  }
+
+  payload.logger.info(`— Seeding users...`)
+
+  const superAdmin = await payload
+    .create({
+      collection: 'users',
+      data: {
+        name: 'Super Admin',
+        email: 'admin@avy.com',
+        password: 'password',
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!superAdmin) {
+    payload.logger.error('Creating super admin returned null...')
+    return
+  }
+
+  const nwacAdmin = await payload
+    .create({
+      collection: 'users',
+      data: {
+        name: 'NWAC Admin',
+        email: 'admin@nwac.us',
+        password: 'password',
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!nwacAdmin) {
+    payload.logger.error('Creating NWAC admin returned null...')
+    return
+  }
+
+  const nwacEditor = await payload
+    .create({
+      collection: 'users',
+      data: {
+        name: 'NWAC Editor',
+        email: 'editor@nwac.us',
+        password: 'password',
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!nwacEditor) {
+    payload.logger.error('Creating NWAC nwacEditor null...')
+    return
+  }
+
+  const nwacViewer = await payload
+    .create({
+      collection: 'users',
+      data: {
+        name: 'NWAC Viewer',
+        email: 'viewer@nwac.us',
+        password: 'password',
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!nwacViewer) {
+    payload.logger.error('Creating NWAC nwacViewer null...')
+    return
+  }
+
+  const sacAdmin = await payload
+    .create({
+      collection: 'users',
+      data: {
+        name: 'SAC Admin',
+        email: 'admin@sierraavalanche.org',
+        password: 'password',
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!sacAdmin) {
+    payload.logger.error('sacAdmin admin returned null...')
+    return
+  }
+
+  const sacEditor = await payload
+    .create({
+      collection: 'users',
+      data: {
+        name: 'SAC Editor',
+        email: 'editor@sierraavalanche.org',
+        password: 'password',
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!sacEditor) {
+    payload.logger.error('Creating sacEditor returned null...')
+    return
+  }
+
+  const sacViewer = await payload
+    .create({
+      collection: 'users',
+      data: {
+        name: 'SAC Viewer',
+        email: 'viewer@sierraavalanche.org',
+        password: 'password',
+      },
+    })
+    .catch(payload.logger.error)
+
+  if (!sacViewer) {
+    payload.logger.error('Creating sacViewer returned null...')
+    return
+  }
+
+  payload.logger.info(`— Seeding global role assignments...`)
+
+  const superAdminRoleAssignment = await payload
+    .create({
+      collection: 'globalRoleAssignments',
+      data: {
+        roles: [everythingRole],
+        user: superAdmin,
+      },
+    })
+    .catch(payload.logger.error)
+
+  payload.logger.info(`— Seeding tenant role assignments...`)
+
+  const nwacAdminRoleAssignment = await payload
+    .create({
+      collection: 'roleAssignments',
+      data: {
+        tenant: nwacTenant,
+        roles: [everythingRole],
+        user: nwacAdmin,
+      },
+    })
+    .catch(payload.logger.error)
+
+  const nwacEditorRoleAssignment = await payload
+    .create({
+      collection: 'roleAssignments',
+      data: {
+        tenant: nwacTenant,
+        roles: [contributorRole, viewerRole],
+        user: nwacEditor,
+      },
+    })
+    .catch(payload.logger.error)
+
+  const nwacViewerRoleAssignment = await payload
+    .create({
+      collection: 'roleAssignments',
+      data: {
+        tenant: nwacTenant,
+        roles: [viewerRole],
+        user: nwacViewer,
+      },
+    })
+    .catch(payload.logger.error)
+
+  const sacAdminRoleAssignment = await payload
+    .create({
+      collection: 'roleAssignments',
+      data: {
+        tenant: sacTenant,
+        roles: [everythingRole],
+        user: sacAdmin,
+      },
+    })
+    .catch(payload.logger.error)
+
+  const sacEditorRoleAssignment = await payload
+    .create({
+      collection: 'roleAssignments',
+      data: {
+        tenant: sacTenant,
+        roles: [contributorRole, viewerRole],
+        user: sacEditor,
+      },
+    })
+    .catch(payload.logger.error)
+
+  const sacViewerRoleAssignment = await payload
+    .create({
+      collection: 'roleAssignments',
+      data: {
+        tenant: sacTenant,
+        roles: [viewerRole],
+        user: sacViewer,
+      },
+    })
+    .catch(payload.logger.error)
+
+  payload.logger.info(`— Seeding collections and categories...`)
+
   const [
-    demoAuthor,
     image1Doc,
     image2Doc,
     image3Doc,
@@ -108,14 +437,6 @@ export const seed = async ({
     softwareCategory,
     engineeringCategory,
   ] = await Promise.all([
-    payload.create({
-      collection: 'users',
-      data: {
-        name: 'Demo Author',
-        email: 'demo-author@example.com',
-        password: 'password',
-      },
-    }),
     payload.create({
       collection: 'media',
       data: image1,
@@ -141,6 +462,7 @@ export const seed = async ({
       collection: 'categories',
       data: {
         title: 'Technology',
+        tenant: nwacTenant,
       },
     }),
 
@@ -148,6 +470,7 @@ export const seed = async ({
       collection: 'categories',
       data: {
         title: 'News',
+        tenant: nwacTenant,
       },
     }),
 
@@ -155,12 +478,14 @@ export const seed = async ({
       collection: 'categories',
       data: {
         title: 'Finance',
+        tenant: nwacTenant,
       },
     }),
     payload.create({
       collection: 'categories',
       data: {
         title: 'Design',
+        tenant: sacTenant,
       },
     }),
 
@@ -168,6 +493,7 @@ export const seed = async ({
       collection: 'categories',
       data: {
         title: 'Software',
+        tenant: sacTenant,
       },
     }),
 
@@ -175,11 +501,12 @@ export const seed = async ({
       collection: 'categories',
       data: {
         title: 'Engineering',
+        tenant: sacTenant,
       },
     }),
   ])
 
-  let demoAuthorID: number | string = demoAuthor.id
+  let demoAuthorID: number | string = nwacAdmin.id
 
   let image1ID: number | string = image1Doc.id
   let image2ID: number | string = image2Doc.id
@@ -208,7 +535,8 @@ export const seed = async ({
       JSON.stringify({ ...post1, categories: [technologyCategory.id] })
         .replace(/"\{\{IMAGE_1\}\}"/g, String(image1ID))
         .replace(/"\{\{IMAGE_2\}\}"/g, String(image2ID))
-        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID)),
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+        .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
     ),
   })
 
@@ -222,7 +550,8 @@ export const seed = async ({
       JSON.stringify({ ...post2, categories: [newsCategory.id] })
         .replace(/"\{\{IMAGE_1\}\}"/g, String(image2ID))
         .replace(/"\{\{IMAGE_2\}\}"/g, String(image3ID))
-        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID)),
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+        .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
     ),
   })
 
@@ -236,7 +565,8 @@ export const seed = async ({
       JSON.stringify({ ...post3, categories: [financeCategory.id] })
         .replace(/"\{\{IMAGE_1\}\}"/g, String(image3ID))
         .replace(/"\{\{IMAGE_2\}\}"/g, String(image1ID))
-        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID)),
+        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
+        .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
     ),
   })
 
@@ -286,17 +616,17 @@ export const seed = async ({
       data: JSON.parse(
         JSON.stringify(home)
           .replace(/"\{\{IMAGE_1\}\}"/g, String(imageHomeID))
-          .replace(/"\{\{IMAGE_2\}\}"/g, String(image2ID)),
+          .replace(/"\{\{IMAGE_2\}\}"/g, String(image2ID))
+          .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
       ),
     }),
     payload.create({
       collection: 'pages',
       depth: 0,
       data: JSON.parse(
-        JSON.stringify(contactPageData).replace(
-          /"\{\{CONTACT_FORM_ID\}\}"/g,
-          String(contactFormID),
-        ),
+        JSON.stringify(contactPageData)
+          .replace(/"\{\{CONTACT_FORM_ID\}\}"/g, String(contactFormID))
+          .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
       ),
     }),
   ])

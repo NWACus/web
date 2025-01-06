@@ -264,4 +264,7 @@ export const post3: Partial<Post> = {
   },
   relatedPosts: [], // this is populated by the seed script
   title: 'Dollar and Sense: The Financial Forecast',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  tenant: '{{TENANT_ID}}'
 }
