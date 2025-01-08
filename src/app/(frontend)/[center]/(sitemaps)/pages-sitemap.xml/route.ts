@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 
-const getPostsSitemap = unstable_cache(
+const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
     const SITE_URL =
@@ -12,8 +12,8 @@ const getPostsSitemap = unstable_cache(
       'https://example.com'
 
     const results = await payload.find({
-      collection: 'posts',
-      // overrideAccess: false,
+      collection: 'pages',
+      overrideAccess: false,
       draft: false,
       depth: 0,
       limit: 1000,
@@ -31,25 +31,38 @@ const getPostsSitemap = unstable_cache(
 
     const dateFallback = new Date().toISOString()
 
+    const defaultSitemap = [
+      {
+        loc: `${SITE_URL}/search`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/posts`,
+        lastmod: dateFallback,
+      },
+    ]
+
     const sitemap = results.docs
       ? results.docs
-          .filter((post) => Boolean(post?.slug))
-          .map((post) => ({
-            loc: `${SITE_URL}/posts/${post?.slug}`,
-            lastmod: post.updatedAt || dateFallback,
-          }))
+          .filter((page) => Boolean(page?.slug))
+          .map((page) => {
+            return {
+              loc: page?.slug === 'home' ? `${SITE_URL}/` : `${SITE_URL}/${page?.slug}`,
+              lastmod: page.updatedAt || dateFallback,
+            }
+          })
       : []
 
-    return sitemap
+    return [...defaultSitemap, ...sitemap]
   },
-  ['posts-sitemap'],
+  ['pages-sitemap'],
   {
-    tags: ['posts-sitemap'],
+    tags: ['pages-sitemap'],
   },
 )
 
 export async function GET() {
-  const sitemap = await getPostsSitemap()
+  const sitemap = await getPagesSitemap()
 
   return getServerSideSitemap(sitemap)
 }

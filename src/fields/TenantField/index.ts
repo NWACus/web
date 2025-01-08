@@ -17,6 +17,7 @@ export const tenantField: Field = {
       Field: '@/fields/TenantField/components/Field#TenantFieldComponent',
     },
   },
+  maxDepth: 3,
   hasMany: false,
   hooks: {
     beforeValidate: [autofillTenant],

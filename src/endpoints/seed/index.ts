@@ -1,4 +1,11 @@
-import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest, File } from 'payload'
+import type {
+  CollectionSlug,
+  GlobalSlug,
+  Payload,
+  PayloadRequest,
+  File,
+  RequiredDataFromCollectionSlug,
+} from 'payload'
 
 import { contactForm as contactFormData } from './contact-form'
 import { contact as contactPageData } from './contact-page'
@@ -9,6 +16,7 @@ import { imageHero1 } from './image-hero-1'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
+import { Category, Media, Page, Post, Role, RoleAssignment, Tenant, User } from '@/payload-types'
 
 const collections: CollectionSlug[] = [
   'categories',
@@ -21,7 +29,7 @@ const collections: CollectionSlug[] = [
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
-  'tenants'
+  'tenants',
 ]
 const globals: GlobalSlug[] = ['header', 'footer']
 
@@ -62,13 +70,13 @@ export const seed = async ({
 
   await Promise.all(
     collections.map((collection) => payload.db.deleteMany({ collection, req, where: {} })),
-  ).catch(payload.logger.error)
+  ).catch((e) => payload.logger.error(e))
 
   await Promise.all(
     collections
       .filter((collection) => Boolean(payload.collections[collection].config.versions))
       .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
-  ).catch(payload.logger.error)
+  ).catch((e) => payload.logger.error(e))
 
   payload.logger.info(`— Clearing users...`)
 
@@ -115,232 +123,135 @@ export const seed = async ({
 
   payload.logger.info(`— Seeding roles...`)
 
-  const everythingRole = await payload
-    .create({
-      collection: 'roles',
-      data: {
-        name: 'Admin',
-        rules: [
-          {
-            collections: ['*'],
-            actions: ['*'],
-          },
-        ],
-      },
-    })
-    .catch(payload.logger.error)
+  const roleData: RequiredDataFromCollectionSlug<'roles'>[] = [
+    {
+      name: 'Admin',
+      rules: [
+        {
+          collections: ['*'],
+          actions: ['*'],
+        },
+      ],
+    },
+    {
+      name: 'User Administrator',
+      rules: [
+        {
+          collections: ['roleAssignments'],
+          actions: ['create', 'update'],
+        },
+      ],
+    },
+    {
+      name: 'Contributor',
+      rules: [
+        {
+          collections: ['posts', 'pages', 'categories', 'media'],
+          actions: ['create', 'update'],
+        },
+      ],
+    },
+    {
+      name: 'Viewer',
+      rules: [
+        {
+          collections: ['*'],
+          actions: ['read'],
+        },
+      ],
+    },
+  ]
+  const roles: Record<string, Role> = {}
+  for (const data of roleData) {
+    payload.logger.info(`Creating ${data.name} role...`)
+    const role = await payload
+      .create({
+        collection: 'roles',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
 
-  if (!everythingRole) {
-    payload.logger.error('Creating everythingRole returned null...')
-    return
-  }
-
-  const userAdministratorRole = await payload
-    .create({
-      collection: 'roles',
-      data: {
-        name: 'User Administrator',
-        rules: [
-          {
-            collections: ['roleAssignments'],
-            actions: ['create', 'update'],
-          },
-        ],
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!userAdministratorRole) {
-    payload.logger.error('Creating userAdministratorRole returned null...')
-    return
-  }
-
-  const contributorRole = await payload
-    .create({
-      collection: 'roles',
-      data: {
-        name: 'Contributor',
-        rules: [
-          {
-            collections: ['posts', 'pages', 'categories', 'media'],
-            actions: ['create', 'update'],
-          },
-        ],
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!contributorRole) {
-    payload.logger.error('Creating contributorRole returned null...')
-    return
-  }
-
-  const viewerRole = await payload
-    .create({
-      collection: 'roles',
-      data: {
-        name: 'Viewer',
-        rules: [
-          {
-            collections: ['*'],
-            actions: ['read'],
-          },
-        ],
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!viewerRole) {
-    payload.logger.error('Creating viewerRole returned null...')
-    return
+    if (!role) {
+      payload.logger.error(`Creating ${data.name} role returned null...`)
+      return
+    }
+    roles[data.name] = role
   }
 
   payload.logger.info(`— Seeding tenants...`)
 
-  const nwacTenant = await payload
-    .create({
-      collection: 'tenants',
-      data: {
-        name: 'Northwest Avalanche Center',
-        slug: 'nwac',
-        domains: [{ domain: 'nwac.us' }],
-      },
-    })
-    .catch(payload.logger.error)
+  const tenantData: RequiredDataFromCollectionSlug<'tenants'>[] = [
+    {
+      name: 'Northwest Avalanche Center',
+      slug: 'nwac',
+      domains: [{ domain: 'nwac.us' }],
+    },
+    {
+      name: 'Sierra Avalanche Center',
+      slug: 'sac',
+      domains: [{ domain: 'sierraavalanchecenter.org' }],
+    },
+  ]
+  const tenants: Record<string, Tenant> = {}
+  for (const data of tenantData) {
+    payload.logger.info(`Creating ${data.name} tenant returned...`)
+    const tenant = await payload
+      .create({
+        collection: 'tenants',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
 
-  if (!nwacTenant) {
-    payload.logger.error('Creating NWAC tenant returned null...')
-    return
-  }
-
-  const sacTenant = await payload
-    .create({
-      collection: 'tenants',
-      data: {
-        name: 'Sierra Avalanche Center',
-        slug: 'sac',
-        domains: [{ domain: 'sierraavalanchecenter.org' }],
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!sacTenant) {
-    payload.logger.error('Creating NWAC tenant returned null...')
-    return
+    if (!tenant) {
+      payload.logger.error(`Creating ${data.name} tenant returned null...`)
+      return
+    }
+    tenants[data.slug] = tenant
   }
 
   payload.logger.info(`— Seeding users...`)
 
-  const superAdmin = await payload
-    .create({
-      collection: 'users',
-      data: {
-        name: 'Super Admin',
-        email: 'admin@avy.com',
-        password: 'password',
-      },
-    })
-    .catch(payload.logger.error)
+  const userData: RequiredDataFromCollectionSlug<'users'>[] = [
+    {
+      name: 'Super Admin',
+      email: 'admin@avy.com',
+      password: 'password',
+    },
+    ...Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
+        {
+          name: tenant.slug.toUpperCase() + ' Admin',
+          email: 'admin@' + tenant.domains![0].domain,
+          password: 'password',
+        },
+        {
+          name: tenant.slug.toUpperCase() + ' Contributor',
+          email: 'contributor@' + tenant.domains![0].domain,
+          password: 'password',
+        },
+        {
+          name: tenant.slug.toUpperCase() + ' Viewer',
+          email: 'viewer@' + tenant.domains![0].domain,
+          password: 'password',
+        },
+      ])
+      .flat(),
+  ]
+  const users: Record<string, User> = {}
+  for (const data of userData) {
+    payload.logger.info(`Creating ${data.name} user...`)
+    const user = await payload
+      .create({
+        collection: 'users',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
 
-  if (!superAdmin) {
-    payload.logger.error('Creating super admin returned null...')
-    return
-  }
-
-  const nwacAdmin = await payload
-    .create({
-      collection: 'users',
-      data: {
-        name: 'NWAC Admin',
-        email: 'admin@nwac.us',
-        password: 'password',
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!nwacAdmin) {
-    payload.logger.error('Creating NWAC admin returned null...')
-    return
-  }
-
-  const nwacEditor = await payload
-    .create({
-      collection: 'users',
-      data: {
-        name: 'NWAC Editor',
-        email: 'editor@nwac.us',
-        password: 'password',
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!nwacEditor) {
-    payload.logger.error('Creating NWAC nwacEditor null...')
-    return
-  }
-
-  const nwacViewer = await payload
-    .create({
-      collection: 'users',
-      data: {
-        name: 'NWAC Viewer',
-        email: 'viewer@nwac.us',
-        password: 'password',
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!nwacViewer) {
-    payload.logger.error('Creating NWAC nwacViewer null...')
-    return
-  }
-
-  const sacAdmin = await payload
-    .create({
-      collection: 'users',
-      data: {
-        name: 'SAC Admin',
-        email: 'admin@sierraavalanche.org',
-        password: 'password',
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!sacAdmin) {
-    payload.logger.error('sacAdmin admin returned null...')
-    return
-  }
-
-  const sacEditor = await payload
-    .create({
-      collection: 'users',
-      data: {
-        name: 'SAC Editor',
-        email: 'editor@sierraavalanche.org',
-        password: 'password',
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!sacEditor) {
-    payload.logger.error('Creating sacEditor returned null...')
-    return
-  }
-
-  const sacViewer = await payload
-    .create({
-      collection: 'users',
-      data: {
-        name: 'SAC Viewer',
-        email: 'viewer@sierraavalanche.org',
-        password: 'password',
-      },
-    })
-    .catch(payload.logger.error)
-
-  if (!sacViewer) {
-    payload.logger.error('Creating sacViewer returned null...')
-    return
+    if (!user) {
+      payload.logger.error(`Creating ${data.name} user returned null...`)
+      return
+    }
+    users[data.name] = user
   }
 
   payload.logger.info(`— Seeding global role assignments...`)
@@ -349,249 +260,248 @@ export const seed = async ({
     .create({
       collection: 'globalRoleAssignments',
       data: {
-        roles: [everythingRole],
-        user: superAdmin,
+        roles: [roles['Admin']],
+        user: users['Super Admin'],
       },
     })
-    .catch(payload.logger.error)
+    .catch((e) => payload.logger.error(e))
 
   payload.logger.info(`— Seeding tenant role assignments...`)
 
-  const nwacAdminRoleAssignment = await payload
-    .create({
-      collection: 'roleAssignments',
-      data: {
-        tenant: nwacTenant,
-        roles: [everythingRole],
-        user: nwacAdmin,
-      },
-    })
-    .catch(payload.logger.error)
+  const roleAssignmentData: RequiredDataFromCollectionSlug<'roleAssignments'>[] = [
+    ...Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
+        {
+          tenant: tenant,
+          roles: [roles['Admin']],
+          user: users[tenant.slug.toUpperCase() + ' Admin'],
+        },
+        {
+          tenant: tenant,
+          roles: [roles['Contributor']],
+          user: users[tenant.slug.toUpperCase() + ' Contributor'],
+        },
 
-  const nwacEditorRoleAssignment = await payload
-    .create({
-      collection: 'roleAssignments',
-      data: {
-        tenant: nwacTenant,
-        roles: [contributorRole, viewerRole],
-        user: nwacEditor,
-      },
-    })
-    .catch(payload.logger.error)
+        {
+          tenant: tenant,
+          roles: [roles['Viewer']],
+          user: users[tenant.slug.toUpperCase() + ' Viewer'],
+        },
+      ])
+      .flat(),
+  ]
+  for (const data of roleAssignmentData) {
+    payload.logger.info(
+      `Assigning ${(data.user! as User).name} role ${(data.roles! as Role[])[0].name} in ${(data.tenant! as Tenant).name}...`,
+    )
+    const roleAssignment = await payload
+      .create({
+        collection: 'roleAssignments',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
 
-  const nwacViewerRoleAssignment = await payload
-    .create({
-      collection: 'roleAssignments',
-      data: {
-        tenant: nwacTenant,
-        roles: [viewerRole],
-        user: nwacViewer,
-      },
-    })
-    .catch(payload.logger.error)
+    if (!roleAssignment) {
+      payload.logger.error(
+        `Assigning ${(data.user! as User).name} role ${(data.roles! as Role[])[0].name} in ${(data.tenant! as Tenant).name} returned null...`,
+      )
+      return
+    }
+  }
 
-  const sacAdminRoleAssignment = await payload
-    .create({
-      collection: 'roleAssignments',
-      data: {
-        tenant: sacTenant,
-        roles: [everythingRole],
-        user: sacAdmin,
-      },
-    })
-    .catch(payload.logger.error)
+  payload.logger.info(`— Seeding media...`)
 
-  const sacEditorRoleAssignment = await payload
-    .create({
-      collection: 'roleAssignments',
-      data: {
-        tenant: sacTenant,
-        roles: [contributorRole, viewerRole],
-        user: sacEditor,
-      },
-    })
-    .catch(payload.logger.error)
+  type imageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
+  const imageData: imageData[] = [
+    ...Object.values(tenants)
+      .map((tenant): imageData[] => [
+        {
+          name: 'image1',
+          data: image1(tenant),
+          file: image1Buffer,
+        },
+        {
+          name: 'image2',
+          data: image2(tenant),
+          file: image2Buffer,
+        },
+        {
+          name: 'image3',
+          data: image2(tenant),
+          file: image3Buffer,
+        },
+        {
+          name: 'home',
+          data: imageHero1(tenant),
+          file: hero1Buffer,
+        },
+      ])
+      .flat(),
+  ]
+  const images: Record<string, Record<string, Media>> = {}
+  for (const data of imageData) {
+    payload.logger.info(
+      `Creating media ${data.data.alt! as string} for tenant ${(data.data.tenant! as Tenant).name}...`,
+    )
+    const image = await payload
+      .create({
+        collection: 'media',
+        data: data.data,
+        file: data.file,
+      })
+      .catch((e) => payload.logger.error(e))
 
-  const sacViewerRoleAssignment = await payload
-    .create({
-      collection: 'roleAssignments',
-      data: {
-        tenant: sacTenant,
-        roles: [viewerRole],
-        user: sacViewer,
-      },
-    })
-    .catch(payload.logger.error)
+    if (!image) {
+      payload.logger.error(
+        `Creating media ${data.data.alt! as string} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
+      )
+      return
+    }
+    if (!((data.data.tenant! as Tenant).name in images)) {
+      images[(data.data.tenant! as Tenant).name] = {}
+    }
+    images[(data.data.tenant! as Tenant).name][data.name] = image
+  }
 
-  payload.logger.info(`— Seeding collections and categories...`)
+  payload.logger.info(`— Seeding categories...`)
 
-  const [
-    image1Doc,
-    image2Doc,
-    image3Doc,
-    imageHomeDoc,
-    technologyCategory,
-    newsCategory,
-    financeCategory,
-    designCategory,
-    softwareCategory,
-    engineeringCategory,
-  ] = await Promise.all([
-    payload.create({
-      collection: 'media',
-      data: image1,
-      file: image1Buffer,
-    }),
-    payload.create({
-      collection: 'media',
-      data: image2,
-      file: image2Buffer,
-    }),
-    payload.create({
-      collection: 'media',
-      data: image2,
-      file: image3Buffer,
-    }),
-    payload.create({
-      collection: 'media',
-      data: imageHero1,
-      file: hero1Buffer,
-    }),
+  const categoryData: RequiredDataFromCollectionSlug<'categories'>[] = [
+    ...Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'categories'>[] => [
+        {
+          title: 'Technology',
+          tenant: tenant,
+        },
+        {
+          title: 'News',
+          tenant: tenant,
+        },
+        {
+          title: 'Finance',
+          tenant: tenant,
+        },
+        {
+          title: 'Design',
+          tenant: tenant,
+        },
+        {
+          title: 'Software',
+          tenant: tenant,
+        },
+        {
+          title: 'Engineering',
+          tenant: tenant,
+        },
+      ])
+      .flat(),
+  ]
+  const categories: Record<string, Record<string, Category>> = {}
+  for (const data of categoryData) {
+    payload.logger.info(
+      `Creating category ${data.title} for tenant ${(data.tenant! as Tenant).name}...`,
+    )
+    const category = await payload
+      .create({
+        collection: 'categories',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
 
-    payload.create({
-      collection: 'categories',
-      data: {
-        title: 'Technology',
-        tenant: nwacTenant,
-      },
-    }),
-
-    payload.create({
-      collection: 'categories',
-      data: {
-        title: 'News',
-        tenant: nwacTenant,
-      },
-    }),
-
-    payload.create({
-      collection: 'categories',
-      data: {
-        title: 'Finance',
-        tenant: nwacTenant,
-      },
-    }),
-    payload.create({
-      collection: 'categories',
-      data: {
-        title: 'Design',
-        tenant: sacTenant,
-      },
-    }),
-
-    payload.create({
-      collection: 'categories',
-      data: {
-        title: 'Software',
-        tenant: sacTenant,
-      },
-    }),
-
-    payload.create({
-      collection: 'categories',
-      data: {
-        title: 'Engineering',
-        tenant: sacTenant,
-      },
-    }),
-  ])
-
-  let demoAuthorID: number | string = nwacAdmin.id
-
-  let image1ID: number | string = image1Doc.id
-  let image2ID: number | string = image2Doc.id
-  let image3ID: number | string = image3Doc.id
-  let imageHomeID: number | string = imageHomeDoc.id
-
-  if (payload.db.defaultIDType === 'text') {
-    image1ID = `"${image1Doc.id}"`
-    image2ID = `"${image2Doc.id}"`
-    image3ID = `"${image3Doc.id}"`
-    imageHomeID = `"${imageHomeDoc.id}"`
-    demoAuthorID = `"${demoAuthorID}"`
+    if (!category) {
+      payload.logger.error(
+        `Creating category ${data.title} for tenant ${(data.tenant! as Tenant).name} returned null...`,
+      )
+      return
+    }
+    if (!((data.tenant! as Tenant).name in categories)) {
+      categories[(data.tenant! as Tenant).name] = {}
+    }
+    categories[(data.tenant! as Tenant).name][data.title] = category
   }
 
   payload.logger.info(`— Seeding posts...`)
 
-  // Do not create posts with `Promise.all` because we want the posts to be created in order
-  // This way we can sort them by `createdAt` or `publishedAt` and they will be in the expected order
-  const post1Doc = await payload.create({
-    collection: 'posts',
-    depth: 0,
-    context: {
-      disableRevalidate: true,
-    },
-    data: JSON.parse(
-      JSON.stringify({ ...post1, categories: [technologyCategory.id] })
-        .replace(/"\{\{IMAGE_1\}\}"/g, String(image1ID))
-        .replace(/"\{\{IMAGE_2\}\}"/g, String(image2ID))
-        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
-        .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
-    ),
-  })
+  type postData = { name: string; data: RequiredDataFromCollectionSlug<'posts'> }
+  const postData: postData[] = [
+    ...Object.values(tenants)
+      .map((tenant): postData[] => [
+        {
+          name: 'post1',
+          data: post1(
+            tenant,
+            images[tenant.name]['image1'],
+            images[tenant.name]['image2'],
+            users[tenant.slug.toUpperCase() + ' Contributor'],
+          ),
+        },
+        {
+          name: 'post2',
+          data: post2(
+            tenant,
+            images[tenant.name]['image2'],
+            images[tenant.name]['image3'],
+            users[tenant.slug.toUpperCase() + ' Admin'],
+          ),
+        },
+        {
+          name: 'post3',
+          data: post3(
+            tenant,
+            images[tenant.name]['image3'],
+            images[tenant.name]['image1'],
+            users[tenant.slug.toUpperCase() + ' Contributor'],
+          ),
+        },
+      ])
+      .flat(),
+  ]
+  const posts: Record<string, Record<string, Post>> = {}
+  for (const data of postData) {
+    payload.logger.info(
+      `Creating post ${data.name} for tenant ${(data.data.tenant! as Tenant).name}...`,
+    )
+    const post = await payload
+      .create({
+        collection: 'posts',
+        depth: 0,
+        context: {
+          disableRevalidate: true,
+        },
+        data: data.data,
+      })
+      .catch((e) => payload.logger.error(e))
 
-  const post2Doc = await payload.create({
-    collection: 'posts',
-    depth: 0,
-    context: {
-      disableRevalidate: true,
-    },
-    data: JSON.parse(
-      JSON.stringify({ ...post2, categories: [newsCategory.id] })
-        .replace(/"\{\{IMAGE_1\}\}"/g, String(image2ID))
-        .replace(/"\{\{IMAGE_2\}\}"/g, String(image3ID))
-        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
-        .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
-    ),
-  })
+    if (!post) {
+      payload.logger.error(
+        `Creating post ${data.name} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
+      )
+      return
+    }
+    if (!((data.data.tenant! as Tenant).name in posts)) {
+      posts[(data.data.tenant! as Tenant).name] = {}
+    }
+    posts[(data.data.tenant! as Tenant).name][data.name] = post
+  }
 
-  const post3Doc = await payload.create({
-    collection: 'posts',
-    depth: 0,
-    context: {
-      disableRevalidate: true,
-    },
-    data: JSON.parse(
-      JSON.stringify({ ...post3, categories: [financeCategory.id] })
-        .replace(/"\{\{IMAGE_1\}\}"/g, String(image3ID))
-        .replace(/"\{\{IMAGE_2\}\}"/g, String(image1ID))
-        .replace(/"\{\{AUTHOR\}\}"/g, String(demoAuthorID))
-        .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
-    ),
-  })
+  payload.logger.info(`— Updating post relationships...`)
 
-  // update each post with related posts
-  await payload.update({
-    id: post1Doc.id,
-    collection: 'posts',
-    data: {
-      relatedPosts: [post2Doc.id, post3Doc.id],
-    },
-  })
-  await payload.update({
-    id: post2Doc.id,
-    collection: 'posts',
-    data: {
-      relatedPosts: [post1Doc.id, post3Doc.id],
-    },
-  })
-  await payload.update({
-    id: post3Doc.id,
-    collection: 'posts',
-    data: {
-      relatedPosts: [post1Doc.id, post2Doc.id],
-    },
-  })
+  for (const data of Object.values(posts)) {
+    const posts = Object.values(data) as Post[]
+    for (let i = 0; i < posts.length; i++) {
+      payload.logger.info(
+        `Updating post ${posts[i].id} for tenant ${(posts[i].tenant! as Tenant).name}...`,
+      )
+      await payload
+        .update({
+          id: posts[i].id,
+          collection: 'posts',
+          data: {
+            relatedPosts: posts.filter((post) => post.id !== posts[i].id).map((post) => post.id),
+          },
+        })
+        .catch((e) => payload.logger.error)
+    }
+  }
 
   payload.logger.info(`— Seeding contact form...`)
 
@@ -601,35 +511,40 @@ export const seed = async ({
     data: JSON.parse(JSON.stringify(contactFormData)),
   })
 
-  let contactFormID: number | string = contactForm.id
-
-  if (payload.db.defaultIDType === 'text') {
-    contactFormID = `"${contactFormID}"`
-  }
-
   payload.logger.info(`— Seeding pages...`)
 
-  const [_, contactPage] = await Promise.all([
-    payload.create({
-      collection: 'pages',
-      depth: 0,
-      data: JSON.parse(
-        JSON.stringify(home)
-          .replace(/"\{\{IMAGE_1\}\}"/g, String(imageHomeID))
-          .replace(/"\{\{IMAGE_2\}\}"/g, String(image2ID))
-          .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
-      ),
-    }),
-    payload.create({
-      collection: 'pages',
-      depth: 0,
-      data: JSON.parse(
-        JSON.stringify(contactPageData)
-          .replace(/"\{\{CONTACT_FORM_ID\}\}"/g, String(contactFormID))
-          .replace(/"\{\{TENANT_ID\}\}"/g, String(nwacTenant.id)),
-      ),
-    }),
-  ])
+  const pageData: RequiredDataFromCollectionSlug<'pages'>[] = [
+    ...Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
+        home(tenant, images[tenant.name]['home'], images[tenant.name]['image2']),
+        contactPageData(tenant, contactForm),
+      ])
+      .flat(),
+  ]
+  const pages: Record<string, Record<string, Page>> = {}
+  for (const data of pageData) {
+    payload.logger.info(
+      `Creating page ${data.slug} for tenant ${(data.tenant! as Tenant).name}...`,
+    )
+    const page = await payload
+      .create({
+        collection: 'pages',
+        depth: 0,
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!page) {
+      payload.logger.error(
+        `Creating page ${data.slug} for tenant ${(data.tenant! as Tenant).name} returned null...`,
+      )
+      return
+    }
+    if (!((data.tenant! as Tenant).name in pages)) {
+      pages[(data.tenant! as Tenant).name] = {}
+    }
+    pages[(data.tenant! as Tenant).name][data.slug] = page
+  }
 
   payload.logger.info(`— Seeding globals...`)
 
@@ -645,16 +560,16 @@ export const seed = async ({
               url: '/posts',
             },
           },
-          {
-            link: {
-              type: 'reference',
-              label: 'Contact',
-              reference: {
-                relationTo: 'pages',
-                value: contactPage.id,
-              },
-            },
-          },
+          // {
+          //   link: {
+          //     type: 'reference',
+          //     label: 'Contact',
+          //     reference: {
+          //       relationTo: 'pages',
+          //       value: contactPage.id,
+          //     },
+          //   },
+          // },
         ],
       },
     }),

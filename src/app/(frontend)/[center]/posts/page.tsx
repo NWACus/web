@@ -11,19 +11,33 @@ import PageClient from './page.client'
 export const dynamic = 'force-static'
 export const revalidate = 600
 
-export default async function Page() {
+type Args = {
+  params: Promise<PathArgs>
+}
+
+type PathArgs = {
+  center: string
+}
+
+export default async function Page({ params }: Args) {
   const payload = await getPayload({ config: configPromise })
+  const { center } = await params
 
   const posts = await payload.find({
     collection: 'posts',
     depth: 1,
     limit: 12,
-    // overrideAccess: false,
+    overrideAccess: true,
     select: {
       title: true,
       slug: true,
       categories: true,
       meta: true,
+    },
+    where: {
+      'tenant.slug': {
+        equals: center,
+      },
     },
   })
 

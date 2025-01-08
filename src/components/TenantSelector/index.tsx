@@ -2,7 +2,7 @@ import React from 'react'
 
 import { cookies as getCookies } from 'next/headers'
 
-import { CustomComponent, PayloadServerReactComponent, OptionObject } from 'payload'
+import { CustomComponent, PayloadServerReactComponent, OptionObject, CollectionSlug } from 'payload'
 
 import { TenantSelector } from './index.client'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
@@ -58,7 +58,8 @@ export const TenantSelectorRSC: PayloadServerReactComponent<CustomComponent> = a
         const globalRoles = globalRolesForUser(payload.logger, user)
         let globallyAccessesTenantData = false
         // TODO: correct this list
-        for (const collection of ['roleAssignments', 'posts', 'pages', 'categories']) {
+        const collections: CollectionSlug[] = ['roleAssignments', 'posts', 'pages', 'categories']
+        for (const collection of collections) {
           globallyAccessesTenantData =
             globallyAccessesTenantData ||
             globalRoles
@@ -66,7 +67,6 @@ export const TenantSelectorRSC: PayloadServerReactComponent<CustomComponent> = a
               .flat()
               .some(ruleMatches('*', collection))
         }
-        // TODO: filter out role and user viewer - do we use a well-known name? check for something?
         // if the user has any global roles, they necessarily act across all tenants
         if (globallyAccessesTenantData) {
           const tenants = await payload.find({

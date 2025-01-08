@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 export const config = {
   matcher: [
@@ -13,6 +15,7 @@ export const config = {
   ],
 }
 
+// TODO: remove this if payload query works well, or just hard-code it for speed?
 export const AvalancheCenterWebsites: { slug: string; domain: string }[] = [
   { slug: 'nwac', domain: 'nwac.us' },
   { slug: 'bac', domain: 'bridgeportavalanchecenter.org' },
@@ -38,6 +41,28 @@ export const AvalancheCenterWebsites: { slug: string; domain: string }[] = [
 export default async function middleware(req: NextRequest) {
   const host = new URL(process.env.NEXT_PUBLIC_SERVER_URL)?.host
   const requestedHost = req.headers.get('host')
+
+  // const payload = await getPayload({ config: configPromise })
+  // const tenants = await payload.find({
+  //   collection: 'tenants',
+  //   draft: false,
+  //   overrideAccess: true,
+  //   pagination: false,
+  //   select: {
+  //     slug: true,
+  //     domains: true,
+  //   },
+  // })
+  // const tenantDomains: { slug: string; domains: string[] }[] = []
+  // for (const tenant of tenants.docs) {
+  //   const domains: string[] = []
+  //   if (tenant.domains) {
+  //     for (const domain of tenant.domains) {
+  //       domains.push(domain.domain)
+  //     }
+  //   }
+  //   tenantDomains.push({ slug: tenant.slug, domains: domains })
+  // }
 
   if (host && requestedHost) {
     // we want to encode the center outside the domain, but allow users to continue going to

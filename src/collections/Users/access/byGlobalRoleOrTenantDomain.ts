@@ -1,12 +1,12 @@
 import { Access, CollectionConfig } from 'payload'
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
-import { ruleMatches } from '@/utilities/rbac/ruleMatches'
+import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
 
 // byGlobalRoleOrTenantDomain supplants global access review with tenant-scoped user grants, allowing tenant
 // scoped role assignments for user access to apply for all users with e-mails under the tenant domains
-export const byGlobalRoleOrTenantDomain: (method: string) => Access =
-  (method: string): Access =>
+export const byGlobalRoleOrTenantDomain: (method: ruleMethod) => Access =
+  (method: ruleMethod): Access =>
   (args) => {
     if (!args.req.user) {
       return false
@@ -51,7 +51,7 @@ export const byGlobalRoleOrTenantDomain: (method: string) => Access =
 
 export const accessByGlobalRoleOrTenantDomain: CollectionConfig['access'] = {
   create: byGlobalRoleOrTenantDomain('create'), // TODO: nobody but SSO creates users?
-  read: byGlobalRoleOrTenantDomain('read'),
-  update: byGlobalRoleOrTenantDomain('update'),
+  read: byGlobalRoleOrTenantDomain('read'), // TODO: allow self-read
+  update: byGlobalRoleOrTenantDomain('update'), // TODO: allow self-update
   delete: byGlobalRoleOrTenantDomain('delete'),
 }

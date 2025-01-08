@@ -1,12 +1,12 @@
 import { Access, CollectionConfig } from 'payload'
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
-import { ruleMatches } from '@/utilities/rbac/ruleMatches'
+import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
 
 // byGlobalRoleOrTenantIds supplants global access review with tenant-scoped tenant grants, allowing tenant
 // scoped role assignments for tenant access to apply for the tenant identified in the role assignment
-export const byGlobalRoleOrTenantIds: (method: string) => Access =
-  (method: string): Access =>
+export const byGlobalRoleOrTenantIds: (method: ruleMethod) => Access =
+  (method: ruleMethod): Access =>
   (args) => {
     if (!args.req.user) {
       return false

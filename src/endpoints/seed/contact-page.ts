@@ -1,51 +1,57 @@
-import type { Page } from '@/payload-types'
+import type { Form, Tenant } from '@/payload-types'
+import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const contact: Partial<Page> = {
-  slug: 'contact',
-  _status: 'published',
-  hero: {
-    type: 'none',
-  },
-  layout: [
-    {
-      blockType: 'formBlock',
-      enableIntro: true,
-      // @ts-ignore
-      form: '{{CONTACT_FORM_ID}}',
-      introContent: {
-        root: {
-          type: 'root',
-          children: [
-            {
-              type: 'heading',
-              children: [
-                {
-                  type: 'text',
-                  detail: 0,
-                  format: 0,
-                  mode: 'normal',
-                  style: '',
-                  text: 'Example contact form:',
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-              format: '',
-              indent: 0,
-              tag: 'h3',
-              version: 1,
-            },
-          ],
-          direction: 'ltr',
-          format: '',
-          indent: 0,
-          version: 1,
+export const contact: (
+  tenant: Tenant,
+  contactForm: Form,
+) => RequiredDataFromCollectionSlug<'pages'> = (
+  tenant: Tenant,
+  contactForm: Form,
+): RequiredDataFromCollectionSlug<'pages'> => {
+  return {
+    slug: 'contact',
+    tenant: tenant,
+    _status: 'published',
+    hero: {
+      type: 'none',
+    },
+    layout: [
+      {
+        blockType: 'formBlock',
+        enableIntro: true,
+        form: contactForm,
+        introContent: {
+          root: {
+            type: 'root',
+            children: [
+              {
+                type: 'heading',
+                children: [
+                  {
+                    type: 'text',
+                    detail: 0,
+                    format: 0,
+                    mode: 'normal',
+                    style: '',
+                    text: 'Example contact form:',
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                tag: 'h3',
+                version: 1,
+              },
+            ],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            version: 1,
+          },
         },
       },
-    },
-  ],
-  title: 'Contact',
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  tenant: '{{TENANT_ID}}'
+    ],
+    title: 'Contact',
+  }
 }

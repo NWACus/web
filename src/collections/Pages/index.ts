@@ -19,15 +19,12 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
-  access: accessByTenant('pages'),
-  // This config controls what's populated by default when a page is referenced
-  // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
-  // Type safe if the collection slug generic is passed to `CollectionConfig` - `CollectionConfig<'pages'>
+  access: accessByTenantOrReadPublished('pages'),
   defaultPopulate: {
     title: true,
     slug: true,

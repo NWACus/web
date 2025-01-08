@@ -9,19 +9,30 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { tenantField } from '@/fields/TenantField'
 import { accessByTenant } from '@/access/byTenant'
+import { filterByTenant } from '@/access/filterByTenant'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const {create: createAccess, update: updateAccess, delete: deleteAccess} = accessByTenant('media')!
+
 export const Media: CollectionConfig = {
   slug: 'media',
-  access: accessByTenant('media'),
+  access: {
+    create: createAccess,
+    read: () => true, // TODO: seems to be necessary for frontend, probably ok? maybe we just stop using unauthenticated clients or enforcing auth for front-end at all, but will it break live editor?
+    update: updateAccess,
+    delete: deleteAccess,
+  },
+  admin: {
+    baseListFilter: filterByTenant,
+  },
   fields: [
     tenantField,
     {
       name: 'alt',
       type: 'text',
-      //required: true,
+      required: true,
     },
     {
       name: 'caption',
@@ -34,7 +45,6 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
     staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
@@ -72,4 +82,37 @@ export const Media: CollectionConfig = {
       },
     ],
   },
+  // TODO: re-enable if payload team can help figure this out
+  // hooks: {
+  //   beforeOperation: [
+  //     async ({ req }) => {
+  //       const media = req.data;
+  //       let tenantSlug: string | undefined = undefined
+  //       if (media && 'tenant' in media && typeof media.tenant === 'number') {
+  //         const tenant = await req.payload.find({
+  //           collection: 'tenants',
+  //           overrideAccess: true,
+  //           select: {
+  //             slug: true,
+  //           },
+  //           where: {
+  //             id: {
+  //               equals: media.tenant,
+  //             },
+  //           },
+  //         })
+  //         if (tenant.docs && tenant.docs.length > 0) {
+  //           tenantSlug = tenant.docs[0].slug
+  //         }
+  //       } else if (media &&  'tenant' in media && typeof media.tenant === 'object') {
+  //         tenantSlug = media.tenant.slug
+  //       }
+  //       req.payload.logger.info(`file? ${!!req.file}, slug: ${tenantSlug}, data: ${JSON.stringify(req.data)}`)
+  //       if (req.file && tenantSlug) {
+  //         req.file.name = `/${tenantSlug}/` + req.file.name
+  //         req.payload.logger.info(`filename: ${req.file.name}`)
+  //       }
+  //     },
+  //   ],
+  // },
 }

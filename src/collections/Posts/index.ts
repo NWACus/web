@@ -24,13 +24,13 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from '@/fields/slug'
-import { accessByTenant, byTenant } from '@/access/byTenant'
 import { tenantField } from '@/fields/TenantField'
 import { filterByTenant } from '@/access/filterByTenant'
+import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
-  access: accessByTenant('posts'),
+  access: accessByTenantOrReadPublished('posts'),
   // This config controls what's populated by default when a post is referenced
   // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
   // Type safe if the collection slug generic is passed to `CollectionConfig` - `CollectionConfig<'posts'>

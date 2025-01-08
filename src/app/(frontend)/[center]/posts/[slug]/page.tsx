@@ -8,8 +8,6 @@ import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 
-import type { Post } from '@/payload-types'
-
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
@@ -21,31 +19,41 @@ export async function generateStaticParams() {
     collection: 'posts',
     draft: false,
     limit: 1000,
-    // overrideAccess: false,
+    overrideAccess: true,
     pagination: false,
+    depth: 3,
     select: {
+      tenant: true,
       slug: true,
     },
   })
 
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
+  const params: PathArgs[] = []
+  for (const post of posts.docs) {
+    if (typeof post.tenant === 'number') {
+      payload.logger.error(`got number for post tenant`)
+      continue
+    }
+    params.push({center: post.tenant.slug, slug: post.slug})
+  }
 
   return params
 }
 
 type Args = {
-  params: Promise<{
-    slug?: string
-  }>
+  params: Promise<PathArgs>
+}
+
+type PathArgs = {
+  center: string
+  slug: string
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = '' } = await paramsPromise
+  const { center, slug } = await paramsPromise
   const url = '/posts/' + slug
-  const post = await queryPostBySlug({ slug })
+  const post = await queryPostBySlug({ center: center, slug: slug })
 
   if (!post) return <PayloadRedirects url={url} />
 
@@ -76,13 +84,13 @@ export default async function Post({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '' } = await paramsPromise
-  const post = await queryPostBySlug({ slug })
+  const { center, slug = '' } = await paramsPromise
+  const post = await queryPostBySlug({ center: center, slug: slug })
 
   return generateMeta({ doc: post })
 }
 
-const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -94,9 +102,18 @@ const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
     overrideAccess: draft,
     pagination: false,
     where: {
-      slug: {
-        equals: slug,
-      },
+      and: [
+        {
+          'tenant.slug': {
+            equals: center,
+          },
+        },
+        {
+          slug: {
+            equals: slug,
+          },
+        },
+      ],
     },
   })
 

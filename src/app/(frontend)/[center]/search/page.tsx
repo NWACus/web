@@ -9,19 +9,29 @@ import { Search } from '@/search/Component'
 import PageClient from './page.client'
 import { CardPostData } from '@/components/Card'
 
+type PathArgs = {
+  center: string
+}
+
 type Args = {
+  params: Promise<PathArgs>
   searchParams: Promise<{
     q: string
   }>
 }
-export default async function Page({ searchParams: searchParamsPromise }: Args) {
+export default async function Page({
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
+}: Args) {
   const { q: query } = await searchParamsPromise
+  const { center } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
 
   const posts = await payload.find({
     collection: 'search',
     depth: 1,
     limit: 12,
+    overrideAccess: true,
     select: {
       title: true,
       slug: true,
@@ -33,31 +43,46 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     ...(query
       ? {
           where: {
-            or: [
+            and: [
               {
-                title: {
-                  like: query,
+                'tenant.slug': {
+                  equals: center,
                 },
               },
               {
-                'meta.description': {
-                  like: query,
-                },
-              },
-              {
-                'meta.title': {
-                  like: query,
-                },
-              },
-              {
-                slug: {
-                  like: query,
-                },
+                or: [
+                  {
+                    title: {
+                      like: query,
+                    },
+                  },
+                  {
+                    'meta.description': {
+                      like: query,
+                    },
+                  },
+                  {
+                    'meta.title': {
+                      like: query,
+                    },
+                  },
+                  {
+                    slug: {
+                      like: query,
+                    },
+                  },
+                ],
               },
             ],
           },
         }
-      : {}),
+      : {
+          where: {
+            'tenant.slug': {
+              equals: center,
+            },
+          },
+        }),
   })
 
   return (

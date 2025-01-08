@@ -1,8 +1,12 @@
 import { Role } from '@/payload-types'
+import { CollectionSlug } from 'payload'
+
+export type ruleMethod = 'create' | 'read' | 'update' | 'delete' | '*'
+export type ruleCollection = CollectionSlug | '*'
 
 export const ruleMatches = (
-  method: string,
-  theCollection: string,
+  method: ruleMethod,
+  theCollection: ruleCollection,
 ): ((rule: Role['rules'][0]) => boolean) => {
   return (rule: Role['rules'][0]): boolean => {
     const methodMatches =

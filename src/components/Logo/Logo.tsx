@@ -2,13 +2,14 @@ import clsx from 'clsx'
 import React from 'react'
 
 interface Props {
+  center?: string
   className?: string
   loading?: 'lazy' | 'eager'
   priority?: 'auto' | 'high' | 'low'
 }
 
 export const Logo = (props: Props) => {
-  const { loading: loadingFromProps, priority: priorityFromProps, className } = props
+  const { center, loading: loadingFromProps, priority: priorityFromProps, className } = props
 
   const loading = loadingFromProps || 'lazy'
   const priority = priorityFromProps || 'low'
@@ -16,7 +17,7 @@ export const Logo = (props: Props) => {
   return (
     /* eslint-disable @next/next/no-img-element */
     <img
-      alt="Payload Logo"
+      alt={'Payload Logo' + center}
       width={193}
       height={34}
       loading={loading}

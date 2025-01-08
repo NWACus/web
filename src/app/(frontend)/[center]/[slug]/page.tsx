@@ -21,38 +21,46 @@ export async function generateStaticParams() {
     collection: 'pages',
     draft: false,
     limit: 1000,
+    overrideAccess: true,
     pagination: false,
+    depth: 2,
     select: {
+      tenant: true,
       slug: true,
     },
   })
 
-  const params = pages.docs
-    ?.filter((doc) => {
-      return doc.slug !== 'home'
-    })
-    .map(({ slug }) => {
-      return { slug }
-    })
+  const params: PathArgs[] = []
+  for (const post of pages.docs) {
+    if (typeof post.tenant === 'number') {
+      payload.logger.error(`got number for page tenant: ${JSON.stringify(post.tenant)}`)
+      continue
+    }
+    params.push({ center: post.tenant.slug, slug: post.slug })
+  }
 
   return params
 }
 
 type Args = {
-  params: Promise<{
-    slug?: string
-  }>
+  params: Promise<PathArgs>
+}
+
+type PathArgs = {
+  center: string
+  slug?: string
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = 'home' } = await paramsPromise
+  const { center, slug = 'home' } = await paramsPromise
   const url = '/' + slug
 
   let page: PageType | null
 
   page = await queryPageBySlug({
-    slug,
+    center: center,
+    slug: slug,
   })
 
   // Remove this code once your website is seeded
@@ -81,15 +89,16 @@ export default async function Page({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }): Promise<Metadata> {
-  const { slug = 'home' } = await paramsPromise
+  const { center, slug = 'home' } = await paramsPromise
   const page = await queryPageBySlug({
-    slug,
+    center: center,
+    slug: slug,
   })
 
   return generateMeta({ doc: page })
 }
 
-const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -99,11 +108,20 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
     draft,
     limit: 1,
     pagination: false,
-    // overrideAccess: draft,
+    overrideAccess: draft,
     where: {
-      slug: {
-        equals: slug,
-      },
+      and: [
+        {
+          'tenant.slug': {
+            equals: center,
+          },
+        },
+        {
+          slug: {
+            equals: slug,
+          },
+        },
+      ],
     },
   })
 

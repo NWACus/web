@@ -15,9 +15,37 @@ import { draftMode } from 'next/headers'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export async function generateStaticParams() {
+  const payload = await getPayload({ config: configPromise })
+  const tenants = await payload.find({
+    collection: 'tenants',
+    draft: false,
+    limit: 1000,
+    overrideAccess: true,
+    pagination: false,
+    select: {
+      slug: true,
+    },
+  })
+
+  return tenants.docs.map(tenant => ({center: tenant.slug}))
+}
+
+type Args = {
+  children: React.ReactNode
+  params: Promise<PathArgs>
+}
+
+type PathArgs = {
+  center: string
+}
+
+export default async function RootLayout({ children, params }: Args) {
   const { isEnabled } = await draftMode()
+  const {center} = await params;
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
@@ -34,9 +62,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             }}
           />
 
-          <Header />
+          <Header center={center} />
           {children}
-          <Footer />
+          <Footer center={center} />
         </Providers>
       </body>
     </html>

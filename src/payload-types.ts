@@ -134,7 +134,7 @@ export interface Tenant {
 export interface Media {
   id: number;
   tenant: number | Tenant;
-  alt?: string | null;
+  alt: string;
   caption?: {
     root: {
       type: string;
@@ -274,7 +274,7 @@ export interface Page {
     description?: string | null;
   };
   publishedAt?: string | null;
-  slug?: string | null;
+  slug: string;
   slugLock?: boolean | null;
   tenant: number | Tenant;
   updatedAt: string;
@@ -320,7 +320,7 @@ export interface Post {
         name?: string | null;
       }[]
     | null;
-  slug?: string | null;
+  slug: string;
   slugLock?: boolean | null;
   updatedAt: string;
   createdAt: string;
