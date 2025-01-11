@@ -9,7 +9,6 @@ $ PGPASSWORD=password psql -h localhost -p 5432 -U payload
 $ echo 'POSTGRES_URL=postgresql://payload:password@localhost:5432' >> .env
 ```
 
-// TODO: properly put media into tenant buckets
 
 // TODO: hydration errors based on image src ...
 // + srcSet={"/_next/image?url=http%3A%2F%2Fnwac.localhost%3A3000%2Fapi%2Fmedia%2Ffile%2Fi..."}
@@ -17,6 +16,6 @@ $ echo 'POSTGRES_URL=postgresql://payload:password@localhost:5432' >> .env
 
 
 // TODO: rename tenant to avalanche center
-// TODO: update payload PR to use image IDs
 // TODO: verify preview works
 // TODO: publish to vercel
+// TODO: sitemap updates

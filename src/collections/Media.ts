@@ -82,37 +82,38 @@ export const Media: CollectionConfig = {
       },
     ],
   },
-  // TODO: re-enable if payload team can help figure this out
-  // hooks: {
-  //   beforeOperation: [
-  //     async ({ req }) => {
-  //       const media = req.data;
-  //       let tenantSlug: string | undefined = undefined
-  //       if (media && 'tenant' in media && typeof media.tenant === 'number') {
-  //         const tenant = await req.payload.find({
-  //           collection: 'tenants',
-  //           overrideAccess: true,
-  //           select: {
-  //             slug: true,
-  //           },
-  //           where: {
-  //             id: {
-  //               equals: media.tenant,
-  //             },
-  //           },
-  //         })
-  //         if (tenant.docs && tenant.docs.length > 0) {
-  //           tenantSlug = tenant.docs[0].slug
-  //         }
-  //       } else if (media &&  'tenant' in media && typeof media.tenant === 'object') {
-  //         tenantSlug = media.tenant.slug
-  //       }
-  //       req.payload.logger.info(`file? ${!!req.file}, slug: ${tenantSlug}, data: ${JSON.stringify(req.data)}`)
-  //       if (req.file && tenantSlug) {
-  //         req.file.name = `/${tenantSlug}/` + req.file.name
-  //         req.payload.logger.info(`filename: ${req.file.name}`)
-  //       }
-  //     },
-  //   ],
-  // },
+  // In the future, PayloadCMS might support having different staticDir entries based on the
+  // content of a media item. Until then, though, we cannot do this. In order to make sure that
+  // tenants can't step on each others' toes by uploading the same file name, this beforeOperation
+  // hook prepends the tenants' slug to the file.
+  hooks: {
+    beforeOperation: [
+      async ({ req }) => {
+        const media = req.data;
+        let tenantSlug: string | undefined = undefined
+        if (media && 'tenant' in media && typeof media.tenant === 'number') {
+          const tenant = await req.payload.find({
+            collection: 'tenants',
+            overrideAccess: true,
+            select: {
+              slug: true,
+            },
+            where: {
+              id: {
+                equals: media.tenant,
+              },
+            },
+          })
+          if (tenant.docs && tenant.docs.length > 0) {
+            tenantSlug = tenant.docs[0].slug
+          }
+        } else if (media &&  'tenant' in media && typeof media.tenant === 'object') {
+          tenantSlug = media.tenant.slug
+        }
+        if (req.file && tenantSlug) {
+          req.file.name = `${tenantSlug}-` + req.file.name
+        }
+      },
+    ],
+  },
 }
