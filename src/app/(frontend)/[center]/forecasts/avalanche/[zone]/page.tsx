@@ -23,7 +23,9 @@ export async function generateStaticParams() {
     },
   })
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
+  // TODO: hit the NAC API for forecast zones, translate active names to slugs
+
+  return tenants.docs.map((tenant): PathArgs => ({center: tenant.slug, zone: ''}))
 }
 
 type Args = {
@@ -32,17 +34,19 @@ type Args = {
 
 type PathArgs = {
   center: string
+  zone: string
 }
 
 export default async function Page({ params }: Args) {
-  const { center } = await params
+  const { center, zone } = await params
+  // TODO: how do we pass zone to NACWidget? expects #/slug ...
   return (
     <div className="pt-24 pb-24">
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
-          <h1>Home Page for {center}</h1>
-          <NACWidget center={center} widget={'map'} id="nac-widget-container" />
+          <h1>Avalanche Forecast For {center} Zone {zone}</h1>
+          <NACWidget center={center} widget={'forecast'} id="nac-widget-container"/>
         </div>
       </div>
     </div>
@@ -51,7 +55,7 @@ export default async function Page({ params }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const payload = await getPayload({ config: configPromise })
-  const { center } = await params
+  const { center, zone } = await params
   const tenant = await payload.find({
     collection: 'tenants',
     overrideAccess: true,
@@ -66,10 +70,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Avalanche Center Homepage`,
+      title: `Avalanche Forecasts`,
     }
   }
+  // TODO: translate zone slug to zone name
   return {
-    title: `${tenant.docs[0].name} - Homepage`,
+    title: `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
   }
 }

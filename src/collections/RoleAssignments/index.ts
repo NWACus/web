@@ -9,6 +9,7 @@ export const RoleAssignments: CollectionConfig = {
   access: accessByTenant('roleAssignments'),
   admin: {
     baseListFilter: filterByTenant,
+    group: 'Permissions',
   },
   fields: [
     tenantField,

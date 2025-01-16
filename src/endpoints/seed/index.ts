@@ -16,7 +16,24 @@ import { imageHero1 } from './image-hero-1'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
-import { Category, Media, Page, Post, Role, RoleAssignment, Tenant, User } from '@/payload-types'
+import {
+  Brand,
+  Category,
+  Media,
+  NavigationGroup,
+  NavigationSection,
+  Page,
+  Palette,
+  Post,
+  Role,
+  RoleAssignment,
+  Tenant,
+  Theme,
+  User,
+} from '@/payload-types'
+import { page } from '@/endpoints/seed/page'
+import { slugField } from '@/fields/slug'
+import { formatSlug } from '@/fields/slug/formatSlug'
 
 const collections: CollectionSlug[] = [
   'categories',
@@ -38,6 +55,20 @@ const globals: GlobalSlug[] = ['header', 'footer']
 // The app is not running to revalidate the pages and so the API routes are not available
 // These error messages can be ignored: `Error hitting revalidate route for...`
 export const seed = async ({
+  payload,
+  req,
+}: {
+  payload: Payload
+  req: PayloadRequest
+}): Promise<void> => {
+  try {
+    innerSeed({ payload, req })
+  } catch (error) {
+    payload.logger.error(error)
+  }
+}
+
+export const innerSeed = async ({
   payload,
   req,
 }: {
@@ -104,22 +135,115 @@ export const seed = async ({
     },
   })
 
-  payload.logger.info(`— Seeding media...`)
+  payload.logger.info(`— Seeding palettes...`)
 
-  const [image1Buffer, image2Buffer, image3Buffer, hero1Buffer] = await Promise.all([
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
-    ),
-  ])
+  // https://github.com/shadcn-ui/ui/blob/1081536246b44b6664f4c99bc3f1b3614e632841/apps/www/registry/registry-base-colors.ts
+  const paletteData: RequiredDataFromCollectionSlug<'palettes'>[] = [
+    {
+      name: 'Zinc Light',
+      background: '0 0% 100%',
+      foreground: '240 10% 3.9%',
+      card: '0 0% 100%',
+      'card-foreground': '240 10% 3.9%',
+      popover: '0 0% 100%',
+      'popover-foreground': '240 10% 3.9%',
+      primary: '240 5.9% 10%',
+      'primary-foreground': '0 0% 98%',
+      secondary: '240 4.8% 95.9%',
+      'secondary-foreground': '240 5.9% 10%',
+      muted: '240 4.8% 95.9%',
+      'muted-foreground': '240 3.8% 46.1%',
+      accent: '240 4.8% 95.9%',
+      'accent-foreground': '240 5.9% 10%',
+      destructive: '0 84.2% 60.2%',
+      'destructive-foreground': '0 0% 98%',
+      border: '240 5.9% 90%',
+      input: '240 5.9% 90%',
+      ring: '240 5.9% 10%',
+      radius: '0.5rem',
+      'chart-1': '12 76% 61%',
+      'chart-2': '173 58% 39%',
+      'chart-3': '197 37% 24%',
+      'chart-4': '43 74% 66%',
+      'chart-5': '27 87% 67%',
+    },
+    {
+      name: 'Zinc Dark',
+      radius: '0.5rem',
+      background: '240 10% 3.9%',
+      foreground: '0 0% 98%',
+      card: '240 10% 3.9%',
+      'card-foreground': '0 0% 98%',
+      popover: '240 10% 3.9%',
+      'popover-foreground': '0 0% 98%',
+      primary: '0 0% 98%',
+      'primary-foreground': '240 5.9% 10%',
+      secondary: '240 3.7% 15.9%',
+      'secondary-foreground': '0 0% 98%',
+      muted: '240 3.7% 15.9%',
+      'muted-foreground': '240 5% 64.9%',
+      accent: '240 3.7% 15.9%',
+      'accent-foreground': '0 0% 98%',
+      destructive: '0 62.8% 30.6%',
+      'destructive-foreground': '0 0% 98%',
+      border: '240 3.7% 15.9%',
+      input: '240 3.7% 15.9%',
+      ring: '240 4.9% 83.9%',
+      'chart-1': '220 70% 50%',
+      'chart-2': '160 60% 45%',
+      'chart-3': '30 80% 55%',
+      'chart-4': '280 65% 60%',
+      'chart-5': '340 75% 55%',
+    },
+  ]
+  const palettes: Record<string, Palette> = {}
+  for (const data of paletteData) {
+    payload.logger.info(`Creating ${data.name} palette...`)
+    const palette = await payload
+      .create({
+        collection: 'palettes',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!palette) {
+      payload.logger.error(`Creating ${data.name} palette returned null...`)
+      return
+    }
+    palettes[data.name] = palette
+  }
+
+  payload.logger.info(`— Seeding themes...`)
+
+  const themeData: RequiredDataFromCollectionSlug<'themes'>[] = [
+    {
+      name: 'Zinc',
+      activeColors: {
+        light: '240 5.9% 10%',
+        dark: '240 5.2% 33.9%',
+      },
+      palettes: {
+        light: palettes['Zinc Light'],
+        dark: palettes['Zinc Dark'],
+      },
+    },
+  ]
+  const themes: Record<string, Theme> = {}
+  for (const data of themeData) {
+    payload.logger.info(`Creating ${data.name} theme...`)
+    const theme = await payload
+      .create({
+        collection: 'themes',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!theme) {
+      payload.logger.error(`Creating ${data.name} theme returned null...`)
+      return
+    }
+    themes[data.name] = theme
+  }
 
   payload.logger.info(`— Seeding roles...`)
 
@@ -207,6 +331,139 @@ export const seed = async ({
       return
     }
     tenants[data.slug] = tenant
+  }
+
+  payload.logger.info(`— Seeding brand media...`)
+
+  const logoFiles: Record<string, string> = {
+    bac: 'BAC.png',
+    btac: 'BTAC.png',
+    caic: 'CAIC.jpg',
+    cbac: 'CBAC.png',
+    cnfaic: 'CNFAIC.png',
+    coaa: 'COAA.png',
+    esac: 'ESAC.png',
+    fac: 'FAC.png',
+    gnfac: 'GNFAC.png',
+    hpac: 'HPAC.png',
+    ipac: 'IPAC.png',
+    kpac: 'KPAC.png',
+    msac: 'MSAC.png',
+    mwac: 'MWAC.png',
+    nwac: 'NWAC.png',
+    pac: 'PAC.png',
+    sac: 'SAC.png',
+    snfac: 'SNFAC.png',
+    tac: 'TAC.png',
+    wac: 'WAC.png',
+    wcmac: 'WCMAC.png',
+  }
+  const bannerFiles: Record<string, string> = {
+    nwac: 'https://files.nwac.us/wp-content/uploads/2020/10/08140810/nwac-logo-usfs.png',
+    sac: 'https://tahoe.com/sites/default/files/styles/medium/public/business/1900/logo/sac-png-logo.png',
+  }
+  const logos: Record<string, File> = {}
+  const banners: Record<string, File> = {}
+  for (const tenant of tenantData) {
+    if (tenant.slug in logoFiles) {
+      const logo = await fetchFileByURL(
+        'https://raw.githubusercontent.com/NWACus/avy/refs/heads/main/assets/logos/' +
+          logoFiles[tenant.slug],
+      ).catch((e) => payload.logger.error(e))
+      if (!logo) {
+        payload.logger.error(`Downloading logo for tenant ${tenant.slug} returned null...`)
+        return
+      }
+      logos[tenant.slug] = logo
+    }
+    if (tenant.slug in bannerFiles) {
+      const banner = await fetchFileByURL(bannerFiles[tenant.slug]).catch((e) =>
+        payload.logger.error(e),
+      )
+      if (!banner) {
+        payload.logger.error(`Downloading banner for tenant ${tenant.slug} returned null...`)
+        return
+      }
+      banners[tenant.slug] = banner
+    }
+  }
+
+  type brandImageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
+  const brandImageData: brandImageData[] = [
+    ...Object.values(tenants)
+      .map((tenant): brandImageData[] => [
+        {
+          name: 'logo',
+          data: {
+            tenant: tenant,
+            alt: 'logo',
+          },
+          file: logos[tenant.slug],
+        },
+        {
+          name: 'banner',
+          data: {
+            tenant: tenant,
+            alt: 'banner',
+          },
+          file: banners[tenant.slug],
+        },
+      ])
+      .flat(),
+  ]
+  const brandImages: Record<string, Record<string, Media>> = {}
+  for (const data of brandImageData) {
+    payload.logger.info(
+      `Creating brand media ${data.name} for tenant ${(data.data.tenant! as Tenant).name}...`,
+    )
+    data.file.name = (data.data.tenant! as Tenant).slug + '-' + data.file.name
+    const image = await payload
+      .create({
+        collection: 'media',
+        data: data.data,
+        file: data.file,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!image) {
+      payload.logger.error(
+        `Creating brand media ${data.name} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
+      )
+      return
+    }
+    if (!((data.data.tenant! as Tenant).name in brandImages)) {
+      brandImages[(data.data.tenant! as Tenant).name] = {}
+    }
+    brandImages[(data.data.tenant! as Tenant).name][data.name] = image
+  }
+
+  payload.logger.info(`— Seeding brands...`)
+
+  const brandData: RequiredDataFromCollectionSlug<'brands'>[] = [
+    ...Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'brands'> => ({
+        tenant: tenant,
+        logo: brandImages[tenant.name]['logo'],
+        banner: brandImages[tenant.name]['banner'],
+        theme: themes['Zinc'],
+      }),
+    ),
+  ]
+  const brands: Record<string, Brand> = {}
+  for (const data of brandData) {
+    payload.logger.info(`Creating ${(data.tenant as Tenant).name} brand...`)
+    const brand = await payload
+      .create({
+        collection: 'brands',
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!brand) {
+      payload.logger.error(`Creating ${(data.tenant as Tenant).name} brand returned null...`)
+      return
+    }
+    brands[(data.tenant as Tenant).name] = brand
   }
 
   payload.logger.info(`— Seeding users...`)
@@ -311,6 +568,21 @@ export const seed = async ({
 
   payload.logger.info(`— Seeding media...`)
 
+  const [image1Buffer, image2Buffer, image3Buffer, hero1Buffer] = await Promise.all([
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
+    ),
+  ])
+
   type imageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
   const imageData: imageData[] = [
     ...Object.values(tenants)
@@ -341,8 +613,10 @@ export const seed = async ({
   const images: Record<string, Record<string, Media>> = {}
   for (const data of imageData) {
     payload.logger.info(
-      `Creating media ${data.data.alt! as string} for tenant ${(data.data.tenant! as Tenant).name}...`,
+      `Creating media ${data.name} for tenant ${(data.data.tenant! as Tenant).name}...`,
     )
+    data.file = structuredClone(data.file)
+    data.file.name = (data.data.tenant! as Tenant).slug + '-' + data.file.name
     const image = await payload
       .create({
         collection: 'media',
@@ -353,7 +627,7 @@ export const seed = async ({
 
     if (!image) {
       payload.logger.error(
-        `Creating media ${data.data.alt! as string} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
+        `Creating media ${data.name} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
       )
       return
     }
@@ -518,14 +792,68 @@ export const seed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         home(tenant, images[tenant.name]['home'], images[tenant.name]['image2']),
         contactPageData(tenant, contactForm),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Snow Depth Climatology',
+          'Determine current snow depths in the context of historical trends.',
+          'snow-depth-climatology',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Radar and Satellite Index',
+          'Review recent weather radar and satellite weather imagery.',
+          'radar-and-satellite-index',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'About Us',
+          'The avalanche center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
+          'about-us',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'About The Forecasts',
+          'The avalanche center produces daily avalanche forecasts across the state during the winter season.',
+          'about-the-forecasts',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Avalanche Awareness Classes',
+          'The avalanche center offers free avalanche classes to the public throughout our forecast area.',
+          'avalanche-awareness-classes',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Courses by Local Providers',
+          'Review avalanche safety courses taught by local providers throughout our forecast area.',
+          'courses-by-local-providers',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'How to Read the Forecast',
+          'An explanation of the basic concepts and content in an avalanche forecast, and how to read it.',
+          'how-to-read-the-forecast',
+        ),
       ])
       .flat(),
   ]
   const pages: Record<string, Record<string, Page>> = {}
   for (const data of pageData) {
-    payload.logger.info(
-      `Creating page ${data.slug} for tenant ${(data.tenant! as Tenant).name}...`,
-    )
+    payload.logger.info(`Creating page ${data.slug} for tenant ${(data.tenant! as Tenant).name}...`)
     const page = await payload
       .create({
         collection: 'pages',
@@ -544,6 +872,155 @@ export const seed = async ({
       pages[(data.tenant! as Tenant).name] = {}
     }
     pages[(data.tenant! as Tenant).name][data.slug] = page
+  }
+
+  payload.logger.info(`— Seeding navigation...`)
+
+  type topLevelNav = {
+    name: string
+    children: (nav | string)[] // n.b. string is slug of page
+  }
+  type nav = {
+    name: string
+    children: string[] // n.b. string is slug of page
+  }
+  const navigation: topLevelNav[] = [
+    {
+      name: 'Education',
+      children: [
+        {
+          name: 'Classes',
+          children: ['avalanche-awareness-classes', 'courses-by-local-providers'],
+        },
+        {
+          name: 'Documentation',
+          children: ['how-to-read-the-forecast'],
+        },
+      ],
+    },
+  ]
+  const weather: nav = {
+    name: 'Weather Resources',
+    children: ['snow-depth-climatology', 'radar-and-satellite-index'],
+  }
+
+  const createNavigationGroup = async (tenant: Tenant, group: nav): Promise<NavigationGroup> => {
+    payload.logger.info(`Handling navigation group ${group.name} for tenant ${tenant.name}...`)
+    const children: RequiredDataFromCollectionSlug<'navigationGroups'>['items'] = []
+    for (const child of group.children) {
+      children.push({
+        relationTo: 'pages',
+        value: pages[tenant.name][child].id,
+      })
+    }
+    const data: RequiredDataFromCollectionSlug<'navigationGroups'> = {
+      tenant: tenant,
+      slug: formatSlug(group.name),
+      title: group.name,
+      items: children,
+    }
+    payload.logger.info(`Creating navigation group ${group.name} for tenant ${tenant.name}...`)
+    const navigationGroup = await payload
+      .create({
+        collection: 'navigationGroups',
+        depth: 0,
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!navigationGroup) {
+      payload.logger.error(
+        `Creating navigation group ${group.name} for tenant ${tenant.name} returned null...`,
+      )
+      throw new Error()
+    }
+    return navigationGroup
+  }
+  const createNavigationSection = async (
+    tenant: Tenant,
+    group: topLevelNav,
+  ): Promise<NavigationSection> => {
+    payload.logger.info(`Handling navigation section ${group.name} for tenant ${tenant.name}...`)
+    const children: RequiredDataFromCollectionSlug<'navigationSections'>['items'] = []
+    for (const child of group.children) {
+      if (typeof child === 'string') {
+        children.push({
+          relationTo: 'pages',
+          value: pages[tenant.name][child].id,
+        })
+      } else {
+        const ng = await createNavigationGroup(tenant, child)
+        children.push({
+          relationTo: 'navigationGroups',
+          value: ng.id,
+        })
+      }
+    }
+    const data: RequiredDataFromCollectionSlug<'navigationSections'> = {
+      tenant: tenant,
+      slug: formatSlug(group.name),
+      title: group.name,
+      items: children,
+    }
+    payload.logger.info(`Creating navigation section ${group.name} for tenant ${tenant.name}...`)
+    const navigationSection = await payload
+      .create({
+        collection: 'navigationSections',
+        depth: 0,
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!navigationSection) {
+      payload.logger.error(
+        `Creating navigation section ${group.name} for tenant ${tenant.name} returned null...`,
+      )
+      throw new Error()
+    }
+    return navigationSection
+  }
+
+  for (const tenant of Object.values(tenants)) {
+    const weatherGroup: NavigationGroup = await createNavigationGroup(tenant, weather)
+    const sections: NavigationSection[] = []
+    for (const group of navigation) {
+      const ng = await createNavigationSection(tenant, group)
+      sections.push(ng)
+    }
+    const data: RequiredDataFromCollectionSlug<'navigations'> = {
+      tenant: tenant,
+      items: sections.map((section) => ({
+        relationTo: 'navigationSections',
+        value: section.id,
+      })),
+      about_us_extra: [
+        {
+          relationTo: 'pages',
+          value: pages[tenant.name]['about-us'].id,
+        },
+        {
+          relationTo: 'pages',
+          value: pages[tenant.name]['about-the-forecasts'].id,
+        },
+      ],
+      weather_extra: {
+        relationTo: 'navigationGroups',
+        value: weatherGroup.id,
+      },
+    }
+    payload.logger.info(`Creating navigation for tenant ${tenant.name}...`)
+    const nav = await payload
+      .create({
+        collection: 'navigations',
+        depth: 0,
+        data: data,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!nav) {
+      payload.logger.error(`Creating navigation for tenant ${tenant.name} returned null...`)
+      throw new Error()
+    }
   }
 
   payload.logger.info(`— Seeding globals...`)

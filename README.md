@@ -19,3 +19,10 @@ $ echo 'POSTGRES_URL=postgresql://payload:password@localhost:5432' >> .env
 // TODO: verify preview works
 // TODO: publish to vercel
 // TODO: sitemap updates
+// TODO: remove permissions based on cookie, as we're doing by baselistfilter now
+// TODO: once tenancy support is in (https://github.com/payloadcms/payload/pull/10447), mark tenant-globals non-list - Branding, App, etc
+// TODO: ensure revalidation is done
+
+
+// TODO: fix sub-menu rendering
+// TODO: model for weather station groups, list of groups into menu

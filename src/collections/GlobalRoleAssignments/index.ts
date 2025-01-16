@@ -5,6 +5,9 @@ import { accessByGlobalRole } from '@/access/byGlobalRole'
 export const GlobalRoleAssignments: CollectionConfig = {
   slug: 'globalRoleAssignments',
   access: accessByGlobalRole('globalRoleAssignments'),
+  admin: {
+    group: 'Permissions',
+  },
   fields: [
     {
       name: 'roles',

@@ -6,6 +6,7 @@ export const Tenants: CollectionConfig = {
   access: accessByGlobalRoleOrTenantIds,
   admin: {
     useAsTitle: 'name',
+    group: 'Permissions',
   },
   defaultPopulate: {
     slug: true,

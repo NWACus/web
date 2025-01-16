@@ -19,6 +19,12 @@ import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
+import { Brands } from '@/collections/Brands'
+import { Themes } from '@/collections/Themes'
+import { Palettes } from '@/collections/Palettes'
+import { NavigationGroups } from '@/collections/NavigationGroups'
+import { Navigations } from '@/collections/Navigations'
+import { NavigationSections } from '@/collections/NavigationSections'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -68,12 +74,26 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Categories, Media, Pages, Posts, Users, Tenants, Roles, RoleAssignments, GlobalRoleAssignments],
-  cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
-  plugins: [
-    ...plugins,
+  collections: [
+    Categories,
+    Media,
+    Pages,
+    Posts,
+    Users,
+    Tenants,
+    Roles,
+    RoleAssignments,
+    GlobalRoleAssignments,
+    Brands,
+    Themes,
+    Palettes,
+    Navigations,
+    NavigationSections,
+    NavigationGroups,
   ],
+  cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
+  globals: [Header, Footer],
+  plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

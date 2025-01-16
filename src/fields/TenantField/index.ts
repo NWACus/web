@@ -26,3 +26,8 @@ export const tenantField: Field = {
   relationTo: 'tenants',
   required: true,
 }
+
+export const uniqueTenantField: Field = {
+  ...tenantField,
+  unique: true,
+}

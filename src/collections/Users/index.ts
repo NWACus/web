@@ -9,6 +9,7 @@ export const Users: CollectionConfig = {
   access: accessByGlobalRoleOrTenantDomain,
   admin: {
     useAsTitle: 'email',
+    group: 'Permissions',
   },
   auth: true,
   endpoints: [externalUsersLogin],

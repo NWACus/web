@@ -11,6 +11,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
 }) => {
   if (!context.disableRevalidate) {
     if (doc._status === 'published') {
+      // TODO: revalidate path based on tenant
       const path = `/posts/${doc.slug}`
 
       payload.logger.info(`Revalidating post at path: ${path}`)

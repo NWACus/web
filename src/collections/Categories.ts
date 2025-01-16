@@ -7,6 +7,7 @@ export const Categories: CollectionConfig = {
   access: accessByTenant('categories'),
   admin: {
     useAsTitle: 'title',
+    group: 'Content',
   },
   fields: [
     tenantField,

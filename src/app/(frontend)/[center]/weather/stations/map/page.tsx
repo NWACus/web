@@ -23,7 +23,7 @@ export async function generateStaticParams() {
     },
   })
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
+  return tenants.docs.map((tenant): PathArgs => ({center: tenant.slug}))
 }
 
 type Args = {
@@ -41,8 +41,8 @@ export default async function Page({ params }: Args) {
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
-          <h1>Home Page for {center}</h1>
-          <NACWidget center={center} widget={'map'} id="nac-widget-container" />
+          <h1>Weather Station Map For {center}</h1>
+          <NACWidget center={center} widget={'stations'} id="nac-widget-container"/>
         </div>
       </div>
     </div>
@@ -66,10 +66,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Avalanche Center Homepage`,
+      title: `Weather Stations`,
     }
   }
   return {
-    title: `${tenant.docs[0].name} - Homepage`,
+    title: `${tenant.docs[0].name} - Weather Stations`,
   }
 }

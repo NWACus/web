@@ -54,7 +54,7 @@ type PathArgs = {
 export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center, slug = 'home' } = await paramsPromise
-  const url = '/' + slug
+  const url = '/' + center + '/' + slug
 
   let page: PageType | null
 

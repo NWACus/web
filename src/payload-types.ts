@@ -20,6 +20,12 @@ export interface Config {
     roles: Role;
     roleAssignments: RoleAssignment;
     globalRoleAssignments: GlobalRoleAssignment;
+    brands: Brand;
+    themes: Theme;
+    palettes: Palette;
+    navigations: Navigation;
+    navigationSections: NavigationSection;
+    navigationGroups: NavigationGroup;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -44,6 +50,12 @@ export interface Config {
     roles: RolesSelect<false> | RolesSelect<true>;
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
+    brands: BrandsSelect<false> | BrandsSelect<true>;
+    themes: ThemesSelect<false> | ThemesSelect<true>;
+    palettes: PalettesSelect<false> | PalettesSelect<true>;
+    navigations: NavigationsSelect<false> | NavigationsSelect<true>;
+    navigationSections: NavigationSectionsSelect<false> | NavigationSectionsSelect<true>;
+    navigationGroups: NavigationGroupsSelect<false> | NavigationGroupsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -718,6 +730,142 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands".
+ */
+export interface Brand {
+  id: number;
+  tenant: number | Tenant;
+  logo: number | Media;
+  banner: number | Media;
+  theme: number | Theme;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "themes".
+ */
+export interface Theme {
+  id: number;
+  name: string;
+  activeColors: {
+    light: string;
+    dark: string;
+  };
+  palettes: {
+    light: number | Palette;
+    dark: number | Palette;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "palettes".
+ */
+export interface Palette {
+  id: number;
+  name: string;
+  radius: string;
+  background: string;
+  foreground: string;
+  card: string;
+  'card-foreground': string;
+  popover: string;
+  'popover-foreground': string;
+  primary: string;
+  'primary-foreground': string;
+  secondary: string;
+  'secondary-foreground': string;
+  muted: string;
+  'muted-foreground': string;
+  accent: string;
+  'accent-foreground': string;
+  destructive: string;
+  'destructive-foreground': string;
+  border: string;
+  input: string;
+  ring: string;
+  'chart-1': string;
+  'chart-2': string;
+  'chart-3': string;
+  'chart-4': string;
+  'chart-5': string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigations".
+ */
+export interface Navigation {
+  id: number;
+  tenant: number | Tenant;
+  items: (
+    | {
+        relationTo: 'navigationSections';
+        value: number | NavigationSection;
+      }
+    | {
+        relationTo: 'pages';
+        value: number | Page;
+      }
+  )[];
+  weather_extra?: {
+    relationTo: 'navigationGroups';
+    value: number | NavigationGroup;
+  } | null;
+  about_us_extra?:
+    | {
+        relationTo: 'pages';
+        value: number | Page;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigationSections".
+ */
+export interface NavigationSection {
+  id: number;
+  tenant: number | Tenant;
+  slug: string;
+  slugLock?: boolean | null;
+  title: string;
+  items: (
+    | {
+        relationTo: 'navigationGroups';
+        value: number | NavigationGroup;
+      }
+    | {
+        relationTo: 'pages';
+        value: number | Page;
+      }
+  )[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigationGroups".
+ */
+export interface NavigationGroup {
+  id: number;
+  tenant: number | Tenant;
+  slug: string;
+  slugLock?: boolean | null;
+  title: string;
+  items: {
+    relationTo: 'pages';
+    value: number | Page;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -826,6 +974,30 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'globalRoleAssignments';
         value: number | GlobalRoleAssignment;
+      } | null)
+    | ({
+        relationTo: 'brands';
+        value: number | Brand;
+      } | null)
+    | ({
+        relationTo: 'themes';
+        value: number | Theme;
+      } | null)
+    | ({
+        relationTo: 'palettes';
+        value: number | Palette;
+      } | null)
+    | ({
+        relationTo: 'navigations';
+        value: number | Navigation;
+      } | null)
+    | ({
+        relationTo: 'navigationSections';
+        value: number | NavigationSection;
+      } | null)
+    | ({
+        relationTo: 'navigationGroups';
+        value: number | NavigationGroup;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1234,6 +1406,111 @@ export interface RoleAssignmentsSelect<T extends boolean = true> {
 export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
   roles?: T;
   user?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands_select".
+ */
+export interface BrandsSelect<T extends boolean = true> {
+  tenant?: T;
+  logo?: T;
+  banner?: T;
+  theme?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "themes_select".
+ */
+export interface ThemesSelect<T extends boolean = true> {
+  name?: T;
+  activeColors?:
+    | T
+    | {
+        light?: T;
+        dark?: T;
+      };
+  palettes?:
+    | T
+    | {
+        light?: T;
+        dark?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "palettes_select".
+ */
+export interface PalettesSelect<T extends boolean = true> {
+  name?: T;
+  radius?: T;
+  background?: T;
+  foreground?: T;
+  card?: T;
+  'card-foreground'?: T;
+  popover?: T;
+  'popover-foreground'?: T;
+  primary?: T;
+  'primary-foreground'?: T;
+  secondary?: T;
+  'secondary-foreground'?: T;
+  muted?: T;
+  'muted-foreground'?: T;
+  accent?: T;
+  'accent-foreground'?: T;
+  destructive?: T;
+  'destructive-foreground'?: T;
+  border?: T;
+  input?: T;
+  ring?: T;
+  'chart-1'?: T;
+  'chart-2'?: T;
+  'chart-3'?: T;
+  'chart-4'?: T;
+  'chart-5'?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigations_select".
+ */
+export interface NavigationsSelect<T extends boolean = true> {
+  tenant?: T;
+  items?: T;
+  weather_extra?: T;
+  about_us_extra?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigationSections_select".
+ */
+export interface NavigationSectionsSelect<T extends boolean = true> {
+  tenant?: T;
+  slug?: T;
+  slugLock?: T;
+  title?: T;
+  items?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigationGroups_select".
+ */
+export interface NavigationGroupsSelect<T extends boolean = true> {
+  tenant?: T;
+  slug?: T;
+  slugLock?: T;
+  title?: T;
+  items?: T;
   updatedAt?: T;
   createdAt?: T;
 }

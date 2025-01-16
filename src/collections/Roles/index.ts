@@ -41,6 +41,7 @@ export const Roles: CollectionConfig = {
   access: accessByGlobalRole('roles'),
   admin: {
     useAsTitle: 'name',
+    group: 'Permissions',
   },
   fields: [
     {
