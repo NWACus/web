@@ -161,7 +161,7 @@ export async function Header({ center }: { center?: string }) {
       }
     }
   }
-  const navItems = generateNavItems(weather, about)
+  const headerEntries = generateNavItems(weather, about)
 
   type pageRelation = {
     relationTo: 'pages'
@@ -242,10 +242,8 @@ export async function Header({ center }: { center?: string }) {
     for (const item of topLevelNav.items) {
       additional.push(getNav([], item))
     }
-    navItems.splice(3, 0, ...additional)
+    headerEntries.splice(3, 0, ...additional)
   }
-
-  payload.logger.info(JSON.stringify(navItems))
 
   // TODO: reach out to nac for forecast zones
 
@@ -253,30 +251,38 @@ export async function Header({ center }: { center?: string }) {
     <HeaderClient>
       <NavigationMenu>
         <NavigationMenuList>
-          {navItems.map((navItem) =>
-            'title' in navItem ? (
-              <NavigationMenuItem key={navItem.href}>
-                <Link href={navItem.href} legacyBehavior passHref>
+          {headerEntries.map((headerEntry) =>
+            'title' in headerEntry ? (
+              <NavigationMenuItem key={headerEntry.href}>
+                <Link href={headerEntry.href} legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    {navItem.title}
+                    {headerEntry.title}
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
             ) : (
-              <NavigationMenuItem key={navItem.trigger}>
-                <NavigationMenuTrigger>{navItem.trigger}</NavigationMenuTrigger>
+              <NavigationMenuItem key={headerEntry.trigger}>
+                <NavigationMenuTrigger>{headerEntry.trigger}</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                    {navItem.items.map((item) =>
-                      'title' in item ? (
-                        <ListItem key={item.href} title={item.title} href={item.href}>
-                          {item.description}
-                        </ListItem>
-                      ) : (
-                        <NavigationMenuGroupItem key={item.trigger} group={item} />
-                      ),
-                    )}
-                  </ul>
+                  {headerEntry.items.length > 0 && 'trigger' in headerEntry.items[0] ? (
+                    headerEntry.items.map(
+                      (navGroup: navGroup | navItem) =>
+                        'trigger' in navGroup && ( // n.b. we know this is true because of the previous type guard
+                          <NavigationMenuGroupItem key={navGroup.trigger} group={navGroup} />
+                        ),
+                    )
+                  ) : (
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                      {headerEntry.items.map(
+                        (navItem: navGroup | navItem) =>
+                          'title' in navItem && ( // n.b. we know this is true because of the previous type guard
+                            <ListItem key={navItem.href} title={navItem.title} href={navItem.href}>
+                              {navItem.description}
+                            </ListItem>
+                          ),
+                      )}
+                    </ul>
+                  )}
                 </NavigationMenuContent>
               </NavigationMenuItem>
             ),
@@ -287,28 +293,22 @@ export async function Header({ center }: { center?: string }) {
   )
 }
 
-const NavigationMenuGroupItem: React.FC<{ group: navSection }> = ({ group }) => {
+const NavigationMenuGroupItem: React.FC<{ group: navGroup }> = ({ group }) => {
   return (
     <NavigationSubMenu defaultValue="sub1">
       <NavigationMenuList>
-        {group.items.map((item) =>
-          'title' in item ? (
-            <NavigationMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {item.title}
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          ) : (
-            <NavigationMenuItem key={item.trigger}>
-              <NavigationMenuTrigger>{item.trigger}</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <NavigationMenuGroupItem group={item} />
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          ),
-        )}
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>{group.trigger}</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+              {group.items.map((navItem: navItem) => (
+                <ListItem key={navItem.href} title={navItem.title} href={navItem.href}>
+                  <div>{navItem.description}</div>
+                </ListItem>
+              ))}
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationSubMenu>
   )

@@ -848,6 +848,46 @@ export const innerSeed = async ({
           'An explanation of the basic concepts and content in an avalanche forecast, and how to read it.',
           'how-to-read-the-forecast',
         ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Snowpack Scholarship',
+          'A scholarship providing free avalanche education to women and individuals with demonstrated financial need.',
+          'snowpack-scholarship',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Become a Member',
+          'Avalanche center members directly support the forecast you use on every backcountry adventure.',
+          'become-a-member',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Volunteer',
+          'Interested in volunteering your time for the center? We are always looking for help at events and with various projects.',
+          'volunteer',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Workplace Giving',
+          'Have you thought about donating to the center through work? Your employer may be able to help you support avalanche safety.',
+          'workplace-giving',
+        ),
+        page(
+          tenant,
+          images[tenant.name]['home'],
+          images[tenant.name]['image2'],
+          'Corporate Sponsorships',
+          'The avalanche center’s work is supported by the generosity of our industry partners.',
+          'corporate-sponsorships',
+        ),
       ])
       .flat(),
   ]
@@ -896,6 +936,16 @@ export const innerSeed = async ({
           name: 'Documentation',
           children: ['how-to-read-the-forecast'],
         },
+      ],
+    },
+    {
+      name: 'Support Us',
+      children: [
+        'snowpack-scholarship',
+        'become-a-member',
+        'volunteer',
+        'workplace-giving',
+        'corporate-sponsorships',
       ],
     },
   ]

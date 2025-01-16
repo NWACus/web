@@ -28,6 +28,7 @@ export const Pages: CollectionConfig<'pages'> = {
   defaultPopulate: {
     title: true,
     slug: true,
+    meta: true,
   },
   admin: {
     group: 'Content',
@@ -44,6 +45,7 @@ export const Pages: CollectionConfig<'pages'> = {
         return path
       },
     },
+    // TODO: keep rendering for some preview endpoint with slug or you won't see a preview until this is in a section
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: typeof data?.slug === 'string' ? data.slug : '',

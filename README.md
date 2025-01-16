@@ -21,8 +21,15 @@ $ echo 'POSTGRES_URL=postgresql://payload:password@localhost:5432' >> .env
 // TODO: sitemap updates
 // TODO: remove permissions based on cookie, as we're doing by baselistfilter now
 // TODO: once tenancy support is in (https://github.com/payloadcms/payload/pull/10447), mark tenant-globals non-list - Branding, App, etc
-// TODO: ensure revalidation is done
+// TODO: ensure revalidation is done for every type of collection we have
 
 
-// TODO: fix sub-menu rendering
+// TODO: fix sub-menu rendering - need to be at top, horizontal
+// TODO: nav viewport should be larger
 // TODO: model for weather station groups, list of groups into menu
+// TODO: navigations, sections, groups should make sure no two children share a slug
+// TODO: page rendering should walk the tree of segments to find the right page
+// TODO: page slug uniqueness undo (or not, need for preview?)
+
+
+// TODO: first login should be super-admin, how?>

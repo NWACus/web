@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { tenantField, uniqueTenantField } from '@/fields/TenantField'
+import { tenantField } from '@/fields/TenantField'
 import { accessByTenant } from '@/access/byTenant'
 import { slugField } from '@/fields/slug'
 
@@ -8,9 +8,10 @@ export const NavigationSections: CollectionConfig = {
   access: accessByTenant('navigationSections'),
   admin: {
     group: 'Navigation',
+    useAsTitle: 'title',
   },
   fields: [
-    uniqueTenantField,
+    tenantField,
     ...slugField('title'),
     {
       name: 'title',

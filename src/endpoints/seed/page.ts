@@ -30,15 +30,33 @@ export const page: (
           version: 1,
           children: [
             {
+              tag: 'h1',
+              type: 'heading',
+              format: '',
+              indent: 0,
+              version: 1,
+              children: [
+                {
+                  mode: 'normal',
+                  text: title,
+                  type: 'text',
+                  style: '',
+                  detail: 0,
+                  format: 0,
+                  version: 1,
+                },
+              ],
+              direction: 'ltr',
+            },
+            {
               type: 'paragraph',
               format: '',
               indent: 0,
               version: 1,
-
               children: [
                 {
                   mode: 'normal',
-                  text: 'Low impact hero banner.',
+                  text: description,
                   type: 'text',
                   style: '',
                   detail: 0,
