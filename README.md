@@ -24,6 +24,7 @@ $ echo 'POSTGRES_URL=postgresql://payload:password@localhost:5432' >> .env
 // TODO: ensure revalidation is done for every type of collection we have
 
 
+// TODO: logo not rendering in the nav?
 // TODO: fix sub-menu rendering - need to be at top, horizontal
 // TODO: nav viewport should be larger
 // TODO: model for weather station groups, list of groups into menu
