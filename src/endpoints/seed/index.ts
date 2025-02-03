@@ -62,7 +62,7 @@ export const seed = async ({
   req: PayloadRequest
 }): Promise<void> => {
   try {
-    innerSeed({ payload, req })
+    await innerSeed({ payload, req })
   } catch (error) {
     payload.logger.error(error)
   }

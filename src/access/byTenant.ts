@@ -9,14 +9,10 @@ import { defaultTenantIdFromHeaders } from '@/utilities/tenancy/defaultTenantIdF
 // tenant-scoped collections
 export const byTenant: (method: ruleMethod, collection: ruleCollection) => Access =
   (method: ruleMethod, collection: ruleCollection): Access =>
-  async ({ req: { user, headers, payload } }) => {
+  async ({ req: { user, payload } }) => {
     if (!user) {
       return false
     }
-
-    // TODO: remove defaultTenantId handling from here if Jarrod confirms design
-    const defaultTenantId = await defaultTenantIdFromHeaders(headers, payload)
-    payload.logger.debug(`evaluating access by ${user.id} for ${method} on ${collection}`)
 
     const globalRoles = globalRolesForUser(payload.logger, user)
 
@@ -25,16 +21,7 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
       .flat()
       .some(ruleMatches(method, collection))
     if (globalRolesMatch) {
-      // user has access globally, scope if cookie requests it
-      if (defaultTenantId !== undefined) {
-        return {
-          tenant: {
-            equals: defaultTenantId,
-          },
-        }
-      }
-
-      // otherwise, access everything
+      // user has access globally, access everything
       return true
     }
 
@@ -52,15 +39,6 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter
       .map((tenant) => tenant.id)
-
-    if (defaultTenantId && matchingTenantIds.includes(defaultTenantId)) {
-      // scope if the cookie asks for it and the user otherwise has access
-      return {
-        tenant: {
-          equals: defaultTenantId,
-        },
-      }
-    }
 
     if (matchingTenantIds.length > 0) {
       // otherwise, return a where clause capturing the tenants they can take this action in
