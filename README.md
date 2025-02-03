@@ -22,6 +22,8 @@ $ echo 'POSTGRES_URL=postgresql://payload:password@localhost:5432' >> .env
 // TODO: once tenancy support is in (https://github.com/payloadcms/payload/pull/10447), mark tenant-globals non-list - Branding, App, etc - bump payload to v3.18.0
 // TODO: ensure revalidation is done for every type of collection we have
 
+// TODO: figure out tenancy for palettes? add a tenant-scoped palette type?
+// TODO: how to pass activeColor in through palettes?
 
 // TODO: logo not rendering in the nav?
 // TODO: fix sub-menu rendering - need to be at top, horizontal
