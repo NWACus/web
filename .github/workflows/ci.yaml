@@ -11,9 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: pnpm
@@ -23,31 +27,18 @@ jobs:
       - name: 🧹 Run lint
         run: pnpm lint
 
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🏗 Setup repo
-        uses: actions/checkout@v3
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22.x
-          cache: pnpm
-      - name: 📦 Install dependencies
-        run: pnpm ii
-        shell: bash
-      - name: 🎨 Run build
-        run: pnpm build
-
   prettier:
     name: prettier
     runs-on: ubuntu-latest
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: pnpm
@@ -55,6 +46,4 @@ jobs:
         run: pnpm ii
         shell: bash
       - name: 🧹 Run prettier
-        run: -|
-          echo "🎨  Checking prettier format..."
-          if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi
+        run: if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi

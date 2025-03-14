@@ -32,3 +32,6 @@ $ echo 'POSTGRES_URL=postgresql://payload:password@localhost:5432' >> .env
 // TODO: page slug uniqueness undo (or not, need for preview?)
 
 // TODO: first login should be super-admin, how?>
+
+// TODO: property SSR the center theme, doc: https://github.com/vercel/styled-jsx?tab=readme-ov-file#server-side-rendering
+// nothing is clear from that doc and there doesn't seem to be any clear example in the first couple minutes of googling

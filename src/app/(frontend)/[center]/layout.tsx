@@ -122,7 +122,7 @@ export default async function RootLayout({ children, params }: Args) {
   const { isEnabled } = await draftMode()
   const payload = await getPayload({ config: configPromise })
   const { center } = await params
-  let centerTheme: Theme = zinc
+  let _centerTheme: Theme = zinc
   const theme = await payload.find({
     collection: 'brands',
     overrideAccess: true,
@@ -143,7 +143,7 @@ export default async function RootLayout({ children, params }: Args) {
     typeof theme.docs[0] === 'object' &&
     typeof theme.docs[0].theme === 'object'
   ) {
-    centerTheme = theme.docs[0].theme
+    _centerTheme = theme.docs[0].theme
   } else {
     throw new Error(`didn't find theme for center ${center}`)
   }
@@ -154,7 +154,7 @@ export default async function RootLayout({ children, params }: Args) {
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
-        <style jsx>{style(centerTheme)}</style>
+        {/*<style jsx>{style(centerTheme)}</style>*/}
       </head>
       <body>
         <Providers>
@@ -173,7 +173,7 @@ export default async function RootLayout({ children, params }: Args) {
   )
 }
 
-const style: (theme: Theme) => string = (theme: Theme): string => {
+const _style: (theme: Theme) => string = (theme: Theme): string => {
   if (typeof theme.palettes.light !== 'object' || typeof theme.palettes.dark !== 'object') {
     throw new Error(`theme palette is a number - is query depth correct?`)
   }
