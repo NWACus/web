@@ -14,9 +14,9 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
 
 import { getServerSideURL } from '@/utilities/getURL'
-import { getPayload, RequiredDataFromCollectionSlug } from 'payload'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { Palette, Theme } from '@/payload-types'
+import { Theme } from '@/payload-types'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })

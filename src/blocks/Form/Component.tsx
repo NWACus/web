@@ -142,7 +142,7 @@ export const FormBlock: React.FC<
                 {formFromProps &&
                   formFromProps.fields &&
                   formFromProps.fields?.map((field, index) => {
-                    const Field: React.FC<any> = fields?.[field.blockType]
+                    const Field: React.FC<unknown> = fields?.[field.blockType]
                     if (Field) {
                       return (
                         <div className="mb-6 last:mb-0" key={index}>

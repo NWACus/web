@@ -37,7 +37,7 @@ export const getMeUser = async (args?: {
 
   // Token will exist here because if it doesn't the user will be redirected
   return {
-    token: token!,
+    token: token || '',
     user,
   }
 }

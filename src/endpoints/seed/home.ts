@@ -1,7 +1,11 @@
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import type { Media, Tenant } from '@/payload-types'
 
-export const home: (tenant: Tenant, image1: Media, image2: Media) => RequiredDataFromCollectionSlug<'pages'> = (
+export const home: (
+  tenant: Tenant,
+  image1: Media,
+  image2: Media,
+) => RequiredDataFromCollectionSlug<'pages'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,

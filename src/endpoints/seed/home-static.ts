@@ -1,8 +1,12 @@
 import type { Page } from '@/payload-types'
 
 // Used for pre-seeded content so that the homepage is not empty
-// @ts-expect-error
 export const homeStatic: Page = {
+  createdAt: '',
+  id: 0,
+  layout: [],
+  tenant: 0,
+  updatedAt: '',
   slug: 'home',
   _status: 'published',
   hero: {

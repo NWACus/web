@@ -23,7 +23,7 @@ export const NavigationGroups: CollectionConfig = {
       type: 'relationship',
       hasMany: true,
       required: true,
-      relationTo: ['pages']
-    }
+      relationTo: ['pages'],
+    },
   ],
 }

@@ -2,9 +2,17 @@ import React from 'react'
 
 import Script from 'next/script'
 
-export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations';
+export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
 
-export async function NACWidget({ center, widget, id }: { center: string; widget: Widget, id: string }) {
+export async function NACWidget({
+  center,
+  widget,
+  id,
+}: {
+  center: string
+  widget: Widget
+  id: string
+}) {
   return (
     <Script
       type="text/javascript"

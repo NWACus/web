@@ -12,7 +12,7 @@ export const Text: React.FC<
   TextField & {
     errors: Partial<
       FieldErrorsImpl<{
-        [x: string]: any
+        [x: string]: unknown
       }>
     >
     register: UseFormRegister<FieldValues>

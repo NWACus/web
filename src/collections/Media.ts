@@ -64,7 +64,7 @@ const {
   create: createAccess,
   update: updateAccess,
   delete: deleteAccess,
-} = accessByTenant('media')!
+} = accessByTenant('media') || {}
 
 export const Media: CollectionConfig = {
   slug: 'media',

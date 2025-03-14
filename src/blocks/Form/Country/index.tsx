@@ -18,10 +18,10 @@ import { countryOptions } from './options'
 
 export const Country: React.FC<
   CountryField & {
-    control: Control<FieldValues, any>
+    control: Control<FieldValues, unknown>
     errors: Partial<
       FieldErrorsImpl<{
-        [x: string]: any
+        [x: string]: unknown
       }>
     >
   }

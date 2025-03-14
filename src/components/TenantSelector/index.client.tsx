@@ -14,7 +14,6 @@ export const TenantSelector = ({
   cookieValue?: string
   options: OptionObject[]
 }) => {
-
   function setCookie(name: string, value?: string) {
     const expires = '; expires=Fri, 31 Dec 9999 23:59:59 GMT'
     document.cookie = name + '=' + (value || '') + expires + '; path=/'

@@ -23,7 +23,7 @@ export async function generateStaticParams() {
     },
   })
 
-  return tenants.docs.map((tenant): PathArgs => ({center: tenant.slug}))
+  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
 }
 
 type Args = {
@@ -42,7 +42,7 @@ export default async function Page({ params }: Args) {
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
           <h1>Avalanche Observations For {center}</h1>
-          <NACWidget center={center} widget={'observations'} id="nac-widget-container"/>
+          <NACWidget center={center} widget={'observations'} id="nac-widget-container" />
         </div>
       </div>
     </div>

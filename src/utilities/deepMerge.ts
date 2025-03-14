@@ -1,20 +1,18 @@
-// @ts-nocheck
-
 /**
  * Simple object check.
  * @param item
  * @returns {boolean}
  */
 export function isObject(item: unknown): boolean {
-  return item && typeof item === 'object' && !Array.isArray(item)
+  return !!(item && typeof item === 'object' && !Array.isArray(item))
 }
 
 /**
  * Deep merge two objects.
  * @param target
- * @param ...sources
+ * @param source
  */
-export default function deepMerge<T, R>(target: T, source: R): T {
+export default function deepMerge<T extends object, R extends object>(target: T, source: R): T {
   const output = { ...target }
   if (isObject(target) && isObject(source)) {
     Object.keys(source).forEach((key) => {

@@ -26,13 +26,11 @@ import {
   Palette,
   Post,
   Role,
-  RoleAssignment,
   Tenant,
   Theme,
   User,
 } from '@/payload-types'
 import { page } from '@/endpoints/seed/page'
-import { slugField } from '@/fields/slug'
 import { formatSlug } from '@/fields/slug/formatSlug'
 
 const collections: CollectionSlug[] = [
@@ -481,9 +479,9 @@ export const innerSeed = async ({
   const brandImages: Record<string, Record<string, Media>> = {}
   for (const data of brandImageData) {
     payload.logger.info(
-      `Creating brand media ${data.name} for tenant ${(data.data.tenant! as Tenant).name}...`,
+      `Creating brand media ${data.name} for tenant ${(data.data.tenant as Tenant).name}...`,
     )
-    data.file.name = (data.data.tenant! as Tenant).slug + '-' + data.file.name
+    data.file.name = (data.data.tenant as Tenant).slug + '-' + data.file.name
     const image = await payload
       .create({
         collection: 'media',
@@ -494,14 +492,14 @@ export const innerSeed = async ({
 
     if (!image) {
       payload.logger.error(
-        `Creating brand media ${data.name} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
+        `Creating brand media ${data.name} for tenant ${(data.data.tenant as Tenant).name} returned null...`,
       )
       return
     }
-    if (!((data.data.tenant! as Tenant).name in brandImages)) {
-      brandImages[(data.data.tenant! as Tenant).name] = {}
+    if (!((data.data.tenant as Tenant).name in brandImages)) {
+      brandImages[(data.data.tenant as Tenant).name] = {}
     }
-    brandImages[(data.data.tenant! as Tenant).name][data.name] = image
+    brandImages[(data.data.tenant as Tenant).name][data.name] = image
   }
 
   payload.logger.info(`— Seeding brands...`)
@@ -550,17 +548,17 @@ export const innerSeed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
         {
           name: tenant.slug.toUpperCase() + ' Admin',
-          email: 'admin@' + tenant.domains![0].domain,
+          email: 'admin@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
           password: 'password',
         },
         {
           name: tenant.slug.toUpperCase() + ' Contributor',
-          email: 'contributor@' + tenant.domains![0].domain,
+          email: 'contributor@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
           password: 'password',
         },
         {
           name: tenant.slug.toUpperCase() + ' Viewer',
-          email: 'viewer@' + tenant.domains![0].domain,
+          email: 'viewer@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
           password: 'password',
         },
       ])
@@ -585,7 +583,7 @@ export const innerSeed = async ({
 
   payload.logger.info(`— Seeding global role assignments...`)
 
-  const superAdminRoleAssignment = await payload
+  const _superAdminRoleAssignment = await payload
     .create({
       collection: 'globalRoleAssignments',
       data: {
@@ -621,7 +619,7 @@ export const innerSeed = async ({
   ]
   for (const data of roleAssignmentData) {
     payload.logger.info(
-      `Assigning ${(data.user! as User).name} role ${(data.roles! as Role[])[0].name} in ${(data.tenant! as Tenant).name}...`,
+      `Assigning ${(data.user as User).name} role ${(data.roles as Role[])[0].name} in ${(data.tenant as Tenant).name}...`,
     )
     const roleAssignment = await payload
       .create({
@@ -632,7 +630,7 @@ export const innerSeed = async ({
 
     if (!roleAssignment) {
       payload.logger.error(
-        `Assigning ${(data.user! as User).name} role ${(data.roles! as Role[])[0].name} in ${(data.tenant! as Tenant).name} returned null...`,
+        `Assigning ${(data.user as User).name} role ${(data.roles as Role[])[0].name} in ${(data.tenant as Tenant).name} returned null...`,
       )
       return
     }
@@ -685,10 +683,10 @@ export const innerSeed = async ({
   const images: Record<string, Record<string, Media>> = {}
   for (const data of imageData) {
     payload.logger.info(
-      `Creating media ${data.name} for tenant ${(data.data.tenant! as Tenant).name}...`,
+      `Creating media ${data.name} for tenant ${(data.data.tenant as Tenant).name}...`,
     )
     data.file = structuredClone(data.file)
-    data.file.name = (data.data.tenant! as Tenant).slug + '-' + data.file.name
+    data.file.name = (data.data.tenant as Tenant).slug + '-' + data.file.name
     const image = await payload
       .create({
         collection: 'media',
@@ -699,14 +697,14 @@ export const innerSeed = async ({
 
     if (!image) {
       payload.logger.error(
-        `Creating media ${data.name} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
+        `Creating media ${data.name} for tenant ${(data.data.tenant as Tenant).name} returned null...`,
       )
       return
     }
-    if (!((data.data.tenant! as Tenant).name in images)) {
-      images[(data.data.tenant! as Tenant).name] = {}
+    if (!((data.data.tenant as Tenant).name in images)) {
+      images[(data.data.tenant as Tenant).name] = {}
     }
-    images[(data.data.tenant! as Tenant).name][data.name] = image
+    images[(data.data.tenant as Tenant).name][data.name] = image
   }
 
   payload.logger.info(`— Seeding categories...`)
@@ -744,7 +742,7 @@ export const innerSeed = async ({
   const categories: Record<string, Record<string, Category>> = {}
   for (const data of categoryData) {
     payload.logger.info(
-      `Creating category ${data.title} for tenant ${(data.tenant! as Tenant).name}...`,
+      `Creating category ${data.title} for tenant ${(data.tenant as Tenant).name}...`,
     )
     const category = await payload
       .create({
@@ -755,14 +753,14 @@ export const innerSeed = async ({
 
     if (!category) {
       payload.logger.error(
-        `Creating category ${data.title} for tenant ${(data.tenant! as Tenant).name} returned null...`,
+        `Creating category ${data.title} for tenant ${(data.tenant as Tenant).name} returned null...`,
       )
       return
     }
-    if (!((data.tenant! as Tenant).name in categories)) {
-      categories[(data.tenant! as Tenant).name] = {}
+    if (!((data.tenant as Tenant).name in categories)) {
+      categories[(data.tenant as Tenant).name] = {}
     }
-    categories[(data.tenant! as Tenant).name][data.title] = category
+    categories[(data.tenant as Tenant).name][data.title] = category
   }
 
   payload.logger.info(`— Seeding posts...`)
@@ -804,7 +802,7 @@ export const innerSeed = async ({
   const posts: Record<string, Record<string, Post>> = {}
   for (const data of postData) {
     payload.logger.info(
-      `Creating post ${data.name} for tenant ${(data.data.tenant! as Tenant).name}...`,
+      `Creating post ${data.name} for tenant ${(data.data.tenant as Tenant).name}...`,
     )
     const post = await payload
       .create({
@@ -819,14 +817,14 @@ export const innerSeed = async ({
 
     if (!post) {
       payload.logger.error(
-        `Creating post ${data.name} for tenant ${(data.data.tenant! as Tenant).name} returned null...`,
+        `Creating post ${data.name} for tenant ${(data.data.tenant as Tenant).name} returned null...`,
       )
       return
     }
-    if (!((data.data.tenant! as Tenant).name in posts)) {
-      posts[(data.data.tenant! as Tenant).name] = {}
+    if (!((data.data.tenant as Tenant).name in posts)) {
+      posts[(data.data.tenant as Tenant).name] = {}
     }
-    posts[(data.data.tenant! as Tenant).name][data.name] = post
+    posts[(data.data.tenant as Tenant).name][data.name] = post
   }
 
   payload.logger.info(`— Updating post relationships...`)
@@ -835,7 +833,7 @@ export const innerSeed = async ({
     const posts = Object.values(data) as Post[]
     for (let i = 0; i < posts.length; i++) {
       payload.logger.info(
-        `Updating post ${posts[i].id} for tenant ${(posts[i].tenant! as Tenant).name}...`,
+        `Updating post ${posts[i].id} for tenant ${(posts[i].tenant as Tenant).name}...`,
       )
       await payload
         .update({
@@ -845,7 +843,7 @@ export const innerSeed = async ({
             relatedPosts: posts.filter((post) => post.id !== posts[i].id).map((post) => post.id),
           },
         })
-        .catch((e) => payload.logger.error)
+        .catch(() => payload.logger.error)
     }
   }
 
@@ -965,7 +963,7 @@ export const innerSeed = async ({
   ]
   const pages: Record<string, Record<string, Page>> = {}
   for (const data of pageData) {
-    payload.logger.info(`Creating page ${data.slug} for tenant ${(data.tenant! as Tenant).name}...`)
+    payload.logger.info(`Creating page ${data.slug} for tenant ${(data.tenant as Tenant).name}...`)
     const page = await payload
       .create({
         collection: 'pages',
@@ -976,14 +974,14 @@ export const innerSeed = async ({
 
     if (!page) {
       payload.logger.error(
-        `Creating page ${data.slug} for tenant ${(data.tenant! as Tenant).name} returned null...`,
+        `Creating page ${data.slug} for tenant ${(data.tenant as Tenant).name} returned null...`,
       )
       return
     }
-    if (!((data.tenant! as Tenant).name in pages)) {
-      pages[(data.tenant! as Tenant).name] = {}
+    if (!((data.tenant as Tenant).name in pages)) {
+      pages[(data.tenant as Tenant).name] = {}
     }
-    pages[(data.tenant! as Tenant).name][data.slug] = page
+    pages[(data.tenant as Tenant).name][data.slug] = page
   }
 
   payload.logger.info(`— Seeding navigation...`)

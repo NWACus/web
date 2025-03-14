@@ -34,7 +34,7 @@ export async function generateStaticParams() {
       payload.logger.error(`got number for post tenant`)
       continue
     }
-    params.push({center: post.tenant.slug, slug: post.slug})
+    params.push({ center: post.tenant.slug, slug: post.slug })
   }
 
   return params

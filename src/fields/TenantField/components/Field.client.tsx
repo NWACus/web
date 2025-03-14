@@ -4,9 +4,9 @@ import React from 'react'
 
 type Props = {
   initialValue?: number
-  field: React.ComponentProps<typeof RelationshipField>['field'];
-  path: React.ComponentProps<typeof RelationshipField>['path'];
-  readOnly: React.ComponentProps<typeof RelationshipField>['readOnly'];
+  field: React.ComponentProps<typeof RelationshipField>['field']
+  path: React.ComponentProps<typeof RelationshipField>['path']
+  readOnly: React.ComponentProps<typeof RelationshipField>['readOnly']
 }
 export function TenantFieldComponentClient({ initialValue, path, field, readOnly }: Props) {
   const { formInitializing, setValue, value } = useField({ path })
@@ -20,11 +20,5 @@ export function TenantFieldComponentClient({ initialValue, path, field, readOnly
     }
   }, [initialValue, setValue, formInitializing, value])
 
-  return (
-    <RelationshipField
-      field={field}
-      path={path}
-      readOnly={readOnly}
-    />
-  )
+  return <RelationshipField field={field} path={path} readOnly={readOnly} />
 }

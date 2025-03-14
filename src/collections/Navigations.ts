@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { tenantField, uniqueTenantField } from '@/fields/TenantField'
+import { uniqueTenantField } from '@/fields/TenantField'
 import { accessByTenant } from '@/access/byTenant'
 
 export const Navigations: CollectionConfig = {

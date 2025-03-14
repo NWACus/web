@@ -14,12 +14,12 @@ export const Checkbox: React.FC<
   CheckboxField & {
     errors: Partial<
       FieldErrorsImpl<{
-        [x: string]: any
+        [x: string]: unknown
       }>
     >
-    getValues: any
+    getValues: unknown
     register: UseFormRegister<FieldValues>
-    setValue: any
+    setValue: unknown
   }
 > = ({ name, defaultValue, errors, label, register, required: requiredFromProps, width }) => {
   const props = register(name, { required: requiredFromProps })

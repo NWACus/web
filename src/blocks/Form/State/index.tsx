@@ -18,10 +18,10 @@ import { stateOptions } from './options'
 
 export const State: React.FC<
   StateField & {
-    control: Control<FieldValues, any>
+    control: Control<FieldValues, unknown>
     errors: Partial<
       FieldErrorsImpl<{
-        [x: string]: any
+        [x: string]: unknown
       }>
     >
   }

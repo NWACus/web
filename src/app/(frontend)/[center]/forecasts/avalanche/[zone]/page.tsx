@@ -25,7 +25,7 @@ export async function generateStaticParams() {
 
   // TODO: hit the NAC API for forecast zones, translate active names to slugs
 
-  return tenants.docs.map((tenant): PathArgs => ({center: tenant.slug, zone: ''}))
+  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
 }
 
 type Args = {
@@ -45,8 +45,10 @@ export default async function Page({ params }: Args) {
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
-          <h1>Avalanche Forecast For {center} Zone {zone}</h1>
-          <NACWidget center={center} widget={'forecast'} id="nac-widget-container"/>
+          <h1>
+            Avalanche Forecast For {center} Zone {zone}
+          </h1>
+          <NACWidget center={center} widget={'forecast'} id="nac-widget-container" />
         </div>
       </div>
     </div>

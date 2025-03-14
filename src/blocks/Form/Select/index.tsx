@@ -17,10 +17,10 @@ import { Width } from '../Width'
 
 export const Select: React.FC<
   SelectField & {
-    control: Control<FieldValues, any>
+    control: Control<FieldValues, unknown>
     errors: Partial<
       FieldErrorsImpl<{
-        [x: string]: any
+        [x: string]: unknown
       }>
     >
   }

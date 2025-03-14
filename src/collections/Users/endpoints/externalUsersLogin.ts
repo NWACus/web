@@ -13,7 +13,7 @@ export const externalUsersLogin: Endpoint = {
       if (typeof req.json === 'function') {
         data = await req.json()
       }
-    } catch (error) {
+    } catch (_error) {
       // swallow error, data is already empty object
     }
     const { password, tenantSlug, username } = data
@@ -107,7 +107,8 @@ export const externalUsersLogin: Endpoint = {
           null,
           true,
         )
-      } catch (e) {
+      } catch (_e) {
+        // TODO: log the error
         throw new APIError(
           'Unable to login with the provided username and password.',
           400,

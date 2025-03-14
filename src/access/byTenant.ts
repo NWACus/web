@@ -2,7 +2,6 @@ import { Access, CollectionConfig } from 'payload'
 import { globalRolesForUser } from '@/utilities/rbac/globalRolesForUser'
 import { ruleCollection, ruleMethod, ruleMatches } from '@/utilities/rbac/ruleMatches'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
-import { defaultTenantIdFromHeaders } from '@/utilities/tenancy/defaultTenantIdFromHeaders'
 
 // byTenant walks the roles bound to the user to determine if they have permissions
 // to take the specified action on a resource of the collection type. Used for
@@ -52,11 +51,13 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
     return false
   }
 
-  export const accessByTenant: (collection: ruleCollection) => CollectionConfig['access'] = (collection: ruleCollection) => {
-    return {
-      create: byTenant('create', collection),
-      read: byTenant('read', collection),
-      update: byTenant('update', collection),
-      delete: byTenant('delete', collection),
-    }
+export const accessByTenant: (collection: ruleCollection) => CollectionConfig['access'] = (
+  collection: ruleCollection,
+) => {
+  return {
+    create: byTenant('create', collection),
+    read: byTenant('read', collection),
+    update: byTenant('update', collection),
+    delete: byTenant('delete', collection),
   }
+}
