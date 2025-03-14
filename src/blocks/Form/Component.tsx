@@ -150,6 +150,7 @@ export const FormBlock: React.FC<
                             form={formFromProps}
                             {...field}
                             {...formMethods}
+                            // @ts-expect-error there's something imprecise about this `Field` abstraction, tsc says there's no control prop
                             control={control}
                             errors={errors}
                             register={register}
