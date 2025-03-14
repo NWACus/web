@@ -46,6 +46,4 @@ jobs:
         run: pnpm ii
         shell: bash
       - name: 🧹 Run prettier
-        run: -|
-          echo "🎨  Checking prettier format..."
-          if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi
+        run: if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi
