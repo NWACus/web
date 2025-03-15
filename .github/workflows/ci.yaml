@@ -48,11 +48,26 @@ jobs:
       - name: 📦 Opt out of image optimization
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
+      - name: 📦 Create .env file
+        run: |
+          for var in DATABASE_URI PAYLOAD_SECRET GOOGLE_MAPS_API_KEY; do
+            echo "${var}=${!var}" >> .env
+          done
+          cat .env
+        shell: bash
+        env:
+          DATABASE_URI: 'file:./dev.db.seeded'
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+      - name: 📦 sanity check
+        run: |
+          cksum --algorithm md5 <<<"${PAYLOAD_SECRET}"
+        shell: bash
+        env:
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
       - name: 🧹 Run build
         run: pnpm build
         shell: bash
-        env:
-          NEXT_PUBLIC_DATABASE_URI: 'file:./dev.db.seeded'
 
   prettier:
     name: prettier
