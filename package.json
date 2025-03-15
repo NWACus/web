@@ -20,7 +20,7 @@
     "prettify": "cross-env NODE_OPTIONS=--no-deprecation prettier --write ."
   },
   "dependencies": {
-    "@payloadcms/db-vercel-postgres": "3.9.0",
+    "@payloadcms/db-sqlite": "3.9.0",
     "@payloadcms/live-preview-react": "3.9.0",
     "@payloadcms/next": "3.9.0",
     "@payloadcms/payload-cloud": "3.9.0",
