@@ -27,6 +27,42 @@ jobs:
       - name: 🧹 Run lint
         run: pnpm lint
 
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 📦 Opt out of image optimization
+        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
+        shell: bash
+      - name: 📦 Create .env file
+        run: |
+          for var in DATABASE_URI PAYLOAD_SECRET GOOGLE_MAPS_API_KEY; do
+            echo "${var}=${!var}" >> .env
+          done
+          cat .env
+        shell: bash
+        env:
+          DATABASE_URI: 'file:./dev.db.seeded'
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+      - name: 🧹 Run build
+        run: pnpm build
+        shell: bash
+
   prettier:
     name: prettier
     runs-on: ubuntu-latest
