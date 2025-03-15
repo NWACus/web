@@ -27,6 +27,33 @@ jobs:
       - name: 🧹 Run lint
         run: pnpm lint
 
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 📦 Opt out of image optimization
+        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
+        shell: bash
+      - name: 🧹 Run build
+        run: pnpm build
+        shell: bash
+        env:
+          NEXT_PUBLIC_DATABASE_URI: 'file:./dev.db.seeded'
+
   prettier:
     name: prettier
     runs-on: ubuntu-latest
