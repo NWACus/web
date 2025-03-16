@@ -16,3 +16,6 @@ public/sitemap*.xml
 dev.db
 dev.db-shm
 dev.db-wal
+.env.production
+.env.development
+.env.test
