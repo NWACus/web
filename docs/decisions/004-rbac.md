@@ -32,4 +32,8 @@ Collections:
 - roleAssignments
 - globalRoleAssignments
 
+Additional benefits to this approach:
+- Roles and bindings are just CMS content, so AC staff / our users can reconfigure these at their discretion and on their own time. There may be technical consulting required but not dev work to add/change/remove roles.
+- Per-tenant admins can manage their own fiefdom however they want, so there's no central bottleneck for user management
+
 ## Consequences
