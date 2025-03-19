@@ -1,0 +1,35 @@
+# Approach to Role-Based Access Control (RBAC)
+
+Date: 2025-03-18
+
+Status: proposed
+
+## Context
+
+Payload provides a very flexible approach to [access control](https://payloadcms.com/docs/access-control/overview). But we still need to design and implement RBAC based on our needs ourselves.
+
+Their multi-tenant plugin helps with access related to multi-tenancy but we still need to implement our custom RBAC requirements.
+
+We want:
+- Super admin role: can see all content regardless of tenant
+- Flexible tenant-scoped roles: can perform any of create, read, update, delete, * on any of the collections
+- Users can have many roles
+
+We may want:
+- Users to be able to have roles across multiple tenants
+- Users to be able to have roles that only allow them to authenticate outside of the payload admin panel on a tenant's subdomain.
+  - Users would be able to have a single account across tenants
+
+## Decision
+
+A flexible approach using three collections and a rules field has been built to allow for:
+- Global roles
+- Tenant-scoped roles
+- New roles to be created with custom rules by super admins
+
+Collections:
+- roles
+- roleAssignments
+- globalRoleAssignments
+
+## Consequences
