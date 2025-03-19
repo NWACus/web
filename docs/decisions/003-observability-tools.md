@@ -14,7 +14,7 @@ We need to be able to monitor errors and performance, view logs, and capture web
 
 ## Decision
 
-Sentry and PostHog are great tools for this.
+Sentry and PostHog are great tools for this and we already have accounts used by [Avy](https://github.com/NWACus/avy).
 
 Sentry:
 - Error monitoring
