@@ -20,7 +20,7 @@ When using the pre-existing seeded database, remember to make a local copy so ch
 
 ```shell
 cp dev.db{.seeded,}
-echo "DATABASE_URI=file:.dev.db" >> .env
+echo "DATABASE_URI=file:dev.db" >> .env
 pnpm dev
 ```
 
@@ -29,7 +29,7 @@ pnpm dev
 Start a new database with:
 
 ```shell
-echo "DATABASE_URI=file:.dev.db" >> .env
+echo "DATABASE_URI=file:dev.db" >> .env
 sqlite3 dev.db
 ```
 
