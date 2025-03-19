@@ -44,3 +44,8 @@ Additional benefits to this approach:
 - Per-tenant admins can manage their own fiefdom however they want, so there's no central bottleneck for user management
 
 ## Consequences
+
+This flexible rules approach comes with:
+- Up-front complexity
+- More detailed documentation requirements for both devs and non-technical folks
+- Potentially a custom UI in the admin panel to make creating rules easier/more intuitive for tenant admins
