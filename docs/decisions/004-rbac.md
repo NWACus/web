@@ -25,11 +25,18 @@ We may want:
 A flexible approach using three collections and a rules field has been built to allow for:
 - Global roles
 - Tenant-scoped roles
-- New roles to be created with custom rules by super admins
+- Global roles and tenant-scoped roles can be managed with custom rules by super admins
+- Tenant-scoped roles can be managed by tenant admins
+
+Tenant scoped roles are applied in this order (in the context of performing an action on a collection):
+1. Filter by tenant based on the tenant field on the collection
+2. Filter by rules associated with the role based on the collection and action
+
+Global access is checked before tenant-scoped role assignments so that it will supercede tenant-scoped role assignments.
 
 Collections:
-- roles
-- roleAssignments
+- roles (both global and tenant-scoped roles)
+- roleAssignments (tenant-scoped role assignments)
 - globalRoleAssignments
 
 Additional benefits to this approach:
