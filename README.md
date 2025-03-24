@@ -63,3 +63,17 @@ Then, create a backup:
 .backup main dev.db.seeded
 .quit
 ```
+
+## Git
+
+### Signing commits
+
+This repo on GitHub [requires signed commits](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) on the main branch.
+
+To avoid an error when attempting to merge a PR on a feature branch into main, you should setup automatic commit signing:
+
+1. Generate a GPG key (or use an existing one with the same name and email as your GitHub account): [GitHub guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key)
+2. Add your GPG key to your GitHub account: [GitHub guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account)
+3. Configure git to use your GPG key: [GitHub guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-gpg-key)
+
+Note: When configuring git to automatically sign commits you could leave out the `--global` flag if you only want to automatically sign commits in this repo, not all repos.
