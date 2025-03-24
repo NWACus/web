@@ -32,7 +32,7 @@ Tenant scoped roles are applied in this order (in the context of performing an a
 1. Filter by tenant based on the tenant field on the collection
 2. Filter by rules associated with the role based on the collection and action
 
-Global access is checked before tenant-scoped role assignments so that it will supercede tenant-scoped role assignments.
+Authorization is deny-by-default with roles being additive. Once a rule in a role allows an action on a collection the access control system stops checking additional rules.
 
 Collections:
 - roles (both global and tenant-scoped roles)
