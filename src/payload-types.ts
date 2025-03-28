@@ -163,7 +163,7 @@ export interface UserAuthOperations {
  */
 export interface Category {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   title: string;
   parent?: (number | null) | Category;
   breadcrumbs?:
@@ -203,7 +203,7 @@ export interface Tenant {
  */
 export interface Media {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   alt: string;
   caption?: {
     root: {
@@ -296,6 +296,7 @@ export interface Media {
  */
 export interface Page {
   id: number;
+  tenant?: (number | null) | Tenant;
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
@@ -352,7 +353,6 @@ export interface Page {
   publishedAt?: string | null;
   slug: string;
   slugLock?: boolean | null;
-  tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -363,7 +363,7 @@ export interface Page {
  */
 export interface Post {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   title: string;
   heroImage?: (number | null) | Media;
   content: {
@@ -465,7 +465,7 @@ export interface Role {
  */
 export interface RoleAssignment {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   roles?: (number | Role)[] | null;
   user?: (number | null) | User;
   updatedAt: string;
@@ -818,7 +818,7 @@ export interface Form {
  */
 export interface Brand {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   logo: number | Media;
   banner: number | Media;
   theme: number | Theme;
@@ -884,7 +884,7 @@ export interface Palette {
  */
 export interface Navigation {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   items: (
     | {
         relationTo: 'navigationSections';
@@ -914,7 +914,7 @@ export interface Navigation {
  */
 export interface NavigationSection {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   slug: string;
   slugLock?: boolean | null;
   title: string;
@@ -937,7 +937,7 @@ export interface NavigationSection {
  */
 export interface NavigationGroup {
   id: number;
-  tenant: number | Tenant;
+  tenant?: (number | null) | Tenant;
   slug: string;
   slugLock?: boolean | null;
   title: string;
@@ -1264,6 +1264,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   hero?:
     | T
@@ -1306,7 +1307,6 @@ export interface PagesSelect<T extends boolean = true> {
   publishedAt?: T;
   slug?: T;
   slugLock?: T;
-  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

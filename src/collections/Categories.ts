@@ -10,7 +10,7 @@ export const Categories: CollectionConfig = {
     group: 'Content',
   },
   fields: [
-    tenantField,
+    // tenantField,
     {
       name: 'title',
       type: 'text',

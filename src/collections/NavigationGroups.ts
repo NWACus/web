@@ -11,7 +11,7 @@ export const NavigationGroups: CollectionConfig = {
     group: 'Navigation',
   },
   fields: [
-    tenantField,
+    // tenantField,
     ...slugField('title'),
     {
       name: 'title',

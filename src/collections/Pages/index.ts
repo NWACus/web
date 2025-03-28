@@ -33,7 +33,7 @@ export const Pages: CollectionConfig<'pages'> = {
   admin: {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    baseListFilter: filterByTenant,
+    // baseListFilter: filterByTenant,
     livePreview: {
       url: ({ data, req }) => {
         const path = generatePreviewPath({
@@ -118,7 +118,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
     ...slugField(),
-    tenantField,
+    // tenantField,
   ],
   hooks: {
     afterChange: [revalidatePage],

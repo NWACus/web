@@ -11,7 +11,7 @@ export const NavigationSections: CollectionConfig = {
     useAsTitle: 'title',
   },
   fields: [
-    tenantField,
+    // tenantField,
     ...slugField('title'),
     {
       name: 'title',

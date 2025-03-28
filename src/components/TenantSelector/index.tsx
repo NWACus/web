@@ -55,7 +55,7 @@ export const TenantSelectorRSC: PayloadServerReactComponent<CustomComponent> = a
         // like roles, which most users have and does not indicate any need to access other tenants.
         // Instead of filtering out roles for global data, we white-list tenant-scoped data, so
         // errors in updating this list cause this selector to fail closed instead of failing open.
-        const globalRoles = globalRolesForUser(payload.logger, user)
+        const globalRoles = globalRolesForUser(user, payload.logger)
         let globallyAccessesTenantData = false
         // TODO: correct this list
         const collections: CollectionSlug[] = ['roleAssignments', 'posts', 'pages', 'categories']

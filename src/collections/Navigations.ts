@@ -9,7 +9,7 @@ export const Navigations: CollectionConfig = {
     group: 'Navigation',
   },
   fields: [
-    uniqueTenantField,
+    // uniqueTenantField,
     {
       name: 'items',
       type: 'relationship',

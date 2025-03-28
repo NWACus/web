@@ -75,11 +75,11 @@ export const Media: CollectionConfig = {
     delete: deleteAccess,
   },
   admin: {
-    baseListFilter: filterByTenant,
+    // baseListFilter: filterByTenant,
     group: 'Content',
   },
   fields: [
-    tenantField,
+    // tenantField,
     {
       name: 'alt',
       type: 'text',

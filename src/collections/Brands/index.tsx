@@ -8,11 +8,11 @@ export const Brands: CollectionConfig = {
   slug: 'brands',
   access: accessByTenant('brands'),
   admin: {
-    baseListFilter: filterByTenant,
+    // baseListFilter: filterByTenant,
     group: 'Branding',
   },
   fields: [
-    uniqueTenantField,
+    // uniqueTenantField,
     {
       type: 'tabs',
       tabs: [

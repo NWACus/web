@@ -46,7 +46,7 @@ export const Posts: CollectionConfig<'posts'> = {
   admin: {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    baseListFilter: filterByTenant,
+    // baseListFilter: filterByTenant,
     livePreview: {
       url: ({ data, req }) => {
         const path = generatePreviewPath({
@@ -67,7 +67,7 @@ export const Posts: CollectionConfig<'posts'> = {
     useAsTitle: 'title',
   },
   fields: [
-    tenantField,
+    // tenantField,
     {
       name: 'title',
       type: 'text',

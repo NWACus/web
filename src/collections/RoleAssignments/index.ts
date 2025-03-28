@@ -1,18 +1,29 @@
 import type { CollectionConfig } from 'payload'
-import { tenantField } from '@/fields/TenantField'
 import { accessByTenant } from '@/access/byTenant'
-import { filterByTenant } from '@/access/filterByTenant'
+import { tenantField } from '@payloadcms/plugin-multi-tenant/fields'
+
+const customizedTenantField = tenantField({
+  name: 'tenant',
+  tenantsCollectionSlug: 'tenants',
+  unique: false,
+  access: {
+    read: () => true,
+    update: () => true,
+  },
+})
 
 // A role assignment binds a user to a set of roles in a tenant.
 export const RoleAssignments: CollectionConfig = {
   slug: 'roleAssignments',
   access: accessByTenant('roleAssignments'),
   admin: {
-    baseListFilter: filterByTenant,
     group: 'Permissions',
   },
   fields: [
-    tenantField,
+    {
+      ...customizedTenantField,
+      label: 'Avalanche Center',
+    },
     {
       name: 'roles',
       type: 'relationship',

@@ -13,7 +13,7 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
       return false
     }
 
-    const globalRoles = globalRolesForUser(payload.logger, user)
+    const globalRoles = globalRolesForUser(user, payload.logger)
 
     const globalRolesMatch = globalRoles
       .map((role) => role.rules)
@@ -37,7 +37,7 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
       )
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter
-      .map((tenant) => tenant.id)
+      .map((tenant) => tenant?.id)
 
     if (matchingTenantIds.length > 0) {
       // otherwise, return a where clause capturing the tenants they can take this action in

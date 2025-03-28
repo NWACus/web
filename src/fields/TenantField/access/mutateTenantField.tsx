@@ -7,7 +7,7 @@ export const mutateTenantField: FieldAccess = ({ req: { user, payload } }) => {
     return false
   }
 
-  const globalRoles = globalRolesForUser(payload.logger, user)
+  const globalRoles = globalRolesForUser(user, payload.logger)
   return globalRoles
     .map((role) => role.rules)
     .flat()
