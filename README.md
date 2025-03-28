@@ -37,16 +37,17 @@ pnpm i
 pnpm dev
 ```
 
-### Phone a friend for secrets 
+### Phone a friend for secrets
 
 **TODO: add to password manager**
-You will need to add two keys to your `.env` file. Reach out to someone on the dev team. 
+You will need to add two keys to your `.env` file. Reach out to someone on the dev team.
 
 ### Access the app
 
 Once a database file is chosen and the development server is started, navigate to the admin panel`localhost:3000/admin` and log in with `password:admin@avy.com` for a seeded site, or bootstrap the first user as necessary.
 
-## Database 
+## Database
+
 ### Use the existing seeded database
 
 When using the pre-existing seeded database, remember to make a local copy so changes are not committed unless you would like them to be.
