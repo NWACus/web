@@ -34,6 +34,9 @@ import { page } from '@/endpoints/seed/page'
 import { formatSlug } from '@/fields/slug/formatSlug'
 
 const collections: CollectionSlug[] = [
+  'brands',
+  'themes',
+  'palettes',
   'categories',
   'media',
   'pages',
@@ -98,7 +101,10 @@ export const innerSeed = async ({
   )
 
   await Promise.all(
-    collections.map((collection) => payload.db.deleteMany({ collection, req, where: {} })),
+    collections.map((collection) => {
+      payload.logger.info(`Deleting collection: ${collection}`)
+      return payload.db.deleteMany({ collection, req, where: {} })
+    }),
   ).catch((e) => payload.logger.error(e))
 
   await Promise.all(
@@ -633,6 +639,31 @@ export const innerSeed = async ({
         `Assigning ${(data.user as User).name} role ${(data.roles as Role[])[0].name} in ${(data.tenant as Tenant).name} returned null...`,
       )
       return
+    }
+  }
+
+  payload.logger.info('- Creating global role assignment with first user and Admin role...')
+
+  const firstUserRes = await payload.find({
+    collection: 'users',
+    limit: 1,
+    pagination: false,
+    sort: 'createdAt',
+  })
+
+  const firstUser = firstUserRes.docs[0]
+
+  if (firstUser) {
+    try {
+      await payload.create({
+        collection: 'globalRoleAssignments',
+        data: {
+          roles: [roles['Admin']],
+          user: firstUser,
+        },
+      })
+    } catch (err) {
+      payload.logger.error(`Failed assign global admin role to first user, error: ${err.message}`)
     }
   }
 
