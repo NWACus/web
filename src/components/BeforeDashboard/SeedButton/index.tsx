@@ -47,6 +47,9 @@ export const SeedButton: React.FC = () => {
                   if (res.ok) {
                     resolve(true)
                     setSeeded(true)
+
+                    // Seed script may have adjusted currently logged in user's permissions
+                    window.location.reload()
                   } else {
                     reject('An error occurred while seeding.')
                   }
