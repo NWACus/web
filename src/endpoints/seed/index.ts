@@ -656,7 +656,15 @@ export const innerSeed = async ({
 
   const firstUser = firstUserRes.docs[0]
 
-  if (firstUser) {
+  const firstUserHasGlobalAdminRole = firstUser.globalRoles?.docs?.find((globalRole) => {
+    if (typeof globalRole === 'number') return false
+    return globalRole.roles?.find((role) => {
+      if (typeof role === 'number') return false
+      return role.id === roles['Admin'].id
+    })
+  })
+
+  if (firstUser && !firstUserHasGlobalAdminRole) {
     try {
       await payload.create({
         collection: 'globalRoleAssignments',
