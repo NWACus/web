@@ -1,1 +1,1 @@
-pnpm prettify
+pnpm run lint-staged

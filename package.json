@@ -18,7 +18,11 @@
     "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "prettify": "cross-env NODE_OPTIONS=--no-deprecation prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "**/*": "pnpm run prettify"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "3.28.1",
@@ -71,6 +75,7 @@
     "eslint-config-next": "15.1.0",
     "eslint-config-prettier": "^10.1.1",
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-organize-imports": "^4.1.0",
