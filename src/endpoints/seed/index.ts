@@ -551,24 +551,24 @@ export const innerSeed = async ({
     {
       name: 'Super Admin',
       email: 'admin@avy.com',
-      password: 'password',
+      password: 'localpass',
     },
     ...Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
         {
           name: tenant.slug.toUpperCase() + ' Admin',
           email: 'admin@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
         {
           name: tenant.slug.toUpperCase() + ' Contributor',
           email: 'contributor@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
         {
           name: tenant.slug.toUpperCase() + ' Viewer',
           email: 'viewer@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
       ])
       .flat(),
