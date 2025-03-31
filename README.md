@@ -12,17 +12,7 @@ When working on the front-end, it's possible to start with a seeded database and
 
 When changes to the schema or seed data need to occur, simply start with a new database and use a backup to update the seed database.
 
-Once a database file is chosen and the development server is started, navigate to `localhost:3000/admin` and log in with `password:admin@avy.com` for a seeded site, or bootstrap the first user as necesary.
-
-### Use the existing seeded database
-
-When using the pre-existing seeded database, remember to make a local copy so changes are not committed unless you would like them to be.
-
-```shell
-cp dev.db{.seeded,}
-echo "DATABASE_URI=file:dev.db" >> .env
-pnpm dev
-```
+## First time setup
 
 ### Creating a new database
 
@@ -33,20 +23,40 @@ echo "DATABASE_URI=file:dev.db" >> .env
 sqlite3 dev.db
 ```
 
-Configure the database to use WAL mode with:
+In the database console, configure the database to use WAL mode with:
 
 ```sqlite
 PRAGMA journal_mode=WAL;
-.quit.
+.quit
 ```
 
 Start the development server with
 
 ```shell
+pnpm i
 pnpm dev
 ```
 
-Navigate to the admin panel (localhost:3000/admin), create the first user, and seed the database.
+### Phone a friend for secrets
+
+**TODO: add to password manager**
+You will need to add two keys to your `.env` file. Reach out to someone on the dev team.
+
+### Access the app
+
+Once a database file is chosen and the development server is started, navigate to the admin panel`localhost:3000/admin` and log in with `password:admin@avy.com` for a seeded site, or bootstrap the first user as necessary.
+
+## Database
+
+### Use the existing seeded database
+
+When using the pre-existing seeded database, remember to make a local copy so changes are not committed unless you would like them to be.
+
+```shell
+cp dev.db{.seeded,}
+echo "DATABASE_URI=file:dev.db" >> .env
+pnpm dev
+```
 
 ### Update the seed database
 
