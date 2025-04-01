@@ -12,6 +12,7 @@ import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import tenantFieldPlugin from './tenantFieldPlugin'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | AvyFx` : 'AvyFx'
@@ -89,4 +90,7 @@ export const plugins: Plugin[] = [
     },
   }),
   payloadCloudPlugin(),
+  tenantFieldPlugin({
+    collections: ['forms', 'form-submissions', 'redirects'],
+  }),
 ]

@@ -811,6 +811,7 @@ export interface Form {
         id?: string | null;
       }[]
     | null;
+  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -986,6 +987,7 @@ export interface Redirect {
         } | null);
     url?: string | null;
   };
+  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -1003,6 +1005,7 @@ export interface FormSubmission {
         id?: string | null;
       }[]
     | null;
+  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -1647,6 +1650,7 @@ export interface RedirectsSelect<T extends boolean = true> {
         reference?: T;
         url?: T;
       };
+  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1780,6 +1784,7 @@ export interface FormsSelect<T extends boolean = true> {
         message?: T;
         id?: T;
       };
+  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1796,6 +1801,7 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
