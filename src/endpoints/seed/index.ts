@@ -34,6 +34,9 @@ import { page } from '@/endpoints/seed/page'
 import { formatSlug } from '@/fields/slug/formatSlug'
 
 const collections: CollectionSlug[] = [
+  'brands',
+  'themes',
+  'palettes',
   'categories',
   'media',
   'pages',
@@ -41,6 +44,9 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
+  'navigationGroups',
+  'navigationSections',
+  'navigations',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
@@ -98,7 +104,10 @@ export const innerSeed = async ({
   )
 
   await Promise.all(
-    collections.map((collection) => payload.db.deleteMany({ collection, req, where: {} })),
+    collections.map((collection) => {
+      payload.logger.info(`Deleting collection: ${collection}`)
+      return payload.db.deleteMany({ collection, req, where: {} })
+    }),
   ).catch((e) => payload.logger.error(e))
 
   await Promise.all(
@@ -542,24 +551,24 @@ export const innerSeed = async ({
     {
       name: 'Super Admin',
       email: 'admin@avy.com',
-      password: 'password',
+      password: 'localpass',
     },
     ...Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
         {
           name: tenant.slug.toUpperCase() + ' Admin',
           email: 'admin@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
         {
           name: tenant.slug.toUpperCase() + ' Contributor',
           email: 'contributor@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
         {
           name: tenant.slug.toUpperCase() + ' Viewer',
           email: 'viewer@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
       ])
       .flat(),
@@ -633,6 +642,39 @@ export const innerSeed = async ({
         `Assigning ${(data.user as User).name} role ${(data.roles as Role[])[0].name} in ${(data.tenant as Tenant).name} returned null...`,
       )
       return
+    }
+  }
+
+  payload.logger.info('- Creating global role assignment with first user and Admin role...')
+
+  const firstUserRes = await payload.find({
+    collection: 'users',
+    limit: 1,
+    pagination: false,
+    sort: 'createdAt',
+  })
+
+  const firstUser = firstUserRes.docs[0]
+
+  const firstUserHasGlobalAdminRole = firstUser.globalRoles?.docs?.find((globalRole) => {
+    if (typeof globalRole === 'number') return false
+    return globalRole.roles?.find((role) => {
+      if (typeof role === 'number') return false
+      return role.id === roles['Admin'].id
+    })
+  })
+
+  if (firstUser && !firstUserHasGlobalAdminRole) {
+    try {
+      await payload.create({
+        collection: 'globalRoleAssignments',
+        data: {
+          roles: [roles['Admin']],
+          user: firstUser,
+        },
+      })
+    } catch (err) {
+      payload.logger.error(`Failed assign global admin role to first user, error: ${err.message}`)
     }
   }
 
