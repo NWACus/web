@@ -91,6 +91,13 @@ export const plugins: Plugin[] = [
   }),
   payloadCloudPlugin(),
   tenantFieldPlugin({
-    collections: ['forms', 'form-submissions', 'redirects'],
+    collections: [
+      {
+        slug: 'forms',
+      },
+      { slug: 'form-submissions' },
+      { slug: 'redirects' },
+      { slug: 'search', addField: false },
+    ],
   }),
 ]

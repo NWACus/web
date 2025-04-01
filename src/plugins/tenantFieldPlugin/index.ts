@@ -44,9 +44,16 @@ export const combineListFilters =
     return null
   }
 
-type TenantFieldPluginOptions = {
-  collections: string[]
+type CollectionOptions = {
+  slug: string
+  addField?: boolean
+  addFilter?: boolean
   fieldOverrides?: Record<string, any>
+}
+
+type TenantFieldPluginOptions = {
+  collections: CollectionOptions[]
+  defaultFieldOverrides?: Record<string, any>
 }
 
 const tenantFieldPlugin = (options: TenantFieldPluginOptions) => {
@@ -58,26 +65,37 @@ const tenantFieldPlugin = (options: TenantFieldPluginOptions) => {
     }
 
     config.collections = config.collections.map((collection) => {
-      if (options.collections.includes(collection.slug)) {
-        if (!collection.admin) {
-          collection.admin = {}
+      const collectionOptions = options.collections.find((opt) => opt.slug === collection.slug)
+
+      if (collectionOptions) {
+        let updatedCollection = { ...collection }
+
+        if (collectionOptions.addFilter !== false) {
+          if (!updatedCollection.admin) {
+            updatedCollection.admin = {}
+          }
+
+          updatedCollection.admin.baseListFilter = combineListFilters({
+            baseListFilter: updatedCollection.admin?.baseListFilter,
+            customFilter: filterByTenant,
+          })
         }
 
-        collection.admin.baseListFilter = combineListFilters({
-          baseListFilter: collection.admin?.baseListFilter,
-          customFilter: filterByTenant,
-        })
-
-        return {
-          ...collection,
-          fields: [
-            ...(collection.fields || []),
-            {
-              ...tenantField(),
-              ...(options.fieldOverrides || {}),
-            },
-          ],
+        if (collectionOptions.addField !== false) {
+          updatedCollection = {
+            ...updatedCollection,
+            fields: [
+              ...(updatedCollection.fields || []),
+              {
+                ...tenantField(),
+                ...(options.defaultFieldOverrides || {}),
+                ...(collectionOptions.fieldOverrides || {}),
+              },
+            ],
+          }
         }
+
+        return updatedCollection
       }
 
       return collection

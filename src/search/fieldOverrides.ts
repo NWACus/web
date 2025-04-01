@@ -10,6 +10,15 @@ export const searchFields: Field[] = [
     },
   },
   {
+    name: 'tenant',
+    label: 'Avalanche Center',
+    type: 'relationship',
+    relationTo: 'tenants',
+    admin: {
+      readOnly: true,
+    },
+  },
+  {
     name: 'meta',
     label: 'Meta',
     type: 'group',
