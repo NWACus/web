@@ -49,7 +49,7 @@ const collections: CollectionSlug[] = [
   'roleAssignments',
   'tenants',
 ]
-const globals: GlobalSlug[] = ['header', 'footer']
+const globals: GlobalSlug[] = ['footer']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -386,6 +386,11 @@ export const innerSeed = async ({
       slug: 'sac',
       domains: [{ domain: 'sierraavalanchecenter.org' }],
     },
+    {
+      name: 'Sawtooth Avalanche Center',
+      slug: 'snfac',
+      domains: [{ domain: 'sawtoothavalanche.com' }],
+    },
   ]
   const tenants: Record<string, Tenant> = {}
   for (const data of tenantData) {
@@ -432,6 +437,7 @@ export const innerSeed = async ({
   const bannerFiles: Record<string, string> = {
     nwac: 'https://files.nwac.us/wp-content/uploads/2020/10/08140810/nwac-logo-usfs.png',
     sac: 'https://tahoe.com/sites/default/files/styles/medium/public/business/1900/logo/sac-png-logo.png',
+    snfac: 'https://www.sawtoothavalanche.com/wp-content/uploads/2019/01/sac-usfs-logo.png',
   }
   const logos: Record<string, File> = {}
   const banners: Record<string, File> = {}
@@ -459,10 +465,10 @@ export const innerSeed = async ({
     }
   }
 
-  type brandImageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
-  const brandImageData: brandImageData[] = [
+  type BrandImageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
+  const brandImageData: BrandImageData[] = [
     ...Object.values(tenants)
-      .map((tenant): brandImageData[] => [
+      .map((tenant): BrandImageData[] => [
         {
           name: 'logo',
           data: {
@@ -513,6 +519,7 @@ export const innerSeed = async ({
   const themesByTenant: Record<string, string> = {
     nwac: 'Zinc',
     sac: 'Blue',
+    snfac: 'Zinc',
   }
 
   const brandData: RequiredDataFromCollectionSlug<'brands'>[] = [
@@ -569,6 +576,11 @@ export const innerSeed = async ({
         },
       ])
       .flat(),
+    {
+      name: 'Multi-center Admin',
+      email: 'multicenter@avy.com',
+      password: 'password',
+    },
   ]
   const users: Record<string, User> = {}
   for (const data of userData) {
@@ -622,6 +634,16 @@ export const innerSeed = async ({
         },
       ])
       .flat(),
+    {
+      tenant: tenants['snfac'],
+      roles: [roles['Admin']],
+      user: users['Multi-center Admin'],
+    },
+    {
+      tenant: tenants['nwac'],
+      roles: [roles['Admin']],
+      user: users['Multi-center Admin'],
+    },
   ]
   for (const data of roleAssignmentData) {
     payload.logger.info(
@@ -1177,30 +1199,6 @@ export const innerSeed = async ({
   payload.logger.info(`— Seeding globals...`)
 
   await Promise.all([
-    payload.updateGlobal({
-      slug: 'header',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Posts',
-              url: '/posts',
-            },
-          },
-          // {
-          //   link: {
-          //     type: 'reference',
-          //     label: 'Contact',
-          //     reference: {
-          //       relationTo: 'pages',
-          //       value: contactPage.id,
-          //     },
-          //   },
-          // },
-        ],
-      },
-    }),
     payload.updateGlobal({
       slug: 'footer',
       data: {

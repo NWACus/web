@@ -54,6 +54,7 @@ export type SupportedTimezones =
   | 'Asia/Singapore'
   | 'Asia/Tokyo'
   | 'Asia/Seoul'
+  | 'Australia/Brisbane'
   | 'Australia/Sydney'
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
@@ -81,6 +82,7 @@ export interface Config {
     navigations: Navigation;
     navigationSections: NavigationSection;
     navigationGroups: NavigationGroup;
+    settings: Setting;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -111,6 +113,7 @@ export interface Config {
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     navigationSections: NavigationSectionsSelect<false> | NavigationSectionsSelect<true>;
     navigationGroups: NavigationGroupsSelect<false> | NavigationGroupsSelect<true>;
+    settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -123,11 +126,9 @@ export interface Config {
     defaultIDType: number;
   };
   globals: {
-    header: Header;
     footer: Footer;
   };
   globalsSelect: {
-    header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
   };
   locale: null;
@@ -296,7 +297,6 @@ export interface Media {
  */
 export interface Page {
   id: number;
-  tenant?: (number | null) | Tenant;
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
@@ -353,6 +353,7 @@ export interface Page {
   publishedAt?: string | null;
   slug: string;
   slugLock?: boolean | null;
+  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -711,6 +712,7 @@ export interface Form {
             label?: string | null;
             width?: number | null;
             defaultValue?: string | null;
+            placeholder?: string | null;
             options?:
               | {
                   label: string;
@@ -950,6 +952,19 @@ export interface NavigationGroup {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  logo: number | Media;
+  banner: number | Media;
+  theme: number | Theme;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1087,6 +1102,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'navigationGroups';
         value: number | NavigationGroup;
+      } | null)
+    | ({
+        relationTo: 'settings';
+        value: number | Setting;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1264,7 +1283,6 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
-  tenant?: T;
   title?: T;
   hero?:
     | T
@@ -1307,6 +1325,7 @@ export interface PagesSelect<T extends boolean = true> {
   publishedAt?: T;
   slug?: T;
   slugLock?: T;
+  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1605,6 +1624,18 @@ export interface NavigationGroupsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  logo?: T;
+  banner?: T;
+  theme?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -1684,6 +1715,7 @@ export interface FormsSelect<T extends boolean = true> {
               label?: T;
               width?: T;
               defaultValue?: T;
+              placeholder?: T;
               options?:
                 | T
                 | {
@@ -1827,35 +1859,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "header".
- */
-export interface Header {
-  id: number;
-  navItems?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
 export interface Footer {
@@ -1882,29 +1885,6 @@ export interface Footer {
     | null;
   updatedAt?: string | null;
   createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "header_select".
- */
-export interface HeaderSelect<T extends boolean = true> {
-  navItems?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

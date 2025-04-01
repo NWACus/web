@@ -10,7 +10,6 @@ import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
-import { tenantField } from '@/fields/TenantField'
 
 import {
   MetaDescriptionField,
@@ -21,6 +20,7 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 import { filterByTenant } from '@/access/filterByTenant'
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { tenantField } from '@/fields/tenantField'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -33,7 +33,7 @@ export const Pages: CollectionConfig<'pages'> = {
   admin: {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    // baseListFilter: filterByTenant,
+    baseListFilter: filterByTenant,
     livePreview: {
       url: ({ data, req }) => {
         const path = generatePreviewPath({
@@ -118,7 +118,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
     ...slugField(),
-    // tenantField,
+    tenantField(),
   ],
   hooks: {
     afterChange: [revalidatePage],

@@ -24,9 +24,9 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from '@/fields/slug'
-import { tenantField } from '@/fields/TenantField'
 import { filterByTenant } from '@/access/filterByTenant'
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { tenantField } from '@/fields/tenantField'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -46,7 +46,7 @@ export const Posts: CollectionConfig<'posts'> = {
   admin: {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    // baseListFilter: filterByTenant,
+    baseListFilter: filterByTenant,
     livePreview: {
       url: ({ data, req }) => {
         const path = generatePreviewPath({
@@ -67,7 +67,7 @@ export const Posts: CollectionConfig<'posts'> = {
     useAsTitle: 'title',
   },
   fields: [
-    // tenantField,
+    tenantField(),
     {
       name: 'title',
       type: 'text',
