@@ -44,6 +44,9 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
+  'navigationGroups',
+  'navigationSections',
+  'navigations',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
@@ -555,24 +558,24 @@ export const innerSeed = async ({
     {
       name: 'Super Admin',
       email: 'admin@avy.com',
-      password: 'password',
+      password: 'localpass',
     },
     ...Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
         {
           name: tenant.slug.toUpperCase() + ' Admin',
           email: 'admin@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
         {
           name: tenant.slug.toUpperCase() + ' Contributor',
           email: 'contributor@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
         {
           name: tenant.slug.toUpperCase() + ' Viewer',
           email: 'viewer@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'password',
+          password: 'localpass',
         },
       ])
       .flat(),
@@ -675,7 +678,15 @@ export const innerSeed = async ({
 
   const firstUser = firstUserRes.docs[0]
 
-  if (firstUser) {
+  const firstUserHasGlobalAdminRole = firstUser.globalRoles?.docs?.find((globalRole) => {
+    if (typeof globalRole === 'number') return false
+    return globalRole.roles?.find((role) => {
+      if (typeof role === 'number') return false
+      return role.id === roles['Admin'].id
+    })
+  })
+
+  if (firstUser && !firstUserHasGlobalAdminRole) {
     try {
       await payload.create({
         collection: 'globalRoleAssignments',

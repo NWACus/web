@@ -46,6 +46,12 @@ You will need to add two keys to your `.env` file. Reach out to someone on the d
 
 Once a database file is chosen and the development server is started, navigate to the admin panel`localhost:3000/admin` and log in with `password:admin@avy.com` for a seeded site, or bootstrap the first user as necessary.
 
+### Enabling pre-commit hook with Husky
+
+This repo uses [Husky](https://typicode.github.io/husky/) and [lint-staged](https://github.com/lint-staged/lint-staged) to run a pre-commit hook that affects staged files. Our pre-commit hook formats staged files before committing. The `pnpm prepare` script should be automatically run after `pnpm install` which will configure the pre-commit hook to run on `git commit`.
+
+If the pre-commit hook isn't running on your commits you can manually run `pnpm prepare`.
+
 ## Database
 
 ### Use the existing seeded database
