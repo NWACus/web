@@ -587,7 +587,7 @@ export const innerSeed = async ({
     {
       name: 'Multi-center Admin',
       email: 'multicenter@avy.com',
-      password: 'password',
+      password: 'localpass',
     },
   ]
   const users: Record<string, User> = {}
