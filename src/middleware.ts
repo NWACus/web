@@ -20,7 +20,8 @@ const TENANTS: { slug: string; domain: string; id: string }[] = [
 ]
 
 const REDIRECT_TO_CUSTOM_DOMAIN =
-  process.env.REDIRECT_TO_CUSTOM_DOMAIN ?? process.env.NODE_ENV === 'production'
+  process.env.REDIRECT_TO_CUSTOM_DOMAIN?.toLowerCase() === 'true' ||
+  process.env.NODE_ENV === 'production'
 
 const SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -30,7 +31,7 @@ export default async function middleware(req: NextRequest) {
   const host = new URL(SERVER_URL)?.host
   const requestedHost = req.headers.get('host')
 
-  // Check if request is to root domain with tenant in path
+  // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {
     const pathSegments = req.nextUrl.pathname.split('/').filter(Boolean)
 
@@ -53,8 +54,8 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
+  // If request is not to root domain
   if (host && requestedHost) {
-    // Handle requests to tenant domains as before
     for (const { id, slug, domain } of TENANTS) {
       if (requestedHost === `${domain}` || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
