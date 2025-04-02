@@ -1,3 +1,4 @@
+import { Tenant } from '@/payload-types'
 import { PayloadRequest, CollectionSlug } from 'payload'
 
 const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
@@ -8,10 +9,20 @@ const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
 type Props = {
   collection: keyof typeof collectionPrefixMap
   slug: string
+  tenant?: Partial<Tenant> | null
   req: PayloadRequest
 }
 
-export const generatePreviewPath = ({ collection, slug, req }: Props) => {
+export const generatePreviewPath = ({ collection, slug, tenant, req }: Props) => {
+  // Check if current host is the tenant's domain
+  const currentHost = req.host
+  const isTenantDomain =
+    tenant?.domains && tenant.domains.some(({ domain }) => currentHost === domain)
+  const isTenantSubdomain = tenant?.slug && currentHost.startsWith(`${tenant.slug}.`)
+
+  // Only include tenant slug in path if not already on tenant's domain or subdomain
+  const shouldIncludeTenantSlug = tenant?.slug && !isTenantDomain && !isTenantSubdomain
+
   const path = `${collectionPrefixMap[collection]}/${slug}`
 
   const params = {
@@ -30,7 +41,8 @@ export const generatePreviewPath = ({ collection, slug, req }: Props) => {
     process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL_PROJECT_PRODUCTION_URL)
   const protocol = isProduction ? 'https:' : req.protocol
 
-  const url = `${protocol}//${req.host}/next/preview?${encodedParams.toString()}`
+  const url = `${protocol}//${currentHost}/${shouldIncludeTenantSlug ? `${tenant.slug}/` : ''}next/preview?${encodedParams.toString()}`
 
+  console.log('PREVIEW URL: ', url)
   return url
 }

@@ -916,13 +916,25 @@ export const innerSeed = async ({
     }
   }
 
-  payload.logger.info(`— Seeding contact form...`)
+  payload.logger.info(`— Seeding contact forms...`)
 
-  const contactForm = await payload.create({
-    collection: 'forms',
-    depth: 0,
-    data: JSON.parse(JSON.stringify({ ...contactFormData, tenant: tenants['nwac'] })),
-  })
+  const contactForms: Record<string, any> = {}
+  for (const tenant of Object.values(tenants)) {
+    payload.logger.info(`Creating contact form for tenant ${tenant.name}...`)
+    const contactForm = await payload
+      .create({
+        collection: 'forms',
+        depth: 0,
+        data: JSON.parse(JSON.stringify({ ...contactFormData, tenant: tenant })),
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!contactForm) {
+      payload.logger.error(`Creating contact form for tenant ${tenant.name} returned null...`)
+      return
+    }
+    contactForms[tenant.name] = contactForm
+  }
 
   payload.logger.info(`— Seeding pages...`)
 
@@ -930,7 +942,7 @@ export const innerSeed = async ({
     ...Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         home(tenant, images[tenant.name]['home'], images[tenant.name]['image2']),
-        contactPageData(tenant, contactForm),
+        contactPageData(tenant, contactForms[tenant.name]),
         page(
           tenant,
           images[tenant.name]['home'],

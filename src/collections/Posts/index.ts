@@ -27,6 +27,7 @@ import { slugField } from '@/fields/slug'
 import { filterByTenant } from '@/access/filterByTenant'
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { tenantField } from '@/fields/tenantField'
+import { Tenant } from '@/payload-types'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -52,18 +53,28 @@ export const Posts: CollectionConfig<'posts'> = {
         const path = generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'posts',
+          tenant: data?.tenant,
           req,
         })
 
         return path
       },
     },
-    preview: (data, { req }) =>
-      generatePreviewPath({
+    preview: (data, { req }) => {
+      const tenant =
+        data?.tenant &&
+        typeof data.tenant === 'object' &&
+        'id' in data.tenant &&
+        'slug' in data.tenant
+          ? (data.tenant as Tenant)
+          : null
+      return generatePreviewPath({
         slug: typeof data?.slug === 'string' ? data.slug : '',
         collection: 'posts',
+        tenant,
         req,
-      }),
+      })
+    },
     useAsTitle: 'title',
   },
   fields: [

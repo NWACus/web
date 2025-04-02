@@ -21,6 +21,7 @@ import {
 import { filterByTenant } from '@/access/filterByTenant'
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { tenantField } from '@/fields/tenantField'
+import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -35,10 +36,21 @@ export const Pages: CollectionConfig<'pages'> = {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
     livePreview: {
-      url: ({ data, req }) => {
+      url: async ({ data, req, payload }) => {
+        let tenant = data.tenant
+
+        if (typeof tenant === 'number') {
+          tenant = await payload.findByID({
+            collection: 'tenants',
+            id: tenant,
+            depth: 2,
+          })
+        }
+
         const path = generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'pages',
+          tenant,
           req,
         })
 
@@ -46,12 +58,21 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
     // TODO: keep rendering for some preview endpoint with slug or you won't see a preview until this is in a section
-    preview: (data, { req }) =>
-      generatePreviewPath({
-        slug: typeof data?.slug === 'string' ? data.slug : '',
+    preview: (data, { req }) => {
+      const tenant =
+        data.tenant &&
+        typeof data.tenant === 'object' &&
+        'id' in data.tenant &&
+        'slug' in data.tenant
+          ? (data.tenant as Tenant)
+          : null
+      return generatePreviewPath({
+        slug: typeof data.slug === 'string' ? data.slug : '',
         collection: 'pages',
+        tenant,
         req,
-      }),
+      })
+    },
     useAsTitle: 'title',
   },
   fields: [

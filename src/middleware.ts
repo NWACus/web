@@ -30,6 +30,8 @@ const SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 export default async function middleware(req: NextRequest) {
   const host = new URL(SERVER_URL)?.host
   const requestedHost = req.headers.get('host')
+  const isDraftMode = req.cookies.has('__prerender_bypass')
+  const hasNextInPath = req.nextUrl.pathname.includes('/next/')
 
   // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {
@@ -40,7 +42,7 @@ export default async function middleware(req: NextRequest) {
       const potentialTenant = pathSegments[0]
       const tenant = TENANTS.find((t) => t.slug === potentialTenant)
 
-      if (tenant) {
+      if (tenant && !isDraftMode && !hasNextInPath) {
         // Redirect to the tenant's subdomain or custom domain
         const redirectUrl = new URL(req.nextUrl.clone())
         redirectUrl.host = REDIRECT_TO_CUSTOM_DOMAIN ? tenant.domain : `${tenant.slug}.${host}`
@@ -49,7 +51,7 @@ export default async function middleware(req: NextRequest) {
         redirectUrl.pathname = `/${pathSegments.slice(1).join('/')}`
 
         console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
-        return NextResponse.redirect(redirectUrl, 308)
+        return NextResponse.redirect(redirectUrl, process.env.NODE_ENV === 'production' ? 308 : 302)
       }
     }
   }
@@ -61,11 +63,16 @@ export default async function middleware(req: NextRequest) {
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
-        rewrite.hostname = host
 
-        const response = NextResponse.rewrite(rewrite)
+        const existingPayloadTenantCookie = req.cookies.get('payload-tenant')?.value
+        const hasCorrectPayloadTenantCookie = existingPayloadTenantCookie === id
 
         if (req.nextUrl.pathname.startsWith('/admin')) {
+          if (hasCorrectPayloadTenantCookie) {
+            return
+          }
+
+          const response = NextResponse.rewrite(rewrite)
           response.cookies.set('payload-tenant', id, {
             path: '/',
             expires: new Date('Fri, 31 Dec 9999 23:59:59 GMT'),
