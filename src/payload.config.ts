@@ -38,7 +38,6 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: ['@/components/BeforeDashboard'],
-      // beforeNavLinks: ['@/components/TenantSelector#TenantSelectorRSC'],
       beforeNavLinks: [
         {
           clientProps: { label: 'Avalanche Center' },

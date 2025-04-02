@@ -117,31 +117,31 @@ export default async function RootLayout({ children, params }: Args) {
   const { isEnabled } = await draftMode()
   const payload = await getPayload({ config: configPromise })
   const { center } = await params
-  let _centerTheme: Theme = zinc
-  const theme = await payload.find({
-    collection: 'brands',
-    overrideAccess: true,
-    select: {
-      theme: true,
-    },
-    limit: 1,
-    depth: 10,
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-    },
-  })
-  if (
-    theme.docs &&
-    theme.docs.length === 1 &&
-    typeof theme.docs[0] === 'object' &&
-    typeof theme.docs[0].theme === 'object'
-  ) {
-    _centerTheme = theme.docs[0].theme
-  } else {
-    throw new Error(`didn't find theme for center ${center}`)
-  }
+  // let _centerTheme: Theme = zinc
+  // const theme = await payload.find({
+  //   collection: 'brands',
+  //   overrideAccess: true,
+  //   select: {
+  //     theme: true,
+  //   },
+  //   limit: 1,
+  //   depth: 10,
+  //   where: {
+  //     'tenant.slug': {
+  //       equals: center,
+  //     },
+  //   },
+  // })
+  // if (
+  //   theme.docs &&
+  //   theme.docs.length === 1 &&
+  //   typeof theme.docs[0] === 'object' &&
+  //   typeof theme.docs[0].theme === 'object'
+  // ) {
+  //   _centerTheme = theme.docs[0].theme
+  // } else {
+  //   throw new Error(`didn't find theme for center ${center}`)
+  // }
 
   return (
     <React.Fragment>

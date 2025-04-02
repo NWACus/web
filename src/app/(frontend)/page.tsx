@@ -4,6 +4,7 @@ import React from 'react'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { getServerSideURL } from '@/utilities/getURL'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -25,6 +26,8 @@ export default async function LandingPage() {
     },
   })
 
+  const url = new URL(getServerSideURL())
+
   return (
     <div className="pt-24 pb-24">
       <div className="container mb-16">
@@ -34,11 +37,11 @@ export default async function LandingPage() {
             {tenants.docs.map((tenant) => (
               <Link
                 key={tenant.slug}
-                href={`/${tenant.slug}`}
+                href={`${url.protocol}//${tenant.slug}.${url.host}`}
                 className="p-6 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
               >
                 <h2 className="mb-2">{tenant.name}</h2>
-                <p>View {tenant.name} center</p>
+                <p className="no-underline">Visit site ➡️</p>
               </Link>
             ))}
           </div>

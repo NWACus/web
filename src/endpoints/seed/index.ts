@@ -138,6 +138,11 @@ export const innerSeed = async ({
             contains: 'sierraavalanchecenter.org',
           },
         },
+        {
+          email: {
+            contains: 'sawtoothavalanche.com',
+          },
+        },
       ],
     },
   })
@@ -916,7 +921,7 @@ export const innerSeed = async ({
   const contactForm = await payload.create({
     collection: 'forms',
     depth: 0,
-    data: JSON.parse(JSON.stringify(contactFormData)),
+    data: JSON.parse(JSON.stringify({ ...contactFormData, tenant: tenants['nwac'] })),
   })
 
   payload.logger.info(`— Seeding pages...`)

@@ -13,27 +13,14 @@ export const config = {
   ],
 }
 
-export const AvalancheCenterWebsites: { slug: string; domain: string }[] = [
-  { slug: 'nwac', domain: 'nwac.us' },
-  { slug: 'bac', domain: 'bridgeportavalanchecenter.org' },
-  { slug: 'btac', domain: 'bridgertetonavalanchecenter.org' },
-  { slug: 'cbac', domain: 'cbavalanchecenter.org' },
-  { slug: 'cnfaic', domain: 'cnfaic.org' },
-  { slug: 'coaa', domain: 'coavalanche.org' },
-  { slug: 'esac', domain: 'esavalanche.org' },
-  { slug: 'fac', domain: 'flatheadavalanche.org' },
-  { slug: 'hpac', domain: 'hpavalanche.org' },
-  { slug: 'ipac', domain: 'idahopanhandleavalanche.org' },
-  { slug: 'kpac', domain: 'kachinapeaks.org' },
-  { slug: 'msac', domain: 'shastaavalanche.org' },
-  { slug: 'mwac', domain: 'mountwashingtonavalanchecenter.org' },
-  { slug: 'pac', domain: 'payetteavalanche.org' },
-  { slug: 'sac', domain: 'sierraavalanchecenter.org' },
-  { slug: 'snfac', domain: 'sawtoothavalanche.com' },
-  { slug: 'tac', domain: 'taosavalanchecenter.org' },
-  { slug: 'wac', domain: 'wallowaavalanchecenter.org' },
-  { slug: 'wcmac', domain: 'missoulaavalanche.org' },
+const TENANTS: { slug: string; domain: string; id: string }[] = [
+  { slug: 'nwac', domain: 'nwac.us', id: '1' },
+  { slug: 'sac', domain: 'sierraavalanchecenter.org', id: '2' },
+  { slug: 'snfac', domain: 'sawtoothavalanche.com', id: '3' },
 ]
+
+const REDIRECT_TO_CUSTOM_DOMAIN =
+  process.env.REDIRECT_TO_CUSTOM_DOMAIN ?? process.env.NODE_ENV === 'production'
 
 const SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -43,31 +30,54 @@ export default async function middleware(req: NextRequest) {
   const host = new URL(SERVER_URL)?.host
   const requestedHost = req.headers.get('host')
 
+  // Check if request is to root domain with tenant in path
+  if (host && requestedHost && requestedHost === host) {
+    const pathSegments = req.nextUrl.pathname.split('/').filter(Boolean)
+
+    // Check if the first path segment matches a tenant slug
+    if (pathSegments.length > 0) {
+      const potentialTenant = pathSegments[0]
+      const tenant = TENANTS.find((t) => t.slug === potentialTenant)
+
+      if (tenant) {
+        // Redirect to the tenant's subdomain or custom domain
+        const redirectUrl = new URL(req.nextUrl.clone())
+        redirectUrl.host = REDIRECT_TO_CUSTOM_DOMAIN ? tenant.domain : `${tenant.slug}.${host}`
+
+        // Remove the tenant slug from the path for the redirect
+        redirectUrl.pathname = `/${pathSegments.slice(1).join('/')}`
+
+        console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
+        return NextResponse.redirect(redirectUrl, 308)
+      }
+    }
+  }
+
   if (host && requestedHost) {
-    // we want to encode the center outside the domain, but allow users to continue going to
-    // their well-known domains for every center; so, we can rewrite a request for some path
-    // under an existing domain to our central domain, moving the center into a path segment
-    // or query parameter as necessary
-    for (const { slug, domain } of AvalancheCenterWebsites) {
-      if (
-        requestedHost === `${domain}` || // production website, nwac.us
-        requestedHost === `${slug}.${host}` // local testing, nwac.localhost:3000 or production, nwac.avy.com
-      ) {
+    // Handle requests to tenant domains as before
+    for (const { id, slug, domain } of TENANTS) {
+      if (requestedHost === `${domain}` || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
         rewrite.hostname = host
+
+        const response = NextResponse.rewrite(rewrite)
+
         if (req.nextUrl.pathname.startsWith('/admin')) {
-          // PayloadCMS does not support dynamic routing for the admin panel, so
-          // we need to encode the center as a query parameter
-          rewrite.searchParams.set('default-payload-tenant', slug)
+          response.cookies.set('payload-tenant', id, {
+            path: '/',
+            expires: new Date('Fri, 31 Dec 9999 23:59:59 GMT'),
+          })
+          console.log(
+            `rewrote ${original.toString()} to ${rewrite.toString()} with cookie payload-tenant=${id}`,
+          )
+          return response
         } else {
-          // for all other content, we can prepend the center as a path segment
-          // and handle it in our src/app/(frontend)/[center]/... routes
-          rewrite.pathname = `/${slug}${rewrite.pathname}` // original pathname has leading /
+          rewrite.pathname = `/${slug}${rewrite.pathname}`
+          console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
+          return NextResponse.rewrite(rewrite)
         }
-        console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
-        return NextResponse.rewrite(rewrite)
       }
     }
   }
