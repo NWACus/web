@@ -94,6 +94,9 @@ importers:
       pino:
         specifier: ^9.6.0
         version: 9.6.0
+      pluralize:
+        specifier: ^8.0.0
+        version: 8.0.0
       prism-react-renderer:
         specifier: ^2.4.1
         version: 2.4.1(react@19.1.0)

@@ -19,6 +19,7 @@ import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
+import { TitleFromTenantAndCollectionField as TitleFromTenantAndCollectionField_33b4db86567409b5263b79dc972671e9 } from '@/fields/titleFromTenantAndCollectionField/FieldComponent'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { RowLabel as RowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/RowLabel'
@@ -69,6 +70,8 @@ export const importMap = {
   '@/collections/Roles/components/CollectionsField#CollectionsField':
     CollectionsField_49c0311020325b59204cc21d2f536b8d,
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
+  '@/fields/titleFromTenantAndCollectionField/FieldComponent#TitleFromTenantAndCollectionField':
+    TitleFromTenantAndCollectionField_33b4db86567409b5263b79dc972671e9,
   '@payloadcms/plugin-search/client#LinkToDoc': LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   '@payloadcms/plugin-search/client#ReindexButton': ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   '@/Footer/RowLabel#RowLabel': RowLabel_1f6ff6ff633e3695d348f4f3c58f1466,

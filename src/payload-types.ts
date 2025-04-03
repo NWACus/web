@@ -83,6 +83,7 @@ export interface Config {
     navigationSections: NavigationSection;
     navigationGroups: NavigationGroup;
     settings: Setting;
+    navs: Nav;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -114,6 +115,7 @@ export interface Config {
     navigationSections: NavigationSectionsSelect<false> | NavigationSectionsSelect<true>;
     navigationGroups: NavigationGroupsSelect<false> | NavigationGroupsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    navs: NavsSelect<false> | NavsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -822,6 +824,7 @@ export interface Form {
 export interface Brand {
   id: number;
   tenant?: (number | null) | Tenant;
+  titleFromTenantAndCollection?: string | null;
   logo: number | Media;
   banner: number | Media;
   theme: number | Theme;
@@ -888,6 +891,7 @@ export interface Palette {
 export interface Navigation {
   id: number;
   tenant?: (number | null) | Tenant;
+  titleFromTenantAndCollection?: string | null;
   items: (
     | {
         relationTo: 'navigationSections';
@@ -958,9 +962,21 @@ export interface NavigationGroup {
 export interface Setting {
   id: number;
   tenant?: (number | null) | Tenant;
+  titleFromTenantAndCollection?: string | null;
   logo: number | Media;
   banner: number | Media;
   theme: number | Theme;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navs".
+ */
+export interface Nav {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  titleFromTenantAndCollection?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1110,6 +1126,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'settings';
         value: number | Setting;
+      } | null)
+    | ({
+        relationTo: 'navs';
+        value: number | Nav;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1527,6 +1547,7 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
  */
 export interface BrandsSelect<T extends boolean = true> {
   tenant?: T;
+  titleFromTenantAndCollection?: T;
   logo?: T;
   banner?: T;
   theme?: T;
@@ -1594,6 +1615,7 @@ export interface PalettesSelect<T extends boolean = true> {
  */
 export interface NavigationsSelect<T extends boolean = true> {
   tenant?: T;
+  titleFromTenantAndCollection?: T;
   items?: T;
   weather_extra?: T;
   about_us_extra?: T;
@@ -1632,9 +1654,20 @@ export interface NavigationGroupsSelect<T extends boolean = true> {
  */
 export interface SettingsSelect<T extends boolean = true> {
   tenant?: T;
+  titleFromTenantAndCollection?: T;
   logo?: T;
   banner?: T;
   theme?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navs_select".
+ */
+export interface NavsSelect<T extends boolean = true> {
+  tenant?: T;
+  titleFromTenantAndCollection?: T;
   updatedAt?: T;
   createdAt?: T;
 }
