@@ -31,7 +31,7 @@ export const byGlobalRoleOrTenantDomain: (method: ruleMethod) => Access =
       )
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter
-      .map((tenant) => tenant?.domains)
+      .map((tenant) => tenant.domains)
       .filter((domains) => !!domains)
       .flat()
       .map((domain) => domain.domain)

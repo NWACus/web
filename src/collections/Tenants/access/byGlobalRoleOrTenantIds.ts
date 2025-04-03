@@ -31,7 +31,7 @@ export const byGlobalRoleOrTenantIds: (method: ruleMethod) => Access =
       )
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter
-      .map((tenant) => tenant?.id)
+      .map((tenant) => tenant.id)
 
     if (matchingTenantIds.length > 0) {
       return {

@@ -164,7 +164,7 @@ export interface UserAuthOperations {
  */
 export interface Category {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   title: string;
   parent?: (number | null) | Category;
   breadcrumbs?:
@@ -204,7 +204,7 @@ export interface Tenant {
  */
 export interface Media {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   alt: string;
   caption?: {
     root: {
@@ -353,7 +353,7 @@ export interface Page {
   publishedAt?: string | null;
   slug: string;
   slugLock?: boolean | null;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -364,7 +364,7 @@ export interface Page {
  */
 export interface Post {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   title: string;
   heroImage?: (number | null) | Media;
   content: {
@@ -466,7 +466,7 @@ export interface Role {
  */
 export interface RoleAssignment {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   roles?: (number | Role)[] | null;
   user?: (number | null) | User;
   updatedAt: string;
@@ -811,7 +811,7 @@ export interface Form {
         id?: string | null;
       }[]
     | null;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -821,7 +821,7 @@ export interface Form {
  */
 export interface Brand {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   titleFromTenantAndCollection?: string | null;
   logo: number | Media;
   banner: number | Media;
@@ -888,7 +888,7 @@ export interface Palette {
  */
 export interface Navigation {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   titleFromTenantAndCollection?: string | null;
   items: (
     | {
@@ -919,7 +919,7 @@ export interface Navigation {
  */
 export interface NavigationSection {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   slug: string;
   slugLock?: boolean | null;
   title: string;
@@ -942,7 +942,7 @@ export interface NavigationSection {
  */
 export interface NavigationGroup {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   slug: string;
   slugLock?: boolean | null;
   title: string;
@@ -959,7 +959,7 @@ export interface NavigationGroup {
  */
 export interface Setting {
   id: number;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   titleFromTenantAndCollection?: string | null;
   logo: number | Media;
   banner: number | Media;
@@ -990,7 +990,7 @@ export interface Redirect {
         } | null);
     url?: string | null;
   };
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -1008,7 +1008,7 @@ export interface FormSubmission {
         id?: string | null;
       }[]
     | null;
-  tenant?: (number | null) | Tenant;
+  tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
 }

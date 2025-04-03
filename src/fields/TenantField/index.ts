@@ -47,4 +47,5 @@ export const tenantField = ({
   label: 'Avalanche Center',
   relationTo: 'tenants',
   unique,
+  required: true,
 })

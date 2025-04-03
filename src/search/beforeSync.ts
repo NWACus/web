@@ -16,7 +16,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ originalDoc, searchDoc 
       image: meta?.image?.id || meta?.image,
       description: meta?.description,
     },
-    tenant: tenant?.id,
+    tenant: tenant.id,
     categories: [],
   }
 

@@ -9,7 +9,7 @@ const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
 type Props = {
   collection: keyof typeof collectionPrefixMap
   slug: string
-  tenant?: Partial<Tenant> | null
+  tenant: Partial<Tenant> | null
   req: PayloadRequest
 }
 
