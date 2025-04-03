@@ -7,7 +7,6 @@ import {
 } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
-// import { tenantField } from '@/fields/TenantField'
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
 import { tenantField } from '@/fields/tenantField'

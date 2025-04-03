@@ -1,5 +1,4 @@
 import { BaseListFilter } from 'payload'
-import { defaultTenantIdFromHeaders } from '@/utilities/tenancy/defaultTenantIdFromHeaders'
 import { getTenantListFilter } from '@payloadcms/plugin-multi-tenant/utilities'
 
 // filterByTenant implements per-tenant data filtering from the 'payload-tenant' cookie
