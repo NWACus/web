@@ -13,7 +13,7 @@ export const byGlobalRole: (method: ruleMethod, collection: ruleCollection) => A
 
     payload.logger.debug(`evaluating access by ${user.id} for ${method} on ${collection}`)
 
-    const globalRoles = globalRolesForUser(user, payload.logger)
+    const globalRoles = globalRolesForUser(payload.logger, user)
     return globalRoles
       .map((role) => role.rules)
       .flat()

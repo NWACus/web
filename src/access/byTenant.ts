@@ -13,7 +13,7 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
       return false
     }
 
-    const globalRoles = globalRolesForUser(user, payload.logger)
+    const globalRoles = globalRolesForUser(payload.logger, user)
 
     const globalRolesMatch = globalRoles
       .map((role) => role.rules)

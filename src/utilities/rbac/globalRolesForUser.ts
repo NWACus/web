@@ -1,10 +1,8 @@
 import { Role, User } from '@/payload-types'
 import { Logger } from 'pino'
 
-export const globalRolesForUser = (user: User, payloadLogger?: Logger): Role[] => {
+export const globalRolesForUser = (logger: Logger, user: User): Role[] => {
   const globalRoles: Role[] = []
-
-  const logger = payloadLogger ?? console
 
   if (user.globalRoles && user.globalRoles.docs && user.globalRoles.docs.length > 0) {
     for (const globalRoleAssignment of user.globalRoles.docs) {
