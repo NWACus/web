@@ -17,7 +17,7 @@ import {
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import type { Header, Navigation, NavigationSection, Page } from '@/payload-types'
+import type { Navigation, NavigationSection, Page } from '@/payload-types'
 
 type navSection = {
   trigger: string
