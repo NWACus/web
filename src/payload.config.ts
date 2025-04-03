@@ -25,6 +25,7 @@ import { NavigationGroups } from '@/collections/NavigationGroups'
 import { Navigations } from '@/collections/Navigations'
 import { NavigationSections } from '@/collections/NavigationSections'
 import { Settings } from './collections/Settings'
+import { Navs } from './collections/Navs'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -57,7 +58,7 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'navigations', 'brands'],
+            globalSlugs: ['settings', 'navs', 'navigations', 'brands'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
@@ -118,6 +119,7 @@ export default buildConfig({
     NavigationSections,
     NavigationGroups,
     Settings,
+    Navs,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
   globals: [Footer],

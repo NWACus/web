@@ -925,7 +925,7 @@ export const innerSeed = async ({
       .create({
         collection: 'forms',
         depth: 0,
-        data: JSON.parse(JSON.stringify({ ...contactFormData, tenant: tenant })),
+        data: { ...contactFormData, tenant: tenant },
       })
       .catch((e) => payload.logger.error(e))
 
