@@ -82,7 +82,6 @@ export interface Config {
     navigations: Navigation;
     navigationSections: NavigationSection;
     navigationGroups: NavigationGroup;
-    settings: Setting;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -113,7 +112,6 @@ export interface Config {
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     navigationSections: NavigationSectionsSelect<false> | NavigationSectionsSelect<true>;
     navigationGroups: NavigationGroupsSelect<false> | NavigationGroupsSelect<true>;
-    settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -953,19 +951,6 @@ export interface NavigationGroup {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "settings".
- */
-export interface Setting {
-  id: number;
-  tenant: number | Tenant;
-  logo: number | Media;
-  banner: number | Media;
-  theme: number | Theme;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1106,10 +1091,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'navigationGroups';
         value: number | NavigationGroup;
-      } | null)
-    | ({
-        relationTo: 'settings';
-        value: number | Setting;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1623,18 +1604,6 @@ export interface NavigationGroupsSelect<T extends boolean = true> {
   slugLock?: T;
   title?: T;
   items?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "settings_select".
- */
-export interface SettingsSelect<T extends boolean = true> {
-  tenant?: T;
-  logo?: T;
-  banner?: T;
-  theme?: T;
   updatedAt?: T;
   createdAt?: T;
 }
