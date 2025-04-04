@@ -1,6 +1,6 @@
 import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
+export const contactForm: Omit<RequiredDataFromCollectionSlug<'forms'>, 'tenant'> = {
   confirmationMessage: {
     root: {
       type: 'root',
