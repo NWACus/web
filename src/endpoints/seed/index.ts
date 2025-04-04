@@ -19,6 +19,7 @@ import { post3 } from './post-3'
 import {
   Brand,
   Category,
+  Form,
   Media,
   NavigationGroup,
   NavigationSection,
@@ -918,7 +919,7 @@ export const innerSeed = async ({
 
   payload.logger.info(`— Seeding contact forms...`)
 
-  const contactForms: Record<string, any> = {}
+  const contactForms: Record<string, Form> = {}
   for (const tenant of Object.values(tenants)) {
     payload.logger.info(`Creating contact form for tenant ${tenant.name}...`)
     const contactForm = await payload
