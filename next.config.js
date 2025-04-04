@@ -12,7 +12,7 @@ const nextConfig = {
   images: {
     unoptimized: false,
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */]
+      ...[NEXT_PUBLIC_SERVER_URL]
         .map((item) => {
           const url = new URL(item)
 

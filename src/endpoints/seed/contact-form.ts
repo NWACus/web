@@ -1,6 +1,6 @@
-import type { Form } from '@/payload-types'
+import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const contactForm: Partial<Form> = {
+export const contactForm: Omit<RequiredDataFromCollectionSlug<'forms'>, 'tenant'> = {
   confirmationMessage: {
     root: {
       type: 'root',

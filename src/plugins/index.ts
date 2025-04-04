@@ -10,12 +10,12 @@ import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
-
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+import tenantFieldPlugin from './tenantFieldPlugin'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+  return doc?.title ? `${doc.title} | AvyFx` : 'AvyFx'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
@@ -90,4 +90,14 @@ export const plugins: Plugin[] = [
     },
   }),
   payloadCloudPlugin(),
+  tenantFieldPlugin({
+    collections: [
+      {
+        slug: 'forms',
+      },
+      { slug: 'form-submissions' },
+      { slug: 'redirects' },
+      { slug: 'search', addField: false },
+    ],
+  }),
 ]

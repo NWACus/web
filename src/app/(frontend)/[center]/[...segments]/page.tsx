@@ -35,7 +35,9 @@ export async function generateStaticParams() {
       payload.logger.error(`got number for page tenant: ${JSON.stringify(post.tenant)}`)
       continue
     }
-    params.push({ center: post.tenant.slug, segments: [post.slug] })
+    if (post.tenant) {
+      params.push({ center: post.tenant.slug, segments: [post.slug] })
+    }
   }
 
   return params

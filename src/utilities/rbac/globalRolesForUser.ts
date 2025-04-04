@@ -3,6 +3,7 @@ import { Logger } from 'pino'
 
 export const globalRolesForUser = (logger: Logger, user: User): Role[] => {
   const globalRoles: Role[] = []
+
   if (user.globalRoles && user.globalRoles.docs && user.globalRoles.docs.length > 0) {
     for (const globalRoleAssignment of user.globalRoles.docs) {
       if (typeof globalRoleAssignment === 'number') {
