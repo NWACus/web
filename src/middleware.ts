@@ -32,6 +32,7 @@ export default async function middleware(req: NextRequest) {
   const requestedHost = req.headers.get('host')
   const isDraftMode = req.cookies.has('__prerender_bypass')
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')
+  const isSeedEndpoint = req.nextUrl.pathname.includes('/next/seed')
 
   // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {
@@ -57,7 +58,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   // If request is not to root domain
-  if (host && requestedHost) {
+  if (host && requestedHost && !isSeedEndpoint) {
     for (const { id, slug, domain } of TENANTS) {
       if (requestedHost === `${domain}` || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
