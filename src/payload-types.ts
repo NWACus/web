@@ -822,7 +822,6 @@ export interface Form {
 export interface Brand {
   id: number;
   tenant: number | Tenant;
-  titleFromTenantAndCollection?: string | null;
   logo: number | Media;
   banner: number | Media;
   theme: number | Theme;
@@ -889,7 +888,6 @@ export interface Palette {
 export interface Navigation {
   id: number;
   tenant: number | Tenant;
-  titleFromTenantAndCollection?: string | null;
   items: (
     | {
         relationTo: 'navigationSections';
@@ -960,7 +958,6 @@ export interface NavigationGroup {
 export interface Setting {
   id: number;
   tenant: number | Tenant;
-  titleFromTenantAndCollection?: string | null;
   logo: number | Media;
   banner: number | Media;
   theme: number | Theme;
@@ -1530,7 +1527,6 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
  */
 export interface BrandsSelect<T extends boolean = true> {
   tenant?: T;
-  titleFromTenantAndCollection?: T;
   logo?: T;
   banner?: T;
   theme?: T;
@@ -1598,7 +1594,6 @@ export interface PalettesSelect<T extends boolean = true> {
  */
 export interface NavigationsSelect<T extends boolean = true> {
   tenant?: T;
-  titleFromTenantAndCollection?: T;
   items?: T;
   weather_extra?: T;
   about_us_extra?: T;
@@ -1637,7 +1632,6 @@ export interface NavigationGroupsSelect<T extends boolean = true> {
  */
 export interface SettingsSelect<T extends boolean = true> {
   tenant?: T;
-  titleFromTenantAndCollection?: T;
   logo?: T;
   banner?: T;
   theme?: T;
