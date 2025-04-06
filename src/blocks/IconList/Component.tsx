@@ -20,31 +20,28 @@ type Props = IconListProps & {
 
 export const IconList: React.FC<Props> = (props) => {
   const { columns, className, enableGutter = true, imgClassName, staticImage } = props
+  const numOfCols = columns?.length ?? 1
 
   const colsClasses = {
-    1: '12',
-    2: '6',
-    3: '4',
-    4: '8',
+    1: { desktop: 'lg:col-span-12', tablet: '', mobile: '' },
+    2: { desktop: 'lg:col-span-6', tablet: '', mobile: '' },
+    3: { desktop: 'lg:col-span-4', tablet: '', mobile: '' },
+    4: { desktop: 'lg:col-span-3', tablet: '', mobile: '' },
   }
-
-  const colsSpanClasses = colsClasses[columns ? columns.length : 1]
+  const colsSpanClasses = colsClasses[numOfCols]
 
   return (
     <div className="container my-16">
-      <div className="grid grid-cols-4 lg:grid-cols-12 gap-y-8 gap-x-16">
+      <div className="grid grid-cols-4 lg:grid-cols-12">
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
             const { icon, richText, title } = col
-
+            const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
               <div
                 className={cn(
-                  `col-span-4 lg:col-span-${colsSpanClasses[colsSpanClasses || 'full']}`,
-                  {
-                    'md:col-span-2': colsSpanClasses !== 'full',
-                  },
+                  `col-span-4 md:col-span-2 ${colsSpanClasses.desktop} ${lastOddElement && 'md:col-span-full'}`,
                 )}
                 key={index}
               >

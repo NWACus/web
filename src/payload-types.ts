@@ -820,7 +820,6 @@ export interface Form {
 export interface IconList {
   columns?:
     | {
-        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
         icon: number | Media;
         title: string;
         richText?: {
@@ -1440,7 +1439,6 @@ export interface IconListSelect<T extends boolean = true> {
   columns?:
     | T
     | {
-        size?: T;
         icon?: T;
         title?: T;
         richText?: T;
