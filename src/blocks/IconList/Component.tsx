@@ -23,12 +23,12 @@ export const IconList: React.FC<Props> = (props) => {
   const numOfCols = columns?.length ?? 1
 
   const colsClasses = {
-    1: { desktop: 'lg:col-span-12', tablet: '', mobile: '' },
-    2: { desktop: 'lg:col-span-6', tablet: '', mobile: '' },
-    3: { desktop: 'lg:col-span-4', tablet: '', mobile: '' },
-    4: { desktop: 'lg:col-span-3', tablet: '', mobile: '' },
+    1: 'lg:col-span-12',
+    2: 'lg:col-span-6',
+    3: 'lg:col-span-4',
+    4: 'lg:col-span-3',
   }
-  const colsSpanClasses = colsClasses[numOfCols]
+  const colsSpanClass = colsClasses[numOfCols]
 
   return (
     <div className="container my-16">
@@ -41,7 +41,7 @@ export const IconList: React.FC<Props> = (props) => {
             return (
               <div
                 className={cn(
-                  `col-span-4 md:col-span-2 ${colsSpanClasses.desktop} ${lastOddElement && 'md:col-span-full'}`,
+                  `col-span-4 md:col-span-2 ${colsSpanClass} ${lastOddElement && 'md:col-span-full'}`,
                 )}
                 key={index}
               >
