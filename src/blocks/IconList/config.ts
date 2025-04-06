@@ -8,29 +8,6 @@ import {
 
 const columnFields: Field[] = [
   {
-    name: 'size',
-    type: 'select',
-    defaultValue: 'oneThird',
-    options: [
-      {
-        label: 'One Third',
-        value: 'oneThird',
-      },
-      {
-        label: 'Half',
-        value: 'half',
-      },
-      {
-        label: 'Two Thirds',
-        value: 'twoThirds',
-      },
-      {
-        label: 'Full',
-        value: 'full',
-      },
-    ],
-  },
-  {
     name: 'icon',
     type: 'upload',
     relationTo: 'media',
