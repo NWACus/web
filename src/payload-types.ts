@@ -335,7 +335,7 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | FormBlock)[];
+  layout: (CallToActionBlock | ContentBlock | MediaBlock | IconList)[];
   meta?: {
     title?: string | null;
     /**
@@ -774,6 +774,38 @@ export interface Form {
   tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IconList".
+ */
+export interface IconList {
+  columns?:
+    | {
+        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
+        icon: number | Media;
+        title: string;
+        richText?: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'iconList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1690,6 +1722,7 @@ export interface PagesSelect<T extends boolean = true> {
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        iconList?: T | IconListSelect<T>;
       };
   meta?:
     | T
@@ -1773,6 +1806,23 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IconList_select".
+ */
+export interface IconListSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        size?: T;
+        icon?: T;
+        title?: T;
+        richText?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
