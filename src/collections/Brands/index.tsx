@@ -1,18 +1,19 @@
 import type { CollectionConfig } from 'payload'
-import { uniqueTenantField } from '@/fields/TenantField'
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { tenantField } from '@/fields/tenantField'
 
 // A brand configures media, colors, etc for tenant.
 export const Brands: CollectionConfig = {
   slug: 'brands',
   access: accessByTenant('brands'),
   admin: {
+    // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
     group: 'Branding',
   },
   fields: [
-    uniqueTenantField,
+    tenantField({ unique: true }),
     {
       type: 'tabs',
       tabs: [

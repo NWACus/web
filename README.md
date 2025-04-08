@@ -42,6 +42,16 @@ pnpm dev
 **TODO: add to password manager**
 You will need to add two keys to your `.env` file. Reach out to someone on the dev team.
 
+### Set up subdomains on localhost
+
+In order to use tenant scoped subdomains on localhost you'll need to add the following to your `/etc/hosts` on macOS or `C:\Windows\System32\drivers\etc\hosts` on Windows:
+
+```
+127.0.0.1       nwac.localhost
+127.0.0.1       sac.localhost
+127.0.0.1       snfac.localhost
+```
+
 ### Access the app
 
 Once a database file is chosen and the development server is started, navigate to the admin panel`localhost:3000/admin` and log in with `password:admin@avy.com` for a seeded site, or bootstrap the first user as necessary.

@@ -8,6 +8,10 @@ export const Tenants: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Permissions',
   },
+  labels: {
+    plural: 'Avalanche Centers',
+    singular: 'Avalanche Center',
+  },
   defaultPopulate: {
     slug: true,
   },
