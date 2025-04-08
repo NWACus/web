@@ -80,8 +80,6 @@ export interface Config {
     themes: Theme;
     palettes: Palette;
     navigations: Navigation;
-    navigationSections: NavigationSection;
-    navigationGroups: NavigationGroup;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -110,8 +108,6 @@ export interface Config {
     themes: ThemesSelect<false> | ThemesSelect<true>;
     palettes: PalettesSelect<false> | PalettesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
-    navigationSections: NavigationSectionsSelect<false> | NavigationSectionsSelect<true>;
-    navigationGroups: NavigationGroupsSelect<false> | NavigationGroupsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -886,66 +882,6 @@ export interface Palette {
 export interface Navigation {
   id: number;
   tenant: number | Tenant;
-  items: (
-    | {
-        relationTo: 'navigationSections';
-        value: number | NavigationSection;
-      }
-    | {
-        relationTo: 'pages';
-        value: number | Page;
-      }
-  )[];
-  weather_extra?: {
-    relationTo: 'navigationGroups';
-    value: number | NavigationGroup;
-  } | null;
-  about_us_extra?:
-    | {
-        relationTo: 'pages';
-        value: number | Page;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationSections".
- */
-export interface NavigationSection {
-  id: number;
-  tenant: number | Tenant;
-  slug: string;
-  slugLock?: boolean | null;
-  title: string;
-  items: (
-    | {
-        relationTo: 'navigationGroups';
-        value: number | NavigationGroup;
-      }
-    | {
-        relationTo: 'pages';
-        value: number | Page;
-      }
-  )[];
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationGroups".
- */
-export interface NavigationGroup {
-  id: number;
-  tenant: number | Tenant;
-  slug: string;
-  slugLock?: boolean | null;
-  title: string;
-  items: {
-    relationTo: 'pages';
-    value: number | Page;
-  }[];
   updatedAt: string;
   createdAt: string;
 }
@@ -1083,14 +1019,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'navigations';
         value: number | Navigation;
-      } | null)
-    | ({
-        relationTo: 'navigationSections';
-        value: number | NavigationSection;
-      } | null)
-    | ({
-        relationTo: 'navigationGroups';
-        value: number | NavigationGroup;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1575,35 +1503,6 @@ export interface PalettesSelect<T extends boolean = true> {
  */
 export interface NavigationsSelect<T extends boolean = true> {
   tenant?: T;
-  items?: T;
-  weather_extra?: T;
-  about_us_extra?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationSections_select".
- */
-export interface NavigationSectionsSelect<T extends boolean = true> {
-  tenant?: T;
-  slug?: T;
-  slugLock?: T;
-  title?: T;
-  items?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationGroups_select".
- */
-export interface NavigationGroupsSelect<T extends boolean = true> {
-  tenant?: T;
-  slug?: T;
-  slugLock?: T;
-  title?: T;
-  items?: T;
   updatedAt?: T;
   createdAt?: T;
 }
