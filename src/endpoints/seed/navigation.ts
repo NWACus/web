@@ -45,7 +45,24 @@ export const navigationSeed = (
   }
 
   return {
-    tenant: tenant.id,
+    _status: 'published',
+    tenant,
+    forecast: {
+      options: {
+        enabled: false,
+        hasNavItems: false,
+        clickable: false,
+      },
+      items: [],
+    },
+    observations: {
+      options: {
+        enabled: false,
+        hasNavItems: false,
+        clickable: false,
+      },
+      items: [],
+    },
     weather: {
       options: {
         enabled: true,
