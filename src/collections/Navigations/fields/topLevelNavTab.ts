@@ -16,6 +16,7 @@ export const topLevelNavTab = ({
   name,
   label,
   description,
+  virtual: !isConfigurable,
   fields: [
     {
       name: 'options',
