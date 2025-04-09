@@ -7,6 +7,8 @@ import { getPayload } from 'payload'
 
 import PageClient from './page.client'
 import { NACWidget } from '@/components/NACWidget'
+import { draftMode } from 'next/headers'
+import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -35,10 +37,12 @@ type PathArgs = {
 }
 
 export default async function Page({ params }: Args) {
+  const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
     <div className="pt-24 pb-24">
       <PageClient />
+      {draft && <LivePreviewListener />}
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
           <h1>Home Page for {center}</h1>

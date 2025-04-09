@@ -54,7 +54,7 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'brands'],
+            globalSlugs: ['settings', 'brands', 'navigations'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',

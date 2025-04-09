@@ -882,8 +882,809 @@ export interface Palette {
 export interface Navigation {
   id: number;
   tenant: number | Tenant;
+  forecast?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Forecast
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  observations?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Observations
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  weather?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Weather
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  education?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Education
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  accidents?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Accidents
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  blog?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Blog
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  events?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Events
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  about?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under About
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  support?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Support
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  donate?: {
+    options?: {
+      /**
+       * Controls whether this shows up in the nav bar.
+       */
+      enabled?: boolean | null;
+      /**
+       * Controls whether this item will show a dropdown menu of sub nav items on hover.
+       */
+      hasNavItems?: boolean | null;
+      /**
+       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
+       */
+      clickable?: boolean | null;
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+      };
+    };
+    /**
+     * Dropdown items under Donate
+     */
+    items?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+          };
+          options?: {
+            /**
+             * Controls whether this item will show a dropdown menu of sub nav items on hover.
+             */
+            hasNavItems?: boolean | null;
+          };
+          items?:
+            | {
+                link: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label: string;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1503,8 +2304,539 @@ export interface PalettesSelect<T extends boolean = true> {
  */
 export interface NavigationsSelect<T extends boolean = true> {
   tenant?: T;
+  forecast?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  observations?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  weather?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  education?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  accidents?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  blog?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  events?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  about?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  support?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  donate?:
+    | T
+    | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+              hasNavItems?: T;
+              clickable?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              options?:
+                | T
+                | {
+                    hasNavItems?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
