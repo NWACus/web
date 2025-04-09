@@ -1,0 +1,227 @@
+import { Navigation, Page, Tenant } from '@/payload-types'
+import { RequiredDataFromCollectionSlug } from 'payload'
+
+export const navigationSeed = (
+  pages: Record<string, Record<string, Page>>,
+  tenant: Tenant,
+): RequiredDataFromCollectionSlug<'navigations'> => {
+  const pageLink = ({
+    slug,
+    url,
+    label,
+    newTab,
+  }: { slug?: string; url?: string; label?: string; newTab?: boolean } & (
+    | { slug: string }
+    | { url: string }
+  )): NonNullable<NonNullable<NonNullable<Navigation['weather']>['options']>['link']> => {
+    if (url) {
+      return {
+        type: 'custom',
+        label: label || 'External Link',
+        url,
+        newTab,
+      }
+    }
+
+    if (!pages[tenant.name] || !slug || !pages[tenant.name][slug]) {
+      console.warn(`Page ${slug || 'undefined'} not found for tenant ${tenant.name}`)
+      return {
+        type: 'custom',
+        label: 'Missing Page',
+        url: '/',
+        newTab,
+      }
+    }
+
+    return {
+      type: 'reference',
+      reference: {
+        value: pages[tenant.name][slug].id,
+        relationTo: 'pages',
+      },
+      label: label || pages[tenant.name][slug].title,
+      newTab,
+    }
+  }
+
+  return {
+    tenant: tenant.id,
+    weather: {
+      options: {
+        enabled: true,
+        hasNavItems: true,
+        clickable: false,
+      },
+      items: [
+        {
+          link: pageLink({ url: '/weather/stations/map', label: 'Weather Stations' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+        {
+          link: pageLink({
+            url: 'https://www.weather.gov/rev/Avalanche',
+            label: 'Weather Tools',
+            newTab: true,
+          }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+      ],
+    },
+    education: {
+      options: {
+        enabled: true,
+        hasNavItems: true,
+        clickable: false,
+      },
+      items: [
+        {
+          link: pageLink({
+            url: 'https://avalanche.org/avalanche-tutorial',
+            label: 'Learn',
+            newTab: true,
+          }),
+          options: {
+            hasNavItems: true,
+          },
+          items: [
+            {
+              link: pageLink({
+                url: 'https://avalanche.org/avalanche-education/',
+                label: 'Backcountry Basics',
+              }),
+            },
+          ],
+        },
+        {
+          link: pageLink({
+            url: 'https://avalanche.org/avalanche-tutorial',
+            label: 'Classes',
+            newTab: true,
+          }),
+          options: {
+            hasNavItems: true,
+          },
+          items: [
+            {
+              link: pageLink({
+                slug: 'avalanche-awareness-classes',
+                label: 'Avalanche Awareness Classes',
+              }),
+            },
+            {
+              link: pageLink({
+                slug: 'courses-by-local-providers',
+                label: 'Courses by Local Providers',
+              }),
+            },
+          ],
+        },
+        {
+          link: pageLink({ slug: 'snowpack-scholarship' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+      ],
+    },
+    about: {
+      options: {
+        enabled: true,
+        hasNavItems: true,
+        clickable: true,
+        link: pageLink({ slug: 'about-us' }),
+      },
+      items: [
+        {
+          link: pageLink({ slug: 'about-us' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+        {
+          link: pageLink({ slug: 'about-the-forecasts' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+      ],
+    },
+    support: {
+      options: {
+        enabled: true,
+        hasNavItems: true,
+        clickable: false,
+      },
+      items: [
+        {
+          link: pageLink({ slug: 'become-a-member' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+        {
+          link: pageLink({ slug: 'workplace-giving' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+        {
+          link: pageLink({ slug: 'corporate-sponsorships' }),
+        },
+      ],
+    },
+    accidents: {
+      options: {
+        enabled: true,
+        hasNavItems: true,
+        clickable: false,
+      },
+      items: [
+        {
+          link: pageLink({ url: '/accidents', label: 'Local Accident Reports' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+        {
+          link: pageLink({ url: '/accidents/statistics', label: 'Avalanche Accident Statistics' }),
+          options: {
+            hasNavItems: false,
+          },
+        },
+      ],
+    },
+    blog: {
+      options: {
+        enabled: true,
+        hasNavItems: false,
+        clickable: true,
+        link: pageLink({ url: '/posts', label: 'Blog' }),
+      },
+    },
+    events: {
+      options: {
+        enabled: true,
+        hasNavItems: false,
+        clickable: true,
+        link: pageLink({ url: '/events', label: 'Events' }),
+      },
+    },
+    donate: {
+      options: {
+        enabled: true,
+        hasNavItems: false,
+        clickable: true,
+        link: pageLink({
+          url: 'https://www.americanavalancheassociation.org/donate',
+          label: 'Donate',
+          newTab: true,
+        }),
+      },
+    },
+  }
+}
