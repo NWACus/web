@@ -21,6 +21,7 @@ import {
   Category,
   Form,
   Media,
+  Navigation,
   Page,
   Palette,
   Post,
@@ -30,6 +31,7 @@ import {
   User,
 } from '@/payload-types'
 import { page } from '@/endpoints/seed/page'
+import { navigationSeed } from './navigation'
 
 const collections: CollectionSlug[] = [
   'brands',
@@ -1063,7 +1065,26 @@ export const innerSeed = async ({
 
   payload.logger.info(`— Seeding navigation...`)
 
-  // TODO write new navigation seeding
+  const navigations: Record<string, Navigation> = {}
+  for (const tenant of Object.values(tenants)) {
+    payload.logger.info(`Creating navigation for tenant ${tenant.name}...`)
+
+    const navigationData = navigationSeed(pages, tenant)
+
+    const navigation = await payload
+      .create({
+        collection: 'navigations',
+        data: navigationData,
+      })
+      .catch((e) => payload.logger.error(e))
+
+    if (!navigation) {
+      payload.logger.error(`Creating navigation for tenant ${tenant.name} returned null...`)
+      return
+    }
+
+    navigations[tenant.name] = navigation
+  }
 
   payload.logger.info(`— Seeding globals...`)
 

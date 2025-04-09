@@ -36,7 +36,7 @@ export const topLevelNavTab = ({
         },
         {
           name: 'hasNavItems',
-          type: 'checkbox' as const,
+          type: 'checkbox',
           defaultValue: true,
           admin: {
             description:
@@ -45,7 +45,7 @@ export const topLevelNavTab = ({
         },
         {
           name: 'clickable',
-          type: 'checkbox' as const,
+          type: 'checkbox',
           label: 'Is Clickable',
           defaultValue: false,
           admin: {

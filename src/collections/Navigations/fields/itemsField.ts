@@ -9,7 +9,7 @@ export const itemsField = ({
 }: {
   label: string
   description?: string
-  overrides?: Record<string, unknown>
+  overrides?: Partial<ArrayField>
 }): ArrayField =>
   deepMerge(
     {
