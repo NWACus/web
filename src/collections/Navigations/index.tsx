@@ -53,7 +53,7 @@ export const Navigations: CollectionConfig = {
         topLevelNavTab({
           name: 'observations',
           label: 'Observations',
-          description: 'This nav dropdown is autofilled.',
+          description: 'This nav dropdown is autofilled with the default observations links.',
           isConfigurable: false,
         }),
         topLevelNavTab({ name: 'weather', label: 'Weather' }),
