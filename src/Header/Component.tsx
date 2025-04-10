@@ -61,7 +61,7 @@ export async function Header({ center }: { center?: string }) {
   })
 
   const generateNavItems: (
-    weather: navSection | undefined,
+    weather: navGroup | undefined,
     about: navItem[],
   ) => (navItem | navSection)[] = (
     weather: navGroup | undefined,
