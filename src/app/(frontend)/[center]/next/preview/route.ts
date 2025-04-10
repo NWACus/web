@@ -31,7 +31,7 @@ export async function GET(
       return new Response('No path provided', { status: 404 })
     }
 
-    if (!slug) {
+    if (slug === null) {
       return new Response('No path provided', { status: 404 })
     }
 
@@ -59,28 +59,30 @@ export async function GET(
       return new Response('You are not allowed to preview this page', { status: 403 })
     }
 
-    // Verify the given slug exists
-    try {
-      const docs = await payload.find({
-        collection,
-        draft: true,
-        limit: 1,
-        // pagination: false reduces overhead if you don't need totalDocs
-        pagination: false,
-        depth: 0,
-        select: {},
-        where: {
-          slug: {
-            equals: slug,
+    if (slug !== '') {
+      // Verify the given slug exists
+      try {
+        const docs = await payload.find({
+          collection,
+          draft: true,
+          limit: 1,
+          // pagination: false reduces overhead if you don't need totalDocs
+          pagination: false,
+          depth: 0,
+          select: {},
+          where: {
+            slug: {
+              equals: slug,
+            },
           },
-        },
-      })
+        })
 
-      if (!docs.docs.length) {
-        return new Response('Document not found', { status: 404 })
+        if (!docs.docs.length) {
+          return new Response('Document not found', { status: 404 })
+        }
+      } catch (error) {
+        payload.logger.error({ err: error }, 'Error verifying token for live preview')
       }
-    } catch (error) {
-      payload.logger.error({ err: error }, 'Error verifying token for live preview')
     }
 
     draft.enable()

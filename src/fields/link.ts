@@ -15,14 +15,14 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
   },
 }
 
-type LinkType = (options?: {
+export type LinkType = (options?: {
   appearances?: LinkAppearances[] | false
   disableLabel?: boolean
   overrides?: Partial<GroupField>
 }) => Field
 
 export const link: LinkType = ({ appearances, disableLabel = false, overrides = {} } = {}) => {
-  const linkResult: Field = {
+  const linkResult: GroupField = {
     name: 'link',
     type: 'group',
     admin: {
