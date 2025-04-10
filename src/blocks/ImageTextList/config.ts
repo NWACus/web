@@ -34,9 +34,9 @@ const columnFields: Field[] = [
   },
 ]
 
-export const IconList: Block = {
-  slug: 'iconList',
-  interfaceName: 'IconList',
+export const ImageTextList: Block = {
+  slug: 'ImageTextList',
+  interfaceName: 'ImageTextList',
   fields: [
     {
       name: 'columns',

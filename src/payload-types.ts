@@ -339,7 +339,7 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (ArchiveBlock | CallToActionBlock | ContentBlock | FormBlock | IconList | MediaBlock)[];
+  layout: (ArchiveBlock | CallToActionBlock | ContentBlock | FormBlock | ImageTextList | MediaBlock)[];
   meta?: {
     title?: string | null;
     /**
@@ -805,9 +805,9 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "IconList".
+ * via the `definition` "ImageTextList".
  */
-export interface IconList {
+export interface ImageTextList {
   columns?:
     | {
         icon: number | Media;
@@ -832,7 +832,7 @@ export interface IconList {
     | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'iconList';
+  blockType: 'ImageTextList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1329,7 +1329,7 @@ export interface PagesSelect<T extends boolean = true> {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
-        iconList?: T | IconListSelect<T>;
+        ImageTextList?: T | ImageTextListSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
       };
   meta?:
@@ -1424,9 +1424,9 @@ export interface FormBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "IconList_select".
+ * via the `definition` "ImageTextList_select".
  */
-export interface IconListSelect<T extends boolean = true> {
+export interface ImageTextListSelect<T extends boolean = true> {
   columns?:
     | T
     | {
