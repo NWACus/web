@@ -1,6 +1,6 @@
+import { link } from '@/fields/link'
 import { Tab } from 'payload'
 import { itemsField } from './itemsField'
-import { link } from '@/fields/link'
 
 export const topLevelNavTab = ({
   name,

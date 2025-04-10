@@ -1,9 +1,9 @@
+import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
 import { tenantField } from '@/fields/tenantField'
-import { accessByTenant } from '@/access/byTenant'
+import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
 import { topLevelNavTab } from './fields/topLevelNavTab'
-import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
