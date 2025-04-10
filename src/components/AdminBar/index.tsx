@@ -28,7 +28,7 @@ export const AdminBar: React.FC<{
     setShow(!!user?.id)
   }, [])
 
-  let collection: string = "Unknown"
+  let collection: string = 'Unknown'
   if (segments && segments.length > 1) {
     collection = segments[1].charAt(0).toUpperCase() + segments[1].slice(1)
   }
