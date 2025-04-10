@@ -1,21 +1,8 @@
 import React from 'react'
 
-const defaultLabels = {
-  plural: 'Docs',
-  singular: 'Doc',
-}
-
-const defaultCollectionLabels = {
-  posts: {
-    plural: 'Posts',
-    singular: 'Post',
-  },
-}
-
 export const PageRange: React.FC<{
   className?: string
-  collection?: string
-  collectionLabels?: {
+  collectionLabels: {
     plural?: string
     singular?: string
   }
@@ -25,7 +12,6 @@ export const PageRange: React.FC<{
 }> = (props) => {
   const {
     className,
-    collection,
     collectionLabels: collectionLabelsFromProps,
     currentPage,
     limit,
@@ -38,8 +24,7 @@ export const PageRange: React.FC<{
   let indexEnd = (currentPage || 1) * (limit || 1)
   if (totalDocs && indexEnd > totalDocs) indexEnd = totalDocs
 
-  const { plural, singular } =
-    collectionLabelsFromProps || defaultCollectionLabels[collection || ''] || defaultLabels || {}
+  const { plural, singular } = collectionLabelsFromProps
 
   return (
     <div className={[className, 'font-semibold'].filter(Boolean).join(' ')}>
