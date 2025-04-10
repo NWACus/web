@@ -1,7 +1,7 @@
-import { Access, CollectionConfig } from 'payload'
 import { globalRolesForUser } from '@/utilities/rbac/globalRolesForUser'
-import { ruleCollection, ruleMethod, ruleMatches } from '@/utilities/rbac/ruleMatches'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
+import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import { Access, CollectionConfig } from 'payload'
 
 // byTenant walks the roles bound to the user to determine if they have permissions
 // to take the specified action on a resource of the collection type. Used for

@@ -1,5 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
+import { accessByTenant } from '@/access/byTenant'
+import { filterByTenant } from '@/access/filterByTenant'
+import { tenantField } from '@/fields/tenantField'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -7,9 +10,6 @@ import {
 } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { accessByTenant } from '@/access/byTenant'
-import { filterByTenant } from '@/access/filterByTenant'
-import { tenantField } from '@/fields/tenantField'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

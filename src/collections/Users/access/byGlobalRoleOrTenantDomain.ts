@@ -1,7 +1,7 @@
-import { Access, CollectionConfig } from 'payload'
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import { Access, CollectionConfig } from 'payload'
 
 // byGlobalRoleOrTenantDomain supplants global access review with tenant-scoped user grants, allowing tenant
 // scoped role assignments for user access to apply for all users with e-mails under the tenant domains

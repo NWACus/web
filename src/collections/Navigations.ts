@@ -1,7 +1,7 @@
-import type { CollectionConfig } from 'payload'
 import { accessByTenant } from '@/access/byTenant'
-import { tenantField } from '@/fields/tenantField'
 import { filterByTenant } from '@/access/filterByTenant'
+import { tenantField } from '@/fields/tenantField'
+import type { CollectionConfig } from 'payload'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
