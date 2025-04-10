@@ -6,9 +6,7 @@ import type { Post } from '@/payload-types'
 import { Media } from '@/components/Media'
 import { formatAuthors } from '@/utilities/formatAuthors'
 
-export const PostHero: React.FC<{
-  post: Post
-}> = ({ post }) => {
+export const PostHero = ({ post }: { post: Post }) => {
   const { categories, heroImage, populatedAuthors, publishedAt, title } = post
 
   const hasAuthors =

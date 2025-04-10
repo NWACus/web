@@ -90,7 +90,11 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({ params: paramsPromise }): Promise<Metadata> {
+export async function generateMetadata({
+  params: paramsPromise,
+}: {
+  params: Promise<PathArgs>
+}): Promise<Metadata> {
   const { center, slug = 'home' } = await paramsPromise
   const page = await queryPageBySlug({
     center: center,

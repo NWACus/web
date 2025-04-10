@@ -10,7 +10,10 @@ export const colorField: (name: string) => Field = (name) => {
   }
 }
 
-const validateHSLValue: TextFieldValidation = (value: string): string | true => {
+const validateHSLValue: TextFieldValidation = (value: string | null | undefined): string | true => {
+  if (value === null || value === undefined) {
+    return `A HSL value is required.`
+  }
   const parts = value.split(' ')
   if (parts.length !== 3) {
     return `Expected three parts, got ${parts.length}: ${value}.`

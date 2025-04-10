@@ -1,11 +1,9 @@
-import React from 'react'
-
 import { Role } from '@/payload-types'
 import { ArrayFieldClient, DefaultServerCellComponentProps } from 'payload'
 
-export const RulesCell: React.FC<
-  DefaultServerCellComponentProps<ArrayFieldClient, Role['rules']>
-> = async ({ cellData }) => {
+export const RulesCell = async ({
+  cellData,
+}: DefaultServerCellComponentProps<ArrayFieldClient, Role['rules']>) => {
   return (
     <>
       {cellData.map((rule, index) => (

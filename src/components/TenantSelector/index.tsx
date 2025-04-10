@@ -8,7 +8,7 @@ import React from 'react'
 import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
 import './index.scss'
 
-const TenantSelector: React.FC = ({ label, viewType }: { label: string; viewType?: ViewTypes }) => {
+const TenantSelector = ({ label, viewType }: { label: string; viewType?: ViewTypes }) => {
   const { options, selectedTenantID, setTenant } = useTenantSelection()
 
   const handleChange = React.useCallback(
