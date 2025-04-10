@@ -812,7 +812,7 @@ export interface IconList {
     | {
         icon: number | Media;
         title: string;
-        richText?: {
+        richText: {
           root: {
             type: string;
             children: {
@@ -826,7 +826,7 @@ export interface IconList {
             version: number;
           };
           [k: string]: unknown;
-        } | null;
+        };
         id?: string | null;
       }[]
     | null;

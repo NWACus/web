@@ -1,21 +1,18 @@
 import type { StaticImageData } from 'next/image'
 
-import { cn } from 'src/utilities/cn'
-import React from 'react'
 import RichText from '@/components/RichText'
+import React from 'react'
+import { cn } from 'src/utilities/cn'
 
 import type { IconList as IconListProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 
 type Props = IconListProps & {
-  breakout?: boolean
-  captionClassName?: string
   className?: string
   enableGutter?: boolean
   imgClassName?: string
   staticImage?: StaticImageData
-  disableInnerContainer?: boolean
 }
 
 export const IconList: React.FC<Props> = (props) => {
@@ -60,12 +57,11 @@ export const IconList: React.FC<Props> = (props) => {
                       src={staticImage}
                     />
                   )}
-                  {title && <div className={cn('mt-6')}>{title}</div>}
-                  {richText && (
-                    <div className={cn('mt-2')}>
-                      <RichText data={richText} enableGutter={false} />
-                    </div>
-                  )}
+                  <div className={cn('mt-6')}>{title}</div>
+
+                  <div className={cn('mt-2')}>
+                    <RichText data={richText} enableGutter={false} />
+                  </div>
                 </div>
               </div>
             )
