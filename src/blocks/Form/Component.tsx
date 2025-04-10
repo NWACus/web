@@ -43,6 +43,7 @@ export const FormBlock: React.FC<
   } = props
 
   const formMethods = useForm({
+    /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
     defaultValues: buildInitialFormState(formFromProps.fields),
   })
   const {
@@ -137,11 +138,13 @@ export const FormBlock: React.FC<
           {isLoading && !hasSubmitted && <p>Loading, please wait...</p>}
           {error && <div>{`${error.status || '500'}: ${error.message || ''}`}</div>}
           {!hasSubmitted && (
+            /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
             <form id={formID} onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4 last:mb-0">
                 {formFromProps &&
                   formFromProps.fields &&
                   formFromProps.fields?.map((field, index) => {
+                    /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
                     const Field: React.FC<unknown> = fields?.[field.blockType]
                     if (Field) {
                       return (
