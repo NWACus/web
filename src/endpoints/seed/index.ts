@@ -699,7 +699,9 @@ export const innerSeed = async ({
         },
       })
     } catch (err) {
-      payload.logger.error(`Failed assign global admin role to first user, error: ${err.message}`)
+      payload.logger.error(
+        `Failed assign global admin role to first user, error: ${err instanceof Error ? err.message : err}`,
+      )
     }
   }
 

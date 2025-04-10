@@ -3,20 +3,25 @@ import type { FieldErrorsImpl, FieldValues, UseFormRegister } from 'react-hook-f
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import React from 'react'
 
 import { Error } from '../Error'
 import { Width } from '../Width'
-export const Number: React.FC<
-  TextField & {
-    errors: Partial<
-      FieldErrorsImpl<{
-        [x: string]: unknown
-      }>
-    >
-    register: UseFormRegister<FieldValues>
-  }
-> = ({ name, defaultValue, errors, label, register, required: requiredFromProps, width }) => {
+export const Number = ({
+  name,
+  defaultValue,
+  errors,
+  label,
+  register,
+  required: requiredFromProps,
+  width,
+}: TextField & {
+  errors: Partial<
+    FieldErrorsImpl<{
+      [x: string]: unknown
+    }>
+  >
+  register: UseFormRegister<FieldValues>
+}) => {
   return (
     <Width width={width}>
       <Label htmlFor={name}>{label}</Label>

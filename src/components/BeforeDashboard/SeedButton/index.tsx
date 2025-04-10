@@ -5,7 +5,7 @@ import React, { Fragment, useCallback, useState } from 'react'
 
 import './index.scss'
 
-const SuccessMessage: React.FC = () => (
+const SuccessMessage = () => (
   <div>
     Database seeded! You can now{' '}
     <a target="_blank" href="/">
@@ -14,12 +14,12 @@ const SuccessMessage: React.FC = () => (
   </div>
 )
 
-export const SeedButton: React.FC = () => {
+export const SeedButton = () => {
   const [loading, setLoading] = useState(false)
   const [seeded, setSeeded] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<unknown | null>(null)
 
-  const handleClick = useCallback(
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     async (e) => {
       e.preventDefault()
 

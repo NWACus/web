@@ -1,6 +1,6 @@
-import type { Field } from 'payload'
+import type { Field, GroupField } from 'payload'
 
-import deepMerge from '@/utilities/deepMerge'
+import merge from 'lodash.merge'
 
 export type LinkAppearances = 'default' | 'outline'
 
@@ -18,11 +18,11 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
 export type LinkType = (options?: {
   appearances?: LinkAppearances[] | false
   disableLabel?: boolean
-  overrides?: Partial<Field>
+  overrides?: Partial<GroupField>
 }) => Field
 
 export const link: LinkType = ({ appearances, disableLabel = false, overrides = {} } = {}) => {
-  const linkResult: Field = {
+  const linkResult: GroupField = {
     name: 'link',
     type: 'group',
     admin: {
@@ -135,5 +135,5 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
     })
   }
 
-  return deepMerge(linkResult, overrides)
+  return merge(linkResult, overrides)
 }

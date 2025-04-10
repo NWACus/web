@@ -1,4 +1,3 @@
-import React from 'react'
 import { cn } from 'src/utilities/cn'
 
 import { Card, CardPostData } from '@/components/Card'
@@ -7,7 +6,7 @@ export type Props = {
   posts: CardPostData[]
 }
 
-export const CollectionArchive: React.FC<Props> = (props) => {
+export const CollectionArchive = (props: Props) => {
   const { posts } = props
 
   return (
