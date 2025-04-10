@@ -5,12 +5,16 @@ import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
-import { hero } from '@/heros/config'
 import { slugField } from '@/fields/slug'
+import { hero } from '@/heros/config'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
+import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { filterByTenant } from '@/access/filterByTenant'
+import { tenantField } from '@/fields/tenantField'
+import { Tenant } from '@/payload-types'
 import {
   MetaDescriptionField,
   MetaImageField,
@@ -18,10 +22,6 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-import { filterByTenant } from '@/access/filterByTenant'
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
-import { tenantField } from '@/fields/tenantField'
-import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',

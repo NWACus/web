@@ -1,6 +1,6 @@
-import type { CollectionConfig } from 'payload'
 import { accessByGlobalRole } from '@/access/byGlobalRole'
 import { colorField } from '@/fields/ColorField'
+import type { CollectionConfig } from 'payload'
 
 export const Palettes: CollectionConfig = {
   slug: 'palettes',

@@ -1,5 +1,5 @@
-import { APIError, RelationshipField } from 'payload'
 import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
+import { APIError, RelationshipField } from 'payload'
 
 export const tenantField = ({
   access,

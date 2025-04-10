@@ -1,5 +1,5 @@
-import { cn } from 'src/utilities/cn'
 import React from 'react'
+import { cn } from 'src/utilities/cn'
 
 import { Card, CardPostData } from '@/components/Card'
 

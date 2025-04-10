@@ -1,5 +1,5 @@
-import type { RequiredDataFromCollectionSlug } from 'payload'
 import type { Media, Tenant } from '@/payload-types'
+import type { RequiredDataFromCollectionSlug } from 'payload'
 
 export const home: (
   tenant: Tenant,

@@ -16,6 +16,11 @@ import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
+import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { filterByTenant } from '@/access/filterByTenant'
+import { slugField } from '@/fields/slug'
+import { tenantField } from '@/fields/tenantField'
+import { Tenant } from '@/payload-types'
 import {
   MetaDescriptionField,
   MetaImageField,
@@ -23,11 +28,6 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-import { slugField } from '@/fields/slug'
-import { filterByTenant } from '@/access/filterByTenant'
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
-import { tenantField } from '@/fields/tenantField'
-import { Tenant } from '@/payload-types'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',

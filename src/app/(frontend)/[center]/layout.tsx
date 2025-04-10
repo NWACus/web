@@ -1,15 +1,15 @@
 import type { Metadata } from 'next'
 
-import '../globals.css'
 import React from 'react'
+import '../globals.css'
 
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 import { getServerSideURL } from '@/utilities/getURL'
-import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })

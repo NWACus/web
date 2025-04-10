@@ -1,5 +1,4 @@
 import { HeaderClient } from './Component.client'
-import React from 'react'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'

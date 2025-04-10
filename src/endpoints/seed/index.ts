@@ -1,21 +1,13 @@
 import type {
   CollectionSlug,
+  File,
   GlobalSlug,
   Payload,
   PayloadRequest,
-  File,
   RequiredDataFromCollectionSlug,
 } from 'payload'
 
-import { contactForm as contactFormData } from './contact-form'
-import { contact as contactPageData } from './contact-page'
-import { home } from './home'
-import { image1 } from './image-1'
-import { image2 } from './image-2'
-import { imageHero1 } from './image-hero-1'
-import { post1 } from './post-1'
-import { post2 } from './post-2'
-import { post3 } from './post-3'
+import { page } from '@/endpoints/seed/page'
 import {
   Brand,
   Category,
@@ -30,8 +22,16 @@ import {
   Theme,
   User,
 } from '@/payload-types'
-import { page } from '@/endpoints/seed/page'
+import { contactForm as contactFormData } from './contact-form'
+import { contact as contactPageData } from './contact-page'
+import { home } from './home'
+import { image1 } from './image-1'
+import { image2 } from './image-2'
+import { imageHero1 } from './image-hero-1'
 import { navigationSeed } from './navigation'
+import { post1 } from './post-1'
+import { post2 } from './post-2'
+import { post3 } from './post-3'
 
 const collections: CollectionSlug[] = [
   'brands',

@@ -1,12 +1,10 @@
 import type { Metadata } from 'next/types'
 
-import React from 'react'
-
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import PageClient from './page.client'
 import { NACWidget } from '@/components/NACWidget'
+import PageClient from './page.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600

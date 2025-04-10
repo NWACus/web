@@ -1,7 +1,7 @@
-import type { CollectionConfig } from 'payload'
 import { accessByTenant } from '@/access/byTenant'
-import { tenantField } from '@/fields/tenantField'
 import { filterByTenant } from '@/access/filterByTenant'
+import { tenantField } from '@/fields/tenantField'
+import type { CollectionConfig } from 'payload'
 
 // A role assignment binds a user to a set of roles in a tenant.
 export const RoleAssignments: CollectionConfig = {

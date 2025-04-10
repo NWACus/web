@@ -1,6 +1,6 @@
-import { Access, CollectionConfig } from 'payload'
-import { ruleCollection, ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { byTenant } from '@/access/byTenant'
+import { ruleCollection, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import { Access, CollectionConfig } from 'payload'
 
 // byTenantOrPublished supplants access review by allowing unauthenticated access to pages
 export const byTenantOrPublished: (method: ruleMethod, collection: ruleCollection) => Access =

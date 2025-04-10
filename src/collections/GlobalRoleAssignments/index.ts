@@ -1,5 +1,5 @@
-import type { CollectionConfig } from 'payload'
 import { accessByGlobalRole } from '@/access/byGlobalRole'
+import type { CollectionConfig } from 'payload'
 
 // A global role assignment binds a user to a set of roles in all tenants.
 export const GlobalRoleAssignments: CollectionConfig = {

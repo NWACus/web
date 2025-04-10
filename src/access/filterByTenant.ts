@@ -1,5 +1,5 @@
-import { BaseListFilter } from 'payload'
 import { getTenantListFilter } from '@payloadcms/plugin-multi-tenant/utilities'
+import { BaseListFilter } from 'payload'
 
 // filterByTenant implements per-tenant data filtering from the 'payload-tenant' cookie
 // by setting the base list filters that users can add to but not remove from. Access
