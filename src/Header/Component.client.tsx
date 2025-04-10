@@ -3,7 +3,7 @@ import { useHeaderTheme } from '@/providers/HeaderTheme'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-export const HeaderClient: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const HeaderClient = ({ children }: { children: React.ReactNode }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()

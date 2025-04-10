@@ -14,11 +14,9 @@ import { getClientSideURL } from '@/utilities/getURL'
 
 const baseClass = 'admin-bar'
 
-const Title: React.FC = () => <span>Dashboard</span>
+const Title = () => <span>Dashboard</span>
 
-export const AdminBar: React.FC<{
-  adminBarProps?: PayloadAdminBarProps
-}> = (props) => {
+export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   const { adminBarProps } = props || {}
   const segments = useSelectedLayoutSegments()
   const [show, setShow] = useState(false)

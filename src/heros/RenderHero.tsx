@@ -1,5 +1,3 @@
-import React from 'react'
-
 import type { Page } from '@/payload-types'
 
 import { HighImpactHero } from '@/heros/HighImpact'
@@ -12,7 +10,7 @@ const heroes = {
   mediumImpact: MediumImpactHero,
 }
 
-export const RenderHero: React.FC<Page['hero']> = (props) => {
+export const RenderHero = (props: Page['hero']) => {
   const { type } = props || {}
 
   if (!type || type === 'none') return null

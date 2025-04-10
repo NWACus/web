@@ -9,23 +9,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import React from 'react'
 import { Controller } from 'react-hook-form'
 
 import { Error } from '../Error'
 import { Width } from '../Width'
 import { countryOptions } from './options'
 
-export const Country: React.FC<
-  CountryField & {
-    control: Control<FieldValues, unknown>
-    errors: Partial<
-      FieldErrorsImpl<{
-        [x: string]: unknown
-      }>
-    >
-  }
-> = ({ name, control, errors, label, required, width }) => {
+export const Country = ({
+  name,
+  control,
+  errors,
+  label,
+  required,
+  width,
+}: CountryField & {
+  control: Control<FieldValues, unknown>
+  errors: Partial<
+    FieldErrorsImpl<{
+      [x: string]: unknown
+    }>
+  >
+}) => {
   return (
     <Width width={width}>
       <Label className="" htmlFor={name}>

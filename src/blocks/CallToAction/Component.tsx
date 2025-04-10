@@ -1,11 +1,9 @@
-import React from 'react'
-
 import type { CallToActionBlock as CTABlockProps } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import RichText from '@/components/RichText'
 
-export const CallToActionBlock: React.FC<CTABlockProps> = ({ links, richText }) => {
+export const CallToActionBlock = ({ links, richText }: CTABlockProps) => {
   return (
     <div className="container">
       <div className="bg-card rounded border-border border p-4 flex flex-col gap-8 md:flex-row md:justify-between md:items-center">

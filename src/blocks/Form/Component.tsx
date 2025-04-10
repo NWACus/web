@@ -30,11 +30,11 @@ export type FormBlockType = {
   introContent?: SerializedEditorState
 }
 
-export const FormBlock: React.FC<
-  {
+export const FormBlock = (
+  props: {
     id?: string
-  } & FormBlockType
-> = (props) => {
+  } & FormBlockType,
+) => {
   const {
     enableIntro,
     form: formFromProps,

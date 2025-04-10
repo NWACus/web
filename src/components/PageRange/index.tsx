@@ -1,6 +1,10 @@
-import React from 'react'
-
-export const PageRange: React.FC<{
+export const PageRange = ({
+  className,
+  collectionLabels,
+  currentPage,
+  limit,
+  totalDocs,
+}: {
   className?: string
   collectionLabels: {
     plural?: string
@@ -9,7 +13,7 @@ export const PageRange: React.FC<{
   currentPage?: number
   limit?: number
   totalDocs?: number
-}> = ({ className, collectionLabels, currentPage, limit, totalDocs }) => {
+}) => {
   let indexStart = (currentPage ? currentPage - 1 : 1) * (limit || 1) + 1
   if (totalDocs && indexStart > totalDocs) indexStart = 0
 

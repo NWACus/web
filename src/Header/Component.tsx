@@ -293,7 +293,7 @@ export async function Header({ center }: { center?: string }) {
   )
 }
 
-const NavigationMenuGroupItem: React.FC<{ group: navGroup }> = ({ group }) => {
+const NavigationMenuGroupItem = ({ group }: { group: navGroup }) => {
   return (
     <NavigationSubMenu defaultValue="sub1">
       <NavigationMenuList>
