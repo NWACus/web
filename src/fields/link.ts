@@ -1,6 +1,6 @@
 import type { Field } from 'payload'
 
-import deepMerge from '@/utilities/deepMerge'
+import merge from 'lodash.merge'
 
 export type LinkAppearances = 'default' | 'outline'
 
@@ -135,5 +135,5 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
     })
   }
 
-  return deepMerge(linkResult, overrides)
+  return merge(linkResult, overrides)
 }
