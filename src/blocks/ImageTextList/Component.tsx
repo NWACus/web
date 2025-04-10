@@ -33,7 +33,7 @@ export const ImageTextList: React.FC<Props> = (props) => {
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
-            const { icon, richText, title } = col
+            const { image, richText, title } = col
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
               <div
@@ -50,10 +50,10 @@ export const ImageTextList: React.FC<Props> = (props) => {
                     className,
                   )}
                 >
-                  {(icon || staticImage) && (
+                  {(image || staticImage) && (
                     <Media
                       imgClassName={cn('h-[108px]', imgClassName)}
-                      resource={icon}
+                      resource={image}
                       src={staticImage}
                     />
                   )}
