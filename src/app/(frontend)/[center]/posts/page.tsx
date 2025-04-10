@@ -51,7 +51,10 @@ export default async function Page({ params }: Args) {
 
       <div className="container mb-8">
         <PageRange
-          collection="posts"
+          collectionLabels={{
+            plural: 'Posts',
+            singular: 'Post',
+          }}
           currentPage={posts.page}
           limit={12}
           totalDocs={posts.totalDocs}
