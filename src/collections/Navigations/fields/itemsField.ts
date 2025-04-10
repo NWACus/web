@@ -1,5 +1,5 @@
 import { navLink } from '@/fields/navLink'
-import deepMerge from '@/utilities/deepMerge'
+import merge from 'lodash.merge'
 import { ArrayField } from 'payload'
 
 export const itemsField = ({
@@ -11,7 +11,7 @@ export const itemsField = ({
   description?: string
   overrides?: Partial<ArrayField>
 }): ArrayField =>
-  deepMerge(
+  merge(
     {
       name: 'items',
       type: 'array',
