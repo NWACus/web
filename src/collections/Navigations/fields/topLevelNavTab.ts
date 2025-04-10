@@ -54,16 +54,16 @@ export const topLevelNavTab = ({
               "Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.",
           },
         },
-        link({
-          appearances: false,
-          overrides: {
-            admin: {
-              condition: (_data, siblingData) => siblingData?.clickable,
-            },
-          },
-        }),
       ],
     },
+    link({
+      appearances: false,
+      overrides: {
+        admin: {
+          condition: (_data, siblingData) => siblingData?.options.clickable,
+        },
+      },
+    }),
     itemsField({
       label: `${label ?? name} Sub Nav Items`,
       description: `Dropdown items under ${label ?? name}`,

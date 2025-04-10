@@ -150,8 +150,8 @@ export const navigationSeed = (
         enabled: true,
         hasNavItems: true,
         clickable: true,
-        link: pageLink({ slug: 'about-us' }),
       },
+      link: pageLink({ slug: 'about-us' }),
       items: [
         {
           link: pageLink({ slug: 'about-us' }),
@@ -217,28 +217,28 @@ export const navigationSeed = (
         enabled: true,
         hasNavItems: false,
         clickable: true,
-        link: pageLink({ url: '/posts', label: 'Blog' }),
       },
+      link: pageLink({ url: '/posts', label: 'Blog' }),
     },
     events: {
       options: {
         enabled: true,
         hasNavItems: false,
         clickable: true,
-        link: pageLink({ url: '/events', label: 'Events' }),
       },
+      link: pageLink({ url: '/events', label: 'Events' }),
     },
     donate: {
       options: {
         enabled: true,
         hasNavItems: false,
         clickable: true,
-        link: pageLink({
-          url: 'https://www.americanavalancheassociation.org/donate',
-          label: 'Donate',
-          newTab: true,
-        }),
       },
+      link: pageLink({
+        url: 'https://www.americanavalancheassociation.org/donate',
+        label: 'Donate',
+        newTab: true,
+      }),
     },
   }
 }
