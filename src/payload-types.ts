@@ -581,7 +581,7 @@ export interface MediaBlock {
 export interface ImageTextList {
   columns?:
     | {
-        icon: number | Media;
+        image: number | Media;
         title: string;
         richText: {
           root: {
@@ -1778,7 +1778,7 @@ export interface ImageTextListSelect<T extends boolean = true> {
   columns?:
     | T
     | {
-        icon?: T;
+        image?: T;
         title?: T;
         richText?: T;
         id?: T;

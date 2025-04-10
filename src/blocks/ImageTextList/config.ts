@@ -8,7 +8,7 @@ import {
 
 const columnFields: Field[] = [
   {
-    name: 'icon',
+    name: 'image',
     type: 'upload',
     relationTo: 'media',
     required: true,
