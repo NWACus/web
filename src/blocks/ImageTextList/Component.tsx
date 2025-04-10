@@ -4,18 +4,18 @@ import RichText from '@/components/RichText'
 import React from 'react'
 import { cn } from 'src/utilities/cn'
 
-import type { IconList as IconListProps } from '@/payload-types'
+import type { ImageTextList as ImageTextListProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 
-type Props = IconListProps & {
+type Props = ImageTextListProps & {
   className?: string
   enableGutter?: boolean
   imgClassName?: string
   staticImage?: StaticImageData
 }
 
-export const IconList: React.FC<Props> = (props) => {
+export const ImageTextList: React.FC<Props> = (props) => {
   const { columns, className, enableGutter = true, imgClassName, staticImage } = props
   const numOfCols = columns?.length ?? 1
 
