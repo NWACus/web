@@ -1,7 +1,8 @@
 import type { FormFieldBlock } from '@payloadcms/plugin-form-builder/types'
 
-export const buildInitialFormState = (fields: FormFieldBlock[]) => {
-  return fields?.reduce((initialSchema, field) => {
+export const buildInitialFormState = (fields: FormFieldBlock[]): FormFieldBlock => {
+  /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
+  return fields?.reduce((initialSchema: FormFieldBlock, field) => {
     if (field.blockType === 'checkbox') {
       return {
         ...initialSchema,
