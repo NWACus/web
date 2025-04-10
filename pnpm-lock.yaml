@@ -124,6 +124,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -8109,6 +8112,12 @@ packages:
       }
     engines: { node: '>=10' }
 
+  zod@3.24.2:
+    resolution:
+      {
+        integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==,
+      }
+
   zwitch@2.0.4:
     resolution:
       {
@@ -13829,5 +13838,7 @@ snapshots:
       lib0: 0.2.101
 
   yocto-queue@0.1.0: {}
+
+  zod@3.24.2: {}
 
   zwitch@2.0.4: {}

@@ -1,4 +1,4 @@
-import { link } from '@/fields/link'
+import { navLink } from '@/fields/navLink'
 import deepMerge from '@/utilities/deepMerge'
 import { ArrayField } from 'payload'
 
@@ -20,18 +20,12 @@ export const itemsField = ({
         description,
       },
       fields: [
-        link({
-          appearances: false,
-        }),
+        navLink,
         {
           name: 'items',
           type: 'array',
           label: 'Third-level Nav Items',
-          fields: [
-            link({
-              appearances: false,
-            }),
-          ],
+          fields: [navLink],
         },
       ],
     },

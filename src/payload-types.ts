@@ -883,39 +883,13 @@ export interface Navigation {
   id: number;
   tenant: number | Tenant;
   forecast?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
-    link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label: string;
-    };
     /**
      * Dropdown items under Forecast
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -926,13 +900,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -943,7 +917,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -953,39 +928,13 @@ export interface Navigation {
       | null;
   };
   observations?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
-    link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label: string;
-    };
     /**
      * Dropdown items under Observations
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -996,13 +945,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1013,7 +962,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1023,19 +973,8 @@ export interface Navigation {
       | null;
   };
   weather?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
     link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
+      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -1046,16 +985,16 @@ export interface Navigation {
             value: number | Post;
           } | null);
       url?: string | null;
-      label: string;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Weather
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -1066,13 +1005,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1083,7 +1022,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1093,19 +1033,8 @@ export interface Navigation {
       | null;
   };
   education?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
     link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
+      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -1116,16 +1045,16 @@ export interface Navigation {
             value: number | Post;
           } | null);
       url?: string | null;
-      label: string;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Education
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -1136,13 +1065,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1153,7 +1082,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1163,19 +1093,8 @@ export interface Navigation {
       | null;
   };
   accidents?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
     link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
+      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -1186,16 +1105,16 @@ export interface Navigation {
             value: number | Post;
           } | null);
       url?: string | null;
-      label: string;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Accidents
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -1206,13 +1125,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1223,7 +1142,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1233,39 +1153,13 @@ export interface Navigation {
       | null;
   };
   blog?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
-    link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label: string;
-    };
     /**
      * Dropdown items under Blog
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -1276,13 +1170,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1293,7 +1187,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1303,39 +1198,13 @@ export interface Navigation {
       | null;
   };
   events?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
-    link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label: string;
-    };
     /**
      * Dropdown items under Events
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -1346,13 +1215,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1363,7 +1232,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1373,19 +1243,8 @@ export interface Navigation {
       | null;
   };
   about?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
     link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
+      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -1396,16 +1255,16 @@ export interface Navigation {
             value: number | Post;
           } | null);
       url?: string | null;
-      label: string;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under About
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -1416,13 +1275,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1433,7 +1292,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1443,19 +1303,8 @@ export interface Navigation {
       | null;
   };
   support?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
     link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
+      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -1466,16 +1315,16 @@ export interface Navigation {
             value: number | Post;
           } | null);
       url?: string | null;
-      label: string;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Support
      */
     items?:
       | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -1486,13 +1335,13 @@ export interface Navigation {
                   value: number | Post;
                 } | null);
             url?: string | null;
-            label: string;
+            label?: string | null;
+            newTab?: boolean | null;
           };
           items?:
             | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
+                link?: {
+                  type?: ('internal' | 'external') | null;
                   reference?:
                     | ({
                         relationTo: 'pages';
@@ -1503,7 +1352,8 @@ export interface Navigation {
                         value: number | Post;
                       } | null);
                   url?: string | null;
-                  label: string;
+                  label?: string | null;
+                  newTab?: boolean | null;
                 };
                 id?: string | null;
               }[]
@@ -1513,19 +1363,8 @@ export interface Navigation {
       | null;
   };
   donate?: {
-    options?: {
-      /**
-       * Controls whether this shows up in the nav bar.
-       */
-      enabled?: boolean | null;
-      /**
-       * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
-       */
-      clickable?: boolean | null;
-    };
     link?: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
+      type?: ('internal' | 'external') | null;
       reference?:
         | ({
             relationTo: 'pages';
@@ -1536,51 +1375,9 @@ export interface Navigation {
             value: number | Post;
           } | null);
       url?: string | null;
-      label: string;
+      label?: string | null;
+      newTab?: boolean | null;
     };
-    /**
-     * Dropdown items under Donate
-     */
-    items?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: number | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: number | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-          };
-          items?:
-            | {
-                link: {
-                  type?: ('reference' | 'custom') | null;
-                  newTab?: boolean | null;
-                  reference?:
-                    | ({
-                        relationTo: 'pages';
-                        value: number | Page;
-                      } | null)
-                    | ({
-                        relationTo: 'posts';
-                        value: number | Post;
-                      } | null);
-                  url?: string | null;
-                  label: string;
-                };
-                id?: string | null;
-              }[]
-            | null;
-          id?: string | null;
-        }[]
-      | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -2207,21 +2004,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   forecast?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
         items?:
           | T
           | {
@@ -2229,10 +2011,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2241,10 +2023,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2254,21 +2036,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   observations?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
         items?:
           | T
           | {
@@ -2276,10 +2043,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2288,10 +2055,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2301,20 +2068,14 @@ export interface NavigationsSelect<T extends boolean = true> {
   weather?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
         link?:
           | T
           | {
               type?: T;
-              newTab?: T;
               reference?: T;
               url?: T;
               label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -2323,10 +2084,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2335,10 +2096,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2348,20 +2109,14 @@ export interface NavigationsSelect<T extends boolean = true> {
   education?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
         link?:
           | T
           | {
               type?: T;
-              newTab?: T;
               reference?: T;
               url?: T;
               label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -2370,10 +2125,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2382,10 +2137,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2395,20 +2150,14 @@ export interface NavigationsSelect<T extends boolean = true> {
   accidents?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
         link?:
           | T
           | {
               type?: T;
-              newTab?: T;
               reference?: T;
               url?: T;
               label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -2417,10 +2166,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2429,10 +2178,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2442,21 +2191,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   blog?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
         items?:
           | T
           | {
@@ -2464,10 +2198,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2476,10 +2210,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2489,21 +2223,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   events?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
         items?:
           | T
           | {
@@ -2511,10 +2230,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2523,10 +2242,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2536,20 +2255,14 @@ export interface NavigationsSelect<T extends boolean = true> {
   about?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
         link?:
           | T
           | {
               type?: T;
-              newTab?: T;
               reference?: T;
               url?: T;
               label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -2558,10 +2271,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2570,10 +2283,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2583,20 +2296,14 @@ export interface NavigationsSelect<T extends boolean = true> {
   support?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
         link?:
           | T
           | {
               type?: T;
-              newTab?: T;
               reference?: T;
               url?: T;
               label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -2605,10 +2312,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                 | T
                 | {
                     type?: T;
-                    newTab?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
+                    newTab?: T;
                   };
               items?:
                 | T
@@ -2617,10 +2324,10 @@ export interface NavigationsSelect<T extends boolean = true> {
                       | T
                       | {
                           type?: T;
-                          newTab?: T;
                           reference?: T;
                           url?: T;
                           label?: T;
+                          newTab?: T;
                         };
                     id?: T;
                   };
@@ -2630,48 +2337,14 @@ export interface NavigationsSelect<T extends boolean = true> {
   donate?:
     | T
     | {
-        options?:
-          | T
-          | {
-              enabled?: T;
-              clickable?: T;
-            };
         link?:
           | T
           | {
               type?: T;
-              newTab?: T;
               reference?: T;
               url?: T;
               label?: T;
-            };
-        items?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                  };
-              items?:
-                | T
-                | {
-                    link?:
-                      | T
-                      | {
-                          type?: T;
-                          newTab?: T;
-                          reference?: T;
-                          url?: T;
-                          label?: T;
-                        };
-                    id?: T;
-                  };
-              id?: T;
+              newTab?: T;
             };
       };
   updatedAt?: T;

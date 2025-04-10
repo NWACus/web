@@ -16,7 +16,7 @@ export const navigationSeed = (
   )): NonNullable<NonNullable<Navigation['weather']>['link']> => {
     if (url) {
       return {
-        type: 'custom',
+        type: 'external',
         label: label || 'External Link',
         url,
         newTab,
@@ -26,7 +26,7 @@ export const navigationSeed = (
     if (!pages[tenant.name] || !slug || !pages[tenant.name][slug]) {
       console.warn(`Page ${slug || 'undefined'} not found for tenant ${tenant.name}`)
       return {
-        type: 'custom',
+        type: 'internal',
         label: 'Missing Page',
         url: '/',
         newTab,
@@ -34,7 +34,7 @@ export const navigationSeed = (
     }
 
     return {
-      type: 'reference',
+      type: 'internal',
       reference: {
         value: pages[tenant.name][slug].id,
         relationTo: 'pages',
@@ -48,42 +48,30 @@ export const navigationSeed = (
     _status: 'published',
     tenant,
     forecast: {
-      options: {
-        enabled: false,
-        clickable: false,
-      },
       items: [],
     },
     observations: {
-      options: {
-        enabled: false,
-        clickable: false,
-      },
       items: [],
     },
     weather: {
-      options: {
-        enabled: true,
-        clickable: false,
-      },
       items: [
         {
-          link: pageLink({ url: '/weather/stations/map', label: 'Weather Stations' }),
-        },
-        {
           link: pageLink({
-            url: 'https://www.weather.gov/rev/Avalanche',
-            label: 'Weather Tools',
-            newTab: true,
+            slug: 'radar-and-satellite-index',
           }),
+          items: [
+            {
+              link: pageLink({
+                url: 'https://www.weather.gov/rev/Avalanche',
+                label: 'Weather Tools',
+                newTab: true,
+              }),
+            },
+          ],
         },
       ],
     },
     education: {
-      options: {
-        enabled: true,
-        clickable: false,
-      },
       items: [
         {
           link: pageLink({
@@ -110,13 +98,11 @@ export const navigationSeed = (
             {
               link: pageLink({
                 slug: 'avalanche-awareness-classes',
-                label: 'Avalanche Awareness Classes',
               }),
             },
             {
               link: pageLink({
                 slug: 'courses-by-local-providers',
-                label: 'Courses by Local Providers',
               }),
             },
           ],
@@ -127,10 +113,6 @@ export const navigationSeed = (
       ],
     },
     about: {
-      options: {
-        enabled: true,
-        clickable: true,
-      },
       link: pageLink({ slug: 'about-us' }),
       items: [
         {
@@ -142,10 +124,6 @@ export const navigationSeed = (
       ],
     },
     support: {
-      options: {
-        enabled: true,
-        clickable: false,
-      },
       items: [
         {
           link: pageLink({ slug: 'become-a-member' }),
@@ -159,38 +137,22 @@ export const navigationSeed = (
       ],
     },
     accidents: {
-      options: {
-        enabled: true,
-        clickable: false,
-      },
       items: [
         {
-          link: pageLink({ url: '/accidents', label: 'Local Accident Reports' }),
+          link: pageLink({ slug: 'about-the-forecasts' }),
         },
         {
-          link: pageLink({ url: '/accidents/statistics', label: 'Avalanche Accident Statistics' }),
+          link: pageLink({ slug: 'about-the-forecasts' }),
         },
       ],
     },
     blog: {
-      options: {
-        enabled: true,
-        clickable: true,
-      },
-      link: pageLink({ url: '/posts', label: 'Blog' }),
+      items: [],
     },
     events: {
-      options: {
-        enabled: true,
-        clickable: true,
-      },
-      link: pageLink({ url: '/events', label: 'Events' }),
+      items: [],
     },
     donate: {
-      options: {
-        enabled: true,
-        clickable: true,
-      },
       link: pageLink({
         url: 'https://www.americanavalancheassociation.org/donate',
         label: 'Donate',

@@ -1,5 +1,6 @@
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { navLink } from '@/fields/navLink'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
@@ -56,23 +57,35 @@ export const Navigations: CollectionConfig = {
           description: 'This nav dropdown is autofilled with the default observations links.',
           isConfigurable: false,
         }),
-        topLevelNavTab({ name: 'weather', label: 'Weather' }),
+        topLevelNavTab({
+          name: 'weather',
+          label: 'Weather',
+          description: 'This nav dropdown will also include your weather stations.',
+        }),
         topLevelNavTab({ name: 'education', label: 'Education' }),
         topLevelNavTab({ name: 'accidents', label: 'Accidents' }),
         topLevelNavTab({
           name: 'blog',
           label: 'Blog',
+          description:
+            'This nav item navigates to your blog landing page and does not have any dropdown items.',
+          isConfigurable: false,
         }),
         topLevelNavTab({
           name: 'events',
           label: 'Events',
+          description:
+            'This nav item navigates to your events landing page and does not have any dropdown items.',
+          isConfigurable: false,
         }),
         topLevelNavTab({ name: 'about', label: 'About' }),
         topLevelNavTab({ name: 'support', label: 'Support' }),
-        topLevelNavTab({
+        {
           name: 'donate',
           label: 'Donate',
-        }),
+          description: 'This nav item is styled as a button.',
+          fields: [navLink],
+        },
       ],
     },
   ],
