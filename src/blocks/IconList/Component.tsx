@@ -52,7 +52,7 @@ export const IconList: React.FC<Props> = (props) => {
                 >
                   {(icon || staticImage) && (
                     <Media
-                      imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
+                      imgClassName={cn('h-[108px]', imgClassName)}
                       resource={icon}
                       src={staticImage}
                     />
