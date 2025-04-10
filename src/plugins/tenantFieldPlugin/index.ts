@@ -48,12 +48,10 @@ type CollectionOptions = {
   slug: string
   addField?: boolean
   addFilter?: boolean
-  fieldOverrides?: Record<string, any>
 }
 
 type TenantFieldPluginOptions = {
   collections: CollectionOptions[]
-  defaultFieldOverrides?: Record<string, any>
 }
 
 const tenantFieldPlugin = (options: TenantFieldPluginOptions) => {
@@ -88,8 +86,6 @@ const tenantFieldPlugin = (options: TenantFieldPluginOptions) => {
               ...(updatedCollection.fields || []),
               {
                 ...tenantField(),
-                ...(options.defaultFieldOverrides || {}),
-                ...(collectionOptions.fieldOverrides || {}),
               },
             ],
           }

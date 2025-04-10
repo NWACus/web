@@ -1,8 +1,7 @@
+import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getPayload, type PayloadRequest } from 'payload'
-import configPromise from '@payload-config'
-import { CollectionSlug } from 'payload'
+import { CollectionSlug, getPayload, type PayloadRequest } from 'payload'
 
 export async function GET(
   req: Request & {
