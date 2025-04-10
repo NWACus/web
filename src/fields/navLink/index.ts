@@ -1,5 +1,17 @@
 import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
-import { GroupField } from 'payload'
+import { GroupField, TextFieldSingleValidation } from 'payload'
+
+const validateExternalUrl: TextFieldSingleValidation = (val) =>
+  isAbsoluteUrl(val) ||
+  'External URL must be an absolute url with a protocol. I.e. https://www.example.com.'
+
+const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
+  if (siblingData && typeof siblingData === 'object' && 'type' in siblingData) {
+    if (siblingData.type === 'internal') return true
+  }
+
+  return Boolean(val) || 'You must define a label for an external link.'
+}
 
 export const navLink: GroupField = {
   name: 'link',
@@ -39,9 +51,7 @@ export const navLink: GroupField = {
         condition: (_, siblingData) => siblingData?.type === 'external',
       },
       label: 'External URL',
-      validate: (val: string) =>
-        isAbsoluteUrl(val) ||
-        'External URL must be an absolute url with a protocol. I.e. https://www.example.com.',
+      validate: validateExternalUrl,
     },
     {
       name: 'label',
@@ -52,11 +62,7 @@ export const navLink: GroupField = {
         },
       },
       label: 'Label',
-      validate: (val: string, { siblingData }) => {
-        if (siblingData.type === 'internal') return true
-
-        return Boolean(val) || 'You must define a label for an external link.'
-      },
+      validate: validateLabel,
     },
     {
       name: 'newTab',
