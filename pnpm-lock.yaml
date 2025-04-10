@@ -61,6 +61,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.1.1
         version: 1.1.2(@types/react@19.0.1)(react@19.1.0)
+      '@types/lodash':
+        specifier: ^4.17.16
+        version: 4.17.16
       axios:
         specifier: 1.8.3
         version: 1.8.3
@@ -79,6 +82,9 @@ importers:
       graphql:
         specifier: ^16.10.0
         version: 16.10.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       lucide-react:
         specifier: ^0.378.0
         version: 0.378.0(react@19.1.0)
