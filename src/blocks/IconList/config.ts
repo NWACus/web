@@ -42,6 +42,7 @@ export const IconList: Block = {
         initCollapsed: true,
       },
       fields: columnFields,
+      maxRows: 4,
     },
   ],
 }
