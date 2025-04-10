@@ -13,7 +13,7 @@ export const navigationSeed = (
   }: { slug?: string; url?: string; label?: string; newTab?: boolean } & (
     | { slug: string }
     | { url: string }
-  )): NonNullable<NonNullable<NonNullable<Navigation['weather']>['options']>['link']> => {
+  )): NonNullable<NonNullable<Navigation['weather']>['link']> => {
     if (url) {
       return {
         type: 'custom',
@@ -50,7 +50,6 @@ export const navigationSeed = (
     forecast: {
       options: {
         enabled: false,
-        hasNavItems: false,
         clickable: false,
       },
       items: [],
@@ -58,7 +57,6 @@ export const navigationSeed = (
     observations: {
       options: {
         enabled: false,
-        hasNavItems: false,
         clickable: false,
       },
       items: [],
@@ -66,15 +64,11 @@ export const navigationSeed = (
     weather: {
       options: {
         enabled: true,
-        hasNavItems: true,
         clickable: false,
       },
       items: [
         {
           link: pageLink({ url: '/weather/stations/map', label: 'Weather Stations' }),
-          options: {
-            hasNavItems: false,
-          },
         },
         {
           link: pageLink({
@@ -82,16 +76,12 @@ export const navigationSeed = (
             label: 'Weather Tools',
             newTab: true,
           }),
-          options: {
-            hasNavItems: false,
-          },
         },
       ],
     },
     education: {
       options: {
         enabled: true,
-        hasNavItems: true,
         clickable: false,
       },
       items: [
@@ -101,9 +91,6 @@ export const navigationSeed = (
             label: 'Learn',
             newTab: true,
           }),
-          options: {
-            hasNavItems: true,
-          },
           items: [
             {
               link: pageLink({
@@ -119,9 +106,6 @@ export const navigationSeed = (
             label: 'Classes',
             newTab: true,
           }),
-          options: {
-            hasNavItems: true,
-          },
           items: [
             {
               link: pageLink({
@@ -139,52 +123,35 @@ export const navigationSeed = (
         },
         {
           link: pageLink({ slug: 'snowpack-scholarship' }),
-          options: {
-            hasNavItems: false,
-          },
         },
       ],
     },
     about: {
       options: {
         enabled: true,
-        hasNavItems: true,
         clickable: true,
       },
       link: pageLink({ slug: 'about-us' }),
       items: [
         {
           link: pageLink({ slug: 'about-us' }),
-          options: {
-            hasNavItems: false,
-          },
         },
         {
           link: pageLink({ slug: 'about-the-forecasts' }),
-          options: {
-            hasNavItems: false,
-          },
         },
       ],
     },
     support: {
       options: {
         enabled: true,
-        hasNavItems: true,
         clickable: false,
       },
       items: [
         {
           link: pageLink({ slug: 'become-a-member' }),
-          options: {
-            hasNavItems: false,
-          },
         },
         {
           link: pageLink({ slug: 'workplace-giving' }),
-          options: {
-            hasNavItems: false,
-          },
         },
         {
           link: pageLink({ slug: 'corporate-sponsorships' }),
@@ -194,28 +161,20 @@ export const navigationSeed = (
     accidents: {
       options: {
         enabled: true,
-        hasNavItems: true,
         clickable: false,
       },
       items: [
         {
           link: pageLink({ url: '/accidents', label: 'Local Accident Reports' }),
-          options: {
-            hasNavItems: false,
-          },
         },
         {
           link: pageLink({ url: '/accidents/statistics', label: 'Avalanche Accident Statistics' }),
-          options: {
-            hasNavItems: false,
-          },
         },
       ],
     },
     blog: {
       options: {
         enabled: true,
-        hasNavItems: false,
         clickable: true,
       },
       link: pageLink({ url: '/posts', label: 'Blog' }),
@@ -223,7 +182,6 @@ export const navigationSeed = (
     events: {
       options: {
         enabled: true,
-        hasNavItems: false,
         clickable: true,
       },
       link: pageLink({ url: '/events', label: 'Events' }),
@@ -231,7 +189,6 @@ export const navigationSeed = (
     donate: {
       options: {
         enabled: true,
-        hasNavItems: false,
         clickable: true,
       },
       link: pageLink({

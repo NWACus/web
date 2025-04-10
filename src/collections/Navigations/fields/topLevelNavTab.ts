@@ -1,4 +1,4 @@
-import { Tab, TabAsField } from 'payload'
+import { Tab } from 'payload'
 import { itemsField } from './itemsField'
 import { link } from '@/fields/link'
 
@@ -36,15 +36,6 @@ export const topLevelNavTab = ({
           },
         },
         {
-          name: 'hasNavItems',
-          type: 'checkbox',
-          defaultValue: true,
-          admin: {
-            description:
-              'Controls whether this item will show a dropdown menu of sub nav items on hover.',
-          },
-        },
-        {
           name: 'clickable',
           type: 'checkbox',
           label: 'Is Clickable',
@@ -69,7 +60,6 @@ export const topLevelNavTab = ({
       description: `Dropdown items under ${label ?? name}`,
       overrides: {
         admin: {
-          condition: (_data, siblingData) => siblingData?.options.hasNavItems,
           hidden: !isConfigurable,
         },
       },

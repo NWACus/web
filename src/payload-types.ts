@@ -889,10 +889,6 @@ export interface Navigation {
        */
       enabled?: boolean | null;
       /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
-      /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
       clickable?: boolean | null;
@@ -932,12 +928,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -968,10 +958,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1012,12 +998,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1048,10 +1028,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1092,12 +1068,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1128,10 +1098,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1172,12 +1138,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1208,10 +1168,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1252,12 +1208,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1288,10 +1238,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1332,12 +1278,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1368,10 +1308,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1412,12 +1348,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1448,10 +1378,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1492,12 +1418,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1528,10 +1448,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1572,12 +1488,6 @@ export interface Navigation {
             url?: string | null;
             label: string;
           };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
-          };
           items?:
             | {
                 link: {
@@ -1608,10 +1518,6 @@ export interface Navigation {
        * Controls whether this shows up in the nav bar.
        */
       enabled?: boolean | null;
-      /**
-       * Controls whether this item will show a dropdown menu of sub nav items on hover.
-       */
-      hasNavItems?: boolean | null;
       /**
        * Controls whether this nav item itself is clickable or if it will just display it's sub nav on hover.
        */
@@ -1651,12 +1557,6 @@ export interface Navigation {
                 } | null);
             url?: string | null;
             label: string;
-          };
-          options?: {
-            /**
-             * Controls whether this item will show a dropdown menu of sub nav items on hover.
-             */
-            hasNavItems?: boolean | null;
           };
           items?:
             | {
@@ -2311,7 +2211,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2334,11 +2233,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2364,7 +2258,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2387,11 +2280,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2417,7 +2305,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2440,11 +2327,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2470,7 +2352,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2493,11 +2374,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2523,7 +2399,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2546,11 +2421,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2576,7 +2446,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2599,11 +2468,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2629,7 +2493,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2652,11 +2515,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2682,7 +2540,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2705,11 +2562,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2735,7 +2587,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2758,11 +2609,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
@@ -2788,7 +2634,6 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
-              hasNavItems?: T;
               clickable?: T;
             };
         link?:
@@ -2811,11 +2656,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     reference?: T;
                     url?: T;
                     label?: T;
-                  };
-              options?:
-                | T
-                | {
-                    hasNavItems?: T;
                   };
               items?:
                 | T
