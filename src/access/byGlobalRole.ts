@@ -1,6 +1,6 @@
-import type { Access, CollectionConfig } from 'payload'
 import { globalRolesForUser } from '@/utilities/rbac/globalRolesForUser'
-import { ruleMatches, ruleMethod, ruleCollection } from '@/utilities/rbac/ruleMatches'
+import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import type { Access, CollectionConfig } from 'payload'
 
 // byGlobalRole walks the global roles bound to the user to determine if they have permissions
 // to take the specified action on a resource of the collection type at the global scope

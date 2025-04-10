@@ -1,7 +1,7 @@
 import type { CheckboxField, TextField } from 'payload'
 
-import { formatSlugHook } from './formatSlug'
 import { ensureUniqueSlug } from '@/fields/slug/ensureUniqueSlug'
+import { formatSlugHook } from './formatSlug'
 
 type Slug = (fieldToUse?: string) => [TextField, CheckboxField]
 

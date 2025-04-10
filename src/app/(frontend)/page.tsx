@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import React from 'react'
 
+import { getServerSideURL } from '@/utilities/getURL'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { getServerSideURL } from '@/utilities/getURL'
 
 export const dynamic = 'force-static'
 export const revalidate = 600

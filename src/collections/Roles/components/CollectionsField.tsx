@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { TextFieldServerComponent } from 'payload'
 
 import { SelectField } from '@payloadcms/ui'

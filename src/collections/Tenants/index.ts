@@ -1,5 +1,5 @@
-import type { CollectionConfig } from 'payload'
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
+import type { CollectionConfig } from 'payload'
 
 export const Tenants: CollectionConfig = {
   slug: 'tenants',

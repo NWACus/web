@@ -1,8 +1,8 @@
 import type { BannerBlock as BannerBlockProps } from 'src/payload-types'
 
-import { cn } from 'src/utilities/cn'
-import React from 'react'
 import RichText from '@/components/RichText'
+import React from 'react'
+import { cn } from 'src/utilities/cn'
 
 type Props = {
   className?: string

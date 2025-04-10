@@ -1,4 +1,4 @@
-import type { Tenant, Media, User } from '@/payload-types'
+import type { Media, Tenant, User } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const post3: (

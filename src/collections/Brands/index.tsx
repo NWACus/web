@@ -1,7 +1,7 @@
-import type { CollectionConfig } from 'payload'
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
 import { tenantField } from '@/fields/tenantField'
+import type { CollectionConfig } from 'payload'
 
 // A brand configures media, colors, etc for tenant.
 export const Brands: CollectionConfig = {

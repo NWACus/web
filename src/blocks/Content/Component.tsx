@@ -1,6 +1,6 @@
-import { cn } from 'src/utilities/cn'
-import React from 'react'
 import RichText from '@/components/RichText'
+import React from 'react'
+import { cn } from 'src/utilities/cn'
 
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 

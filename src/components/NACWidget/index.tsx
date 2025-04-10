@@ -1,5 +1,3 @@
-import React from 'react'
-
 import Script from 'next/script'
 
 export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'

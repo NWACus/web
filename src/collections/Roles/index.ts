@@ -1,5 +1,5 @@
-import type { CollectionConfig, Field } from 'payload'
 import { accessByGlobalRole } from '@/access/byGlobalRole'
+import type { CollectionConfig, Field } from 'payload'
 
 export const collectionsField: Field = {
   name: 'collections',

@@ -1,8 +1,7 @@
-import { HeaderClient } from './Component.client'
 import Link from 'next/link'
 import React from 'react'
+import { HeaderClient } from './Component.client'
 
-import { cn } from '@/utilities/cn'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,6 +12,7 @@ import {
   navigationMenuTriggerStyle,
   NavigationSubMenu,
 } from '@/components/ui/navigation-menu'
+import { cn } from '@/utilities/cn'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
