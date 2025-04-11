@@ -12,7 +12,7 @@ const blockComponents = {
   content: ContentBlock,
   cta: CallToActionBlock,
   formBlock: FormBlock,
-  ImageTextList: ImageTextList,
+  imageTextList: ImageTextList,
   mediaBlock: MediaBlock,
 }
 

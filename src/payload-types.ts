@@ -603,7 +603,7 @@ export interface ImageTextList {
     | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'ImageTextList';
+  blockType: 'imageTextList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1694,7 +1694,7 @@ export interface PagesSelect<T extends boolean = true> {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        ImageTextList?: T | ImageTextListSelect<T>;
+        imageTextList?: T | ImageTextListSelect<T>;
       };
   meta?:
     | T
