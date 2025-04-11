@@ -1,7 +1,6 @@
 import type { StaticImageData } from 'next/image'
 
 import RichText from '@/components/RichText'
-import React from 'react'
 import { cn } from 'src/utilities/cn'
 
 import type { ImageTextList as ImageTextListProps } from '@/payload-types'
@@ -15,11 +14,11 @@ type Props = ImageTextListProps & {
   staticImage?: StaticImageData
 }
 
-export const ImageTextList: React.FC<Props> = (props) => {
+export const ImageTextList = (props: Props) => {
   const { columns, className, enableGutter = true, imgClassName, staticImage } = props
   const numOfCols = columns?.length ?? 1
 
-  const colsClasses = {
+  const colsClasses: { [key: number]: string } = {
     1: 'lg:col-span-12',
     2: 'lg:col-span-6',
     3: 'lg:col-span-4',
