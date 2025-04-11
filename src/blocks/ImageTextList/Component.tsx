@@ -22,9 +22,13 @@ export const ImageTextList = (props: Props) => {
   }
   const colsSpanClass = colsClasses[numOfCols]
 
+  const isAboveLayout = layout === 'above'
+  const isFullLayout = layout === 'full'
+  const isSideLayout = layout === 'side'
+
   return (
     <div className="container my-16">
-      <div className="grid grid-cols-4 lg:grid-cols-12">
+      <div className={`grid grid-cols-4 lg:grid-cols-12' ${isAboveLayout && 'gap-x-4'}`}>
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
@@ -32,17 +36,33 @@ export const ImageTextList = (props: Props) => {
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
               <div
-                className={cn(
-                  `col-span-4 md:col-span-2 ${colsSpanClass} ${lastOddElement && 'md:col-span-full'}`,
-                )}
+                className={`my-6
+                  ${
+                    isFullLayout
+                      ? 'col-span-full'
+                      : `col-span-4 md:col-span-2  ${colsSpanClass} ${lastOddElement && 'md:col-span-full'} `
+                  }`}
                 key={index}
               >
-                <div className={cn(className)}>
-                  {image && <Media imgClassName={cn('h-[108px]', imgClassName)} resource={image} />}
-                  <div className={cn('mt-6')}>{title}</div>
+                <div
+                  className={cn(`${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`, className)}
+                >
+                  {image && (
+                    <Media
+                      imgClassName={cn(
+                        'h-[108px]',
+                        `${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`,
+                        imgClassName,
+                      )}
+                      resource={image}
+                    />
+                  )}
+                  <div className={`${isSideLayout && `col-span-3`}`}>
+                    <div>{title}</div>
 
-                  <div className={cn('mt-2')}>
-                    <RichText data={richText} enableGutter={false} />
+                    <div className="mt-2">
+                      <RichText data={richText} enableGutter={false} />
+                    </div>
                   </div>
                 </div>
               </div>
