@@ -11,7 +11,7 @@ type Props = ImageTextListProps & {
 }
 
 export const ImageTextList = (props: Props) => {
-  const { columns, className, imgClassName } = props
+  const { columns, className, imgClassName, layout } = props
   const numOfCols = columns?.length ?? 1
 
   const colsClasses: { [key: number]: string } = {

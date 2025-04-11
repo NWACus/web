@@ -39,6 +39,27 @@ export const ImageTextList: Block = {
   interfaceName: 'ImageTextList',
   fields: [
     {
+      name: 'layout',
+      label: 'Which do you want to use?',
+      type: 'radio',
+      options: [
+        {
+          label: 'Images above text',
+          value: 'above',
+        },
+        {
+          label: 'Images to the side of text',
+          value: 'side',
+        },
+        {
+          label: 'Image and text are full width',
+          value: 'full',
+        },
+      ],
+      defaultValue: 'above',
+      required: true,
+    },
+    {
       name: 'columns',
       label: 'Image with text columns',
       type: 'array',
