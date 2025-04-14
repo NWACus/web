@@ -179,17 +179,6 @@ export const post1: (
             version: 1,
           },
           {
-            type: 'block',
-            fields: {
-              blockName: 'Generate Text',
-              blockType: 'code',
-              code: "async function generateText(prompt) {\n    const apiKey = 'your-api-key';\n    const apiUrl = 'https://api.example.com/generate-text';\n\n    const response = await fetch(apiUrl, {\n        method: 'POST',\n        headers: {\n            'Content-Type': 'application/json',\n            'Authorization': `Bearer ${apiKey}`\n        },\n        body: JSON.stringify({\n            model: 'text-generation-model',\n            prompt: prompt,\n            max_tokens: 50\n        })\n    });\n\n    const data = await response.json();\n    console.log(data.choices[0].text.trim());\n}\n\n// Example usage\ngenerateText(\"Once upon a time in a faraway land,\");\n",
-              language: 'javascript',
-            },
-            format: '',
-            version: 2,
-          },
-          {
             type: 'heading',
             children: [
               {
