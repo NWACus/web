@@ -3,10 +3,17 @@
 import { useField } from '@payloadcms/ui'
 import { FieldDescriptionClientComponent } from 'payload'
 
-export const Description: FieldDescriptionClientComponent = ({ path }) => {
-  const linkPath = path.split('.').slice(0, -1).join('.')
-  const linkTypePath = [linkPath, 'type'].join('.')
+export const LinkLabelDescription: FieldDescriptionClientComponent = ({ path }) => {
+  if (!path.includes('link.label')) {
+    console.warn("This Description component should only be used in the navLink's label field.")
+  }
+
+  // Convert label path to type path
+  // Example: 'weather.items.0.link.label' → 'weather.items.0.link.type'
+  const linkTypePath = path.replace(/\.label$/, '.type')
+
   const field = useField({ path: linkTypePath })
+
   return (
     <div className="field-description">
       {field.value === 'internal'

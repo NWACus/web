@@ -58,7 +58,7 @@ export const navLink: GroupField = {
       type: 'text',
       admin: {
         components: {
-          Description: '@/fields/navLink/components/Description#Description',
+          Description: '@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription',
         },
       },
       label: 'Label',
