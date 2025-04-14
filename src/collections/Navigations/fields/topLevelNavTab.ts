@@ -1,26 +1,24 @@
 import { navLink } from '@/fields/navLink'
-import { Tab } from 'payload'
+import { Tab, toWords } from 'payload'
 import { itemsField } from './itemsField'
 
 export const topLevelNavTab = ({
   name,
-  label,
   description,
   isConfigurable = true,
 }: {
   name: string
-  label?: string
   description?: string
   isConfigurable?: boolean
 }): Tab => ({
   name,
-  label,
   description,
+  virtual: !isConfigurable,
   fields: [
     ...(isConfigurable ? [navLink] : []),
     itemsField({
-      label: `${label ?? name} Sub Nav Items`,
-      description: `Dropdown items under ${label ?? name}`,
+      label: `${toWords(name)} Sub Nav Items`,
+      description: `Dropdown items under ${toWords(name)}`,
       overrides: {
         admin: {
           hidden: !isConfigurable,

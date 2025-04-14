@@ -47,42 +47,36 @@ export const Navigations: CollectionConfig = {
       tabs: [
         topLevelNavTab({
           name: 'forecast',
-          label: 'Forecast',
           description: 'This nav dropdown is autofilled with your forecast zones.',
           isConfigurable: false,
         }),
         topLevelNavTab({
           name: 'observations',
-          label: 'Observations',
           description: 'This nav dropdown is autofilled with the default observations links.',
           isConfigurable: false,
         }),
         topLevelNavTab({
           name: 'weather',
-          label: 'Weather',
           description: 'This nav dropdown will also include your weather stations.',
         }),
-        topLevelNavTab({ name: 'education', label: 'Education' }),
-        topLevelNavTab({ name: 'accidents', label: 'Accidents' }),
+        topLevelNavTab({ name: 'education' }),
+        topLevelNavTab({ name: 'accidents' }),
         topLevelNavTab({
           name: 'blog',
-          label: 'Blog',
           description:
             'This nav item navigates to your blog landing page and does not have any dropdown items.',
           isConfigurable: false,
         }),
         topLevelNavTab({
           name: 'events',
-          label: 'Events',
           description:
             'This nav item navigates to your events landing page and does not have any dropdown items.',
           isConfigurable: false,
         }),
-        topLevelNavTab({ name: 'about', label: 'About' }),
-        topLevelNavTab({ name: 'support', label: 'Support' }),
+        topLevelNavTab({ name: 'about' }),
+        topLevelNavTab({ name: 'support' }),
         {
           name: 'donate',
-          label: 'Donate',
           description: 'This nav item is styled as a button.',
           fields: [navLink],
         },
