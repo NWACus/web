@@ -8,14 +8,12 @@ import type {
 } from 'payload'
 
 import { page } from '@/endpoints/seed/page'
-import { formatSlug } from '@/fields/slug/formatSlug'
 import {
   Brand,
   Category,
   Form,
   Media,
-  NavigationGroup,
-  NavigationSection,
+  Navigation,
   Page,
   Palette,
   Post,
@@ -30,6 +28,7 @@ import { home } from './home'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageHero1 } from './image-hero-1'
+import { navigationSeed } from './navigation'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
@@ -45,8 +44,6 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
-  'navigationGroups',
-  'navigationSections',
   'navigations',
   'roles',
   'globalRoleAssignments',
@@ -1070,161 +1067,25 @@ export const innerSeed = async ({
 
   payload.logger.info(`— Seeding navigation...`)
 
-  type topLevelNav = {
-    name: string
-    children: (nav | string)[] // n.b. string is slug of page
-  }
-  type nav = {
-    name: string
-    children: string[] // n.b. string is slug of page
-  }
-  const navigation: topLevelNav[] = [
-    {
-      name: 'Education',
-      children: [
-        {
-          name: 'Classes',
-          children: ['avalanche-awareness-classes', 'courses-by-local-providers'],
-        },
-        {
-          name: 'Documentation',
-          children: ['how-to-read-the-forecast'],
-        },
-      ],
-    },
-    {
-      name: 'Support Us',
-      children: [
-        'snowpack-scholarship',
-        'become-a-member',
-        'volunteer',
-        'workplace-giving',
-        'corporate-sponsorships',
-      ],
-    },
-  ]
-  const weather: nav = {
-    name: 'Weather Resources',
-    children: ['snow-depth-climatology', 'radar-and-satellite-index'],
-  }
-
-  const createNavigationGroup = async (tenant: Tenant, group: nav): Promise<NavigationGroup> => {
-    payload.logger.info(`Handling navigation group ${group.name} for tenant ${tenant.name}...`)
-    const children: RequiredDataFromCollectionSlug<'navigationGroups'>['items'] = []
-    for (const child of group.children) {
-      children.push({
-        relationTo: 'pages',
-        value: pages[tenant.name][child].id,
-      })
-    }
-    const data: RequiredDataFromCollectionSlug<'navigationGroups'> = {
-      tenant: tenant,
-      slug: formatSlug(group.name),
-      title: group.name,
-      items: children,
-    }
-    payload.logger.info(`Creating navigation group ${group.name} for tenant ${tenant.name}...`)
-    const navigationGroup = await payload
-      .create({
-        collection: 'navigationGroups',
-        depth: 0,
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!navigationGroup) {
-      payload.logger.error(
-        `Creating navigation group ${group.name} for tenant ${tenant.name} returned null...`,
-      )
-      throw new Error()
-    }
-    return navigationGroup
-  }
-  const createNavigationSection = async (
-    tenant: Tenant,
-    group: topLevelNav,
-  ): Promise<NavigationSection> => {
-    payload.logger.info(`Handling navigation section ${group.name} for tenant ${tenant.name}...`)
-    const children: RequiredDataFromCollectionSlug<'navigationSections'>['items'] = []
-    for (const child of group.children) {
-      if (typeof child === 'string') {
-        children.push({
-          relationTo: 'pages',
-          value: pages[tenant.name][child].id,
-        })
-      } else {
-        const ng = await createNavigationGroup(tenant, child)
-        children.push({
-          relationTo: 'navigationGroups',
-          value: ng.id,
-        })
-      }
-    }
-    const data: RequiredDataFromCollectionSlug<'navigationSections'> = {
-      tenant: tenant,
-      slug: formatSlug(group.name),
-      title: group.name,
-      items: children,
-    }
-    payload.logger.info(`Creating navigation section ${group.name} for tenant ${tenant.name}...`)
-    const navigationSection = await payload
-      .create({
-        collection: 'navigationSections',
-        depth: 0,
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!navigationSection) {
-      payload.logger.error(
-        `Creating navigation section ${group.name} for tenant ${tenant.name} returned null...`,
-      )
-      throw new Error()
-    }
-    return navigationSection
-  }
-
+  const navigations: Record<string, Navigation> = {}
   for (const tenant of Object.values(tenants)) {
-    const weatherGroup: NavigationGroup = await createNavigationGroup(tenant, weather)
-    const sections: NavigationSection[] = []
-    for (const group of navigation) {
-      const ng = await createNavigationSection(tenant, group)
-      sections.push(ng)
-    }
-    const data: RequiredDataFromCollectionSlug<'navigations'> = {
-      tenant: tenant,
-      items: sections.map((section) => ({
-        relationTo: 'navigationSections',
-        value: section.id,
-      })),
-      about_us_extra: [
-        {
-          relationTo: 'pages',
-          value: pages[tenant.name]['about-us'].id,
-        },
-        {
-          relationTo: 'pages',
-          value: pages[tenant.name]['about-the-forecasts'].id,
-        },
-      ],
-      weather_extra: {
-        relationTo: 'navigationGroups',
-        value: weatherGroup.id,
-      },
-    }
     payload.logger.info(`Creating navigation for tenant ${tenant.name}...`)
-    const nav = await payload
+
+    const navigationData = navigationSeed(pages, tenant)
+
+    const navigation = await payload
       .create({
         collection: 'navigations',
-        depth: 0,
-        data: data,
+        data: navigationData,
       })
       .catch((e) => payload.logger.error(e))
 
-    if (!nav) {
+    if (!navigation) {
       payload.logger.error(`Creating navigation for tenant ${tenant.name} returned null...`)
-      throw new Error()
+      return
     }
+
+    navigations[tenant.name] = navigation
   }
 
   payload.logger.info(`— Seeding globals...`)

@@ -22,7 +22,7 @@ type LinkType = (options?: {
 }) => Field
 
 export const link: LinkType = ({ appearances, disableLabel = false, overrides = {} } = {}) => {
-  const linkResult: Field = {
+  const linkResult: GroupField = {
     name: 'link',
     type: 'group',
     admin: {
