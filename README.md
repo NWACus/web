@@ -19,7 +19,7 @@ When changes to the schema or seed data need to occur, simply start with a new d
 Start a new database with:
 
 ```shell
-echo "DATABASE_URI=file:dev.db" >> .env
+echo "DATABASE_URI=file:./dev.db" >> .env
 sqlite3 dev.db
 ```
 
@@ -61,34 +61,6 @@ Once a database file is chosen and the development server is started, navigate t
 This repo uses [Husky](https://typicode.github.io/husky/) and [lint-staged](https://github.com/lint-staged/lint-staged) to run a pre-commit hook that affects staged files. Our pre-commit hook formats staged files before committing. The `pnpm prepare` script should be automatically run after `pnpm install` which will configure the pre-commit hook to run on `git commit`.
 
 If the pre-commit hook isn't running on your commits you can manually run `pnpm prepare`.
-
-## Database
-
-### Use the existing seeded database
-
-When using the pre-existing seeded database, remember to make a local copy so changes are not committed unless you would like them to be.
-
-```shell
-cp dev.db{.seeded,}
-echo "DATABASE_URI=file:dev.db" >> .env
-pnpm dev
-```
-
-### Update the seed database
-
-Open the database that was just seeded:
-
-```shell
-rm dev.db.seeded
-sqlite3 dev.db
-```
-
-Then, create a backup:
-
-```sqlite
-.backup main dev.db.seeded
-.quit
-```
 
 ## Git
 

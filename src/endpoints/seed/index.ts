@@ -557,35 +557,44 @@ export const innerSeed = async ({
 
   payload.logger.info(`— Seeding users...`)
 
+  if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {
+    payload.logger.fatal(
+      "$PAYLOAD_SEED_PASSWORD missing and $ALLOW_SIMPLE_PASSWORD not set to 'true' - either opt into simple passwords or provide a seed password.",
+    )
+    throw new Error('Invalid request.')
+  }
+  const password = process.env.PAYLOAD_SEED_PASSWORD || 'localpass'
+  payload.logger.info(`— Using password '${password}'...`)
+
   const userData: RequiredDataFromCollectionSlug<'users'>[] = [
     {
       name: 'Super Admin',
       email: 'admin@avy.com',
-      password: 'localpass',
+      password: password,
     },
     ...Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
         {
           name: tenant.slug.toUpperCase() + ' Admin',
           email: 'admin@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'localpass',
+          password: password,
         },
         {
           name: tenant.slug.toUpperCase() + ' Contributor',
           email: 'contributor@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'localpass',
+          password: password,
         },
         {
           name: tenant.slug.toUpperCase() + ' Viewer',
           email: 'viewer@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
-          password: 'localpass',
+          password: password,
         },
       ])
       .flat(),
     {
       name: 'Multi-center Admin',
       email: 'multicenter@avy.com',
-      password: 'localpass',
+      password: password,
     },
   ]
   const users: Record<string, User> = {}
@@ -705,7 +714,7 @@ export const innerSeed = async ({
     }
   }
 
-  payload.logger.info(`— Seeding media...`)
+  payload.logger.info(`— Fetching images...`)
 
   const [image1Buffer, image2Buffer, image3Buffer, hero1Buffer] = await Promise.all([
     fetchFileByURL(
@@ -721,6 +730,8 @@ export const innerSeed = async ({
       'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
     ),
   ])
+
+  payload.logger.info(`— Seeding media...`)
 
   type imageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
   const imageData: imageData[] = [
