@@ -9,9 +9,7 @@ import { Brands } from '@/collections/Brands'
 import { Categories } from '@/collections/Categories'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
-import { NavigationGroups } from '@/collections/NavigationGroups'
 import { Navigations } from '@/collections/Navigations'
-import { NavigationSections } from '@/collections/NavigationSections'
 import { Pages } from '@/collections/Pages'
 import { Palettes } from '@/collections/Palettes'
 import { Posts } from '@/collections/Posts'
@@ -56,7 +54,7 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'navs', 'navigations', 'brands'],
+            globalSlugs: ['settings', 'brands', 'navigations'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
@@ -114,8 +112,6 @@ export default buildConfig({
     Themes,
     Palettes,
     Navigations,
-    NavigationSections,
-    NavigationGroups,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
   globals: [Footer],

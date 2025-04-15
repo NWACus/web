@@ -80,8 +80,6 @@ export interface Config {
     themes: Theme;
     palettes: Palette;
     navigations: Navigation;
-    navigationSections: NavigationSection;
-    navigationGroups: NavigationGroup;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -110,8 +108,6 @@ export interface Config {
     themes: ThemesSelect<false> | ThemesSelect<true>;
     palettes: PalettesSelect<false> | PalettesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
-    navigationSections: NavigationSectionsSelect<false> | NavigationSectionsSelect<true>;
-    navigationGroups: NavigationGroupsSelect<false> | NavigationGroupsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -852,68 +848,506 @@ export interface Palette {
 export interface Navigation {
   id: number;
   tenant: number | Tenant;
-  items: (
-    | {
-        relationTo: 'navigationSections';
-        value: number | NavigationSection;
-      }
-    | {
-        relationTo: 'pages';
-        value: number | Page;
-      }
-  )[];
-  weather_extra?: {
-    relationTo: 'navigationGroups';
-    value: number | NavigationGroup;
-  } | null;
-  about_us_extra?:
-    | {
-        relationTo: 'pages';
-        value: number | Page;
-      }[]
-    | null;
+  forecast?: {
+    /**
+     * Dropdown items under Forecast
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  observations?: {
+    /**
+     * Dropdown items under Observations
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  weather?: {
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+    /**
+     * Dropdown items under Weather
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  education?: {
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+    /**
+     * Dropdown items under Education
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  accidents?: {
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+    /**
+     * Dropdown items under Accidents
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  blog?: {
+    /**
+     * Dropdown items under Blog
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  events?: {
+    /**
+     * Dropdown items under Events
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  about?: {
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+    /**
+     * Dropdown items under About
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  support?: {
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+    /**
+     * Dropdown items under Support
+     */
+    items?:
+      | {
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  donate?: {
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
+  };
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationSections".
- */
-export interface NavigationSection {
-  id: number;
-  tenant: number | Tenant;
-  slug: string;
-  slugLock?: boolean | null;
-  title: string;
-  items: (
-    | {
-        relationTo: 'navigationGroups';
-        value: number | NavigationGroup;
-      }
-    | {
-        relationTo: 'pages';
-        value: number | Page;
-      }
-  )[];
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationGroups".
- */
-export interface NavigationGroup {
-  id: number;
-  tenant: number | Tenant;
-  slug: string;
-  slugLock?: boolean | null;
-  title: string;
-  items: {
-    relationTo: 'pages';
-    value: number | Page;
-  }[];
-  updatedAt: string;
-  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1049,14 +1483,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'navigations';
         value: number | Navigation;
-      } | null)
-    | ({
-        relationTo: 'navigationSections';
-        value: number | NavigationSection;
-      } | null)
-    | ({
-        relationTo: 'navigationGroups';
-        value: number | NavigationGroup;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1526,37 +1952,355 @@ export interface PalettesSelect<T extends boolean = true> {
  */
 export interface NavigationsSelect<T extends boolean = true> {
   tenant?: T;
-  items?: T;
-  weather_extra?: T;
-  about_us_extra?: T;
+  forecast?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  observations?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  weather?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  education?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  accidents?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  blog?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  events?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  about?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  support?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+        items?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  donate?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationSections_select".
- */
-export interface NavigationSectionsSelect<T extends boolean = true> {
-  tenant?: T;
-  slug?: T;
-  slugLock?: T;
-  title?: T;
-  items?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigationGroups_select".
- */
-export interface NavigationGroupsSelect<T extends boolean = true> {
-  tenant?: T;
-  slug?: T;
-  slugLock?: T;
-  title?: T;
-  items?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
