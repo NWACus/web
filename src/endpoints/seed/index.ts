@@ -705,7 +705,7 @@ export const innerSeed = async ({
     }
   }
 
-  payload.logger.info(`— Seeding media...`)
+  payload.logger.info(`— Fetching images...`)
 
   const [image1Buffer, image2Buffer, image3Buffer, hero1Buffer] = await Promise.all([
     fetchFileByURL(
@@ -721,6 +721,8 @@ export const innerSeed = async ({
       'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
     ),
   ])
+
+  payload.logger.info(`— Seeding media...`)
 
   type imageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
   const imageData: imageData[] = [

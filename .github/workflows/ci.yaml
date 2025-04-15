@@ -49,10 +49,32 @@ jobs:
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
       - name: 🧹 Run build
-        run: pnpm build
+        run: |
+          function cleanup() {
+            for job in $( jobs -p ); do
+              kill -SIGTERM "${job}"
+              wait "${job}"
+            done
+          }
+          trap cleanup EXIT
+
+          cp dev.db.initialized dev.db
+          pnpm dev &
+          for (( i = 0; i < 10; i++ )); do
+            if ! curl -s http://localhost:3000; then
+              echo "Dev server not yet started, waiting..."
+              sleep 1
+            else
+              break
+            fi
+          done
+          curl -s -H 'Content-Type: application/json' -H 'Accept: application/json' -X POST http://localhost:3000/api/users/login --data '{"email":"bootstrap@avy.com","password":"test"}' > login.json
+          curl -v -H "Authorization: Bearer $( jq --raw-output .token <login.json )' -X POST http://localhost:3000/next/seed
+          cleanup
+          pnpm build
         shell: bash
         env:
-          DATABASE_URI: 'file:./dev.db.seeded'
+          DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
