@@ -82,10 +82,8 @@ jobs:
         id: deployment
         run: |
           fullName="${{ github.repository }}"
-          commitMessage="$( jq --raw-output '.[0].message' <<<"${{ github.event.commits }}" )"
           vercel deploy --yes --prebuilt --target=production \
             --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
-            --meta='githubCommitMessage=${commitMessage}' \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=${{ github.head_ref }}' \
             --meta="githubCommitRepo=${fullName##*/}" \
