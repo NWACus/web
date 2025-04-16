@@ -49,14 +49,14 @@ jobs:
         shell: bash
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database URI in Vercel
-        run: vercel env add DATABASE_URI production main --sensitive --force <<<"${{ steps.connection.outputs.uri }}" --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel env add DATABASE_URI production --sensitive --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ steps.connection.outputs.uri }}"
       - name: Update database token in Vercel
-        run: vercel env add DATABASE_AUTH_TOKEN production "${{ github.head_ref }}" --sensitive --force <<<"${{ steps.connection.outputs.token }}" --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel env add DATABASE_AUTH_TOKEN production --sensitive --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ steps.connection.outputs.token }}"
       - name: Update bootstrap password in Vercel
-        run: vercel env add PAYLOAD_SEED_PASSWORD production main --sensitive --force <<<"${{ secrets.PAYLOAD_SEED_PASSWORD }}" --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel env add PAYLOAD_SEED_PASSWORD production --sensitive --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ secrets.PAYLOAD_SEED_PASSWORD }}"
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} .env.production
       - name: Seed the database
         run: ./seed-build.sh
         env:

@@ -20,3 +20,4 @@ dev.db-wal
 .env.development
 .env.test
 tsconfig.tsbuildinfo
+.env*.local
