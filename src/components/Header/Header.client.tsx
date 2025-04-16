@@ -16,6 +16,14 @@ import { useEffect, useRef, useState } from 'react'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
 import { Button } from '../ui/button'
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from '../ui/navigation-menu'
+import { DesktopNavItem } from './DesktopNavItem'
 import { MobileNavItem, MobileNavLink } from './MobileNavItem'
 
 export type LinkType = {
@@ -103,7 +111,7 @@ export const HeaderClient = ({ nav, banner }: { nav: Navigation; banner?: Media 
   return (
     <header className="bg-[#142D56]" {...(theme ? { 'data-theme': theme } : {})}>
       <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
-        <div ref={navbarRef} className="fixed z-50 inset-x-0 py-3 bg-[#142D56]">
+        <div ref={navbarRef} className="md:hidden fixed z-50 inset-x-0 py-3 bg-[#142D56]">
           <div className="container flex justify-between items-center gap-5">
             <DialogTrigger className="p-2">
               <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">
@@ -140,10 +148,10 @@ export const HeaderClient = ({ nav, banner }: { nav: Navigation; banner?: Media 
         </div>
         <DialogPortal>
           <div
-            className={cn('lg:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
+            className={cn('md:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
             onClick={() => setMobileNavOpen(false)}
           />
-          <DialogContent className="lg:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-[#142D56] text-white pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
+          <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-[#142D56] text-white pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
             <DialogTitle className="sr-only">menu</DialogTitle>
             <DialogDescription className="sr-only">navigation menu</DialogDescription>
             <Accordion type="multiple" className="container" asChild>
@@ -220,6 +228,65 @@ export const HeaderClient = ({ nav, banner }: { nav: Navigation; banner?: Media 
           </DialogContent>
         </DialogPortal>
       </Dialog>
+
+      <div className="hidden lg:flex container pt-8 pb-5 flex-col justify-center items-center gap-8">
+        {banner && (
+          <Link href="/" className="w-fit">
+            <ImageMedia
+              resource={banner}
+              loading="eager"
+              priority={true}
+              imgClassName="h-[90px] object-contain w-fit"
+            />
+          </Link>
+        )}
+        <div className="hidden md:block">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <Link href="/forecasts/avalanche" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Forecasts
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              {nav.weather && <DesktopNavItem name="Weather" navItem={nav.weather} />}
+              <NavigationMenuItem>
+                <Link href="/observations" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Observations
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              {nav.education && <DesktopNavItem name="Education" navItem={nav.education} />}
+              {nav.accidents && <DesktopNavItem name="Accidents" navItem={nav.accidents} />}
+              <NavigationMenuItem>
+                <Link href="/posts" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Blog
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="#" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Events
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              {nav.about && <DesktopNavItem name="About" navItem={nav.about} />}
+              {nav.support && <DesktopNavItem name="Support" navItem={nav.support} />}
+              <NavigationMenuItem>
+                <Link href="/donate" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <Button className="bg-[#E0F94B] text-black">Donate</Button>
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+      </div>
     </header>
   )
 }
