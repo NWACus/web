@@ -6,14 +6,14 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '../ui/navigation-menu'
-import { getLabel, getUrl, NavItem } from './Header.client'
+import { getLabel, getUrl, NavItem } from './utils'
 
 type NavItemProps = {
-  name: string
+  label: string
   navItem: NavItem
 }
 
-export const DesktopNavItem = ({ name, navItem }: NavItemProps) => {
+export const DesktopNavItem = ({ label, navItem }: NavItemProps) => {
   if (!navItem.items || navItem.items.length === 0) {
     return (
       <NavigationMenuItem>
@@ -22,7 +22,7 @@ export const DesktopNavItem = ({ name, navItem }: NavItemProps) => {
             className={navigationMenuTriggerStyle()}
             target={navItem.link?.newTab ? '_blank' : undefined}
           >
-            {getLabel(navItem.link, name)}
+            {getLabel(navItem.link, label)}
           </NavigationMenuLink>
         </Link>
       </NavigationMenuItem>
@@ -31,7 +31,7 @@ export const DesktopNavItem = ({ name, navItem }: NavItemProps) => {
 
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger>{getLabel(navItem.link, name)}</NavigationMenuTrigger>
+      <NavigationMenuTrigger>{getLabel(navItem.link, label)}</NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid gap-3 p-4">
           {navItem.items.map((item) => {

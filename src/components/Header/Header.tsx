@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { draftMode } from 'next/headers'
+import { getTopLevelNavItems } from './utils'
 
 export async function Header({ center }: { center?: string }) {
   const { isEnabled: draft } = await draftMode()
@@ -29,7 +30,7 @@ export async function Header({ center }: { center?: string }) {
     payload.logger.error(`Banner for tenant ${center} missing`)
   }
 
-  const navRes = await payload.find({
+  const navigationRes = await payload.find({
     collection: 'navigations',
     depth: 10,
     draft,
@@ -41,12 +42,19 @@ export async function Header({ center }: { center?: string }) {
     },
   })
 
-  const nav = navRes.docs[0]
+  const navigation = navigationRes.docs[0]
 
-  if (!nav) {
+  if (!navigation) {
     payload.logger.error(`Navigation for tenant ${center} missing`)
     return <></>
   }
 
-  return <HeaderClient nav={nav} banner={typeof banner !== 'number' ? banner : undefined} />
+  const topLevelNavItems = await getTopLevelNavItems({ navigation })
+
+  return (
+    <HeaderClient
+      topLevelNavItems={topLevelNavItems}
+      banner={typeof banner !== 'number' ? banner : undefined}
+    />
+  )
 }

@@ -2,34 +2,34 @@ import { cn } from '@/utilities/cn'
 import Link from 'next/link'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
-import { getLabel, getUrl, hasItems, LinkType, NavItem } from './Header.client'
+import { getLabel, getUrl, LinkType, NavItem } from './utils'
 
 type MobileNavItemProps = {
-  name: string
+  label: string
   navItem: NavItem
   setMobileNavOpen: Dispatch<SetStateAction<boolean>>
 }
 
-export const MobileNavItem = ({ name, navItem, setMobileNavOpen }: MobileNavItemProps) => {
-  if (!hasItems(navItem)) {
+export const MobileNavItem = ({ label, navItem, setMobileNavOpen }: MobileNavItemProps) => {
+  if (!navItem.items || navItem.items.length === 0) {
     return navItem.link ? (
-      <MobileNavLink name={name} link={navItem.link} setMobileNavOpen={setMobileNavOpen} />
+      <MobileNavLink label={label} link={navItem.link} setMobileNavOpen={setMobileNavOpen} />
     ) : (
-      <span>{name}</span>
+      <span>{label}</span>
     )
   }
 
-  return <NavDropdown name={name} navItem={navItem} setMobileNavOpen={setMobileNavOpen} />
+  return <NavDropdown label={label} navItem={navItem} setMobileNavOpen={setMobileNavOpen} />
 }
 
 export const MobileNavLink = ({
-  name,
+  label,
   link,
   setMobileNavOpen,
   className,
 }: {
-  name: string
-  link: LinkType
+  label: string
+  link?: LinkType | null
   setMobileNavOpen: Dispatch<SetStateAction<boolean>>
   className?: string
 }) => {
@@ -40,21 +40,21 @@ export const MobileNavLink = ({
       className={cn('flex w-full items-center py-3 text-base container', className)}
       onClick={() => setMobileNavOpen(false)}
     >
-      {getLabel(link, name)}
+      {getLabel(link, label)}
     </Link>
   )
 }
 
-const NavDropdown = ({ name, navItem, setMobileNavOpen }: MobileNavItemProps) => {
-  if (!navItem.items || navItem.items.length === 0) return <span>{name}</span>
+const NavDropdown = ({ label, navItem, setMobileNavOpen }: MobileNavItemProps) => {
+  if (!navItem.items || navItem.items.length === 0) return <span>{label}</span>
 
   return (
-    <AccordionItem value={name} className="border-0">
+    <AccordionItem value={label} className="border-0">
       <AccordionTrigger
         className="py-3 capitalize text-base hover:no-underline container"
         chevronClassName="h-6 w-6 text-white"
       >
-        {getLabel(navItem.link, name)}
+        {getLabel(navItem.link, label)}
       </AccordionTrigger>
       <AccordionContent className="py-0">
         <Accordion type="single" collapsible className="w-full bg-[#1b355e]">
@@ -63,7 +63,7 @@ const NavDropdown = ({ name, navItem, setMobileNavOpen }: MobileNavItemProps) =>
               if (!item.items || item.items.length === 0) {
                 return item.link ? (
                   <MobileNavLink
-                    name={getLabel(item.link, '')}
+                    label={getLabel(item.link, '')}
                     link={item.link}
                     setMobileNavOpen={setMobileNavOpen}
                     className="pl-8"
@@ -84,7 +84,7 @@ const NavDropdown = ({ name, navItem, setMobileNavOpen }: MobileNavItemProps) =>
                       {item.items?.map((subItem) =>
                         subItem.link ? (
                           <MobileNavLink
-                            name={getLabel(subItem.link, '')}
+                            label={getLabel(subItem.link, '')}
                             link={subItem.link}
                             setMobileNavOpen={setMobileNavOpen}
                           />
