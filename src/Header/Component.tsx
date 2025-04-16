@@ -22,7 +22,7 @@ export async function Header({ center }: { center?: string }) {
     return <></>
   }
 
-  const nav = await payload.find({
+  const _nav = await payload.find({
     collection: 'navigations',
     depth: 1000,
     draft,
