@@ -81,4 +81,17 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
-          vercel deploy --yes --prebuilt --target=production --token=${{ secrets.VERCEL_TOKEN }}
+          fullName="${{ github.repository }}"
+          commitMessage="$( jq --raw-output '.[0].message' <<<"${{ github.event.commits }}" )"
+          vercel deploy --yes --prebuilt --target=production \
+            --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
+            --meta='githubCommitMessage=${commitMessage}' \
+            --meta='githubCommitOrg=${{ github.repository_owner }}' \
+            --meta='githubCommitRef=${{ github.head_ref }}' \
+            --meta='githubCommitRepo=${fullName##*/}' \
+            --meta='githubCommitSha=${{ github.sha }}' \
+            --meta='githubDeployment=1' \
+            --meta='githubOrg=${{ github.repository_owner }}' \
+            --meta='githubRepo=${{ github.repository_id }}' \
+            --meta='githubCommitAuthorLogin=${{ github.event.pusher.name }}' \
+            --token=${{ secrets.VERCEL_TOKEN }}
