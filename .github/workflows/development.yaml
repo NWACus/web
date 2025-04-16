@@ -49,11 +49,11 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Update database URI in Vercel
-        run: vercel env add DATABASE_URI preview main --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ steps.connection.outputs.uri }}"
+        run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview main --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel
-        run: vercel env add DATABASE_AUTH_TOKEN preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ steps.connection.outputs.token }}"
+        run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
-        run: vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ secrets.PAYLOAD_SEED_PASSWORD }}"
+        run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
       - name: Seed the database
