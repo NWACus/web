@@ -1,4 +1,4 @@
-import { HeaderClient } from './Component.client'
+import { HeaderClient } from './Header.client'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -8,6 +8,7 @@ import { draftMode } from 'next/headers'
 export async function Header({ center }: { center?: string }) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
+
   const media = await payload.find({
     collection: 'brands',
     depth: 10,
@@ -17,14 +18,20 @@ export async function Header({ center }: { center?: string }) {
       },
     },
   })
-  if (media.docs.length < 1 || typeof media.docs[0].logo !== 'object') {
-    payload.logger.error(`brand for tenant ${center} missing, or logo missing from brand`)
-    return <></>
+
+  if (media.docs.length < 1) {
+    payload.logger.error(`Brand for tenant ${center} missing`)
   }
 
-  const nav = await payload.find({
+  const banner = media.docs[0]?.banner
+
+  if (media.docs.length > 0 && typeof banner !== 'object') {
+    payload.logger.error(`Banner for tenant ${center} missing`)
+  }
+
+  const navRes = await payload.find({
     collection: 'navigations',
-    depth: 1000,
+    depth: 10,
     draft,
     overrideAccess: true,
     where: {
@@ -34,9 +41,12 @@ export async function Header({ center }: { center?: string }) {
     },
   })
 
-  return (
-    <HeaderClient>
-      <></>
-    </HeaderClient>
-  )
+  const nav = navRes.docs[0]
+
+  if (!nav) {
+    payload.logger.error(`Navigation for tenant ${center} missing`)
+    return <></>
+  }
+
+  return <HeaderClient nav={nav} banner={typeof banner !== 'number' ? banner : undefined} />
 }
