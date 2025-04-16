@@ -55,7 +55,7 @@ jobs:
       - name: Update database token in Vercel
         run: vercel env add DATABASE_AUTH_TOKEN preview "${{ github.head_ref }}" --sensitive --force <<<"${{ steps.connection.outputs.token }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
-        run: vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force <<<"${{ secrets.PAYLOAD_SEED_PASSWORD }}"
+        run: vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force <<<"${{ secrets.PAYLOAD_SEED_PASSWORD }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Seed the database
         run: ./seed-build.sh
         env:
