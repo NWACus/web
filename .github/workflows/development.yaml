@@ -7,7 +7,7 @@ on:
     branches:
       - 'main'
 jobs:
-  Deploy-Production:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Install Turso CLI
@@ -51,7 +51,7 @@ jobs:
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database URI in Vercel
-        run: vercel env add DATABASE_URI preview main --sensitive --force <<<"${{ steps.connection.outputs.uri }}"
+        run: vercel env add DATABASE_URI preview main --sensitive --force <<<"${{ steps.connection.outputs.uri }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel
         run: vercel env add DATABASE_AUTH_TOKEN preview "${{ github.head_ref }}" --sensitive --force <<<"${{ steps.connection.outputs.token }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
