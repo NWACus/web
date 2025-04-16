@@ -67,7 +67,7 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_SERVER_URL: 'avy-fx.org'
+          SERVER_DOMAIN: 'avy-fx.org'
       - name: Build Project Artifacts
         run: vercel build --yes --target=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -77,7 +77,7 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_SERVER_URL: 'avy-fx.org'
+          SERVER_DOMAIN: 'avy-fx.org'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
