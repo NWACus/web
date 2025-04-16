@@ -50,7 +50,7 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Update database URI in Vercel
-        run: vercel env add DATABASE_URI preview "${{ github.head_ref }}" --sensitive --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ steps.connection.outputs.uri }}"
+        run: vercel env add DATABASE_URI preview "${{ github.head_ref }}" --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ steps.connection.outputs.uri }}"
       - name: Update database token in Vercel
         run: vercel env add DATABASE_AUTH_TOKEN preview "${{ github.head_ref }}" --sensitive --force --token=${{ secrets.VERCEL_TOKEN }} <<<"${{ steps.connection.outputs.token }}"
       - name: Update bootstrap password in Vercel
@@ -84,10 +84,10 @@ jobs:
             --meta='githubCommitAuthorName=${{ github.event.pull_request.user.login }}' \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=${{ github.head_ref }}' \
-            --meta='githubCommitRepo=${fullName##*/}' \
+            --meta="githubCommitRepo=${fullName##*/}" \
             --meta='githubCommitSha=${{ github.sha }}' \
             --meta='githubDeployment=1' \
             --meta='githubOrg=${{ github.repository_owner }}' \
-            --meta='githubRepo=${{ github.repository_id }}' \
+            --meta="githubRepo=${fullName##*/}" \
             --meta='githubCommitAuthorLogin=${{ github.event.pull_request.user.login }}' \
             --token=${{ secrets.VERCEL_TOKEN }}
