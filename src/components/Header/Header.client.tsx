@@ -111,7 +111,7 @@ export const HeaderClient = ({ nav, banner }: { nav: Navigation; banner?: Media 
   return (
     <header className="bg-[#142D56]" {...(theme ? { 'data-theme': theme } : {})}>
       <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
-        <div ref={navbarRef} className="md:hidden fixed z-50 inset-x-0 py-3 bg-[#142D56]">
+        <div ref={navbarRef} className="md:hidden fixed z-50 inset-x-0 py-3 bg-[#142D56] shadow-md">
           <div className="container flex justify-between items-center gap-5">
             <DialogTrigger className="p-2">
               <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">
@@ -154,7 +154,7 @@ export const HeaderClient = ({ nav, banner }: { nav: Navigation; banner?: Media 
           <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-[#142D56] text-white pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
             <DialogTitle className="sr-only">menu</DialogTitle>
             <DialogDescription className="sr-only">navigation menu</DialogDescription>
-            <Accordion type="multiple" className="container" asChild>
+            <Accordion type="single" collapsible asChild>
               <nav className="">
                 <MobileNavLink
                   name="Forecasts"

@@ -1,3 +1,4 @@
+import { cn } from '@/utilities/cn'
 import Link from 'next/link'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
@@ -25,16 +26,18 @@ export const MobileNavLink = ({
   name,
   link,
   setMobileNavOpen,
+  className,
 }: {
   name: string
   link: LinkType
   setMobileNavOpen: Dispatch<SetStateAction<boolean>>
+  className?: string
 }) => {
   return (
     <Link
       href={getUrl(link)}
       target={link?.newTab ? '_blank' : undefined}
-      className="flex w-full items-center py-3 text-base"
+      className={cn('flex w-full items-center py-3 text-base container', className)}
       onClick={() => setMobileNavOpen(false)}
     >
       {getLabel(link, name)}
@@ -48,35 +51,36 @@ const NavDropdown = ({ name, navItem, setMobileNavOpen }: MobileNavItemProps) =>
   return (
     <AccordionItem value={name} className="border-0">
       <AccordionTrigger
-        className="py-3 capitalize text-base hover:no-underline"
+        className="py-3 capitalize text-base hover:no-underline container"
         chevronClassName="h-6 w-6 text-white"
       >
         {getLabel(navItem.link, name)}
       </AccordionTrigger>
-      <AccordionContent>
-        <div className="pl-4">
-          {navItem.items.map((item) => {
-            if (!item.items || item.items.length === 0) {
-              return item.link ? (
-                <MobileNavLink
-                  name={getLabel(item.link, '')}
-                  link={item.link}
-                  setMobileNavOpen={setMobileNavOpen}
-                />
-              ) : null
-            }
+      <AccordionContent className="py-0">
+        <Accordion type="single" collapsible className="w-full bg-[#1b355e]">
+          <div className="">
+            {navItem.items.map((item) => {
+              if (!item.items || item.items.length === 0) {
+                return item.link ? (
+                  <MobileNavLink
+                    name={getLabel(item.link, '')}
+                    link={item.link}
+                    setMobileNavOpen={setMobileNavOpen}
+                    className="pl-8"
+                  />
+                ) : null
+              }
 
-            return (
-              <Accordion key={item.id} type="multiple" className="w-full">
+              return (
                 <AccordionItem value={getLabel(item.link, 'Menu Item')} className="border-0">
                   <AccordionTrigger
-                    className="py-3 text-base hover:no-underline"
+                    className="py-3 text-base hover:no-underline container pl-8"
                     chevronClassName="h-6 w-6 text-white"
                   >
                     {getLabel(item.link, 'Menu Item')}
                   </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="pl-4">
+                  <AccordionContent className="py-0 w-full border-y-2 border-y-[#142D56] shadow-inner bg-[#1c355a]">
+                    <div className="pl-8">
                       {item.items?.map((subItem) =>
                         subItem.link ? (
                           <MobileNavLink
@@ -89,10 +93,10 @@ const NavDropdown = ({ name, navItem, setMobileNavOpen }: MobileNavItemProps) =>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-              </Accordion>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        </Accordion>
       </AccordionContent>
     </AccordionItem>
   )
