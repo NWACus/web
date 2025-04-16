@@ -36,5 +36,10 @@ set +o errexit
 cleanup
 set -o errexit
 
+if [[ -n "${SKIP_BUILD:-}" ]]; then
+  echo "[INFO] Skipping build..."
+  exit 0
+fi
+
 echo "[INFO] Running a production build using the seeded database..."
 pnpm build
