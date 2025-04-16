@@ -23,12 +23,8 @@ const REDIRECT_TO_CUSTOM_DOMAIN =
   process.env.REDIRECT_TO_CUSTOM_DOMAIN?.toLowerCase() === 'true' ||
   process.env.NODE_ENV === 'production'
 
-const SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-
 export default async function middleware(req: NextRequest) {
-  const host = new URL(SERVER_URL)?.host
+  const host = process.env.NEXT_PUBLIC_SERVER_URL || process.env.VERCEL_URL || 'localhost:3000'
   const requestedHost = req.headers.get('host')
   const isDraftMode = req.cookies.has('__prerender_bypass')
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')

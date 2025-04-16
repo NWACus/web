@@ -30,7 +30,7 @@ jobs:
       - name: Record database connection URI and token
         id: connection
         run: |
-          echo "uri=$(/home/runner/.turso/turso db show payloadcms-dev --url)" >> "${GITHUB_OUTPUT}"
+          echo "uri=$(/home/runner/.turso/turso db show payloadcms-dev --url )" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-dev )" >> "${GITHUB_OUTPUT}"
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
@@ -48,14 +48,14 @@ jobs:
         shell: bash
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database URI in Vercel
-        run: vercel env add DATABASE_URI preview main --sensitive --force <<<"${{ steps.connection.outputs.uri }}" --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview main --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel
-        run: vercel env add DATABASE_AUTH_TOKEN preview "${{ github.head_ref }}" --sensitive --force <<<"${{ steps.connection.outputs.token }}" --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
-        run: vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force <<<"${{ secrets.PAYLOAD_SEED_PASSWORD }}" --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
       - name: Seed the database
         run: ./seed-build.sh
         env:
@@ -66,6 +66,7 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+          NEXT_PUBLIC_SERVER_URL: 'dev.avy-fx.org'
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -75,7 +76,21 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+          NEXT_PUBLIC_SERVER_URL: 'dev.avy-fx.org'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
-          vercel deploy --yes --prebuilt --target=preview --token=${{ secrets.VERCEL_TOKEN }}
+          fullName="${{ github.repository }}"
+          commitMessage="$( jq --raw-output '.[0].message' <<<"${{ github.event.commits }}" )"
+          vercel deploy --yes --prebuilt --target=preview \
+            --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
+            --meta='githubCommitMessage=${commitMessage}' \
+            --meta='githubCommitOrg=${{ github.repository_owner }}' \
+            --meta='githubCommitRef=${{ github.head_ref }}' \
+            --meta="githubCommitRepo=${fullName##*/}" \
+            --meta='githubCommitSha=${{ github.sha }}' \
+            --meta='githubDeployment=1' \
+            --meta='githubOrg=${{ github.repository_owner }}' \
+            --meta="githubRepo=${fullName##*/}" \
+            --meta='githubCommitAuthorLogin=${{ github.event.pusher.name }}' \
+            --token=${{ secrets.VERCEL_TOKEN }}
