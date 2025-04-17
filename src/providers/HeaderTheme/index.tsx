@@ -28,7 +28,7 @@ export const HeaderThemeProvider = ({ children }: { children: React.ReactNode })
   }, [])
 
   return (
-    <HeaderThemeContext.Provider value={{ headerTheme, setHeaderTheme }}>
+    <HeaderThemeContext.Provider value={{ headerTheme: 'light', setHeaderTheme }}>
       {children}
     </HeaderThemeContext.Provider>
   )

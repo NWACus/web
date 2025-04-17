@@ -38,7 +38,7 @@ export const InitTheme = () => {
       }
     }
 
-    document.documentElement.setAttribute('data-theme', themeToSet)
+    document.documentElement.setAttribute('data-theme', 'light')
   })();
   `,
       }}
