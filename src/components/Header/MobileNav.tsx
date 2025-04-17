@@ -1,6 +1,7 @@
 'use client'
 import { Media } from '@/payload-types'
 import { cn } from '@/utilities/cn'
+import { Divider } from '@payloadcms/ui/elements/Popup/PopupButtonList'
 import {
   Dialog,
   DialogContent,
@@ -9,13 +10,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@radix-ui/react-dialog'
+import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
 import { Button } from '../ui/button'
-import { MobileNavItem } from './MobileNavItem'
-import { TopLevelNavItemDefinition } from './utils'
+import { MobileNavItem, MobileNavLink } from './MobileNavItem'
+import { getLabel, TopLevelNavItemDefinition } from './utils'
 
 export const MobileNav = ({
   topLevelNavItems,
@@ -25,7 +27,18 @@ export const MobileNav = ({
   banner?: Media
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const navbarRef = useRef<HTMLDivElement | null>(null)
+  const handleSetMobileNavOpen = (open: boolean) => {
+    setMobileNavOpen(open)
+
+    if (!open) {
+      setTimeout(function delayForAnimation() {
+        setSubNavPageIdx(null)
+      }, 300)
+    }
+  }
+
+  const [subNavPageIdx, setSubNavPageIdx] = useState<number | null>(null)
+  const subNavPage = subNavPageIdx ? topLevelNavItems[subNavPageIdx] : null
 
   useEffect(
     function manageScrollLock() {
@@ -50,8 +63,10 @@ export const MobileNav = ({
     [mobileNavOpen],
   )
 
+  const navbarRef = useRef<HTMLDivElement | null>(null)
+
   return (
-    <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
+    <Dialog open={mobileNavOpen} onOpenChange={handleSetMobileNavOpen} modal={false}>
       <div ref={navbarRef} className="md:hidden fixed z-50 inset-x-0 py-3 bg-[#142D56] shadow-md">
         <div className="container flex justify-between items-center gap-5">
           <DialogTrigger className="p-2">
@@ -90,29 +105,87 @@ export const MobileNav = ({
       <DialogPortal>
         <div
           className={cn('md:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
-          onClick={() => setMobileNavOpen(false)}
+          onClick={() => handleSetMobileNavOpen(false)}
         />
-        <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-[#142D56] text-white pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
+        <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto overflow-x-hidden fixed z-40 bg-[#142D56] text-white shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
-          <Accordion type="single" collapsible asChild>
-            <nav className="">
-              {topLevelNavItems.map((navItem) => {
-                if (navItem.item) {
-                  return (
-                    <MobileNavItem
-                      key={navItem.label}
-                      label={navItem.label}
-                      navItem={navItem.item}
-                      setMobileNavOpen={setMobileNavOpen}
-                    />
-                  )
-                }
+          <div className="relative w-full min-h-[75vh]">
+            <Accordion type="single" collapsible asChild>
+              <nav
+                className={cn(
+                  'divide-y divide-[#1b355e] absolute w-full transition-transform duration-300 ease-out',
+                  subNavPageIdx !== null && '-translate-x-full',
+                )}
+              >
+                {topLevelNavItems.map((navItem, idx) => {
+                  if (navItem.item) {
+                    return (
+                      <MobileNavItem
+                        key={navItem.label}
+                        label={navItem.label}
+                        navItem={navItem.item}
+                        setMobileNavOpen={handleSetMobileNavOpen}
+                        setSubNavPage={() => setSubNavPageIdx(idx)}
+                      />
+                    )
+                  }
 
-                return null
-              })}
-            </nav>
-          </Accordion>
+                  return null
+                })}
+              </nav>
+            </Accordion>
+            <div
+              className={cn(
+                'absolute w-full transition-transform duration-300 ease-out translate-x-0',
+                subNavPageIdx === null && 'translate-x-full',
+              )}
+            >
+              {subNavPage && (
+                <div className="container py-5 flex flex-col gap-5">
+                  <div className="flex items-center gap-5">
+                    <Button variant="outline" size="clear" className="bg-transparent flex p-0.5">
+                      <ChevronLeft
+                        className="w-6 h-6 flex-shrink-0"
+                        onClick={() => setSubNavPageIdx(null)}
+                      />
+                    </Button>
+                    <span className="text-lg">{subNavPage.label}</span>
+                  </div>
+                  <Divider />
+                  <ul className="flex flex-col">
+                    {subNavPage.item?.items?.map((item, idx) => (
+                      <li key={getLabel(item.link, item.id ?? `${idx}`)}>
+                        <>
+                          {item.items && item.items.length > 0 ? (
+                            <>
+                              <div className="capitalize font-medium py-3">
+                                {getLabel(item.link, '')}
+                              </div>
+                              {item.items.map((item) => (
+                                <MobileNavLink
+                                  label={getLabel(item.link, '')}
+                                  link={item.link}
+                                  setMobileNavOpen={setMobileNavOpen}
+                                />
+                              ))}
+                            </>
+                          ) : (
+                            <MobileNavLink
+                              label={getLabel(item.link, '')}
+                              link={item.link}
+                              setMobileNavOpen={setMobileNavOpen}
+                              className="pl-0"
+                            />
+                          )}
+                        </>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
         </DialogContent>
       </DialogPortal>
     </Dialog>
