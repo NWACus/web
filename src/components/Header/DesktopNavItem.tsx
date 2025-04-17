@@ -1,3 +1,4 @@
+import { cn } from '@/utilities/cn'
 import Link from 'next/link'
 import {
   NavigationMenuContent,
@@ -32,8 +33,10 @@ export const DesktopNavItem = ({ label, navItem }: NavItemProps) => {
   return (
     <NavigationMenuItem>
       <NavigationMenuTrigger>{getLabel(navItem.link, label)}</NavigationMenuTrigger>
-      <NavigationMenuContent>
-        <ul className="grid gap-3 p-4">
+      <NavigationMenuContent
+        className={cn((label === 'About' || label === 'Support') && 'right-0')}
+      >
+        <ul className="grid gap-3 p-4 w-[400px]">
           {navItem.items.map((item) => {
             const hasSubItems = item.items && item.items.length > 0
 
