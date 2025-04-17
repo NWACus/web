@@ -84,7 +84,7 @@ jobs:
           vercel deploy --yes --prebuilt --target=preview \
             --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
-            --meta='githubCommitRef=${{ github.head_ref }}' \
+            --meta='githubCommitRef=main' \
             --meta="githubCommitRepo=${fullName##*/}" \
             --meta='githubCommitSha=${{ github.sha }}' \
             --meta='githubDeployment=1' \
