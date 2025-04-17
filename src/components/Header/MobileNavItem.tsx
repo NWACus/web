@@ -51,13 +51,13 @@ const NavDropdown = ({ label, navItem, setMobileNavOpen }: MobileNavItemProps) =
   return (
     <AccordionItem value={label} className="border-0">
       <AccordionTrigger
-        className="py-3 capitalize text-base hover:no-underline container"
-        chevronClassName="h-6 w-6 text-white"
+        className="py-2.5 capitalize text-base hover:no-underline container"
+        chevronClassName="h-6 w-6 text-[#A0CCD8]"
       >
         {getLabel(navItem.link, label)}
       </AccordionTrigger>
       <AccordionContent className="py-0">
-        <Accordion type="single" collapsible className="w-full bg-[#1b355e]">
+        <Accordion type="single" collapsible className="w-full">
           <div className="">
             {navItem.items.map((item) => {
               if (!item.items || item.items.length === 0) {
@@ -74,13 +74,13 @@ const NavDropdown = ({ label, navItem, setMobileNavOpen }: MobileNavItemProps) =
               return (
                 <AccordionItem value={getLabel(item.link, 'Menu Item')} className="border-0">
                   <AccordionTrigger
-                    className="py-3 text-base hover:no-underline container pl-8"
-                    chevronClassName="h-6 w-6 text-white"
+                    className="py-2 text-base hover:no-underline container pl-8 data-[state=open]:font-semibold"
+                    chevronClassName="h-6 w-6 text-[#A0CCD8]"
                   >
                     {getLabel(item.link, 'Menu Item')}
                   </AccordionTrigger>
-                  <AccordionContent className="py-0 w-full border-y-2 border-y-[#142D56] shadow-inner bg-[#1c355a]">
-                    <div className="pl-8">
+                  <AccordionContent className="py-0 w-full border-y-2 border-y-[#142D56] shadow-inner">
+                    <div className="pl-10">
                       {item.items?.map((subItem) =>
                         subItem.link ? (
                           <MobileNavLink

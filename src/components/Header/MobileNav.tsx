@@ -57,17 +57,17 @@ export const MobileNav = ({
           <DialogTrigger className="p-2">
             <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">
               <span
-                className={`bg-white h-[2px] w-full rounded transition-all duration-300 ease-in-out ${
+                className={`bg-[#A0CCD8] h-[2px] w-full rounded transition-all duration-300 ease-in-out ${
                   mobileNavOpen ? 'translate-x-full' : ''
                 }`}
               ></span>
               <span
-                className={`bg-white h-[2px] w-full rounded transition-all duration-300 ease-in-out ${
+                className={`bg-[#A0CCD8] h-[2px] w-full rounded transition-all duration-300 ease-in-out ${
                   mobileNavOpen ? 'mx-auto rotate-45' : ''
                 }`}
               ></span>
               <span
-                className={`bg-white h-[2px] w-full  rounded transition-all duration-300 ease-in-out ${
+                className={`bg-[#A0CCD8] h-[2px] w-full  rounded transition-all duration-300 ease-in-out ${
                   mobileNavOpen ? 'mx-auto -translate-y-[7px] -rotate-45' : ''
                 }`}
               ></span>
@@ -92,11 +92,11 @@ export const MobileNav = ({
           className={cn('md:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
           onClick={() => setMobileNavOpen(false)}
         />
-        <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-[#142D56] text-white pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
+        <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-[#142D56] text-[#A0CCD8] pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b border-b-white data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>
-            <nav className="">
+            <nav className="divide-y divide-[#324B74]">
               {topLevelNavItems.map((navItem) => {
                 if (navItem.item) {
                   return (
