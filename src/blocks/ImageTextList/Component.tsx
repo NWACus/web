@@ -1,5 +1,3 @@
-import type { StaticImageData } from 'next/image'
-
 import RichText from '@/components/RichText'
 import { cn } from 'src/utilities/cn'
 
@@ -11,11 +9,10 @@ type Props = ImageTextListProps & {
   className?: string
   enableGutter?: boolean
   imgClassName?: string
-  staticImage?: StaticImageData
 }
 
 export const ImageTextList = (props: Props) => {
-  const { columns, className, enableGutter = true, imgClassName, staticImage } = props
+  const { columns, className, enableGutter = true, imgClassName } = props
   const numOfCols = columns?.length ?? 1
 
   const colsClasses: { [key: number]: string } = {
@@ -49,13 +46,7 @@ export const ImageTextList = (props: Props) => {
                     className,
                   )}
                 >
-                  {(image || staticImage) && (
-                    <Media
-                      imgClassName={cn('h-[108px]', imgClassName)}
-                      resource={image}
-                      src={staticImage}
-                    />
-                  )}
+                  {image && <Media imgClassName={cn('h-[108px]', imgClassName)} resource={image} />}
                   <div className={cn('mt-6')}>{title}</div>
 
                   <div className={cn('mt-2')}>
