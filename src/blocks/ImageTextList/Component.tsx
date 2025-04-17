@@ -7,12 +7,11 @@ import { Media } from '@/components/Media'
 
 type Props = ImageTextListProps & {
   className?: string
-  enableGutter?: boolean
   imgClassName?: string
 }
 
 export const ImageTextList = (props: Props) => {
-  const { columns, className, enableGutter = true, imgClassName } = props
+  const { columns, className, imgClassName } = props
   const numOfCols = columns?.length ?? 1
 
   const colsClasses: { [key: number]: string } = {
@@ -38,14 +37,7 @@ export const ImageTextList = (props: Props) => {
                 )}
                 key={index}
               >
-                <div
-                  className={cn(
-                    {
-                      container: enableGutter,
-                    },
-                    className,
-                  )}
-                >
+                <div className={cn(className)}>
                   {image && <Media imgClassName={cn('h-[108px]', imgClassName)} resource={image} />}
                   <div className={cn('mt-6')}>{title}</div>
 
