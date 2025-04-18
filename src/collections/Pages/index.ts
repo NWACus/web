@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
+import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { slugField } from '@/fields/slug'
 import { hero } from '@/heros/config'
@@ -92,7 +93,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, FormBlock],
+              blocks: [CallToAction, Content, FormBlock, ImageTextList, MediaBlock],
               required: true,
               admin: {
                 initCollapsed: true,
