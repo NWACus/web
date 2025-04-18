@@ -40,7 +40,7 @@ export const ImageTextList: Block = {
   fields: [
     {
       name: 'columns',
-      label: 'Icons with text',
+      label: 'Image with text columns',
       type: 'array',
       admin: {
         initCollapsed: true,
