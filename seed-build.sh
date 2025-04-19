@@ -10,11 +10,13 @@ function cleanup() {
     kill -SIGTERM "${job}"
     wait "${job}"
   done
+  rm login.json
 }
 trap cleanup EXIT
 
 echo "[INFO] Starting the development server..."
 rm -rf dev.db
+sqlite3 dev.db -- 'PRAGMA journal_mode=WAL;'
 set +o errexit
 pnpm dev &
 set -o errexit

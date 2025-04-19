@@ -13,6 +13,8 @@ import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
+import { BiographyBlock } from '@/blocks/Biography/config'
+import { TeamBlock } from '@/blocks/Team/config'
 import { tenantField } from '@/fields/tenantField'
 import { Tenant } from '@/payload-types'
 import {
@@ -93,7 +95,15 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, FormBlock, ImageTextList, MediaBlock],
+              blocks: [
+                CallToAction,
+                Content,
+                FormBlock,
+                ImageTextList,
+                MediaBlock,
+                BiographyBlock,
+                TeamBlock,
+              ],
               required: true,
               admin: {
                 initCollapsed: true,

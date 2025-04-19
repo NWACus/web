@@ -7,6 +7,7 @@ import type {
   RequiredDataFromCollectionSlug,
 } from 'payload'
 
+import { aboutUs } from '@/endpoints/seed/about-us'
 import { page } from '@/endpoints/seed/page'
 import {
   Brand,
@@ -22,6 +23,7 @@ import {
   Theme,
   User,
 } from '@/payload-types'
+import { fetchFileByURL, seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
 import { contact as contactPageData } from './contact-page'
 import { home } from './home'
@@ -49,6 +51,8 @@ const collections: CollectionSlug[] = [
   'globalRoleAssignments',
   'roleAssignments',
   'tenants',
+  'teams',
+  'biographies',
 ]
 const globals: GlobalSlug[] = ['footer']
 
@@ -614,6 +618,8 @@ export const innerSeed = async ({
     users[data.name] = user
   }
 
+  const teams = await seedStaff(payload, tenants, users)
+
   payload.logger.info(`— Seeding global role assignments...`)
 
   const _superAdminRoleAssignment = await payload
@@ -1050,6 +1056,7 @@ export const innerSeed = async ({
           'The avalanche center’s work is supported by the generosity of our industry partners.',
           'corporate-sponsorships',
         ),
+        aboutUs(tenant, teams, images[tenant.name]['home'], images[tenant.name]['image2']),
       ])
       .flat(),
   ]
@@ -1135,24 +1142,4 @@ export const innerSeed = async ({
   ])
 
   payload.logger.info('Seeded database successfully!')
-}
-
-async function fetchFileByURL(url: string): Promise<File> {
-  const res = await fetch(url, {
-    credentials: 'include',
-    method: 'GET',
-  })
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch file from ${url}, status: ${res.status}`)
-  }
-
-  const data = await res.arrayBuffer()
-
-  return {
-    name: url.split('/').pop() || `file-${Date.now()}`,
-    data: Buffer.from(data),
-    mimetype: `image/${url.split('.').pop()}`,
-    size: data.byteLength,
-  }
 }
