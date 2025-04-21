@@ -2,11 +2,13 @@ import { Fragment } from 'react'
 
 import type { Page } from '@/payload-types'
 
+import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { TeamBlock } from '@/blocks/Team/Team'
 
 const blockComponents = {
   content: ContentBlock,
@@ -14,6 +16,8 @@ const blockComponents = {
   formBlock: FormBlock,
   imageTextList: ImageTextList,
   mediaBlock: MediaBlock,
+  biography: BiographyBlock,
+  team: TeamBlock,
 }
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
