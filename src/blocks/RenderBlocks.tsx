@@ -10,16 +10,6 @@ import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 
-const blockComponents = {
-  content: ContentBlock,
-  cta: CallToActionBlock,
-  formBlock: FormBlock,
-  imageTextList: ImageTextList,
-  mediaBlock: MediaBlock,
-  biography: BiographyBlock,
-  team: TeamBlock,
-}
-
 export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
   const { blocks } = props
 
@@ -29,25 +19,35 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
     return (
       <Fragment>
         {blocks.map((block, index) => {
-          const { blockType } = block
-
-          if (blockType && blockType in blockComponents) {
-            const Block = blockComponents[blockType]
-
-            if (Block) {
-              return (
-                <div className="my-16" key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
-                  <Block {...block} disableInnerContainer />
-                </div>
-              )
-            }
-          }
-          return null
+          return (
+            <div className="my-16" key={index}>
+              <RenderBlock key={index} block={block} />
+            </div>
+          )
         })}
       </Fragment>
     )
   }
 
   return null
+}
+
+export const RenderBlock = ({ key, block }: { key: number; block: Page['layout'][0] }) => {
+  const { blockType } = block
+  switch (blockType) {
+    case 'biography':
+      return <BiographyBlock key={key} {...block} />
+    case 'cta':
+      return <CallToActionBlock key={key} {...block} />
+    case 'content':
+      return <ContentBlock key={key} {...block} />
+    case 'formBlock':
+      return <FormBlock key={key} {...block} />
+    case 'imageTextList':
+      return <ImageTextList key={key} {...block} />
+    case 'mediaBlock':
+      return <MediaBlock key={key} {...block} />
+    case 'team':
+      return <TeamBlock key={key} {...block} />
+  }
 }
