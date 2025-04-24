@@ -14,6 +14,10 @@ When changes to the schema or seed data need to occur, simply start with a new d
 
 ## First time setup
 
+### Short-cut Bootstrapping
+
+Run the `./bootstrap.sh` script, which will create a new database file for you, add a `boostrap@avy.com` user, and grant them super-admin rights to three tenants. Then, run `pnpm dev` and start work straight away by logging in as that first user.
+
 ### Creating a new database
 
 Start a new database with:
