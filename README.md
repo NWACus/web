@@ -66,6 +66,15 @@ This repo uses [Husky](https://typicode.github.io/husky/) and [lint-staged](http
 
 If the pre-commit hook isn't running on your commits you can manually run `pnpm prepare`.
 
+### Reviewing Pull Requests
+
+Running the seed script may take a while - when reviewing a pull request, you can [download](https://docs.turso.tech/cli/installation) the `turso` CLI, [initialize the client](https://docs.turso.tech/cli/introduction) and clone the preview database locally instead:
+
+```shell
+# branch names may have illegal characters for turso database names, hence the shell magic
+branch="skuznets/some-feature-thing" turso db shell payloadcms-preview-"${branch//[^a-z0-9\-]/x}" .dump | sqlite3 dev.db
+```
+
 ## Git
 
 ### Signing commits
