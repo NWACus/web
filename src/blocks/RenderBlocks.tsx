@@ -18,10 +18,10 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
   if (hasBlocks) {
     return (
       <Fragment>
-        {blocks.map((block, index) => {
+        {blocks.map((block) => {
           return (
-            <div className="my-16" key={index}>
-              <RenderBlock key={index} block={block} />
+            <div className="my-16" key={`${block.id}__${block.blockType}`}>
+              <RenderBlock block={block} />
             </div>
           )
         })}
@@ -32,22 +32,22 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
   return null
 }
 
-export const RenderBlock = ({ key, block }: { key: number; block: Page['layout'][0] }) => {
+export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
   const { blockType } = block
   switch (blockType) {
     case 'biography':
-      return <BiographyBlock key={key} {...block} />
+      return <BiographyBlock {...block} />
     case 'cta':
-      return <CallToActionBlock key={key} {...block} />
+      return <CallToActionBlock {...block} />
     case 'content':
-      return <ContentBlock key={key} {...block} />
+      return <ContentBlock {...block} />
     case 'formBlock':
-      return <FormBlock key={key} {...block} />
+      return <FormBlock {...block} />
     case 'imageTextList':
-      return <ImageTextList key={key} {...block} />
+      return <ImageTextList {...block} />
     case 'mediaBlock':
-      return <MediaBlock key={key} {...block} />
+      return <MediaBlock {...block} />
     case 'team':
-      return <TeamBlock key={key} {...block} />
+      return <TeamBlock {...block} />
   }
 }
