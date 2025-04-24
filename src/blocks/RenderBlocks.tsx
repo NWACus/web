@@ -9,8 +9,9 @@ import { FormBlock } from '@/blocks/Form/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
+import { Payload } from 'payload'
 
-export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
+export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
   const { blocks } = props
 
   const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0
@@ -21,7 +22,7 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
         {blocks.map((block) => {
           return (
             <div className="my-16" key={`${block.id}__${block.blockType}`}>
-              <RenderBlock block={block} />
+              <RenderBlock block={block} payload={props.payload} />
             </div>
           )
         })}
@@ -32,11 +33,11 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][] }) => {
   return null
 }
 
-export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
+export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payload: Payload }) => {
   const { blockType } = block
   switch (blockType) {
     case 'biography':
-      return <BiographyBlock {...block} />
+      return <BiographyBlock {...block} payload={payload} />
     case 'cta':
       return <CallToActionBlock {...block} />
     case 'content':
@@ -48,6 +49,6 @@ export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
     case 'mediaBlock':
       return <MediaBlock {...block} />
     case 'team':
-      return <TeamBlock {...block} />
+      return <TeamBlock {...block} payload={payload} />
   }
 }

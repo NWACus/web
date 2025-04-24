@@ -1,11 +1,12 @@
 import { BiographyBlock } from '@/blocks/Biography/Biography'
+import { Payload } from 'payload'
 import type { Biography, TeamBlock as TeamBlockProps } from 'src/payload-types'
 
-type Props = TeamBlockProps
+type Props = TeamBlockProps & { payload: Payload }
 
-export const TeamBlock = ({ team }: Props) => {
+export const TeamBlock = ({ team, payload }: Props) => {
   if (typeof team !== 'object') {
-    // TODO: figure out how to handle this - do we have access to the Payload client?
+    payload.logger.error(`TeamBlock got an unresolved biography reference: ${JSON.stringify(team)}`)
     return <></>
   }
 
@@ -16,7 +17,12 @@ export const TeamBlock = ({ team }: Props) => {
       <h2 className="text-3xl font-bold text-center mb-12">{team.name}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {teamMembers.map((member, index) => (
-          <BiographyBlock key={index} biography={member} blockType={'biography'} />
+          <BiographyBlock
+            key={index}
+            biography={member}
+            blockType={'biography'}
+            payload={payload}
+          />
         ))}
       </div>
     </div>

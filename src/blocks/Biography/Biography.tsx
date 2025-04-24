@@ -2,13 +2,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { format, parseISO } from 'date-fns'
+import { Payload } from 'payload'
 import type { BiographyBlock as BiographyBlockProps } from 'src/payload-types'
 
-type Props = BiographyBlockProps
+type Props = BiographyBlockProps & { payload: Payload }
 
-export const BiographyBlock = ({ biography }: Props) => {
+export const BiographyBlock = ({ biography, payload }: Props) => {
   if (typeof biography !== 'object' || typeof biography.photo !== 'object') {
-    // TODO: figure out how to handle this - do we have access to the Payload client?
+    payload.logger.error(
+      `BiographyBlock got an unresolved biography reference: ${JSON.stringify(biography)}`,
+    )
     return <></>
   }
 
@@ -19,7 +22,7 @@ export const BiographyBlock = ({ biography }: Props) => {
     .map((part) => part.substring(0, 1))
     .join(' ')
 
-  // TODO: do we need to do something special to get Next Image support in there?
+  // TODO: support image sizes correctly: https://github.com/NWACus/web/issues/144
   return (
     <Card className="w-full max-w-sm overflow-hidden">
       <CardContent className="p-6">
