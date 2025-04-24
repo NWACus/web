@@ -8,6 +8,7 @@ import './globals.css'
 
 import { AdminBar } from '@/components/AdminBar'
 import { Providers } from '@/providers'
+import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 import { getServerSideURL } from '@/utilities/getURL'
@@ -23,6 +24,7 @@ export default async function RootLayout({ children }: Args) {
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
+        <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
