@@ -1,5 +1,5 @@
 import type { Block, Field } from 'payload'
-import thumb from '../thumbnails/ImageTextList.jpg'
+import thumb from './ImageTextList.jpg'
 
 import {
   FixedToolbarFeature,
