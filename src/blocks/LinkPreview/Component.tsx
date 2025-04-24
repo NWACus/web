@@ -1,5 +1,13 @@
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 import type { LinkPreviewBlock as LinkPreviewBlockProps } from '@/payload-types'
 import { cn } from '@/utilities/cn'
@@ -24,23 +32,27 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
             const { image, link, text, title } = card
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
-              <div
+              <Card
                 className={cn(
-                  `col-span-4 sm:col-span-2 my-1 ${colsSpanClass} 
-                  ${lastOddElement && 'sm:col-start-2'} 
-                  p-6 bg-white rounded-lg grid`,
+                  `grid col-span-4 sm:col-span-2 my-1 ${colsSpanClass} ${lastOddElement && 'sm:col-start-2'} `,
                 )}
                 key={index}
               >
-                <Media imgClassName={'w-full border border-border'} resource={image} />
-                <div className="flex flex-col justify-between items-start">
-                  <div>
-                    <h3 className="text-lg font-semibold mt-6">{title}</h3>
-                    <p className="text-sm mt-2 mb-6">{text}</p>
+                <CardHeader>
+                  <Media imgClassName={'w-full border border-border'} resource={image} />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{title}</CardTitle>
+                      <CardDescription className="mt-2">{text}</CardDescription>
+                    </div>
                   </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
                   <CMSLink {...link} />
-                </div>
-              </div>
+                </CardFooter>
+              </Card>
             )
           })}
       </div>
