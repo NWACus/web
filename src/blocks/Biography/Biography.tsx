@@ -24,7 +24,7 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
 
   // TODO: support image sizes correctly: https://github.com/NWACus/web/issues/144
   return (
-    <Card className="w-full max-w-sm overflow-hidden">
+    <Card className="w-full">
       <CardContent className="p-6">
         <div className="flex flex-col items-center space-y-4">
           {biography.biography ? (

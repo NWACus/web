@@ -58,7 +58,7 @@ export const Biographies: CollectionConfig = {
     },
     {
       name: 'biography',
-      type: 'text',
+      type: 'textarea',
       required: false,
     },
   ],
