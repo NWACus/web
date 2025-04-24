@@ -28,7 +28,7 @@ export const ImageTextList = (props: Props) => {
 
   return (
     <div className="container my-16">
-      <div className={`grid grid-cols-4 lg:grid-cols-12 ${isAboveLayout && 'gap-x-4'}`}>
+      <div className={`grid grid-cols-4 lg:grid-cols-12 ${!isFullLayout && 'gap-x-4'}`}>
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
