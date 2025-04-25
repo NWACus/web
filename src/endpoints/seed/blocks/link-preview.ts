@@ -11,11 +11,12 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
           image: image.id,
           title: 'Snowmobile!',
           text: 'Brooklyn fanny pack la croix gastropub normcore chia. Skateboard raw denim mixtape blog. Unicorn wayfarers pabst brunch retro DIY semiotics jianbing jean shorts blog ascot plaid beard.',
-          link: {
+          button: {
             type: 'custom',
+            newTab: true,
+            url: 'www.google.com',
+            label: 'Click me',
             appearance: 'default',
-            label: 'Click here',
-            url: '/home',
           },
         },
 
@@ -23,7 +24,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
           image: image.id,
           title: 'Blue book',
           text: 'Brooklyn fanny pack la croix gastropub normcore chia. Skateboard raw denim mixtape blog. Unicorn wayfarers pabst brunch retro DIY semiotics jianbing jean shorts blog ascot plaid beard.',
-          link: {
+          button: {
             type: 'custom',
             appearance: 'default',
             label: 'Click here',
@@ -36,7 +37,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
           title: 'Snowmobile!',
           text: 'Brooklyn fanny pack la croix gastropub normcore chia. Skateboard raw denim mixtape blog. Unicorn wayfarers pabst brunch retro DIY semiotics jianbing jean shorts blog ascot plaid beard.',
 
-          link: {
+          button: {
             type: 'custom',
             appearance: 'default',
             label: 'Click here',
@@ -55,7 +56,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
           title: 'Big image',
           text: 'Brooklyn fanny pack la croix gastropub normcore chia. Skateboard raw denim mixtape blog. Unicorn wayfarers pabst brunch retro DIY semiotics jianbing jean shorts blog ascot plaid beard.',
 
-          link: {
+          button: {
             type: 'custom',
             appearance: 'default',
             label: 'Click here',
@@ -67,7 +68,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
           image: image.id,
           title: 'Small image',
           text: 'Brooklyn fanny pack la croix gastropub normcore chia. Skateboard raw denim mixtape blog. Unicorn wayfarers pabst brunch retro DIY semiotics jianbing jean shorts blog ascot plaid beard.',
-          link: {
+          button: {
             type: 'custom',
             appearance: 'default',
             label: 'Click here',

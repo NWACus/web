@@ -846,7 +846,7 @@ export interface LinkPreviewBlock {
         image: number | Media;
         title: string;
         text: string;
-        link: {
+        button: {
           type?: ('reference' | 'custom') | null;
           newTab?: boolean | null;
           reference?:
@@ -863,7 +863,7 @@ export interface LinkPreviewBlock {
           /**
            * Choose how the link should be rendered.
            */
-          appearance?: ('default' | 'outline') | null;
+          appearance?: ('default' | 'secondary' | 'outline') | null;
         };
         id?: string | null;
       }[]
@@ -1945,7 +1945,7 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
         image?: T;
         title?: T;
         text?: T;
-        link?:
+        button?:
           | T
           | {
               type?: T;

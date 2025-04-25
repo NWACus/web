@@ -22,7 +22,6 @@ export const allBlocksPage: (
       media: null,
     },
     layout: [...imageTextList(image1), ...LinkPreview(image1)],
-
     meta: {
       title: null,
       image: null,

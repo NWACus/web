@@ -1,7 +1,7 @@
 import type { Block, Field } from 'payload'
 import thumbnail from './LinkPreviewThumbnail.jpg'
 
-import { link } from '@/fields/link'
+import { button } from '@/fields/button'
 
 const cardFields: Field[] = [
   {
@@ -24,11 +24,7 @@ const cardFields: Field[] = [
     type: 'textarea',
     required: true,
   },
-  link({
-    overrides: {
-      label: 'Button',
-    },
-  }),
+  button(['default', 'secondary', 'outline']),
 ]
 
 export const LinkPreviewBlock: Block = {

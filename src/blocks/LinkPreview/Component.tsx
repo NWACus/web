@@ -29,7 +29,7 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
         {cards &&
           cards.length > 0 &&
           cards.map((card, index) => {
-            const { image, link, text, title } = card
+            const { image, button, text, title } = card
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
               <Card
@@ -54,7 +54,7 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <CMSLink {...link} />
+                  <CMSLink {...button} />
                 </CardFooter>
               </Card>
             )
