@@ -25,7 +25,7 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
 
   return (
     <div className="bg-slate-500 py-8">
-      <div className="container grid grid-cols-4 lg:grid-cols-12 gap-x-2">
+      <div className="container grid grid-cols-4 lg:grid-cols-12 gap-x-4">
         {cards &&
           cards.length > 0 &&
           cards.map((card, index) => {
@@ -34,12 +34,16 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
             return (
               <Card
                 className={cn(
-                  `grid col-span-4 sm:col-span-2 my-1 ${colsSpanClass} ${lastOddElement && 'sm:col-start-2'} `,
+                  `grid col-span-4 sm:col-span-2 my-2 ${colsSpanClass} ${lastOddElement && 'sm:col-start-2'} `,
                 )}
                 key={index}
               >
                 <CardHeader>
-                  <Media imgClassName={'w-full border border-border'} resource={image} />
+                  <Media
+                    className="w-full flex justify-center bg-muted"
+                    imgClassName="h-[200px] object-cover"
+                    resource={image}
+                  />
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col justify-between items-start">

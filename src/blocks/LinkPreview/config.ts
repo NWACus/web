@@ -9,6 +9,9 @@ const cardFields: Field[] = [
     type: 'upload',
     relationTo: 'media',
     required: true,
+    filterOptions: {
+      mimeType: { contains: 'image' },
+    },
   },
   {
     name: 'title',
