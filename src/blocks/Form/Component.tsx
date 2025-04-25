@@ -1,13 +1,12 @@
 'use client'
-import type { Form as FormType } from '@payloadcms/plugin-form-builder/types'
 
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
-import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
+import { FormBlock as FormBlockType } from '@/payload-types'
 import { getClientSideURL } from '@/utilities/getURL'
 import { buildInitialFormState } from './buildInitialFormState'
 import { fields } from './fields'
@@ -22,29 +21,12 @@ export interface Data {
   [key: string]: Property | Property[]
 }
 
-export type FormBlockType = {
-  blockName?: string
-  blockType?: 'formBlock'
-  enableIntro: boolean
-  form: FormType
-  introContent?: SerializedEditorState
-}
-
-export const FormBlock = (
-  props: {
-    id?: string
-  } & FormBlockType,
-) => {
-  const {
-    enableIntro,
-    form: formFromProps,
-    form: { id: formID, confirmationMessage, confirmationType, redirect, submitButtonLabel } = {},
-    introContent,
-  } = props
+export const FormBlock = (props: FormBlockType) => {
+  const { enableIntro, introContent } = props
 
   const formMethods = useForm({
     /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
-    defaultValues: buildInitialFormState(formFromProps.fields),
+    defaultValues: buildInitialFormState(props.form.fields),
   })
   const {
     control,
@@ -75,9 +57,12 @@ export const FormBlock = (
         }, 1000)
 
         try {
+          if (typeof props.form !== 'object') {
+            return
+          }
           const req = await fetch(`${getClientSideURL()}/api/form-submissions`, {
             body: JSON.stringify({
-              form: formID,
+              form: props.form.id,
               submissionData: dataToSend,
             }),
             headers: {
@@ -104,8 +89,8 @@ export const FormBlock = (
           setIsLoading(false)
           setHasSubmitted(true)
 
-          if (confirmationType === 'redirect' && redirect) {
-            const { url } = redirect
+          if (props.form.confirmationType === 'redirect' && props.form.redirect) {
+            const { url } = props.form.redirect
 
             const redirectUrl = url
 
@@ -122,8 +107,12 @@ export const FormBlock = (
 
       void submitForm()
     },
-    [router, formID, redirect, confirmationType],
+    [router, props.form],
   )
+
+  if (typeof props.form === 'number') {
+    return null
+  }
 
   return (
     <div className="container lg:max-w-[48rem]">
@@ -132,25 +121,26 @@ export const FormBlock = (
       )}
       <div className="p-4 lg:p-6 border border-border rounded-[0.8rem]">
         <FormProvider {...formMethods}>
-          {!isLoading && hasSubmitted && confirmationType === 'message' && (
-            <RichText data={confirmationMessage} />
-          )}
+          {!isLoading &&
+            hasSubmitted &&
+            props.form.confirmationType === 'message' &&
+            props.form.confirmationMessage && <RichText data={props.form.confirmationMessage} />}
           {isLoading && !hasSubmitted && <p>Loading, please wait...</p>}
           {error && <div>{`${error.status || '500'}: ${error.message || ''}`}</div>}
           {!hasSubmitted && (
             /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
-            <form id={formID} onSubmit={handleSubmit(onSubmit)}>
+            <form id={props.form.id} onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4 last:mb-0">
-                {formFromProps &&
-                  formFromProps.fields &&
-                  formFromProps.fields?.map((field, index) => {
+                {props.form &&
+                  props.form.fields &&
+                  props.form.fields?.map((field, index) => {
                     /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
                     const Field: React.FC<unknown> = fields?.[field.blockType]
                     if (Field) {
                       return (
                         <div className="mb-6 last:mb-0" key={index}>
                           <Field
-                            form={formFromProps}
+                            form={props.form}
                             {...field}
                             {...formMethods}
                             // @ts-expect-error there's something imprecise about this `Field` abstraction, tsc says there's no control prop
@@ -165,8 +155,8 @@ export const FormBlock = (
                   })}
               </div>
 
-              <Button form={formID} type="submit" variant="default">
-                {submitButtonLabel}
+              <Button form={String(props.form.id)} type="submit" variant="default">
+                {props.form.submitButtonLabel}
               </Button>
             </form>
           )}
