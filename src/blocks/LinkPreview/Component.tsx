@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card'
 
 import type { LinkPreviewBlock as LinkPreviewBlockProps } from '@/payload-types'
-import { cn } from '@/utilities/cn'
+import { cn } from '@/utilities/ui'
 
 export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
   const { cards } = props
