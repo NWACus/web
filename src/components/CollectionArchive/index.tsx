@@ -1,4 +1,4 @@
-import { cn } from '@/utilities/cn'
+import { cn } from '@/utilities/ui'
 
 import { Card, CardPostData } from '@/components/Card'
 
