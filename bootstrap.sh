@@ -11,6 +11,7 @@ function cleanup() {
     wait "${job}"
   done
   rm -f login.json
+  echo "[INFO] dev.db bootstrapped run 'pnpm dev' and log in with user bootstrap@avy.com, password localpass"
 }
 trap cleanup EXIT
 
@@ -30,18 +31,5 @@ for (( i = 0; i < 10; i++ )); do
 done
 
 echo "[INFO] Creating the bootstrap user and seeding the database..."
-curl -s -H 'Content-Type: application/json' -H 'Accept: application/json' -X POST http://localhost:3000/api/users/first-register --data '{"email":"bootstrap@avy.com","password":"test","confirm-password":"test","name":"Bootstrap User"}' > login.json
-curl -H "Authorization: Bearer $( jq --raw-output .token <login.json )" -X POST http://localhost:3000/next/seed
-
-echo "[INFO] Stopping the development server..."
-set +o errexit
-cleanup
-set -o errexit
-
-if [[ -n "${SKIP_BUILD:-}" ]]; then
-  echo "[INFO] Skipping build..."
-  exit 0
-fi
-
-echo "[INFO] Running a production build using the seeded database..."
-pnpm build
+curl -s -H 'Content-Type: application/json' -H 'Accept: application/json' -X POST http://localhost:3000/api/users/first-register --data '{"email":"bootstrap@avy.com","password":"localpass","confirm-password":"localpass","name":"Bootstrap User"}' > login.json
+curl -H "Authorization: Bearer $( jq --raw-output .token <login.json )" -X POST http://localhost:3000/next/bootstrap
