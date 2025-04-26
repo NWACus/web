@@ -37,7 +37,7 @@ const columnFields: Field[] = [
 export const ImageTextList: Block = {
   slug: 'imageTextList',
   interfaceName: 'ImageTextList',
-  imageURL: 'ImageTextListThumbnail.jpg',
+  imageURL: '/thumbnail/ImageTextListThumbnail.jpg',
   fields: [
     {
       name: 'layout',
