@@ -347,6 +347,7 @@ export interface Page {
     | CallToActionBlock
     | ContentBlock
     | FormBlock
+    | ImageLinkGrid
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
@@ -813,6 +814,36 @@ export interface Form {
   tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageLinkGrid".
+ */
+export interface ImageLinkGrid {
+  columns?:
+    | {
+        image: number | Media;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+        };
+        caption: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageLinkGrid';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1844,6 +1875,7 @@ export interface PagesSelect<T extends boolean = true> {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -1932,6 +1964,29 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageLinkGrid_select".
+ */
+export interface ImageLinkGridSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        image?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+        caption?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
