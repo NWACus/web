@@ -1,5 +1,4 @@
 import type { Block, Field } from 'payload'
-import thumb from './ImageTextListThumbnail.jpg'
 
 import {
   FixedToolbarFeature,
@@ -38,7 +37,7 @@ const columnFields: Field[] = [
 export const ImageTextList: Block = {
   slug: 'imageTextList',
   interfaceName: 'ImageTextList',
-  imageURL: `${thumb.src}`,
+  imageURL: 'ImageTextListThumbnail.jpg',
   fields: [
     {
       name: 'layout',
