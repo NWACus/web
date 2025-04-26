@@ -1,5 +1,4 @@
 import type { Block, Field } from 'payload'
-import thumbnail from './LinkPreviewThumbnail.jpg'
 
 import { button } from '@/fields/button'
 
@@ -30,7 +29,7 @@ const cardFields: Field[] = [
 export const LinkPreviewBlock: Block = {
   slug: 'linkPreview',
   interfaceName: 'LinkPreviewBlock',
-  imageURL: `${thumbnail.src}`,
+  imageURL: '/thumbnail/LinkPreviewThumbnail.jpg',
   fields: [
     {
       name: 'cards',
