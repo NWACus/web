@@ -47,7 +47,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <FormBlock {...block} />
     case 'imageTextList':
       return <ImageTextList {...block} />
-    case 'linkPreviewBlock':
+    case 'linkPreview':
       return <LinkPreviewBlock {...block} />
     case 'mediaBlock':
       return <MediaBlock {...block} />
