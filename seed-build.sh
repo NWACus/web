@@ -21,7 +21,7 @@ set +o errexit
 pnpm dev &
 set -o errexit
 for (( i = 0; i < 10; i++ )); do
-  if ! curl -s http://localhost:3000 >/dev/null; then
+  if ! curl -s http://localhost:3000; then
     echo "Dev server not yet started, waiting..."
     sleep 1
   else
