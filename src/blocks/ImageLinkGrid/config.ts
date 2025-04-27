@@ -69,7 +69,7 @@ const linkField: GroupField = {
 export const ImageLinkGrid: Block = {
   slug: 'imageLinkGrid',
   interfaceName: 'ImageLinkGrid',
-  imageURL: 'ImageLinkGridThumbnail.jpg',
+  imageURL: '/thumbnail/ImageLinkGridThumbnail.jpg',
   fields: [
     {
       name: 'columns',

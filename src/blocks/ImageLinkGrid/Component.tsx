@@ -14,34 +14,31 @@ export const ImageLinkGrid = (props: Props) => {
   const numOfCols = columns?.length ?? 1
 
   const colsClasses: { [key: number]: string } = {
-    1: 'lg:col-span-12',
-    2: 'lg:col-span-6',
-    3: 'lg:col-span-4',
-    4: 'lg:col-span-3',
+    1: 'sm:col-span-12',
+    2: 'sm:col-span-6',
+    3: 'sm:col-span-4',
+    4: 'sm:col-span-3',
   }
   const colsSpanClass = colsClasses[numOfCols]
 
   return (
-    <div className="container my-16">
-      <div className={`grid grid-cols-4 lg:grid-cols-12`}>
+    <div className="container">
+      <div className="grid sm:grid-cols-12 gap-y-2 gap-x-2">
         {columns &&
           columns?.length > 0 &&
           columns.map((col, index) => {
             const { caption, image, link } = col
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
-              <div
-                className={cn(
-                  `relative my-6  ${colsSpanClass} ${className} ${lastOddElement && 'md:col-span-full'}`,
-                )}
-                key={index}
-              >
+              <div className={cn(`relative ${colsSpanClass} ${className}}`)} key={index}>
                 <a href={`${link?.url}`}>
                   <ImageMedia
-                    imgClassName={cn('object-cover w-full max-h-[280px]', imgClassName)}
+                    imgClassName={cn('object-cover w-full h-[280px]', imgClassName)}
                     resource={image}
                   />
-                  <div className="absolute w-full bg-black text-center text-white ">{caption}</div>
+                  <div className="absolute bottom-0 w-full bg-accent p-2 text-small text-center">
+                    {caption}
+                  </div>
                 </a>
               </div>
             )
