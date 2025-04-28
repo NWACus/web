@@ -96,7 +96,7 @@ export const MobileNav = ({
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>
-            <nav className="divide-y divide-[#324B74]">
+            <nav className="divide-y divide-[#324B74] px-2">
               {topLevelNavItems.map((navItem) => {
                 if (navItem.item) {
                   return (
