@@ -568,6 +568,7 @@ export interface CallToActionBlock {
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
+  color: string;
   enableColumns?: boolean | null;
   columns?:
     | {
@@ -1901,6 +1902,7 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
+  color?: T;
   enableColumns?: T;
   columns?:
     | T

@@ -76,6 +76,7 @@ export const page: (
     },
     layout: [
       {
+        color: 'white',
         columns: [
           {
             richText: {

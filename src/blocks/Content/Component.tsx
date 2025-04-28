@@ -4,8 +4,10 @@ import { cn } from '@/utilities/ui'
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 
 export const ContentBlock = (props: ContentBlockProps) => {
-  const { enableColumns, columns, content } = props
+  const { enableColumns, columns, content, color } = props
   const numOfCols = columns?.length ?? 1
+
+  const bgColorClass = `bg-[${color}]`
 
   const colsClasses: { [key: number]: string } = {
     1: 'lg:col-span-12',
@@ -16,7 +18,7 @@ export const ContentBlock = (props: ContentBlockProps) => {
   const colsSpanClass = colsClasses[numOfCols]
 
   return (
-    <div className="container my-16">
+    <div className={`container py-16 ${bgColorClass}`}>
       <div className="grid grid-cols-4 lg:grid-cols-12 gap-y-8 gap-x-16">
         {enableColumns ? (
           columns?.map((col, index) => {

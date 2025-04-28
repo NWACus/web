@@ -10,6 +10,10 @@ export default {
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
   safelist: [
+    'bg-[#FFFFFF]',
+    'bg-[#CBD5E1]',
+    'bg-[#475569]',
+    'bg-[#334155]',
     'border-border',
     'bg-card',
     'border-error',

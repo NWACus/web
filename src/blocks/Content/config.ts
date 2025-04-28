@@ -1,5 +1,6 @@
 import type { Block, Field } from 'payload'
 
+import colorPickerField from '@/fields/color'
 import {
   FixedToolbarFeature,
   HeadingFeature,
@@ -32,6 +33,8 @@ export const Content: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
   fields: [
+    // Background color
+    colorPickerField,
     {
       name: 'enableColumns',
       label: 'Use columns',
