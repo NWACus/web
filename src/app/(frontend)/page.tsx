@@ -31,7 +31,10 @@ export default async function LandingPage() {
     <div className="pt-24 pb-24">
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Avalanche Centers</h1>
+          <div className="flex justify-between items-center">
+            <h1>Avalanche Centers</h1>
+            <a href="/admin"> Admin login</a>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tenants.docs.map((tenant) => (
               <Link
