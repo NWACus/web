@@ -3,36 +3,12 @@ import type { Block, Field } from 'payload'
 import {
   FixedToolbarFeature,
   HeadingFeature,
+  HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-import { link } from '@/fields/link'
-
 const columnFields: Field[] = [
-  {
-    name: 'size',
-    type: 'select',
-    defaultValue: 'oneThird',
-    options: [
-      {
-        label: 'One Third',
-        value: 'oneThird',
-      },
-      {
-        label: 'Half',
-        value: 'half',
-      },
-      {
-        label: 'Two Thirds',
-        value: 'twoThirds',
-      },
-      {
-        label: 'Full',
-        value: 'full',
-      },
-    ],
-  },
   {
     name: 'richText',
     type: 'richText',
@@ -40,6 +16,7 @@ const columnFields: Field[] = [
       features: ({ rootFeatures }) => {
         return [
           ...rootFeatures,
+          HorizontalRuleFeature(),
           HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           FixedToolbarFeature(),
           InlineToolbarFeature(),
@@ -47,18 +24,8 @@ const columnFields: Field[] = [
       },
     }),
     label: false,
+    required: true,
   },
-  {
-    name: 'enableLink',
-    type: 'checkbox',
-  },
-  link({
-    overrides: {
-      admin: {
-        condition: (_, { enableLink }) => Boolean(enableLink),
-      },
-    },
-  }),
 ]
 
 export const Content: Block = {
@@ -66,10 +33,26 @@ export const Content: Block = {
   interfaceName: 'ContentBlock',
   fields: [
     {
+      name: 'enableColumns',
+      label: 'Use columns',
+      type: 'checkbox',
+    },
+    // Show ability to add columns if checkbox is enabled
+    {
       name: 'columns',
       type: 'array',
       admin: {
-        initCollapsed: true,
+        condition: (_, siblingData) => siblingData.enableColumns,
+      },
+      fields: columnFields,
+    },
+    // Render content as single field
+    {
+      name: 'content',
+      type: 'group',
+      admin: {
+        condition: (_, siblingData) => !siblingData.enableColumns,
+        hideGutter: true,
       },
       fields: columnFields,
     },

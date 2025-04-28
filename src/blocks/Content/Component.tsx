@@ -3,17 +3,8 @@ import { cn } from '@/utilities/ui'
 
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 
-import { CMSLink } from '@/components/Link'
-
 export const ContentBlock = (props: ContentBlockProps) => {
   const { columns } = props
-
-  const colsSpanClasses = {
-    full: '12',
-    half: '6',
-    oneThird: '4',
-    twoThirds: '8',
-  }
 
   return (
     <div className="container my-16">
@@ -21,18 +12,11 @@ export const ContentBlock = (props: ContentBlockProps) => {
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
-            const { enableLink, link, richText, size } = col
+            const { richText } = col
 
             return (
-              <div
-                className={cn(`col-span-4 lg:col-span-${colsSpanClasses[size || 'full']}`, {
-                  'md:col-span-2': size !== 'full',
-                })}
-                key={index}
-              >
+              <div className={cn(`col-span-4 md:col-span-2 lg:col-span-full`)} key={index}>
                 {richText && <RichText data={richText} enableGutter={false} />}
-
-                {enableLink && <CMSLink {...link} />}
               </div>
             )
           })}
