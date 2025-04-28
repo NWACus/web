@@ -78,7 +78,6 @@ export const page: (
       {
         columns: [
           {
-            size: 'full',
             richText: {
               root: {
                 type: 'root',
@@ -113,6 +112,7 @@ export const page: (
           },
         ],
         blockType: 'content',
+        enableColumns: true,
       },
     ],
     meta: {
