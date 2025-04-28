@@ -339,7 +339,7 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | FormBlock | ImageTextList | MediaBlock | BiographyBlock | TeamBlock)[];
+  layout: (BiographyBlock | CallToActionBlock | ContentBlock | FormBlock | ImageTextList | MediaBlock | TeamBlock)[];
   meta?: {
     title?: string | null;
     /**
@@ -467,6 +467,32 @@ export interface RoleAssignment {
   tenant: number | Tenant;
   roles?: (number | Role)[] | null;
   user?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BiographyBlock".
+ */
+export interface BiographyBlock {
+  biography: number | Biography;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'biography';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "biographies".
+ */
+export interface Biography {
+  id: number;
+  tenant: number | Tenant;
+  user?: (number | null) | User;
+  name?: string | null;
+  photo: number | Media;
+  title?: string | null;
+  start_date?: string | null;
+  biography?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -809,32 +835,6 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BiographyBlock".
- */
-export interface BiographyBlock {
-  biography: number | Biography;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'biography';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "biographies".
- */
-export interface Biography {
-  id: number;
-  tenant: number | Tenant;
-  user?: (number | null) | User;
-  name?: string | null;
-  photo: number | Media;
-  title?: string | null;
-  start_date?: string | null;
-  biography?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1777,12 +1777,12 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        biography?: T | BiographyBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        biography?: T | BiographyBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   meta?:
@@ -1799,6 +1799,15 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BiographyBlock_select".
+ */
+export interface BiographyBlockSelect<T extends boolean = true> {
+  biography?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1883,15 +1892,6 @@ export interface ImageTextListSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BiographyBlock_select".
- */
-export interface BiographyBlockSelect<T extends boolean = true> {
-  biography?: T;
   id?: T;
   blockName?: T;
 }
