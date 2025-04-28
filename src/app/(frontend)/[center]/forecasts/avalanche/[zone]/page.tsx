@@ -4,7 +4,6 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
-import PageClient from './page.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -40,7 +39,6 @@ export default async function Page({ params }: Args) {
   // TODO: how do we pass zone to NACWidget? expects #/slug ...
   return (
     <div className="pt-24 pb-24">
-      <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
           <h1>

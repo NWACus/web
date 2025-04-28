@@ -1,6 +1,6 @@
 'use client'
 import { Media } from '@/payload-types'
-import { cn } from '@/utilities/cn'
+import { cn } from '@/utilities/ui'
 import {
   Dialog,
   DialogContent,

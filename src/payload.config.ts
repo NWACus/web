@@ -5,6 +5,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Biographies } from '@/collections/Biographies'
 import { Brands } from '@/collections/Brands'
 import { Categories } from '@/collections/Categories'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
@@ -15,6 +16,7 @@ import { Palettes } from '@/collections/Palettes'
 import { Posts } from '@/collections/Posts'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
+import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Themes } from '@/collections/Themes'
 import { Users } from '@/collections/Users'
@@ -112,6 +114,8 @@ export default buildConfig({
     Themes,
     Palettes,
     Navigations,
+    Biographies,
+    Teams,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
   globals: [Footer],

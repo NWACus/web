@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/utilities/cn'
+import { cn } from '@/utilities/ui'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'

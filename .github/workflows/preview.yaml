@@ -1,0 +1,93 @@
+name: preview
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Turso CLI
+        run: curl -sSfL https://get.tur.so/install.sh | bash
+        env:
+          TURSO_INSTALL_SKIP_SIGNUP: 'true'
+      - name: Create a new database for the preview
+        id: database
+        run: |
+          ref="${{ github.head_ref }}"
+          name="payloadcms-preview-${ref//[^a-z0-9\-]/x}"
+          /home/runner/.turso/turso org switch nwac
+          if /home/runner/.turso/turso db show "${name}"; then
+            /home/runner/.turso/turso db destroy "${name}" --yes
+          fi
+          /home/runner/.turso/turso db create "${name}" --wait
+          echo "name=${name}" >> "${GITHUB_OUTPUT}"
+        env:
+          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      - name: Record database connection URI and token
+        id: connection
+        run: |
+          echo "uri=$(/home/runner/.turso/turso db show "${{ steps.database.outputs.name }}" --url)" >> "${GITHUB_OUTPUT}"
+          echo "token=$(/home/runner/.turso/turso db tokens create "${{ steps.database.outputs.name }}")" >> "${GITHUB_OUTPUT}"
+        env:
+          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Update database URI in Vercel
+        run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Update database token in Vercel
+        run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Update bootstrap password in Vercel
+        run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Seed the database
+        run: ./seed-build.sh
+        env:
+          SKIP_BUILD: 'true'
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+          GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
+          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+      - name: Build Project Artifacts
+        run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+          GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
+          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+      - name: Deploy Project Artifacts to Vercel
+        id: deployment
+        run: |
+          fullName="${{ github.repository }}"
+          vercel deploy --yes --prebuilt --target=preview \
+            --meta='githubCommitAuthorName=${{ github.event.pull_request.user.login }}' \
+            --meta='githubCommitOrg=${{ github.repository_owner }}' \
+            --meta='githubCommitRef=${{ github.head_ref }}' \
+            --meta="githubCommitRepo=${fullName##*/}" \
+            --meta='githubCommitSha=${{ github.sha }}' \
+            --meta='githubDeployment=1' \
+            --meta='githubOrg=${{ github.repository_owner }}' \
+            --meta="githubRepo=${fullName##*/}" \
+            --meta='githubCommitAuthorLogin=${{ github.event.pull_request.user.login }}' \
+            --token=${{ secrets.VERCEL_TOKEN }}

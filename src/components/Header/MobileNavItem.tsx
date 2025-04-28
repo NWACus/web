@@ -1,4 +1,4 @@
-import { cn } from '@/utilities/cn'
+import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'

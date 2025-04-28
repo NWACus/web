@@ -80,6 +80,8 @@ export interface Config {
     themes: Theme;
     palettes: Palette;
     navigations: Navigation;
+    biographies: Biography;
+    teams: Team;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -108,6 +110,8 @@ export interface Config {
     themes: ThemesSelect<false> | ThemesSelect<true>;
     palettes: PalettesSelect<false> | PalettesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
+    biographies: BiographiesSelect<false> | BiographiesSelect<true>;
+    teams: TeamsSelect<false> | TeamsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -335,7 +339,7 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | FormBlock)[];
+  layout: (CallToActionBlock | ContentBlock | FormBlock | ImageTextList | MediaBlock | BiographyBlock | TeamBlock)[];
   meta?: {
     title?: string | null;
     /**
@@ -566,16 +570,6 @@ export interface ContentBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
- */
-export interface MediaBlock {
-  media: number | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock".
  */
 export interface FormBlock {
@@ -772,6 +766,95 @@ export interface Form {
       }[]
     | null;
   tenant: number | Tenant;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextList".
+ */
+export interface ImageTextList {
+  columns?:
+    | {
+        image: number | Media;
+        title: string;
+        richText: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageTextList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BiographyBlock".
+ */
+export interface BiographyBlock {
+  biography: number | Biography;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'biography';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "biographies".
+ */
+export interface Biography {
+  id: number;
+  tenant: number | Tenant;
+  user?: (number | null) | User;
+  name?: string | null;
+  photo: number | Media;
+  title?: string | null;
+  start_date?: string | null;
+  biography?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock".
+ */
+export interface TeamBlock {
+  team: number | Team;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'team';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams".
+ */
+export interface Team {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  members: (number | Biography)[];
   updatedAt: string;
   createdAt: string;
 }
@@ -1485,6 +1568,14 @@ export interface PayloadLockedDocument {
         value: number | Navigation;
       } | null)
     | ({
+        relationTo: 'biographies';
+        value: number | Biography;
+      } | null)
+    | ({
+        relationTo: 'teams';
+        value: number | Team;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -1688,8 +1779,11 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
-        mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        imageTextList?: T | ImageTextListSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        biography?: T | BiographyBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
       };
   meta?:
     | T
@@ -1758,6 +1852,33 @@ export interface ContentBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock_select".
+ */
+export interface FormBlockSelect<T extends boolean = true> {
+  form?: T;
+  enableIntro?: T;
+  introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextList_select".
+ */
+export interface ImageTextListSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        image?: T;
+        title?: T;
+        richText?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock_select".
  */
 export interface MediaBlockSelect<T extends boolean = true> {
@@ -1767,12 +1888,19 @@ export interface MediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock_select".
+ * via the `definition` "BiographyBlock_select".
  */
-export interface FormBlockSelect<T extends boolean = true> {
-  form?: T;
-  enableIntro?: T;
-  introContent?: T;
+export interface BiographyBlockSelect<T extends boolean = true> {
+  biography?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock_select".
+ */
+export interface TeamBlockSelect<T extends boolean = true> {
+  team?: T;
   id?: T;
   blockName?: T;
 }
@@ -2301,6 +2429,32 @@ export interface NavigationsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "biographies_select".
+ */
+export interface BiographiesSelect<T extends boolean = true> {
+  tenant?: T;
+  user?: T;
+  name?: T;
+  photo?: T;
+  title?: T;
+  start_date?: T;
+  biography?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams_select".
+ */
+export interface TeamsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  members?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

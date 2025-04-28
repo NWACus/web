@@ -61,3 +61,14 @@ export const accessByTenant: (collection: ruleCollection) => CollectionConfig['a
     delete: byTenant('delete', collection),
   }
 }
+
+export const accessByTenantWithPermissiveRead: (
+  collection: ruleCollection,
+) => CollectionConfig['access'] = (collection: ruleCollection) => {
+  return {
+    create: byTenant('create', collection),
+    read: () => true, // collections used to render pages need to be world-readable
+    update: byTenant('update', collection),
+    delete: byTenant('delete', collection),
+  }
+}

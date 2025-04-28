@@ -1,0 +1,23 @@
+name: cleanup
+on:
+  delete:
+    branches-ignore:
+      - 'main'
+      - 'release'
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Turso CLI
+        run: curl -sSfL https://get.tur.so/install.sh | bash
+        env:
+          TURSO_INSTALL_SKIP_SIGNUP: 'true'
+      - name: Delete preview database
+        run: |
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
+          name="payloadcms-preview-${branch//[^a-z0-9\-]/x}"
+          /home/runner/.turso/turso db destroy --yes "${name}"
+        env:
+          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+# TODO: clean up Vercel deployment?
