@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 
+import colorPickerField from '@/fields/color'
 import {
   FixedToolbarFeature,
   HeadingFeature,
@@ -12,6 +13,7 @@ export const ImageText: Block = {
   interfaceName: 'ImageText',
   imageURL: '/thumbnail/ImageTextThumbnail.jpg',
   fields: [
+    colorPickerField,
     {
       name: 'layoutSize',
       label: 'Which layout do you want to use?',

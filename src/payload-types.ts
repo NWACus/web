@@ -831,6 +831,7 @@ export interface ImageLinkGrid {
  * via the `definition` "ImageText".
  */
 export interface ImageText {
+  color: string;
   layoutSize: 'half' | 'third';
   imageLayout: 'left' | 'right';
   image: number | Media;
@@ -1993,6 +1994,7 @@ export interface ImageLinkGridSelect<T extends boolean = true> {
  * via the `definition` "ImageText_select".
  */
 export interface ImageTextSelect<T extends boolean = true> {
+  color?: T;
   layoutSize?: T;
   imageLayout?: T;
   image?: T;
