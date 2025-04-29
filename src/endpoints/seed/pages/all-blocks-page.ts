@@ -1,6 +1,6 @@
 import type { Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
-import { imageTextList } from './blocks/image-text-list'
+import { imageTextList } from '../blocks/image-text-list'
 
 export const allBlocksPage: (
   tenant: Tenant,

@@ -1,7 +1,7 @@
 import type { Media, Team, Tenant } from '@/payload-types'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 
-export const aboutUs: (
+export const staffPage: (
   tenant: Tenant,
   teams: Record<string, Team[]>,
   heroImage: Media,
@@ -12,8 +12,8 @@ export const aboutUs: (
   heroImage: Media,
   seoImage: Media,
 ): RequiredDataFromCollectionSlug<'pages'> => {
-  const slug = 'who-we-are'
-  const title = 'Who we are'
+  const slug = 'staff'
+  const title = 'Staff'
   const description = 'Meet our forecasters, non-profit staff and board of directors.'
   return {
     slug: slug,
