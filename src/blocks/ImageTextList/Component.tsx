@@ -1,9 +1,8 @@
 import RichText from '@/components/RichText'
 import { cn } from '@/utilities/ui'
 
+import { ImageMedia } from '@/components/Media/ImageMedia'
 import type { ImageTextList as ImageTextListProps } from '@/payload-types'
-
-import { Media } from '@/components/Media'
 
 type Props = ImageTextListProps & {
   className?: string
@@ -48,9 +47,9 @@ export const ImageTextList = (props: Props) => {
                   className={cn(`${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`, className)}
                 >
                   {image && (
-                    <Media
+                    <ImageMedia
                       imgClassName={cn(
-                        'h-[108px]',
+                        'h-[108px] max-w-fit',
                         `${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`,
                         imgClassName,
                       )}
