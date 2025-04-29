@@ -40,7 +40,7 @@ export const getLabel = (link: LinkType | null | undefined, fallback: string): s
 
 export type TopLevelNavItemDefinition = {
   label: string
-  item: NavItem | null
+  item: NavItem
 }
 
 export const getTopLevelNavItems = async ({
@@ -57,10 +57,14 @@ export const getTopLevelNavItems = async ({
       },
     },
   },
-  {
-    label: 'Weather',
-    item: navigation.weather || null,
-  },
+  ...(navigation.weather
+    ? [
+        {
+          label: 'Weather',
+          item: navigation.weather,
+        },
+      ]
+    : []),
   {
     label: 'Observations',
     item: {
@@ -70,14 +74,22 @@ export const getTopLevelNavItems = async ({
       },
     },
   },
-  {
-    label: 'Education',
-    item: navigation.education || null,
-  },
-  {
-    label: 'Accidents',
-    item: navigation.accidents || null,
-  },
+  ...(navigation.education
+    ? [
+        {
+          label: 'Education',
+          item: navigation.education,
+        },
+      ]
+    : []),
+  ...(navigation.accidents
+    ? [
+        {
+          label: 'Accidents',
+          item: navigation.accidents,
+        },
+      ]
+    : []),
   {
     label: 'Blog',
     item: {
@@ -96,12 +108,20 @@ export const getTopLevelNavItems = async ({
       },
     },
   },
-  {
-    label: 'About',
-    item: navigation.about || null,
-  },
-  {
-    label: 'Support',
-    item: navigation.support || null,
-  },
+  ...(navigation.about
+    ? [
+        {
+          label: 'About',
+          item: navigation.about,
+        },
+      ]
+    : []),
+  ...(navigation.support
+    ? [
+        {
+          label: 'Support',
+          item: navigation.support,
+        },
+      ]
+    : []),
 ]
