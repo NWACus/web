@@ -1,5 +1,6 @@
 import RichText from '@/components/RichText'
 import { cn } from '@/utilities/ui'
+import Color from 'color'
 
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 
@@ -17,24 +18,32 @@ export const ContentBlock = (props: ContentBlockProps) => {
   }
   const colsSpanClass = colsClasses[numOfCols]
 
+  // TODO - import color list from theme
+  const bgColor = Color(`${color}`)
+  const textColor = bgColor.isLight() ? 'text-black' : 'text-white'
   return (
-    <div className={`container py-16 ${bgColorClass}`}>
-      <div className="grid grid-cols-4 lg:grid-cols-12 gap-y-8 gap-x-16">
-        {enableColumns ? (
-          columns?.map((col, index) => {
-            const { richText } = col
+    <div className={`${bgColorClass}`}>
+      <div className="container py-16">
+        <div className="grid grid-cols-4 lg:grid-cols-12 gap-y-8 gap-x-16">
+          {enableColumns ? (
+            columns?.map((col, index) => {
+              const { richText } = col
 
-            return (
-              <div className={cn(`col-span-4 md:col-span-2 ${colsSpanClass}`)} key={index}>
-                {richText && <RichText data={richText} enableGutter={false} />}
-              </div>
-            )
-          })
-        ) : (
-          <div className={cn(`col-span-4 lg:col-span-12`)}>
-            {content?.richText && <RichText data={content.richText} enableGutter={false} />}
-          </div>
-        )}
+              return (
+                <div
+                  className={cn(`col-span-4 md:col-span-2 ${colsSpanClass} ${textColor}`)}
+                  key={index}
+                >
+                  {richText && <RichText data={richText} enableGutter={false} />}
+                </div>
+              )
+            })
+          ) : (
+            <div className={cn(`col-span-4 lg:col-span-12 ${textColor}`)}>
+              {content?.richText && <RichText data={content.richText} enableGutter={false} />}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

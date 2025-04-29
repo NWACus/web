@@ -2,7 +2,7 @@
 import { FieldLabel, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
 
-// TODO: import list from theme?
+// TODO - import color list from theme
 // white, slate-300, slate-600, slate-700
 const colorOptions = ['#FFFFFF', '#CBD5E1', '#475569', '#334155']
 
