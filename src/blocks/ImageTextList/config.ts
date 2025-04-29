@@ -37,7 +37,29 @@ const columnFields: Field[] = [
 export const ImageTextList: Block = {
   slug: 'imageTextList',
   interfaceName: 'ImageTextList',
+  imageURL: '/thumbnail/ImageTextListThumbnail.jpg',
   fields: [
+    {
+      name: 'layout',
+      label: 'Which do you want to use?',
+      type: 'radio',
+      options: [
+        {
+          label: 'Images above text',
+          value: 'above',
+        },
+        {
+          label: 'Images to the side of text',
+          value: 'side',
+        },
+        {
+          label: 'Image and text are full width',
+          value: 'full',
+        },
+      ],
+      defaultValue: 'above',
+      required: true,
+    },
     {
       name: 'columns',
       label: 'Image with text columns',

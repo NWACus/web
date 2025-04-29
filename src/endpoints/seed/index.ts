@@ -24,6 +24,7 @@ import {
   Theme,
   User,
 } from '@/payload-types'
+import { allBlocksPage } from './all-blocks-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
 import { contact as contactPageData } from './contact-page'
@@ -31,6 +32,7 @@ import { home } from './home'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageHero1 } from './image-hero-1'
+import { imageMountain } from './image-mountain'
 import { navigationSeed } from './navigation'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
@@ -723,20 +725,24 @@ export const innerSeed = async ({
 
   payload.logger.info(`— Fetching images...`)
 
-  const [image1Buffer, image2Buffer, image3Buffer, hero1Buffer] = await Promise.all([
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
-    ),
-  ])
+  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, hero1Buffer] =
+    await Promise.all([
+      fetchFileByURL(
+        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
+      ),
+      fetchFileByURL(
+        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
+      ),
+      fetchFileByURL(
+        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
+      ),
+      fetchFileByURL(
+        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
+      ),
+      fetchFileByURL(
+        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
+      ),
+    ])
 
   payload.logger.info(`— Seeding media...`)
 
@@ -758,6 +764,11 @@ export const innerSeed = async ({
           name: 'image3',
           data: image2(tenant),
           file: image3Buffer,
+        },
+        {
+          name: 'imageMountain',
+          data: imageMountain(tenant),
+          file: imageMountainBuffer,
         },
         {
           name: 'home',
@@ -961,6 +972,7 @@ export const innerSeed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         home(tenant, images[tenant.name]['home'], images[tenant.name]['image2']),
         contactPageData(tenant, contactForms[tenant.name]),
+        allBlocksPage(tenant, images[tenant.name]['imageMountain']),
         page(
           tenant,
           images[tenant.name]['home'],

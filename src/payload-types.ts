@@ -800,6 +800,7 @@ export interface Form {
  * via the `definition` "ImageTextList".
  */
 export interface ImageTextList {
+  layout: 'above' | 'side' | 'full';
   columns?:
     | {
         image: number | Media;
@@ -1875,6 +1876,7 @@ export interface FormBlockSelect<T extends boolean = true> {
  * via the `definition` "ImageTextList_select".
  */
 export interface ImageTextListSelect<T extends boolean = true> {
+  layout?: T;
   columns?:
     | T
     | {
