@@ -1,9 +1,8 @@
 import RichText from '@/components/RichText'
 import { cn } from '@/utilities/ui'
 
+import { ImageMedia } from '@/components/Media/ImageMedia'
 import type { ImageTextList as ImageTextListProps } from '@/payload-types'
-
-import { Media } from '@/components/Media'
 
 type Props = ImageTextListProps & {
   className?: string
@@ -11,7 +10,7 @@ type Props = ImageTextListProps & {
 }
 
 export const ImageTextList = (props: Props) => {
-  const { columns, className, imgClassName } = props
+  const { columns, className, imgClassName, layout } = props
   const numOfCols = columns?.length ?? 1
 
   const colsClasses: { [key: number]: string } = {
@@ -22,9 +21,13 @@ export const ImageTextList = (props: Props) => {
   }
   const colsSpanClass = colsClasses[numOfCols]
 
+  const isAboveLayout = layout === 'above'
+  const isFullLayout = layout === 'full'
+  const isSideLayout = layout === 'side'
+
   return (
     <div className="container my-16">
-      <div className="grid grid-cols-4 lg:grid-cols-12">
+      <div className={`grid grid-cols-4 lg:grid-cols-12 ${!isFullLayout && 'gap-x-4'}`}>
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
@@ -32,17 +35,33 @@ export const ImageTextList = (props: Props) => {
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
               <div
-                className={cn(
-                  `col-span-4 md:col-span-2 ${colsSpanClass} ${lastOddElement && 'md:col-span-full'}`,
-                )}
+                className={cn(`my-6
+                  ${
+                    isFullLayout
+                      ? 'col-span-full'
+                      : `col-span-4 md:col-span-2  ${colsSpanClass} ${lastOddElement && 'md:col-span-full'} `
+                  }`)}
                 key={index}
               >
-                <div className={cn(className)}>
-                  {image && <Media imgClassName={cn('h-[108px]', imgClassName)} resource={image} />}
-                  <div className={cn('mt-6')}>{title}</div>
+                <div
+                  className={cn(`${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`, className)}
+                >
+                  {image && (
+                    <ImageMedia
+                      imgClassName={cn(
+                        'h-[108px] max-w-fit',
+                        `${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`,
+                        imgClassName,
+                      )}
+                      resource={image}
+                    />
+                  )}
+                  <div className={`${isSideLayout ? 'col-span-3' : 'mt-4'}`}>
+                    <h3 className="text-lg font-bold">{title}</h3>
 
-                  <div className={cn('mt-2')}>
-                    <RichText data={richText} enableGutter={false} />
+                    <div className="mt-2">
+                      <RichText data={richText} enableGutter={false} enableProse={false} />
+                    </div>
                   </div>
                 </div>
               </div>
