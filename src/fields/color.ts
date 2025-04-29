@@ -7,7 +7,7 @@ export const colorPickerField: Field = {
   required: true,
   admin: {
     components: {
-      Field: '@/components/ColorPicker/ColorPicker.tsx',
+      Field: '@/components/ColorPicker',
     },
   },
 }
