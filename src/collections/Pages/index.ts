@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
+import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { slugField } from '@/fields/slug'
 import { hero } from '@/heros/config'
@@ -12,6 +13,8 @@ import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
+import { BiographyBlock } from '@/blocks/Biography/config'
+import { TeamBlock } from '@/blocks/Team/config'
 import { tenantField } from '@/fields/tenantField'
 import { Tenant } from '@/payload-types'
 import {
@@ -92,7 +95,15 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, FormBlock],
+              blocks: [
+                BiographyBlock,
+                CallToAction,
+                Content,
+                FormBlock,
+                ImageTextList,
+                MediaBlock,
+                TeamBlock,
+              ],
               required: true,
               admin: {
                 initCollapsed: true,

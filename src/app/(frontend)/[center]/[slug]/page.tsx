@@ -13,7 +13,6 @@ import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
-import PageClient from './page.client'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -54,6 +53,7 @@ type PathArgs = {
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
+  const payload = await getPayload({ config: configPromise })
   const { isEnabled: draft } = await draftMode()
   const { center, slug = 'home' } = await paramsPromise
   const url = '/' + center + '/' + slug
@@ -78,14 +78,13 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   return (
     <article className="pt-16 pb-24">
-      <PageClient />
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
       <RenderHero {...hero} />
-      <RenderBlocks blocks={layout} />
+      <RenderBlocks blocks={layout} payload={payload} />
     </article>
   )
 }
@@ -114,6 +113,7 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
     draft,
     limit: 1,
     pagination: false,
+    depth: 99,
     overrideAccess: draft,
     where: {
       and: [

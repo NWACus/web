@@ -10,10 +10,6 @@ export default {
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
   safelist: [
-    'lg:col-span-4',
-    'lg:col-span-6',
-    'lg:col-span-8',
-    'lg:col-span-12',
     'border-border',
     'bg-card',
     'border-error',

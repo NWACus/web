@@ -2,7 +2,7 @@
 
 import type { PayloadAdminBarProps, PayloadMeUser } from 'payload-admin-bar'
 
-import { cn } from '@/utilities/cn'
+import { cn } from '@/utilities/ui'
 import { useRouter, useSelectedLayoutSegments } from 'next/navigation'
 import { PayloadAdminBar } from 'payload-admin-bar'
 import plural from 'pluralize'

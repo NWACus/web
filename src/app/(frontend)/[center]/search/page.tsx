@@ -5,7 +5,6 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import { Search } from '@/search/Component'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import PageClient from './page.client'
 
 type PathArgs = {
   center: string
@@ -85,7 +84,6 @@ export default async function Page({
 
   return (
     <div className="pt-24 pb-24">
-      <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none text-center">
           <h1 className="mb-8 lg:mb-16">Search</h1>
