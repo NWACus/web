@@ -21,11 +21,7 @@ export default async function RootLayout({ children }: Args) {
   const { isEnabled } = await draftMode()
 
   return (
-    <html
-      className={cn(GeistSans.variable, GeistMono.variable, 'nwac')}
-      lang="en"
-      suppressHydrationWarning
-    >
+    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />

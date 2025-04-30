@@ -40,11 +40,11 @@ export default async function RootLayout({ children, params }: Args) {
   const { center } = await params
 
   return (
-    <React.Fragment>
+    <main className={center}>
       <Header center={center} />
       {children}
       <Footer center={center} />
-    </React.Fragment>
+    </main>
   )
 }
 
