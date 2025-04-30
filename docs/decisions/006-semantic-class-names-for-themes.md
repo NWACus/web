@@ -35,7 +35,7 @@ theme: {
 }
 ```
 
-This setup let's you use classnames like `bg-primary` and `text-primary-foreground` that can result in different colors depending on the value of the CSS Variable. This is how Shadcn and Tailwind allows for theming while being able to use the same class names in your code.
+This setup lets you use classnames like `bg-primary` and `text-primary-foreground` that can result in different colors depending on the value of the CSS Variable. This is how Shadcn and Tailwind allow for theming while being able to use the same class names in your code.
 
 Shadcn components are written using the semantic classnames that the library has chosen to support. Shadcn also uses a pattern of defining background and text color combinations using the naming syntax where the background color is the semantic name and the text color is suffixed with `foreground`.
 
