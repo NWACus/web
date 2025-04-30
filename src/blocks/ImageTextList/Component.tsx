@@ -21,7 +21,6 @@ export const ImageTextList = (props: Props) => {
   }
   const colsSpanClass = colsClasses[numOfCols]
 
-  const isAboveLayout = layout === 'above'
   const isFullLayout = layout === 'full'
   const isSideLayout = layout === 'side'
 
