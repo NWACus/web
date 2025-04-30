@@ -57,44 +57,29 @@ export const navigationSeed = (
       items: [
         {
           link: pageLink({
-            slug: 'radar-and-satellite-index',
+            url: 'https://www.weather.gov/rev/Avalanche',
+            label: 'Weather Tools',
+            newTab: true,
           }),
-          items: [
-            {
-              link: pageLink({
-                url: 'https://www.weather.gov/rev/Avalanche',
-                label: 'Weather Tools',
-                newTab: true,
-              }),
-            },
-          ],
         },
       ],
     },
     education: {
       items: [
         {
+          link: pageLink({ slug: 'learn' }),
+        },
+        {
           link: pageLink({
-            url: 'https://avalanche.org/avalanche-tutorial',
-            label: 'Learn',
-            newTab: true,
+            label: 'Classes',
+            slug: 'field-classes',
           }),
           items: [
             {
               link: pageLink({
-                url: 'https://avalanche.org/avalanche-education/',
-                label: 'Backcountry Basics',
+                slug: 'field-classes',
               }),
             },
-          ],
-        },
-        {
-          link: pageLink({
-            url: 'https://avalanche.org/avalanche-tutorial',
-            label: 'Classes',
-            newTab: true,
-          }),
-          items: [
             {
               link: pageLink({
                 slug: 'avalanche-awareness-classes',
@@ -102,47 +87,86 @@ export const navigationSeed = (
             },
             {
               link: pageLink({
-                slug: 'courses-by-local-providers',
+                slug: 'courses-by-external-providers',
+              }),
+            },
+            {
+              link: pageLink({
+                slug: 'workshops',
+              }),
+            },
+            {
+              link: pageLink({
+                slug: 'request-a-class',
               }),
             },
           ],
         },
         {
-          link: pageLink({ slug: 'snowpack-scholarship' }),
+          link: pageLink({ slug: 'scholarships' }),
+        },
+        {
+          link: pageLink({ slug: 'mentorship' }),
+        },
+        {
+          link: pageLink({ slug: 'beacon-parks' }),
         },
       ],
     },
     about: {
-      link: pageLink({ slug: 'about-us' }),
       items: [
         {
           link: pageLink({ slug: 'about-us' }),
         },
         {
-          link: pageLink({ slug: 'about-the-forecasts' }),
+          link: pageLink({ slug: 'agency-partners' }),
+        },
+        {
+          link: pageLink({ slug: 'staff' }),
+        },
+        {
+          link: pageLink({ slug: 'annual-report-minutes' }),
+        },
+        {
+          link: pageLink({ slug: 'employment' }),
         },
       ],
     },
     support: {
       items: [
         {
-          link: pageLink({ slug: 'become-a-member' }),
+          link: pageLink({ slug: 'donate-membership' }),
         },
         {
           link: pageLink({ slug: 'workplace-giving' }),
         },
         {
-          link: pageLink({ slug: 'corporate-sponsorships' }),
+          link: pageLink({ slug: 'other-ways-to-give' }),
+        },
+        {
+          link: pageLink({ slug: 'corporate-sponsorship' }),
+        },
+        {
+          link: pageLink({ slug: 'volunteer' }),
         },
       ],
     },
     accidents: {
       items: [
         {
-          link: pageLink({ slug: 'about-the-forecasts' }),
+          link: pageLink({ slug: 'local-accident-reports' }),
         },
         {
-          link: pageLink({ slug: 'about-the-forecasts' }),
+          link: pageLink({ slug: 'avalanche-accident-statistics' }),
+        },
+        {
+          link: pageLink({ slug: 'us-avalanche-accidents' }),
+        },
+        {
+          link: pageLink({ slug: 'grief-and-loss-resources' }),
+        },
+        {
+          link: pageLink({ slug: 'avalanche-accident-map' }),
         },
       ],
     },
@@ -153,11 +177,7 @@ export const navigationSeed = (
       items: [],
     },
     donate: {
-      link: pageLink({
-        url: 'https://www.americanavalancheassociation.org/donate',
-        label: 'Donate',
-        newTab: true,
-      }),
+      link: pageLink({ slug: 'donate-membership' }),
     },
   }
 }

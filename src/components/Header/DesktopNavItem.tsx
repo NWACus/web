@@ -34,13 +34,12 @@ export const DesktopNavItem = ({ label, navItem }: NavItemProps) => {
       <NavigationMenuTrigger>{getLabel(navItem.link, label)}</NavigationMenuTrigger>
       <NavigationMenuContent>
         <div className="min-w-max py-6 px-4">
-          <div className="grid grid-cols-4 gap-6">
+          <div className="grid gap-6">
             {navItem.items.map((item) => {
               const hasSubItems = item.items && item.items.length > 0
 
               return (
                 <div key={item.id} className="menu-column">
-                  {/* Column Header */}
                   <div className="mb-3 border-b border-gray-200 pb-2">
                     {item.link ? (
                       <Link href={getUrl(item.link)} legacyBehavior={false}>
@@ -55,7 +54,6 @@ export const DesktopNavItem = ({ label, navItem }: NavItemProps) => {
                     )}
                   </div>
 
-                  {/* Column Items */}
                   {hasSubItems && (
                     <ul className="space-y-2">
                       {item.items?.map((subItem) => (
@@ -74,7 +72,6 @@ export const DesktopNavItem = ({ label, navItem }: NavItemProps) => {
                             </span>
                           )}
 
-                          {/* Third-level Menu Items (if any) */}
                           {subItem.items && subItem.items.length > 0 && (
                             <ul className="ml-4 mt-1 space-y-1">
                               {subItem.items.map((thirdLevelItem) => (

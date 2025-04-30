@@ -112,55 +112,53 @@ export function HeaderClient({
                   <NavigationMenuItem key={label} value={label}>
                     <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="min-w-max pt-6 pb-8 px-4">
-                        <div className="flex gap-6">
-                          {navItem.item.items.map((item) => {
-                            const hasSubItems = item.items && item.items.length > 0
+                      <div className="grid min-w-max p-6 gap-5">
+                        {navItem.item.items.map((item) => {
+                          const hasSubItems = item.items && item.items.length > 0
 
-                            return (
-                              <div key={item.id} className="flex flex-col">
-                                {!hasSubItems && navItem.item.link && (
-                                  <div className="mb-4 pb-2">
-                                    <Link
-                                      href={getUrl(item.link)}
-                                      target={item.link?.newTab ? '_blank' : undefined}
-                                    >
+                          return (
+                            <div key={item.id} className="flex flex-col">
+                              {!hasSubItems && navItem.item.link && (
+                                <div className="">
+                                  <Link
+                                    href={getUrl(item.link)}
+                                    target={item.link?.newTab ? '_blank' : undefined}
+                                  >
+                                    {getLabel(item.link, 'Menu Item')}
+                                  </Link>
+                                </div>
+                              )}
+                              {hasSubItems && (
+                                <>
+                                  <div className=" border-b border-gray-200 pb-2">
+                                    <span className="text-base font-medium">
                                       {getLabel(item.link, 'Menu Item')}
-                                    </Link>
+                                    </span>
                                   </div>
-                                )}
-                                {hasSubItems && (
-                                  <>
-                                    <div className="mb-3 border-b border-gray-200 pb-2">
-                                      <span className="text-base font-medium">
-                                        {getLabel(item.link, 'Menu Item')}
-                                      </span>
-                                    </div>
-                                    <ul className="space-y-2">
-                                      {item.items?.map((subItem) => (
-                                        <li key={subItem.id}>
-                                          {subItem.link ? (
-                                            <Link
-                                              href={getUrl(subItem.link)}
-                                              className="text-sm"
-                                              target={subItem.link?.newTab ? '_blank' : undefined}
-                                            >
-                                              {getLabel(subItem.link, 'Sub Menu Item')}
-                                            </Link>
-                                          ) : (
-                                            <span className="text-sm block">
-                                              {getLabel(subItem.link, 'Sub Menu Item')}
-                                            </span>
-                                          )}
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
+                                  <ul className="space-y-2 pt-3 pl-4">
+                                    {item.items?.map((subItem) => (
+                                      <li key={subItem.id}>
+                                        {subItem.link ? (
+                                          <Link
+                                            href={getUrl(subItem.link)}
+                                            className="text-sm"
+                                            target={subItem.link?.newTab ? '_blank' : undefined}
+                                          >
+                                            {getLabel(subItem.link, 'Sub Menu Item')}
+                                          </Link>
+                                        ) : (
+                                          <span className="text-sm block">
+                                            {getLabel(subItem.link, 'Sub Menu Item')}
+                                          </span>
+                                        )}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     </NavigationMenuContent>
                   </NavigationMenuItem>

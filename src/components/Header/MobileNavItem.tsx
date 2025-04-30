@@ -70,7 +70,7 @@ const NavDropdown = ({ label, navItem, setMobileNavOpen, className }: MobileNavI
         {getLabel(navItem.link, label)}
       </AccordionTrigger>
       <AccordionContent className="pt-0 pb-2">
-        <Accordion type="single" collapsible className="pl-6">
+        <Accordion type="single" collapsible className="pl-4">
           {navItem.items.map((item) => {
             if (!item.items || item.items.length === 0) {
               return item.link ? (
