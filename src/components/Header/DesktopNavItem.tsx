@@ -44,12 +44,12 @@ export const DesktopNavItem = ({ label, navItem }: NavItemProps) => {
                   <div className="mb-3 border-b border-gray-200 pb-2">
                     {item.link ? (
                       <Link href={getUrl(item.link)} legacyBehavior={false}>
-                        <span className="text-base font-medium text-[#A0CCD8] hover:text-white">
+                        <span className="text-base font-medium hover:text-white">
                           {getLabel(item.link, 'Menu Item')}
                         </span>
                       </Link>
                     ) : (
-                      <span className="text-base font-medium text-[#A0CCD8]">
+                      <span className="text-base font-medium">
                         {getLabel(item.link, 'Menu Item')}
                       </span>
                     )}

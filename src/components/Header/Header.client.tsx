@@ -70,7 +70,7 @@ export function HeaderClient({
   }, [])
 
   return (
-    <header className="bg-[#142D56]">
+    <header className="bg-header">
       <MobileNav
         topLevelNavItems={topLevelNavItems}
         banner={typeof banner !== 'number' ? banner : undefined}
@@ -99,9 +99,7 @@ export function HeaderClient({
                   return (
                     <NavigationMenuItem key={navItem.label} value={navItem.label}>
                       <Link href={navItem.item?.link?.url ?? '#'} legacyBehavior passHref>
-                        <NavigationMenuLink
-                          className={cn(navigationMenuTriggerStyle(), 'text-[#A0CCD8]')}
-                        >
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                           {navItem.label}
                         </NavigationMenuLink>
                       </Link>
@@ -112,9 +110,7 @@ export function HeaderClient({
                 const label = getLabel(navItem.item.link, navItem.label)
                 return (
                   <NavigationMenuItem key={label} value={label}>
-                    <NavigationMenuTrigger className="text-[#A0CCD8]">
-                      {label}
-                    </NavigationMenuTrigger>
+                    <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <div className="min-w-max pt-6 pb-8 px-4">
                         <div className="flex gap-6">
@@ -173,7 +169,7 @@ export function HeaderClient({
               <NavigationMenuItem>
                 <Link href="/donate" legacyBehavior passHref>
                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'py-0')}>
-                    <Button className="bg-[#E0F94B] text-black">Donate</Button>
+                    <Button variant="callout">Donate</Button>
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>

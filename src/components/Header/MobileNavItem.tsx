@@ -65,7 +65,7 @@ const NavDropdown = ({ label, navItem, setMobileNavOpen, className }: MobileNavI
     <AccordionItem value={label} className={cn('border-0 data-[state=open]:text-white', className)}>
       <AccordionTrigger
         className="py-3 capitalize text-base hover:no-underline"
-        chevronClassName="h-6 w-6 text-[#A0CCD8]"
+        chevronClassName="h-6 w-6 text-header-foreground"
       >
         {getLabel(navItem.link, label)}
       </AccordionTrigger>
@@ -86,11 +86,11 @@ const NavDropdown = ({ label, navItem, setMobileNavOpen, className }: MobileNavI
               <AccordionItem value={getLabel(item.link, 'Menu Item')} className="border-0">
                 <AccordionTrigger
                   className="py-2 text-base font-normal hover:no-underline data-[state=open]:font-semibold"
-                  chevronClassName="h-6 w-6 text-[#A0CCD8]"
+                  chevronClassName="h-6 w-6 text-header-foreground"
                 >
                   {getLabel(item.link, 'Menu Item')}
                 </AccordionTrigger>
-                <AccordionContent className="py-0 w-full border-y-2 border-y-[#142D56] shadow-inner">
+                <AccordionContent className="py-0 w-full shadow-inner">
                   <div className="pl-4">
                     {item.items?.map((subItem) =>
                       subItem.link ? (
