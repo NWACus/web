@@ -49,7 +49,7 @@ export const getTopLevelNavItems = async ({
   navigation: Navigation
 }): Promise<TopLevelNavItemDefinition[]> => [
   {
-    label: 'Forecast',
+    label: 'Forecasts',
     item: {
       link: {
         type: 'external',

@@ -932,9 +932,9 @@ export interface Palette {
 export interface Navigation {
   id: number;
   tenant: number | Tenant;
-  forecast?: {
+  forecasts?: {
     /**
-     * Dropdown items under Forecast
+     * Dropdown items under Forecasts
      */
     items?:
       | {
@@ -2082,7 +2082,7 @@ export interface PalettesSelect<T extends boolean = true> {
  */
 export interface NavigationsSelect<T extends boolean = true> {
   tenant?: T;
-  forecast?:
+  forecasts?:
     | T
     | {
         items?:

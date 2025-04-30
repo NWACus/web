@@ -47,7 +47,7 @@ export const navigationSeed = (
   return {
     _status: 'published',
     tenant,
-    forecast: {
+    forecasts: {
       items: [],
     },
     observations: {
