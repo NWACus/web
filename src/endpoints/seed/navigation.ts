@@ -47,12 +47,6 @@ export const navigationSeed = (
   return {
     _status: 'published',
     tenant,
-    forecasts: {
-      items: [],
-    },
-    observations: {
-      items: [],
-    },
     weather: {
       items: [
         {
@@ -169,12 +163,6 @@ export const navigationSeed = (
           link: pageLink({ slug: 'avalanche-accident-map' }),
         },
       ],
-    },
-    blog: {
-      items: [],
-    },
-    events: {
-      items: [],
     },
     donate: {
       link: pageLink({ slug: 'donate-membership' }),
