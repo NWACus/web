@@ -97,30 +97,6 @@
 
     --callout: 69 94% 64%;
     --callout-foreground: 240 6% 10%;
-
-    --brand-50: 197 100% 96%;
-    --brand-100: 200 100% 92%;
-    --brand-200: 199 100% 86%;
-    --brand-300: 197 100% 77%;
-    --brand-400: 199 100% 66%;
-    --brand-500: 203 100% 58%;
-    --brand-600: 208 100% 53%;
-    --brand-700: 211 92% 44%;
-    --brand-800: 213 85% 40%;
-    --brand-900: 211 77% 33%;
-    --brand-950: 213 68% 21%;
-
-    --brand-foreground-50: 211 77% 33%;
-    --brand-foreground-100: 211 77% 33%;
-    --brand-foreground-200: 211 77% 33%;
-    --brand-foreground-300: 211 77% 33%;
-    --brand-foreground-400: 211 77% 33%;
-    --brand-foreground-500: 200 100% 92%;
-    --brand-foreground-600: 200 100% 92%;
-    --brand-foreground-700: 200 100% 92%;
-    --brand-foreground-800: 200 100% 92%;
-    --brand-foreground-900: 200 100% 92%;
-    --brand-foreground-950: 200 100% 92%;
   }
 
   .dark.nwac {
