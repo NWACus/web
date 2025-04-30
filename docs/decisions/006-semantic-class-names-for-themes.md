@@ -97,6 +97,8 @@ Shadcn's class names cover us pretty well but we want to extend this list and ex
 
 We are extending the Shadcn set with custom variables for `header`, `footer`, `callout`, and a full `brand` color scale (with matching foregrounds). We are also adding `success`, `warning`, and `error` for status messaging. Some Shadcn variables like `sidebar` and chart colors are omitted for now, as we don't expect to use them.
 
+The `brand` color scale is intended to be a bail out for designers when we need another color that the other semantic class names don't provide. An idea is to let a content editor choose a section's (i.e. block) background color from a dropdown of a subset of tailwind colors (associated with classnames) and their brand-50 to brand-950 colors. But they may be used elsewhere too.
+
 This approach gives us a consistent set of semantic class names for theming, while allowing flexibility for our own design needs.
 
 ### Toggling themes
