@@ -12,8 +12,8 @@ export const staffPage: (
   heroImage: Media,
   seoImage: Media,
 ): RequiredDataFromCollectionSlug<'pages'> => {
-  const slug = 'staff'
-  const title = 'Staff'
+  const slug = 'who-we-are'
+  const title = 'Who We Are'
   const description = 'Meet our forecasters, non-profit staff and board of directors.'
   return {
     slug: slug,
