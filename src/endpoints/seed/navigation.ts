@@ -51,9 +51,7 @@ export const navigationSeed = (
       items: [
         {
           link: pageLink({
-            url: 'https://www.weather.gov/rev/Avalanche',
-            label: 'Weather Tools',
-            newTab: true,
+            slug: 'weather-tools',
           }),
         },
       ],

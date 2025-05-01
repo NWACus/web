@@ -1156,6 +1156,14 @@ export const innerSeed = async ({
           'Interactive map showing locations of avalanche accidents and incidents.',
           'avalanche-accident-map',
         ),
+        page(
+          tenant,
+          images[tenant.name]['hero'],
+          images[tenant.name]['image2'],
+          'Weather Tools',
+          'A list of weather links.',
+          'weather-tools',
+        ),
       ])
       .flat(),
   ]
