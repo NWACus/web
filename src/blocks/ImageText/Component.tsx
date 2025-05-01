@@ -10,13 +10,7 @@ type Props = ImageTextProps & {
 }
 
 export const ImageText = (props: Props) => {
-  const { color, imgClassName, imageLayout, image, layoutSize, richText } = props
-
-  const colsClasses: { [key: string]: { photo: string; text: string } } = {
-    half: { photo: 'col-span-2 lg:col-span-6', text: 'col-span-2 lg:col-span-6' },
-    third: { photo: 'col-span-1 lg:col-span-3', text: 'col-span-3 lg:col-span-9' },
-  }
-  const colsSpanClass = colsClasses[layoutSize]
+  const { color, imgClassName, imageLayout, image, richText } = props
 
   // TODO - import color list from theme
   const bgColorClass = `bg-[${color}]`
@@ -24,12 +18,14 @@ export const ImageText = (props: Props) => {
   const textColor = bgColor.isLight() ? 'text-black' : 'text-white'
   return (
     <div className={`${bgColorClass}`}>
-      <div className="container my-16">
-        <div className="grid grid-cols-4 lg:grid-cols-12 gap-x-6">
-          <div className={`${colsSpanClass.photo} ${imageLayout === 'right' && 'order-last'}`}>
+      <div className="container md:px-0 py-16">
+        <div className="grid md:grid-cols-12 gap-x-6 gap-y-6 justify-items-center">
+          <div
+            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' && 'order-last'}`}
+          >
             <ImageMedia imgClassName={cn(imgClassName)} resource={image} />
           </div>
-          <div className={`${colsSpanClass.text} ${textColor}`}>
+          <div className={`md:col-span-8 self-center ${textColor}`}>
             <RichText data={richText} enableGutter={false} />
           </div>
         </div>

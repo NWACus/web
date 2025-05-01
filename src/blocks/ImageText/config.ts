@@ -15,23 +15,6 @@ export const ImageText: Block = {
   fields: [
     colorPickerField,
     {
-      name: 'layoutSize',
-      label: 'Which layout do you want to use?',
-      type: 'radio',
-      options: [
-        {
-          label: 'Half',
-          value: 'half',
-        },
-        {
-          label: 'Thirds',
-          value: 'third',
-        },
-      ],
-      defaultValue: 'half',
-      required: true,
-    },
-    {
       name: 'imageLayout',
       label: 'Which side should the image be on?',
       type: 'radio',
