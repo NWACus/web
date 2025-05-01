@@ -12,7 +12,7 @@ export async function Header({ center }: { center?: string }) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
-  const media = await payload.find({
+  const brands = await payload.find({
     collection: 'brands',
     depth: 10,
     where: {
@@ -22,13 +22,13 @@ export async function Header({ center }: { center?: string }) {
     },
   })
 
-  if (media.docs.length < 1) {
+  if (brands.docs.length < 1) {
     payload.logger.error(`Brand for tenant ${center} missing`)
   }
 
-  const banner = media.docs[0]?.banner
+  const banner = brands.docs[0]?.banner
 
-  if (media.docs.length > 0 && typeof banner !== 'object') {
+  if (brands.docs.length > 0 && typeof banner !== 'object') {
     payload.logger.error(`Banner for tenant ${center} missing`)
   }
 
