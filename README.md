@@ -72,7 +72,7 @@ Running the seed script may take a while - when reviewing a pull request, you ca
 
 ```shell
 # branch names may have illegal characters for turso database names, hence the shell magic
-branch="skuznets/some-feature-thing" turso db shell payloadcms-preview-"${branch//[^a-z0-9\-]/x}" .dump | sqlite3 dev.db
+branch="skuznets/some-feature-thing"; turso db shell "payloadcms-preview-${branch//[^a-z0-9\-]/x}" .dump | sqlite3 dev.db
 ```
 
 ## Git

@@ -3,20 +3,19 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-set -o xtrace
 
 function cleanup() {
+  rm -f login.json
   for job in $( jobs -p ); do
-    kill -SIGTERM "${job}"
+    kill -SIGKILL "${job}"
     wait "${job}"
   done
-  rm -f login.json
   echo "[INFO] dev.db bootstrapped run 'pnpm dev' and log in with user bootstrap@avy.com, password localpass"
 }
 trap cleanup EXIT
 
 echo "[INFO] Starting the development server..."
-rm -rf dev.db
+rm -rf dev.db dev.db-shm dev.db-wal
 sqlite3 dev.db -- 'PRAGMA journal_mode=WAL;'
 set +o errexit
 pnpm dev &
