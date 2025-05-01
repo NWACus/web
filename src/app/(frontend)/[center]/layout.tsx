@@ -41,12 +41,12 @@ export default async function RootLayout({ children, params }: Args) {
   const { center } = await params
 
   return (
-    <div className={center}>
+    <main className={center}>
       <ThemeSetter theme={center} />
       <Header center={center} />
       {children}
       <Footer center={center} />
-    </div>
+    </main>
   )
 }
 
