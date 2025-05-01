@@ -2,7 +2,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { draftMode } from 'next/headers'
-import { HeaderClient } from './Header.client'
+import Link from 'next/link'
+import { ImageMedia } from '../Media/ImageMedia'
+import { DesktopNav } from './DesktopNav.client'
+import { MobileNav } from './MobileNav.client'
 import { getTopLevelNavItems } from './utils'
 
 export async function Header({ center }: { center?: string }) {
@@ -50,5 +53,26 @@ export async function Header({ center }: { center?: string }) {
 
   const topLevelNavItems = await getTopLevelNavItems({ navigation })
 
-  return <HeaderClient topLevelNavItems={topLevelNavItems} banner={banner} />
+  return (
+    <header className="bg-header">
+      <MobileNav
+        topLevelNavItems={topLevelNavItems}
+        banner={typeof banner !== 'number' ? banner : undefined}
+      />
+
+      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8">
+        {banner && (
+          <Link href="/" className="w-fit">
+            <ImageMedia
+              resource={banner}
+              loading="eager"
+              priority={true}
+              imgClassName="h-[90px] object-contain w-fit"
+            />
+          </Link>
+        )}
+        <DesktopNav topLevelNavItems={topLevelNavItems} />
+      </div>
+    </header>
+  )
 }
