@@ -14,6 +14,10 @@ When changes to the schema or seed data need to occur, simply start with a new d
 
 ## First time setup
 
+### Short-cut Bootstrapping
+
+Run the `./bootstrap.sh` script, which will create a new database file for you, add a `boostrap@avy.com` user, and grant them super-admin rights to three tenants. Then, run `pnpm dev` and start work straight away by logging in as that first user.
+
 ### Creating a new database
 
 Start a new database with:
@@ -61,6 +65,15 @@ Once a database file is chosen and the development server is started, navigate t
 This repo uses [Husky](https://typicode.github.io/husky/) and [lint-staged](https://github.com/lint-staged/lint-staged) to run a pre-commit hook that affects staged files. Our pre-commit hook formats staged files before committing. The `pnpm prepare` script should be automatically run after `pnpm install` which will configure the pre-commit hook to run on `git commit`.
 
 If the pre-commit hook isn't running on your commits you can manually run `pnpm prepare`.
+
+### Reviewing Pull Requests
+
+Running the seed script may take a while - when reviewing a pull request, you can [download](https://docs.turso.tech/cli/installation) the `turso` CLI, [initialize the client](https://docs.turso.tech/cli/introduction) and clone the preview database locally instead:
+
+```shell
+# branch names may have illegal characters for turso database names, hence the shell magic
+branch="skuznets/some-feature-thing" turso db shell payloadcms-preview-"${branch//[^a-z0-9\-]/x}" .dump | sqlite3 dev.db
+```
 
 ## Git
 
