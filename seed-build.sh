@@ -15,7 +15,7 @@ function cleanup() {
 trap cleanup EXIT
 
 echo "[INFO] Starting the development server..."
-rm -rf dev.db
+rm -rf dev.db dev.db-shm dev.db-wal
 sqlite3 dev.db -- 'PRAGMA journal_mode=WAL;'
 set +o errexit
 pnpm dev &
