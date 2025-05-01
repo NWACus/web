@@ -1,8 +1,8 @@
 import { cn } from '@/utilities/ui'
-import Link from 'next/link'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
-import { getLabel, getUrl, LinkType, NavItem } from './utils'
+import { RenderNavLink } from './RenderNavLink'
+import { NavItem } from './utils'
 
 type MobileNavItemProps = {
   label: string
@@ -11,17 +11,21 @@ type MobileNavItemProps = {
   className?: string
 }
 
-export const MobileNavItem = ({ label, navItem, setMobileNavOpen }: MobileNavItemProps) => {
+export const MobileNavItem = ({
+  label,
+  navItem,
+  setMobileNavOpen,
+  className,
+}: MobileNavItemProps) => {
   if (!navItem.items || navItem.items.length === 0) {
     return navItem.link ? (
-      <MobileNavLink
-        label={label}
+      <RenderNavLink
         link={navItem.link}
-        setMobileNavOpen={setMobileNavOpen}
-        className="px-2"
+        className={cn('flex items-center py-3 text-base px-2', className)}
+        onClick={() => setMobileNavOpen(false)}
       />
     ) : (
-      <span>{label}</span>
+      <span className={className}>{label}</span>
     )
   }
 
@@ -30,31 +34,8 @@ export const MobileNavItem = ({ label, navItem, setMobileNavOpen }: MobileNavIte
       label={label}
       navItem={navItem}
       setMobileNavOpen={setMobileNavOpen}
-      className="px-2"
+      className={cn('px-2', className)}
     />
-  )
-}
-
-export const MobileNavLink = ({
-  label,
-  link,
-  setMobileNavOpen,
-  className,
-}: {
-  label: string
-  link?: LinkType | null
-  setMobileNavOpen: Dispatch<SetStateAction<boolean>>
-  className?: string
-}) => {
-  return (
-    <Link
-      href={getUrl(link)}
-      target={link?.newTab ? '_blank' : undefined}
-      className={cn('flex items-center py-3 text-base', className)}
-      onClick={() => setMobileNavOpen(false)}
-    >
-      {getLabel(link, label)}
-    </Link>
   )
 }
 
@@ -67,37 +48,43 @@ const NavDropdown = ({ label, navItem, setMobileNavOpen, className }: MobileNavI
         className="py-3 capitalize text-base hover:no-underline"
         chevronClassName="h-6 w-6 text-header-foreground"
       >
-        {getLabel(navItem.link, label)}
+        {navItem.link ? navItem.link.label : label}
       </AccordionTrigger>
       <AccordionContent className="pt-0 pb-2">
         <Accordion type="single" collapsible className="pl-4">
           {navItem.items.map((item) => {
             if (!item.items || item.items.length === 0) {
               return item.link ? (
-                <MobileNavLink
-                  label={getLabel(item.link, '')}
+                <RenderNavLink
+                  key={item.id}
                   link={item.link}
-                  setMobileNavOpen={setMobileNavOpen}
+                  className="flex items-center py-3 text-base"
+                  onClick={() => setMobileNavOpen(false)}
                 />
               ) : null
             }
 
             return (
-              <AccordionItem value={getLabel(item.link, 'Menu Item')} className="border-0">
+              <AccordionItem
+                key={item.id}
+                value={item.link?.label || 'Menu Item'}
+                className="border-0"
+              >
                 <AccordionTrigger
                   className="py-2 text-base font-normal hover:no-underline data-[state=open]:font-semibold"
                   chevronClassName="h-6 w-6 text-header-foreground"
                 >
-                  {getLabel(item.link, 'Menu Item')}
+                  {item.link?.label || 'Menu Item'}
                 </AccordionTrigger>
                 <AccordionContent className="py-0 w-full shadow-inner">
                   <div className="pl-4">
                     {item.items?.map((subItem) =>
                       subItem.link ? (
-                        <MobileNavLink
-                          label={getLabel(subItem.link, '')}
+                        <RenderNavLink
+                          key={subItem.id}
                           link={subItem.link}
-                          setMobileNavOpen={setMobileNavOpen}
+                          className="flex items-center py-3 text-base"
+                          onClick={() => setMobileNavOpen(false)}
                         />
                       ) : null,
                     )}

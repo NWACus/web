@@ -15,13 +15,14 @@ import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
 import { Button } from '../ui/button'
 import { MobileNavItem } from './MobileNavItem'
-import { TopLevelNavItemDefinition } from './utils'
+import { RenderNavLink } from './RenderNavLink'
+import { TopLevelNavItem } from './utils'
 
 export const MobileNav = ({
   topLevelNavItems,
   banner,
 }: {
-  topLevelNavItems: TopLevelNavItemDefinition[]
+  topLevelNavItems: TopLevelNavItem[]
   banner?: Media
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -84,7 +85,12 @@ export const MobileNav = ({
               />
             </Link>
           )}
-          <Button variant="callout">Donate</Button>
+          <RenderNavLink
+            link={topLevelNavItems[topLevelNavItems.length - 1].link}
+            onClick={() => setMobileNavOpen(false)}
+          >
+            <Button variant="callout">Donate</Button>
+          </RenderNavLink>
         </div>
       </div>
       <DialogPortal>
@@ -97,19 +103,23 @@ export const MobileNav = ({
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>
             <nav className="divide-y divide-header-foreground/20 px-2">
-              {topLevelNavItems.map((navItem) => {
-                if (navItem.item) {
-                  return (
-                    <MobileNavItem
-                      key={navItem.label}
-                      label={navItem.label}
-                      navItem={navItem.item}
-                      setMobileNavOpen={setMobileNavOpen}
-                    />
-                  )
-                }
+              {topLevelNavItems.slice(0, -1).map((navItem) => {
+                const label = navItem.label ?? navItem.link?.label
 
-                return null
+                if (!label) return null
+
+                return (
+                  <MobileNavItem
+                    key={label}
+                    label={label}
+                    navItem={{
+                      id: label,
+                      link: navItem.link,
+                      items: navItem.items,
+                    }}
+                    setMobileNavOpen={setMobileNavOpen}
+                  />
+                )
               })}
             </nav>
           </Accordion>

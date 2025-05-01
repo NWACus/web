@@ -10,6 +10,7 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getServerSideURL } from '@/utilities/getURL'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import ThemeSetter from './theme'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -40,11 +41,12 @@ export default async function RootLayout({ children, params }: Args) {
   const { center } = await params
 
   return (
-    <main className={center}>
+    <div className={center}>
+      <ThemeSetter theme={center} />
       <Header center={center} />
       {children}
       <Footer center={center} />
-    </main>
+    </div>
   )
 }
 

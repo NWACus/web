@@ -1,6 +1,7 @@
 'use client'
 import { Brand } from '@/payload-types'
 import { cn } from '@/utilities/ui'
+import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { ImageMedia } from '../Media/ImageMedia'
@@ -16,13 +17,14 @@ import {
   NavigationMenuViewport,
 } from '../ui/navigation-menu'
 import { MobileNav } from './MobileNav'
-import { getLabel, getUrl, TopLevelNavItemDefinition } from './utils'
+import { RenderNavLink } from './RenderNavLink'
+import { TopLevelNavItem } from './utils'
 
 export function HeaderClient({
   topLevelNavItems,
   banner,
 }: {
-  topLevelNavItems: TopLevelNavItemDefinition[]
+  topLevelNavItems: TopLevelNavItem[]
   banner: Brand['banner']
 }) {
   const [activeMenuItem, setActiveMenuItem] = useState<string>()
@@ -94,63 +96,49 @@ export function HeaderClient({
             onValueChange={setActiveMenuItem}
           >
             <NavigationMenuList>
-              {topLevelNavItems.map((navItem) => {
-                if (!navItem.item?.items || navItem.item.items.length === 0) {
+              {topLevelNavItems.slice(0, -1).map((navItem) => {
+                const label = navItem.label || navItem.link?.label
+
+                if (!label) return null
+
+                if (!navItem.items) {
                   return (
-                    <NavigationMenuItem key={navItem.label} value={navItem.label}>
-                      <Link href={navItem.item?.link?.url ?? '#'} legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                          {navItem.label}
-                        </NavigationMenuLink>
-                      </Link>
+                    <NavigationMenuItem key={label} value={label}>
+                      <RenderNavLink link={navItem.link} className={navigationMenuTriggerStyle()} />
                     </NavigationMenuItem>
                   )
                 }
 
-                const label = getLabel(navItem.item.link, navItem.label)
                 return (
                   <NavigationMenuItem key={label} value={label}>
                     <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <div className="grid min-w-max p-6 gap-5">
-                        {navItem.item.items.map((item) => {
+                        {navItem.items.map((item) => {
                           const hasSubItems = item.items && item.items.length > 0
 
                           return (
                             <div key={item.id} className="flex flex-col">
-                              {!hasSubItems && navItem.item.link && (
-                                <div className="">
-                                  <Link
-                                    href={getUrl(item.link)}
-                                    target={item.link?.newTab ? '_blank' : undefined}
-                                  >
-                                    {getLabel(item.link, 'Menu Item')}
-                                  </Link>
-                                </div>
+                              {!hasSubItems && item.link && (
+                                <NavigationMenuLink asChild>
+                                  <RenderNavLink link={item.link} />
+                                </NavigationMenuLink>
                               )}
                               {hasSubItems && (
                                 <>
-                                  <div className=" border-b border-gray-200 pb-2">
+                                  <div className="border-b border-gray-200 pb-2">
                                     <span className="text-base font-medium">
-                                      {getLabel(item.link, 'Menu Item')}
+                                      {item.link?.label || (
+                                        <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                                      )}
                                     </span>
                                   </div>
                                   <ul className="space-y-2 pt-3 pl-4">
                                     {item.items?.map((subItem) => (
                                       <li key={subItem.id}>
-                                        {subItem.link ? (
-                                          <Link
-                                            href={getUrl(subItem.link)}
-                                            className="text-sm"
-                                            target={subItem.link?.newTab ? '_blank' : undefined}
-                                          >
-                                            {getLabel(subItem.link, 'Sub Menu Item')}
-                                          </Link>
-                                        ) : (
-                                          <span className="text-sm block">
-                                            {getLabel(subItem.link, 'Sub Menu Item')}
-                                          </span>
-                                        )}
+                                        <NavigationMenuLink asChild>
+                                          <RenderNavLink link={subItem.link} className="text-sm" />
+                                        </NavigationMenuLink>
                                       </li>
                                     ))}
                                   </ul>
@@ -165,11 +153,11 @@ export function HeaderClient({
                 )
               })}
               <NavigationMenuItem>
-                <Link href="/donate" legacyBehavior passHref>
-                  <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'py-0')}>
+                <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), 'py-0')} asChild>
+                  <RenderNavLink link={topLevelNavItems[topLevelNavItems.length - 1].link}>
                     <Button variant="callout">Donate</Button>
-                  </NavigationMenuLink>
-                </Link>
+                  </RenderNavLink>
+                </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
             <NavigationMenuViewport />
