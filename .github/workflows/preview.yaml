@@ -25,6 +25,7 @@ jobs:
             /home/runner/.turso/turso db destroy "${name}" --yes
           fi
           /home/runner/.turso/turso db create "${name}" --wait
+          /home/runner/.turso/turso db shell "${name}" .tables
           echo "name=${name}" >> "${GITHUB_OUTPUT}"
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
