@@ -3,6 +3,7 @@ import { Fragment } from 'react'
 import type { Page } from '@/payload-types'
 
 import { BiographyBlock } from '@/blocks/Biography/Biography'
+import { ButtonBlock } from '@/blocks/Button/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/Component'
@@ -42,6 +43,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   switch (blockType) {
     case 'biography':
       return <BiographyBlock {...block} payload={payload} />
+    case 'buttons':
+      return <ButtonBlock {...block} />
     case 'content':
       return <ContentBlock {...block} />
     case 'formBlock':

@@ -21,7 +21,6 @@ export const allBlocksPage: (
     hero: {
       type: 'lowImpact',
       richText: null,
-      links: [],
       media: null,
     },
     layout: [
