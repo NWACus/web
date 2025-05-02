@@ -409,7 +409,7 @@ export interface RoleAssignment {
  * via the `definition` "ButtonBlock".
  */
 export interface ButtonBlock {
-  button: {
+  buttons: {
     button: {
       type?: ('reference' | 'custom') | null;
       newTab?: boolean | null;
@@ -427,13 +427,13 @@ export interface ButtonBlock {
       /**
        * Choose how the link should be rendered.
        */
-      appearance?: ('default' | 'outline') | null;
+      appearance?: ('default' | 'secondary') | null;
     };
     id?: string | null;
   }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'buttons';
+  blockType: 'buttonBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1782,7 +1782,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         biography?: T | BiographyBlockSelect<T>;
-        buttons?: T | ButtonBlockSelect<T>;
+        buttonBlock?: T | ButtonBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
@@ -1824,7 +1824,7 @@ export interface BiographyBlockSelect<T extends boolean = true> {
  * via the `definition` "ButtonBlock_select".
  */
 export interface ButtonBlockSelect<T extends boolean = true> {
-  button?:
+  buttons?:
     | T
     | {
         button?:

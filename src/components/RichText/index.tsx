@@ -12,13 +12,17 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { BannerBlock } from '@/blocks/Banner/Component'
+import { ButtonBlock } from '@/blocks/Button/Component'
 import type {
   BannerBlock as BannerBlockProps,
+  ButtonBlock as ButtonBlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
-type NodeTypes = DefaultNodeTypes | SerializedBlockNode<MediaBlockProps | BannerBlockProps>
+type NodeTypes =
+  | DefaultNodeTypes
+  | SerializedBlockNode<BannerBlockProps | ButtonBlockProps | MediaBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc || {}
@@ -34,6 +38,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
     banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
+    buttonBlock: ({ node }) => <ButtonBlock {...node.fields} />,
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"
