@@ -20,12 +20,12 @@ export const ImageQuote = (props: Props) => {
       <div className="container md:px-0 py-16">
         <div className="grid md:grid-cols-12 gap-x-6 gap-y-6 justify-items-center">
           <div
-            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' && 'order-last'}`}
+            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' ? 'order-last ms-6' : 'me-6 '}`}
           >
             <ImageMedia imgClassName={cn(imgClassName)} resource={image} />
           </div>
           <div className={`md:col-span-8 self-center ${textColor}`}>
-            <blockquote className="border-s-4 ms-6 ps-6 ">
+            <blockquote className="border-s-4 ps-6 ">
               <div className="italic text-lg">{quote}</div>
               <div className="mt-4">{author}</div>
             </blockquote>
