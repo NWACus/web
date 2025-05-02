@@ -3,7 +3,6 @@ import { Fragment } from 'react'
 import type { Page } from '@/payload-types'
 
 import { BiographyBlock } from '@/blocks/Biography/Biography'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/Component'
@@ -12,6 +11,7 @@ import { ImageText } from '@/blocks/ImageText/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { MembershipBlock } from '@/blocks/Membership/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
 
@@ -42,8 +42,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   switch (blockType) {
     case 'biography':
       return <BiographyBlock {...block} payload={payload} />
-    case 'cta':
-      return <CallToActionBlock {...block} />
     case 'content':
       return <ContentBlock {...block} />
     case 'formBlock':
@@ -60,6 +58,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <LinkPreviewBlock {...block} />
     case 'mediaBlock':
       return <MediaBlock {...block} />
+    case 'membership':
+      return <MembershipBlock {...block} />
     case 'team':
       return <TeamBlock {...block} payload={payload} />
   }

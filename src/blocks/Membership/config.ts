@@ -1,17 +1,12 @@
 import type { Block } from 'payload'
 
-import {
-  FixedToolbarFeature,
-  HeadingFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 import { linkGroup } from '@/fields/linkGroup'
 
-export const CallToAction: Block = {
-  slug: 'cta',
-  interfaceName: 'CallToActionBlock',
+export const Membership: Block = {
+  slug: 'membership',
+  interfaceName: 'MembershipBlock',
   fields: [
     {
       name: 'richText',
@@ -20,9 +15,8 @@ export const CallToAction: Block = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
             FixedToolbarFeature(),
-            InlineToolbarFeature(),
           ]
         },
       }),
@@ -36,7 +30,7 @@ export const CallToAction: Block = {
     }),
   ],
   labels: {
-    plural: 'Calls to Action',
-    singular: 'Call to Action',
+    plural: 'Memberships',
+    singular: 'Membership',
   },
 }

@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload'
 
-import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
@@ -9,6 +8,7 @@ import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { Membership } from '@/blocks/Membership/config'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
@@ -97,7 +97,6 @@ export const Pages: CollectionConfig<'pages'> = {
               type: 'blocks',
               blocks: [
                 BiographyBlock,
-                CallToAction,
                 Content,
                 FormBlock,
                 ImageLinkGrid,
@@ -106,6 +105,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 ImageTextList,
                 LinkPreviewBlock,
                 MediaBlock,
+                Membership,
                 TeamBlock,
               ],
               required: true,
