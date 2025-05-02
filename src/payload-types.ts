@@ -348,6 +348,7 @@ export interface Page {
     | ContentBlock
     | FormBlock
     | ImageLinkGrid
+    | ImageQuote
     | ImageText
     | ImageTextList
     | LinkPreviewBlock
@@ -825,6 +826,20 @@ export interface ImageLinkGrid {
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageLinkGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageQuote".
+ */
+export interface ImageQuote {
+  color: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  quote: string;
+  author: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageQuote';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1884,6 +1899,7 @@ export interface PagesSelect<T extends boolean = true> {
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
+        imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
@@ -1985,6 +2001,19 @@ export interface ImageLinkGridSelect<T extends boolean = true> {
         caption?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageQuote_select".
+ */
+export interface ImageQuoteSelect<T extends boolean = true> {
+  color?: T;
+  imageLayout?: T;
+  image?: T;
+  quote?: T;
+  author?: T;
   id?: T;
   blockName?: T;
 }
