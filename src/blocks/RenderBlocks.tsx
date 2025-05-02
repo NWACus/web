@@ -43,7 +43,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   switch (blockType) {
     case 'biography':
       return <BiographyBlock {...block} payload={payload} />
-    case 'buttons':
+    case 'buttonBlock':
       return <ButtonBlock {...block} />
     case 'content':
       return <ContentBlock {...block} />

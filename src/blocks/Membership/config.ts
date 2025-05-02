@@ -5,6 +5,7 @@ import {
   FixedToolbarFeature,
   HeadingFeature,
   lexicalEditor,
+  SubscriptFeature,
 } from '@payloadcms/richtext-lexical'
 import { ButtonBlock } from '../Button/config'
 
@@ -19,11 +20,12 @@ export const Membership: Block = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
             FixedToolbarFeature(),
             BlocksFeature({
               blocks: [ButtonBlock],
             }),
+            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+            SubscriptFeature(),
           ]
         },
       }),
