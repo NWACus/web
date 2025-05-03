@@ -25,7 +25,9 @@ jobs:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Create a new database
         id: database
-        run: /home/runner/.turso/turso db create payloadcms-prod --wait
+        run: |
+          /home/runner/.turso/turso db create payloadcms-prod --wait
+          /home/runner/.turso/turso db shell payloadcms-prod .tables
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Record database connection URI and token
