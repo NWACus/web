@@ -8,7 +8,7 @@ import { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import {
   JSXConvertersFunction,
   LinkJSXConverter,
-  RichText as RichTextWithoutBlocks,
+  RichText as RichTextWithConverters,
 } from '@payloadcms/richtext-lexical/react'
 
 import { BannerBlock } from '@/blocks/Banner/Component'
@@ -61,7 +61,7 @@ type Props = {
 export default function RichText(props: Props) {
   const { className, enableProse = true, enableGutter = true, ...rest } = props
   return (
-    <RichTextWithoutBlocks
+    <RichTextWithConverters
       converters={jsxConverters}
       className={cn(
         {
