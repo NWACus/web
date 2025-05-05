@@ -3,7 +3,7 @@ import config from '@payload-config'
 import { headers } from 'next/headers'
 import { getPayload, RequiredDataFromCollectionSlug } from 'payload'
 
-export const maxDuration = 120 // seconds
+export const maxDuration = 240 // seconds
 
 export async function POST(): Promise<Response> {
   const payload = await getPayload({ config })
