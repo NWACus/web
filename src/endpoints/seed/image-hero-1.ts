@@ -5,7 +5,7 @@ export const imageHero1: (tenant: Tenant) => RequiredDataFromCollectionSlug<'med
   tenant: Tenant,
 ): RequiredDataFromCollectionSlug<'media'> => {
   return {
-    alt: 'Straight metallic shapes with a blue gradient',
     tenant: tenant.id,
+    alt: 'hero',
   }
 }

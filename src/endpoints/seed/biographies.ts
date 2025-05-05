@@ -1,16 +1,17 @@
+import { upsert } from '@/endpoints/seed/upsert'
 import { fetchFileByURL } from '@/endpoints/seed/utilities'
 import type { Biography, Media, Team, Tenant, User } from '@/payload-types'
-import { Payload, RequiredDataFromCollectionSlug } from 'payload'
+import { File, Payload, RequiredDataFromCollectionSlug } from 'payload'
 
 export const seedStaff = async (
   payload: Payload,
+  incremental: boolean,
   tenants: Record<string, Tenant>, // by tenant slug
   tenantsById: Record<number, Tenant>, // by id
   users: Record<string, User>, // by full name
 ): Promise<Record<string, Team[]>> => {
   payload.logger.info(`— Seeding staff photos...`)
 
-  const placeholders: Record<string, Media> = {}
   const placeholder = await fetchFileByURL(
     'https://upload.wikimedia.org/wikipedia/commons/f/f8/Profile_photo_placeholder_square.svg',
   ).catch((e) => payload.logger.error(e))
@@ -18,117 +19,88 @@ export const seedStaff = async (
     payload.logger.error(`Downloading placeholder photo returned null...`)
     return {}
   }
-  for (const tenant_key of Object.keys(tenants)) {
-    const tenant = tenants[tenant_key]
-    payload.logger.info(`Creating ${(tenant as Tenant).name} placeholder photo...`)
-    const headshot = await payload
-      .create({
-        collection: 'media',
+  const placeholders = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
+    ...Object.values(tenants).map(
+      (
+        tenant,
+      ): {
+        data: RequiredDataFromCollectionSlug<'media'>
+        file: File
+      } => ({
         data: {
           tenant: tenant.id,
           alt: 'placeholder',
         },
         file: placeholder,
-      })
-      .catch((e) => payload.logger.error(e))
+      }),
+    ),
+  ])
 
-    if (!headshot) {
-      payload.logger.error(`Creating ${(tenant as Tenant).name} placeholder photo...`)
-      return {}
-    }
-    placeholders[tenant_key] = headshot
-  }
-
-  const photoData = headshots(tenants)
-  const photos: Record<string, Media> = {}
-  for (const photo of photoData) {
-    payload.logger.info(`Creating ${photo.alt} photo...`)
+  const headshotData: { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] = []
+  for (const photo of headshots(tenants)) {
     const image = await fetchFileByURL(photo.url).catch((e) => payload.logger.error(e))
     if (!image) {
       payload.logger.error(`Downloading ${photo.alt} photo returned null...`)
       return {}
     }
-    const headshot = await payload
-      .create({
-        collection: 'media',
-        data: {
-          alt: photo.alt,
-        },
-        file: image,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!headshot) {
-      payload.logger.error(`Creating ${photo.alt} photo returned null...`)
-      return {}
-    }
-    photos[headshot.alt] = headshot
+    headshotData.push({
+      data: {
         tenant: photo.tenant.id,
+        alt: photo.alt,
+      },
+      file: image,
+    })
   }
+  const photos = await upsert(
+    'media',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.alt,
+    headshotData,
+  )
 
-  payload.logger.info(`— Seeding staff biographies...`)
-  const bioData = biographies(tenants, photos, placeholders, users)
-  const bios: Record<string, Biography> = {}
-  for (const bio of bioData) {
-    payload.logger.info(`Creating ${bio.name} bio for ${(bio.tenant as Tenant).name}...`)
-    const biography = await payload
-      .create({
-        collection: 'biographies',
-        data: bio,
-      })
-      .catch((e) => payload.logger.error(e))
+  const bios = await upsert(
+    'biographies',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.name || 'UNKNOWN',
+    biographies(tenants, tenantsById, photos, placeholders, users),
+  )
 
-    if (!biography) {
-      payload.logger.error(
-        `Creating ${bio.name} bio for ${(bio.tenant as Tenant).name} photo returned null...`,
-      )
-      return {}
-    }
-    if (!biography.name) {
-      payload.logger.error(
-        `Creating ${bio.name} bio for ${(bio.tenant as Tenant).name} photo returned no name...`,
-      )
-      return {}
-    }
-    bios[biography.name] = biography
-  }
-
-  payload.logger.info(`— Seeding staff teams...`)
   const teamData = teams(tenants, bios)
-  const allTeams: Record<string, Team[]> = {}
-  for (const team of teamData) {
-    payload.logger.info(`Creating ${team.name} team for ${(team.tenant as Tenant).name}...`)
-    const theTeam = await payload
-      .create({
-        collection: 'teams',
-        data: team,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!theTeam) {
-      payload.logger.error(
-        `Creating ${team.name} team for ${(team.tenant as Tenant).name} returned null...`,
-      )
-      return {}
+  const allTeams = await upsert(
+    'teams',
+    payload,
+    incremental,
+    tenantsById,
+    (team) => team.name,
+    teamData,
+  )
+  const orderedTeamsByTenant: Record<string, Team[]> = {}
+  for (const tenant in allTeams) {
+    orderedTeamsByTenant[tenant] = []
+    for (const team of teamData) {
+      if (typeof team.tenant === 'number' && tenantsById[team.tenant].slug === tenant) {
+        orderedTeamsByTenant[tenant].push(allTeams[tenant][team.name])
+      }
     }
-    const theseTeams = allTeams[(team.tenant as Tenant).slug] || []
-    theseTeams.push(theTeam)
-    allTeams[(team.tenant as Tenant).slug] = theseTeams
   }
-  return allTeams
+  return orderedTeamsByTenant
 }
 
 export const biographies: (
   tenants: Record<string, Tenant>, // by tenant slug
-  images: Record<string, Media>, // by full name (alt text)
-  placeholders: Record<string, Media>, // by tenant
   tenantsById: Record<number, Tenant>, // by tenant slug
+  images: Record<string, Record<string, Media>>, // by full name (alt text)
+  placeholders: Record<string, Record<string, Media>>, // by tenant
   users: Record<string, User>, // by full name
 ) => RequiredDataFromCollectionSlug<'biographies'>[] = (
   tenants: Record<string, Tenant>, // by tenant slug
-  images: Record<string, Media>, // by full name (alt text)
-  placeholders: Record<string, Media>, // by tenant
   tenantsById: Record<number, Tenant>, // by tenant slug
+  images: Record<string, Record<string, Media>>, // by full name (alt text)
+  placeholders: Record<string, Record<string, Media>>, // by tenant
   users: Record<string, User>, // by full name
 ): RequiredDataFromCollectionSlug<'biographies'>[] => {
   const biographies: RequiredDataFromCollectionSlug<'biographies'>[] = [
