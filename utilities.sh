@@ -4,7 +4,9 @@ function cleanup() {
   echo "[INFO] Stopping the development server..."
   for job in $( jobs -p ); do
     kill -SIGTERM "${job}"
-    wait "${job}"
+    if ! wait "${job}"; then
+      echo "[WARN] Child job ${job} exited with $?."
+    fi
   done
   rm -f login.json
   echo "[INFO] Database at dev.db seeded!"
