@@ -443,7 +443,7 @@ export const innerSeed = async ({
 
   if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {
     payload.logger.fatal(
-      "$PAYLOAD_SEED_PASSWORD missing and $ALLOW_SIMPLE_PASSWORD not set to 'true' - either opt into simple passwords or provide a seed password.",
+      "$PAYLOAD_SEED_PASSWORD missing and ALLOW_SIMPLE_PASSWORDS not set to 'true' - either opt into simple passwords or provide a seed password.",
     )
     throw new Error('Invalid request.')
   }
