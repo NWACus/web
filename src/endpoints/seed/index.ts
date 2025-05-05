@@ -8,7 +8,7 @@ import type {
 } from 'payload'
 
 import { page } from '@/endpoints/seed/pages/page'
-import { staffPage } from '@/endpoints/seed/pages/staff-page'
+import { whoWeArePage } from '@/endpoints/seed/pages/staff-page'
 import { fetchFileByURL } from '@/endpoints/seed/utilities'
 import {
   Brand,
@@ -971,7 +971,7 @@ export const innerSeed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
         allBlocksPage(tenant, images[tenant.name]['imageMountain']),
-        staffPage(tenant, teams, images[tenant.name]['hero'], images[tenant.name]['image2']),
+        whoWeArePage(tenant, teams, images[tenant.name]['hero'], images[tenant.name]['image2']),
         page(
           tenant,
           images[tenant.name]['hero'],

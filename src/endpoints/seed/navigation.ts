@@ -114,7 +114,7 @@ export const navigationSeed = (
           link: pageLink({ slug: 'agency-partners' }),
         },
         {
-          link: pageLink({ slug: 'staff' }),
+          link: pageLink({ slug: 'who-we-are' }),
         },
         {
           link: pageLink({ slug: 'annual-report-minutes' }),
