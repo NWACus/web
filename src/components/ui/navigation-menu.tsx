@@ -24,7 +24,7 @@ const NavigationMenuList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.List
     ref={ref}
-    className={cn('group flex flex-1 list-none items-center justify-center pb-5', className)}
+    className={cn('group flex flex-1 list-none items-center justify-center', className)}
     {...props}
   />
 ))
@@ -33,7 +33,7 @@ NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName
 const NavigationMenuItem = NavigationMenuPrimitive.Item
 
 const navigationMenuTriggerStyle = cva(
-  'group inline-flex w-max items-center justify-center rounded-md px-3.5 py-2.5 text-header-foreground font-medium transition-colors hover:bg-header hover:text-header-foreground focus:bg-header focus:text-header-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:text-header-foreground data-[state=open]:bg-header/50 data-[state=open]:hover:bg-header data-[state=open]:focus:bg-header',
+  'group inline-flex w-max items-center justify-center rounded-md px-3.5 pt-2.5 pb-5 text-header-foreground font-medium transition-colors hover:bg-header hover:text-white focus:bg-header focus:text-white focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:text-white data-[state=open]:bg-header/50 data-[state=open]:hover:bg-header data-[state=open]:focus:bg-header',
 )
 
 const NavigationMenuTrigger = React.forwardRef<
@@ -77,13 +77,13 @@ const NavigationMenuViewport = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     className={cn(
-      'absolute left-[var(--radix-navigation-menu-item-active-left)] top-full flex justify-center transition-all duration-100 pt-0.5',
+      'absolute left-[var(--radix-navigation-menu-item-active-left)] top-full flex justify-center transition-all duration-100',
       className,
     )}
   >
     <NavigationMenuPrimitive.Viewport
       className={cn(
-        'origin-top-center relative h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md bg-header text-white shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]',
+        'origin-top-center relative h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden bg-header text-white shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)] border-b border-x',
       )}
       ref={ref}
       {...props}

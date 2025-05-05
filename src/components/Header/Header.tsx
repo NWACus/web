@@ -54,7 +54,7 @@ export async function Header({ center }: { center?: string }) {
   const topLevelNavItems = await getTopLevelNavItems({ navigation })
 
   return (
-    <header className="bg-header">
+    <header className="bg-header border-b shadow-sm">
       <MobileNav
         topLevelNavItems={topLevelNavItems}
         banner={typeof banner !== 'number' ? banner : undefined}
