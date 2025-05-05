@@ -16,7 +16,11 @@ When changes to the schema or seed data need to occur, simply start with a new d
 
 ### Short-cut Bootstrapping
 
-Run the `./bootstrap.sh` script, which will create a new database file for you, add a `boostrap@avy.com` user, and grant them super-admin rights to three tenants. Then, run `pnpm dev` and start work straight away by logging in as that first user.
+Run `pnpm bootstrap`, which will create a new database file for you, add a `boostrap@avy.com` user, and grant them super-admin rights to three tenants. Then, run `pnpm dev` and start work straight away by logging in as that first user.
+
+### Seeding and Re-seeding the Database
+
+Run `pnpm seed`, which will create a new database file for you and add all the seed data. Then, run `pnpm dev` and start work straight away by logging in as any of the users defined in the seed corpus. If you've changed how the seed is done or the contents of some record, run `pnpm reseed` to incrementally update just the values that were changed.
 
 ### Creating a new database
 
