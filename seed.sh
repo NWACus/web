@@ -4,6 +4,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+if [[ -n "${CI:-}" ]]; then
+  set -o xtrace
+fi
+
 source "$( dirname "$( realpath "${BASH_SOURCE[0]}" )" )/utilities.sh"
 trap cleanup EXIT
 
