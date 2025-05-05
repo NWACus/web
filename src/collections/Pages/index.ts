@@ -4,6 +4,7 @@ import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
+import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { slugField } from '@/fields/slug'
 import { hero } from '@/heros/config'
@@ -101,6 +102,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 Content,
                 FormBlock,
                 ImageTextList,
+                LinkPreviewBlock,
                 MediaBlock,
                 TeamBlock,
               ],

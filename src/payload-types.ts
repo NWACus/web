@@ -339,7 +339,16 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (BiographyBlock | CallToActionBlock | ContentBlock | FormBlock | ImageTextList | MediaBlock | TeamBlock)[];
+  layout: (
+    | BiographyBlock
+    | CallToActionBlock
+    | ContentBlock
+    | FormBlock
+    | ImageTextList
+    | LinkPreviewBlock
+    | MediaBlock
+    | TeamBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -826,6 +835,42 @@ export interface ImageTextList {
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageTextList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkPreviewBlock".
+ */
+export interface LinkPreviewBlock {
+  cards?:
+    | {
+        image: number | Media;
+        title: string;
+        text: string;
+        button: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'secondary' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'linkPreview';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1783,6 +1828,7 @@ export interface PagesSelect<T extends boolean = true> {
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
+        linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
@@ -1883,6 +1929,32 @@ export interface ImageTextListSelect<T extends boolean = true> {
         image?: T;
         title?: T;
         richText?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkPreviewBlock_select".
+ */
+export interface LinkPreviewBlockSelect<T extends boolean = true> {
+  cards?:
+    | T
+    | {
+        image?: T;
+        title?: T;
+        text?: T;
+        button?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
         id?: T;
       };
   id?: T;
