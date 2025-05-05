@@ -15,8 +15,8 @@ export const post1: (
   return {
     slug: 'digital-horizons',
     _status: 'published',
-    authors: [author],
-    tenant: tenant,
+    authors: [author.id],
+    tenant: tenant.id,
     content: {
       root: {
         type: 'root',

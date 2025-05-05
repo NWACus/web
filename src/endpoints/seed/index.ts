@@ -295,8 +295,8 @@ export const innerSeed = async ({
         dark: '240 5.2% 33.9%',
       },
       palettes: {
-        light: palettes['Zinc Light'],
-        dark: palettes['Zinc Dark'],
+        light: palettes['Zinc Light'].id,
+        dark: palettes['Zinc Dark'].id,
       },
     },
     {
@@ -306,8 +306,8 @@ export const innerSeed = async ({
         dark: '217.2 91.2% 59.8%',
       },
       palettes: {
-        light: palettes['Blue Light'],
-        dark: palettes['Blue Dark'],
+        light: palettes['Blue Light'].id,
+        dark: palettes['Blue Dark'].id,
       },
     },
   ]
@@ -419,6 +419,9 @@ export const innerSeed = async ({
       return
     }
     tenants[data.slug] = tenant
+  const tenantsById: Record<number, Tenant> = {}
+  for (const tenant in tenants) {
+    tenantsById[tenants[tenant].id] = tenants[tenant]
   }
 
   payload.logger.info(`— Seeding brand media...`)
@@ -484,7 +487,7 @@ export const innerSeed = async ({
         {
           name: 'logo',
           data: {
-            tenant: tenant,
+            tenant: tenant.id,
             alt: 'logo',
           },
           file: logos[tenant.slug],
@@ -492,7 +495,7 @@ export const innerSeed = async ({
         {
           name: 'banner',
           data: {
-            tenant: tenant,
+            tenant: tenant.id,
             alt: 'banner',
           },
           file: banners[tenant.slug],
@@ -537,10 +540,10 @@ export const innerSeed = async ({
   const brandData: RequiredDataFromCollectionSlug<'brands'>[] = [
     ...Object.values(tenants).map(
       (tenant): RequiredDataFromCollectionSlug<'brands'> => ({
-        tenant: tenant,
-        logo: brandImages[tenant.name]['logo'],
-        banner: brandImages[tenant.name]['banner'],
-        theme: themes[themesByTenant[tenant.slug]],
+        tenant: tenant.id,
+        logo: brandImages[tenant.slug]['logo'].id,
+        banner: brandImages[tenant.slug]['banner'].id,
+        theme: themes[themesByTenant[tenant.slug]].id,
       }),
     ),
   ]
@@ -811,27 +814,27 @@ export const innerSeed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'categories'>[] => [
         {
           title: 'Technology',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'News',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Finance',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Design',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Software',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Engineering',
-          tenant: tenant,
+          tenant: tenant.id,
         },
       ])
       .flat(),

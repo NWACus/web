@@ -5,7 +5,7 @@ export const imageMountain: (tenant: Tenant) => RequiredDataFromCollectionSlug<'
   tenant: Tenant,
 ): RequiredDataFromCollectionSlug<'media'> => {
   return {
-    tenant: tenant,
     alt: 'Mountain snow',
+    tenant: tenant.id,
   }
 }
