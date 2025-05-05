@@ -20,9 +20,11 @@ import { TopLevelNavItem } from './utils'
 
 export const MobileNav = ({
   topLevelNavItems,
+  donateNavItem,
   banner,
 }: {
   topLevelNavItems: TopLevelNavItem[]
+  donateNavItem?: TopLevelNavItem
   banner?: Media
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -85,12 +87,11 @@ export const MobileNav = ({
               />
             </Link>
           )}
-          <RenderNavLink
-            link={topLevelNavItems[topLevelNavItems.length - 1].link}
-            onClick={() => setMobileNavOpen(false)}
-          >
-            <Button variant="callout">Donate</Button>
-          </RenderNavLink>
+          {donateNavItem && (
+            <RenderNavLink link={donateNavItem.link} onClick={() => setMobileNavOpen(false)}>
+              <Button variant="callout">{donateNavItem.label}</Button>
+            </RenderNavLink>
+          )}
         </div>
       </div>
       <DialogPortal>
@@ -103,7 +104,7 @@ export const MobileNav = ({
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>
             <nav className="divide-y divide-header-foreground/20 px-2">
-              {topLevelNavItems.slice(0, -1).map((navItem) => {
+              {topLevelNavItems.map((navItem) => {
                 const label = navItem.label ?? navItem.link?.label
 
                 if (!label) return null

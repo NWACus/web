@@ -13,7 +13,7 @@ export const navigationSeed = (
   }: { slug?: string; url?: string; label?: string; newTab?: boolean } & (
     | { slug: string }
     | { url: string }
-  )): NonNullable<NonNullable<Navigation['weather']>['link']> => {
+  )): NonNullable<NonNullable<Navigation['donate']>['link']> => {
     if (url) {
       return {
         type: 'external',
@@ -163,7 +163,7 @@ export const navigationSeed = (
       ],
     },
     donate: {
-      link: pageLink({ slug: 'donate-membership' }),
+      link: pageLink({ slug: 'donate-membership', label: 'Donate' }),
     },
   }
 }

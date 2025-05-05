@@ -19,7 +19,13 @@ import { TopLevelNavItem } from './utils'
 const underlineHoverClassName =
   "relative after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]"
 
-export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNavItem[] }) => {
+export const DesktopNav = ({
+  topLevelNavItems,
+  donateNavItem,
+}: {
+  topLevelNavItems: TopLevelNavItem[]
+  donateNavItem?: TopLevelNavItem
+}) => {
   const [activeMenuItem, setActiveMenuItem] = useState<string>()
   const containerReference = useRef<HTMLElement>(null)
 
@@ -71,7 +77,7 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
       onValueChange={setActiveMenuItem}
     >
       <NavigationMenuList>
-        {topLevelNavItems.slice(0, -1).map((navItem) => {
+        {topLevelNavItems.map((navItem) => {
           const label = navItem.label || navItem.link?.label
 
           if (!label) return null
@@ -136,13 +142,15 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
             </NavigationMenuItem>
           )
         })}
-        <NavigationMenuItem>
-          <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
-            <RenderNavLink link={topLevelNavItems[topLevelNavItems.length - 1].link}>
-              <Button variant="callout">Donate</Button>
-            </RenderNavLink>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+        {donateNavItem && (
+          <NavigationMenuItem>
+            <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+              <RenderNavLink link={donateNavItem.link}>
+                <Button variant="callout">{donateNavItem.label}</Button>
+              </RenderNavLink>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
       </NavigationMenuList>
       <NavigationMenuViewport />
     </NavigationMenu>

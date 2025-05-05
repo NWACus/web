@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ImageMedia } from '../Media/ImageMedia'
 import { DesktopNav } from './DesktopNav.client'
 import { MobileNav } from './MobileNav.client'
-import { getTopLevelNavItems } from './utils'
+import { convertToNavLink, getTopLevelNavItems, TopLevelNavItem } from './utils'
 
 export async function Header({ center }: { center?: string }) {
   const { isEnabled: draft } = await draftMode()
@@ -55,10 +55,24 @@ export async function Header({ center }: { center?: string }) {
 
   const topLevelNavItems = await getTopLevelNavItems({ navigation })
 
+  let donateNavItem: TopLevelNavItem | undefined = undefined
+
+  if (navigation.donate?.link) {
+    const link = convertToNavLink(navigation.donate.link)
+
+    if (link) {
+      donateNavItem = {
+        label: link.label,
+        link,
+      }
+    }
+  }
+
   return (
     <header className="bg-header border-b shadow-sm">
       <MobileNav
         topLevelNavItems={topLevelNavItems}
+        donateNavItem={donateNavItem}
         banner={typeof banner !== 'number' ? banner : undefined}
       />
 
@@ -73,7 +87,7 @@ export async function Header({ center }: { center?: string }) {
             />
           </Link>
         )}
-        <DesktopNav topLevelNavItems={topLevelNavItems} />
+        <DesktopNav topLevelNavItems={topLevelNavItems} donateNavItem={donateNavItem} />
       </div>
     </header>
   )

@@ -52,7 +52,6 @@ function topLevelNavItem(
   tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support'],
   label: string,
 ): TopLevelNavItem[] {
-  // If tab doesn't exist, return empty array
   if (!tab) {
     return []
   }
@@ -61,15 +60,6 @@ function topLevelNavItem(
     label,
   }
 
-  // Process link if it exists and is valid
-  if (tab.link) {
-    const navLink = convertToNavLink(tab.link)
-    if (navLink) {
-      result.link = navLink
-    }
-  }
-
-  // Process dropdown items if they exist
   if (tab.items && tab.items.length > 0) {
     result.items = tab.items
       .map((item) => {
@@ -79,7 +69,6 @@ function topLevelNavItem(
           id: item.id!,
         }
 
-        // Add link if it exists and is valid
         if (item.link) {
           const convertedLink = convertToNavLink(item.link)
           if (convertedLink) {
@@ -87,7 +76,6 @@ function topLevelNavItem(
           }
         }
 
-        // Process nested items if they exist
         if (item.items && item.items.length > 0) {
           navItem.items = item.items
             .map((nestedItem) => {
@@ -108,7 +96,6 @@ function topLevelNavItem(
             })
             .filter(Boolean) as NavItem[]
 
-          // Only include items array if it has elements
           if (navItem.items && navItem.items.length === 0) {
             delete navItem.items
           }
@@ -118,7 +105,6 @@ function topLevelNavItem(
       })
       .filter(Boolean) as NavItem[]
 
-    // Only include items if they exist
     if (result.items && result.items.length === 0) {
       delete result.items
     }
@@ -130,9 +116,10 @@ function topLevelNavItem(
 
 /**
  * Helper function to convert a payload navLink (@/fields/navLinks) to a frontend NavLink
- * Returns undefined if the link is invalid
+ * Throws if the link is missing expected data.
+ * Returns undefined if the link is invalid.
  */
-function convertToNavLink(link: {
+export function convertToNavLink(link: {
   type?: ('internal' | 'external') | null
   reference?:
     | ({
@@ -147,13 +134,11 @@ function convertToNavLink(link: {
   label?: string | null
   newTab?: boolean | null
 }): NavLink | undefined {
-  // Extract label from link or reference
   let linkLabel: string | undefined = link.label || undefined
 
-  // Handle external links
   if (link.type === 'external' && link.url) {
     if (!linkLabel) {
-      return undefined // External links must have a label
+      throw new Error(`Label not set for external link with url ${link.url}`)
     }
 
     return {
@@ -164,7 +149,6 @@ function convertToNavLink(link: {
     }
   }
 
-  // Handle internal links with references
   if (
     link.type === 'internal' &&
     link.reference &&
@@ -172,24 +156,25 @@ function convertToNavLink(link: {
   ) {
     const reference = link.reference
 
-    // If reference.value is a number, don't render this nav item
     if (typeof reference.value === 'number') {
-      return undefined
+      throw new Error(
+        `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
+      )
     }
 
-    // Try to get title from reference value if it exists
     if (
       !linkLabel &&
       typeof reference.value === 'object' &&
       reference.value &&
       'title' in reference.value
     ) {
-      linkLabel = (reference.value as any).title
+      linkLabel = reference.value.title
     }
 
-    // If we still don't have a label, don't render this nav item
     if (!linkLabel) {
-      return undefined
+      throw new Error(
+        `Could not determine label for link with reference ${JSON.stringify(reference)}`,
+      )
     }
 
     return {
@@ -199,10 +184,9 @@ function convertToNavLink(link: {
     }
   }
 
-  // Handle internal links with URLs (relative paths)
   if (link.url) {
     if (!linkLabel) {
-      return undefined // Internal relative links must have a label
+      throw new Error(`Label not set for internal relative link with url ${link.url}`)
     }
 
     return {
@@ -212,7 +196,6 @@ function convertToNavLink(link: {
     }
   }
 
-  // Return undefined for invalid links
   return undefined
 }
 
@@ -254,5 +237,4 @@ export const getTopLevelNavItems = async ({
   },
   ...topLevelNavItem(navigation.about, 'About'),
   ...topLevelNavItem(navigation.support, 'Support'),
-  ...topLevelNavItem(navigation.donate, 'Donate'),
 ]
