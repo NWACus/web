@@ -17,7 +17,7 @@ import { RenderNavLink } from './RenderNavLink'
 import { TopLevelNavItem } from './utils'
 
 const underlineHoverClassName =
-  "relative after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]"
+  "relative after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]"
 
 export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNavItem[] }) => {
   const [activeMenuItem, setActiveMenuItem] = useState<string>()
@@ -109,20 +109,19 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
                         {hasSubItems && (
                           <>
                             <div className="px-2 py-1.5">
-                              <div className="text-base font-medium border-b border-b-accent/90 border-gray-200 pb-1 w-full">
-                                {item.link?.label || (
-                                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
-                                )}
+                              <div className="text-base w-full inline-flex items-center justify-between">
+                                {item.link?.label}{' '}
+                                <ChevronDown
+                                  className="relative top-[1px] ml-0.5 h-6 w-6 transition duration-300 group-data-[state=open]:rotate-180"
+                                  aria-hidden="true"
+                                />
                               </div>
                             </div>
-                            <ul className="flex flex-col gap-2.5 pt-3 pl-4">
+                            <ul className="flex flex-col gap-2.5 pt-3 pb-1 pl-4 w-full">
                               {item.items?.map((subItem) => (
-                                <li key={subItem.id}>
+                                <li key={subItem.id} className={underlineHoverClassName}>
                                   <NavigationMenuLink asChild>
-                                    <RenderNavLink
-                                      link={subItem.link}
-                                      className={cn('py-1.5 px-2', underlineHoverClassName)}
-                                    />
+                                    <RenderNavLink link={subItem.link} className="py-1.5 px-2" />
                                   </NavigationMenuLink>
                                 </li>
                               ))}
