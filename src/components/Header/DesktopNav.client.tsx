@@ -20,7 +20,7 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
   const [activeMenuItem, setActiveMenuItem] = useState<string>()
   const containerReference = useRef<HTMLElement>(null)
 
-  useEffect(() => {
+  useEffect(function positionDropdownUnderActiveMenuItem() {
     const container = containerReference.current
 
     if (!container) return
