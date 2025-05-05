@@ -76,7 +76,7 @@ function topLevelNavItem(
         if (!item) return null
 
         const navItem: NavItem = {
-          id: item.id || generateRandomId(),
+          id: item.id!,
         }
 
         // Add link if it exists and is valid
@@ -94,7 +94,7 @@ function topLevelNavItem(
               if (!nestedItem) return null
 
               const nestedNavItem: NavItem = {
-                id: nestedItem.id || generateRandomId(),
+                id: nestedItem.id!,
               }
 
               if (nestedItem.link) {
@@ -214,13 +214,6 @@ function convertToNavLink(link: {
 
   // Return undefined for invalid links
   return undefined
-}
-
-/**
- * Helper function to generate a random ID for items that don't have one
- */
-function generateRandomId(): string {
-  return Math.random().toString(36).substring(2, 9)
 }
 
 export const getTopLevelNavItems = async ({
