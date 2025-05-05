@@ -29,7 +29,9 @@ export async function Header({ center }: { center?: string }) {
   const banner = brands.docs[0]?.banner
 
   if (brands.docs.length > 0 && typeof banner !== 'object') {
-    payload.logger.error(`Banner for tenant ${center} missing`)
+    throw new Error(
+      `Depth not set correctly when querying brands. Banner for tenant ${center} not an object.`,
+    )
   }
 
   const navigationRes = await payload.find({
