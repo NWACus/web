@@ -17,6 +17,7 @@ import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { Tenant } from '@/payload-types'
@@ -227,6 +228,7 @@ export const Posts: CollectionConfig<'posts'> = {
       ],
     },
     ...slugField(),
+    contentHashField(),
   ],
   hooks: {
     afterChange: [revalidatePost],

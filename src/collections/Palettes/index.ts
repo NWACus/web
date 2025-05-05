@@ -1,5 +1,6 @@
 import { accessByGlobalRole } from '@/access/byGlobalRole'
 import { colorField } from '@/fields/ColorField'
+import { contentHashField } from '@/fields/contentHashField'
 import type { CollectionConfig } from 'payload'
 
 export const Palettes: CollectionConfig = {
@@ -49,5 +50,6 @@ export const Palettes: CollectionConfig = {
       'chart-4',
       'chart-5',
     ].map((name) => colorField(name)),
+    contentHashField(),
   ],
 }
