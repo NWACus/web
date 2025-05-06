@@ -55,6 +55,7 @@ function topLevelNavItem(
         if (!item) return null
 
         const navItem: NavItem = {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           id: item.id!,
         }
 
@@ -71,6 +72,7 @@ function topLevelNavItem(
               if (!nestedItem) return null
 
               const nestedNavItem: NavItem = {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 id: nestedItem.id!,
               }
 
