@@ -70,10 +70,10 @@ function topLevelNavItem(
 
         if (item.items && item.items.length > 0) {
           navItem.items = item.items
-            .map((nestedItem) => {
+            .map((nestedItem, index) => {
               if (!nestedItem) return null
 
-              invariant(nestedItem.id, `Tab ${label}[${item.label}][${index}] has no id.`)
+              invariant(nestedItem.id, `Tab ${label}[${item.id}][${index}] has no id.`)
 
               const nestedNavItem: NavItem = {
                 id: nestedItem.id,
@@ -91,7 +91,7 @@ function topLevelNavItem(
 
               return nestedNavItem.link ? nestedNavItem : null
             })
-            .filter((item): item is NavItem => Boolean(item))
+            .filter(Boolean) as NavItem[]
 
           if (navItem.items && navItem.items.length === 0) {
             delete navItem.items
@@ -100,7 +100,7 @@ function topLevelNavItem(
 
         return navItem.link || (navItem.items && navItem.items.length > 0) ? navItem : null
       })
-      .filter((item): item is NavItem => Boolean(item))
+      .filter(Boolean) as NavItem[]
 
     if (result.items && result.items.length === 0) {
       delete result.items
