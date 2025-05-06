@@ -6,7 +6,6 @@ export type NavLink =
       type: 'internal'
       label: string
       url: string
-      newTab?: undefined
     }
   | {
       type: 'external'
