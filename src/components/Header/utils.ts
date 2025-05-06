@@ -1,4 +1,5 @@
 import { Navigation, Page, Post } from '@/payload-types'
+import invariant from 'tiny-invariant'
 
 export type NavLink =
   | {
@@ -54,9 +55,10 @@ function topLevelNavItem(
       .map((item) => {
         if (!item) return null
 
+        invariant(item.id, `Tab ${label} has an item without an id.`)
+
         const navItem: NavItem = {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          id: item.id!,
+          id: item.id,
         }
 
         if (item.link) {
@@ -71,9 +73,10 @@ function topLevelNavItem(
             .map((nestedItem) => {
               if (!nestedItem) return null
 
+              invariant(nestedItem.id, `Tab ${label} > item ${item.id} has an item without an id.`)
+
               const nestedNavItem: NavItem = {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                id: nestedItem.id!,
+                id: nestedItem.id,
               }
 
               if (nestedItem.link) {
