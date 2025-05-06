@@ -91,7 +91,7 @@ function topLevelNavItem(
 
               return nestedNavItem.link ? nestedNavItem : null
             })
-            .filter(Boolean) as NavItem[]
+            .filter((item): item is NavItem => Boolean(item))
 
           if (navItem.items && navItem.items.length === 0) {
             delete navItem.items
@@ -100,7 +100,7 @@ function topLevelNavItem(
 
         return navItem.link || (navItem.items && navItem.items.length > 0) ? navItem : null
       })
-      .filter(Boolean) as NavItem[]
+      .filter((item): item is NavItem => Boolean(item))
 
     if (result.items && result.items.length === 0) {
       delete result.items
