@@ -1,6 +1,7 @@
 'use client'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import {
@@ -14,7 +15,7 @@ import {
   NavigationMenuViewport,
 } from '../ui/navigation-menu'
 import { RenderNavLink } from './RenderNavLink'
-import { TopLevelNavItem } from './utils'
+import { NavItem, TopLevelNavItem } from './utils'
 
 const underlineHoverClassName =
   "relative after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]"
@@ -28,6 +29,18 @@ export const DesktopNav = ({
 }) => {
   const [activeMenuItem, setActiveMenuItem] = useState<string>()
   const containerReference = useRef<HTMLElement>(null)
+
+  const pathname = usePathname()
+
+  function hasActiveDescendent(navItem: NavItem) {
+    if (navItem.link?.type === 'internal' && navItem.link?.url === pathname) {
+      return true
+    }
+    if (navItem.items) {
+      return navItem.items.some(hasActiveDescendent)
+    }
+    return false
+  }
 
   useEffect(function positionDropdownUnderActiveMenuItem() {
     const container = containerReference.current
@@ -84,8 +97,21 @@ export const DesktopNav = ({
 
           if (!navItem.items) {
             return (
-              <NavigationMenuItem key={label} value={label} asChild>
-                <RenderNavLink link={navItem.link} className={navigationMenuTriggerStyle()} />
+              <NavigationMenuItem key={label} value={label}>
+                <NavigationMenuLink
+                  asChild
+                  active={navItem.link?.type === 'internal' && navItem.link?.url === pathname}
+                >
+                  <RenderNavLink
+                    link={navItem.link}
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      navItem.link?.type === 'internal' &&
+                        navItem.link?.url === pathname &&
+                        'text-white hover:text-white/90',
+                    )}
+                  />
+                </NavigationMenuLink>
               </NavigationMenuItem>
             )
           }
@@ -93,7 +119,10 @@ export const DesktopNav = ({
           return (
             <NavigationMenuItem key={label} value={label}>
               <NavigationMenuTrigger
-                className={cn(activeMenuItem === label && 'text-white hover:text-white/90')}
+                className={cn(
+                  activeMenuItem === label && 'text-white hover:text-white/90',
+                  navItem.items.some(hasActiveDescendent) && 'text-white hover:text-white/90',
+                )}
               >
                 {label}
               </NavigationMenuTrigger>
@@ -108,14 +137,25 @@ export const DesktopNav = ({
                           <NavigationMenuLink asChild>
                             <RenderNavLink
                               link={item.link}
-                              className={cn('py-1.5 px-2', underlineHoverClassName)}
+                              className={cn(
+                                'py-1.5 px-2',
+                                underlineHoverClassName,
+                                item.link.type === 'internal' &&
+                                  item.link.url === pathname &&
+                                  'after:w-[calc(100%-1rem)]',
+                              )}
                             />
                           </NavigationMenuLink>
                         )}
                         {hasSubItems && (
                           <>
                             <div className="px-2 py-1.5">
-                              <div className="text-base w-full inline-flex items-center justify-between">
+                              <div
+                                className={cn(
+                                  'text-base w-full inline-flex items-center justify-between',
+                                  item.items?.some(hasActiveDescendent) && 'font-bold',
+                                )}
+                              >
                                 {item.link?.label}{' '}
                                 <ChevronDown
                                   className="relative top-[1px] ml-0.5 h-6 w-6 transition duration-300 group-data-[state=open]:rotate-180"
@@ -123,11 +163,20 @@ export const DesktopNav = ({
                                 />
                               </div>
                             </div>
-                            <ul className="flex flex-col gap-2.5 pt-3 pb-1 pl-4 w-full">
+                            <ul className="flex flex-col gap-1 py-1 pl-4 w-full">
                               {item.items?.map((subItem) => (
-                                <li key={subItem.id} className={underlineHoverClassName}>
+                                <li
+                                  key={subItem.id}
+                                  className={cn(
+                                    'py-1.5',
+                                    underlineHoverClassName,
+                                    subItem.link?.type === 'internal' &&
+                                      subItem.link?.url === pathname &&
+                                      'after:w-[calc(100%-1rem)]',
+                                  )}
+                                >
                                   <NavigationMenuLink asChild>
-                                    <RenderNavLink link={subItem.link} className="py-1.5 px-2" />
+                                    <RenderNavLink link={subItem.link} className="px-2" />
                                   </NavigationMenuLink>
                                 </li>
                               ))}

@@ -2,19 +2,9 @@ import { Navigation, Page, Post } from '@/payload-types'
 
 export type NavLink =
   | {
-      type: 'internal-reference'
-      label: string
-      reference:
-        | { relationTo: 'pages'; value: number | Page }
-        | { relationTo: 'posts'; value: number | Post }
-      url?: undefined
-      newTab?: undefined
-    }
-  | {
-      type: 'internal-relative'
+      type: 'internal'
       label: string
       url: string
-      reference?: undefined
       newTab?: undefined
     }
   | {
@@ -22,7 +12,6 @@ export type NavLink =
       label: string
       url: string
       newTab: boolean
-      reference?: undefined
     }
 
 export type NavItem = {
@@ -70,7 +59,7 @@ function topLevelNavItem(
         }
 
         if (item.link) {
-          const convertedLink = convertToNavLink(item.link)
+          const convertedLink = convertToNavLink(item.link, [label.toLowerCase()])
           if (convertedLink) {
             navItem.link = convertedLink
           }
@@ -86,7 +75,10 @@ function topLevelNavItem(
               }
 
               if (nestedItem.link) {
-                const convertedNestedLink = convertToNavLink(nestedItem.link)
+                const convertedNestedLink = convertToNavLink(nestedItem.link, [
+                  label.toLowerCase(),
+                  ...(navItem.link ? [navItem.link.label.toLowerCase()] : []),
+                ])
                 if (convertedNestedLink) {
                   nestedNavItem.link = convertedNestedLink
                 }
@@ -119,21 +111,24 @@ function topLevelNavItem(
  * Throws if the link is missing expected data.
  * Returns undefined if the link is invalid.
  */
-export function convertToNavLink(link: {
-  type?: ('internal' | 'external') | null
-  reference?:
-    | ({
-        relationTo: 'pages'
-        value: number | Page
-      } | null)
-    | ({
-        relationTo: 'posts'
-        value: number | Post
-      } | null)
-  url?: string | null
-  label?: string | null
-  newTab?: boolean | null
-}): NavLink | undefined {
+export function convertToNavLink(
+  link: {
+    type?: ('internal' | 'external') | null
+    reference?:
+      | ({
+          relationTo: 'pages'
+          value: number | Page
+        } | null)
+      | ({
+          relationTo: 'posts'
+          value: number | Post
+        } | null)
+    url?: string | null
+    label?: string | null
+    newTab?: boolean | null
+  },
+  parentItems?: string[],
+): NavLink | undefined {
   let linkLabel: string | undefined = link.label || undefined
 
   if (link.type === 'external' && link.url) {
@@ -177,10 +172,19 @@ export function convertToNavLink(link: {
       )
     }
 
+    let url =
+      link.reference.relationTo === 'pages'
+        ? `/${reference.value.slug}`
+        : `/posts/${reference.value.slug}`
+
+    if (parentItems?.length && parentItems.length > 0) {
+      url = `/${parentItems.join('/')}${url}`
+    }
+
     return {
-      type: 'internal-reference',
+      type: 'internal',
       label: linkLabel,
-      reference: reference,
+      url,
     }
   }
 
@@ -189,10 +193,16 @@ export function convertToNavLink(link: {
       throw new Error(`Label not set for internal relative link with url ${link.url}`)
     }
 
+    let url = link.url
+
+    if (parentItems?.length && parentItems.length > 0) {
+      url = `/${parentItems.join('/')}${url.startsWith('/') ? url : `/${url}`}`
+    }
+
     return {
-      type: 'internal-relative',
+      type: 'internal',
       label: linkLabel,
-      url: link.url,
+      url,
     }
   }
 
@@ -207,7 +217,7 @@ export const getTopLevelNavItems = async ({
   {
     link: {
       label: 'Forecasts',
-      type: 'internal-relative',
+      type: 'internal',
       url: '/forecasts/avalanche',
     },
   },
@@ -215,7 +225,7 @@ export const getTopLevelNavItems = async ({
   {
     link: {
       label: 'Observations',
-      type: 'internal-relative',
+      type: 'internal',
       url: '/observations',
     },
   },
@@ -224,14 +234,14 @@ export const getTopLevelNavItems = async ({
   {
     link: {
       label: 'Blog',
-      type: 'internal-relative',
+      type: 'internal',
       url: '/posts',
     },
   },
   {
     link: {
       label: 'Events',
-      type: 'internal-relative',
+      type: 'internal',
       url: '/events',
     },
   },

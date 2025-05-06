@@ -27,27 +27,11 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
     )
   }
 
-  if (link.type === 'internal-reference' && link.reference) {
-    const url =
-      link.reference.relationTo === 'pages'
-        ? `/${typeof link.reference.value === 'object' ? link.reference.value.slug : link.reference.value}`
-        : `/posts/${typeof link.reference.value === 'object' ? link.reference.value.slug : link.reference.value}`
-
-    return (
-      <Link href={url} className={className} onClick={onClick}>
-        {children || link.label}
-      </Link>
-    )
-  }
-
-  if (link.type === 'internal-relative') {
+  if (link.type === 'internal') {
     return (
       <Link href={link.url} className={className} onClick={onClick}>
         {children || link.label}
       </Link>
     )
   }
-
-  // Fallback
-  return <span className={className}>{children}</span>
 }
