@@ -69,14 +69,16 @@ export async function Header({ center }: { center?: string }) {
   }
 
   return (
-    <header className="bg-header border-b shadow-sm">
+    <header className="bg-header">
       <MobileNav
         topLevelNavItems={topLevelNavItems}
         donateNavItem={donateNavItem}
         banner={typeof banner !== 'number' ? banner : undefined}
       />
+      {/* content padding since mobile nav is fixed */}
+      <div className="lg:hidden h-[64px] bg-background" />
 
-      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8">
+      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8 border-b shadow-sm">
         {banner && (
           <Link href="/" className="w-fit">
             <ImageMedia
