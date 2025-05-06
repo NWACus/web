@@ -50,6 +50,13 @@ export const navigationSeed = (
     weather: {
       items: [
         {
+          link: {
+            type: 'internal',
+            label: 'Weather Stations',
+            url: '/stations/map',
+          },
+        },
+        {
           link: pageLink({
             slug: 'weather-tools',
           }),
@@ -102,6 +109,14 @@ export const navigationSeed = (
         },
         {
           link: pageLink({ slug: 'beacon-parks' }),
+        },
+        {
+          link: {
+            type: 'external',
+            label: 'Seguridad Básica de Avalanchas',
+            url: 'https://www.sawtoothavalanche.com/seguridad-de-avalanchas-basica/',
+            newTab: true,
+          },
         },
       ],
     },

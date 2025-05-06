@@ -127,7 +127,7 @@ export const DesktopNav = ({
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="grid min-w-max max-h-[calc(100vh-225px)] overflow-y-auto p-4 pt-3 gap-2">
+                <div className="grid min-w-max max-h-[calc(100vh-225px)] overflow-y-auto px-4 pt-2 pb-5 gap-2">
                   {navItem.items.map((item) => {
                     const hasSubItems = item.items && item.items.length > 0
 

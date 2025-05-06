@@ -1,3 +1,5 @@
+import { cn } from '@/utilities/ui'
+import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import { NavLink } from './utils'
@@ -19,10 +21,13 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
       <Link
         href={link.url}
         target={link.newTab ? '_blank' : undefined}
-        className={className}
+        className={cn(link.newTab && 'flex items-center', className)}
         onClick={onClick}
       >
         {children || link.label}
+        {link.newTab && (
+          <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-0.5 text-neutral-50/70" />
+        )}
       </Link>
     )
   }
