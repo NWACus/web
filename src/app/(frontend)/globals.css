@@ -104,30 +104,6 @@
   .dark.nwac {
     /* Placeholder for a dark theme for each avalanche center */
   }
-
-  .nwac {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    --primary: 217 62% 21%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 193 42% 74%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --header: 217 62% 21%;
-    --header-foreground: 193 42% 74%;
-
-    --footer: 300 1% 22%;
-    --footer-foreground: 0 0% 100%;
-
-    --callout: 69 94% 64%;
-    --callout-foreground: 240 6% 10%;
-  }
-
-  .dark.nwac {
-    /* Placeholder for a dark theme for each avalanche center */
-  }
 }
 
 @layer base {
