@@ -73,7 +73,7 @@ function topLevelNavItem(
             .map((nestedItem) => {
               if (!nestedItem) return null
 
-              invariant(nestedItem.id, `Tab ${label} > item ${item.id} has an item without an id.`)
+              invariant(nestedItem.id, `Tab ${label}[${item.label}][${index}] has no id.`)
 
               const nestedNavItem: NavItem = {
                 id: nestedItem.id,
