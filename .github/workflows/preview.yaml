@@ -18,8 +18,11 @@ jobs:
       - name: Create a new database for the preview
         id: database
         run: |
-          ref="${{ github.head_ref }}"
-          name="payloadcms-preview-${ref//[^a-z0-9\-]/x}"
+          head_ref="${{ github.head_ref }}"
+          ref="${head_ref//[^a-z0-9\-]/x}"
+          echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
+
+          name="payloadcms-preview-${ref}"
           /home/runner/.turso/turso org switch nwac
           if /home/runner/.turso/turso db show "${name}"; then
             /home/runner/.turso/turso db destroy "${name}" --yes
@@ -53,11 +56,8 @@ jobs:
       - name: Generate preview domain names
         id: domains
         run: |
-          REF="${{ github.head_ref }}"
-          CLEAN_REF="${REF//[^a-z0-9\-]/x}"
-
-          PREVIEW_ALIAS="${CLEAN_REF}.preview.avy-fx.org"
-          WILDCARD_PREVIEW_ALIAS="*.${CLEAN_REF}.preview.avy-fx.org"
+          PREVIEW_ALIAS="${{ steps.database.outputs.name }}.preview.avy-fx.org"
+          WILDCARD_PREVIEW_ALIAS="*.${{ steps.database.outputs.name }}.preview.avy-fx.org"
 
           echo "preview_alias=${PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
           echo "wildcard_preview_alias=${WILDCARD_PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
@@ -71,7 +71,7 @@ jobs:
       - name: Update bootstrap password in Vercel
         run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update server domain in Vercel
-        run: echo -n "https://${{ steps.domains.outputs.preview_alias }}" | vercel env add SERVER_DOMAIN preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add SERVER_DOMAIN preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update client side server url in Vercel
         run: echo -n "https://${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_SERVER_URL preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
@@ -116,14 +116,6 @@ jobs:
 
           echo "url=${DEPLOYMENT_URL}" >> "${GITHUB_OUTPUT}"
           echo "Deployment URL: ${DEPLOYMENT_URL}"
-      - name: Create domains for the deployment
-        id: create-domains
-        run: |
-          echo "Creating preview domain:  ${{ steps.domains.outputs.preview_alias }}"
-          vercel domains --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} add "${{ steps.domains.outputs.preview_alias }}"
-
-          echo "Creating wildcard preview domain: ${{ steps.domains.outputs.wildcard_preview_alias }}"
-          vercel domains --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} add "${{ steps.domains.outputs.wildcard_preview_alias }}"
       - name: Create aliases for the deployment
         id: aliases
         run: |
