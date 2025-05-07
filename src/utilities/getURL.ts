@@ -2,9 +2,16 @@ import canUseDOM from './canUseDOM'
 
 export const getServerSideURL = () => {
   const domain = process.env.SERVER_DOMAIN || process.env.VERCEL_URL
-  return domain
+  const url = domain
     ? `https://${domain}`
     : process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+
+  console.log('Determined url: ', url)
+  console.log('process.env.SERVER_DOMAIN: ', process.env.SERVER_DOMAIN)
+  console.log('process.env.VERCEL_URL: ', process.env.VERCEL_URL)
+  console.log('process.env.NEXT_PUBLIC_SERVER_URL: ', process.env.NEXT_PUBLIC_SERVER_URL)
+
+  return url
 }
 
 export const getClientSideURL = () => {
@@ -13,8 +20,16 @@ export const getClientSideURL = () => {
     const domain = window.location.hostname
     const port = window.location.port
 
-    return `${protocol}//${domain}${port ? `:${port}` : ''}`
+    const url = `${protocol}//${domain}${port ? `:${port}` : ''}`
+
+    console.log('Returning url from getClientSideURL: ', url)
+
+    return url
   }
 
-  return process.env.NEXT_PUBLIC_SERVER_URL || ''
+  const url = process.env.NEXT_PUBLIC_SERVER_URL || ''
+
+  console.log('Returning url from getClientSideURL: ', url)
+
+  return url
 }
