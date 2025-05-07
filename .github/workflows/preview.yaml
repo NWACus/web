@@ -120,10 +120,10 @@ jobs:
         id: aliases
         run: |
           echo "Setting preview alias: ${{ steps.domains.outputs.preview_alias }}"
-          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.preview_alias }}"
+          vercel alias --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.preview_alias }}"
 
           echo "Setting wildcard preview alias: ${{ steps.domains.outputs.wildcard_preview_alias }}"
-          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.wildcard_preview_alias }}"
+          vercel alias --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.wildcard_preview_alias }}"
       - name: Comment on PR with deployment URL
         uses: actions/github-script@v7
         with:
