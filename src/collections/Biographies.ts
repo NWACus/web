@@ -1,5 +1,6 @@
 import { accessByTenantWithPermissiveRead } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { Biography } from '@/payload-types'
 import { CollectionConfig, TextField, Validate } from 'payload'
@@ -61,5 +62,6 @@ export const Biographies: CollectionConfig = {
       type: 'textarea',
       required: false,
     },
+    contentHashField(),
   ],
 }
