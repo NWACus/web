@@ -24,7 +24,7 @@ export const navigationSeed = (
       }
     }
 
-    if (!pages[tenant.name] || !slug || !pages[tenant.name][slug]) {
+    if (!pages[tenant.slug] || !slug || !pages[tenant.slug][slug]) {
       payload.logger.warn(`Page ${slug || 'undefined'} not found for tenant ${tenant.name}`)
       return {
         type: 'internal',
@@ -37,10 +37,10 @@ export const navigationSeed = (
     return {
       type: 'internal',
       reference: {
-        value: pages[tenant.name][slug].id,
+        value: pages[tenant.slug][slug].id,
         relationTo: 'pages',
       },
-      label: label || pages[tenant.name][slug].title,
+      label: label || pages[tenant.slug][slug].title,
       newTab,
     }
   }
