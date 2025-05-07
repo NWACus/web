@@ -1,5 +1,5 @@
 import { upsert } from '@/endpoints/seed/upsert'
-import { fetchFileByURL } from '@/endpoints/seed/utilities'
+import { fetchFileByURL, getFileByPath, getPath } from '@/endpoints/seed/utilities'
 import type { Biography, Media, Team, Tenant, User } from '@/payload-types'
 import { File, Payload, RequiredDataFromCollectionSlug } from 'payload'
 
@@ -12,9 +12,11 @@ export const seedStaff = async (
 ): Promise<Record<string, Team[]>> => {
   payload.logger.info(`— Seeding staff photos...`)
 
-  const placeholder = await fetchFileByURL(
-    'https://upload.wikimedia.org/wikipedia/commons/f/f8/Profile_photo_placeholder_square.svg',
-  ).catch((e) => payload.logger.error(e))
+  // const placeholder = await fetchFileByURL(
+  //   'https://upload.wikimedia.org/wikipedia/commons/f/f8/Profile_photo_placeholder_square.svg',
+  // ).catch((e) => payload.logger.error(e))
+  const path = getPath('src/endpoints/seed/images/Profile_photo_placeholder_square.svg')
+  const placeholder = await getFileByPath(path)
   if (!placeholder) {
     payload.logger.error(`Downloading placeholder photo returned null...`)
     return {}
