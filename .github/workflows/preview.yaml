@@ -56,8 +56,8 @@ jobs:
       - name: Generate preview domain names
         id: domains
         run: |
-          PREVIEW_ALIAS="${{ steps.database.outputs.name }}.preview.avy-fx.org"
-          WILDCARD_PREVIEW_ALIAS="*.${{ steps.database.outputs.name }}.preview.avy-fx.org"
+          PREVIEW_ALIAS="${{ steps.database.outputs.ref }}.preview.avy-fx.org"
+          WILDCARD_PREVIEW_ALIAS="*.${{ steps.database.outputs.ref }}.preview.avy-fx.org"
 
           echo "preview_alias=${PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
           echo "wildcard_preview_alias=${WILDCARD_PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
