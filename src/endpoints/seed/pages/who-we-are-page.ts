@@ -17,7 +17,7 @@ export const whoWeArePage: (
   const description = 'Meet our forecasters, non-profit staff and board of directors.'
   return {
     slug: slug,
-    tenant: tenant,
+    tenant: tenant.id,
     title: title,
     _status: 'published',
     hero: {
@@ -74,7 +74,7 @@ export const whoWeArePage: (
       },
     },
     layout: teams[tenant.slug].map((team) => ({
-      team: team,
+      team: team.id,
       blockType: 'team',
     })),
     meta: {

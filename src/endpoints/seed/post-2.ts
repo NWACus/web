@@ -15,8 +15,8 @@ export const post2: (
   return {
     slug: 'global-gaze',
     _status: 'published',
-    authors: [author],
-    tenant: tenant,
+    authors: [author.id],
+    tenant: tenant.id,
     content: {
       root: {
         type: 'root',

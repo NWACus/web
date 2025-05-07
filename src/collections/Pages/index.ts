@@ -16,6 +16,7 @@ import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { BiographyBlock } from '@/blocks/Biography/config'
 import { TeamBlock } from '@/blocks/Team/config'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { Tenant } from '@/payload-types'
 import {
@@ -152,6 +153,7 @@ export const Pages: CollectionConfig<'pages'> = {
     },
     ...slugField(),
     tenantField(),
+    contentHashField(),
   ],
   hooks: {
     afterChange: [revalidatePage],

@@ -1,5 +1,6 @@
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
@@ -52,5 +53,6 @@ export const Brands: CollectionConfig = {
         },
       ],
     },
+    contentHashField(),
   ],
 }

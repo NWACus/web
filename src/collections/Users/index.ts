@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { accessByGlobalRoleOrTenantDomain } from '@/collections/Users/access/byGlobalRoleOrTenantDomain'
+import { contentHashField } from '@/fields/contentHashField'
 import { externalUsersLogin } from './endpoints/externalUsersLogin'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 
@@ -43,6 +44,7 @@ export const Users: CollectionConfig = {
       saveToJWT: true,
       maxDepth: 3,
     },
+    contentHashField(),
     // TODO: maybe add a set of associated tenants here or something to allow tenant admins to see you
   ],
   hooks: {
