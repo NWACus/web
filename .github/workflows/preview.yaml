@@ -116,6 +116,14 @@ jobs:
 
           echo "url=${DEPLOYMENT_URL}" >> "${GITHUB_OUTPUT}"
           echo "Deployment URL: ${DEPLOYMENT_URL}"
+      - name: Create domains for the deployment
+        id: create-domains
+        run: |
+          echo "Creating preview domain:  ${{ steps.domains.outputs.preview_alias }}"
+          vercel domains --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} add "${{ steps.domains.outputs.preview_alias }}"
+
+          echo "Creating wildcard preview domain: ${{ steps.domains.outputs.wildcard_preview_alias }}"
+          vercel domains --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} add "${{ steps.domains.outputs.wildcard_preview_alias }}"
       - name: Create aliases for the deployment
         id: aliases
         run: |
