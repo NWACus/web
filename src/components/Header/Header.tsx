@@ -78,7 +78,7 @@ export async function Header({ center }: { center?: string }) {
       {/* content padding since mobile nav is fixed */}
       <div className="lg:hidden h-[64px] bg-background" />
 
-      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8 border-b shadow-sm">
+      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8 shadow-sm">
         {banner && (
           <Link href="/" className="w-fit">
             <ImageMedia
