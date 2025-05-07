@@ -124,14 +124,18 @@ jobs:
 
           echo "Setting wildcard preview alias: ${{ steps.domains.outputs.wildcard_preview_alias }}"
           vercel alias --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.wildcard_preview_alias }}"
-      - name: Comment on PR with deployment URL
-        uses: actions/github-script@v7
+      - name: Find existing deployment comment
+        id: find-comment
+        uses: peter-evans/find-comment@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `Preview deployment: https://${{ steps.domains.outputs.preview_alias }}`
-            })
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'Preview deployment:'
+      - name: Create or update PR comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Preview deployment: https://${{ steps.domains.outputs.preview_alias }}
+          edit-mode: replace
