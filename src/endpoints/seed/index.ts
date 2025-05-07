@@ -719,8 +719,8 @@ export const innerSeed = async ({
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
-        allBlocksPage(tenant, images[tenant.name]['imageMountain']),
-        whoWeArePage(tenant, teams, images[tenant.name]['hero'], images[tenant.name]['image2']),
+        allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
+        whoWeArePage(tenant, teams, images[tenant.slug]['hero'], images[tenant.slug]['image2']),
         page(
           tenant,
           images[tenant.slug]['hero'],
@@ -907,8 +907,8 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Weather Tools',
           'A list of weather links.',
           'weather-tools',
