@@ -12,7 +12,7 @@ export const allBlocksPage: (
 ): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: 'blocks',
-    tenant: tenant,
+    tenant: tenant.id,
     title: 'Blocks',
     _status: 'published',
     hero: {

@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { accessByTenantWithPermissiveRead } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import {
   FixedToolbarFeature,
@@ -83,6 +84,7 @@ export const Media: CollectionConfig = {
         },
       }),
     },
+    contentHashField(),
   ],
   upload: {
     staticDir: path.resolve(dirname, '../../public/media'),

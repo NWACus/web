@@ -1,4 +1,5 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
+import { contentHashField } from '@/fields/contentHashField'
 import type { CollectionConfig } from 'payload'
 
 export const Tenants: CollectionConfig = {
@@ -49,5 +50,6 @@ export const Tenants: CollectionConfig = {
         read: () => true, // everyone needs to be able to see tenant slugs to allow frontend to query on them
       },
     },
+    contentHashField(),
   ],
 }

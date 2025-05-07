@@ -48,8 +48,16 @@ jobs:
       - name: 📦 Opt out of image optimization
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
+      - name: 🧹 Run seed
+        run: pnpm seed
+        shell: bash
+        env:
+          DATABASE_URI: 'file:./dev.db'
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          ALLOW_SIMPLE_PASSWORDS: 'true'
       - name: 🧹 Run build
-        run: ./seed-build.sh
+        run: pnpm build
         shell: bash
         env:
           DATABASE_URI: 'file:./dev.db'

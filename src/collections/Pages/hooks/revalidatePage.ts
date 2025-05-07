@@ -11,7 +11,10 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
 }) => {
   if (!context.disableRevalidate) {
     if (doc._status === 'published') {
-      const path = doc.slug === 'home' ? '/' : `/${doc.slug}`
+      if (typeof doc.tenant !== 'object') {
+        throw new Error(`tenant passed by id while revalidating page ${doc.slug}`)
+      }
+      const path = `/${doc.tenant.slug}` + (doc.slug === 'home' ? '/' : `/${doc.slug}`)
 
       payload.logger.info(`Revalidating page at path: ${path}`)
 
@@ -21,7 +24,11 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
 
     // If the page was previously published, we need to revalidate the old path
     if (previousDoc?._status === 'published' && doc._status !== 'published') {
-      const oldPath = previousDoc.slug === 'home' ? '/' : `/${previousDoc.slug}`
+      if (typeof previousDoc.tenant !== 'object') {
+        throw new Error(`tenant passed by id while revalidating page ${previousDoc.slug}`)
+      }
+      const oldPath =
+        `/${previousDoc.tenant.slug}` + (previousDoc.slug === 'home' ? '/' : `/${previousDoc.slug}`)
 
       payload.logger.info(`Revalidating old page at path: ${oldPath}`)
 

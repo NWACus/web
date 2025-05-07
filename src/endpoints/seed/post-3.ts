@@ -15,8 +15,8 @@ export const post3: (
   return {
     slug: 'dollar-and-sense-the-financial-forecast',
     _status: 'published',
-    authors: [author],
-    tenant: tenant,
+    authors: [author.id],
+    tenant: tenant.id,
     content: {
       root: {
         type: 'root',

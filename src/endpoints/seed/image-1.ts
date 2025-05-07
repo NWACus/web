@@ -5,8 +5,8 @@ export const image1: (tenant: Tenant) => RequiredDataFromCollectionSlug<'media'>
   tenant: Tenant,
 ): RequiredDataFromCollectionSlug<'media'> => {
   return {
-    tenant: tenant,
-    alt: 'Curving abstract shapes with an orange and blue gradient',
+    tenant: tenant.id,
+    alt: 'image1',
     caption: {
       root: {
         type: 'root',

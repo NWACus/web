@@ -18,7 +18,7 @@ export const page: (
 ): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: slug,
-    tenant: tenant,
+    tenant: tenant.id,
     _status: 'published',
     hero: {
       type: 'mediumImpact',
