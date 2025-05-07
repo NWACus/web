@@ -50,12 +50,30 @@ jobs:
         shell: bash
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
+      - name: Generate preview domain names
+        id: domains
+        run: |
+          REF="${{ github.head_ref }}"
+          CLEAN_REF="${REF//[^a-z0-9\-]/x}"
+
+          PREVIEW_ALIAS="${CLEAN_REF}.preview.avy-fx.org"
+          WILDCARD_PREVIEW_ALIAS="*.${CLEAN_REF}.preview.avy-fx.org"
+
+          echo "preview_alias=${PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
+          echo "wildcard_preview_alias=${WILDCARD_PREVIEW_ALIAS}" >> "${GITHUB_OUTPUT}"
+
+          echo "Preview alias: $PREVIEW_ALIAS"
+          echo "Wildcard preview alias: $WILDCARD_PREVIEW_ALIAS"
       - name: Update database URI in Vercel
         run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel
         run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
         run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Update server domain in Vercel
+        run: echo -n "https://${{ steps.domains.outputs.preview_alias }}" | vercel env add SERVER_DOMAIN preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Update client side server url in Vercel
+        run: echo -n "https://${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_SERVER_URL preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Seed the database
@@ -67,6 +85,8 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+          SERVER_DOMAIN: 'https://${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_SERVER_URL: 'https://${{ steps.domains.outputs.preview_alias }}'
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -76,11 +96,13 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+          SERVER_DOMAIN: 'https://${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_SERVER_URL: 'https://${{ steps.domains.outputs.preview_alias }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
           fullName="${{ github.repository }}"
-          vercel deploy --yes --prebuilt --target=preview \
+          DEPLOYMENT_URL=$(vercel deploy --yes --prebuilt --target=preview \
             --meta='githubCommitAuthorName=${{ github.event.pull_request.user.login }}' \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=${{ github.head_ref }}' \
@@ -90,4 +112,31 @@ jobs:
             --meta='githubOrg=${{ github.repository_owner }}' \
             --meta="githubRepo=${fullName##*/}" \
             --meta='githubCommitAuthorLogin=${{ github.event.pull_request.user.login }}' \
-            --token=${{ secrets.VERCEL_TOKEN }}
+            --token=${{ secrets.VERCEL_TOKEN }})
+
+          echo "url=${DEPLOYMENT_URL}" >> "${GITHUB_OUTPUT}"
+          echo "Deployment URL: ${DEPLOYMENT_URL}"
+      - name: Create aliases for the deployment
+        id: aliases
+        run: |
+          echo "Setting preview alias: ${{ steps.domains.outputs.preview_alias }}"
+          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.preview_alias }}"
+
+          echo "Setting wildcard preview alias: ${{ steps.domains.outputs.wildcard_preview_alias }}"
+          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.wildcard_preview_alias }}"
+      - name: Comment on PR with deployment URL
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Preview Deployment
+
+            Preview your changes:
+            - Preview URL: https://${{ steps.domains.outputs.preview_alias }}
+            - Original Deployment URL: ${{ steps.deployment.outputs.url }}
+            `
+            })
