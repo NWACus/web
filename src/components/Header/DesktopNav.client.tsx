@@ -15,10 +15,10 @@ import {
   NavigationMenuViewport,
 } from '../ui/navigation-menu'
 import { RenderNavLink } from './RenderNavLink'
-import { NavItem, TopLevelNavItem } from './utils'
+import { hasActiveDescendent, isActive, TopLevelNavItem } from './utils'
 
 const underlineHoverClassName =
-  "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground after:transition-all after:duration-300 hover:after:w-full"
+  "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-secondary after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]"
 
 export const DesktopNav = ({
   topLevelNavItems,
@@ -31,16 +31,6 @@ export const DesktopNav = ({
   const containerReference = useRef<HTMLElement>(null)
 
   const pathname = usePathname()
-
-  function hasActiveDescendent(navItem: NavItem) {
-    if (navItem.link?.type === 'internal' && navItem.link?.url === pathname) {
-      return true
-    }
-    if (navItem.items) {
-      return navItem.items.some(hasActiveDescendent)
-    }
-    return false
-  }
 
   useEffect(function positionDropdownUnderActiveMenuItem() {
     const container = containerReference.current
@@ -98,17 +88,12 @@ export const DesktopNav = ({
           if (!navItem.items) {
             return (
               <NavigationMenuItem key={label} value={label}>
-                <NavigationMenuLink
-                  asChild
-                  active={navItem.link?.type === 'internal' && navItem.link?.url === pathname}
-                >
+                <NavigationMenuLink asChild active={isActive(navItem, pathname)}>
                   <RenderNavLink
                     link={navItem.link}
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      navItem.link?.type === 'internal' &&
-                        navItem.link?.url === pathname &&
-                        'text-white hover:text-white/90',
+                      isActive(navItem, pathname) && 'text-white hover:text-white/90',
                     )}
                   />
                 </NavigationMenuLink>
@@ -121,7 +106,8 @@ export const DesktopNav = ({
               <NavigationMenuTrigger
                 className={cn(
                   activeMenuItem === label && 'text-white hover:text-white/90',
-                  navItem.items.some(hasActiveDescendent) && 'text-white hover:text-white/90',
+                  navItem.items.some((item) => hasActiveDescendent(item, pathname)) &&
+                    'text-white hover:text-white/90',
                 )}
               >
                 {label}
@@ -140,9 +126,7 @@ export const DesktopNav = ({
                               className={cn(
                                 'py-1.5 px-2',
                                 underlineHoverClassName,
-                                item.link.type === 'internal' &&
-                                  item.link.url === pathname &&
-                                  'after:w-[calc(100%-1rem)]',
+                                isActive(item, pathname) && 'after:w-[calc(100%-1rem)]',
                               )}
                             />
                           </NavigationMenuLink>
@@ -153,7 +137,8 @@ export const DesktopNav = ({
                               <div
                                 className={cn(
                                   'text-base w-full inline-flex items-center justify-between',
-                                  item.items?.some(hasActiveDescendent) && 'font-bold',
+                                  item.items?.some((item) => hasActiveDescendent(item, pathname)) &&
+                                    'font-bold',
                                 )}
                               >
                                 {item.link?.label}{' '}
@@ -170,9 +155,7 @@ export const DesktopNav = ({
                                   className={cn(
                                     'py-1.5',
                                     underlineHoverClassName,
-                                    subItem.link?.type === 'internal' &&
-                                      subItem.link?.url === pathname &&
-                                      'after:w-[calc(100%-1rem)]',
+                                    isActive(subItem, pathname) && 'after:w-[calc(100%-1rem)]',
                                   )}
                                 >
                                   <NavigationMenuLink asChild>
