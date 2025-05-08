@@ -136,9 +136,7 @@ export function convertToNavLink(
   let linkLabel: string | undefined = link.label || undefined
 
   if (link.type === 'external' && link.url) {
-    if (!linkLabel) {
-      throw new Error(`Label not set for external link with url ${link.url}`)
-    }
+    invariant(linkLabel, `Label not set for external link with url ${link.url}`)
 
     return {
       type: 'external',
@@ -155,11 +153,10 @@ export function convertToNavLink(
   ) {
     const reference = link.reference
 
-    if (typeof reference.value === 'number') {
-      throw new Error(
-        `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
-      )
-    }
+    invariant(
+      typeof reference.value !== 'number',
+      `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
+    )
 
     if (
       !linkLabel &&
@@ -170,11 +167,10 @@ export function convertToNavLink(
       linkLabel = reference.value.title
     }
 
-    if (!linkLabel) {
-      throw new Error(
-        `Could not determine label for link with reference ${JSON.stringify(reference)}`,
-      )
-    }
+    invariant(
+      linkLabel,
+      `Could not determine label for link with reference ${JSON.stringify(reference)}`,
+    )
 
     let url =
       link.reference.relationTo === 'pages'
@@ -193,9 +189,7 @@ export function convertToNavLink(
   }
 
   if (link.url) {
-    if (!linkLabel) {
-      throw new Error(`Label not set for internal relative link with url ${link.url}`)
-    }
+    invariant(linkLabel, `Label not set for internal relative link with url ${link.url}`)
 
     let url = link.url
 

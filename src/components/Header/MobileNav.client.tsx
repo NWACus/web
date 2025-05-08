@@ -11,6 +11,7 @@ import {
 } from '@radix-ui/react-dialog'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
 import { Button } from '../ui/button'
@@ -104,10 +105,10 @@ export const MobileNav = ({
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>
             <nav className="divide-y divide-header-foreground/20 px-2">
-              {topLevelNavItems.map((navItem) => {
+              {topLevelNavItems.map((navItem, index) => {
                 const label = navItem.label ?? navItem.link?.label
 
-                if (!label) return null
+                invariant(label, `Missing a label for top level nav item ${index}`)
 
                 return (
                   <MobileNavItem

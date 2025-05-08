@@ -40,8 +40,6 @@ export const MobileNavItem = ({
     )
   }
 
-  if (!navItem.items || navItem.items.length === 0) return <span>{label}</span>
-
   return (
     <AccordionItem
       value={label}

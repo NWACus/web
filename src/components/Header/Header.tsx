@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
+import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
 import { DesktopNav } from './DesktopNav.client'
 import { MobileNav } from './MobileNav.client'
@@ -28,11 +29,10 @@ export async function Header({ center }: { center?: string }) {
 
   const banner = brands.docs[0]?.banner
 
-  if (brands.docs.length > 0 && typeof banner !== 'object') {
-    throw new Error(
-      `Depth not set correctly when querying brands. Banner for tenant ${center} not an object.`,
-    )
-  }
+  invariant(
+    typeof banner === 'object',
+    `Depth not set correctly when querying brands. Banner for tenant ${center} not an object.`,
+  )
 
   const navigationRes = await payload.find({
     collection: 'navigations',
