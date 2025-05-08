@@ -23,20 +23,26 @@ export const ImageLinkGrid = (props: Props) => {
 
   return (
     <div className="container">
-      <div className="grid sm:grid-cols-12 gap-y-2 gap-x-2">
+      <div className="grid sm:grid-cols-12 gap-3">
         {columns &&
           columns?.length > 0 &&
           columns.map((col, index) => {
             const { caption, image, link } = col
-            const lastOddElement = numOfCols % 2 && index === numOfCols - 1
+
             return (
-              <div className={cn(`relative ${colsSpanClass} ${className}}`)} key={index}>
+              <div
+                className={cn('relative group overflow-hidden', colsSpanClass, className)}
+                key={index}
+              >
                 <a href={`${link?.url}`}>
                   <ImageMedia
-                    imgClassName={cn('object-cover w-full h-[280px]', imgClassName)}
+                    imgClassName={cn(
+                      'object-cover w-full h-[280px] group-hover:scale-105 transition-transform duration-300 ease-in-out',
+                      imgClassName,
+                    )}
                     resource={image}
                   />
-                  <div className="absolute bottom-0 w-full bg-accent p-2 text-small text-center">
+                  <div className="absolute bottom-0 w-full bg-accent p-2 text-small text-center group-hover:bg-accent/90">
                     {caption}
                   </div>
                 </a>
