@@ -15,7 +15,7 @@ export async function Header({ center }: { center?: string }) {
 
   const brands = await payload.find({
     collection: 'brands',
-    depth: 10,
+    depth: 99,
     where: {
       'tenant.slug': {
         equals: center,
@@ -36,7 +36,7 @@ export async function Header({ center }: { center?: string }) {
 
   const navigationRes = await payload.find({
     collection: 'navigations',
-    depth: 10,
+    depth: 99,
     draft,
     overrideAccess: true,
     where: {
