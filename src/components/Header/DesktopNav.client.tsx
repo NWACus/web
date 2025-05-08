@@ -18,7 +18,7 @@ import { RenderNavLink } from './RenderNavLink'
 import { NavItem, TopLevelNavItem } from './utils'
 
 const underlineHoverClassName =
-  "relative after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]"
+  "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground after:transition-all after:duration-300 hover:after:w-full"
 
 export const DesktopNav = ({
   topLevelNavItems,
