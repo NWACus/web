@@ -60,8 +60,13 @@ const NavigationMenuContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.Content
     ref={ref}
+    forceMount={true}
     className={cn(
-      'left-0 top-0 w-full data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 md:absolute md:w-auto ',
+      'absolute bg-header text-header-foreground origin-top-center top-full w-fit overflow-hidden text-white shadow border-x',
+      'data-[state=open]:max-h-[calc(100vh-225px)] data-[state=closed]:max-h-0',
+      'data-[state=open]:border-b',
+      'data-[state=open]:z-20 data-[state=closed]:z-10',
+      'transition-[max-height] duration-300 ease-in-out',
       className,
     )}
     {...props}
@@ -70,27 +75,6 @@ const NavigationMenuContent = React.forwardRef<
 NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName
 
 const NavigationMenuLink = NavigationMenuPrimitive.Link
-
-const NavigationMenuViewport = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
->(({ className, ...props }, ref) => (
-  <div
-    className={cn(
-      'absolute left-[var(--radix-navigation-menu-item-active-left)] top-full flex justify-center transition-all duration-100',
-      className,
-    )}
-  >
-    <NavigationMenuPrimitive.Viewport
-      className={cn(
-        'origin-top-center relative h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden bg-header text-white shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)] border-b border-x',
-      )}
-      ref={ref}
-      {...props}
-    />
-  </div>
-))
-NavigationMenuViewport.displayName = NavigationMenuPrimitive.Viewport.displayName
 
 const NavigationMenuIndicator = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Indicator>,
@@ -118,5 +102,4 @@ export {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-  NavigationMenuViewport,
 }

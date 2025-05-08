@@ -139,6 +139,14 @@ export default {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        'navigation-menu-down': {
+          from: { height: '0' },
+          to: { height: '800' },
+        },
+        'navigation-menu-up': {
+          from: { height: '800' },
+          to: { height: '0' },
+        },
       },
       typography: ({ theme }) => ({
         DEFAULT: {

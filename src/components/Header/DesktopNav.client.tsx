@@ -2,7 +2,7 @@
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import {
   NavigationMenu,
@@ -12,7 +12,6 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-  NavigationMenuViewport,
 } from '../ui/navigation-menu'
 import { RenderNavLink } from './RenderNavLink'
 import { hasActiveDescendent, isActive, TopLevelNavItem } from './utils'
@@ -31,47 +30,6 @@ export const DesktopNav = ({
   const containerReference = useRef<HTMLElement>(null)
 
   const pathname = usePathname()
-
-  useEffect(function positionDropdownUnderActiveMenuItem() {
-    const container = containerReference.current
-
-    if (!container) return
-
-    const updatePosition = (item: HTMLElement) => {
-      const menuItemRect = item.getBoundingClientRect()
-      const containerRect = container.getBoundingClientRect()
-
-      const left = menuItemRect.left - containerRect.left
-
-      container.style.setProperty('--radix-navigation-menu-item-active-left', `${left}px`)
-    }
-
-    const mutationCallback = (mutationsList: MutationRecord[]) => {
-      for (const mutation of mutationsList) {
-        if (
-          mutation.type === 'attributes' &&
-          mutation.attributeName === 'data-state' &&
-          mutation.target instanceof HTMLElement &&
-          mutation.target.hasAttribute('aria-expanded') &&
-          mutation.target.dataset.state === 'open'
-        ) {
-          updatePosition(mutation.target)
-        }
-      }
-    }
-
-    const observer = new MutationObserver(mutationCallback)
-
-    observer.observe(container, {
-      childList: true,
-      attributes: true,
-      subtree: true,
-    })
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
 
   return (
     <NavigationMenu
@@ -113,7 +71,7 @@ export const DesktopNav = ({
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="grid min-w-max max-h-[calc(100vh-225px)] overflow-y-auto px-4 pt-2 pb-5 gap-2">
+                <div className="grid min-w-max overflow-y-auto px-4 pt-2 pb-5 gap-2">
                   {navItem.items.map((item) => {
                     const hasSubItems = item.items && item.items.length > 0
 
@@ -184,7 +142,6 @@ export const DesktopNav = ({
           </NavigationMenuItem>
         )}
       </NavigationMenuList>
-      <NavigationMenuViewport />
     </NavigationMenu>
   )
 }
