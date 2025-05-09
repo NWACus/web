@@ -127,8 +127,7 @@ export default {
         error: 'hsl(var(--error))',
       },
       fontFamily: {
-        mono: ['var(--font-geist-mono)'],
-        sans: ['var(--font-geist-sans)'],
+        sans: ['var(--font-lato)'],
       },
       keyframes: {
         'accordion-down': {
