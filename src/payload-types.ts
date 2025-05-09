@@ -882,6 +882,22 @@ export interface MembershipBlock {
     };
     [k: string]: unknown;
   } | null;
+  enableCallout?: boolean | null;
+  callout?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'membership';
@@ -1974,6 +1990,8 @@ export interface MediaBlockSelect<T extends boolean = true> {
  */
 export interface MembershipBlockSelect<T extends boolean = true> {
   richText?: T;
+  enableCallout?: T;
+  callout?: T;
   id?: T;
   blockName?: T;
 }
