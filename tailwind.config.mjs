@@ -85,10 +85,12 @@ export default {
         header: {
           DEFAULT: 'hsl(var(--header))',
           foreground: 'hsl(var(--header-foreground))',
+          'foreground-highlight': 'hsl(var(--header-foreground-highlight))',
         },
         footer: {
           DEFAULT: 'hsl(var(--footer))',
           foreground: 'hsl(var(--footer-foreground))',
+          'foreground-highlight': 'hsl(var(--footer-foreground-highlight))',
         },
         callout: {
           DEFAULT: 'hsl(var(--callout))',

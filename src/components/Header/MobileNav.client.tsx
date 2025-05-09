@@ -100,7 +100,7 @@ export const MobileNav = ({
           className={cn('md:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
           onClick={() => setMobileNavOpen(false)}
         />
-        <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b border-b-white data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
+        <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>

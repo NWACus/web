@@ -33,7 +33,7 @@ NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName
 const NavigationMenuItem = NavigationMenuPrimitive.Item
 
 const navigationMenuTriggerStyle = cva(
-  'group inline-flex w-max items-center justify-center rounded-md px-3.5 pt-2.5 pb-5 text-header-foreground font-medium transition-colors hover:bg-header hover:text-white focus-visible:bg-header focus-visible:text-white focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:text-white data-[state=open]:bg-header/50 data-[state=open]:hover:bg-header data-[state=open]:focus-visible:bg-header',
+  'group inline-flex w-max items-center justify-center rounded-md px-3.5 pt-2.5 pb-5 text-header-foreground font-medium transition-colors hover:bg-header hover:text-header-foreground-highlight focus-visible:bg-header focus-visible:text-header-foreground-highlight focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
 )
 
 const NavigationMenuTrigger = React.forwardRef<
@@ -65,7 +65,7 @@ const NavigationMenuContent = React.forwardRef<
       e.stopPropagation()
     }}
     className={cn(
-      'absolute bg-header text-header-foreground origin-top-center top-full w-fit overflow-hidden text-white shadow border-x border-b',
+      'absolute bg-header text-header-foreground origin-top-center top-full w-fit overflow-hidden border-x border-b',
       'data-[state=open]:max-h-[calc(100vh-225px)] data-[state=closed]:max-h-0',
       'data-[state=open]:border-b',
       'data-[state=open]:z-20 data-[state=closed]:z-10',

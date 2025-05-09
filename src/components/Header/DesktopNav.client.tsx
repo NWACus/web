@@ -17,7 +17,7 @@ import { RenderNavLink } from './RenderNavLink'
 import { hasActiveDescendent, isActive, TopLevelNavItem } from './utils'
 
 const underlineHoverClassName =
-  "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-secondary after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)]"
+  "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground-highlight after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)] hover:text-header-foreground-highlight"
 
 export const DesktopNav = ({
   topLevelNavItems,
@@ -51,7 +51,8 @@ export const DesktopNav = ({
                     link={navItem.link}
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      isActive(navItem, pathname) && 'text-white hover:text-white/90',
+                      isActive(navItem, pathname) &&
+                        'text-header-foreground-highlight hover:text-header-foreground-highlight/90',
                     )}
                   />
                 </NavigationMenuLink>
@@ -63,9 +64,8 @@ export const DesktopNav = ({
             <NavigationMenuItem key={label} value={label}>
               <NavigationMenuTrigger
                 className={cn(
-                  activeMenuItem === label && 'text-white hover:text-white/90',
                   navItem.items.some((item) => hasActiveDescendent(item, pathname)) &&
-                    'text-white hover:text-white/90',
+                    'text-header-foreground-highlight hover:text-header-foreground-highlight/90',
                 )}
               >
                 {label}
@@ -84,7 +84,8 @@ export const DesktopNav = ({
                               className={cn(
                                 'py-1.5 px-2',
                                 underlineHoverClassName,
-                                isActive(item, pathname) && 'after:w-[calc(100%-1rem)]',
+                                isActive(item, pathname) &&
+                                  'text-header-foreground-highlight hover:text-header-foreground-highlight/90 after:w-[calc(100%-1rem)]',
                               )}
                             />
                           </NavigationMenuLink>
@@ -96,7 +97,7 @@ export const DesktopNav = ({
                                 className={cn(
                                   'text-base w-full inline-flex items-center justify-between',
                                   item.items?.some((item) => hasActiveDescendent(item, pathname)) &&
-                                    'font-bold',
+                                    'text-header-foreground-highlight hover:text-header-foreground-highlight/90',
                                 )}
                               >
                                 {item.link?.label}{' '}
@@ -113,7 +114,8 @@ export const DesktopNav = ({
                                   className={cn(
                                     'py-1.5',
                                     underlineHoverClassName,
-                                    isActive(subItem, pathname) && 'after:w-[calc(100%-1rem)]',
+                                    isActive(subItem, pathname) &&
+                                      'text-header-foreground-highlight hover:text-header-foreground-highlight/90 after:w-[calc(100%-1rem)]',
                                   )}
                                 >
                                   <NavigationMenuLink asChild>
