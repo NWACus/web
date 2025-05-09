@@ -20,7 +20,7 @@ export const Content: Block = {
       label: false,
       labels: {
         plural: 'Columns',
-        singular: 'Columns',
+        singular: 'Column',
       },
       type: 'array',
       admin: {
