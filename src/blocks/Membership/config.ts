@@ -29,9 +29,29 @@ export const Membership: Block = {
       }),
       label: false,
     },
+    {
+      name: 'enableCallout',
+      type: 'checkbox',
+    },
+    {
+      name: 'callout',
+      type: 'richText',
+      label: 'Callout',
+      admin: {
+        condition: (_, siblingData) => siblingData.enableCallout,
+      },
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            FixedToolbarFeature(),
+            BlocksFeature({
+              blocks: [ButtonBlock],
+            }),
+            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+          ]
+        },
+      }),
+    },
   ],
-  labels: {
-    plural: 'Memberships',
-    singular: 'Membership',
-  },
 }
