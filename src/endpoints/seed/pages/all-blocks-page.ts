@@ -1,6 +1,7 @@
 import type { Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 import { imageTextList } from '../blocks/image-text-list'
+import { LinkPreview } from '../blocks/link-preview'
 
 export const allBlocksPage: (
   tenant: Tenant,
@@ -11,7 +12,7 @@ export const allBlocksPage: (
 ): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: 'blocks',
-    tenant: tenant,
+    tenant: tenant.id,
     title: 'Blocks',
     _status: 'published',
     hero: {
@@ -20,7 +21,7 @@ export const allBlocksPage: (
       links: [],
       media: null,
     },
-    layout: [...imageTextList(image1)],
+    layout: [...imageTextList(image1), ...LinkPreview(image1)],
     meta: {
       title: null,
       image: null,

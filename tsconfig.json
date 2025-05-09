@@ -9,18 +9,19 @@
       "ES2022"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
     "incremental": true,
+    "isolatedModules": true,
     "jsx": "preserve",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "noEmit": true,
+    "noUnusedLocals": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "sourceMap": true,
-    "isolatedModules": true,
+    "strict": true,
+    "strictNullChecks": true,
     "plugins": [
       {
         "name": "next"

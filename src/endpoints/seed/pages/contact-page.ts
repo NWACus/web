@@ -10,7 +10,7 @@ export const contact: (
 ): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: 'contact',
-    tenant: tenant,
+    tenant: tenant.id,
     _status: 'published',
     hero: {
       type: 'none',
@@ -19,7 +19,7 @@ export const contact: (
       {
         blockType: 'formBlock',
         enableIntro: true,
-        form: contactForm,
+        form: contactForm.id,
         introContent: {
           root: {
             type: 'root',

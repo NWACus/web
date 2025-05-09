@@ -1,5 +1,6 @@
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { navLink } from '@/fields/navLink'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
@@ -82,6 +83,7 @@ export const Navigations: CollectionConfig = {
         },
       ],
     },
+    contentHashField(),
   ],
   versions: {
     drafts: {

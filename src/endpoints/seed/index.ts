@@ -1,3 +1,9 @@
+import { page } from '@/endpoints/seed/pages/page'
+import { staffPage } from '@/endpoints/seed/pages/staff-page'
+import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
+import { fetchFileByURL } from '@/endpoints/seed/utilities'
+import { Form, Tenant } from '@/payload-types'
+import { headers } from 'next/headers'
 import type {
   CollectionSlug,
   File,
@@ -6,24 +12,6 @@ import type {
   PayloadRequest,
   RequiredDataFromCollectionSlug,
 } from 'payload'
-
-import { page } from '@/endpoints/seed/pages/page'
-import { staffPage } from '@/endpoints/seed/pages/staff-page'
-import { fetchFileByURL } from '@/endpoints/seed/utilities'
-import {
-  Brand,
-  Category,
-  Form,
-  Media,
-  Navigation,
-  Page,
-  Palette,
-  Post,
-  Role,
-  Tenant,
-  Theme,
-  User,
-} from '@/payload-types'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
 import { image1 } from './image-1'
@@ -65,96 +53,80 @@ const globals: GlobalSlug[] = ['footer']
 export const seed = async ({
   payload,
   req,
+  incremental,
 }: {
   payload: Payload
   req: PayloadRequest
-}): Promise<void> => {
-  try {
-    await innerSeed({ payload, req })
-  } catch (error) {
-    payload.logger.error(error)
-  }
-}
-
-export const innerSeed = async ({
-  payload,
-  req,
-}: {
-  payload: Payload
-  req: PayloadRequest
+  incremental: boolean
 }): Promise<void> => {
   payload.logger.info('Seeding database...')
+  if (!incremental) {
+    payload.logger.info(`— Clearing collections and globals...`)
 
-  // we need to clear the media directory before seeding
-  // as well as the collections and globals
-  // this is because while `yarn seed` drops the database
-  // the custom `/api/seed` endpoint does not
-  payload.logger.info(`— Clearing collections and globals...`)
+    // clear the database
+    await Promise.all(
+      globals.map((global) =>
+        payload.updateGlobal({
+          slug: global,
+          data: {
+            navItems: [],
+          },
+          depth: 0,
+          context: {
+            disableRevalidate: true,
+          },
+        }),
+      ),
+    )
 
-  // clear the database
-  await Promise.all(
-    globals.map((global) =>
-      payload.updateGlobal({
-        slug: global,
-        data: {
-          navItems: [],
-        },
-        depth: 0,
-        context: {
-          disableRevalidate: true,
-        },
+    await Promise.all(
+      collections.map((collection) => {
+        payload.logger.info(`Deleting collection: ${collection}`)
+        return payload.db.deleteMany({ collection, req, where: {} })
       }),
-    ),
-  )
+    )
 
-  await Promise.all(
-    collections.map((collection) => {
-      payload.logger.info(`Deleting collection: ${collection}`)
-      return payload.db.deleteMany({ collection, req, where: {} })
-    }),
-  ).catch((e) => payload.logger.error(e))
+    await Promise.all(
+      collections
+        .filter((collection) => Boolean(payload.collections[collection].config.versions))
+        .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
+    )
 
-  await Promise.all(
-    collections
-      .filter((collection) => Boolean(payload.collections[collection].config.versions))
-      .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
-  ).catch((e) => payload.logger.error(e))
+    payload.logger.info(`— Clearing users...`)
 
-  payload.logger.info(`— Clearing users...`)
-
-  await payload.delete({
-    collection: 'users',
-    depth: 0,
-    where: {
-      or: [
-        {
-          email: {
-            contains: 'avy.com',
+    await payload.delete({
+      collection: 'users',
+      depth: 0,
+      where: {
+        or: [
+          {
+            email: {
+              contains: 'avy.com',
+            },
           },
-        },
-        {
-          email: {
-            contains: 'nwac.us',
+          {
+            email: {
+              contains: 'nwac.us',
+            },
           },
-        },
-        {
-          email: {
-            contains: 'sierraavalanchecenter.org',
+          {
+            email: {
+              contains: 'sierraavalanchecenter.org',
+            },
           },
-        },
-        {
-          email: {
-            contains: 'sawtoothavalanche.com',
+          {
+            email: {
+              contains: 'sawtoothavalanche.com',
+            },
           },
-        },
-      ],
-    },
-  })
+        ],
+      },
+    })
+  } else {
+    payload.logger.info(`— Skipping database cleanup for incremental seed...`)
+  }
 
-  payload.logger.info(`— Seeding palettes...`)
-
-  // https://github.com/shadcn-ui/ui/blob/1081536246b44b6664f4c99bc3f1b3614e632841/apps/www/registry/registry-base-colors.ts
-  const paletteData: RequiredDataFromCollectionSlug<'palettes'>[] = [
+  const palettes = await upsertGlobals('palettes', payload, incremental, (obj) => obj.name, [
     {
       name: 'Zinc Light',
       background: '0 0% 100%',
@@ -267,27 +239,9 @@ export const innerSeed = async ({
       'chart-4': '280 65% 60%',
       'chart-5': '340 75% 55%',
     },
-  ]
-  const palettes: Record<string, Palette> = {}
-  for (const data of paletteData) {
-    payload.logger.info(`Creating ${data.name} palette...`)
-    const palette = await payload
-      .create({
-        collection: 'palettes',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
+  ])
 
-    if (!palette) {
-      payload.logger.error(`Creating ${data.name} palette returned null...`)
-      return
-    }
-    palettes[data.name] = palette
-  }
-
-  payload.logger.info(`— Seeding themes...`)
-
-  const themeData: RequiredDataFromCollectionSlug<'themes'>[] = [
+  const themes = await upsertGlobals('themes', payload, incremental, (obj) => obj.name, [
     {
       name: 'Zinc',
       activeColors: {
@@ -295,8 +249,8 @@ export const innerSeed = async ({
         dark: '240 5.2% 33.9%',
       },
       palettes: {
-        light: palettes['Zinc Light'],
-        dark: palettes['Zinc Dark'],
+        light: palettes['Zinc Light'].id,
+        dark: palettes['Zinc Dark'].id,
       },
     },
     {
@@ -306,31 +260,13 @@ export const innerSeed = async ({
         dark: '217.2 91.2% 59.8%',
       },
       palettes: {
-        light: palettes['Blue Light'],
-        dark: palettes['Blue Dark'],
+        light: palettes['Blue Light'].id,
+        dark: palettes['Blue Dark'].id,
       },
     },
-  ]
-  const themes: Record<string, Theme> = {}
-  for (const data of themeData) {
-    payload.logger.info(`Creating ${data.name} theme...`)
-    const theme = await payload
-      .create({
-        collection: 'themes',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
+  ])
 
-    if (!theme) {
-      payload.logger.error(`Creating ${data.name} theme returned null...`)
-      return
-    }
-    themes[data.name] = theme
-  }
-
-  payload.logger.info(`— Seeding roles...`)
-
-  const roleData: RequiredDataFromCollectionSlug<'roles'>[] = [
+  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
     {
       name: 'Admin',
       rules: [
@@ -367,27 +303,9 @@ export const innerSeed = async ({
         },
       ],
     },
-  ]
-  const roles: Record<string, Role> = {}
-  for (const data of roleData) {
-    payload.logger.info(`Creating ${data.name} role...`)
-    const role = await payload
-      .create({
-        collection: 'roles',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
+  ])
 
-    if (!role) {
-      payload.logger.error(`Creating ${data.name} role returned null...`)
-      return
-    }
-    roles[data.name] = role
-  }
-
-  payload.logger.info(`— Seeding tenants...`)
-
-  const tenantData: RequiredDataFromCollectionSlug<'tenants'>[] = [
+  const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
     {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
@@ -403,22 +321,10 @@ export const innerSeed = async ({
       slug: 'snfac',
       domains: [{ domain: 'sawtoothavalanche.com' }],
     },
-  ]
-  const tenants: Record<string, Tenant> = {}
-  for (const data of tenantData) {
-    payload.logger.info(`Creating ${data.name} tenant returned...`)
-    const tenant = await payload
-      .create({
-        collection: 'tenants',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!tenant) {
-      payload.logger.error(`Creating ${data.name} tenant returned null...`)
-      return
-    }
-    tenants[data.slug] = tenant
+  ])
+  const tenantsById: Record<number, Tenant> = {}
+  for (const tenant in tenants) {
+    tenantsById[tenants[tenant].id] = tenants[tenant]
   }
 
   payload.logger.info(`— Seeding brand media...`)
@@ -453,126 +359,78 @@ export const innerSeed = async ({
   }
   const logos: Record<string, File> = {}
   const banners: Record<string, File> = {}
-  for (const tenant of tenantData) {
-    if (tenant.slug in logoFiles) {
+  for (const tenantSlug in tenants) {
+    if (tenantSlug in logoFiles) {
       const logo = await fetchFileByURL(
         'https://raw.githubusercontent.com/NWACus/avy/refs/heads/main/assets/logos/' +
-          logoFiles[tenant.slug],
-      ).catch((e) => payload.logger.error(e))
-      if (!logo) {
-        payload.logger.error(`Downloading logo for tenant ${tenant.slug} returned null...`)
-        return
-      }
-      logos[tenant.slug] = logo
-    }
-    if (tenant.slug in bannerFiles) {
-      const banner = await fetchFileByURL(bannerFiles[tenant.slug]).catch((e) =>
-        payload.logger.error(e),
+          logoFiles[tenantSlug],
       )
-      if (!banner) {
-        payload.logger.error(`Downloading banner for tenant ${tenant.slug} returned null...`)
-        return
+      if (!logo) {
+        throw new Error(`Downloading logo for tenant ${tenantSlug} returned null...`)
       }
-      banners[tenant.slug] = banner
+      logos[tenantSlug] = logo
+    }
+    if (tenantSlug in bannerFiles) {
+      const banner = await fetchFileByURL(bannerFiles[tenantSlug])
+      if (!banner) {
+        throw new Error(`Downloading banner for tenant ${tenantSlug} returned null...`)
+      }
+      banners[tenantSlug] = banner
     }
   }
 
-  type BrandImageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
-  const brandImageData: BrandImageData[] = [
+  const brandImages = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
     ...Object.values(tenants)
-      .map((tenant): BrandImageData[] => [
+      .map((tenant): { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] => [
         {
-          name: 'logo',
           data: {
-            tenant: tenant,
+            tenant: tenant.id,
             alt: 'logo',
           },
           file: logos[tenant.slug],
         },
         {
-          name: 'banner',
           data: {
-            tenant: tenant,
+            tenant: tenant.id,
             alt: 'banner',
           },
           file: banners[tenant.slug],
         },
       ])
       .flat(),
-  ]
-  const brandImages: Record<string, Record<string, Media>> = {}
-  for (const data of brandImageData) {
-    payload.logger.info(
-      `Creating brand media ${data.name} for tenant ${(data.data.tenant as Tenant).name}...`,
-    )
-    data.file.name = (data.data.tenant as Tenant).slug + '-' + data.file.name
-    const image = await payload
-      .create({
-        collection: 'media',
-        data: data.data,
-        file: data.file,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!image) {
-      payload.logger.error(
-        `Creating brand media ${data.name} for tenant ${(data.data.tenant as Tenant).name} returned null...`,
-      )
-      return
-    }
-    if (!((data.data.tenant as Tenant).name in brandImages)) {
-      brandImages[(data.data.tenant as Tenant).name] = {}
-    }
-    brandImages[(data.data.tenant as Tenant).name][data.name] = image
-  }
-
-  payload.logger.info(`— Seeding brands...`)
+  ])
 
   const themesByTenant: Record<string, string> = {
     nwac: 'Zinc',
     sac: 'Blue',
     snfac: 'Zinc',
   }
-
-  const brandData: RequiredDataFromCollectionSlug<'brands'>[] = [
-    ...Object.values(tenants).map(
+  // Brands
+  await upsert(
+    'brands',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
+    Object.values(tenants).map(
       (tenant): RequiredDataFromCollectionSlug<'brands'> => ({
-        tenant: tenant,
-        logo: brandImages[tenant.name]['logo'],
-        banner: brandImages[tenant.name]['banner'],
-        theme: themes[themesByTenant[tenant.slug]],
+        tenant: tenant.id,
+        logo: brandImages[tenant.slug]['logo'].id,
+        banner: brandImages[tenant.slug]['banner'].id,
+        theme: themes[themesByTenant[tenant.slug]].id,
       }),
     ),
-  ]
-  const brands: Record<string, Brand> = {}
-  for (const data of brandData) {
-    payload.logger.info(`Creating ${(data.tenant as Tenant).name} brand...`)
-    const brand = await payload
-      .create({
-        collection: 'brands',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!brand) {
-      payload.logger.error(`Creating ${(data.tenant as Tenant).name} brand returned null...`)
-      return
-    }
-    brands[(data.tenant as Tenant).name] = brand
-  }
-
-  payload.logger.info(`— Seeding users...`)
+  )
 
   if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {
     payload.logger.fatal(
-      "$PAYLOAD_SEED_PASSWORD missing and $ALLOW_SIMPLE_PASSWORD not set to 'true' - either opt into simple passwords or provide a seed password.",
+      "$PAYLOAD_SEED_PASSWORD missing and ALLOW_SIMPLE_PASSWORDS not set to 'true' - either opt into simple passwords or provide a seed password.",
     )
     throw new Error('Invalid request.')
   }
   const password = process.env.PAYLOAD_SEED_PASSWORD || 'localpass'
   payload.logger.info(`— Using password '${password}'...`)
-
-  const userData: RequiredDataFromCollectionSlug<'users'>[] = [
+  const users = await upsertGlobals('users', payload, incremental, (obj) => obj.name, [
     {
       name: 'Super Admin',
       email: 'admin@avy.com',
@@ -602,125 +460,73 @@ export const innerSeed = async ({
       email: 'multicenter@avy.com',
       password: password,
     },
+  ])
+
+  const teams = await seedStaff(payload, incremental, tenants, tenantsById, users)
+
+  const requestHeaders = await headers()
+  const { user } = await payload.auth({ headers: requestHeaders })
+  const globalRoleAssignments: RequiredDataFromCollectionSlug<'globalRoleAssignments'>[] = [
+    {
+      roles: [roles['Admin'].id],
+      user: users['Super Admin'].id,
+    },
   ]
-  const users: Record<string, User> = {}
-  for (const data of userData) {
-    payload.logger.info(`Creating ${data.name} user...`)
-    const user = await payload
-      .create({
-        collection: 'users',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!user) {
-      payload.logger.error(`Creating ${data.name} user returned null...`)
-      return
-    }
-    users[data.name] = user
+  if (user && user.email !== users['Super Admin'].email) {
+    globalRoleAssignments.push({
+      roles: [roles['Admin'].id],
+      user: user.id,
+    })
   }
+  // SuperAdminRoleAssignment
+  await upsertGlobals(
+    'globalRoleAssignments',
+    payload,
+    incremental,
+    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
+    globalRoleAssignments,
+  )
 
-  const teams = await seedStaff(payload, tenants, users)
+  // Roles
+  await upsert(
+    'roleAssignments',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
+    [
+      ...Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
+          {
+            tenant: tenant.id,
+            roles: [roles['Admin'].id],
+            user: users[tenant.slug.toUpperCase() + ' Admin'].id,
+          },
+          {
+            tenant: tenant.id,
+            roles: [roles['Contributor'].id],
+            user: users[tenant.slug.toUpperCase() + ' Contributor'].id,
+          },
 
-  payload.logger.info(`— Seeding global role assignments...`)
-
-  const _superAdminRoleAssignment = await payload
-    .create({
-      collection: 'globalRoleAssignments',
-      data: {
-        roles: [roles['Admin']],
-        user: users['Super Admin'],
+          {
+            tenant: tenant.id,
+            roles: [roles['Viewer'].id],
+            user: users[tenant.slug.toUpperCase() + ' Viewer'].id,
+          },
+        ])
+        .flat(),
+      {
+        tenant: tenants['snfac'].id,
+        roles: [roles['Admin'].id],
+        user: users['Multi-center Admin'].id,
       },
-    })
-    .catch((e) => payload.logger.error(e))
-
-  payload.logger.info(`— Seeding tenant role assignments...`)
-
-  const roleAssignmentData: RequiredDataFromCollectionSlug<'roleAssignments'>[] = [
-    ...Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
-        {
-          tenant: tenant,
-          roles: [roles['Admin']],
-          user: users[tenant.slug.toUpperCase() + ' Admin'],
-        },
-        {
-          tenant: tenant,
-          roles: [roles['Contributor']],
-          user: users[tenant.slug.toUpperCase() + ' Contributor'],
-        },
-
-        {
-          tenant: tenant,
-          roles: [roles['Viewer']],
-          user: users[tenant.slug.toUpperCase() + ' Viewer'],
-        },
-      ])
-      .flat(),
-    {
-      tenant: tenants['snfac'],
-      roles: [roles['Admin']],
-      user: users['Multi-center Admin'],
-    },
-    {
-      tenant: tenants['nwac'],
-      roles: [roles['Admin']],
-      user: users['Multi-center Admin'],
-    },
-  ]
-  for (const data of roleAssignmentData) {
-    payload.logger.info(
-      `Assigning ${(data.user as User).name} role ${(data.roles as Role[])[0].name} in ${(data.tenant as Tenant).name}...`,
-    )
-    const roleAssignment = await payload
-      .create({
-        collection: 'roleAssignments',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!roleAssignment) {
-      payload.logger.error(
-        `Assigning ${(data.user as User).name} role ${(data.roles as Role[])[0].name} in ${(data.tenant as Tenant).name} returned null...`,
-      )
-      return
-    }
-  }
-
-  payload.logger.info('- Creating global role assignment with first user and Admin role...')
-
-  const firstUserRes = await payload.find({
-    collection: 'users',
-    limit: 1,
-    pagination: false,
-    sort: 'createdAt',
-  })
-
-  const firstUser = firstUserRes.docs[0]
-
-  const firstUserHasGlobalAdminRole = firstUser.globalRoles?.docs?.find((globalRole) => {
-    if (typeof globalRole === 'number') return false
-    return globalRole.roles?.find((role) => {
-      if (typeof role === 'number') return false
-      return role.id === roles['Admin'].id
-    })
-  })
-
-  if (firstUser && !firstUserHasGlobalAdminRole) {
-    try {
-      await payload.create({
-        collection: 'globalRoleAssignments',
-        data: {
-          roles: [roles['Admin']],
-          user: firstUser,
-        },
-      })
-    } catch (err) {
-      payload.logger.error(
-        `Failed assign global admin role to first user, error: ${err instanceof Error ? err.message : err}`,
-      )
-    }
-  }
+      {
+        tenant: tenants['nwac'].id,
+        roles: [roles['Admin'].id],
+        user: users['Multi-center Admin'].id,
+      },
+    ],
+  )
 
   payload.logger.info(`— Fetching images...`)
 
@@ -743,204 +549,125 @@ export const innerSeed = async ({
       ),
     ])
 
-  payload.logger.info(`— Seeding media...`)
-
-  type imageData = { name: string; data: RequiredDataFromCollectionSlug<'media'>; file: File }
-  const imageData: imageData[] = [
-    ...Object.values(tenants)
-      .map((tenant): imageData[] => [
+  const images = await upsert(
+    'media',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.alt,
+    Object.values(tenants)
+      .map((tenant): { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] => [
         {
-          name: 'image1',
           data: image1(tenant),
           file: image1Buffer,
         },
         {
-          name: 'image2',
           data: image2(tenant),
           file: image2Buffer,
         },
         {
-          name: 'image3',
-          data: image2(tenant),
+          data: (() => {
+            const i = image2(tenant)
+            i.alt = 'image3'
+            return i
+          })(),
           file: image3Buffer,
         },
         {
-          name: 'imageMountain',
           data: imageMountain(tenant),
           file: imageMountainBuffer,
         },
         {
-          name: 'hero',
           data: imageHero1(tenant),
           file: hero1Buffer,
         },
       ])
       .flat(),
-  ]
-  const images: Record<string, Record<string, Media>> = {}
-  for (const data of imageData) {
-    payload.logger.info(
-      `Creating media ${data.name} for tenant ${(data.data.tenant as Tenant).name}...`,
-    )
-    data.file = structuredClone(data.file)
-    data.file.name = (data.data.tenant as Tenant).slug + '-' + data.file.name
-    const image = await payload
-      .create({
-        collection: 'media',
-        data: data.data,
-        file: data.file,
-      })
-      .catch((e) => payload.logger.error(e))
+  )
 
-    if (!image) {
-      payload.logger.error(
-        `Creating media ${data.name} for tenant ${(data.data.tenant as Tenant).name} returned null...`,
-      )
-      return
-    }
-    if (!((data.data.tenant as Tenant).name in images)) {
-      images[(data.data.tenant as Tenant).name] = {}
-    }
-    images[(data.data.tenant as Tenant).name][data.name] = image
-  }
-
-  payload.logger.info(`— Seeding categories...`)
-
-  const categoryData: RequiredDataFromCollectionSlug<'categories'>[] = [
-    ...Object.values(tenants)
+  // Categories
+  await upsert(
+    'categories',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'categories'>[] => [
         {
           title: 'Technology',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'News',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Finance',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Design',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Software',
-          tenant: tenant,
+          tenant: tenant.id,
         },
         {
           title: 'Engineering',
-          tenant: tenant,
+          tenant: tenant.id,
         },
       ])
       .flat(),
-  ]
-  const categories: Record<string, Record<string, Category>> = {}
-  for (const data of categoryData) {
-    payload.logger.info(
-      `Creating category ${data.title} for tenant ${(data.tenant as Tenant).name}...`,
-    )
-    const category = await payload
-      .create({
-        collection: 'categories',
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
+  )
 
-    if (!category) {
-      payload.logger.error(
-        `Creating category ${data.title} for tenant ${(data.tenant as Tenant).name} returned null...`,
-      )
-      return
-    }
-    if (!((data.tenant as Tenant).name in categories)) {
-      categories[(data.tenant as Tenant).name] = {}
-    }
-    categories[(data.tenant as Tenant).name][data.title] = category
-  }
-
-  payload.logger.info(`— Seeding posts...`)
-
-  type postData = { name: string; data: RequiredDataFromCollectionSlug<'posts'> }
-  const postData: postData[] = [
-    ...Object.values(tenants)
-      .map((tenant): postData[] => [
-        {
-          name: 'post1',
-          data: post1(
-            tenant,
-            images[tenant.name]['image1'],
-            images[tenant.name]['image2'],
-            users[tenant.slug.toUpperCase() + ' Contributor'],
-          ),
-        },
-        {
-          name: 'post2',
-          data: post2(
-            tenant,
-            images[tenant.name]['image2'],
-            images[tenant.name]['image3'],
-            users[tenant.slug.toUpperCase() + ' Admin'],
-          ),
-        },
-        {
-          name: 'post3',
-          data: post3(
-            tenant,
-            images[tenant.name]['image3'],
-            images[tenant.name]['image1'],
-            users[tenant.slug.toUpperCase() + ' Contributor'],
-          ),
-        },
+  const posts = await upsert(
+    'posts',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.slug,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
+        post1(
+          tenant,
+          images[tenant.slug]['image1'],
+          images[tenant.slug]['image2'],
+          users[tenant.slug.toUpperCase() + ' Contributor'],
+        ),
+        post2(
+          tenant,
+          images[tenant.slug]['image2'],
+          images[tenant.slug]['image3'],
+          users[tenant.slug.toUpperCase() + ' Admin'],
+        ),
+        post3(
+          tenant,
+          images[tenant.slug]['image3'],
+          images[tenant.slug]['image1'],
+          users[tenant.slug.toUpperCase() + ' Contributor'],
+        ),
       ])
       .flat(),
-  ]
-  const posts: Record<string, Record<string, Post>> = {}
-  for (const data of postData) {
-    payload.logger.info(
-      `Creating post ${data.name} for tenant ${(data.data.tenant as Tenant).name}...`,
-    )
-    const post = await payload
-      .create({
-        collection: 'posts',
-        depth: 0,
-        context: {
-          disableRevalidate: true,
-        },
-        data: data.data,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!post) {
-      payload.logger.error(
-        `Creating post ${data.name} for tenant ${(data.data.tenant as Tenant).name} returned null...`,
-      )
-      return
-    }
-    if (!((data.data.tenant as Tenant).name in posts)) {
-      posts[(data.data.tenant as Tenant).name] = {}
-    }
-    posts[(data.data.tenant as Tenant).name][data.name] = post
-  }
+  )
 
   payload.logger.info(`— Updating post relationships...`)
-
-  for (const data of Object.values(posts)) {
-    const posts = Object.values(data) as Post[]
-    for (let i = 0; i < posts.length; i++) {
+  for (const tenant in posts) {
+    for (const title in posts[tenant]) {
+      const post = posts[tenant][title]
       payload.logger.info(
-        `Updating post ${posts[i].id} for tenant ${(posts[i].tenant as Tenant).name}...`,
+        `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
       )
-      await payload
-        .update({
-          id: posts[i].id,
-          collection: 'posts',
-          data: {
-            relatedPosts: posts.filter((post) => post.id !== posts[i].id).map((post) => post.id),
-          },
-        })
-        .catch(() => payload.logger.error)
+      await payload.update({
+        id: post.id,
+        collection: 'posts',
+        data: {
+          relatedPosts: Object.values(posts[tenant])
+            .filter((p) => p.id !== post.id)
+            .map((p) => p.id),
+        },
+      })
     }
   }
 
@@ -949,261 +676,229 @@ export const innerSeed = async ({
   const contactForms: Record<string, Form> = {}
   for (const tenant of Object.values(tenants)) {
     payload.logger.info(`Creating contact form for tenant ${tenant.name}...`)
-    const contactForm = await payload
-      .create({
-        collection: 'forms',
-        depth: 0,
-        data: { ...contactFormData, tenant: tenant },
-      })
-      .catch((e) => payload.logger.error(e))
+    const contactForm = await payload.create({
+      collection: 'forms',
+      depth: 0,
+      data: { ...contactFormData, tenant: tenant.id },
+    })
 
     if (!contactForm) {
-      payload.logger.error(`Creating contact form for tenant ${tenant.name} returned null...`)
-      return
+      throw new Error(`Creating contact form for tenant ${tenant.name} returned null...`)
     }
     contactForms[tenant.name] = contactForm
   }
 
-  payload.logger.info(`— Seeding pages...`)
-
-  const pageData: RequiredDataFromCollectionSlug<'pages'>[] = [
-    ...Object.values(tenants)
+  const pages = await upsert(
+    'pages',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.slug,
+    Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
-        allBlocksPage(tenant, images[tenant.name]['imageMountain']),
-        staffPage(tenant, teams, images[tenant.name]['hero'], images[tenant.name]['image2']),
+        allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
+        staffPage(tenant, teams, images[tenant.slug]['hero'], images[tenant.slug]['image2']),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Donate & Membership',
           'Support avalanche safety by becoming a member or donating to the avalanche center.',
           'donate-membership',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Workplace Giving',
           'Have you thought about donating to the center through work? Your employer may be able to help you support avalanche safety.',
           'workplace-giving',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Other Ways to Give',
           'Learn about alternative methods to support the avalanche center and its mission.',
           'other-ways-to-give',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Corporate Sponsorship',
           "The avalanche center's work is supported by the generosity of our industry partners.",
           'corporate-sponsorship',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Volunteer',
           'Interested in volunteering your time for the center? We are always looking for help at events and with various projects.',
           'volunteer',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'About Us',
           'The avalanche center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
           'about-us',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Agency Partners',
           'The avalanche center collaborates with various agencies to enhance avalanche safety and awareness.',
           'agency-partners',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Annual Report/Minutes',
           "Access the avalanche center's annual reports and meeting minutes.",
           'annual-report-minutes',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Employment',
           'Explore career opportunities with the avalanche center.',
           'employment',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Learn',
           'Discover resources and opportunities to learn about avalanche safety and awareness.',
           'learn',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Field Classes',
           'Participate in field-based avalanche education classes offered by the center.',
           'field-classes',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Avalanche Awareness Classes',
           'The avalanche center offers free avalanche classes to the public throughout our forecast area.',
           'avalanche-awareness-classes',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Courses by External Providers',
           'Find avalanche education courses offered by external providers in your area.',
           'courses-by-external-providers',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Workshops',
           'Join specialized avalanche safety workshops for skill development and knowledge enhancement.',
           'workshops',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Request a Class',
           'Request an avalanche awareness or safety class for your group or organization.',
           'request-a-class',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Scholarships',
           'Learn about scholarships available for avalanche education and training.',
           'scholarships',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Mentorship',
           'Connect with experienced backcountry travelers through our mentorship program.',
           'mentorship',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Beacon Parks',
           'Locate and use avalanche beacon practice parks in your area.',
           'beacon-parks',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Local Accident Reports',
           'Access reports of avalanche accidents in your local area.',
           'local-accident-reports',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Avalanche Accident Statistics',
           'Review statistical data on avalanche accidents and incidents.',
           'avalanche-accident-statistics',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'US Avalanche Accidents',
           'Information about avalanche accidents across the United States.',
           'us-avalanche-accidents',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Grief and Loss Resources',
           'Support resources for those affected by avalanche tragedies.',
           'grief-and-loss-resources',
         ),
         page(
           tenant,
-          images[tenant.name]['hero'],
-          images[tenant.name]['image2'],
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
           'Avalanche Accident Map',
           'Interactive map showing locations of avalanche accidents and incidents.',
           'avalanche-accident-map',
         ),
       ])
       .flat(),
-  ]
-  const pages: Record<string, Record<string, Page>> = {}
-  for (const data of pageData) {
-    payload.logger.info(`Creating page ${data.slug} for tenant ${(data.tenant as Tenant).name}...`)
-    const page = await payload
-      .create({
-        collection: 'pages',
-        depth: 0,
-        data: data,
-      })
-      .catch((e) => payload.logger.error(e))
+  )
 
-    if (!page) {
-      payload.logger.error(
-        `Creating page ${data.slug} for tenant ${(data.tenant as Tenant).name} returned null...`,
-      )
-      return
-    }
-    if (!((data.tenant as Tenant).name in pages)) {
-      pages[(data.tenant as Tenant).name] = {}
-    }
-    pages[(data.tenant as Tenant).name][data.slug] = page
-  }
-
-  payload.logger.info(`— Seeding navigation...`)
-
-  const navigations: Record<string, Navigation> = {}
-  for (const tenant of Object.values(tenants)) {
-    payload.logger.info(`Creating navigation for tenant ${tenant.name}...`)
-
-    const navigationData = navigationSeed(pages, tenant)
-
-    const navigation = await payload
-      .create({
-        collection: 'navigations',
-        data: navigationData,
-      })
-      .catch((e) => payload.logger.error(e))
-
-    if (!navigation) {
-      payload.logger.error(`Creating navigation for tenant ${tenant.name} returned null...`)
-      return
-    }
-
-    navigations[tenant.name] = navigation
-  }
+  // Navigations
+  await upsert(
+    'navigations',
+    payload,
+    incremental,
+    tenantsById,
+    (_obj) => 'nav',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'navigations'> =>
+        navigationSeed(payload, pages, tenant),
+    ),
+  )
 
   payload.logger.info(`— Seeding globals...`)
 

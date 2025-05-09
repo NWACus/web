@@ -1,5 +1,6 @@
 import { accessByTenantWithPermissiveRead } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { CollectionConfig } from 'payload'
 
@@ -25,5 +26,6 @@ export const Teams: CollectionConfig = {
       hasMany: true,
       required: true,
     },
+    contentHashField(),
   ],
 }

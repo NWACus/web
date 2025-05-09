@@ -4,6 +4,7 @@ import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
+import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { slugField } from '@/fields/slug'
 import { hero } from '@/heros/config'
@@ -15,6 +16,7 @@ import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { BiographyBlock } from '@/blocks/Biography/config'
 import { TeamBlock } from '@/blocks/Team/config'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { Tenant } from '@/payload-types'
 import {
@@ -101,6 +103,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 Content,
                 FormBlock,
                 ImageTextList,
+                LinkPreviewBlock,
                 MediaBlock,
                 TeamBlock,
               ],
@@ -150,6 +153,7 @@ export const Pages: CollectionConfig<'pages'> = {
     },
     ...slugField(),
     tenantField(),
+    contentHashField(),
   ],
   hooks: {
     afterChange: [revalidatePage],

@@ -25,6 +25,7 @@ jobs:
             /home/runner/.turso/turso db destroy "${name}" --yes
           fi
           /home/runner/.turso/turso db create "${name}" --wait
+          /home/runner/.turso/turso db shell "${name}" .tables
           echo "name=${name}" >> "${GITHUB_OUTPUT}"
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
@@ -58,9 +59,8 @@ jobs:
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Seed the database
-        run: ./seed-build.sh
+        run: pnpm seed
         env:
-          SKIP_BUILD: 'true'
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'

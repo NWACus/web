@@ -7,6 +7,7 @@ import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
+import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
@@ -46,6 +47,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <FormBlock {...block} />
     case 'imageTextList':
       return <ImageTextList {...block} />
+    case 'linkPreview':
+      return <LinkPreviewBlock {...block} />
     case 'mediaBlock':
       return <MediaBlock {...block} />
     case 'team':

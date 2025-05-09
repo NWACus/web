@@ -1,5 +1,6 @@
 import { accessByGlobalRole } from '@/access/byGlobalRole'
 import { colorField } from '@/fields/ColorField'
+import { contentHashField } from '@/fields/contentHashField'
 import type { CollectionConfig } from 'payload'
 
 export const Themes: CollectionConfig = {
@@ -41,5 +42,6 @@ export const Themes: CollectionConfig = {
         },
       ],
     },
+    contentHashField(),
   ],
 }

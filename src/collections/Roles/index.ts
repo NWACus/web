@@ -1,4 +1,5 @@
 import { accessByGlobalRole } from '@/access/byGlobalRole'
+import { contentHashField } from '@/fields/contentHashField'
 import type { CollectionConfig, Field } from 'payload'
 
 export const collectionsField: Field = {
@@ -51,5 +52,6 @@ export const Roles: CollectionConfig = {
       unique: true,
     },
     rulesField,
+    contentHashField(),
   ],
 }

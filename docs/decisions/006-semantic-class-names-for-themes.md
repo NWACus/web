@@ -6,7 +6,7 @@ Status: accepted
 
 ## Context
 
-[Shadcn uses CSS Variables](https://ui.shadcn.com/docs/theming#css-variables) to enable theming based on [Tailwind's suggested approach](https://v3.tailwindcss.com/docs/customizing-colors#using-css-variables) to defining colors using CSS Variables.
+[Shadcn uses CSS Variables](https://ui.shadcn.com/docs/theming#css-variables) for theming, which follows [Tailwind’s recommended pattern](https://v3.tailwindcss.com/docs/customizing-colors#using-css-variables) of defining and consuming colors as CSS variables.
 
 Tailwind theme's colors are extended with names that point at CSS Variables:
 

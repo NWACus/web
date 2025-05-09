@@ -25,7 +25,9 @@ jobs:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Create a new database
         id: database
-        run: /home/runner/.turso/turso db create payloadcms-prod --wait
+        run: |
+          /home/runner/.turso/turso db create payloadcms-prod --wait
+          /home/runner/.turso/turso db shell payloadcms-prod .tables
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Record database connection URI and token
@@ -58,9 +60,8 @@ jobs:
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} .env.production
       - name: Seed the database
-        run: ./seed-build.sh
+        run: pnpm seed
         env:
-          SKIP_BUILD: 'true'
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
