@@ -31,6 +31,7 @@ export const Content: Block = {
           columns: [],
         },
       ],
+      maxRows: 4,
       fields: [
         {
           name: 'richText',
