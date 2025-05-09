@@ -31,7 +31,7 @@ export const ContentBlock = (props: ContentBlockProps) => {
 
               return (
                 <div
-                  className={cn(`col-span-4 md:col-span-2 ${colsSpanClass} ${textColor}`)}
+                  className={cn('col-span-4 md:col-span-2', colsSpanClass, textColor)}
                   key={index}
                 >
                   {richText && <RichText data={richText} enableGutter={false} />}
@@ -39,7 +39,7 @@ export const ContentBlock = (props: ContentBlockProps) => {
               )
             })
           ) : (
-            <div className={cn(`col-span-4 lg:col-span-12 ${textColor}`)}>
+            <div className={cn('col-span-4 lg:col-span-12', textColor)}>
               {content?.richText && <RichText data={content.richText} enableGutter={false} />}
             </div>
           )}
