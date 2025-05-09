@@ -8,21 +8,21 @@ import { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import {
   JSXConvertersFunction,
   LinkJSXConverter,
-  RichText as RichTextWithoutBlocks,
+  RichText as RichTextWithConverters,
 } from '@payloadcms/richtext-lexical/react'
 
 import { BannerBlock } from '@/blocks/Banner/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { ButtonBlock } from '@/blocks/Button/Component'
 import type {
   BannerBlock as BannerBlockProps,
-  CallToActionBlock as CTABlockProps,
+  ButtonBlock as ButtonBlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<CTABlockProps | MediaBlockProps | BannerBlockProps>
+  | SerializedBlockNode<BannerBlockProps | ButtonBlockProps | MediaBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc || {}
@@ -38,6 +38,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
     banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
+    buttonBlock: ({ node }) => <ButtonBlock {...node.fields} />,
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"
@@ -48,7 +49,6 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         disableInnerContainer={true}
       />
     ),
-    cta: ({ node }) => <CallToActionBlock {...node.fields} />,
   },
 })
 
@@ -61,7 +61,7 @@ type Props = {
 export default function RichText(props: Props) {
   const { className, enableProse = true, enableGutter = true, ...rest } = props
   return (
-    <RichTextWithoutBlocks
+    <RichTextWithConverters
       converters={jsxConverters}
       className={cn(
         {

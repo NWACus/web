@@ -5,6 +5,7 @@ import { imageQuote } from '../blocks/image-quote'
 import { imageText } from '../blocks/image-text'
 import { imageTextList } from '../blocks/image-text-list'
 import { linkPreview } from '../blocks/link-preview'
+import { membership } from '../blocks/membership'
 
 export const allBlocksPage: (
   tenant: Tenant,
@@ -21,7 +22,6 @@ export const allBlocksPage: (
     hero: {
       type: 'lowImpact',
       richText: null,
-      links: [],
       media: null,
     },
     layout: [
@@ -30,6 +30,7 @@ export const allBlocksPage: (
       ...imageText(image1),
       ...imageTextList(image1),
       ...linkPreview(image1),
+      ...membership,
     ],
     meta: {
       title: null,
