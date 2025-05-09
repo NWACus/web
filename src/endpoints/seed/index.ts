@@ -59,22 +59,6 @@ export const seed = async ({
   req: PayloadRequest
   incremental: boolean
 }): Promise<void> => {
-  try {
-    await innerSeed({ payload, req, incremental })
-  } catch (error) {
-    payload.logger.error(error)
-  }
-}
-
-export const innerSeed = async ({
-  payload,
-  req,
-  incremental,
-}: {
-  payload: Payload
-  req: PayloadRequest
-  incremental: boolean
-}): Promise<void> => {
   payload.logger.info('Seeding database...')
   if (!incremental) {
     payload.logger.info(`— Clearing collections and globals...`)
@@ -100,13 +84,13 @@ export const innerSeed = async ({
         payload.logger.info(`Deleting collection: ${collection}`)
         return payload.db.deleteMany({ collection, req, where: {} })
       }),
-    ).catch((e) => payload.logger.error(e))
+    )
 
     await Promise.all(
       collections
         .filter((collection) => Boolean(payload.collections[collection].config.versions))
         .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
-    ).catch((e) => payload.logger.error(e))
+    )
 
     payload.logger.info(`— Clearing users...`)
 
@@ -380,20 +364,16 @@ export const innerSeed = async ({
       const logo = await fetchFileByURL(
         'https://raw.githubusercontent.com/NWACus/avy/refs/heads/main/assets/logos/' +
           logoFiles[tenantSlug],
-      ).catch((e) => payload.logger.error(e))
+      )
       if (!logo) {
-        payload.logger.error(`Downloading logo for tenant ${tenantSlug} returned null...`)
-        return
+        throw new Error(`Downloading logo for tenant ${tenantSlug} returned null...`)
       }
       logos[tenantSlug] = logo
     }
     if (tenantSlug in bannerFiles) {
-      const banner = await fetchFileByURL(bannerFiles[tenantSlug]).catch((e) =>
-        payload.logger.error(e),
-      )
+      const banner = await fetchFileByURL(bannerFiles[tenantSlug])
       if (!banner) {
-        payload.logger.error(`Downloading banner for tenant ${tenantSlug} returned null...`)
-        return
+        throw new Error(`Downloading banner for tenant ${tenantSlug} returned null...`)
       }
       banners[tenantSlug] = banner
     }
@@ -679,17 +659,15 @@ export const innerSeed = async ({
       payload.logger.info(
         `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
       )
-      await payload
-        .update({
-          id: post.id,
-          collection: 'posts',
-          data: {
-            relatedPosts: Object.values(posts[tenant])
-              .filter((p) => p.id !== post.id)
-              .map((p) => p.id),
-          },
-        })
-        .catch(() => payload.logger.error)
+      await payload.update({
+        id: post.id,
+        collection: 'posts',
+        data: {
+          relatedPosts: Object.values(posts[tenant])
+            .filter((p) => p.id !== post.id)
+            .map((p) => p.id),
+        },
+      })
     }
   }
 
@@ -698,17 +676,14 @@ export const innerSeed = async ({
   const contactForms: Record<string, Form> = {}
   for (const tenant of Object.values(tenants)) {
     payload.logger.info(`Creating contact form for tenant ${tenant.name}...`)
-    const contactForm = await payload
-      .create({
-        collection: 'forms',
-        depth: 0,
-        data: { ...contactFormData, tenant: tenant.id },
-      })
-      .catch((e) => payload.logger.error(e))
+    const contactForm = await payload.create({
+      collection: 'forms',
+      depth: 0,
+      data: { ...contactFormData, tenant: tenant.id },
+    })
 
     if (!contactForm) {
-      payload.logger.error(`Creating contact form for tenant ${tenant.name} returned null...`)
-      return
+      throw new Error(`Creating contact form for tenant ${tenant.name} returned null...`)
     }
     contactForms[tenant.name] = contactForm
   }
