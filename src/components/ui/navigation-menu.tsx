@@ -60,16 +60,8 @@ const NavigationMenuContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NavigationMenuPrimitive.Content
     ref={ref}
-    forceMount={true}
-    onPointerDownCapture={(e) => {
-      e.stopPropagation()
-    }}
     className={cn(
-      'absolute bg-header text-header-foreground origin-top-center top-full w-fit overflow-hidden border-x border-b',
-      'data-[state=open]:max-h-[calc(100vh-225px)] data-[state=closed]:max-h-0',
-      'data-[state=open]:border-b',
-      'data-[state=open]:z-20 data-[state=closed]:z-10',
-      'transition-[max-height] duration-500 ease-in-out',
+      'absolute bg-header text-header-foreground origin-top-center top-full w-fit overflow-hidden border-x border-b max-h-[calc(100vh-225px)] overflow-y-auto',
       className,
     )}
     {...props}

@@ -71,7 +71,7 @@ export const DesktopNav = ({
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="grid min-w-max overflow-y-auto px-4 pt-2 pb-5 gap-2">
+                <div className="grid min-w-max px-4 pt-2 pb-5 gap-2">
                   {navItem.items.map((item) => {
                     const hasSubItems = item.items && item.items.length > 0
 
@@ -138,7 +138,14 @@ export const DesktopNav = ({
           <NavigationMenuItem>
             <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
               <RenderNavLink link={donateNavItem.link}>
-                <Button variant="callout">{donateNavItem.label}</Button>
+                <Button
+                  variant="callout"
+                  className={cn(
+                    isActive(donateNavItem, pathname) && 'underline underline-offset-4',
+                  )}
+                >
+                  {donateNavItem.label}
+                </Button>
               </RenderNavLink>
             </NavigationMenuLink>
           </NavigationMenuItem>

@@ -26,7 +26,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
       >
         {children || link.label}
         {link.newTab && (
-          <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-neutral-50/70" />
+          <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
         )}
       </Link>
     )

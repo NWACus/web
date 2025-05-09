@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from '@radix-ui/react-dialog'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
@@ -17,7 +18,7 @@ import { Accordion } from '../ui/accordion'
 import { Button } from '../ui/button'
 import { MobileNavItem } from './MobileNavItem'
 import { RenderNavLink } from './RenderNavLink'
-import { TopLevelNavItem } from './utils'
+import { isActive, TopLevelNavItem } from './utils'
 
 export const MobileNav = ({
   topLevelNavItems,
@@ -30,6 +31,8 @@ export const MobileNav = ({
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const navbarRef = useRef<HTMLDivElement | null>(null)
+
+  const pathname = usePathname()
 
   useEffect(
     function manageScrollLock() {
@@ -90,7 +93,12 @@ export const MobileNav = ({
           )}
           {donateNavItem && (
             <RenderNavLink link={donateNavItem.link} onClick={() => setMobileNavOpen(false)}>
-              <Button variant="callout">{donateNavItem.label}</Button>
+              <Button
+                variant="callout"
+                className={cn(isActive(donateNavItem, pathname) && 'underline underline-offset-4')}
+              >
+                {donateNavItem.label}
+              </Button>
             </RenderNavLink>
           )}
         </div>
