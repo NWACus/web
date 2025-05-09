@@ -34,7 +34,7 @@ export const Content: Block = {
   interfaceName: 'ContentBlock',
   fields: [
     // Background color
-    colorPickerField,
+    colorPickerField('Background color'),
     {
       name: 'enableColumns',
       label: 'Use columns',

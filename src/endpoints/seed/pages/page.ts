@@ -113,7 +113,7 @@ export const page: (
           },
         ],
         blockType: 'content',
-        enableColumns: true,
+        enableColumns: false,
       },
     ],
     meta: {

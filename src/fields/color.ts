@@ -1,15 +1,15 @@
 import { Field } from 'payload'
 
-export const colorPickerField: Field = {
+export const colorPickerField: (label: string) => Field = (label) => ({
   name: 'color',
   type: 'text',
-  label: 'Background color',
+  label,
   required: true,
   admin: {
     components: {
       Field: '@/components/ColorPicker',
     },
   },
-}
+})
 
 export default colorPickerField
