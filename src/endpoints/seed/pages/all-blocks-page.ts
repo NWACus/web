@@ -1,5 +1,6 @@
 import type { Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
+import { imageLinkGrid } from '../blocks/image-link-grid'
 import { imageTextList } from '../blocks/image-text-list'
 import { LinkPreview } from '../blocks/link-preview'
 
@@ -21,7 +22,7 @@ export const allBlocksPage: (
       links: [],
       media: null,
     },
-    layout: [...imageTextList(image1), ...LinkPreview(image1)],
+    layout: [...imageTextList(image1), ...LinkPreview(image1), ...imageLinkGrid(image1)],
     meta: {
       title: null,
       image: null,
