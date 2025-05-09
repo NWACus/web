@@ -425,7 +425,8 @@ export const innerSeed = async ({
     sac: 'Blue',
     snfac: 'Zinc',
   }
-  const _brands = await upsert(
+  // Brands
+  await upsert(
     'brands',
     payload,
     incremental,
@@ -497,7 +498,8 @@ export const innerSeed = async ({
       user: user.id,
     })
   }
-  const _superAdminRoleAssignment = await upsertGlobals(
+  // SuperAdminRoleAssignment
+  await upsertGlobals(
     'globalRoleAssignments',
     payload,
     incremental,
@@ -505,7 +507,8 @@ export const innerSeed = async ({
     globalRoleAssignments,
   )
 
-  const _roles = await upsert(
+  // Roles
+  await upsert(
     'roleAssignments',
     payload,
     incremental,
@@ -602,7 +605,8 @@ export const innerSeed = async ({
       .flat(),
   )
 
-  const _categories = await upsert(
+  // Categories
+  await upsert(
     'categories',
     payload,
     incremental,
@@ -908,7 +912,8 @@ export const innerSeed = async ({
       .flat(),
   )
 
-  const _navigations = await upsert(
+  // Navigations
+  await upsert(
     'navigations',
     payload,
     incremental,
