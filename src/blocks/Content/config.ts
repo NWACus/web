@@ -25,7 +25,6 @@ const columnFields: Field[] = [
       },
     }),
     label: false,
-    required: true,
   },
 ]
 
