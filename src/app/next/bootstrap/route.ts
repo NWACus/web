@@ -49,7 +49,7 @@ export async function POST(): Promise<Response> {
 
     payload.logger.info(`— Seeding global role assignments...`)
 
-    const _superAdminRoleAssignment = await payload
+    await payload
       .create({
         collection: 'globalRoleAssignments',
         data: {
