@@ -29,7 +29,6 @@ export default async function Page({ params }: Args) {
     select: {
       title: true,
       slug: true,
-      categories: true,
       meta: true,
     },
     where: {
