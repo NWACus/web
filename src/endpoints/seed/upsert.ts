@@ -58,8 +58,7 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
     const key = keyFunc(item)
     const representation = stringify(removeNonDeterministicKeys(JSON.parse(JSON.stringify(item))))
     if (!representation) {
-      payload.logger.error(`Creating stable serialization of ${collection}['${key}'] failed...`)
-      throw new Error()
+      throw new Error(`Creating stable serialization of ${collection}['${key}'] failed...`)
     }
     const hash = crypto.createHash('sha256').update(representation).digest('hex')
     item.contentHash = hash
@@ -73,22 +72,19 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
           `Updating ${key} ${collection} as previous hash ${existing[key].contentHash} does not match current hash ${hash}...`,
         )
         payload.logger.info(representation)
-        const updated = await payload
-          .update({
-            id: existing[key].id,
-            collection: collection,
-            data: merge(existing[key], item) as ByIDOptions<
-              TSlug,
-              SelectFromCollectionSlug<TSlug>
-            >['data'],
-          })
-          .catch((e) => payload.logger.error(e))
+        const updated = await payload.update({
+          id: existing[key].id,
+          collection: collection,
+          data: merge(existing[key], item) as ByIDOptions<
+            TSlug,
+            SelectFromCollectionSlug<TSlug>
+          >['data'],
+        })
 
         if (!updated) {
-          payload.logger.error(
+          throw new Error(
             `Updating ${key} ${collection} returned no object: ${JSON.stringify(updated)}...`,
           )
-          throw new Error()
         }
         output[key] = updated
         continue
@@ -97,16 +93,13 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
     payload.logger.info(
       `Creating ${collection}['${key}'] with hash ${item.contentHash.slice(0, 8)}...`,
     )
-    const created = await payload
-      .create({
-        collection: collection,
-        data: item,
-      })
-      .catch((e) => payload.logger.error(e))
+    const created = await payload.create({
+      collection: collection,
+      data: item,
+    })
 
     if (!created) {
-      payload.logger.error(`Creating ${collection}['${key}'] returned null...`)
-      throw new Error()
+      throw new Error(`Creating ${collection}['${key}'] returned null...`)
     }
     output[key] = created
   }
@@ -167,10 +160,9 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
     }
     const representation = stringify(removeNonDeterministicKeys(JSON.parse(JSON.stringify(item))))
     if (!representation) {
-      payload.logger.error(
+      throw new Error(
         `Creating stable serialization of ${collection}['${tenant}']['${key}'] failed...`,
       )
-      throw new Error()
     }
     const hash = crypto.createHash('sha256').update(representation).digest('hex')
     item.contentHash = hash
@@ -195,22 +187,19 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
           `Updating ${collection}['${tenant}']['${key}'] as previous hash ${existing[tenant][key].contentHash} does not match current hash ${hash}...`,
         )
         payload.logger.info(representation)
-        const updated = await payload
-          .update({
-            id: existing[tenant][key].id,
-            collection: collection,
-            data: merge(existing[tenant][key], item) as ByIDOptions<
-              TSlug,
-              SelectFromCollectionSlug<TSlug>
-            >['data'],
-          })
-          .catch((e) => payload.logger.error(e))
+        const updated = await payload.update({
+          id: existing[tenant][key].id,
+          collection: collection,
+          data: merge(existing[tenant][key], item) as ByIDOptions<
+            TSlug,
+            SelectFromCollectionSlug<TSlug>
+          >['data'],
+        })
 
         if (!updated) {
-          payload.logger.error(
+          throw new Error(
             `Updating ${collection}['${tenant}']['${key}'] returned no object: ${JSON.stringify(updated)}...`,
           )
-          throw new Error()
         }
         if (!(tenant in output)) {
           output[tenant] = {}
@@ -222,17 +211,14 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
     payload.logger.info(
       `Creating ${collection}['${tenant}']['${key}'] with hash ${item.contentHash.slice(0, 8)}...`,
     )
-    const created = await payload
-      .create({
-        collection: collection,
-        data: item,
-        file: file,
-      })
-      .catch((e) => payload.logger.error(e))
+    const created = await payload.create({
+      collection: collection,
+      data: item,
+      file: file,
+    })
 
     if (!created) {
-      payload.logger.error(`Creating ${collection}['${tenant}']['${key}'] returned null...`)
-      throw new Error()
+      throw new Error(`Creating ${collection}['${tenant}']['${key}'] returned null...`)
     }
     if (!(tenant in output)) {
       output[tenant] = {}

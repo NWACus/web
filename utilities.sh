@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 function cleanup() {
+  return_code="$?"
   echo "[INFO] Stopping the development server..."
   for job in $( jobs -p ); do
     kill -SIGTERM "${job}"
@@ -9,7 +10,11 @@ function cleanup() {
     fi
   done
   rm -f login.json
-  echo "[INFO] Database at dev.db seeded!"
+  if [[ "${return_code}" = "0" ]]; then
+    echo "[INFO] Database at dev.db seeded!"
+  else
+    echo "[FAIL] Database at dev.db failed to seed!"
+  fi
 }
 
 
