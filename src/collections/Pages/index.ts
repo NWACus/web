@@ -4,6 +4,7 @@ import { CallToAction } from '@/blocks/CallToAction/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
+import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
@@ -105,6 +106,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 Content,
                 FormBlock,
                 ImageLinkGrid,
+                ImageQuote,
                 ImageText,
                 ImageTextList,
                 LinkPreviewBlock,
