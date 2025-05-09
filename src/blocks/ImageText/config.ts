@@ -13,7 +13,7 @@ export const ImageText: Block = {
   interfaceName: 'ImageText',
   imageURL: '/thumbnail/ImageTextThumbnail.jpg',
   fields: [
-    colorPickerField,
+    colorPickerField('Background color'),
     {
       name: 'imageLayout',
       label: 'Which side should the image be on?',
