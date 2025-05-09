@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
 import { Brands } from '@/collections/Brands'
-import { Categories } from '@/collections/Categories'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
@@ -101,7 +100,6 @@ export default buildConfig({
     },
   }),
   collections: [
-    Categories,
     Media,
     Pages,
     Posts,

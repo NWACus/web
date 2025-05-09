@@ -1,4 +1,3 @@
-import React from 'react'
 import { formatDateTime } from 'src/utilities/formatDateTime'
 
 import type { Post } from '@/payload-types'
@@ -7,7 +6,7 @@ import { Media } from '@/components/Media'
 import { formatAuthors } from '@/utilities/formatAuthors'
 
 export const PostHero = ({ post }: { post: Post }) => {
-  const { categories, heroImage, populatedAuthors, publishedAt, title } = post
+  const { heroImage, populatedAuthors, publishedAt, title } = post
 
   const hasAuthors =
     populatedAuthors && populatedAuthors.length > 0 && formatAuthors(populatedAuthors) !== ''
@@ -16,26 +15,6 @@ export const PostHero = ({ post }: { post: Post }) => {
     <div className="relative -mt-[10.4rem] flex items-end">
       <div className="container z-10 relative lg:grid lg:grid-cols-[1fr_48rem_1fr] text-white pb-8">
         <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
-          <div className="uppercase text-sm mb-6">
-            {categories?.map((category, index) => {
-              if (typeof category === 'object' && category !== null) {
-                const { title: categoryTitle } = category
-
-                const titleToUse = categoryTitle || 'Untitled category'
-
-                const isLast = index === categories.length - 1
-
-                return (
-                  <React.Fragment key={index}>
-                    {titleToUse}
-                    {!isLast && <React.Fragment>, &nbsp;</React.Fragment>}
-                  </React.Fragment>
-                )
-              }
-              return null
-            })}
-          </div>
-
           <div className="">
             <h1 className="mb-6 text-3xl md:text-5xl lg:text-6xl">{title}</h1>
           </div>

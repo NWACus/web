@@ -29,7 +29,6 @@ const collections: CollectionSlug[] = [
   'brands',
   'themes',
   'palettes',
-  'categories',
   'biographies',
   'media',
   'pages',
@@ -289,7 +288,7 @@ export const seed = async ({
       name: 'Contributor',
       rules: [
         {
-          collections: ['posts', 'pages', 'categories', 'media'],
+          collections: ['posts', 'pages', 'media'],
           actions: ['create', 'update'],
         },
       ],
@@ -580,43 +579,6 @@ export const seed = async ({
         {
           data: imageHero1(tenant),
           file: hero1Buffer,
-        },
-      ])
-      .flat(),
-  )
-
-  // Categories
-  await upsert(
-    'categories',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => obj.title,
-    Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'categories'>[] => [
-        {
-          title: 'Technology',
-          tenant: tenant.id,
-        },
-        {
-          title: 'News',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Finance',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Design',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Software',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Engineering',
-          tenant: tenant.id,
         },
       ])
       .flat(),
