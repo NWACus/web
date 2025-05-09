@@ -1,4 +1,4 @@
-import type { Block, Field } from 'payload'
+import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
 import {
@@ -9,25 +9,6 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-const columnFields: Field[] = [
-  {
-    name: 'richText',
-    type: 'richText',
-    editor: lexicalEditor({
-      features: ({ rootFeatures }) => {
-        return [
-          ...rootFeatures,
-          HorizontalRuleFeature(),
-          HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-          FixedToolbarFeature(),
-          InlineToolbarFeature(),
-        ]
-      },
-    }),
-    label: false,
-  },
-]
-
 export const Content: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
@@ -35,28 +16,39 @@ export const Content: Block = {
     // Background color
     colorPickerField('Background color'),
     {
-      name: 'enableColumns',
-      label: 'Use columns',
-      type: 'checkbox',
-    },
-    // Show ability to add columns if checkbox is enabled
-    {
       name: 'columns',
+      label: false,
+      labels: {
+        plural: 'Columns',
+        singular: 'Columns',
+      },
       type: 'array',
       admin: {
-        condition: (_, siblingData) => siblingData.enableColumns,
+        initCollapsed: false,
       },
-      fields: columnFields,
-    },
-    // Render content as single field
-    {
-      name: 'content',
-      type: 'group',
-      admin: {
-        condition: (_, siblingData) => !siblingData.enableColumns,
-        hideGutter: true,
-      },
-      fields: columnFields,
+      defaultValue: [
+        {
+          columns: [],
+        },
+      ],
+      fields: [
+        {
+          name: 'richText',
+          type: 'richText',
+          editor: lexicalEditor({
+            features: ({ rootFeatures }) => {
+              return [
+                ...rootFeatures,
+                HorizontalRuleFeature(),
+                HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+                FixedToolbarFeature(),
+                InlineToolbarFeature(),
+              ]
+            },
+          }),
+          label: false,
+        },
+      ],
     },
   ],
 }
