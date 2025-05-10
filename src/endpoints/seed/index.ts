@@ -15,6 +15,7 @@ import type {
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
+import { footer } from './footer'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
@@ -850,7 +851,15 @@ export const seed = async ({
   )
 
   payload.logger.info(`— Seeding footers...`)
-  // TODO add new footer seeding
-
+  await upsert(
+    'footer',
+    payload,
+    incremental,
+    tenantsById,
+    (_obj) => 'footer',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant),
+    ),
+  )
   payload.logger.info('Seeded database successfully!')
 }
