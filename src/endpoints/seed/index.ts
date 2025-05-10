@@ -6,7 +6,6 @@ import { headers } from 'next/headers'
 import type {
   CollectionSlug,
   File,
-  GlobalSlug,
   Payload,
   PayloadRequest,
   RequiredDataFromCollectionSlug,
@@ -37,13 +36,13 @@ const collections: CollectionSlug[] = [
   'form-submissions',
   'search',
   'navigations',
+  'footer',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
   'teams',
   'tenants',
 ]
-const globals: GlobalSlug[] = ['footer']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -60,24 +59,6 @@ export const seed = async ({
 }): Promise<void> => {
   payload.logger.info('Seeding database...')
   if (!incremental) {
-    payload.logger.info(`— Clearing collections and globals...`)
-
-    // clear the database
-    await Promise.all(
-      globals.map((global) =>
-        payload.updateGlobal({
-          slug: global,
-          data: {
-            navItems: [],
-          },
-          depth: 0,
-          context: {
-            disableRevalidate: true,
-          },
-        }),
-      ),
-    )
-
     await Promise.all(
       collections.map((collection) => {
         payload.logger.info(`Deleting collection: ${collection}`)
@@ -838,40 +819,8 @@ export const seed = async ({
     ),
   )
 
-  payload.logger.info(`— Seeding globals...`)
-
-  await Promise.all([
-    payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Admin',
-              url: '/admin',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
-            },
-          },
-        ],
-      },
-    }),
-  ])
+  payload.logger.info(`— Seeding footers...`)
+  // TODO add new footer seeding
 
   payload.logger.info('Seeded database successfully!')
 }

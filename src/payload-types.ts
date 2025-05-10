@@ -79,6 +79,7 @@ export interface Config {
     themes: Theme;
     palettes: Palette;
     navigations: Navigation;
+    footer: Footer;
     biographies: Biography;
     teams: Team;
     redirects: Redirect;
@@ -108,6 +109,7 @@ export interface Config {
     themes: ThemesSelect<false> | ThemesSelect<true>;
     palettes: PalettesSelect<false> | PalettesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -121,12 +123,8 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  globals: {
-    footer: Footer;
-  };
-  globalsSelect: {
-    footer: FooterSelect<false> | FooterSelect<true>;
-  };
+  globals: {};
+  globalsSelect: {};
   locale: null;
   user: User & {
     collection: 'users';
@@ -1397,6 +1395,30 @@ export interface Navigation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  tenant: number | Tenant;
+  logo?: (number | null) | Media;
+  address?: string | null;
+  email?: string | null;
+  /**
+   * Add link to social media page to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.
+   */
+  socialMedia?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    twitter?: string | null;
+    linkedin?: string | null;
+    youtube?: string | null;
+  };
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1518,6 +1540,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'navigations';
         value: number | Navigation;
+      } | null)
+    | ({
+        relationTo: 'footer';
+        value: number | Footer;
       } | null)
     | ({
         relationTo: 'biographies';
@@ -2362,6 +2388,28 @@ export interface NavigationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  tenant?: T;
+  logo?: T;
+  address?: T;
+  email?: T;
+  socialMedia?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        twitter?: T;
+        linkedin?: T;
+        youtube?: T;
+      };
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "biographies_select".
  */
 export interface BiographiesSelect<T extends boolean = true> {
@@ -2607,58 +2655,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer".
- */
-export interface Footer {
-  id: number;
-  navItems?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer_select".
- */
-export interface FooterSelect<T extends boolean = true> {
-  navItems?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
