@@ -1,5 +1,4 @@
 import { page } from '@/endpoints/seed/pages/page'
-import { staffPage } from '@/endpoints/seed/pages/staff-page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { fetchFileByURL } from '@/endpoints/seed/utilities'
 import { Form, Tenant } from '@/payload-types'
@@ -12,6 +11,8 @@ import type {
   PayloadRequest,
   RequiredDataFromCollectionSlug,
 } from 'payload'
+
+import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
 import { image1 } from './image-1'
@@ -698,7 +699,7 @@ export const seed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
         allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
-        staffPage(tenant, teams, images[tenant.slug]['hero'], images[tenant.slug]['image2']),
+        whoWeArePage(tenant, teams, images[tenant.slug]['hero'], images[tenant.slug]['image2']),
         page(
           tenant,
           images[tenant.slug]['hero'],
@@ -882,6 +883,14 @@ export const seed = async ({
           'Avalanche Accident Map',
           'Interactive map showing locations of avalanche accidents and incidents.',
           'avalanche-accident-map',
+        ),
+        page(
+          tenant,
+          images[tenant.slug]['hero'],
+          images[tenant.slug]['image2'],
+          'Weather Tools',
+          'A list of weather links.',
+          'weather-tools',
         ),
       ])
       .flat(),

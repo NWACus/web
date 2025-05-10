@@ -24,7 +24,7 @@ export const itemsField = ({
         {
           name: 'items',
           type: 'array',
-          label: 'Third-level Nav Items',
+          label: 'Sub Nav Items',
           fields: [navLink],
         },
       ],

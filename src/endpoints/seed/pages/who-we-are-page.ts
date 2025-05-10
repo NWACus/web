@@ -1,7 +1,7 @@
 import type { Media, Team, Tenant } from '@/payload-types'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 
-export const staffPage: (
+export const whoWeArePage: (
   tenant: Tenant,
   teams: Record<string, Team[]>,
   heroImage: Media,

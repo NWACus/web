@@ -1045,9 +1045,9 @@ export interface Palette {
 export interface Navigation {
   id: number;
   tenant: number | Tenant;
-  forecast?: {
+  forecasts?: {
     /**
-     * Dropdown items under Forecast
+     * Dropdown items under Forecasts
      */
     items?:
       | {
@@ -1136,21 +1136,6 @@ export interface Navigation {
       | null;
   };
   weather?: {
-    link?: {
-      type?: ('internal' | 'external') | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      newTab?: boolean | null;
-    };
     /**
      * Dropdown items under Weather
      */
@@ -1196,21 +1181,6 @@ export interface Navigation {
       | null;
   };
   education?: {
-    link?: {
-      type?: ('internal' | 'external') | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      newTab?: boolean | null;
-    };
     /**
      * Dropdown items under Education
      */
@@ -1256,21 +1226,6 @@ export interface Navigation {
       | null;
   };
   accidents?: {
-    link?: {
-      type?: ('internal' | 'external') | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      newTab?: boolean | null;
-    };
     /**
      * Dropdown items under Accidents
      */
@@ -1406,21 +1361,6 @@ export interface Navigation {
       | null;
   };
   about?: {
-    link?: {
-      type?: ('internal' | 'external') | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      newTab?: boolean | null;
-    };
     /**
      * Dropdown items under About
      */
@@ -1466,21 +1406,6 @@ export interface Navigation {
       | null;
   };
   support?: {
-    link?: {
-      type?: ('internal' | 'external') | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      newTab?: boolean | null;
-    };
     /**
      * Dropdown items under Support
      */
@@ -2275,7 +2200,7 @@ export interface PalettesSelect<T extends boolean = true> {
  */
 export interface NavigationsSelect<T extends boolean = true> {
   tenant?: T;
-  forecast?:
+  forecasts?:
     | T
     | {
         items?:
@@ -2342,15 +2267,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   weather?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
         items?:
           | T
           | {
@@ -2383,15 +2299,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   education?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
         items?:
           | T
           | {
@@ -2424,15 +2331,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   accidents?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
         items?:
           | T
           | {
@@ -2529,15 +2427,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   about?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
         items?:
           | T
           | {
@@ -2570,15 +2459,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   support?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
         items?:
           | T
           | {
