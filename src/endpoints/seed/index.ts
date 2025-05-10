@@ -37,6 +37,7 @@ const collections: CollectionSlug[] = [
   'form-submissions',
   'search',
   'navigations',
+  'footer',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
@@ -44,11 +45,6 @@ const collections: CollectionSlug[] = [
   'tenants',
 ]
 const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
-  footer: {
-    requiredFields: {
-      navItems: [],
-    },
-  },
   nacWidgetsConfig: {
     requiredFields: {
       version: '20250313',
@@ -56,7 +52,7 @@ const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
     },
   },
 }
-const globals: GlobalSlug[] = ['footer', 'nacWidgetsConfig']
+const globals: GlobalSlug[] = ['nacWidgetsConfig']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -853,47 +849,8 @@ export const seed = async ({
     ),
   )
 
-  payload.logger.info(`— Seeding globals...`)
-
-  await Promise.all([
-    payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Admin',
-              url: '/admin',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
-            },
-          },
-        ],
-      },
-    }),
-    payload.updateGlobal({
-      slug: 'nacWidgetsConfig',
-      data: {
-        version: '20250313',
-        baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
-      },
-    }),
-  ])
+  payload.logger.info(`— Seeding footers...`)
+  // TODO add new footer seeding
 
   payload.logger.info('Seeded database successfully!')
 }
