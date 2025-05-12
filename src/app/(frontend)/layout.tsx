@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 
 import { cn } from '@/utilities/ui'
-import { GeistMono } from 'geist/font/mono'
-import { GeistSans } from 'geist/font/sans'
 import React from 'react'
 import './globals.css'
 
@@ -13,6 +11,14 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getServerSideURL } from '@/utilities/getURL'
 import { draftMode } from 'next/headers'
 
+import { Lato } from 'next/font/google'
+
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['100', '300', '400', '700', '900'],
+  variable: '--font-lato',
+})
+
 type Args = {
   children: React.ReactNode
 }
@@ -21,7 +27,7 @@ export default async function RootLayout({ children }: Args) {
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
+    <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
       <head>
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />

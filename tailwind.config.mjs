@@ -10,6 +10,10 @@ export default {
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
   safelist: [
+    'bg-[#FFFFFF]',
+    'bg-[#CBD5E1]',
+    'bg-[#475569]',
+    'bg-[#334155]',
     'border-border',
     'bg-card',
     'border-error',
@@ -129,8 +133,7 @@ export default {
         error: 'hsl(var(--error))',
       },
       fontFamily: {
-        mono: ['var(--font-geist-mono)'],
-        sans: ['var(--font-geist-sans)'],
+        sans: ['var(--font-lato)'],
       },
       keyframes: {
         'accordion-down': {

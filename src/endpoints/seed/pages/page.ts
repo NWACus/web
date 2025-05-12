@@ -76,9 +76,9 @@ export const page: (
     },
     layout: [
       {
+        color: 'white',
         columns: [
           {
-            size: 'full',
             richText: {
               root: {
                 type: 'root',

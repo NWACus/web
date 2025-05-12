@@ -1,7 +1,10 @@
 import type { Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
+import { imageLinkGrid } from '../blocks/image-link-grid'
+import { imageQuote } from '../blocks/image-quote'
+import { imageText } from '../blocks/image-text'
 import { imageTextList } from '../blocks/image-text-list'
-import { LinkPreview } from '../blocks/link-preview'
+import { linkPreview } from '../blocks/link-preview'
 
 export const allBlocksPage: (
   tenant: Tenant,
@@ -21,7 +24,13 @@ export const allBlocksPage: (
       links: [],
       media: null,
     },
-    layout: [...imageTextList(image1), ...LinkPreview(image1)],
+    layout: [
+      ...imageLinkGrid(image1),
+      ...imageQuote(image1),
+      ...imageText(image1),
+      ...imageTextList(image1),
+      ...linkPreview(image1),
+    ],
     meta: {
       title: null,
       image: null,

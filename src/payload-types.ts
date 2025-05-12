@@ -347,6 +347,9 @@ export interface Page {
     | CallToActionBlock
     | ContentBlock
     | FormBlock
+    | ImageLinkGrid
+    | ImageQuote
+    | ImageText
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
@@ -568,9 +571,9 @@ export interface CallToActionBlock {
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
+  color: string;
   columns?:
     | {
-        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
         richText?: {
           root: {
             type: string;
@@ -586,26 +589,6 @@ export interface ContentBlock {
           };
           [k: string]: unknown;
         } | null;
-        enableLink?: boolean | null;
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
         id?: string | null;
       }[]
     | null;
@@ -813,6 +796,77 @@ export interface Form {
   tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageLinkGrid".
+ */
+export interface ImageLinkGrid {
+  columns?:
+    | {
+        image: number | Media;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+        };
+        caption: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageLinkGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageQuote".
+ */
+export interface ImageQuote {
+  color: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  quote: string;
+  author: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageQuote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageText".
+ */
+export interface ImageText {
+  color: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1769,6 +1823,9 @@ export interface PagesSelect<T extends boolean = true> {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridSelect<T>;
+        imageQuote?: T | ImageQuoteSelect<T>;
+        imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -1828,22 +1885,11 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
+  color?: T;
   columns?:
     | T
     | {
-        size?: T;
         richText?: T;
-        enableLink?: T;
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              appearance?: T;
-            };
         id?: T;
       };
   id?: T;
@@ -1857,6 +1903,54 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageLinkGrid_select".
+ */
+export interface ImageLinkGridSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        image?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+        caption?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageQuote_select".
+ */
+export interface ImageQuoteSelect<T extends boolean = true> {
+  color?: T;
+  imageLayout?: T;
+  image?: T;
+  quote?: T;
+  author?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageText_select".
+ */
+export interface ImageTextSelect<T extends boolean = true> {
+  color?: T;
+  imageLayout?: T;
+  image?: T;
+  richText?: T;
   id?: T;
   blockName?: T;
 }
