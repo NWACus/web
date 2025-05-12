@@ -28,9 +28,6 @@ importers:
       '@payloadcms/plugin-multi-tenant':
         specifier: 3.33.0
         version: 3.33.0(@payloadcms/ui@3.33.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2))(next@15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))
-      '@payloadcms/plugin-nested-docs':
-        specifier: 3.33.0
-        version: 3.33.0(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))
       '@payloadcms/plugin-redirects':
         specifier: 3.33.0
         version: 3.33.0(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))
@@ -2316,14 +2313,6 @@ packages:
     peerDependencies:
       '@payloadcms/ui': 3.33.0
       next: ^15.2.3
-      payload: 3.33.0
-
-  '@payloadcms/plugin-nested-docs@3.33.0':
-    resolution:
-      {
-        integrity: sha512-omuqg0N7TUwTk2GPQDpBITIvTUp7fSLxK8pgo2mjq3pH7p3YzGgnnJVqyLH4z1knuMlOus3vqb+QhMoOIB7jGA==,
-      }
-    peerDependencies:
       payload: 3.33.0
 
   '@payloadcms/plugin-redirects@3.33.0':
@@ -10333,10 +10322,6 @@ snapshots:
     dependencies:
       '@payloadcms/ui': 3.33.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2)
       next: 15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4)
-      payload: 3.33.0(graphql@16.10.0)(typescript@5.7.2)
-
-  '@payloadcms/plugin-nested-docs@3.33.0(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))':
-    dependencies:
       payload: 3.33.0(graphql@16.10.0)(typescript@5.7.2)
 
   '@payloadcms/plugin-redirects@3.33.0(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))':
