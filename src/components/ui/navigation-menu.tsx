@@ -61,7 +61,7 @@ const NavigationMenuContent = React.forwardRef<
   <NavigationMenuPrimitive.Content
     ref={ref}
     className={cn(
-      'absolute bg-header text-header-foreground origin-top-center top-full w-fit overflow-hidden border-x border-b max-h-[calc(100vh-225px)] overflow-y-auto',
+      'absolute bg-header text-header-foreground-highlight origin-top-center top-full w-fit overflow-hidden border-x border-b max-h-[calc(100vh-225px)] overflow-y-auto',
       className,
     )}
     {...props}

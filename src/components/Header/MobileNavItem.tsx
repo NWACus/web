@@ -6,7 +6,7 @@ import { RenderNavLink } from './RenderNavLink'
 import { NavItem } from './utils'
 
 const underlineHoverClassName =
-  "relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground-highlight after:transition-all after:duration-300 hover:after:w-full hover:text-header-foreground-highlight"
+  "relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-secondary after:transition-all after:duration-300 hover:after:w-full hover:text-header-foreground-highlight"
 
 type MobileNavItemProps = {
   label: string
@@ -37,7 +37,10 @@ export const MobileNavItem = ({
   }
 
   return (
-    <AccordionItem value={label} className={cn('border-0 px-2', className)}>
+    <AccordionItem
+      value={label}
+      className={cn('border-0 px-2 data-[state=open]:text-header-foreground-highlight', className)}
+    >
       <AccordionTrigger
         className={cn(
           'py-3 capitalize text-base hover:no-underline hover:text-header-foreground-highlight',
@@ -66,7 +69,7 @@ export const MobileNavItem = ({
               return (
                 <AccordionItem key={item.id} value={item.link.label} className="border-0">
                   <AccordionTrigger
-                    className={cn('py-2 text-base font-normal hover:no-underline')}
+                    className="py-2 text-base font-normal hover:no-underline -mb-1.5"
                     chevronClassName="h-6 w-6 text-inherit"
                   >
                     <div className={cn(underlineHoverClassName, 'pb-1.5')}>{item.link.label}</div>

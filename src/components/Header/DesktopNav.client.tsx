@@ -1,7 +1,6 @@
 'use client'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
-import { useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import {
   NavigationMenu,
@@ -25,15 +24,8 @@ export const DesktopNav = ({
   topLevelNavItems: TopLevelNavItem[]
   donateNavItem?: TopLevelNavItem
 }) => {
-  const [activeMenuItem, setActiveMenuItem] = useState<string>()
-  const containerReference = useRef<HTMLElement>(null)
-
   return (
-    <NavigationMenu
-      ref={containerReference}
-      value={activeMenuItem}
-      onValueChange={setActiveMenuItem}
-    >
+    <NavigationMenu>
       <NavigationMenuList>
         {topLevelNavItems.map((navItem) => {
           const label = navItem.label || navItem.link?.label
@@ -44,7 +36,7 @@ export const DesktopNav = ({
             return (
               <NavigationMenuItem key={label} value={label}>
                 <NavigationMenuLink asChild>
-                  <RenderNavLink link={navItem.link} className={cn(navigationMenuTriggerStyle())} />
+                  <RenderNavLink link={navItem.link} className={navigationMenuTriggerStyle()} />
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )
