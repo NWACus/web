@@ -44,7 +44,9 @@ export const DesktopNav = ({
 
           return (
             <NavigationMenuItem key={label} value={label}>
-              <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
+              <NavigationMenuTrigger className="data-[state=open]:text-header-foreground-highlight">
+                {label}
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <div className="grid min-w-max px-4 pt-2 pb-5 gap-2">
                   {navItem.items.map((item) => {
