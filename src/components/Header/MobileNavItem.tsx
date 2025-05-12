@@ -1,10 +1,9 @@
 'use client'
 import { cn } from '@/utilities/ui'
-import { usePathname } from 'next/navigation'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
 import { RenderNavLink } from './RenderNavLink'
-import { hasActiveDescendent, isActive, NavItem } from './utils'
+import { NavItem } from './utils'
 
 const underlineHoverClassName =
   "relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground-highlight after:transition-all after:duration-300 hover:after:w-full hover:text-header-foreground-highlight"
@@ -22,16 +21,12 @@ export const MobileNavItem = ({
   setMobileNavOpen,
   className,
 }: MobileNavItemProps) => {
-  const pathname = usePathname()
-
   if (!navItem.items || navItem.items.length === 0) {
     return navItem.link ? (
       <RenderNavLink
         link={navItem.link}
         className={cn(
           'flex items-center py-3 text-base px-2 hover:text-header-foreground-highlight',
-          isActive(navItem, pathname) &&
-            'text-header-foreground-highlight hover:text-header-foreground-highlight/90',
           className,
         )}
         onClick={() => setMobileNavOpen(false)}
@@ -46,8 +41,6 @@ export const MobileNavItem = ({
       <AccordionTrigger
         className={cn(
           'py-3 capitalize text-base hover:no-underline hover:text-header-foreground-highlight',
-          navItem.items.some((item) => hasActiveDescendent(item, pathname)) &&
-            'text-header-foreground-highlight',
         )}
         chevronClassName="h-6 w-6 text-inherit"
       >
@@ -64,15 +57,7 @@ export const MobileNavItem = ({
                   className={cn('flex items-center pt-3 pb-1.5 text-base')}
                   onClick={() => setMobileNavOpen(false)}
                 >
-                  <div
-                    className={cn(
-                      underlineHoverClassName,
-                      'pb-1.5',
-                      isActive(item, pathname) && 'text-header-foreground-highlight after:w-full',
-                    )}
-                  >
-                    {item.link.label}
-                  </div>
+                  <div className={cn(underlineHoverClassName, 'pb-1.5')}>{item.link.label}</div>
                 </RenderNavLink>
               ) : null
             }
@@ -81,22 +66,10 @@ export const MobileNavItem = ({
               return (
                 <AccordionItem key={item.id} value={item.link.label} className="border-0">
                   <AccordionTrigger
-                    className={cn(
-                      'py-2 text-base font-normal hover:no-underline',
-                      item.items.some((item) => hasActiveDescendent(item, pathname)) &&
-                        'text-header-foreground-highlight',
-                    )}
+                    className={cn('py-2 text-base font-normal hover:no-underline')}
                     chevronClassName="h-6 w-6 text-inherit"
                   >
-                    <div
-                      className={cn(
-                        underlineHoverClassName,
-                        'pb-1.5',
-                        isActive(item, pathname) && 'text-header-foreground-highlight after:w-full',
-                      )}
-                    >
-                      {item.link.label}
-                    </div>
+                    <div className={cn(underlineHoverClassName, 'pb-1.5')}>{item.link.label}</div>
                   </AccordionTrigger>
                   <AccordionContent className="py-0 w-full">
                     <div className="pl-4">
@@ -108,14 +81,7 @@ export const MobileNavItem = ({
                             className={cn('flex items-center pt-3 pb-1.5 text-base')}
                             onClick={() => setMobileNavOpen(false)}
                           >
-                            <div
-                              className={cn(
-                                underlineHoverClassName,
-                                'pb-1.5',
-                                isActive(subItem, pathname) &&
-                                  'text-header-foreground-highlight after:w-full',
-                              )}
-                            >
+                            <div className={cn(underlineHoverClassName, 'pb-1.5')}>
                               {subItem.link.label}
                             </div>
                           </RenderNavLink>

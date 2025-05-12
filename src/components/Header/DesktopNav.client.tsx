@@ -1,7 +1,6 @@
 'use client'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
-import { usePathname } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import {
@@ -14,7 +13,7 @@ import {
   navigationMenuTriggerStyle,
 } from '../ui/navigation-menu'
 import { RenderNavLink } from './RenderNavLink'
-import { hasActiveDescendent, isActive, TopLevelNavItem } from './utils'
+import { TopLevelNavItem } from './utils'
 
 const underlineHoverClassName =
   "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-header-foreground-highlight after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)] hover:text-header-foreground-highlight"
@@ -28,8 +27,6 @@ export const DesktopNav = ({
 }) => {
   const [activeMenuItem, setActiveMenuItem] = useState<string>()
   const containerReference = useRef<HTMLElement>(null)
-
-  const pathname = usePathname()
 
   return (
     <NavigationMenu
@@ -46,15 +43,8 @@ export const DesktopNav = ({
           if (!navItem.items) {
             return (
               <NavigationMenuItem key={label} value={label}>
-                <NavigationMenuLink asChild active={isActive(navItem, pathname)}>
-                  <RenderNavLink
-                    link={navItem.link}
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      isActive(navItem, pathname) &&
-                        'text-header-foreground-highlight hover:text-header-foreground-highlight/90',
-                    )}
-                  />
+                <NavigationMenuLink asChild>
+                  <RenderNavLink link={navItem.link} className={cn(navigationMenuTriggerStyle())} />
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )
@@ -62,14 +52,7 @@ export const DesktopNav = ({
 
           return (
             <NavigationMenuItem key={label} value={label}>
-              <NavigationMenuTrigger
-                className={cn(
-                  navItem.items.some((item) => hasActiveDescendent(item, pathname)) &&
-                    'text-header-foreground-highlight hover:text-header-foreground-highlight/90',
-                )}
-              >
-                {label}
-              </NavigationMenuTrigger>
+              <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <div className="grid min-w-max px-4 pt-2 pb-5 gap-2">
                   {navItem.items.map((item) => {
@@ -81,12 +64,7 @@ export const DesktopNav = ({
                           <NavigationMenuLink asChild>
                             <RenderNavLink
                               link={item.link}
-                              className={cn(
-                                'py-1.5 px-2',
-                                underlineHoverClassName,
-                                isActive(item, pathname) &&
-                                  'text-header-foreground-highlight hover:text-header-foreground-highlight/90 after:w-[calc(100%-1rem)]',
-                              )}
+                              className={cn('py-1.5 px-2', underlineHoverClassName)}
                             />
                           </NavigationMenuLink>
                         )}
@@ -96,8 +74,6 @@ export const DesktopNav = ({
                               <div
                                 className={cn(
                                   'text-base w-full inline-flex items-center justify-between',
-                                  item.items?.some((item) => hasActiveDescendent(item, pathname)) &&
-                                    'text-header-foreground-highlight hover:text-header-foreground-highlight/90',
                                 )}
                               >
                                 {item.link?.label}{' '}
@@ -111,12 +87,7 @@ export const DesktopNav = ({
                               {item.items?.map((subItem) => (
                                 <li
                                   key={subItem.id}
-                                  className={cn(
-                                    'py-1.5',
-                                    underlineHoverClassName,
-                                    isActive(subItem, pathname) &&
-                                      'text-header-foreground-highlight hover:text-header-foreground-highlight/90 after:w-[calc(100%-1rem)]',
-                                  )}
+                                  className={cn('py-1.5', underlineHoverClassName)}
                                 >
                                   <NavigationMenuLink asChild>
                                     <RenderNavLink link={subItem.link} className="px-2" />
@@ -138,14 +109,7 @@ export const DesktopNav = ({
           <NavigationMenuItem>
             <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
               <RenderNavLink link={donateNavItem.link}>
-                <Button
-                  variant="callout"
-                  className={cn(
-                    isActive(donateNavItem, pathname) && 'underline underline-offset-4',
-                  )}
-                >
-                  {donateNavItem.label}
-                </Button>
+                <Button variant="callout">{donateNavItem.label}</Button>
               </RenderNavLink>
             </NavigationMenuLink>
           </NavigationMenuItem>

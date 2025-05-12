@@ -246,17 +246,3 @@ export const getTopLevelNavItems = async ({
   ...topLevelNavItem(navigation.about, 'About'),
   ...topLevelNavItem(navigation.support, 'Support'),
 ]
-
-export function hasActiveDescendent(navItem: NavItem, pathname: string): boolean {
-  if (navItem.link?.type === 'internal' && navItem.link?.url === pathname) {
-    return true
-  }
-  if (navItem.items) {
-    return navItem.items.some((item) => hasActiveDescendent(item, pathname))
-  }
-  return false
-}
-
-export function isActive(navItem: NavItem | TopLevelNavItem, pathname: string) {
-  return navItem.link?.type === 'internal' && navItem.link?.url === pathname
-}
