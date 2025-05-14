@@ -74,6 +74,11 @@ export default async function Page({ params: paramsPromise }: Args) {
 
       {draft && <LivePreviewListener />}
 
+      <div className="container mb-8">
+        <div className="prose dark:prose-invert max-w-none">
+          <h1>{page.title}</h1>
+        </div>
+      </div>
       <RenderBlocks blocks={layout} payload={payload} />
     </article>
   )
