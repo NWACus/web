@@ -1,6 +1,6 @@
 'use client'
 import { cn } from '@/utilities/ui'
-import { ChevronDown } from 'lucide-react'
+import { CornerRightDown } from 'lucide-react'
 import { Button } from '../ui/button'
 import {
   NavigationMenu,
@@ -65,14 +65,10 @@ export const DesktopNav = ({
                         {hasSubItems && (
                           <>
                             <div className="px-2 py-1.5">
-                              <div
-                                className={cn(
-                                  'text-base w-full inline-flex items-center justify-between',
-                                )}
-                              >
-                                {item.link?.label}{' '}
-                                <ChevronDown
-                                  className="relative top-[1px] ml-0.5 h-6 w-6 transition duration-300 group-data-[state=open]:rotate-180"
+                              <div className={cn('text-base w-full flex items-center gap-1.5')}>
+                                {item.link?.label}
+                                <CornerRightDown
+                                  className="h-5 w-5 flex-shrink-0 stroke-2"
                                   aria-hidden="true"
                                 />
                               </div>
