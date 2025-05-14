@@ -45,11 +45,21 @@ export const Posts: CollectionConfig<'posts'> = {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
     livePreview: {
-      url: ({ data, req }) => {
+      url: async ({ data, req, payload }) => {
+        let tenant = data.tenant
+
+        if (typeof tenant === 'number') {
+          tenant = await payload.findByID({
+            collection: 'tenants',
+            id: tenant,
+            depth: 2,
+          })
+        }
+
         const path = generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'posts',
-          tenant: data?.tenant,
+          tenant,
           req,
         })
 
