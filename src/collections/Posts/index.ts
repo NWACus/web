@@ -32,9 +32,6 @@ import {
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: accessByTenantOrReadPublished('posts'),
-  // This config controls what's populated by default when a post is referenced
-  // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
-  // Type safe if the collection slug generic is passed to `CollectionConfig` - `CollectionConfig<'posts'>
   defaultPopulate: {
     title: true,
     slug: true,
@@ -88,11 +85,6 @@ export const Posts: CollectionConfig<'posts'> = {
       tabs: [
         {
           fields: [
-            {
-              name: 'heroImage',
-              type: 'upload',
-              relationTo: 'media',
-            },
             {
               name: 'content',
               type: 'richText',

@@ -18,12 +18,6 @@ export const allBlocksPage: (
     tenant: tenant.id,
     title: 'Blocks',
     _status: 'published',
-    hero: {
-      type: 'lowImpact',
-      richText: null,
-      links: [],
-      media: null,
-    },
     layout: [
       ...imageLinkGrid(image1),
       ...imageQuote(image1),

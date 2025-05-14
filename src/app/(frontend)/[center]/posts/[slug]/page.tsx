@@ -9,7 +9,6 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 
@@ -67,8 +66,6 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
-
-      <PostHero post={post} />
 
       <div className="flex flex-col items-center gap-4 pt-8">
         <div className="container">

@@ -4,12 +4,10 @@ import type { RequiredDataFromCollectionSlug } from 'payload'
 export const staffPage: (
   tenant: Tenant,
   teams: Record<string, Team[]>,
-  heroImage: Media,
   seoImage: Media,
 ) => RequiredDataFromCollectionSlug<'pages'> = (
   tenant: Tenant,
   teams: Record<string, Team[]>,
-  heroImage: Media,
   seoImage: Media,
 ): RequiredDataFromCollectionSlug<'pages'> => {
   const slug = 'who-we-are'
@@ -20,59 +18,6 @@ export const staffPage: (
     tenant: tenant.id,
     title: title,
     _status: 'published',
-    hero: {
-      type: 'lowImpact',
-      richText: {
-        root: {
-          type: 'root',
-          format: '',
-          indent: 0,
-          version: 1,
-          children: [
-            {
-              tag: 'h1',
-              type: 'heading',
-              format: '',
-              indent: 0,
-              version: 1,
-              children: [
-                {
-                  mode: 'normal',
-                  text: title,
-                  type: 'text',
-                  style: '',
-                  detail: 0,
-                  format: 0,
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-            },
-            {
-              type: 'paragraph',
-              format: '',
-              indent: 0,
-              version: 1,
-              children: [
-                {
-                  mode: 'normal',
-                  text: description,
-                  type: 'text',
-                  style: '',
-                  detail: 0,
-                  format: 0,
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-              textStyle: '',
-              textFormat: 0,
-            },
-          ],
-          direction: 'ltr',
-        },
-      },
-    },
     layout: teams[tenant.slug].map((team) => ({
       team: team.id,
       blockType: 'team',
