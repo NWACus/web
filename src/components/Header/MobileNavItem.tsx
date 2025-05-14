@@ -26,7 +26,7 @@ export const MobileNavItem = ({
       <RenderNavLink
         link={navItem.link}
         className={cn(
-          'flex items-center py-3 text-base px-2 hover:text-header-foreground-highlight',
+          'flex items-center py-3 text-base px-2 hover:text-header-foreground-highlight font-medium',
           className,
         )}
         onClick={() => setMobileNavOpen(false)}
@@ -43,7 +43,7 @@ export const MobileNavItem = ({
     >
       <AccordionTrigger
         className={cn(
-          'py-3 capitalize text-base hover:no-underline hover:text-header-foreground-highlight',
+          'py-3 capitalize text-base hover:no-underline hover:text-header-foreground-highlight font-medium',
         )}
         chevronClassName="h-6 w-6 text-inherit"
       >

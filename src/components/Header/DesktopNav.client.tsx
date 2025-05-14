@@ -37,7 +37,10 @@ export const DesktopNav = ({
             return (
               <NavigationMenuItem key={label} value={label}>
                 <NavigationMenuLink asChild>
-                  <RenderNavLink link={navItem.link} className={navigationMenuTriggerStyle()} />
+                  <RenderNavLink
+                    link={navItem.link}
+                    className={cn(navigationMenuTriggerStyle(), 'font-medium')}
+                  />
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )
@@ -45,7 +48,7 @@ export const DesktopNav = ({
 
           return (
             <NavigationMenuItem key={label} value={label}>
-              <NavigationMenuTrigger className="data-[state=open]:text-header-foreground-highlight">
+              <NavigationMenuTrigger className="data-[state=open]:text-header-foreground-highlight font-medium">
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
