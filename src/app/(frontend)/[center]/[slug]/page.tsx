@@ -48,13 +48,13 @@ type Args = {
 
 type PathArgs = {
   center: string
-  slug?: string
+  slug: string
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
   const payload = await getPayload({ config: configPromise })
   const { isEnabled: draft } = await draftMode()
-  const { center, slug = 'home' } = await paramsPromise
+  const { center, slug } = await paramsPromise
   const url = '/' + center + '/' + slug
 
   const page: PageType | null = await queryPageBySlug({
@@ -86,7 +86,7 @@ export async function generateMetadata({
 }: {
   params: Promise<PathArgs>
 }): Promise<Metadata> {
-  const { center, slug = 'home' } = await paramsPromise
+  const { center, slug } = await paramsPromise
   const page = await queryPageBySlug({
     center: center,
     slug: slug,
