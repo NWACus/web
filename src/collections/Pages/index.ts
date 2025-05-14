@@ -10,7 +10,6 @@ import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { slugField } from '@/fields/slug'
-import { hero } from '@/heros/config'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
@@ -43,11 +42,11 @@ export const Pages: CollectionConfig<'pages'> = {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
     livePreview: {
-      url: async ({ data, req, payload }) => {
+      url: async ({ data, req }) => {
         let tenant = data.tenant
 
         if (typeof tenant === 'number') {
-          tenant = await payload.findByID({
+          tenant = await req.payload.findByID({
             collection: 'tenants',
             id: tenant,
             depth: 2,
@@ -91,10 +90,6 @@ export const Pages: CollectionConfig<'pages'> = {
     {
       type: 'tabs',
       tabs: [
-        {
-          fields: [hero],
-          label: 'Hero',
-        },
         {
           fields: [
             {
