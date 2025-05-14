@@ -6,6 +6,9 @@ import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
+import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/Component'
+import { ImageQuote } from '@/blocks/ImageQuote/Component'
+import { ImageText } from '@/blocks/ImageText/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
@@ -45,6 +48,12 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <ContentBlock {...block} />
     case 'formBlock':
       return <FormBlock {...block} />
+    case 'imageLinkGrid':
+      return <ImageLinkGrid {...block} />
+    case 'imageQuote':
+      return <ImageQuote {...block} />
+    case 'imageText':
+      return <ImageText {...block} />
     case 'imageTextList':
       return <ImageTextList {...block} />
     case 'linkPreview':

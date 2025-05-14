@@ -67,7 +67,6 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    categories: Category;
     media: Media;
     pages: Page;
     posts: Post;
@@ -97,7 +96,6 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -155,48 +153,6 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  contentHash?: string | null;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants".
- */
-export interface Tenant {
-  id: number;
-  name: string;
-  domains?:
-    | {
-        domain: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Used for url paths, example: /tenant-slug/page-slug
-   */
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -294,6 +250,27 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  name: string;
+  domains?:
+    | {
+        domain: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Used for url paths, example: /tenant-slug/page-slug
+   */
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
@@ -347,6 +324,9 @@ export interface Page {
     | CallToActionBlock
     | ContentBlock
     | FormBlock
+    | ImageLinkGrid
+    | ImageQuote
+    | ImageText
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
@@ -394,7 +374,6 @@ export interface Post {
     [k: string]: unknown;
   };
   relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
   meta?: {
     title?: string | null;
     /**
@@ -568,9 +547,9 @@ export interface CallToActionBlock {
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
+  color: string;
   columns?:
     | {
-        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
         richText?: {
           root: {
             type: string;
@@ -586,26 +565,6 @@ export interface ContentBlock {
           };
           [k: string]: unknown;
         } | null;
-        enableLink?: boolean | null;
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
         id?: string | null;
       }[]
     | null;
@@ -813,6 +772,77 @@ export interface Form {
   tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageLinkGrid".
+ */
+export interface ImageLinkGrid {
+  columns?:
+    | {
+        image: number | Media;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+        };
+        caption: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageLinkGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageQuote".
+ */
+export interface ImageQuote {
+  color: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  quote: string;
+  author: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageQuote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageText".
+ */
+export interface ImageText {
+  color: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1559,13 +1589,6 @@ export interface Search {
     description?: string | null;
     image?: (number | null) | Media;
   };
-  categories?:
-    | {
-        relationTo?: string | null;
-        id?: string | null;
-        title?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1576,10 +1599,6 @@ export interface Search {
 export interface PayloadLockedDocument {
   id: number;
   document?:
-    | ({
-        relationTo: 'categories';
-        value: number | Category;
-      } | null)
     | ({
         relationTo: 'media';
         value: number | Media;
@@ -1693,26 +1712,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
- */
-export interface CategoriesSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
-  contentHash?: T;
-  parent?: T;
-  breadcrumbs?:
-    | T
-    | {
-        doc?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1844,6 +1843,9 @@ export interface PagesSelect<T extends boolean = true> {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridSelect<T>;
+        imageQuote?: T | ImageQuoteSelect<T>;
+        imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -1903,22 +1905,11 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
+  color?: T;
   columns?:
     | T
     | {
-        size?: T;
         richText?: T;
-        enableLink?: T;
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              appearance?: T;
-            };
         id?: T;
       };
   id?: T;
@@ -1932,6 +1923,54 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageLinkGrid_select".
+ */
+export interface ImageLinkGridSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        image?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+        caption?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageQuote_select".
+ */
+export interface ImageQuoteSelect<T extends boolean = true> {
+  color?: T;
+  imageLayout?: T;
+  image?: T;
+  quote?: T;
+  author?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageText_select".
+ */
+export interface ImageTextSelect<T extends boolean = true> {
+  color?: T;
+  imageLayout?: T;
+  image?: T;
+  richText?: T;
   id?: T;
   blockName?: T;
 }
@@ -2006,7 +2045,6 @@ export interface PostsSelect<T extends boolean = true> {
   heroImage?: T;
   content?: T;
   relatedPosts?: T;
-  categories?: T;
   meta?:
     | T
     | {
@@ -2744,13 +2782,6 @@ export interface SearchSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
-      };
-  categories?:
-    | T
-    | {
-        relationTo?: T;
-        id?: T;
-        title?: T;
       };
   updatedAt?: T;
   createdAt?: T;
