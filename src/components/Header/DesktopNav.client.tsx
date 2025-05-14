@@ -1,6 +1,7 @@
 'use client'
 import { cn } from '@/utilities/ui'
-import { CornerRightDown } from 'lucide-react'
+import { AccordionContent } from '@radix-ui/react-accordion'
+import { Accordion, AccordionItem, AccordionTrigger } from '../ui/accordion'
 import { Button } from '../ui/button'
 import {
   NavigationMenu,
@@ -48,7 +49,11 @@ export const DesktopNav = ({
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="grid min-w-max px-4 pt-2 pb-5 gap-2">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="grid min-w-max px-4 pt-2 pb-5 gap-2"
+                >
                   {navItem.items.map((item) => {
                     const hasSubItems = item.items && item.items.length > 0
 
@@ -63,34 +68,41 @@ export const DesktopNav = ({
                           </NavigationMenuLink>
                         )}
                         {hasSubItems && (
-                          <>
-                            <div className="px-2 py-1.5">
-                              <div className={cn('text-base w-full flex items-center gap-1.5')}>
+                          <AccordionItem value={item.id} className="border-0">
+                            <AccordionTrigger
+                              className="pl-2 py-1.5 hover:no-underline -mb-0.5 w-full group/accordion-trigger"
+                              chevronClassName="h-6 w-6 text-inherit"
+                            >
+                              <div
+                                className={cn(
+                                  'text-base pb-0.5',
+                                  underlineHoverClassName,
+                                  'after:left-0 after:group-hover/accordion-trigger:w-full',
+                                )}
+                              >
                                 {item.link?.label}
-                                <CornerRightDown
-                                  className="h-5 w-5 flex-shrink-0 stroke-2"
-                                  aria-hidden="true"
-                                />
                               </div>
-                            </div>
-                            <ul className="flex flex-col gap-1 py-1 pl-4 w-full">
-                              {item.items?.map((subItem) => (
-                                <li
-                                  key={subItem.id}
-                                  className={cn('py-1.5', underlineHoverClassName)}
-                                >
-                                  <NavigationMenuLink asChild>
-                                    <RenderNavLink link={subItem.link} className="px-2" />
-                                  </NavigationMenuLink>
-                                </li>
-                              ))}
-                            </ul>
-                          </>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <ul className="flex flex-col gap-1 py-1 pl-4 w-full">
+                                {item.items?.map((subItem) => (
+                                  <li
+                                    key={subItem.id}
+                                    className={cn('py-1.5', underlineHoverClassName)}
+                                  >
+                                    <NavigationMenuLink asChild>
+                                      <RenderNavLink link={subItem.link} className="px-2" />
+                                    </NavigationMenuLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
+                          </AccordionItem>
                         )}
                       </div>
                     )
                   })}
-                </div>
+                </Accordion>
               </NavigationMenuContent>
             </NavigationMenuItem>
           )
