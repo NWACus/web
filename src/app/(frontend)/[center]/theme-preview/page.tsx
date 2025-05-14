@@ -75,6 +75,33 @@ export default async function Page({ params }: Args) {
       <div className="container mb-16 grid gap-14">
         <h1 className="text-3xl font-bold mb-6">Theme Preview for {center.toUpperCase()}</h1>
 
+        <div>
+          <div className="space-y-4">
+            {[100, 200, 300, 400, 500, 600, 700, 800, 900].map((weight) => (
+              <div key={weight} className="flex items-center gap-6">
+                <p
+                  style={{
+                    fontWeight: weight,
+                    fontStyle: 'normal',
+                  }}
+                  className="text-lg"
+                >
+                  {weight} Normal
+                </p>
+                <p
+                  style={{
+                    fontWeight: weight,
+                    fontStyle: 'italic',
+                  }}
+                  className="text-lg"
+                >
+                  {weight} Italic
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-8">
           <h2 className="text-xl font-semibold">Semantic Class Colors</h2>
 
