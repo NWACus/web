@@ -43,11 +43,13 @@
 
     --header: 0 0% 100%;
     --header-foreground: 240 10% 3.9%;
+    --header-foreground-highlight: 240 3.8% 46.1%;
 
     --footer: 0 0% 100%;
     --footer-foreground: 240 10% 3.9%;
+    --footer-foreground-highlight: 240 3.8% 46.1%;
 
-    --callout: 0 0% 100%;
+    --callout: 240 4.8% 95.9%;
     --callout-foreground: 240 10% 3.9%;
 
     --brand-50: 210 40% 98%;
@@ -86,9 +88,11 @@
 
     --header: 217 62% 21%;
     --header-foreground: 193 42% 74%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --footer: 300 1% 22%;
     --footer-foreground: 0 0% 100%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --callout: 69 94% 64%;
     --callout-foreground: 240 6% 10%;

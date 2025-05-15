@@ -11,6 +11,8 @@ import type {
   PayloadRequest,
   RequiredDataFromCollectionSlug,
 } from 'payload'
+
+import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
 import { image1 } from './image-1'
@@ -19,7 +21,6 @@ import { imageMountain } from './image-mountain'
 import { navigationSeed } from './navigation'
 import { allBlocksPage } from './pages/all-blocks-page'
 import { contact as contactPageData } from './pages/contact-page'
-import { staffPage } from './pages/staff-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
@@ -651,7 +652,7 @@ export const seed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
         allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
-        staffPage(tenant, teams, images[tenant.slug]['image2']),
+        whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
         page(
           tenant,
           images[tenant.slug]['image2'],
@@ -812,6 +813,13 @@ export const seed = async ({
           'Avalanche Accident Map',
           'Interactive map showing locations of avalanche accidents and incidents.',
           'avalanche-accident-map',
+        ),
+        page(
+          tenant,
+          images[tenant.slug]['image2'],
+          'Weather Tools',
+          'A list of weather links.',
+          'weather-tools',
         ),
       ])
       .flat(),
