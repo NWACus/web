@@ -1,11 +1,15 @@
 import { Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const footer = (tenant: Tenant): RequiredDataFromCollectionSlug<'footer'> => {
+export const footer = (
+  tenant: Tenant,
+  brandImages: any, // TODO figure out type
+): RequiredDataFromCollectionSlug<'footer'> => {
   const footerData = {
     nwac: {
       tenant: tenant.id,
-      // logo: brandImages[tenant.slug]['logo'].id,
+      logo: brandImages[tenant.slug]['logo'].id,
+      name: tenant.name,
       address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045\n(206) 909-0203',
       email: 'info@nwac.us',
       socialMedia: {
@@ -19,7 +23,8 @@ export const footer = (tenant: Tenant): RequiredDataFromCollectionSlug<'footer'>
     },
     sac: {
       tenant: tenant.id,
-      // logo: brandImages[tenant.slug]['logo'].id,
+      logo: brandImages[tenant.slug]['logo'].id,
+      name: tenant.name,
       address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161\n(530) 563-2257',
       email: 'info@sierraavalanchecenter.org',
       socialMedia: {
@@ -31,14 +36,15 @@ export const footer = (tenant: Tenant): RequiredDataFromCollectionSlug<'footer'>
     },
     snfac: {
       tenant: tenant.id,
-      // logo: brandImages[tenant.slug]['logo'].id,
+      logo: brandImages[tenant.slug]['logo'].id,
+      name: tenant.name,
       address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045\n(206) 909-0203',
       email: 'info@nwac.us',
       socialMedia: {},
       contentHash: null,
     },
   }
-  // TODO figure out type
-  const slug = tenant.slug as 'nwac' | 'sac' | 'snfac'
+
+  const slug = tenant.slug as 'nwac' | 'sac' | 'snfac' // TODO figure out type
   return footerData[slug]
 }

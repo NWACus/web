@@ -17,8 +17,7 @@ export async function Footer({ center }: { center?: string }) {
       },
     },
   })
-
-  const { address, email, logo, socialMedia } = data[0]
+  const { name, address, email, logo, socialMedia } = data[0]
   return (
     <footer className="mt-auto border-t border-border bg-footer text-footer-foreground">
       <div className="container py-8 gap-8 grid grid-cols-3">
@@ -33,6 +32,7 @@ export async function Footer({ center }: { center?: string }) {
         </div>
         <div>
           <div className="flex flex-col items-start gap-4">
+            <h3>{name}</h3>
             <div className="whitespace-pre-line">{address}</div>
             <a href={`mailto:${email}`}>{email}</a>
             <div className="flex gap-x-2">

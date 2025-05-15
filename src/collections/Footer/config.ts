@@ -47,14 +47,22 @@ export const Footer: CollectionConfig = {
       },
     },
     {
+      name: 'name',
+      type: 'text',
+      required: true,
+    },
+    {
       name: 'address',
       type: 'textarea',
-      // required: true,
+    },
+    {
+      name: 'phone',
+      type: 'text',
+      // validate?
     },
     {
       name: 'email',
       type: 'email',
-      // required: true,
       // validate?
     },
     {
