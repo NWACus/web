@@ -6,11 +6,11 @@ import {
   HeadingFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { ButtonBlock } from '../Button/config'
+import { ButtonsBlock } from '../Buttons/config'
 
-export const Membership: Block = {
-  slug: 'membership',
-  interfaceName: 'MembershipBlock',
+export const ContentWithCallout: Block = {
+  slug: 'contentWithCallout',
+  interfaceName: 'ContentWithCalloutBlock',
   fields: [
     {
       name: 'richText',
@@ -21,7 +21,7 @@ export const Membership: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonBlock],
+              blocks: [ButtonsBlock],
             }),
             HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           ]
@@ -46,7 +46,7 @@ export const Membership: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonBlock],
+              blocks: [ButtonsBlock],
             }),
             HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           ]

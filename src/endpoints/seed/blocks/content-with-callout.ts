@@ -1,8 +1,8 @@
 import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const membership: RequiredDataFromCollectionSlug<'pages'>['layout'] = [
+export const contentWithCallout: RequiredDataFromCollectionSlug<'pages'>['layout'] = [
   {
-    blockType: 'membership',
+    blockType: 'contentWithCallout',
     richText: {
       root: {
         children: [
@@ -92,7 +92,7 @@ export const membership: RequiredDataFromCollectionSlug<'pages'>['layout'] = [
                   },
                 },
               ],
-              blockType: 'buttonBlock',
+              blockType: 'buttonsBlock',
             },
           },
           {
@@ -259,7 +259,7 @@ export const membership: RequiredDataFromCollectionSlug<'pages'>['layout'] = [
                   },
                 },
               ],
-              blockType: 'buttonBlock',
+              blockType: 'buttonsBlock',
             },
           },
         ],

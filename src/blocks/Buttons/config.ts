@@ -1,9 +1,9 @@
 import { button } from '@/fields/button'
 import type { Block } from 'payload'
 
-export const ButtonBlock: Block = {
-  slug: 'buttonBlock',
-  interfaceName: 'ButtonBlock',
+export const ButtonsBlock: Block = {
+  slug: 'buttonsBlock',
+  interfaceName: 'ButtonsBlock',
   fields: [
     {
       name: 'buttons',

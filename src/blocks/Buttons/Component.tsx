@@ -1,7 +1,7 @@
 import { CMSLink } from '@/components/Link'
-import type { ButtonBlock as ButtonBlockProps } from 'src/payload-types'
+import type { ButtonsBlock as ButtonBlockProps } from 'src/payload-types'
 
-export const ButtonBlock = ({ buttons }: ButtonBlockProps) => {
+export const ButtonsBlock = ({ buttons }: ButtonBlockProps) => {
   return (
     <div>
       {buttons?.map((button) => {

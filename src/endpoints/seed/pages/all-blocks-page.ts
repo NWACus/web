@@ -1,11 +1,11 @@
 import type { Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
+import { contentWithCallout } from '../blocks/content-with-callout'
 import { imageLinkGrid } from '../blocks/image-link-grid'
 import { imageQuote } from '../blocks/image-quote'
 import { imageText } from '../blocks/image-text'
 import { imageTextList } from '../blocks/image-text-list'
 import { linkPreview } from '../blocks/link-preview'
-import { membership } from '../blocks/membership'
 
 export const allBlocksPage: (
   tenant: Tenant,
@@ -25,7 +25,7 @@ export const allBlocksPage: (
       ...imageText(image1),
       ...imageTextList(image1),
       ...linkPreview(image1),
-      ...membership,
+      ...contentWithCallout,
     ],
     meta: {
       title: null,

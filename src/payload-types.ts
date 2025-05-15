@@ -278,8 +278,9 @@ export interface Page {
   title: string;
   layout: (
     | BiographyBlock
-    | ButtonBlock
+    | ButtonsBlock
     | ContentBlock
+    | ContentWithCalloutBlock
     | FormBlock
     | ImageLinkGrid
     | ImageQuote
@@ -287,7 +288,6 @@ export interface Page {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
-    | MembershipBlock
     | TeamBlock
   )[];
   meta?: {
@@ -406,9 +406,9 @@ export interface RoleAssignment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ButtonBlock".
+ * via the `definition` "ButtonsBlock".
  */
-export interface ButtonBlock {
+export interface ButtonsBlock {
   buttons: {
     button: {
       type?: ('reference' | 'custom') | null;
@@ -433,7 +433,7 @@ export interface ButtonBlock {
   }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'buttonBlock';
+  blockType: 'buttonsBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -511,6 +511,46 @@ export interface ContentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentWithCalloutBlock".
+ */
+export interface ContentWithCalloutBlock {
+  richText?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  enableCallout?: boolean | null;
+  callout?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contentWithCallout';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -861,46 +901,6 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MembershipBlock".
- */
-export interface MembershipBlock {
-  richText?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  enableCallout?: boolean | null;
-  callout?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'membership';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1798,8 +1798,9 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         biography?: T | BiographyBlockSelect<T>;
-        buttonBlock?: T | ButtonBlockSelect<T>;
+        buttonsBlock?: T | ButtonsBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
@@ -1807,7 +1808,6 @@ export interface PagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        membership?: T | MembershipBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   meta?:
@@ -1837,9 +1837,9 @@ export interface BiographyBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ButtonBlock_select".
+ * via the `definition` "ButtonsBlock_select".
  */
-export interface ButtonBlockSelect<T extends boolean = true> {
+export interface ButtonsBlockSelect<T extends boolean = true> {
   buttons?:
     | T
     | {
@@ -1870,6 +1870,17 @@ export interface ContentBlockSelect<T extends boolean = true> {
         richText?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentWithCalloutBlock_select".
+ */
+export interface ContentWithCalloutBlockSelect<T extends boolean = true> {
+  richText?: T;
+  enableCallout?: T;
+  callout?: T;
   id?: T;
   blockName?: T;
 }
@@ -1981,17 +1992,6 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MembershipBlock_select".
- */
-export interface MembershipBlockSelect<T extends boolean = true> {
-  richText?: T;
-  enableCallout?: T;
-  callout?: T;
   id?: T;
   blockName?: T;
 }

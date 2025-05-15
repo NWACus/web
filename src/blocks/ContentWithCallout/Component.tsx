@@ -1,8 +1,12 @@
-import type { MembershipBlock as MembershipBlockProps } from '@/payload-types'
+import type { ContentWithCalloutBlock as ContentWithCalloutBlockProps } from '@/payload-types'
 
 import RichText from '@/components/RichText'
 
-export const MembershipBlock = ({ callout, enableCallout, richText }: MembershipBlockProps) => {
+export const ContentWithCalloutBlock = ({
+  callout,
+  enableCallout,
+  richText,
+}: ContentWithCalloutBlockProps) => {
   return (
     <div className="container">
       {enableCallout ? (
