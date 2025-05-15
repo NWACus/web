@@ -858,7 +858,7 @@ export const seed = async ({
     tenantsById,
     (_obj) => 'footer',
     Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant),
+      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant, brandImages),
     ),
   )
   payload.logger.info('Seeded database successfully!')

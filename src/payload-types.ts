@@ -1405,7 +1405,9 @@ export interface Footer {
   id: number;
   tenant: number | Tenant;
   logo?: (number | null) | Media;
+  name: string;
   address?: string | null;
+  phone?: string | null;
   email?: string | null;
   /**
    * Add link to social media page to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.
@@ -2397,7 +2399,9 @@ export interface NavigationsSelect<T extends boolean = true> {
 export interface FooterSelect<T extends boolean = true> {
   tenant?: T;
   logo?: T;
+  name?: T;
   address?: T;
+  phone?: T;
   email?: T;
   socialMedia?:
     | T
