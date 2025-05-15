@@ -427,7 +427,7 @@ export interface ButtonsBlock {
       /**
        * Choose how the link should be rendered.
        */
-      appearance?: ('default' | 'secondary') | null;
+      appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
     };
     id?: string | null;
   }[];
@@ -532,7 +532,6 @@ export interface ContentWithCalloutBlock {
     };
     [k: string]: unknown;
   } | null;
-  enableCallout?: boolean | null;
   callout?: {
     root: {
       type: string;
@@ -1879,7 +1878,6 @@ export interface ContentBlockSelect<T extends boolean = true> {
  */
 export interface ContentWithCalloutBlockSelect<T extends boolean = true> {
   richText?: T;
-  enableCallout?: T;
   callout?: T;
   id?: T;
   blockName?: T;

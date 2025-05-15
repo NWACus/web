@@ -201,7 +201,6 @@ export const contentWithCallout: RequiredDataFromCollectionSlug<'pages'>['layout
         version: 1,
       },
     },
-    enableCallout: true,
     callout: {
       root: {
         children: [
