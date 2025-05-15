@@ -22,7 +22,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
         })
         tenantSlug = tenant.slug
       }
-      const path = `/${tenantSlug}` + (doc.slug === 'home' ? '/' : `/${doc.slug}`)
+      const path = `/${tenantSlug}/${doc.slug}`
 
       payload.logger.info(`Revalidating page at path: ${path}`)
 
@@ -43,8 +43,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
         })
         tenantSlug = tenant.slug
       }
-      const oldPath =
-        `/${tenantSlug}` + (previousDoc.slug === 'home' ? '/' : `/${previousDoc.slug}`)
+      const oldPath = `/${tenantSlug}/${previousDoc.slug}`
 
       payload.logger.info(`Revalidating old page at path: ${oldPath}`)
 
@@ -57,7 +56,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
 
 export const revalidateDelete: CollectionAfterDeleteHook<Page> = ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
-    const path = doc?.slug === 'home' ? '/' : `/${doc?.slug}`
+    const path = `/${doc?.slug}`
     revalidatePath(path)
     revalidateTag('pages-sitemap')
   }

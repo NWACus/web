@@ -32,9 +32,6 @@ import {
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: accessByTenantOrReadPublished('posts'),
-  // This config controls what's populated by default when a post is referenced
-  // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
-  // Type safe if the collection slug generic is passed to `CollectionConfig` - `CollectionConfig<'posts'>
   defaultPopulate: {
     title: true,
     slug: true,
@@ -48,11 +45,21 @@ export const Posts: CollectionConfig<'posts'> = {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
     livePreview: {
-      url: ({ data, req }) => {
+      url: async ({ data, req }) => {
+        let tenant = data.tenant
+
+        if (typeof tenant === 'number') {
+          tenant = await req.payload.findByID({
+            collection: 'tenants',
+            id: tenant,
+            depth: 2,
+          })
+        }
+
         const path = generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'posts',
-          tenant: data?.tenant,
+          tenant,
           req,
         })
 
@@ -88,11 +95,6 @@ export const Posts: CollectionConfig<'posts'> = {
       tabs: [
         {
           fields: [
-            {
-              name: 'heroImage',
-              type: 'upload',
-              relationTo: 'media',
-            },
             {
               name: 'content',
               type: 'richText',

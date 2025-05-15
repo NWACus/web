@@ -17,7 +17,6 @@ import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
-import { imageHero1 } from './image-hero-1'
 import { imageMountain } from './image-mountain'
 import { navigationSeed } from './navigation'
 import { allBlocksPage } from './pages/all-blocks-page'
@@ -530,24 +529,20 @@ export const seed = async ({
 
   payload.logger.info(`— Fetching images...`)
 
-  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, hero1Buffer] =
-    await Promise.all([
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
-      ),
-    ])
+  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
+    ),
+  ])
 
   const images = await upsert(
     'media',
@@ -576,10 +571,6 @@ export const seed = async ({
         {
           data: imageMountain(tenant),
           file: imageMountainBuffer,
-        },
-        {
-          data: imageHero1(tenant),
-          file: hero1Buffer,
         },
       ])
       .flat(),
@@ -661,10 +652,9 @@ export const seed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
         allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
-        whoWeArePage(tenant, teams, images[tenant.slug]['hero'], images[tenant.slug]['image2']),
+        whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Donate & Membership',
           'Support avalanche safety by becoming a member or donating to the avalanche center.',
@@ -672,7 +662,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Workplace Giving',
           'Have you thought about donating to the center through work? Your employer may be able to help you support avalanche safety.',
@@ -680,7 +669,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Other Ways to Give',
           'Learn about alternative methods to support the avalanche center and its mission.',
@@ -688,7 +676,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Corporate Sponsorship',
           "The avalanche center's work is supported by the generosity of our industry partners.",
@@ -696,7 +683,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Volunteer',
           'Interested in volunteering your time for the center? We are always looking for help at events and with various projects.',
@@ -704,7 +690,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'About Us',
           'The avalanche center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
@@ -712,7 +697,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Agency Partners',
           'The avalanche center collaborates with various agencies to enhance avalanche safety and awareness.',
@@ -720,7 +704,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Annual Report/Minutes',
           "Access the avalanche center's annual reports and meeting minutes.",
@@ -728,7 +711,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Employment',
           'Explore career opportunities with the avalanche center.',
@@ -736,7 +718,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Learn',
           'Discover resources and opportunities to learn about avalanche safety and awareness.',
@@ -744,7 +725,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Field Classes',
           'Participate in field-based avalanche education classes offered by the center.',
@@ -752,7 +732,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Avalanche Awareness Classes',
           'The avalanche center offers free avalanche classes to the public throughout our forecast area.',
@@ -760,7 +739,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Courses by External Providers',
           'Find avalanche education courses offered by external providers in your area.',
@@ -768,7 +746,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Workshops',
           'Join specialized avalanche safety workshops for skill development and knowledge enhancement.',
@@ -776,7 +753,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Request a Class',
           'Request an avalanche awareness or safety class for your group or organization.',
@@ -784,7 +760,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Scholarships',
           'Learn about scholarships available for avalanche education and training.',
@@ -792,7 +767,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Mentorship',
           'Connect with experienced backcountry travelers through our mentorship program.',
@@ -800,7 +774,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Beacon Parks',
           'Locate and use avalanche beacon practice parks in your area.',
@@ -808,7 +781,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Local Accident Reports',
           'Access reports of avalanche accidents in your local area.',
@@ -816,7 +788,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Avalanche Accident Statistics',
           'Review statistical data on avalanche accidents and incidents.',
@@ -824,7 +795,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'US Avalanche Accidents',
           'Information about avalanche accidents across the United States.',
@@ -832,7 +802,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Grief and Loss Resources',
           'Support resources for those affected by avalanche tragedies.',
@@ -840,7 +809,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Avalanche Accident Map',
           'Interactive map showing locations of avalanche accidents and incidents.',
@@ -848,7 +816,6 @@ export const seed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Weather Tools',
           'A list of weather links.',

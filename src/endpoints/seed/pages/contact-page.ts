@@ -12,9 +12,6 @@ export const contact: (
     slug: 'contact',
     tenant: tenant.id,
     _status: 'published',
-    hero: {
-      type: 'none',
-    },
     layout: [
       {
         blockType: 'formBlock',
