@@ -1419,6 +1419,7 @@ export interface Footer {
     linkedin?: string | null;
     youtube?: string | null;
   };
+  hashtag?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2412,6 +2413,7 @@ export interface FooterSelect<T extends boolean = true> {
         linkedin?: T;
         youtube?: T;
       };
+  hashtag?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

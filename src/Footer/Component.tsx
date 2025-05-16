@@ -17,12 +17,12 @@ export async function Footer({ center }: { center?: string }) {
       },
     },
   })
-  const { name, address, email, logo, socialMedia } = data[0]
+  const { address, email, hashtag, logo, name, phone, socialMedia } = data[0]
   return (
     <footer className="mt-auto border-t border-border bg-footer text-footer-foreground">
       <div className="container py-8 gap-8 grid grid-cols-3">
         <div>
-          <h3>Stay updated!</h3>
+          <h4 className="font-medium text-xl mb-2">Stay updated!</h4>
           <p>Sign up for our newsletter</p>
         </div>
         <div>
@@ -31,17 +31,25 @@ export async function Footer({ center }: { center?: string }) {
           </Link>
         </div>
         <div>
-          <div className="flex flex-col items-start gap-4">
-            <h3>{name}</h3>
-            <div className="whitespace-pre-line">{address}</div>
-            <a href={`mailto:${email}`}>{email}</a>
-            <div className="flex gap-x-2">
-              {socialMedia?.instagram && <Icons.instagram />}
-              {socialMedia?.facebook && <Icons.facebook />}
-              {socialMedia?.twitter && <Icons.twitter />}
-              {socialMedia?.linkedin && <Icons.linkedin />}
-              {socialMedia?.youtube && <Icons.youtube />}
-            </div>
+          <div className="flex flex-col items-start">
+            <h4 className="font-medium text-xl mb-2">{name}</h4>
+            {address && <div className="whitespace-pre-line">{address}</div>}
+            {phone && <a href={`tel:${phone}`}>{phone}</a>}
+            {email && (
+              <a className="mb-6 text-secondary underline" href={`mailto:${email}`}>
+                {email}
+              </a>
+            )}
+            {socialMedia && (
+              <div className="flex gap-x-4 mb-2">
+                {socialMedia.instagram && <Icons.instagram />}
+                {socialMedia.facebook && <Icons.facebook />}
+                {socialMedia.twitter && <Icons.twitter />}
+                {socialMedia.linkedin && <Icons.linkedin />}
+                {socialMedia.youtube && <Icons.youtube />}
+              </div>
+            )}
+            {hashtag && <p className="mb-4 text-secondary underline">{hashtag}</p>}
           </div>
         </div>
       </div>

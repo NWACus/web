@@ -3,7 +3,28 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, TextFieldValidation } from 'payload'
+
+const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
+  if (value === null || value === undefined) return true
+  else
+    return (
+      value?.match(/^#[A-Za-z0-9_](?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}[A-Za-z0-9_]$/)?.length ===
+        1 || `${value} is not a valid hashtag`
+    )
+}
+
+const validateTelephone: TextFieldValidation = (
+  value: string | null | undefined,
+): string | true => {
+  console.log(value?.match(/^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/))
+  if (value === null || value === undefined) return true
+  else
+    return (
+      value?.match(/^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/g)?.length === 1 ||
+      `${value} is not a valid hashtag`
+    )
+}
 
 export const Footer: CollectionConfig = {
   slug: 'footer',
@@ -58,12 +79,11 @@ export const Footer: CollectionConfig = {
     {
       name: 'phone',
       type: 'text',
-      // validate?
+      validate: validateTelephone,
     },
     {
       name: 'email',
       type: 'email',
-      // validate?
     },
     {
       name: 'socialMedia',
@@ -119,6 +139,11 @@ export const Footer: CollectionConfig = {
         description:
           'Add link to social media page to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.',
       },
+    },
+    {
+      name: 'hashtag',
+      type: 'text',
+      validate: validateHashtag,
     },
     contentHashField(),
   ],
