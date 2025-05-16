@@ -1,5 +1,6 @@
 import type { Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
+import { contentWithCallout } from '../blocks/content-with-callout'
 import { imageLinkGrid } from '../blocks/image-link-grid'
 import { imageQuote } from '../blocks/image-quote'
 import { imageText } from '../blocks/image-text'
@@ -24,6 +25,7 @@ export const allBlocksPage: (
       ...imageText(image1),
       ...imageTextList(image1),
       ...linkPreview(image1),
+      ...contentWithCallout,
     ],
     meta: {
       title: null,

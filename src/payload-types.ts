@@ -278,8 +278,9 @@ export interface Page {
   title: string;
   layout: (
     | BiographyBlock
-    | CallToActionBlock
+    | ButtonsBlock
     | ContentBlock
+    | ContentWithCalloutBlock
     | FormBlock
     | ImageLinkGrid
     | ImageQuote
@@ -405,51 +406,34 @@ export interface RoleAssignment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock".
+ * via the `definition` "ButtonsBlock".
  */
-export interface CallToActionBlock {
-  richText?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
+export interface ButtonsBlock {
+  buttons: {
+    button: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label: string;
+      /**
+       * Choose how the link should be rendered.
+       */
+      appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
     };
-    [k: string]: unknown;
-  } | null;
-  links?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
-        id?: string | null;
-      }[]
-    | null;
+    id?: string | null;
+  }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'cta';
+  blockType: 'buttonsBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -527,6 +511,45 @@ export interface ContentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentWithCalloutBlock".
+ */
+export interface ContentWithCalloutBlock {
+  richText?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  callout?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contentWithCallout';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1699,8 +1722,9 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         biography?: T | BiographyBlockSelect<T>;
-        cta?: T | CallToActionBlockSelect<T>;
+        buttonsBlock?: T | ButtonsBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
@@ -1737,14 +1761,13 @@ export interface BiographyBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock_select".
+ * via the `definition` "ButtonsBlock_select".
  */
-export interface CallToActionBlockSelect<T extends boolean = true> {
-  richText?: T;
-  links?:
+export interface ButtonsBlockSelect<T extends boolean = true> {
+  buttons?:
     | T
     | {
-        link?:
+        button?:
           | T
           | {
               type?: T;
@@ -1771,6 +1794,16 @@ export interface ContentBlockSelect<T extends boolean = true> {
         richText?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentWithCalloutBlock_select".
+ */
+export interface ContentWithCalloutBlockSelect<T extends boolean = true> {
+  richText?: T;
+  callout?: T;
   id?: T;
   blockName?: T;
 }

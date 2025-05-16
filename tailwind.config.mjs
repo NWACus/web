@@ -155,6 +155,11 @@ export default {
                 fontWeight: 'normal',
                 marginBottom: '0.25em',
               },
+              p: {
+                marginTop: '1em',
+                marginBottom: '1em',
+                lineHeight: 1.2,
+              },
             },
           ],
         },
