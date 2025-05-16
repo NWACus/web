@@ -146,7 +146,7 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
 
           if (match && match[1]) {
             const zone = match[1]
-            const newHref = `/forecasts/avalanche/${zone}${href}`
+            const newHref = `/forecasts/avalanche/${zone}`
 
             // Clone the node to remove all event listeners
             const newLink = link.cloneNode(true)
