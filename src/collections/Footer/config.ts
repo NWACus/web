@@ -145,6 +145,16 @@ export const Footer: CollectionConfig = {
       type: 'text',
       validate: validateHashtag,
     },
+    {
+      name: 'terms',
+      type: 'relationship',
+      relationTo: 'pages',
+    },
+    {
+      name: 'privacy',
+      type: 'relationship',
+      relationTo: 'pages',
+    },
     contentHashField(),
   ],
 }

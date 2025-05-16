@@ -17,7 +17,7 @@ export async function Footer({ center }: { center?: string }) {
       },
     },
   })
-  const { address, email, hashtag, logo, name, phone, socialMedia } = data[0]
+  const { address, email, hashtag, logo, name, phone, privacy, socialMedia, terms } = data[0]
   return (
     <footer className="mt-auto border-t border-border bg-footer text-footer-foreground">
       <div className="container py-8 gap-8 grid grid-cols-3">
@@ -51,6 +51,22 @@ export async function Footer({ center }: { center?: string }) {
             )}
             {hashtag && <p className="mb-4 text-secondary underline">{hashtag}</p>}
           </div>
+        </div>
+      </div>
+      <div className="container text-center pb-8">
+        <p className="mb-2">All Content © 2017 – 2025 {name}</p>
+        <div className="flex gap-x-2 justify-center">
+          {typeof terms === 'object' && (
+            <a href={`/${terms?.slug}`} className="underline">
+              {terms?.title}
+            </a>
+          )}
+          {terms && privacy && <div>|</div>}
+          {typeof privacy === 'object' && (
+            <a href={`/${privacy?.slug}`} className="underline">
+              {privacy?.title}
+            </a>
+          )}
         </div>
       </div>
     </footer>
