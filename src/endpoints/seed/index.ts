@@ -1,7 +1,7 @@
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { fetchFileByURL } from '@/endpoints/seed/utilities'
-import { Form, Tenant } from '@/payload-types'
+import { Form, Media, Tenant } from '@/payload-types'
 import { headers } from 'next/headers'
 import type {
   CollectionSlug,
@@ -15,7 +15,6 @@ import type {
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
-import { footer } from './footer'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
@@ -410,6 +409,8 @@ export const seed = async ({
       ])
       .flat(),
   ])
+
+  payload.logger.info(`TYPEOF ${brandImages}`)
 
   const themesByTenant: Record<string, string> = {
     nwac: 'Zinc',
@@ -851,6 +852,49 @@ export const seed = async ({
   )
 
   payload.logger.info(`— Seeding footers...`)
+  const footerData: Record<Tenant['slug'], {}> = {
+    nwac: {
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045\n(206) 909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/nwacus',
+        facebook: 'https://www.facebook.com/NWACUS/',
+        twitter: 'https://x.com/nwacus',
+        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
+        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
+      },
+      contentHash: null,
+    },
+    sac: {
+      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161\n(530) 563-2257',
+      email: 'info@sierraavalanchecenter.org',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/savycenter/',
+        facebook: 'https://www.facebook.com/sacnonprofit',
+        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
+      },
+      contentHash: null,
+    },
+    snfac: {
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045\n(206) 909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {},
+      contentHash: null,
+    },
+  }
+
+  const footer = (
+    tenant: Tenant,
+    brandImages: Record<Tenant['slug'], Record<string, Media>>,
+  ): RequiredDataFromCollectionSlug<'footer'> => {
+    return {
+      tenant: tenant.id,
+      logo: brandImages[tenant.slug]['logo'].id,
+      name: tenant.name,
+      ...footerData[tenant.slug],
+    }
+  }
+
   await upsert(
     'footer',
     payload,
