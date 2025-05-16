@@ -1,0 +1,9 @@
+/* In your widget-isolation.css */
+#widget-container {
+  /* Create a boundary that prevents Tailwind styles from bleeding in */
+  all: initial;
+}
+
+#widget-container svg {
+  display: initial;
+}

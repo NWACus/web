@@ -9,6 +9,7 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getServerSideURL } from '@/utilities/getURL'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import './nac-widget-reset.css'
 import ThemeSetter from './theme'
 
 export async function generateStaticParams() {

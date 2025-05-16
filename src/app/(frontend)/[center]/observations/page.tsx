@@ -36,9 +36,9 @@ export default async function Page({ params }: Args) {
   return (
     <div className="pt-24 pb-24">
       <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
+        <div className="prose dark:prose-invert max-w-none">
           <h1>Avalanche Observations For {center}</h1>
-          <NACWidget center={center} widget={'observations'} id="nac-widget-container" />
+          <NACWidget center={center} widget={'observations'} />
         </div>
       </div>
     </div>

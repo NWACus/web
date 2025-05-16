@@ -40,9 +40,9 @@ export default async function Page({ params }: Args) {
     <div className="pt-24 pb-24">
       {draft && <LivePreviewListener />}
       <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
+        <div className="prose dark:prose-invert max-w-none">
           <h1>Home Page for {center}</h1>
-          <NACWidget center={center} widget={'map'} id="nac-widget-container" />
+          <NACWidget center={center} widget={'map'} />
         </div>
       </div>
     </div>
