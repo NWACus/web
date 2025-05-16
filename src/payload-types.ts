@@ -1416,6 +1416,8 @@ export interface Footer {
     youtube?: string | null;
   };
   hashtag?: string | null;
+  terms?: (number | null) | Page;
+  privacy?: (number | null) | Page;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2410,6 +2412,8 @@ export interface FooterSelect<T extends boolean = true> {
         youtube?: T;
       };
   hashtag?: T;
+  terms?: T;
+  privacy?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
