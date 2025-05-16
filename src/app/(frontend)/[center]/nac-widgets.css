@@ -17,7 +17,13 @@
 }
 
 #widget-container[data-widget='stations'] {
-  min-height: calc(100vh - 200px) !important;
+  min-height: calc(100vh - 170px) !important;
+}
+
+@media (min-width: 768px) {
+  #widget-container[data-widget='stations'] {
+    min-height: calc(100vh - 180px) !important;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -49,11 +55,25 @@
 }
 
 #nac-app #nac-weather-map:not(.nac-map-fullscreen) {
-  height: calc(100vh - 280px) !important;
+  height: calc(100vh - 240px) !important;
+}
+
+@media (min-width: 768px) {
+  #nac-app #nac-weather-map:not(.nac-map-fullscreen) {
+    height: calc(100vh - 260px) !important;
+  }
 }
 
 @media (min-width: 1024px) {
   #nac-app #nac-weather-map:not(.nac-map-fullscreen) {
     height: calc(100vh - 440px) !important;
   }
+}
+
+#nac-app .nac-station-table-container {
+  height: auto !important;
+}
+
+#nac-app #nac-station-table {
+  max-height: none !important;
 }
