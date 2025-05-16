@@ -190,13 +190,5 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
     }
   }, [])
 
-  return (
-    <div
-      id="widget-container"
-      ref={containerRef}
-      style={{
-        minHeight: ['observations', 'forecast'].includes(widget) ? '100vh' : undefined,
-      }}
-    ></div>
-  )
+  return <div id="widget-container" ref={containerRef} data-widget={widget}></div>
 }

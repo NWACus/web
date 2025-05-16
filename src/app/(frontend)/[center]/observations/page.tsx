@@ -34,7 +34,7 @@ type PathArgs = {
 export default async function Page({ params }: Args) {
   const { center } = await params
   return (
-    <div className="py-12">
+    <div className="py-6 md:py-8 lg:py-12">
       <div className="container flex flex-col gap-4">
         <div className="prose dark:prose-invert max-w-none">
           <h1>Observations</h1>

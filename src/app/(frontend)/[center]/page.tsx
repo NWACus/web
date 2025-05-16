@@ -37,7 +37,7 @@ export default async function Page({ params }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
-    <div className="py-12">
+    <div className="py-6 md:py-8 lg:py-12">
       {draft && <LivePreviewListener />}
       <div className="container">
         <NACWidget center={center} widget={'map'} />
