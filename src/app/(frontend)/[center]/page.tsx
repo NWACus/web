@@ -37,13 +37,10 @@ export default async function Page({ params }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
-    <div className="pt-24 pb-24">
+    <div className="py-12">
       {draft && <LivePreviewListener />}
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>Home Page for {center}</h1>
-          <NACWidget center={center} widget={'map'} />
-        </div>
+      <div className="container">
+        <NACWidget center={center} widget={'map'} />
       </div>
     </div>
   )

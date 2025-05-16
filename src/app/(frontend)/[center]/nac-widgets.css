@@ -1,0 +1,36 @@
+/* Resets */
+
+#widget-container {
+  all: initial;
+  font-family: initial;
+}
+
+#widget-container svg {
+  display: initial;
+}
+
+/* Overrides */
+
+#nac-app .nac-forecast-view.nac-html-body {
+  @apply bg-background text-foreground !important;
+}
+
+#nac-zone-selector {
+  display: none;
+}
+
+#nac-app .nac-btn.nac-to-top {
+  display: none;
+}
+
+#nac-app {
+  min-height: initial !important;
+}
+
+#nac-app #nac-weather-app {
+  min-height: initial !important;
+}
+
+#nac-app #nac-weather-map {
+  height: calc(100vh - 440px) !important;
+}

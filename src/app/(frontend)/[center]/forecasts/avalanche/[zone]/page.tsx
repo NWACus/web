@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { ZoneHashHandler } from './ZoneHashHandler.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -36,18 +37,15 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center, zone } = await params
-  // TODO: how do we pass zone to NACWidget? expects #/slug ...
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>
-            Avalanche Forecast For {center} Zone {zone}
-          </h1>
+    <>
+      <ZoneHashHandler zone={zone} />
+      <div className="py-12">
+        <div className="container">
           <NACWidget center={center} widget={'forecast'} />
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

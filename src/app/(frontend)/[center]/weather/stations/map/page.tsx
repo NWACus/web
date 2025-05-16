@@ -34,12 +34,14 @@ type PathArgs = {
 export default async function Page({ params }: Args) {
   const { center } = await params
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
+    <div className="py-12">
+      <div className="container mb-16 flex flex-col gap-4">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Weather Station Map For {center}</h1>
-          <NACWidget center={center} widget={'stations'} />
+          <h1>
+            <span className="uppercase">{center}</span> Weather Station Map
+          </h1>
         </div>
+        <NACWidget center={center} widget={'stations'} />
       </div>
     </div>
   )

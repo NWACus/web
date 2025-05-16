@@ -34,12 +34,9 @@ type PathArgs = {
 export default async function Page({ params }: Args) {
   const { center } = await params
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>Avalanche Forecast Overview For {center}</h1>
-          <NACWidget center={center} widget={'forecast'} />
-        </div>
+    <div className="py-12">
+      <div className="container">
+        <NACWidget center={center} widget={'forecast'} />
       </div>
     </div>
   )

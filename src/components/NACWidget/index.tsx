@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
@@ -8,6 +8,7 @@ export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations
 export function NACWidget({ center, widget }: { center: string; widget: Widget }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
+  const router = useRouter()
   const [instanceId] = useState(() => Math.random().toString(36).substring(2, 9))
 
   useEffect(() => {
@@ -41,7 +42,14 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
         link.onload = () => resolve(url)
         link.onerror = () => reject(url)
         link.href = url
-        document.head.appendChild(link)
+
+        // Insert before the first stylesheet so other styles take precedence
+        const firstStyle = document.head.querySelector('link[rel="stylesheet"], style')
+        if (firstStyle) {
+          document.head.insertBefore(link, firstStyle)
+        } else {
+          document.head.prepend(link)
+        }
       })
     }
 
@@ -140,6 +148,79 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
       }
     }
   }, [center, widget, pathname, instanceId])
+
+  useEffect(() => {
+    // Function to modify links
+    const modifyLinks = () => {
+      // Select all <a> tags within the container
+      const links = document.querySelectorAll('#nac-forecast-container a')
+
+      // Filter and modify links
+      links.forEach((link) => {
+        const href = link.getAttribute('href')
+
+        // Check if the href starts with "#/"
+        if (href && href.startsWith('#/')) {
+          // Extract the zone from the format "#/{zone}/"
+          const match = href.match(/#\/([^/]+)\//)
+
+          if (match && match[1]) {
+            const zone = match[1]
+            // Create the new href format: "{zone}#/{zone}/"
+            const newHref = `/forecasts/avalanche/${zone}${href}`
+
+            // Clone the node to remove all event listeners and cast to HTMLAnchorElement
+            const newLink = link.cloneNode(true) as HTMLAnchorElement
+
+            // Set the new href
+            newLink.setAttribute('href', newHref)
+
+            // Add a click handler to use Next.js router
+            newLink.addEventListener('click', (e) => {
+              e.preventDefault()
+              router.push(newHref)
+            })
+
+            // Replace the original link
+            if (link.parentNode) {
+              link.parentNode.replaceChild(newLink, link)
+            }
+          }
+        }
+      })
+    }
+
+    // Create a MutationObserver to watch for when links are added
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList' && document.querySelector('#nac-forecast-container a')) {
+          // Links have been added, modify them
+          modifyLinks()
+
+          // Optional: disconnect after first detection if you know links are
+          // all added at once and don't change afterwards
+          // observer.disconnect();
+        }
+      }
+    })
+
+    // Start observing the container for changes
+    const container = document.querySelector('#widget-container')
+    if (container) {
+      observer.observe(container, {
+        childList: true,
+        subtree: true,
+      })
+    }
+
+    // Also try to run once in case links are already there
+    setTimeout(modifyLinks, 500)
+
+    // Cleanup function to disconnect observer
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   return <div id="widget-container" ref={containerRef}></div>
 }
