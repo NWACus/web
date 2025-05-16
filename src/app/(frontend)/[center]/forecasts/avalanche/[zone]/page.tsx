@@ -41,7 +41,7 @@ export default async function Page({ params }: Args) {
     <>
       <ZoneHashHandler zone={zone} />
       <div className="py-12">
-        <div className="container">
+        <div className="container flex flex-col">
           <NACWidget center={center} widget={'forecast'} />
         </div>
       </div>

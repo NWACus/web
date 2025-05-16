@@ -35,7 +35,7 @@ export default async function Page({ params }: Args) {
   const { center } = await params
   return (
     <div className="py-12">
-      <div className="container">
+      <div className="container flex flex-col">
         <NACWidget center={center} widget={'forecast'} />
       </div>
     </div>
