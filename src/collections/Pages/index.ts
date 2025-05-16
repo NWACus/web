@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
-import { ButtonsBlock } from '@/blocks/Buttons/config'
 import { Content } from '@/blocks/Content/config'
 import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
@@ -100,7 +99,6 @@ export const Pages: CollectionConfig<'pages'> = {
               type: 'blocks',
               blocks: [
                 BiographyBlock,
-                ButtonsBlock,
                 Content,
                 ContentWithCallout,
                 FormBlock,
