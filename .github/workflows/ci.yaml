@@ -80,5 +80,23 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
+      - name: 🧹 Run pnpm generate:type
+        run: |
+          pnpm generate:types
+          if [[ ! -z "$(git status --short)" ]]
+          then
+            echo "there are some modified files, rerun 'pnpm generate:types' to update them and check the changes in"
+            git status
+            exit 1
+          fi
+      - name: 🧹 Run pnpm generate:importmap
+        run: |
+          pnpm generate:importmap
+          if [[ ! -z "$(git status --short)" ]]
+          then
+            echo "there are some modified files, rerun 'pnpm generate:importmap' to update them and check the changes in"
+            git status
+            exit 1
+          fi
       - name: 🧹 Run prettier
         run: if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi
