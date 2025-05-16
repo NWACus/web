@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -34,11 +35,14 @@ type PathArgs = {
 export default async function Page({ params }: Args) {
   const { center } = await params
   return (
-    <div className="py-6 md:py-8 lg:py-12">
-      <div className="container flex flex-col">
-        <NACWidget center={center} widget={'forecast'} />
+    <>
+      <ZoneLinkHijacker />
+      <div className="py-6 md:py-8 lg:py-12">
+        <div className="container flex flex-col">
+          <NACWidget center={center} widget={'forecast'} />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

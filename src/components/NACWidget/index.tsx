@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
@@ -8,7 +8,6 @@ export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations
 export function NACWidget({ center, widget }: { center: string; widget: Widget }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
-  const router = useRouter()
   const [instanceId] = useState(() => Math.random().toString(36).substring(2, 9))
 
   useEffect(() => {
@@ -132,63 +131,6 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
       }
     }
   }, [center, widget, pathname, instanceId])
-
-  useEffect(function hijackZoneLinks() {
-    const modifyLinks = () => {
-      const links = document.querySelectorAll<HTMLAnchorElement>('#nac-forecast-container a')
-
-      links.forEach((link) => {
-        const href = link.getAttribute('href')
-
-        if (href && href.startsWith('#/')) {
-          // Extract the zone from the format "#/{zone}/"
-          const match = href.match(/#\/([^/]+)\//)
-
-          if (match && match[1]) {
-            const zone = match[1]
-            const newHref = `/forecasts/avalanche/${zone}`
-
-            // Clone the node to remove all event listeners
-            const newLink = link.cloneNode(true)
-
-            if (newLink instanceof HTMLAnchorElement) {
-              newLink.setAttribute('href', newHref)
-
-              newLink.addEventListener('click', (e) => {
-                e.preventDefault()
-                router.push(newHref)
-              })
-
-              if (link.parentNode) {
-                link.parentNode.replaceChild(newLink, link)
-              }
-            }
-          }
-        }
-      })
-    }
-
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type === 'childList' && document.querySelector('#nac-forecast-container a')) {
-          modifyLinks()
-          observer.disconnect()
-        }
-      }
-    })
-
-    const container = document.querySelector('#widget-container')
-    if (container) {
-      observer.observe(container, {
-        childList: true,
-        subtree: true,
-      })
-    }
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
 
   return <div id="widget-container" ref={containerRef} data-widget={widget}></div>
 }
