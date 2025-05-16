@@ -54,7 +54,7 @@ jobs:
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
           ALLOW_SIMPLE_PASSWORDS: 'true'
       - name: 🧹 Run build
         run: pnpm build
@@ -62,7 +62,7 @@ jobs:
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
 
   prettier:
     name: prettier
