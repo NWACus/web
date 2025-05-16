@@ -14,26 +14,22 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
   useEffect(() => {
     if (!containerRef.current) return
 
-    // Clear previous content
     containerRef.current.innerHTML = ''
 
-    // Create a unique ID for this instance of the widget
     const widgetId = `nac-widget-${widget}-${instanceId}`
 
-    // Create the div to mount the app on
     const appDiv = document.createElement('div')
     appDiv.id = widgetId
     containerRef.current.appendChild(appDiv)
 
-    // AWS Bucket/CDN
-    const awsBucket = 'https://du6amfiq9m9h7.cloudfront.net'
-    const version = '20250313' // Using production version from your code
+    const awsBucket =
+      process.env.NEXT_PUBLIC_NAC_WIDGETS_BUCKET || 'https://du6amfiq9m9h7.cloudfront.net'
+    const version = process.env.NEXT_PUBLIC_NAC_WIDGETS_VERSION || '20250313'
     const scriptUrl = `${awsBucket}/public/v2/${version}/`
 
     // Base URL (used for Google Analytics)
     const baseUrl = window.location.pathname
 
-    // Load CSS
     const loadCSS = (url: string): Promise<string> => {
       return new Promise((resolve, reject) => {
         const link = document.createElement('link')
@@ -53,7 +49,6 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
       })
     }
 
-    // Load JS
     const loadJS = (url: string): Promise<string> => {
       return new Promise((resolve, reject) => {
         const script = document.createElement('script')
@@ -66,7 +61,6 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
       })
     }
 
-    // Prepare widget data
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
       centerId: center.toUpperCase(),
@@ -75,10 +69,9 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
       baseUrl: baseUrl,
     }
 
-    // Add widget-specific data to window
     switch (widget) {
       case 'map':
-        ;(window as any).mapWidgetData = widgetData
+        window.mapWidgetData = widgetData
         Promise.all([
           loadJS(`${scriptUrl}danger-map.js?t=${Date.now()}`),
           loadCSS(`${scriptUrl}danger-map.css?t=${Date.now()}`),
@@ -86,7 +79,7 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
         break
 
       case 'forecast':
-        ;(window as any).forecastWidgetData = widgetData
+        window.forecastWidgetData = widgetData
         Promise.all([
           loadJS(`${scriptUrl}forecasts.js?t=${Date.now()}`),
           loadCSS(`${scriptUrl}forecasts.css?t=${Date.now()}`),
@@ -94,7 +87,7 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
         break
 
       case 'warning':
-        ;(window as any).warningWidgetData = widgetData
+        window.warningWidgetData = widgetData
         Promise.all([
           loadJS(`${scriptUrl}warnings.js?t=${Date.now()}`),
           loadCSS(`${scriptUrl}warnings.css?t=${Date.now()}`),
@@ -102,11 +95,7 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
         break
 
       case 'stations':
-        const stationData = {
-          ...widgetData,
-          auth: false, // Set this based on your needs
-        }
-        ;(window as any).stationWidgetData = stationData
+        window.stationWidgetData = widgetData
         Promise.all([
           loadJS(`${scriptUrl}stations.js?t=${Date.now()}`),
           loadCSS(`${scriptUrl}stations.css?t=${Date.now()}`),
@@ -114,11 +103,7 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
         break
 
       case 'observations':
-        const obsData = {
-          ...widgetData,
-          auth: false, // Set this based on your needs
-        }
-        ;(window as any).obsWidgetData = obsData
+        window.obsWidgetData = widgetData
         Promise.all([
           loadJS(`${scriptUrl}observations.js?t=${Date.now()}`),
           loadCSS(`${scriptUrl}observations.css?t=${Date.now()}`),
@@ -126,85 +111,72 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
         break
     }
 
-    // Cleanup function
     return () => {
-      // Clean up globals to prevent memory leaks
+      // Clean up globals
       switch (widget) {
         case 'map':
-          ;(window as any).mapWidgetData = undefined
+          window.mapWidgetData = undefined
           break
         case 'forecast':
-          ;(window as any).forecastWidgetData = undefined
+          window.forecastWidgetData = undefined
           break
         case 'warning':
-          ;(window as any).warningWidgetData = undefined
+          window.warningWidgetData = undefined
           break
         case 'stations':
-          ;(window as any).stationWidgetData = undefined
+          window.stationWidgetData = undefined
           break
         case 'observations':
-          ;(window as any).obsWidgetData = undefined
+          window.obsWidgetData = undefined
           break
       }
     }
   }, [center, widget, pathname, instanceId])
 
-  useEffect(() => {
-    // Function to modify links
+  useEffect(function hijackZoneLinks() {
     const modifyLinks = () => {
-      // Select all <a> tags within the container
-      const links = document.querySelectorAll('#nac-forecast-container a')
+      const links = document.querySelectorAll<HTMLAnchorElement>('#nac-forecast-container a')
 
-      // Filter and modify links
       links.forEach((link) => {
         const href = link.getAttribute('href')
 
-        // Check if the href starts with "#/"
         if (href && href.startsWith('#/')) {
           // Extract the zone from the format "#/{zone}/"
           const match = href.match(/#\/([^/]+)\//)
 
           if (match && match[1]) {
             const zone = match[1]
-            // Create the new href format: "{zone}#/{zone}/"
             const newHref = `/forecasts/avalanche/${zone}${href}`
 
-            // Clone the node to remove all event listeners and cast to HTMLAnchorElement
-            const newLink = link.cloneNode(true) as HTMLAnchorElement
+            // Clone the node to remove all event listeners
+            const newLink = link.cloneNode(true)
 
-            // Set the new href
-            newLink.setAttribute('href', newHref)
+            if (newLink instanceof HTMLAnchorElement) {
+              newLink.setAttribute('href', newHref)
 
-            // Add a click handler to use Next.js router
-            newLink.addEventListener('click', (e) => {
-              e.preventDefault()
-              router.push(newHref)
-            })
+              newLink.addEventListener('click', (e) => {
+                e.preventDefault()
+                router.push(newHref)
+              })
 
-            // Replace the original link
-            if (link.parentNode) {
-              link.parentNode.replaceChild(newLink, link)
+              if (link.parentNode) {
+                link.parentNode.replaceChild(newLink, link)
+              }
             }
           }
         }
       })
     }
 
-    // Create a MutationObserver to watch for when links are added
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === 'childList' && document.querySelector('#nac-forecast-container a')) {
-          // Links have been added, modify them
           modifyLinks()
-
-          // Optional: disconnect after first detection if you know links are
-          // all added at once and don't change afterwards
-          // observer.disconnect();
+          observer.disconnect()
         }
       }
     })
 
-    // Start observing the container for changes
     const container = document.querySelector('#widget-container')
     if (container) {
       observer.observe(container, {
@@ -213,10 +185,6 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
       })
     }
 
-    // Also try to run once in case links are already there
-    setTimeout(modifyLinks, 500)
-
-    // Cleanup function to disconnect observer
     return () => {
       observer.disconnect()
     }

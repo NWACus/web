@@ -34,12 +34,19 @@ type PathArgs = {
 export default async function Page({ params }: Args) {
   const { center } = await params
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
+    <div className="py-12">
+      <div className="container flex flex-col gap-4">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Avalanche Observations For {center}</h1>
-          <NACWidget center={center} widget={'observations'} />
+          <h1>Observations</h1>
         </div>
+        <p className="text-muted-foreground text-sm">
+          We make every effort to populate the avalanche occurrence database (map and table) in a
+          timely manner. We will record larger avalanches we directly observe, those with human
+          involvement, and all other notable slides we can confirm within reason. The avalanche
+          occurrence database will never be a comprehensive list of all events. You can contact us
+          at <a href="mailto:forecasters@nwac.us">forecasters@nwac.us</a> with any questions.
+        </p>
+        <NACWidget center={center} widget={'observations'} />
       </div>
     </div>
   )

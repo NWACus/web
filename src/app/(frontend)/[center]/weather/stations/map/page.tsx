@@ -35,7 +35,7 @@ export default async function Page({ params }: Args) {
   const { center } = await params
   return (
     <div className="py-12">
-      <div className="container mb-16 flex flex-col gap-4">
+      <div className="container flex flex-col gap-4">
         <div className="prose dark:prose-invert max-w-none">
           <h1>
             <span className="uppercase">{center}</span> Weather Station Map
