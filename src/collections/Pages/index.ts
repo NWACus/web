@@ -1,7 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
-import { CallToAction } from '@/blocks/CallToAction/config'
+import { BiographyBlock } from '@/blocks/Biography/config'
 import { Content } from '@/blocks/Content/config'
+import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
@@ -16,11 +17,10 @@ import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
 import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
-import { BiographyBlock } from '@/blocks/Biography/config'
 import { TeamBlock } from '@/blocks/Team/config'
+
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
-import { Tenant } from '@/payload-types'
 import {
   MetaDescriptionField,
   MetaImageField,
@@ -28,6 +28,8 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+
+import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -97,8 +99,8 @@ export const Pages: CollectionConfig<'pages'> = {
               type: 'blocks',
               blocks: [
                 BiographyBlock,
-                CallToAction,
                 Content,
+                ContentWithCallout,
                 FormBlock,
                 ImageLinkGrid,
                 ImageQuote,
