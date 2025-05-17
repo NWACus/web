@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
@@ -9,7 +10,7 @@ import { DesktopNav } from './DesktopNav.client'
 import { MobileNav } from './MobileNav.client'
 import { convertToNavLink, getTopLevelNavItems, TopLevelNavItem } from './utils'
 
-export async function Header({ center }: { center?: string }) {
+export async function Header({ center }: { center: string }) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
@@ -53,7 +54,9 @@ export async function Header({ center }: { center?: string }) {
     return <></>
   }
 
-  const topLevelNavItems = await getTopLevelNavItems({ navigation })
+  const avalancheCenterMetadata = await getAvalancheCenterMetadata(center)
+
+  const topLevelNavItems = await getTopLevelNavItems({ navigation, avalancheCenterMetadata })
 
   let donateNavItem: TopLevelNavItem | undefined = undefined
 

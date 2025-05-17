@@ -1,4 +1,5 @@
 import { Navigation, Page, Post } from '@/payload-types'
+import { AvalancheCenter } from '@/services/nac/types/schemas'
 import invariant from 'tiny-invariant'
 
 export type NavLink =
@@ -209,40 +210,74 @@ export function convertToNavLink(
 
 export const getTopLevelNavItems = async ({
   navigation,
+  avalancheCenterMetadata,
 }: {
   navigation: Navigation
-}): Promise<TopLevelNavItem[]> => [
-  {
+  avalancheCenterMetadata?: AvalancheCenter
+}): Promise<TopLevelNavItem[]> => {
+  let forecastsNavItem: TopLevelNavItem = {
     link: {
       label: 'Forecasts',
       type: 'internal',
       url: '/forecasts/avalanche',
     },
-  },
-  ...topLevelNavItem(navigation.weather, 'Weather'),
-  {
-    link: {
-      label: 'Observations',
-      type: 'internal',
-      url: '/observations',
+  }
+
+  if (avalancheCenterMetadata) {
+    const activeZones = avalancheCenterMetadata.zones.filter(
+      (zone): zone is Extract<typeof zone, { status: 'active' }> => zone.status === 'active',
+    )
+
+    if (activeZones.length > 0) {
+      const zoneLinks: NavItem[] = activeZones
+        .sort((zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity))
+        .map(({ name, url }) => {
+          const lastPathPart = url.split('/').filter(Boolean).pop()
+
+          return {
+            id: lastPathPart || name,
+            link: {
+              type: 'internal',
+              label: name,
+              url: lastPathPart ? `/avalanche/forecast/${lastPathPart}` : '/avalanche/forecast',
+            },
+          }
+        })
+
+      forecastsNavItem = {
+        label: 'Forecasts',
+        items: zoneLinks,
+      }
+    }
+  }
+
+  return [
+    forecastsNavItem,
+    ...topLevelNavItem(navigation.weather, 'Weather'),
+    {
+      link: {
+        label: 'Observations',
+        type: 'internal',
+        url: '/observations',
+      },
     },
-  },
-  ...topLevelNavItem(navigation.education, 'Education'),
-  ...topLevelNavItem(navigation.accidents, 'Accidents'),
-  {
-    link: {
-      label: 'Blog',
-      type: 'internal',
-      url: '/posts',
+    ...topLevelNavItem(navigation.education, 'Education'),
+    ...topLevelNavItem(navigation.accidents, 'Accidents'),
+    {
+      link: {
+        label: 'Blog',
+        type: 'internal',
+        url: '/posts',
+      },
     },
-  },
-  {
-    link: {
-      label: 'Events',
-      type: 'internal',
-      url: '/events',
+    {
+      link: {
+        label: 'Events',
+        type: 'internal',
+        url: '/events',
+      },
     },
-  },
-  ...topLevelNavItem(navigation.about, 'About'),
-  ...topLevelNavItem(navigation.support, 'Support'),
-]
+    ...topLevelNavItem(navigation.about, 'About'),
+    ...topLevelNavItem(navigation.support, 'Support'),
+  ]
+}
