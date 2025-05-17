@@ -27,7 +27,6 @@ export function NACWidget({
     containerRef.current.innerHTML = ''
 
     const widgetId = `nac-widget-${widget}-${instanceId}`
-    const now = Date.now()
 
     const appDiv = document.createElement('div')
     appDiv.id = widgetId
@@ -95,47 +94,32 @@ export function NACWidget({
       baseUrl: baseUrl,
     }
 
-    switch (widget) {
-      case 'map':
-        window.mapWidgetData = widgetData
-        Promise.all([
-          loadJS(`${scriptUrl}/danger-map.js?t=${now}`),
-          loadCSS(`${scriptUrl}/danger-map.css`),
-        ]).catch((err) => console.error('Failed to load map widget:', err))
-        break
-
-      case 'forecast':
-        window.forecastWidgetData = widgetData
-        Promise.all([
-          loadJS(`${scriptUrl}/forecasts.js?t=${now}`),
-          loadCSS(`${scriptUrl}/forecasts.css`),
-        ]).catch((err) => console.error('Failed to load forecast widget:', err))
-        break
-
-      case 'warning':
-        window.warningWidgetData = widgetData
-        Promise.all([
-          loadJS(`${scriptUrl}/warnings.js?t=${now}`),
-          loadCSS(`${scriptUrl}/warnings.css`),
-        ]).catch((err) => console.error('Failed to load warning widget:', err))
-        break
-
-      case 'stations':
-        window.stationWidgetData = widgetData
-        Promise.all([
-          loadJS(`${scriptUrl}/stations.js?t=${now}`),
-          loadCSS(`${scriptUrl}/stations.css`),
-        ]).catch((err) => console.error('Failed to load stations widget:', err))
-        break
-
-      case 'observations':
-        window.obsWidgetData = widgetData
-        Promise.all([
-          loadJS(`${scriptUrl}/observations.js?t=${now}`),
-          loadCSS(`${scriptUrl}/observations.css`),
-        ]).catch((err) => console.error('Failed to load observations widget:', err))
-        break
+    const loadersByWidget: Record<
+      Widget,
+      {
+        script: string
+        dataKey:
+          | 'mapWidgetData'
+          | 'forecastWidgetData'
+          | 'warningWidgetData'
+          | 'stationWidgetData'
+          | 'obsWidgetData'
+      }
+    > = {
+      map: { script: 'danger-map', dataKey: 'mapWidgetData' },
+      forecast: { script: 'forecasts', dataKey: 'forecastWidgetData' },
+      warning: { script: 'warnings', dataKey: 'warningWidgetData' },
+      stations: { script: 'stations', dataKey: 'stationWidgetData' },
+      observations: { script: 'observations', dataKey: 'obsWidgetData' },
     }
+
+    const { script, dataKey } = loadersByWidget[widget]
+    window[dataKey] = widgetData
+
+    Promise.all([
+      loadJS(`${scriptUrl}/${script}.js?t=${Date.now()}`),
+      loadCSS(`${scriptUrl}/${script}.css`),
+    ]).catch((err) => console.error('Failed to load ${widget} widget:', err))
 
     return () => {
       // Clean up globals
