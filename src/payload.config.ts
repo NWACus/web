@@ -21,6 +21,7 @@ import { Themes } from '@/collections/Themes'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { Footer } from './Footer/config'
+import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getServerSideURL } from './utilities/getURL'
 
@@ -116,7 +117,7 @@ export default buildConfig({
     Teams,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
-  globals: [Footer],
+  globals: [Footer, NACWidgetsConfig],
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,

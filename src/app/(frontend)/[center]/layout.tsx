@@ -7,8 +7,10 @@ import { Header } from '@/components/Header/Header'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 import { getServerSideURL } from '@/utilities/getURL'
+import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import './nac-widgets.css'
 import ThemeSetter from './theme'
 
 export async function generateStaticParams() {
@@ -40,12 +42,12 @@ export default async function RootLayout({ children, params }: Args) {
   const { center } = await params
 
   return (
-    <main className={center}>
+    <div className={cn('flex flex-col min-h-screen', center)}>
       <ThemeSetter theme={center} />
       <Header center={center} />
-      {children}
+      <main className="flex-grow">{children}</main>
       <Footer center={center} />
-    </main>
+    </div>
   )
 }
 

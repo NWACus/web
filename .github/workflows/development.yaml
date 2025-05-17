@@ -65,7 +65,7 @@ jobs:
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
           SERVER_DOMAIN: 'dev.avy-fx.org'
       - name: Build Project Artifacts
@@ -75,7 +75,7 @@ jobs:
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
           SERVER_DOMAIN: 'dev.avy-fx.org'
       - name: Deploy Project Artifacts to Vercel
