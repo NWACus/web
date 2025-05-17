@@ -16,7 +16,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
     collection: 'pages',
-    draft: false,
+    draft: false, // does not remove posts with _status: 'draft'
     limit: 1000,
     overrideAccess: true,
     pagination: false,
@@ -28,13 +28,13 @@ export async function generateStaticParams() {
   })
 
   const params: PathArgs[] = []
-  for (const post of pages.docs) {
-    if (typeof post.tenant === 'number') {
-      payload.logger.error(`got number for page tenant: ${JSON.stringify(post.tenant)}`)
+  for (const page of pages.docs) {
+    if (typeof page.tenant === 'number') {
+      payload.logger.error(`got number for page tenant: ${JSON.stringify(page.tenant)}`)
       continue
     }
-    if (post.tenant) {
-      params.push({ center: post.tenant.slug, slug: post.slug })
+    if (page.tenant && page.slug) {
+      params.push({ center: page.tenant.slug, slug: page.slug })
     }
   }
 
