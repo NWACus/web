@@ -6,8 +6,6 @@ declare global {
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: string
-      NEXT_PUBLIC_NAC_WIDGETS_BUCKET: string
-      NEXT_PUBLIC_NAC_WIDGETS_VERSION: string
     }
   }
 }

@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { ZoneHashHandler } from './ZoneHashHandler.client'
 
 export const dynamic = 'force-static'
@@ -37,12 +38,20 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center, zone } = await params
+
+  const { version, baseUrl } = await getNACWidgetsConfig()
+
   return (
     <>
       <ZoneHashHandler zone={zone} />
       <div className="py-6 md:py-8 lg:py-12">
         <div className="container flex flex-col">
-          <NACWidget center={center} widget={'forecast'} />
+          <NACWidget
+            center={center}
+            widget={'forecast'}
+            widgetsVersion={version}
+            widgetsBaseUrl={baseUrl}
+          />
         </div>
       </div>
     </>

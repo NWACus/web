@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -33,6 +34,9 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center } = await params
+
+  const { version, baseUrl } = await getNACWidgetsConfig()
+
   return (
     <div className="py-6 md:py-8 lg:py-12">
       <div className="container flex flex-col gap-4">
@@ -41,7 +45,12 @@ export default async function Page({ params }: Args) {
             <span className="uppercase">{center}</span> Weather Station Map
           </h1>
         </div>
-        <NACWidget center={center} widget={'stations'} />
+        <NACWidget
+          center={center}
+          widget={'stations'}
+          widgetsVersion={version}
+          widgetsBaseUrl={baseUrl}
+        />
       </div>
     </div>
   )

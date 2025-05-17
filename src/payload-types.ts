@@ -123,9 +123,11 @@ export interface Config {
   };
   globals: {
     footer: Footer;
+    nacWidgetsConfig: NacWidgetsConfig;
   };
   globalsSelect: {
     footer: FooterSelect<false> | FooterSelect<true>;
+    nacWidgetsConfig: NacWidgetsConfigSelect<false> | NacWidgetsConfigSelect<true>;
   };
   locale: null;
   user: User & {
@@ -2661,6 +2663,19 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Controls the loading of NAC widgets across all avalanche center websites.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nacWidgetsConfig".
+ */
+export interface NacWidgetsConfig {
+  id: number;
+  version: string;
+  baseUrl: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer_select".
  */
@@ -2679,6 +2694,17 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nacWidgetsConfig_select".
+ */
+export interface NacWidgetsConfigSelect<T extends boolean = true> {
+  version?: T;
+  baseUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

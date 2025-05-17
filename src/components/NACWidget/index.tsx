@@ -5,10 +5,21 @@ import { useEffect, useRef, useState } from 'react'
 
 export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
 
-export function NACWidget({ center, widget }: { center: string; widget: Widget }) {
+export function NACWidget({
+  center,
+  widget,
+  widgetsVersion,
+  widgetsBaseUrl,
+}: {
+  center: string
+  widget: Widget
+  widgetsVersion: string
+  widgetsBaseUrl: string
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const [instanceId] = useState(() => Math.random().toString(36).substring(2, 9))
+  const scriptRefsRef = useRef<HTMLScriptElement[]>([])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -16,21 +27,28 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
     containerRef.current.innerHTML = ''
 
     const widgetId = `nac-widget-${widget}-${instanceId}`
+    const now = Date.now()
 
     const appDiv = document.createElement('div')
     appDiv.id = widgetId
     containerRef.current.appendChild(appDiv)
 
-    const awsBucket =
-      process.env.NEXT_PUBLIC_NAC_WIDGETS_BUCKET || 'https://du6amfiq9m9h7.cloudfront.net'
-    const version = process.env.NEXT_PUBLIC_NAC_WIDGETS_VERSION || '20250313'
-    const scriptUrl = `${awsBucket}/public/v2/${version}/`
+    // Removes any trailing slashes
+    const safeBaseUrl = widgetsBaseUrl.replace(/\/+$/, '')
+
+    const scriptUrl = `${safeBaseUrl}/${widgetsVersion}`
 
     // Base URL (used for Google Analytics)
     const baseUrl = window.location.pathname
 
     const loadCSS = (url: string): Promise<string> => {
       return new Promise((resolve, reject) => {
+        const existingLink = document.querySelector(`link[href="${url}"]`)
+        if (existingLink) {
+          resolve(url)
+          return
+        }
+
         const link = document.createElement('link')
         link.type = 'text/css'
         link.rel = 'stylesheet'
@@ -50,12 +68,21 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
 
     const loadJS = (url: string): Promise<string> => {
       return new Promise((resolve, reject) => {
+        const existingScript = document.querySelector(`script[src="${url}"]`)
+        if (existingScript) {
+          resolve(url)
+          return
+        }
+
         const script = document.createElement('script')
         script.async = true
         script.type = 'module'
         script.onload = () => resolve(url)
         script.onerror = () => reject(url)
         script.src = url
+
+        scriptRefsRef.current.push(script)
+
         document.body.appendChild(script)
       })
     }
@@ -72,40 +99,40 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
       case 'map':
         window.mapWidgetData = widgetData
         Promise.all([
-          loadJS(`${scriptUrl}danger-map.js?t=${Date.now()}`),
-          loadCSS(`${scriptUrl}danger-map.css?t=${Date.now()}`),
+          loadJS(`${scriptUrl}/danger-map.js?t=${now}`),
+          loadCSS(`${scriptUrl}/danger-map.css`),
         ]).catch((err) => console.error('Failed to load map widget:', err))
         break
 
       case 'forecast':
         window.forecastWidgetData = widgetData
         Promise.all([
-          loadJS(`${scriptUrl}forecasts.js?t=${Date.now()}`),
-          loadCSS(`${scriptUrl}forecasts.css?t=${Date.now()}`),
+          loadJS(`${scriptUrl}/forecasts.js?t=${now}`),
+          loadCSS(`${scriptUrl}/forecasts.css`),
         ]).catch((err) => console.error('Failed to load forecast widget:', err))
         break
 
       case 'warning':
         window.warningWidgetData = widgetData
         Promise.all([
-          loadJS(`${scriptUrl}warnings.js?t=${Date.now()}`),
-          loadCSS(`${scriptUrl}warnings.css?t=${Date.now()}`),
+          loadJS(`${scriptUrl}/warnings.js?t=${now}`),
+          loadCSS(`${scriptUrl}/warnings.css`),
         ]).catch((err) => console.error('Failed to load warning widget:', err))
         break
 
       case 'stations':
         window.stationWidgetData = widgetData
         Promise.all([
-          loadJS(`${scriptUrl}stations.js?t=${Date.now()}`),
-          loadCSS(`${scriptUrl}stations.css?t=${Date.now()}`),
+          loadJS(`${scriptUrl}/stations.js?t=${now}`),
+          loadCSS(`${scriptUrl}/stations.css`),
         ]).catch((err) => console.error('Failed to load stations widget:', err))
         break
 
       case 'observations':
         window.obsWidgetData = widgetData
         Promise.all([
-          loadJS(`${scriptUrl}observations.js?t=${Date.now()}`),
-          loadCSS(`${scriptUrl}observations.css?t=${Date.now()}`),
+          loadJS(`${scriptUrl}/observations.js?t=${now}`),
+          loadCSS(`${scriptUrl}/observations.css`),
         ]).catch((err) => console.error('Failed to load observations widget:', err))
         break
     }
@@ -129,6 +156,14 @@ export function NACWidget({ center, widget }: { center: string; widget: Widget }
           window.obsWidgetData = undefined
           break
       }
+
+      // Remove script tags
+      scriptRefsRef.current.forEach((script) => {
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script)
+        }
+      })
+      scriptRefsRef.current = []
     }
   }, [center, widget, pathname, instanceId])
 
