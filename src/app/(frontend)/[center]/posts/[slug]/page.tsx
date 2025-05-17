@@ -15,7 +15,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const posts = await payload.find({
     collection: 'posts',
-    draft: false,
+    draft: false, // does not remove posts with _status: 'draft'
     limit: 1000,
     overrideAccess: true,
     pagination: false,
@@ -32,7 +32,7 @@ export async function generateStaticParams() {
       payload.logger.error(`got number for post tenant`)
       continue
     }
-    if (post.tenant) {
+    if (post.tenant && post.slug) {
       params.push({ center: post.tenant.slug, slug: post.slug })
     }
   }
