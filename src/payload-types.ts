@@ -1404,7 +1404,7 @@ export interface Navigation {
 export interface Footer {
   id: number;
   tenant: number | Tenant;
-  logo?: (number | null) | Media;
+  footerLogo?: (number | null) | Media;
   name: string;
   address?: string | null;
   phone?: string | null;
@@ -2401,7 +2401,7 @@ export interface NavigationsSelect<T extends boolean = true> {
  */
 export interface FooterSelect<T extends boolean = true> {
   tenant?: T;
-  logo?: T;
+  footerLogo?: T;
   name?: T;
   address?: T;
   phone?: T;

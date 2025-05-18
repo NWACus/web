@@ -887,7 +887,7 @@ export const seed = async ({
   ): RequiredDataFromCollectionSlug<'footer'> => {
     return {
       tenant: tenant.id,
-      logo: brandImages[tenant.slug]['logo'].id,
+      footerLogo: brandImages[tenant.slug]['logo'].id,
       name: tenant.name,
       ...footerData[tenant.slug],
     }

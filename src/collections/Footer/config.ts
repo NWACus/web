@@ -1,5 +1,6 @@
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import type { CollectionConfig, TextFieldValidation } from 'payload'
@@ -53,10 +54,9 @@ export const Footer: CollectionConfig = {
   fields: [
     tenantField({ unique: true }),
     {
-      name: 'logo',
+      name: 'footerLogo',
       type: 'upload',
       relationTo: 'media',
-      // required: true,
       filterOptions: {
         mimeType: { contains: 'image' },
       },
@@ -149,5 +149,6 @@ export const Footer: CollectionConfig = {
       type: 'relationship',
       relationTo: 'pages',
     },
+    contentHashField(),
   ],
 }

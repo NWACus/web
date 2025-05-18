@@ -18,7 +18,8 @@ export async function Footer({ center }: { center?: string }) {
       },
     },
   })
-  const { address, email, hashtag, logo, name, phone, privacy, socialMedia, terms } = data?.[0]
+  const { address, email, hashtag, footerLogo, name, phone, privacy, socialMedia, terms } =
+    data?.[0]
 
   invariant(
     typeof terms === 'object',
@@ -38,7 +39,7 @@ export async function Footer({ center }: { center?: string }) {
         </div>
         <div>
           <Link className="flex items-center" href="/">
-            {logo ? <ImageMedia resource={logo} /> : <Logo center={center} />}
+            {footerLogo ? <ImageMedia resource={footerLogo} /> : <Logo center={center} />}
           </Link>
         </div>
         <div>
