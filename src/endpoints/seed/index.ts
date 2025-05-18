@@ -410,8 +410,6 @@ export const seed = async ({
       .flat(),
   ])
 
-  payload.logger.info(`TYPEOF ${brandImages}`)
-
   const themesByTenant: Record<string, string> = {
     nwac: 'Zinc',
     sac: 'Blue',

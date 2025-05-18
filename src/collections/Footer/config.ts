@@ -1,29 +1,23 @@
 import { accessByTenant } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
-import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import type { CollectionConfig, TextFieldValidation } from 'payload'
 
 const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
-  if (value === null || value === undefined) return true
-  else
-    return (
-      value?.match(/^#[A-Za-z0-9_](?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}[A-Za-z0-9_]$/)?.length ===
-        1 || `${value} is not a valid hashtag`
-    )
+  return value
+    ? /^#[A-Za-z0-9_](?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}[A-Za-z0-9_]$/.test(value) ||
+        `${value} is not a valid hashtag`
+    : true
 }
 
 const validateTelephone: TextFieldValidation = (
   value: string | null | undefined,
 ): string | true => {
-  console.log(value?.match(/^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/))
-  if (value === null || value === undefined) return true
-  else
-    return (
-      value?.match(/^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/g)?.length === 1 ||
-      `${value} is not a valid hashtag`
-    )
+  return value
+    ? /^#[A-Za-z0-9_](?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}[A-Za-z0-9_]$/.test(value) ||
+        `${value} is not a valid phone number`
+    : true
 }
 
 export const Footer: CollectionConfig = {
@@ -155,6 +149,5 @@ export const Footer: CollectionConfig = {
       type: 'relationship',
       relationTo: 'pages',
     },
-    contentHashField(),
   ],
 }
