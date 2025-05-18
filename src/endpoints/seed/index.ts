@@ -288,7 +288,7 @@ export const seed = async ({
       name: 'Contributor',
       rules: [
         {
-          collections: ['posts', 'pages', 'media'],
+          collections: ['posts', 'pages', 'media', 'tenants'],
           actions: ['*'],
         },
       ],

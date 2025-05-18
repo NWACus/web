@@ -15,7 +15,6 @@ import { fileURLToPath } from 'url'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// TODO: why does importing this break?
 type BeforeOperationHook = Exclude<
   Exclude<CollectionConfig['hooks'], undefined>['beforeOperation'],
   undefined
