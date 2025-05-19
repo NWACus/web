@@ -239,14 +239,40 @@ export const getTopLevelNavItems = async ({
             link: {
               type: 'internal',
               label: name,
-              url: lastPathPart ? `/avalanche/forecast/${lastPathPart}` : '/avalanche/forecast',
+              url: lastPathPart ? `/forecasts/avalanche/${lastPathPart}` : '/forecasts/avalanche',
             },
           }
         })
 
       forecastsNavItem = {
         label: 'Forecasts',
-        items: zoneLinks,
+        items: [
+          {
+            id: 'all',
+            link: {
+              type: 'internal',
+              label: 'All Forecasts',
+              url: '/forecasts/avalanche',
+            },
+          },
+          {
+            id: 'zones',
+            items: zoneLinks,
+            link: {
+              type: 'internal',
+              label: 'Zones',
+              url: '/forecasts/avalanche',
+            },
+          },
+          {
+            id: 'archive',
+            link: {
+              type: 'internal',
+              label: 'Forecast Archive',
+              url: '/forecasts/avalanche/#/archive/forecast',
+            },
+          },
+        ],
       }
     }
   }
@@ -255,11 +281,25 @@ export const getTopLevelNavItems = async ({
     forecastsNavItem,
     ...topLevelNavItem(navigation.weather, 'Weather'),
     {
-      link: {
-        label: 'Observations',
-        type: 'internal',
-        url: '/observations',
-      },
+      label: 'Observations',
+      items: [
+        {
+          id: 'recent',
+          link: {
+            type: 'internal',
+            label: 'Recent Observations',
+            url: '/observations',
+          },
+        },
+        {
+          id: 'submit',
+          link: {
+            type: 'internal',
+            label: 'Submit Observation',
+            url: '/observations/#/form',
+          },
+        },
+      ],
     },
     ...topLevelNavItem(navigation.education, 'Education'),
     ...topLevelNavItem(navigation.accidents, 'Accidents'),
