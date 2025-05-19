@@ -5,7 +5,8 @@
   font-family: initial;
 }
 
-#widget-container svg {
+#widget-container svg,
+#widget-container img {
   display: initial;
 }
 
