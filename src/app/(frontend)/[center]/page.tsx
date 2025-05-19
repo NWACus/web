@@ -41,17 +41,25 @@ export default async function Page({ params }: Args) {
   const { version, baseUrl } = await getNACWidgetsConfig()
 
   return (
-    <div className="py-6 md:py-8 lg:py-12">
-      {draft && <LivePreviewListener />}
-      <div className="container">
-        <NACWidget
-          center={center}
-          widget={'map'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
+    <>
+      <NACWidget
+        center={center}
+        widget="warning"
+        widgetsVersion={version}
+        widgetsBaseUrl={baseUrl}
+      />
+      <div className="py-6 md:py-8 lg:py-12">
+        {draft && <LivePreviewListener />}
+        <div className="container">
+          <NACWidget
+            center={center}
+            widget="map"
+            widgetsVersion={version}
+            widgetsBaseUrl={baseUrl}
+          />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
