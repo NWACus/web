@@ -291,7 +291,7 @@ export const seed = async ({
       rules: [
         {
           collections: ['roleAssignments'],
-          actions: ['create', 'update'],
+          actions: ['create', 'read', 'update'],
         },
       ],
     },
@@ -300,7 +300,11 @@ export const seed = async ({
       rules: [
         {
           collections: ['posts', 'pages', 'media'],
-          actions: ['create', 'update'],
+          actions: ['*'],
+        },
+        {
+          collections: ['tenants'],
+          actions: ['read'],
         },
       ],
     },
