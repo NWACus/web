@@ -1,7 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { getAvalancheCenterMetadata } from '@/services/nac/nac'
+import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
@@ -55,8 +55,13 @@ export async function Header({ center }: { center: string }) {
   }
 
   const avalancheCenterMetadata = await getAvalancheCenterMetadata(center)
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
-  const topLevelNavItems = await getTopLevelNavItems({ navigation, avalancheCenterMetadata })
+  const topLevelNavItems = await getTopLevelNavItems({
+    navigation,
+    avalancheCenterMetadata,
+    avalancheCenterPlatforms,
+  })
 
   let donateNavItem: TopLevelNavItem | undefined = undefined
 

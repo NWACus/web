@@ -4,6 +4,8 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -33,6 +35,13 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center } = await params
+
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+
+  if (!avalancheCenterPlatforms.obs) {
+    notFound()
+  }
+
   return (
     <div className="pt-24 pb-24">
       <div className="container mb-16">

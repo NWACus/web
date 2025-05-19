@@ -139,7 +139,14 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
     (center) => center.id === centerSlug.toUpperCase(),
   )
 
-  if (!foundAvalancheCenterBySlug) return null
+  if (!foundAvalancheCenterBySlug)
+    return {
+      warnings: false,
+      forecasts: false,
+      stations: false,
+      obs: false,
+      weather: false,
+    }
 
   return foundAvalancheCenterBySlug.platforms
 }
