@@ -4,7 +4,9 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
+import { notFound } from 'next/navigation'
 import { ZoneHashHandler } from './ZoneHashHandler.client'
 
 export const dynamic = 'force-static'
@@ -38,6 +40,12 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center, zone } = await params
+
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+
+  if (!avalancheCenterPlatforms.forecasts) {
+    notFound()
+  }
 
   const { version, baseUrl } = await getNACWidgetsConfig()
 

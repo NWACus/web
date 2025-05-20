@@ -1,4 +1,5 @@
 import { Navigation, Page, Post } from '@/payload-types'
+import { AvalancheCenter, AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import invariant from 'tiny-invariant'
 
 export type NavLink =
@@ -37,11 +38,16 @@ export type TopLevelNavItem =
  *
  * @returns TopLevelNavItem in an array if the topLevelNavTab is valid or an empty array if invalid.
  */
-function topLevelNavItem(
-  tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support'],
-  label: string,
-): TopLevelNavItem[] {
-  if (!tab) {
+function topLevelNavItem({
+  tab,
+  label,
+  enabled = true,
+}: {
+  tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
+  label: string
+  enabled?: boolean
+}): TopLevelNavItem[] {
+  if (!tab || !enabled) {
     return []
   }
 
@@ -209,40 +215,136 @@ export function convertToNavLink(
 
 export const getTopLevelNavItems = async ({
   navigation,
+  avalancheCenterMetadata,
+  avalancheCenterPlatforms,
 }: {
   navigation: Navigation
-}): Promise<TopLevelNavItem[]> => [
-  {
+  avalancheCenterMetadata?: AvalancheCenter
+  avalancheCenterPlatforms: AvalancheCenterPlatforms
+}): Promise<TopLevelNavItem[]> => {
+  let forecastsNavItem: TopLevelNavItem = {
     link: {
       label: 'Forecasts',
       type: 'internal',
       url: '/forecasts/avalanche',
     },
-  },
-  ...topLevelNavItem(navigation.weather, 'Weather'),
-  {
-    link: {
-      label: 'Observations',
-      type: 'internal',
-      url: '/observations',
+  }
+
+  if (avalancheCenterMetadata && avalancheCenterPlatforms.forecasts) {
+    const activeZones = avalancheCenterMetadata.zones.filter(
+      (zone): zone is Extract<typeof zone, { status: 'active' }> => zone.status === 'active',
+    )
+
+    if (activeZones.length > 0) {
+      const zoneLinks: NavItem[] = activeZones
+        .sort((zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity))
+        .map(({ name, url }) => {
+          const lastPathPart = url.split('/').filter(Boolean).pop()
+
+          return {
+            id: lastPathPart || name,
+            link: {
+              type: 'internal',
+              label: name,
+              url: lastPathPart ? `/forecasts/avalanche/${lastPathPart}` : '/forecasts/avalanche',
+            },
+          }
+        })
+
+      forecastsNavItem = {
+        label: 'Forecasts',
+        items: [
+          {
+            id: 'all',
+            link: {
+              type: 'internal',
+              label: 'All Forecasts',
+              url: '/forecasts/avalanche',
+            },
+          },
+          {
+            id: 'zones',
+            items: zoneLinks,
+            link: {
+              type: 'internal',
+              label: 'Zones',
+              url: '/forecasts/avalanche',
+            },
+          },
+          {
+            id: 'archive',
+            link: {
+              type: 'internal',
+              label: 'Forecast Archive',
+              url: '/forecasts/avalanche/#/archive/forecast',
+            },
+          },
+        ],
+      }
+    }
+  }
+
+  const observationsNavItem: TopLevelNavItem = {
+    label: 'Observations',
+    items: [
+      {
+        id: 'recent',
+        link: {
+          type: 'internal',
+          label: 'Recent Observations',
+          url: '/observations',
+        },
+      },
+      {
+        id: 'submit',
+        link: {
+          type: 'internal',
+          label: 'Submit Observation',
+          url: '/observations/#/form',
+        },
+      },
+    ],
+  }
+
+  const weatherNavItem = topLevelNavItem({
+    tab: navigation.weather,
+    label: 'Weather',
+  })[0]
+
+  const weatherStationsNavItemIndex = weatherNavItem.items?.findIndex(
+    ({ link }) => link?.url === '/weather/stations/map',
+  )
+
+  if (
+    typeof weatherStationsNavItemIndex === 'number' &&
+    weatherStationsNavItemIndex > -1 &&
+    !avalancheCenterPlatforms.stations &&
+    weatherNavItem.items
+  ) {
+    weatherNavItem.items.splice(weatherStationsNavItemIndex, 1)
+  }
+
+  return [
+    ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
+    weatherNavItem,
+    ...(avalancheCenterPlatforms.obs ? [observationsNavItem] : []),
+    ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
+    ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
+    {
+      link: {
+        label: 'Blog',
+        type: 'internal',
+        url: '/posts',
+      },
     },
-  },
-  ...topLevelNavItem(navigation.education, 'Education'),
-  ...topLevelNavItem(navigation.accidents, 'Accidents'),
-  {
-    link: {
-      label: 'Blog',
-      type: 'internal',
-      url: '/posts',
+    {
+      link: {
+        label: 'Events',
+        type: 'internal',
+        url: '/events',
+      },
     },
-  },
-  {
-    link: {
-      label: 'Events',
-      type: 'internal',
-      url: '/events',
-    },
-  },
-  ...topLevelNavItem(navigation.about, 'About'),
-  ...topLevelNavItem(navigation.support, 'Support'),
-]
+    ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
+    ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
+  ]
+}
