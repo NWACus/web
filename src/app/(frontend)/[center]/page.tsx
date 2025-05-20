@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { NACWidget } from '@/components/NACWidget'
+import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { draftMode } from 'next/headers'
 
 export const dynamic = 'force-static'
@@ -36,16 +37,29 @@ type PathArgs = {
 export default async function Page({ params }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
+
+  const { version, baseUrl } = await getNACWidgetsConfig()
+
   return (
-    <div className="pt-24 pb-24">
-      {draft && <LivePreviewListener />}
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
-          <h1>Home Page for {center}</h1>
-          <NACWidget center={center} widget={'map'} id="nac-widget-container" />
+    <>
+      <NACWidget
+        center={center}
+        widget="warning"
+        widgetsVersion={version}
+        widgetsBaseUrl={baseUrl}
+      />
+      <div className="py-6 md:py-8 lg:py-12">
+        {draft && <LivePreviewListener />}
+        <div className="container">
+          <NACWidget
+            center={center}
+            widget="map"
+            widgetsVersion={version}
+            widgetsBaseUrl={baseUrl}
+          />
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
