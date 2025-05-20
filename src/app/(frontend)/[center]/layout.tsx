@@ -9,9 +9,11 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenter'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getServerSideURL } from '@/utilities/getURL'
+import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import invariant from 'tiny-invariant'
+import './nac-widgets.css'
 import ThemeSetter from './theme'
 
 export async function generateStaticParams() {
@@ -50,12 +52,12 @@ export default async function RootLayout({ children, params }: Args) {
 
   return (
     <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
-      <main className={center}>
+      <div className={cn('flex flex-col min-h-screen', center)}>
         <ThemeSetter theme={center} />
         <Header center={center} />
-        {children}
+        <main className="flex-grow">{children}</main>
         <Footer center={center} />
-      </main>
+      </div>
     </AvalancheCenterProvider>
   )
 }

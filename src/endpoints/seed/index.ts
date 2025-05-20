@@ -43,7 +43,20 @@ const collections: CollectionSlug[] = [
   'teams',
   'tenants',
 ]
-const globals: GlobalSlug[] = ['footer']
+const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
+  footer: {
+    requiredFields: {
+      navItems: [],
+    },
+  },
+  nacWidgetsConfig: {
+    requiredFields: {
+      version: '20250313',
+      baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
+    },
+  },
+}
+const globals: GlobalSlug[] = ['footer', 'nacWidgetsConfig']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -67,9 +80,7 @@ export const seed = async ({
       globals.map((global) =>
         payload.updateGlobal({
           slug: global,
-          data: {
-            navItems: [],
-          },
+          data: globalsMap[global].requiredFields,
           depth: 0,
           context: {
             disableRevalidate: true,
@@ -280,7 +291,7 @@ export const seed = async ({
       rules: [
         {
           collections: ['roleAssignments'],
-          actions: ['create', 'update'],
+          actions: ['create', 'read', 'update'],
         },
       ],
     },
@@ -289,7 +300,11 @@ export const seed = async ({
       rules: [
         {
           collections: ['posts', 'pages', 'media'],
-          actions: ['create', 'update'],
+          actions: ['*'],
+        },
+        {
+          collections: ['tenants'],
+          actions: ['read'],
         },
       ],
     },
@@ -869,6 +884,13 @@ export const seed = async ({
             },
           },
         ],
+      },
+    }),
+    payload.updateGlobal({
+      slug: 'nacWidgetsConfig',
+      data: {
+        version: '20250313',
+        baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
       },
     }),
   ])

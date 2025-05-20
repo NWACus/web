@@ -1,0 +1,80 @@
+/* Resets */
+
+#widget-container {
+  all: initial;
+  font-family: initial;
+}
+
+#widget-container svg,
+#widget-container img {
+  display: initial;
+}
+
+/* Customizations */
+
+#widget-container[data-widget='forecast'],
+#widget-container[data-widget='observations'] {
+  min-height: 100vh;
+}
+
+#widget-container[data-widget='stations'] {
+  min-height: calc(100vh - 170px) !important;
+}
+
+@media (min-width: 768px) {
+  #widget-container[data-widget='stations'] {
+    min-height: calc(100vh - 180px) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #widget-container[data-widget='stations'] {
+    min-height: calc(100vh - 370px) !important;
+  }
+}
+
+/* Overrides */
+
+#nac-app .nac-forecast-view.nac-html-body {
+  @apply bg-background text-foreground !important;
+}
+
+#nac-zone-selector {
+  display: none;
+}
+
+#nac-app .nac-btn.nac-to-top {
+  display: none;
+}
+
+#nac-app {
+  min-height: initial !important;
+}
+
+#nac-app #nac-weather-app {
+  min-height: initial !important;
+}
+
+#nac-app #nac-weather-map:not(.nac-map-fullscreen) {
+  height: calc(100vh - 240px) !important;
+}
+
+@media (min-width: 768px) {
+  #nac-app #nac-weather-map:not(.nac-map-fullscreen) {
+    height: calc(100vh - 260px) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #nac-app #nac-weather-map:not(.nac-map-fullscreen) {
+    height: calc(100vh - 440px) !important;
+  }
+}
+
+#nac-app .nac-station-table-container {
+  height: auto !important;
+}
+
+#nac-app #nac-station-table {
+  max-height: none !important;
+}
