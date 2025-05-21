@@ -1,20 +1,22 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
+import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
 import { DesktopNav } from './DesktopNav.client'
 import { MobileNav } from './MobileNav.client'
 import { convertToNavLink, getTopLevelNavItems, TopLevelNavItem } from './utils'
 
-export async function Header({ center }: { center?: string }) {
+export async function Header({ center }: { center: string }) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
   const brands = await payload.find({
     collection: 'brands',
-    depth: 10,
+    depth: 99,
     where: {
       'tenant.slug': {
         equals: center,
@@ -28,15 +30,14 @@ export async function Header({ center }: { center?: string }) {
 
   const banner = brands.docs[0]?.banner
 
-  if (brands.docs.length > 0 && typeof banner !== 'object') {
-    throw new Error(
-      `Depth not set correctly when querying brands. Banner for tenant ${center} not an object.`,
-    )
-  }
+  invariant(
+    typeof banner === 'object',
+    `Depth not set correctly when querying brands. Banner for tenant ${center} not an object.`,
+  )
 
   const navigationRes = await payload.find({
     collection: 'navigations',
-    depth: 10,
+    depth: 99,
     draft,
     overrideAccess: true,
     where: {
@@ -53,7 +54,14 @@ export async function Header({ center }: { center?: string }) {
     return <></>
   }
 
-  const topLevelNavItems = await getTopLevelNavItems({ navigation })
+  const avalancheCenterMetadata = await getAvalancheCenterMetadata(center)
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+
+  const topLevelNavItems = await getTopLevelNavItems({
+    navigation,
+    avalancheCenterMetadata,
+    avalancheCenterPlatforms,
+  })
 
   let donateNavItem: TopLevelNavItem | undefined = undefined
 
@@ -69,7 +77,7 @@ export async function Header({ center }: { center?: string }) {
   }
 
   return (
-    <header className="bg-header">
+    <header className="bg-header lg:shadow-sm lg:border-b">
       <MobileNav
         topLevelNavItems={topLevelNavItems}
         donateNavItem={donateNavItem}
@@ -78,7 +86,7 @@ export async function Header({ center }: { center?: string }) {
       {/* content padding since mobile nav is fixed */}
       <div className="lg:hidden h-[64px] bg-background" />
 
-      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8 shadow-sm">
+      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8">
         {banner && (
           <Link href="/" className="w-fit">
             <ImageMedia

@@ -3,14 +3,12 @@ import type { RequiredDataFromCollectionSlug } from 'payload'
 
 export const page: (
   tenant: Tenant,
-  heroImage: Media,
   seoImage: Media,
   title: string,
   description: string,
   slug: string,
 ) => RequiredDataFromCollectionSlug<'pages'> = (
   tenant: Tenant,
-  heroImage: Media,
   seoImage: Media,
   title: string,
   description: string,
@@ -18,67 +16,13 @@ export const page: (
 ): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: slug,
-    tenant: tenant,
+    tenant: tenant.id,
     _status: 'published',
-    hero: {
-      type: 'mediumImpact',
-      richText: {
-        root: {
-          type: 'root',
-          format: '',
-          indent: 0,
-          version: 1,
-          children: [
-            {
-              tag: 'h1',
-              type: 'heading',
-              format: '',
-              indent: 0,
-              version: 1,
-              children: [
-                {
-                  mode: 'normal',
-                  text: title,
-                  type: 'text',
-                  style: '',
-                  detail: 0,
-                  format: 0,
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-            },
-            {
-              type: 'paragraph',
-              format: '',
-              indent: 0,
-              version: 1,
-              children: [
-                {
-                  mode: 'normal',
-                  text: description,
-                  type: 'text',
-                  style: '',
-                  detail: 0,
-                  format: 0,
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-              textStyle: '',
-              textFormat: 0,
-            },
-          ],
-          direction: 'ltr',
-        },
-      },
-      media: heroImage.id,
-    },
     layout: [
       {
+        color: 'white',
         columns: [
           {
-            size: 'full',
             richText: {
               root: {
                 type: 'root',

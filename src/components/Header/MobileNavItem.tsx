@@ -1,10 +1,12 @@
 'use client'
 import { cn } from '@/utilities/ui'
-import { usePathname } from 'next/navigation'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
 import { RenderNavLink } from './RenderNavLink'
 import { NavItem } from './utils'
+
+const underlineHoverClassName =
+  "relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-secondary after:transition-all after:duration-300 hover:after:w-full hover:text-header-foreground-highlight"
 
 type MobileNavItemProps = {
   label: string
@@ -19,27 +21,12 @@ export const MobileNavItem = ({
   setMobileNavOpen,
   className,
 }: MobileNavItemProps) => {
-  const pathname = usePathname()
-
-  function hasActiveDescendent(navItem: NavItem) {
-    if (navItem.link?.type === 'internal' && navItem.link?.url === pathname) {
-      return true
-    }
-    if (navItem.items) {
-      return navItem.items.some(hasActiveDescendent)
-    }
-    return false
-  }
-
   if (!navItem.items || navItem.items.length === 0) {
     return navItem.link ? (
       <RenderNavLink
         link={navItem.link}
         className={cn(
-          'flex items-center py-3 text-base px-2',
-          navItem.link?.type === 'internal' &&
-            navItem.link?.url === pathname &&
-            'text-white hover:text-white/90',
+          'flex items-center py-3 text-base px-2 hover:text-header-foreground-highlight font-medium',
           className,
         )}
         onClick={() => setMobileNavOpen(false)}
@@ -49,17 +36,14 @@ export const MobileNavItem = ({
     )
   }
 
-  if (!navItem.items || navItem.items.length === 0) return <span>{label}</span>
-
   return (
     <AccordionItem
       value={label}
-      className={cn('border-0 data-[state=open]:text-white px-2', className)}
+      className={cn('border-0 px-2 data-[state=open]:text-header-foreground-highlight', className)}
     >
       <AccordionTrigger
         className={cn(
-          'py-3 capitalize text-base hover:no-underline',
-          navItem.items.some(hasActiveDescendent) && 'underline underline-offset-8 hover:underline',
+          'py-3 capitalize text-base hover:no-underline hover:text-header-foreground-highlight font-medium',
         )}
         chevronClassName="h-6 w-6 text-inherit"
       >
@@ -73,14 +57,11 @@ export const MobileNavItem = ({
                 <RenderNavLink
                   key={item.id}
                   link={item.link}
-                  className={cn(
-                    'flex items-center py-3 text-base',
-                    item.link.type === 'internal' &&
-                      item.link.url === pathname &&
-                      'underline underline-offset-8 hover:underline',
-                  )}
+                  className={cn('flex items-center pt-3 pb-1.5 text-base')}
                   onClick={() => setMobileNavOpen(false)}
-                />
+                >
+                  <div className={cn(underlineHoverClassName, 'pb-1.5')}>{item.link.label}</div>
+                </RenderNavLink>
               ) : null
             }
 
@@ -88,30 +69,25 @@ export const MobileNavItem = ({
               return (
                 <AccordionItem key={item.id} value={item.link.label} className="border-0">
                   <AccordionTrigger
-                    className={cn(
-                      'py-2 text-base font-normal hover:no-underline data-[state=open]:font-semibold',
-                      item.items.some(hasActiveDescendent) &&
-                        'underline underline-offset-8 hover:underline',
-                    )}
+                    className="py-2 text-base font-normal hover:no-underline -mb-1.5"
                     chevronClassName="h-6 w-6 text-inherit"
                   >
-                    {item.link.label}
+                    <div className={cn(underlineHoverClassName, 'pb-1.5')}>{item.link.label}</div>
                   </AccordionTrigger>
-                  <AccordionContent className="py-0 w-full shadow-inner">
+                  <AccordionContent className="py-0 w-full">
                     <div className="pl-4">
                       {item.items?.map((subItem) =>
                         subItem.link ? (
                           <RenderNavLink
                             key={subItem.id}
                             link={subItem.link}
-                            className={cn(
-                              'flex items-center py-3 text-base',
-                              subItem.link.type === 'internal' &&
-                                subItem.link.url === pathname &&
-                                'underline underline-offset-8 hover:underline',
-                            )}
+                            className={cn('flex items-center pt-3 pb-1.5 text-base')}
                             onClick={() => setMobileNavOpen(false)}
-                          />
+                          >
+                            <div className={cn(underlineHoverClassName, 'pb-1.5')}>
+                              {subItem.link.label}
+                            </div>
+                          </RenderNavLink>
                         ) : null,
                       )}
                     </div>

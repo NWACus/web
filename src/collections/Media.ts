@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { accessByTenantWithPermissiveRead } from '@/access/byTenant'
 import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import {
   FixedToolbarFeature,
@@ -14,7 +15,6 @@ import { fileURLToPath } from 'url'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// TODO: why does importing this break?
 type BeforeOperationHook = Exclude<
   Exclude<CollectionConfig['hooks'], undefined>['beforeOperation'],
   undefined
@@ -83,6 +83,7 @@ export const Media: CollectionConfig = {
         },
       }),
     },
+    contentHashField(),
   ],
   upload: {
     staticDir: path.resolve(dirname, '../../public/media'),

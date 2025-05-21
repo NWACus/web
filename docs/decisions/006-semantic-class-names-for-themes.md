@@ -87,8 +87,8 @@ Shadcn's class names cover us pretty well but we want to extend this list and ex
 | input                 | -                        |                                       |
 | ring                  | -                        |                                       |
 | radius                | -                        | Not a color, but included for completeness |
-| header                | header-foreground        | **Custom**                            |
-| footer                | footer-foreground        | **Custom**                            |
+| header                | header-foreground, header-foreground-highlight        | **Custom**                            |
+| footer                | footer-foreground, footer-foreground-highlight        | **Custom**                            |
 | callout               | callout-foreground       | **Custom**                            |
 | brand-50 ... brand-950| brand-foreground-50 ... brand-foreground-950 | **Custom** Brand color scale         |
 | success               | -                        | **Custom** Status color               |

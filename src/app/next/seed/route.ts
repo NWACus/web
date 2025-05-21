@@ -3,7 +3,7 @@ import config from '@payload-config'
 import { headers } from 'next/headers'
 import { createLocalReq, getPayload } from 'payload'
 
-export const maxDuration = 120 // seconds
+export const maxDuration = 240 // seconds
 
 export async function POST(): Promise<Response> {
   const payload = await getPayload({ config })
@@ -21,10 +21,11 @@ export async function POST(): Promise<Response> {
     // At this point you should pass in a user, locale, and any other context you need for the Local API
     const payloadReq = await createLocalReq({ user }, payload)
 
-    await seed({ payload, req: payloadReq })
+    await seed({ payload, req: payloadReq, incremental: false })
 
     return Response.json({ success: true })
-  } catch {
+  } catch (e) {
+    payload.logger.error(e)
     return new Response('Error seeding data.', { status: 500 })
   }
 }

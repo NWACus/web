@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
 import { Brands } from '@/collections/Brands'
-import { Categories } from '@/collections/Categories'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
@@ -22,6 +21,7 @@ import { Themes } from '@/collections/Themes'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { Footer } from './Footer/config'
+import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getServerSideURL } from './utilities/getURL'
 
@@ -101,7 +101,6 @@ export default buildConfig({
     },
   }),
   collections: [
-    Categories,
     Media,
     Pages,
     Posts,
@@ -118,7 +117,7 @@ export default buildConfig({
     Teams,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
-  globals: [Footer],
+  globals: [Footer, NACWidgetsConfig],
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,

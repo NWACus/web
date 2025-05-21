@@ -10,7 +10,8 @@ import {
   DialogTrigger,
 } from '@radix-ui/react-dialog'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
 import { Button } from '../ui/button'
@@ -28,7 +29,6 @@ export const MobileNav = ({
   banner?: Media
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const navbarRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(
     function manageScrollLock() {
@@ -55,7 +55,7 @@ export const MobileNav = ({
 
   return (
     <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
-      <div ref={navbarRef} className="lg:hidden fixed z-50 inset-x-0 py-3 bg-header shadow-sm">
+      <div className="lg:hidden fixed z-50 inset-x-0 py-3 bg-header shadow-sm">
         <div className="container flex justify-between items-center gap-5">
           <DialogTrigger className="p-2">
             <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">
@@ -96,18 +96,18 @@ export const MobileNav = ({
       </div>
       <DialogPortal>
         <div
-          className={cn('md:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
+          className={cn('lg:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
           onClick={() => setMobileNavOpen(false)}
         />
-        <DialogContent className="md:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b border-b-white data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
+        <DialogContent className="lg:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>
-            <nav className="divide-y divide-header-foreground/20 px-2">
-              {topLevelNavItems.map((navItem) => {
+            <nav className="divide-y divide-header-foreground/20 px-2 sm:container">
+              {topLevelNavItems.map((navItem, index) => {
                 const label = navItem.label ?? navItem.link?.label
 
-                if (!label) return null
+                invariant(label, `Missing a label for top level nav item ${index}`)
 
                 return (
                   <MobileNavItem

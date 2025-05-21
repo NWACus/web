@@ -15,8 +15,8 @@ export const post1: (
   return {
     slug: 'digital-horizons',
     _status: 'published',
-    authors: [author],
-    tenant: tenant,
+    authors: [author.id],
+    tenant: tenant.id,
     content: {
       root: {
         type: 'root',
@@ -292,7 +292,6 @@ export const post1: (
         version: 1,
       },
     },
-    heroImage: image1.id,
     meta: {
       description:
         'Dive into the marvels of modern innovation, where the only constant is change. A journey where pixels and data converge to craft the future.',

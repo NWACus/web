@@ -15,8 +15,8 @@ export const post2: (
   return {
     slug: 'global-gaze',
     _status: 'published',
-    authors: [author],
-    tenant: tenant,
+    authors: [author.id],
+    tenant: tenant.id,
     content: {
       root: {
         type: 'root',
@@ -226,7 +226,6 @@ export const post2: (
         version: 1,
       },
     },
-    heroImage: image1.id,
     meta: {
       description:
         'Explore the untold and overlooked. A magnified view into the corners of the world, where every story deserves its spotlight.',

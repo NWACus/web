@@ -10,7 +10,6 @@ import type { Page as PageType } from '@/payload-types'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 
 export async function generateStaticParams() {
@@ -48,13 +47,13 @@ type Args = {
 
 type PathArgs = {
   center: string
-  slug?: string
+  slug: string
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
   const payload = await getPayload({ config: configPromise })
   const { isEnabled: draft } = await draftMode()
-  const { center, slug = 'home' } = await paramsPromise
+  const { center, slug } = await paramsPromise
   const url = '/' + center + '/' + slug
 
   const page: PageType | null = await queryPageBySlug({
@@ -66,7 +65,7 @@ export default async function Page({ params: paramsPromise }: Args) {
     return <PayloadRedirects url={url} />
   }
 
-  const { hero, layout } = page
+  const { layout } = page
 
   return (
     <article className="pt-16 pb-24">
@@ -75,7 +74,11 @@ export default async function Page({ params: paramsPromise }: Args) {
 
       {draft && <LivePreviewListener />}
 
-      <RenderHero {...hero} />
+      <div className="container mb-8">
+        <div className="prose dark:prose-invert max-w-none">
+          <h1>{page.title}</h1>
+        </div>
+      </div>
       <RenderBlocks blocks={layout} payload={payload} />
     </article>
   )
@@ -86,7 +89,7 @@ export async function generateMetadata({
 }: {
   params: Promise<PathArgs>
 }): Promise<Metadata> {
-  const { center, slug = 'home' } = await paramsPromise
+  const { center, slug } = await paramsPromise
   const page = await queryPageBySlug({
     center: center,
     slug: slug,

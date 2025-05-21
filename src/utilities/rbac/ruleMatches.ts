@@ -1,8 +1,8 @@
 import { Role } from '@/payload-types'
-import { CollectionSlug } from 'payload'
+import { CollectionSlug, GlobalSlug } from 'payload'
 
 export type ruleMethod = 'create' | 'read' | 'update' | 'delete' | '*'
-export type ruleCollection = CollectionSlug | '*'
+export type ruleCollection = CollectionSlug | GlobalSlug | '*'
 
 export const ruleMatches = (
   method: ruleMethod,

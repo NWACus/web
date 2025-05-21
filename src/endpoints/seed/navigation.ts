@@ -1,7 +1,8 @@
 import { Navigation, Page, Tenant } from '@/payload-types'
-import { RequiredDataFromCollectionSlug } from 'payload'
+import { Payload, RequiredDataFromCollectionSlug } from 'payload'
 
 export const navigationSeed = (
+  payload: Payload,
   pages: Record<string, Record<string, Page>>,
   tenant: Tenant,
 ): RequiredDataFromCollectionSlug<'navigations'> => {
@@ -23,8 +24,8 @@ export const navigationSeed = (
       }
     }
 
-    if (!pages[tenant.name] || !slug || !pages[tenant.name][slug]) {
-      console.warn(`Page ${slug || 'undefined'} not found for tenant ${tenant.name}`)
+    if (!pages[tenant.slug] || !slug || !pages[tenant.slug][slug]) {
+      payload.logger.warn(`Page ${slug || 'undefined'} not found for tenant ${tenant.name}`)
       return {
         type: 'internal',
         label: 'Missing Page',
@@ -36,17 +37,23 @@ export const navigationSeed = (
     return {
       type: 'internal',
       reference: {
-        value: pages[tenant.name][slug].id,
+        value: pages[tenant.slug][slug].id,
         relationTo: 'pages',
       },
-      label: label || pages[tenant.name][slug].title,
+      label: label || pages[tenant.slug][slug].title,
       newTab,
     }
   }
 
   return {
     _status: 'published',
-    tenant,
+    tenant: tenant.id,
+    forecasts: {
+      items: [],
+    },
+    observations: {
+      items: [],
+    },
     weather: {
       items: [
         {

@@ -4,6 +4,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
+import { notFound } from 'next/navigation'
+import { ZoneHashHandler } from './ZoneHashHandler.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -36,18 +40,29 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center, zone } = await params
-  // TODO: how do we pass zone to NACWidget? expects #/slug ...
+
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+
+  if (!avalancheCenterPlatforms.forecasts) {
+    notFound()
+  }
+
+  const { version, baseUrl } = await getNACWidgetsConfig()
+
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
-          <h1>
-            Avalanche Forecast For {center} Zone {zone}
-          </h1>
-          <NACWidget center={center} widget={'forecast'} id="nac-widget-container" />
+    <>
+      <ZoneHashHandler zone={zone} />
+      <div className="py-6 md:py-8 lg:py-12">
+        <div className="container flex flex-col">
+          <NACWidget
+            center={center}
+            widget={'forecast'}
+            widgetsVersion={version}
+            widgetsBaseUrl={baseUrl}
+          />
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

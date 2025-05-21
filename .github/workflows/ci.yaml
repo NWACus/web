@@ -48,13 +48,21 @@ jobs:
       - name: 📦 Opt out of image optimization
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
-      - name: 🧹 Run build
-        run: ./seed-build.sh
+      - name: 🧹 Run seed
+        run: pnpm seed
         shell: bash
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+          ALLOW_SIMPLE_PASSWORDS: 'true'
+      - name: 🧹 Run build
+        run: pnpm build
+        shell: bash
+        env:
+          DATABASE_URI: 'file:./dev.db'
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
 
   prettier:
     name: prettier
@@ -72,5 +80,23 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
+      - name: 🧹 Run pnpm generate:type
+        run: |
+          pnpm generate:types
+          if [[ ! -z "$(git status --short)" ]]
+          then
+            echo "there are some modified files, rerun 'pnpm generate:types' to update them and check the changes in"
+            git status
+            exit 1
+          fi
+      - name: 🧹 Run pnpm generate:importmap
+        run: |
+          pnpm generate:importmap
+          if [[ ! -z "$(git status --short)" ]]
+          then
+            echo "there are some modified files, rerun 'pnpm generate:importmap' to update them and check the changes in"
+            git status
+            exit 1
+          fi
       - name: 🧹 Run prettier
         run: if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi
