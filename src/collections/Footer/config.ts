@@ -16,7 +16,7 @@ const validateTelephone: TextFieldValidation = (
   value: string | null | undefined,
 ): string | true => {
   return value
-    ? /^#[A-Za-z0-9_](?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}[A-Za-z0-9_]$/.test(value) ||
+    ? /^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value) ||
         `${value} is not a valid phone number`
     : true
 }
