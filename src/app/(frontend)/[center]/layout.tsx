@@ -20,9 +20,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     pagination: false,
     select: {
       slug: true,

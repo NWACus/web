@@ -17,7 +17,6 @@ export async function generateStaticParams() {
     collection: 'posts',
     draft: false, // does not remove posts with _status: 'draft'
     limit: 1000,
-    overrideAccess: true,
     pagination: false,
     depth: 3,
     select: {

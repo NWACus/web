@@ -28,7 +28,6 @@ export default async function Page({
     collection: 'search',
     depth: 1,
     limit: 12,
-    overrideAccess: true,
     select: {
       title: true,
       slug: true,
