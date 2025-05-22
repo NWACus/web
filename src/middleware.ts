@@ -11,7 +11,7 @@ export const config = {
      * 4. all root files inside /public (e.g. /favicon.ico)
      * 5. /media and /thumbnail (inside /public)
      */
-    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+).*)|media|thumbnail',
+    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail).*)',
   ],
 }
 
