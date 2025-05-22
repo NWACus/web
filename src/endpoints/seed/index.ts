@@ -861,7 +861,6 @@ export const seed = async ({
         linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
         youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
       },
-      contentHash: null,
     },
     sac: {
       address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161\n(530) 563-2257',
@@ -871,13 +870,11 @@ export const seed = async ({
         facebook: 'https://www.facebook.com/sacnonprofit',
         youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
       },
-      contentHash: null,
     },
     snfac: {
       address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045\n(206) 909-0203',
       email: 'info@nwac.us',
       socialMedia: {},
-      contentHash: null,
     },
   }
 
