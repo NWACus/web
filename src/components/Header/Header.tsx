@@ -39,7 +39,6 @@ export async function Header({ center }: { center: string }) {
     collection: 'navigations',
     depth: 99,
     draft,
-    overrideAccess: true,
     where: {
       'tenant.slug': {
         equals: center,

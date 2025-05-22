@@ -25,7 +25,6 @@ export default async function Page({ params }: Args) {
     collection: 'posts',
     depth: 1,
     limit: 12,
-    overrideAccess: true,
     select: {
       title: true,
       slug: true,

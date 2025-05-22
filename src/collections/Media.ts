@@ -28,7 +28,6 @@ const prefixFilename: BeforeOperationHook = async ({ req }) => {
       req.payload.logger.debug(`media: fetching slug for tenant ${media.tenant}`)
       const tenant = await req.payload.find({
         collection: 'tenants',
-        overrideAccess: true,
         select: {
           slug: true,
         },

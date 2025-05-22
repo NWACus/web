@@ -47,9 +47,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
     },
@@ -553,7 +551,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
-    overrideAccess: true,
     select: {
       name: true,
     },
