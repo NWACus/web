@@ -1,7 +1,7 @@
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { fetchFileByURL } from '@/endpoints/seed/utilities'
-import { Form, Tenant } from '@/payload-types'
+import { Form, Media, Tenant } from '@/payload-types'
 import { headers } from 'next/headers'
 import type {
   CollectionSlug,
@@ -37,6 +37,7 @@ const collections: CollectionSlug[] = [
   'form-submissions',
   'search',
   'navigations',
+  'footer',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
@@ -44,11 +45,6 @@ const collections: CollectionSlug[] = [
   'tenants',
 ]
 const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
-  footer: {
-    requiredFields: {
-      navItems: [],
-    },
-  },
   nacWidgetsConfig: {
     requiredFields: {
       version: '20250313',
@@ -56,7 +52,7 @@ const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
     },
   },
 }
-const globals: GlobalSlug[] = ['footer', 'nacWidgetsConfig']
+const globals: GlobalSlug[] = ['nacWidgetsConfig']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -853,47 +849,59 @@ export const seed = async ({
     ),
   )
 
-  payload.logger.info(`— Seeding globals...`)
-
-  await Promise.all([
-    payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Admin',
-              url: '/admin',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
-            },
-          },
-        ],
+  payload.logger.info(`— Seeding footers...`)
+  const footerData: Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'footer'>>> = {
+    nwac: {
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/nwacus',
+        facebook: 'https://www.facebook.com/NWACUS/',
+        twitter: 'https://x.com/nwacus',
+        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
+        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
       },
-    }),
-    payload.updateGlobal({
-      slug: 'nacWidgetsConfig',
-      data: {
-        version: '20250313',
-        baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
+    },
+    sac: {
+      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
+      phone: '(530)563-2257',
+      email: 'info@sierraavalanchecenter.org',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/savycenter/',
+        facebook: 'https://www.facebook.com/sacnonprofit',
+        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
       },
-    }),
-  ])
+    },
+    snfac: {
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {},
+    },
+  }
 
+  const footer = (
+    tenant: Tenant,
+    brandImages: Record<Tenant['slug'], Record<string, Media>>,
+  ): RequiredDataFromCollectionSlug<'footer'> => {
+    return {
+      tenant: tenant.id,
+      footerLogo: brandImages[tenant.slug]['logo'].id,
+      name: tenant.name,
+      ...footerData[tenant.slug],
+    }
+  }
+
+  await upsert(
+    'footer',
+    payload,
+    incremental,
+    tenantsById,
+    (_obj) => 'footer',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant, brandImages),
+    ),
+  )
   payload.logger.info('Seeded database successfully!')
 }

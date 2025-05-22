@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
-type Global = 'footer' | 'nacWidgetsConfig'
+type Global = 'nacWidgetsConfig'
 
 type GlobalReturnType = {
   footer: Footer

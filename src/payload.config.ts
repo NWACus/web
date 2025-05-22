@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
 import { Brands } from '@/collections/Brands'
+import { Footer } from '@/collections/Footer/config'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
@@ -20,7 +21,6 @@ import { Tenants } from '@/collections/Tenants'
 import { Themes } from '@/collections/Themes'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { Footer } from './Footer/config'
 import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getServerSideURL } from './utilities/getURL'
@@ -56,7 +56,7 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'brands', 'navigations'],
+            globalSlugs: ['settings', 'brands', 'navigations', 'footer'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
@@ -113,11 +113,12 @@ export default buildConfig({
     Themes,
     Palettes,
     Navigations,
+    Footer,
     Biographies,
     Teams,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
-  globals: [Footer, NACWidgetsConfig],
+  globals: [NACWidgetsConfig],
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
