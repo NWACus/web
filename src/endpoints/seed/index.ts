@@ -850,9 +850,10 @@ export const seed = async ({
   )
 
   payload.logger.info(`— Seeding footers...`)
-  const footerData: Record<Tenant['slug'], {}> = {
+  const footerData: Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'footer'>>> = {
     nwac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045\n(206) 909-0203',
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
       email: 'info@nwac.us',
       socialMedia: {
         instagram: 'https://www.instagram.com/nwacus',
@@ -863,7 +864,8 @@ export const seed = async ({
       },
     },
     sac: {
-      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161\n(530) 563-2257',
+      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
+      phone: '(530)563-2257',
       email: 'info@sierraavalanchecenter.org',
       socialMedia: {
         instagram: 'https://www.instagram.com/savycenter/',
@@ -872,7 +874,8 @@ export const seed = async ({
       },
     },
     snfac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045\n(206) 909-0203',
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
       email: 'info@nwac.us',
       socialMedia: {},
     },
