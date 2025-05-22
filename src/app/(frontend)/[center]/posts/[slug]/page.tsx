@@ -24,6 +24,11 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
+    where: {
+      _status: {
+        equals: 'published',
+      },
+    },
   })
 
   const params: PathArgs[] = []
@@ -32,7 +37,7 @@ export async function generateStaticParams() {
       payload.logger.error(`got number for post tenant`)
       continue
     }
-    if (post.tenant && post.slug) {
+    if (post.tenant) {
       params.push({ center: post.tenant.slug, slug: post.slug })
     }
   }
