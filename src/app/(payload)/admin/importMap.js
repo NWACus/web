@@ -6,7 +6,6 @@ import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/component
 import { default as default_9d7720c4b50db35595dfefa592fabd33 } from '@/components/TenantSelector'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
-import { RowLabel as RowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/RowLabel'
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import {
   GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
@@ -90,7 +89,6 @@ export const importMap = {
     LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
   '@payloadcms/plugin-search/client#LinkToDoc': LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   '@payloadcms/plugin-search/client#ReindexButton': ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
-  '@/Footer/RowLabel#RowLabel': RowLabel_1f6ff6ff633e3695d348f4f3c58f1466,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,
