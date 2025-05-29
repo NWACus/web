@@ -93,7 +93,7 @@ export async function generateMetadata({
     slug: segments[segments.length - 1],
   })
 
-  return generateMetaPage({ doc: page })
+  return generateMetaPage({ center, doc: page })
 }
 
 const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
