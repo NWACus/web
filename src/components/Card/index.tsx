@@ -7,7 +7,7 @@ import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 
-export type CardPostData = Pick<Post, 'slug' | 'meta' | 'title'>
+export type CardPostData = Pick<Post, 'description' | 'featuredImage' | 'slug' | 'title'>
 
 export const Card = (props: {
   alignItems?: 'center'
@@ -19,8 +19,7 @@ export const Card = (props: {
   const { card, link } = useClickableCard({})
   const { className, doc, relationTo, title: titleFromProps } = props
 
-  const { slug, meta, title } = doc || {}
-  const { description, image: metaImage } = meta || {}
+  const { description, featuredImage, slug, title } = doc || {}
 
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
@@ -35,8 +34,10 @@ export const Card = (props: {
       ref={card.ref}
     >
       <div className="relative w-full ">
-        {!metaImage && <div className="">No image</div>}
-        {metaImage && typeof metaImage !== 'string' && <Media resource={metaImage} size="33vw" />}
+        {!featuredImage && <div className="">No image</div>}
+        {featuredImage && typeof featuredImage !== 'number' && (
+          <Media imgClassName="w-full" resource={featuredImage} size="33vw" />
+        )}
       </div>
       <div className="p-4">
         {titleToUse && (
