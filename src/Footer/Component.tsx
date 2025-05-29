@@ -79,8 +79,8 @@ export async function Footer({ center }: { center?: string }) {
           )}
           {terms && privacy && <div>|</div>}
           {privacy && (
-            <a href={`/${privacy?.slug}`} className="underline">
-              {privacy?.title}
+            <a href={`/${privacy.slug}`} className="underline">
+              {privacy.title}
             </a>
           )}
         </div>
