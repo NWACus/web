@@ -19,14 +19,16 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   return url
 }
 
-export const generateMetaPage = async (args: { doc: Partial<Page> }): Promise<Metadata> => {
-  const { doc } = args || {}
+export const generateMetaPage = async (args: {
+  customTitle?: string
+  center: string
+  doc: Partial<Page>
+}): Promise<Metadata> => {
+  const { customTitle, center, doc } = args || {}
 
   const ogImage = getImageURL(doc?.meta?.image)
 
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
-    : 'Payload Website Template'
+  const title = customTitle ? customTitle : `${doc?.title} ' | '${center}`
 
   return {
     description: doc?.meta?.description,
@@ -46,12 +48,16 @@ export const generateMetaPage = async (args: { doc: Partial<Page> }): Promise<Me
   }
 }
 
-export const generateMetaPost = async (args: { doc: Partial<Post> }): Promise<Metadata> => {
-  const { doc } = args || {}
+export const generateMetaPost = async (args: {
+  customTitle?: string
+  center: string
+  doc: Partial<Post>
+}): Promise<Metadata> => {
+  const { customTitle, center, doc } = args || {}
 
   const ogImage = getImageURL(doc?.featuredImage)
 
-  const title = doc?.title ? doc?.title + ' | Payload Website Template' : 'Payload Website Template'
+  const title = customTitle ? customTitle : `${doc?.title} ' | '${center}`
 
   return {
     description: doc?.description,

@@ -74,12 +74,8 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Observations`,
-    }
-  }
   return {
-    title: `${tenant.docs[0].name} - Avalanche Observations`,
+    title:
+      tenant.docs.length < 1 ? 'Avalanche Observations' : `${tenant.docs[0].name} - Observations`,
   }
 }
