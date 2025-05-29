@@ -713,6 +713,11 @@ export interface Post {
   id: number;
   tenant: number | Tenant;
   title: string;
+  /**
+   * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+   */
+  featuredImage?: (number | null) | Media;
+  description?: string | null;
   content: {
     root: {
       type: string;
@@ -728,15 +733,6 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  relatedPosts?: (number | Post)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
   populatedAuthors?:
@@ -745,6 +741,7 @@ export interface Post {
         name?: string | null;
       }[]
     | null;
+  relatedPosts?: (number | Post)[] | null;
   slug: string;
   slugLock?: boolean | null;
   contentHash?: string | null;
@@ -1913,15 +1910,9 @@ export interface TeamBlockSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
+  featuredImage?: T;
+  description?: T;
   content?: T;
-  relatedPosts?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
   publishedAt?: T;
   authors?: T;
   populatedAuthors?:
@@ -1930,6 +1921,7 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
         name?: T;
       };
+  relatedPosts?: T;
   slug?: T;
   slugLock?: T;
   contentHash?: T;

@@ -21,24 +21,16 @@ import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { Tenant } from '@/payload-types'
-import {
-  MetaDescriptionField,
-  MetaImageField,
-  MetaTitleField,
-  OverviewField,
-  PreviewField,
-} from '@payloadcms/plugin-seo/fields'
+import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: accessByTenantOrReadPublished('posts'),
   defaultPopulate: {
-    title: true,
+    description: true,
+    featuredImage: true,
     slug: true,
-    meta: {
-      image: true,
-      description: true,
-    },
+    title: true,
   },
   admin: {
     group: 'Content',
@@ -90,82 +82,34 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'text',
       required: true,
     },
+    MetaImageField({
+      relationTo: 'media',
+      overrides: {
+        name: 'featuredImage',
+        label: 'Featured image',
+      },
+    }),
+    MetaDescriptionField({}),
+
     {
-      type: 'tabs',
-      tabs: [
-        {
-          fields: [
-            {
-              name: 'content',
-              type: 'richText',
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, MediaBlock] }),
-                    FixedToolbarFeature(),
-                    InlineToolbarFeature(),
-                    HorizontalRuleFeature(),
-                  ]
-                },
-              }),
-              label: false,
-              required: true,
-            },
-          ],
-          label: 'Content',
+      name: 'content',
+      type: 'richText',
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+            BlocksFeature({ blocks: [Banner, MediaBlock] }),
+            FixedToolbarFeature(),
+            InlineToolbarFeature(),
+            HorizontalRuleFeature(),
+          ]
         },
-        {
-          fields: [
-            {
-              name: 'relatedPosts',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              filterOptions: ({ id }) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
-              },
-              hasMany: true,
-              relationTo: 'posts',
-            },
-          ],
-          label: 'Meta',
-        },
-        {
-          name: 'meta',
-          label: 'SEO',
-          fields: [
-            OverviewField({
-              titlePath: 'meta.title',
-              descriptionPath: 'meta.description',
-              imagePath: 'meta.image',
-            }),
-            MetaTitleField({
-              hasGenerateFn: true,
-            }),
-            MetaImageField({
-              relationTo: 'media',
-            }),
-
-            MetaDescriptionField({}),
-            PreviewField({
-              // if the `generateUrl` function is configured
-              hasGenerateFn: true,
-
-              // field paths to match the target field for data
-              titlePath: 'meta.title',
-              descriptionPath: 'meta.description',
-            }),
-          ],
-        },
-      ],
+      }),
+      required: true,
     },
+
+    // Sidebar
     {
       name: 'publishedAt',
       type: 'date',
@@ -218,6 +162,22 @@ export const Posts: CollectionConfig<'posts'> = {
           type: 'text',
         },
       ],
+    },
+    {
+      name: 'relatedPosts',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      filterOptions: ({ id }) => {
+        return {
+          id: {
+            not_in: [id],
+          },
+        }
+      },
+      hasMany: true,
+      relationTo: 'posts',
     },
     ...slugField(),
     contentHashField(),

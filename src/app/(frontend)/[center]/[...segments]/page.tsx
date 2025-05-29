@@ -8,7 +8,7 @@ import { cache } from 'react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMetaPage } from '@/utilities/generateMeta'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -93,7 +93,7 @@ export async function generateMetadata({
     slug: segments[segments.length - 1],
   })
 
-  return generateMeta({ doc: page })
+  return generateMetaPage({ doc: page })
 }
 
 const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
