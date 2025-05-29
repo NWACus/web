@@ -23,6 +23,7 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
+    // Need where clause to ignore autosave bug (https://github.com/NWACus/web/pull/204)
     where: {
       _status: {
         equals: 'published',
@@ -123,6 +124,11 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
         {
           slug: {
             equals: slug,
+          },
+        },
+        {
+          _status: {
+            equals: 'published',
           },
         },
       ],

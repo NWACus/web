@@ -120,6 +120,11 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
             equals: slug,
           },
         },
+        {
+          _status: {
+            equals: 'published',
+          },
+        },
       ],
     },
   })
