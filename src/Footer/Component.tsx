@@ -50,17 +50,38 @@ export async function Footer({ center }: { center?: string }) {
             {address && <div className="whitespace-pre-line">{address}</div>}
             {phone && <a href={`tel:${phone}`}>{phone}</a>}
             {email && (
-              <a className="mb-6 text-secondary underline" href={`mailto:${email}`}>
+              <a className="mb-4 text-secondary underline" href={`mailto:${email}`}>
                 {email}
               </a>
             )}
             {socialMedia && (
-              <div className="flex gap-x-4 mb-2">
-                {socialMedia.instagram && <Icons.instagram />}
-                {socialMedia.facebook && <Icons.facebook />}
-                {socialMedia.twitter && <Icons.twitter />}
-                {socialMedia.linkedin && <Icons.linkedin />}
-                {socialMedia.youtube && <Icons.youtube />}
+              // Icon colors controlled by color class
+              <div className="flex items-center gap-x-2 mb-2 text-secondary">
+                {socialMedia.instagram && (
+                  <a href={socialMedia.instagram} target="_blank" className="p-1">
+                    <Icons.instagram />
+                  </a>
+                )}
+                {socialMedia.facebook && (
+                  <a href={socialMedia.facebook} target="_blank" className="p-1">
+                    <Icons.facebook />
+                  </a>
+                )}
+                {socialMedia.twitter && (
+                  <a href={socialMedia.twitter} target="_blank" className="p-1">
+                    <Icons.twitter />
+                  </a>
+                )}
+                {socialMedia.linkedin && (
+                  <a href={socialMedia.linkedin} target="_blank" className="p-1">
+                    <Icons.linkedin />
+                  </a>
+                )}
+                {socialMedia.youtube && (
+                  <a href={socialMedia.youtube} target="_blank" className="p-1">
+                    <Icons.youtube />
+                  </a>
+                )}
               </div>
             )}
             {hashtag && <p className="mb-4 text-secondary underline">{hashtag}</p>}
