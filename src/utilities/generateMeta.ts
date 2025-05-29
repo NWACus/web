@@ -19,9 +19,7 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   return url
 }
 
-export const generateMeta = async (args: {
-  doc: Partial<Page> | Partial<Post>
-}): Promise<Metadata> => {
+export const generateMetaPage = async (args: { doc: Partial<Page> }): Promise<Metadata> => {
   const { doc } = args || {}
 
   const ogImage = getImageURL(doc?.meta?.image)
@@ -34,6 +32,31 @@ export const generateMeta = async (args: {
     description: doc?.meta?.description,
     openGraph: mergeOpenGraph({
       description: doc?.meta?.description || '',
+      images: ogImage
+        ? [
+            {
+              url: ogImage,
+            },
+          ]
+        : undefined,
+      title,
+      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+    }),
+    title,
+  }
+}
+
+export const generateMetaPost = async (args: { doc: Partial<Post> }): Promise<Metadata> => {
+  const { doc } = args || {}
+
+  const ogImage = getImageURL(doc?.featuredImage)
+
+  const title = doc?.title ? doc?.title + ' | Payload Website Template' : 'Payload Website Template'
+
+  return {
+    description: doc?.description,
+    openGraph: mergeOpenGraph({
+      description: doc?.description || '',
       images: ogImage
         ? [
             {

@@ -9,7 +9,7 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMetaPost } from '@/utilities/generateMeta'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -90,7 +90,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { center, slug = '' } = await paramsPromise
   const post = await queryPostBySlug({ center: center, slug: slug })
 
-  return generateMeta({ doc: post })
+  return generateMetaPost({ doc: post })
 }
 
 const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
