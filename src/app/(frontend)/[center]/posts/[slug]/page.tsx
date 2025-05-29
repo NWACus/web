@@ -90,7 +90,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { center, slug = '' } = await paramsPromise
   const post = await queryPostBySlug({ center: center, slug: slug })
 
-  return generateMetaPost({ doc: post })
+  return generateMetaPost({ center: center, doc: post })
 }
 
 const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {

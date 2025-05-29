@@ -68,8 +68,9 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: Args): Promise<Metadata> {
+  const { center } = await params
   return {
-    title: `Payload Website Template Posts`,
+    title: `${center} - Blog`,
   }
 }

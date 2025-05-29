@@ -11,6 +11,7 @@ export const revalidate = 600
 
 type Args = {
   params: Promise<{
+    center: string
     pageNumber: string
   }>
 }
@@ -63,9 +64,9 @@ export default async function Page({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { pageNumber } = await paramsPromise
+  const { center, pageNumber } = await paramsPromise
   return {
-    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
+    title: `${center} Blog Page ${pageNumber || ''}`,
   }
 }
 
