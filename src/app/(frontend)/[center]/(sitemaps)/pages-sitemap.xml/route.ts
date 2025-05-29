@@ -12,7 +12,6 @@ const getPagesSitemap = unstable_cache(
     const results = await payload.find({
       collection: 'pages',
       overrideAccess: false,
-      draft: false,
       depth: 0,
       limit: 1000,
       pagination: false,
