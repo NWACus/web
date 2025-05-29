@@ -14,9 +14,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
     collection: 'pages',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     pagination: false,
     depth: 2,
     select: {
@@ -120,6 +118,11 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
         {
           slug: {
             equals: slug,
+          },
+        },
+        {
+          _status: {
+            equals: 'published',
           },
         },
       ],

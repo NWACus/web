@@ -16,25 +16,29 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
     collection: 'pages',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     pagination: false,
     depth: 2,
     select: {
       tenant: true,
       slug: true,
     },
+    // Need where clause to ignore autosave bug (https://github.com/NWACus/web/pull/204)
+    where: {
+      _status: {
+        equals: 'published',
+      },
+    },
   })
 
   const params: PathArgs[] = []
-  for (const post of pages.docs) {
-    if (typeof post.tenant === 'number') {
-      payload.logger.error(`got number for page tenant: ${JSON.stringify(post.tenant)}`)
+  for (const page of pages.docs) {
+    if (typeof page.tenant === 'number') {
+      payload.logger.error(`got number for page tenant: ${JSON.stringify(page.tenant)}`)
       continue
     }
-    if (post.tenant) {
-      params.push({ center: post.tenant.slug, slug: post.slug })
+    if (page.tenant) {
+      params.push({ center: page.tenant.slug, slug: page.slug })
     }
   }
 
@@ -120,6 +124,11 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
         {
           slug: {
             equals: slug,
+          },
+        },
+        {
+          _status: {
+            equals: 'published',
           },
         },
       ],

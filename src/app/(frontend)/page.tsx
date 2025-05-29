@@ -16,9 +16,7 @@ export default async function LandingPage() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
       name: true,

@@ -15,14 +15,18 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const posts = await payload.find({
     collection: 'posts',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     pagination: false,
     depth: 3,
     select: {
       tenant: true,
       slug: true,
+    },
+    // Need where clause to ignore autosave bug (https://github.com/NWACus/web/pull/204)
+    where: {
+      _status: {
+        equals: 'published',
+      },
     },
   })
 
