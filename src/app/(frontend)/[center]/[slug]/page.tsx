@@ -16,7 +16,6 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
     collection: 'pages',
-    draft: false, // does not remove posts with _status: 'draft'
     limit: 1000,
     pagination: false,
     depth: 2,
