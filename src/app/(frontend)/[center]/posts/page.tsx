@@ -27,6 +27,7 @@ export default async function Page({ params }: Args) {
     limit: 12,
     select: {
       title: true,
+      featuredImage: true,
       slug: true,
       meta: true,
     },
