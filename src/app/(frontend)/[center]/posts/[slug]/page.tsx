@@ -62,7 +62,7 @@ export default async function Post({ params: paramsPromise }: Args) {
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="pt-16 pb-16">
+    <article className="py-16">
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
@@ -73,15 +73,21 @@ export default async function Post({ params: paramsPromise }: Args) {
           <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
             <h1>{post.title}</h1>
           </div>
-          <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-            />
-          )}
+          <RichText
+            className="prose max-w-[48rem] mx-auto"
+            data={post.content}
+            enableGutter={false}
+          />
         </div>
       </div>
+      {post.relatedPosts && post.relatedPosts.length > 0 && (
+        <div className="bg-brand-500 p-12">
+          <RelatedPosts
+            className="max-w-[52rem] flex justify-evenly gap-4 items-stretch"
+            docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+          />
+        </div>
+      )}
     </article>
   )
 }
