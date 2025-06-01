@@ -158,7 +158,7 @@ export default {
               p: {
                 marginTop: '1em',
                 marginBottom: '1em',
-                lineHeight: 1.2,
+                lineHeight: 1.4,
               },
             },
           ],

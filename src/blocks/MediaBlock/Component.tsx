@@ -34,7 +34,7 @@ export const MediaBlock = (props: Props) => {
   return (
     <div
       className={cn(
-        '',
+        'my-4',
         {
           container: enableGutter,
         },
@@ -43,7 +43,8 @@ export const MediaBlock = (props: Props) => {
     >
       {(media || staticImage) && (
         <Media
-          imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
+          className="my-0"
+          imgClassName={cn(imgClassName)}
           resource={media}
           src={staticImage}
         />
@@ -51,14 +52,13 @@ export const MediaBlock = (props: Props) => {
       {caption && (
         <div
           className={cn(
-            'mt-6',
             {
               container: !disableInnerContainer,
             },
             captionClassName,
           )}
         >
-          <RichText data={caption} enableGutter={false} />
+          <RichText data={caption} enableGutter={false} className="text-xs" />
         </div>
       )}
     </div>

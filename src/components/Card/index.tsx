@@ -33,13 +33,12 @@ export const Card = (props: {
       )}
       ref={card.ref}
     >
-      <div className="relative w-full ">
-        {!featuredImage && <div className="">No image</div>}
+      <div className="relative w-full">
         {featuredImage && typeof featuredImage !== 'number' && (
           <Media imgClassName="w-full" resource={featuredImage} size="33vw" />
         )}
       </div>
-      <div className="p-4">
+      <div className="m-4 mt-2">
         {titleToUse && (
           <div className="prose">
             <h3>
