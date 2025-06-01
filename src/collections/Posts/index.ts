@@ -7,6 +7,9 @@ import {
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
+  LinkFeature,
+  OrderedListFeature,
+  UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
 
 import { Banner } from '@/blocks/Banner/config'
@@ -83,14 +86,19 @@ export const Posts: CollectionConfig<'posts'> = {
       required: true,
     },
     MetaImageField({
+      hasGenerateFn: true,
       relationTo: 'media',
       overrides: {
+        admin: {
+          allowCreate: true,
+        },
         name: 'featuredImage',
         label: 'Featured image',
       },
     }),
-    MetaDescriptionField({}),
-
+    MetaDescriptionField({
+      hasGenerateFn: true,
+    }),
     {
       name: 'content',
       type: 'richText',
@@ -98,11 +106,14 @@ export const Posts: CollectionConfig<'posts'> = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
             BlocksFeature({ blocks: [Banner, MediaBlock] }),
             FixedToolbarFeature(),
-            InlineToolbarFeature(),
             HorizontalRuleFeature(),
+            InlineToolbarFeature(),
+            LinkFeature(),
+            OrderedListFeature(),
+            UnorderedListFeature(),
           ]
         },
       }),
@@ -111,33 +122,13 @@ export const Posts: CollectionConfig<'posts'> = {
 
     // Sidebar
     {
-      name: 'publishedAt',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
-        },
-        position: 'sidebar',
-      },
-      hooks: {
-        beforeChange: [
-          ({ siblingData, value }) => {
-            if (siblingData._status === 'published' && !value) {
-              return new Date()
-            }
-            return value
-          },
-        ],
-      },
-    },
-    {
       name: 'authors',
       type: 'relationship',
       admin: {
         position: 'sidebar',
       },
       hasMany: true,
-      relationTo: 'users',
+      relationTo: 'biographies',
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -164,6 +155,26 @@ export const Posts: CollectionConfig<'posts'> = {
       ],
     },
     {
+      name: 'publishedAt',
+      type: 'date',
+      admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+        position: 'sidebar',
+      },
+      hooks: {
+        beforeChange: [
+          ({ siblingData, value }) => {
+            if (siblingData._status === 'published' && !value) {
+              return new Date()
+            }
+            return value
+          },
+        ],
+      },
+    },
+    {
       name: 'relatedPosts',
       type: 'relationship',
       admin: {
@@ -179,6 +190,7 @@ export const Posts: CollectionConfig<'posts'> = {
       hasMany: true,
       relationTo: 'posts',
     },
+
     ...slugField(),
     contentHashField(),
   ],

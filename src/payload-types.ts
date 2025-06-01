@@ -711,9 +711,6 @@ export interface Post {
   id: number;
   tenant: number | Tenant;
   title: string;
-  /**
-   * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-   */
   featuredImage?: (number | null) | Media;
   description?: string | null;
   content: {
@@ -731,14 +728,14 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  publishedAt?: string | null;
-  authors?: (number | User)[] | null;
+  authors?: (number | Biography)[] | null;
   populatedAuthors?:
     | {
         id?: string | null;
         name?: string | null;
       }[]
     | null;
+  publishedAt?: string | null;
   relatedPosts?: (number | Post)[] | null;
   slug: string;
   slugLock?: boolean | null;
@@ -1883,7 +1880,6 @@ export interface PostsSelect<T extends boolean = true> {
   featuredImage?: T;
   description?: T;
   content?: T;
-  publishedAt?: T;
   authors?: T;
   populatedAuthors?:
     | T
@@ -1891,6 +1887,7 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
         name?: T;
       };
+  publishedAt?: T;
   relatedPosts?: T;
   slug?: T;
   slugLock?: T;
