@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
+import { AuthorAvatar } from '@/components/AuthorAvatar'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
@@ -72,6 +73,9 @@ export default async function Post({ params: paramsPromise }: Args) {
         <div className="container">
           <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
             <h1>{post.title}</h1>
+          </div>
+          <div className="max-w-[48rem] mx-auto">
+            <AuthorAvatar authors={post.authors} date={post.publishedAt ?? ''} />
           </div>
           <RichText
             className="prose max-w-[48rem] mx-auto"
