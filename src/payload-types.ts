@@ -730,7 +730,7 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  authors?: (number | Biography)[] | null;
+  authors: (number | Biography)[];
   populatedAuthors?:
     | {
         id?: string | null;

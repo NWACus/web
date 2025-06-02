@@ -23,17 +23,23 @@ export default async function Page({ params }: Args) {
 
   const posts = await payload.find({
     collection: 'posts',
-    depth: 1,
+    depth: 2,
     limit: 12,
     select: {
-      title: true,
+      authors: true,
+      description: true,
       featuredImage: true,
-      slug: true,
       meta: true,
+      publishedAt: true,
+      slug: true,
+      title: true,
     },
     where: {
       'tenant.slug': {
         equals: center,
+      },
+      _status: {
+        equals: 'published',
       },
     },
   })
