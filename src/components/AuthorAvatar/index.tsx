@@ -1,41 +1,54 @@
 'use client'
 
-import { Post } from '@/payload-types'
+import { Media, Post } from '@/payload-types'
 
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
+import { cn } from '@/utilities/ui'
 import { format, parseISO } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
 export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['updatedAt'] }) => {
   const { authors, date } = props
 
+  const combinedAuthorsNames: string[] = [],
+    combinedAuthorsInitials: string[] = [],
+    combinedAuthorsPhotos: Media[] = []
+  authors.forEach((author) => {
+    if (
+      author &&
+      typeof author !== 'number' &&
+      typeof author.name === 'string' &&
+      typeof author.photo !== 'number'
+    ) {
+      combinedAuthorsNames.push(author.name)
+      combinedAuthorsInitials.push(getAuthorInitials(author.name ?? ''))
+      combinedAuthorsPhotos.push(author.photo)
+    }
+  })
+
   return (
     <>
-      {authors?.map((author) => {
-        let initials, id, authorPhoto
-        if (author && typeof author !== 'number') {
-          initials = getAuthorInitials(author.name ?? '')
-          id = author.id
-          authorPhoto = typeof author.photo !== 'number' && author.photo.url
-        }
-
-        return (
-          <div className="flex items-center mb-6" key={id}>
-            <Avatar className="me-4 size-[60px]">
-              <AvatarImage src={authorPhoto || '/placeholder.svg'} />
-              <AvatarFallback>{initials}</AvatarFallback>
+      <div className="flex items-center mb-6">
+        <div className={cn(`${combinedAuthorsPhotos.length > 1 && 'flex -space-x-2'}`, 'me-4')}>
+          {combinedAuthorsPhotos.map((authorPhoto, index) => (
+            <Avatar className="size-[60px]" key={index}>
+              <AvatarImage src={authorPhoto.url || '/placeholder.svg'} />
+              <AvatarFallback>{combinedAuthorsInitials[index]}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              {author && typeof author !== 'number' && (
-                <p className="text-sm text-brand-600"> {author.name}</p>
-              )}
-              {date && (
-                <p className="text-xs text-brand-400">{format(parseISO(date), 'MMMM d, yyyy')}</p>
-              )}
-            </div>
-          </div>
-        )
-      })}
+          ))}
+        </div>
+        <div className="flex flex-col">
+          <p className="text-sm text-brand-600">
+            {combinedAuthorsNames.length > 1
+              ? combinedAuthorsNames.join(', ')
+              : combinedAuthorsNames[0]}
+          </p>
+
+          {date && (
+            <p className="text-xs text-brand-400">{format(parseISO(date), 'MMMM d, yyyy')}</p>
+          )}
+        </div>
+      </div>
     </>
   )
 }

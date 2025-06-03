@@ -5,17 +5,17 @@ export const post1: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: User[],
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: User[],
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
     slug: 'digital-horizons',
     _status: 'published',
-    authors: [author.id],
+    authors: [author[0].id, author[1].id],
     tenant: tenant.id,
     content: {
       root: {
