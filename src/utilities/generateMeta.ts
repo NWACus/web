@@ -19,16 +19,21 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   return url
 }
 
-export const generateMetaPage = async (args: {
+export const generateMetaForPage = async (args: {
   customTitle?: string
   center: string
   doc: Partial<Page>
+  slugs?: string[]
 }): Promise<Metadata> => {
-  const { customTitle, center, doc } = args || {}
+  const { customTitle, center, doc, slugs } = args
+
+  const serverUrl = getServerSideURL()
+  const pageSlugs = slugs ? slugs : doc?.slug
+  const url = serverUrl + '/' + (Array.isArray(pageSlugs) ? pageSlugs.join('/') : `${pageSlugs}/`)
 
   const ogImage = getImageURL(doc?.meta?.image)
 
-  const title = customTitle ? customTitle : `${doc?.title} ' | '${center}`
+  const title = customTitle ? customTitle : `${doc?.title} ' | '${center.toUpperCase()}`
 
   return {
     description: doc?.meta?.description,
@@ -42,18 +47,21 @@ export const generateMetaPage = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url,
     }),
     title,
   }
 }
 
-export const generateMetaPost = async (args: {
+export const generateMetaForPost = async (args: {
   customTitle?: string
   center: string
   doc: Partial<Post>
 }): Promise<Metadata> => {
-  const { customTitle, center, doc } = args || {}
+  const { customTitle, center, doc } = args
+
+  const serverUrl = getServerSideURL()
+  const url = `${serverUrl}/posts/${doc?.slug}/`
 
   const ogImage = getImageURL(doc?.featuredImage)
 
@@ -71,7 +79,7 @@ export const generateMetaPost = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url,
     }),
     title,
   }
