@@ -38,6 +38,7 @@ const collections: CollectionSlug[] = [
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
+  'tags',
   'teams',
   'tenants',
 ]
