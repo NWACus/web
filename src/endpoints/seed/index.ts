@@ -303,7 +303,7 @@ export const seed = async ({
       name: 'Contributor',
       rules: [
         {
-          collections: ['posts', 'pages', 'media'],
+          collections: ['posts', 'pages', 'media', 'tags'],
           actions: ['*'],
         },
         {
@@ -594,7 +594,33 @@ export const seed = async ({
       ])
       .flat(),
   )
-
+  // Tags
+  const tags = await upsert(
+    'tags',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'tags'>[] => [
+        {
+          title: 'Education',
+          slug: 'education',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Gear',
+          slug: 'gear',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Volunteers',
+          slug: 'volunteers',
+          tenant: tenant.id,
+        },
+      ])
+      .flat(),
+  )
   const posts = await upsert(
     'posts',
     payload,
@@ -637,6 +663,17 @@ export const seed = async ({
           relatedPosts: Object.values(posts[tenant])
             .filter((p) => p.id !== post.id)
             .map((p) => p.id),
+        },
+      })
+
+      const shiftBy = Object.values(tags[tenant])[0].id
+      await payload.update({
+        id: post.id,
+        collection: 'posts',
+        data: {
+          tags: Object.values(tags[tenant])
+            .filter((tag) => tag.id === Math.floor(Math.random() * 3) + shiftBy)
+            .map((tag) => tag.id),
         },
       })
     }
