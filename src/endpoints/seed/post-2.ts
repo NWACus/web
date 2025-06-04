@@ -231,5 +231,6 @@ export const post2: (
     featuredImage: image1.id,
     relatedPosts: [], // this is populated by the seed script
     title: 'Global Gaze: Beyond the Headlines',
+    tags: [], // this is populated by the seed script
   }
 }
