@@ -139,7 +139,7 @@ export function NACWidget({
 
   return (
     <>
-      {/* container used for css selectors */}
+      {/* container used for css selectors in src/app/(frontend)/[center]/nac-widgets.css */}
       <div id="widget-container" data-widget={widget}>
         <div id={`nac-widget-${widget}`} />
       </div>
