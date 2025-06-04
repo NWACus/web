@@ -82,7 +82,6 @@ export const plugins: Plugin[] = [
       },
       { slug: 'form-submissions' },
       { slug: 'redirects' },
-      { slug: 'search', addField: false },
     ],
   }),
   vercelBlobStorage({
