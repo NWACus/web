@@ -179,6 +179,24 @@ export const seed = async ({
           ],
           actions: ['*'],
         },
+      ],
+    },
+    {
+      name: 'User Administrator',
+      rules: [
+        {
+          collections: ['roleAssignments'],
+          actions: ['create', 'read', 'update'],
+        },
+      ],
+    },
+    {
+      name: 'Contributor',
+      rules: [
+        {
+          collections: ['posts', 'pages', 'media', 'tags'],
+          actions: ['*'],
+        },
         {
           collections: ['navigations', 'tenants'],
           actions: ['read'],
@@ -570,7 +588,33 @@ export const seed = async ({
       ])
       .flat(),
   )
-
+  // Tags
+  const tags = await upsert(
+    'tags',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'tags'>[] => [
+        {
+          title: 'Education',
+          slug: 'education',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Gear',
+          slug: 'gear',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Volunteers',
+          slug: 'volunteers',
+          tenant: tenant.id,
+        },
+      ])
+      .flat(),
+  )
   const posts = await upsert(
     'posts',
     payload,
@@ -613,6 +657,17 @@ export const seed = async ({
           relatedPosts: Object.values(posts[tenant])
             .filter((p) => p.id !== post.id)
             .map((p) => p.id),
+        },
+      })
+
+      const randomTagId = Object.values(tags[tenant]).map((tag) => tag.id)[
+        Math.floor(Math.random() * Object.values(tags[tenant]).length)
+      ]
+      await payload.update({
+        id: post.id,
+        collection: 'posts',
+        data: {
+          tags: [randomTagId],
         },
       })
     }

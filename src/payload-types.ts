@@ -728,6 +728,7 @@ export interface Post {
       }[]
     | null;
   publishedAt?: string | null;
+  tags?: (number | Tag)[] | null;
   relatedPosts?: (number | Post)[] | null;
   slug: string;
   slugLock?: boolean | null;
@@ -735,6 +736,20 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  slug: string;
+  slugLock?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1367,20 +1382,6 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
- */
-export interface Tag {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  slug: string;
-  slugLock?: boolean | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1842,6 +1843,7 @@ export interface PostsSelect<T extends boolean = true> {
         name?: T;
       };
   publishedAt?: T;
+  tags?: T;
   relatedPosts?: T;
   slug?: T;
   slugLock?: T;

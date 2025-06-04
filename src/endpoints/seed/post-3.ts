@@ -267,5 +267,6 @@ export const post3: (
     featuredImage: image1.id,
     relatedPosts: [], // this is populated by the seed script
     title: 'Dollar and Sense: The Financial Forecast',
+    tags: [], // this is populated by the seed script
   }
 }
