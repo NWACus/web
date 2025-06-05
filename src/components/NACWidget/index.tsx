@@ -145,7 +145,7 @@ export function NACWidget({
       </div>
       <Script
         src={`${scriptUrl}/${scriptName}.js`}
-        strategy="lazyOnload"
+        strategy="afterInteractive"
         type="module"
         onReady={() => {
           setWidgetScriptReady(true)
