@@ -38,7 +38,7 @@ export const Card = (props: {
           <Media imgClassName="w-full" resource={featuredImage} size="33vw" />
         )}
       </div>
-      <div className="m-4 mt-2">
+      <div className="p-4">
         {titleToUse && (
           <div className="prose">
             <h3>
