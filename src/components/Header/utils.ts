@@ -276,7 +276,8 @@ export const getTopLevelNavItems = async ({
             link: {
               type: 'internal',
               label: 'Forecast Archive',
-              url: '/forecasts/avalanche/#/archive/forecast',
+              url: '/forecasts/avalanche/archive',
+              // /archive/forecast
             },
           },
         ],
