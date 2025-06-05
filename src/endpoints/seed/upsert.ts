@@ -112,7 +112,6 @@ type TenantScopedCollectionWithHash = Exclude<
   | 'forms'
   | 'form-submissions'
   | 'redirects'
-  | 'search'
   | 'payload-locked-documents'
   | 'payload-preferences'
   | 'payload-migrations'

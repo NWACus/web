@@ -35,7 +35,6 @@ const collections: CollectionSlug[] = [
   'posts',
   'forms',
   'form-submissions',
-  'search',
   'navigations',
   'footer',
   'roles',
