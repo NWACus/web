@@ -51,7 +51,7 @@ export default async function Page({ params }: Args) {
         <div className="container flex flex-col">
           <NACWidget
             center={center}
-            widget={'forecast'}
+            widget="forecast"
             widgetsVersion={version}
             widgetsBaseUrl={baseUrl}
           />
