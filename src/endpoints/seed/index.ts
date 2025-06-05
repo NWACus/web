@@ -46,7 +46,7 @@ const collections: CollectionSlug[] = [
 const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
   nacWidgetsConfig: {
     requiredFields: {
-      version: '20250313',
+      version: '20250602',
       baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
     },
   },
