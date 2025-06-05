@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react'
 
-export function NACContainerHijacker({ containerElementId }: { containerElementId: string }) {
-  useEffect(function replaceNACContainerClassName() {
-    const replaceContainerClassName = () => {
+export function NACContainerRemover({ containerElementId }: { containerElementId: string }) {
+  useEffect(function removeNACContainerClassName() {
+    const removeContainerClassName = () => {
       const containerElement = document.getElementById(`${containerElementId}`)
 
       if (containerElement && containerElement.classList.contains('nac-container')) {
@@ -15,7 +15,7 @@ export function NACContainerHijacker({ containerElementId }: { containerElementI
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === 'childList' && document.querySelector(`#${containerElementId}`)) {
-          replaceContainerClassName()
+          removeContainerClassName()
           observer.disconnect()
         }
       }

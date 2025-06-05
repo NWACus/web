@@ -8,7 +8,7 @@ import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.clie
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
-import { NACContainerHijacker } from './NACContainerHijacker.client'
+import { NACContainerRemover } from './NACContainerRemover.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -47,7 +47,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <NACContainerHijacker containerElementId="nac-obs-form-widget" />
+      <NACContainerRemover containerElementId="nac-obs-form-widget" />
       <WidgetHashHandler initialHash="form" />
       <div className="py-6 md:py-8 lg:py-12">
         <div className="container flex flex-col gap-4">
