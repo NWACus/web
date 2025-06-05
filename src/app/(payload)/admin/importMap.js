@@ -6,6 +6,7 @@ import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/component
 import { default as default_9d7720c4b50db35595dfefa592fabd33 } from '@/components/TenantSelector'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
+import { Description as Description_dec1f3f80f9e0d72e62ee0edc85ffb4e } from '@/globals/NACWidgetsConfig/components/Description'
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import {
   GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
@@ -83,6 +84,8 @@ export const importMap = {
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
   '@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription':
     LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
+  '@/globals/NACWidgetsConfig/components/Description#Description':
+    Description_dec1f3f80f9e0d72e62ee0edc85ffb4e,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,

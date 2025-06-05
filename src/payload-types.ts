@@ -2621,8 +2621,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * Controls the loading of NAC widgets across all avalanche center websites.
- *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "nacWidgetsConfig".
  */
