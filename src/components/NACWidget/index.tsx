@@ -59,6 +59,31 @@ export const loadersByWidget: Record<
   },
 }
 
+const loadCSS = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const existingLink = document.querySelector(`link[href="${url}"]`)
+    if (existingLink) {
+      resolve(url)
+      return
+    }
+
+    const link = document.createElement('link')
+    link.type = 'text/css'
+    link.rel = 'stylesheet'
+    link.onload = () => resolve(url)
+    link.onerror = () => reject(url)
+    link.href = url
+
+    // Insert before the first stylesheet so other styles take precedence
+    const firstStyle = document.head.querySelector('link[rel="stylesheet"], style')
+    if (firstStyle) {
+      document.head.insertBefore(link, firstStyle)
+    } else {
+      document.head.prepend(link)
+    }
+  })
+}
+
 export function NACWidget({
   center,
   widget,
@@ -109,31 +134,6 @@ export function NACWidget({
   const { scriptName, widgetDataKey, widgetControllerKey } = loadersByWidget[widget]
 
   useEffect(function loadWidgetCss() {
-    const loadCSS = (url: string): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        const existingLink = document.querySelector(`link[href="${url}"]`)
-        if (existingLink) {
-          resolve(url)
-          return
-        }
-
-        const link = document.createElement('link')
-        link.type = 'text/css'
-        link.rel = 'stylesheet'
-        link.onload = () => resolve(url)
-        link.onerror = () => reject(url)
-        link.href = url
-
-        // Insert before the first stylesheet so other styles take precedence
-        const firstStyle = document.head.querySelector('link[rel="stylesheet"], style')
-        if (firstStyle) {
-          document.head.insertBefore(link, firstStyle)
-        } else {
-          document.head.prepend(link)
-        }
-      })
-    }
-
     loadCSS(`${scriptUrl}/${scriptName}.css`).catch((err) =>
       console.error(`Failed to load style for ${widget} widget:`, err),
     )
