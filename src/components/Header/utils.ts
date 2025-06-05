@@ -300,7 +300,7 @@ export const getTopLevelNavItems = async ({
         link: {
           type: 'internal',
           label: 'Submit Observation',
-          url: '/observations/#/form',
+          url: '/observations/submit',
         },
       },
     ],

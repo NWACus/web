@@ -1,18 +1,9 @@
 'use client'
 
-import { useHash } from '@/hooks/useHash'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
 export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
-
-const validHashesByWidgetType: Record<Widget, string[]> = {
-  map: [],
-  forecast: ['all'],
-  warning: [],
-  stations: [],
-  observations: [],
-}
 
 export const loadersByWidget: Record<
   Widget,
@@ -95,35 +86,6 @@ export function NACWidget({
   widgetsVersion: string
   widgetsBaseUrl: string
 }) {
-  useHash(function onHashChanged(e: HashChangeEvent, prevHash: string | undefined) {
-    const url = new URL(window.location.href)
-
-    if (url.hash) {
-      const validHashes = validHashesByWidgetType[widget]
-
-      if (validHashes && !validHashes.includes(url.hash)) {
-        const defaultHash = validHashes?.[0]
-        const newHash = prevHash ? prevHash : `#/${defaultHash}/`
-        console.log(`Invalid new hash ${url.hash}. Old hash: ${prevHash}`)
-        window.location.replace(`${url.pathname}${url.search}${newHash}`)
-      }
-    }
-  })
-
-  // useEffect(
-  //   function removeInvalidHashValuesFromUrl() {
-  //     if (hash) {
-  //       const validHashes = validHashesByWidgetType[widget]
-  //       const defaultHash = validHashes?.[0]
-
-  //       if (validHashes && !validHashes.includes(hash)) {
-  //         console.log('Setting hash to: ', defaultHash || '')
-  //       }
-  //     }
-  //   },
-  //   [widget],
-  // )
-
   const widgetId = `nac-widget-${widget}`
 
   // Removes any trailing slashes
@@ -145,7 +107,7 @@ export function NACWidget({
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
       centerId: center.toUpperCase(),
-      devMode: false,
+      devMode: process.env.NODE_ENV !== 'production',
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,
@@ -184,6 +146,7 @@ export function NACWidget({
       <Script
         src={`${scriptUrl}/${scriptName}.js`}
         strategy="afterInteractive"
+        crossOrigin="anonymous"
         type="module"
         onReady={() => {
           setWidgetScriptReady(true)

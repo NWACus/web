@@ -4,8 +4,11 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
+import { Button } from '@/components/ui/button'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
@@ -44,10 +47,16 @@ export default async function Page({ params }: Args) {
   const { version, baseUrl } = await getNACWidgetsConfig()
 
   return (
-    <div className="py-6 md:py-8 lg:py-12">
-      <div className="container flex flex-col gap-4">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>Observations</h1>
+    <>
+      <WidgetHashHandler initialHash="/view/observations" />
+      <div className="pt-6 md:pt-8 lg:pt-12 flex flex-col gap-4">
+        <div className="container">
+          <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
+            <h1>Observations</h1>
+            <Button asChild variant="secondary" className="no-underline">
+              <Link href="/observations/submit">Submit Observation</Link>
+            </Button>
+          </div>
         </div>
         <NACWidget
           center={center}
@@ -56,7 +65,7 @@ export default async function Page({ params }: Args) {
           widgetsBaseUrl={baseUrl}
         />
       </div>
-    </div>
+    </>
   )
 }
 

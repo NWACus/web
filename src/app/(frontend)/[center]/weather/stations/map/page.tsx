@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
@@ -44,21 +45,24 @@ export default async function Page({ params }: Args) {
   const { version, baseUrl } = await getNACWidgetsConfig()
 
   return (
-    <div className="py-6 md:py-8 lg:py-12">
-      <div className="container flex flex-col gap-4">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>
-            <span className="uppercase">{center}</span> Weather Station Map
-          </h1>
+    <>
+      <WidgetHashHandler initialHash="/" />
+      <div className="py-6 md:py-8 lg:py-12">
+        <div className="container flex flex-col gap-4">
+          <div className="prose dark:prose-invert max-w-none">
+            <h1>
+              <span className="uppercase">{center}</span> Weather Station Map
+            </h1>
+          </div>
+          <NACWidget
+            center={center}
+            widget={'stations'}
+            widgetsVersion={version}
+            widgetsBaseUrl={baseUrl}
+          />
         </div>
-        <NACWidget
-          center={center}
-          widget={'stations'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
       </div>
-    </div>
+    </>
   )
 }
 
