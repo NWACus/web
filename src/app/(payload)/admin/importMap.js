@@ -12,10 +12,6 @@ import {
   TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
 } from '@payloadcms/plugin-multi-tenant/rsc'
 import {
-  LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
-  ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
-} from '@payloadcms/plugin-search/client'
-import {
   MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -87,8 +83,6 @@ export const importMap = {
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
   '@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription':
     LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
-  '@payloadcms/plugin-search/client#LinkToDoc': LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
-  '@payloadcms/plugin-search/client#ReindexButton': ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,
