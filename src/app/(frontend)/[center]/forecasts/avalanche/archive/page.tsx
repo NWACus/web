@@ -47,7 +47,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetHashHandler initialHash={`/archive/forecast`} />
+      <WidgetHashHandler initialHash={`/archive`} />
       <div className="py-6 md:py-8 lg:py-12">
         <div className="container flex flex-col">
           <NACWidget
