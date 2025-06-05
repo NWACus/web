@@ -1,7 +1,7 @@
 import type { Metadata } from 'next/types'
 
-import { CardPostData } from '@/components/Card'
 import { CollectionArchive } from '@/components/CollectionArchive'
+import { PostPreviewHorizontalData } from '@/components/PostPreviewHorizontal'
 import { Search } from '@/search/Component'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -52,12 +52,12 @@ export default async function Page({
                     },
                   },
                   {
-                    'meta.description': {
+                    description: {
                       like: query,
                     },
                   },
                   {
-                    'meta.title': {
+                    authors: {
                       like: query,
                     },
                   },
@@ -93,7 +93,7 @@ export default async function Page({
       </div>
 
       {posts.totalDocs > 0 ? (
-        <CollectionArchive posts={posts.docs as CardPostData[]} />
+        <CollectionArchive posts={posts.docs as unknown as PostPreviewHorizontalData[]} />
       ) : (
         <div className="container">No results found.</div>
       )}

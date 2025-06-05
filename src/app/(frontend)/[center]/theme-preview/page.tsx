@@ -388,11 +388,19 @@ export default async function Page({ params }: Args) {
             <h3 className="text-lg font-semibold">Avatar</h3>
             <div className="flex space-x-4">
               <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
+                <AvatarImage
+                  className="object-cover"
+                  src="http://www.gravatar.com/avatar/?d=mp "
+                  alt="User Avatar"
+                />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
+                <AvatarImage
+                  className="object-cover"
+                  src="http://www.gravatar.com/avatar/?d=mp "
+                  alt="User Avatar"
+                />
                 <AvatarFallback>AN</AvatarFallback>
               </Avatar>
             </div>
@@ -560,12 +568,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Theme Preview`,
-    }
-  }
+
   return {
-    title: `${tenant.docs[0].name} - Theme Preview`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Center Theme Preview'
+        : `${tenant.docs[0].name} - Theme Preview`,
   }
 }
