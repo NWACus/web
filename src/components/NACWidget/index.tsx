@@ -95,11 +95,14 @@ export function NACWidget({
 
   const { scriptName, widgetDataKey, widgetControllerKey } = loadersByWidget[widget]
 
-  useEffect(function loadWidgetCss() {
-    loadCSS(`${scriptUrl}/${scriptName}.css`).catch((err) =>
-      console.error(`Failed to load style for ${widget} widget:`, err),
-    )
-  }, [])
+  useEffect(
+    function loadWidgetCss() {
+      loadCSS(`${scriptUrl}/${scriptName}.css`).catch((err) =>
+        console.error(`Failed to load style for ${widget} widget:`, err),
+      )
+    },
+    [scriptName, scriptUrl, widget],
+  )
 
   useEffect(function initializeWidgetData() {
     // Base URL (used for Google Analytics)
@@ -134,7 +137,7 @@ export function NACWidget({
         }
       }
     },
-    [widgetScriptReady],
+    [widgetControllerKey, widgetScriptReady],
   )
 
   return (

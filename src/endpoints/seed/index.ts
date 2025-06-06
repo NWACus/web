@@ -43,7 +43,15 @@ const collections: CollectionSlug[] = [
   'teams',
   'tenants',
 ]
-const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
+const globalsMap: Record<
+  GlobalSlug,
+  {
+    requiredFields: {
+      version: string
+      baseUrl: string
+    }
+  }
+> = {
   nacWidgetsConfig: {
     requiredFields: {
       version: '20250602',
