@@ -22,7 +22,7 @@ export async function generateStaticParams() {
     },
   })
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
+  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
 }
 
 type Args = {
@@ -31,7 +31,6 @@ type Args = {
 
 type PathArgs = {
   center: string
-  zone: string
 }
 
 export default async function Page({ params }: Args) {
