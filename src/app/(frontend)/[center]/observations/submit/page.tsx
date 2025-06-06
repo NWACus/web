@@ -82,10 +82,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Submit Avalanche Observation`,
+      title: `Submit Observation`,
     }
   }
   return {
-    title: `${tenant.docs[0].name} - Submit Avalanche Observation`,
+    title: `${tenant.docs[0].name} - Submit Observation`,
   }
 }
