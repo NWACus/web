@@ -54,7 +54,7 @@ const globalsMap: Record<
 > = {
   nacWidgetsConfig: {
     requiredFields: {
-      version: '20250602',
+      version: 'latest',
       baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
     },
   },

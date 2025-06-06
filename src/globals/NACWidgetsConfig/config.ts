@@ -9,11 +9,17 @@ const validateExternalUrl: TextFieldSingleValidation = (val) =>
 export const NACWidgetsConfig: GlobalConfig = {
   slug: 'nacWidgetsConfig',
   label: 'NAC Widgets Config',
-  admin: {
-    description: 'Controls the loading of NAC widgets across all avalanche center websites.',
-  },
   access: accessByGlobalRole('nacWidgetsConfig'),
   fields: [
+    {
+      type: 'ui',
+      name: 'description',
+      admin: {
+        components: {
+          Field: '@/globals/NACWidgetsConfig/components/Description#Description',
+        },
+      },
+    },
     {
       type: 'text',
       name: 'version',
