@@ -36,6 +36,8 @@ export const MobileNavItem = ({
     )
   }
 
+  const firstNavItemWithSubItems = navItem.items.find((item) => item.items && item.items.length > 0)
+
   return (
     <AccordionItem
       value={label}
@@ -50,7 +52,12 @@ export const MobileNavItem = ({
         {navItem.link ? navItem.link.label : label}
       </AccordionTrigger>
       <AccordionContent className="pt-0 pb-2">
-        <Accordion type="single" collapsible className="pl-4">
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue={firstNavItemWithSubItems?.id}
+          className="pl-4"
+        >
           {navItem.items.map((item) => {
             if (!item.items || item.items.length === 0) {
               return item.link ? (
@@ -67,7 +74,7 @@ export const MobileNavItem = ({
 
             if (item.link?.label) {
               return (
-                <AccordionItem key={item.id} value={item.link.label} className="border-0">
+                <AccordionItem key={item.id} value={item.id} className="border-0">
                   <AccordionTrigger
                     className="py-2 text-base font-normal hover:no-underline -mb-1.5"
                     chevronClassName="h-6 w-6 text-inherit"
