@@ -110,7 +110,7 @@ export function NACWidget({
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
       centerId: center.toUpperCase(),
-      devMode: process.env.NODE_ENV !== 'production',
+      devMode: false,
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,
