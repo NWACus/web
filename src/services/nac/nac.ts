@@ -85,7 +85,7 @@ export async function afpFetch(path: string, options: Options = {}) {
       let errorData
       try {
         errorData = await res.json()
-      } catch (e) {
+      } catch (_e) {
         // If we can't parse the error response as JSON, continue with the original error
         errorData = null
       }
