@@ -78,3 +78,7 @@
 #nac-app #nac-station-table {
   max-height: none !important;
 }
+
+#nac-obs-form-widget h1.nac-h1:first-of-type {
+  display: none;
+}

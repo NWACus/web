@@ -149,6 +149,7 @@ export function NACWidget({
       <Script
         src={`${scriptUrl}/${scriptName}.js`}
         strategy="afterInteractive"
+        crossOrigin="anonymous"
         type="module"
         onReady={() => {
           setWidgetScriptReady(true)

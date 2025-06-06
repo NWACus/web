@@ -22,9 +22,7 @@ export async function generateStaticParams() {
     },
   })
 
-  // TODO: hit the NAC API for forecast zones, translate active names to slugs
-
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
+  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
 }
 
 type Args = {
@@ -33,11 +31,10 @@ type Args = {
 
 type PathArgs = {
   center: string
-  zone: string
 }
 
 export default async function Page({ params }: Args) {
-  const { center, zone } = await params
+  const { center } = await params
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
@@ -49,7 +46,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetHashHandler initialHash={`/${zone}/`} />
+      <WidgetHashHandler initialHash={`/archive`} />
       <div className="py-6 md:py-8 lg:py-12">
         <div className="container flex flex-col">
           <NACWidget
@@ -66,7 +63,7 @@ export default async function Page({ params }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const payload = await getPayload({ config: configPromise })
-  const { center, zone } = await params
+  const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
     select: {
@@ -80,11 +77,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Avalanche Forecasts`,
+      title: `Avalanche Forecast Archive`,
     }
   }
-  // TODO: translate zone slug to zone name
   return {
-    title: `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
+    title: `${tenant.docs[0].name} - Avalanche Forecast Archive`,
   }
 }
