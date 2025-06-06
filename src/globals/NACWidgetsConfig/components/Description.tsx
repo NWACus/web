@@ -6,8 +6,8 @@ export function Description() {
         avalanche center websites.
       </p>
       <p>
-        The version should typically be set to "latest" but can be changed to a specific date
-        version if needed.
+        The version should typically be set to &quot;latest&quot; but can be changed to a specific
+        date version if needed.
       </p>
       <p>
         The version refers to the published date version of the{' '}
