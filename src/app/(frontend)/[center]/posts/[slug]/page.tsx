@@ -104,6 +104,12 @@ const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: s
     limit: 1,
     overrideAccess: draft,
     pagination: false,
+    populate: {
+      tenants: {
+        slug: true,
+        name: true,
+      },
+    },
     where: {
       and: [
         {
