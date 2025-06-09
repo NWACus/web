@@ -68,8 +68,26 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata({ params }: Args): Promise<Metadata> {
+  const payload = await getPayload({ config: configPromise })
+  const { center } = await params
+  const tenant = await payload.find({
+    collection: 'tenants',
+    select: {
+      name: true,
+    },
+    where: {
+      slug: {
+        equals: center,
+      },
+    },
+  })
+  if (tenant.docs.length < 1) {
+    return {
+      title: `Avalanche Center Posts`,
+    }
+  }
   return {
-    title: `Payload Website Template Posts`,
+    title: `${tenant.docs[0].name} - Posts`,
   }
 }

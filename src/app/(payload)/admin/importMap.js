@@ -3,6 +3,9 @@ import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/colle
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
+import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
+import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
+import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
 import { default as default_9d7720c4b50db35595dfefa592fabd33 } from '@/components/TenantSelector'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
@@ -83,6 +86,9 @@ export const importMap = {
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
   '@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription':
     LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
+  '@/components/LogoutButton#LogoutButton': LogoutButton_db9ac62598c46d0f1db201f6af05442e,
+  '@/components/Icon/AvyFxIcon#AvyFxIcon': AvyFxIcon_5698f736c9797d81d0dacf1b1321e327,
+  '@/components/Logo/AvyFxLogo#AvyFxLogo': AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,

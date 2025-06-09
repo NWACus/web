@@ -63,6 +63,38 @@ export default buildConfig({
           },
         },
       ],
+      graphics: {
+        Logo: '@/components/Logo/AvyFxLogo#AvyFxLogo',
+        Icon: '@/components/Icon/AvyFxIcon#AvyFxIcon',
+      },
+      logout: {
+        Button: '@/components/LogoutButton#LogoutButton',
+      },
+    },
+    meta: {
+      title: 'Admin Panel',
+      description: 'The admin panel for AvyWeb and AvyApp.',
+      icons: [
+        {
+          type: 'image/png',
+          rel: 'icon',
+          url: '/assets/icon.png',
+        },
+      ],
+      openGraph: {
+        title: 'AvyFx Admin Panel',
+        siteName: 'AvyFx',
+        description: 'The admin panel for AvyWeb and AvyApp.',
+        images: [
+          {
+            url: '/assets/avy-fx-og-image.webp',
+            width: 1200,
+            height: 630,
+          },
+        ],
+      },
+      defaultOGImageType: 'static',
+      titleSuffix: '- AvyFx',
     },
     importMap: {
       baseDir: path.resolve(dirname),

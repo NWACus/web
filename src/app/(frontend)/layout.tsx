@@ -117,7 +117,7 @@ export default async function RootLayout({ children }: Args) {
   return (
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
       <head>
-        <link href="/favicon.ico" rel="icon" sizes="32x32" />
+        <link href="/favicon.ico" rel="icon" sizes="96x96" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
       <body>
@@ -135,10 +135,18 @@ export default async function RootLayout({ children }: Args) {
 }
 
 export const metadata: Metadata = {
+  title: 'AvyWeb',
+  description: 'The homepage for AvyWeb avalanche center websites.',
   metadataBase: new URL(getServerSideURL()),
-  openGraph: mergeOpenGraph(),
+  openGraph: mergeOpenGraph({
+    description: 'AvyWeb avalanche center websites.',
+    images: [
+      {
+        url: `${getServerSideURL()}/assets/avy-web-og-image.webp`,
+      },
+    ],
+  }),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
   },
 }
