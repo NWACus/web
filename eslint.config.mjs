@@ -1,4 +1,5 @@
 import { FlatCompat } from '@eslint/eslintrc'
+import { globalIgnores } from "eslint/config";
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -19,9 +20,10 @@ const eslintConfig = [
   ),
   {
     rules: {
-      '@typescript-eslint/ban-ts-comment': 'warn',
-      '@typescript-eslint/no-empty-object-type': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'error',
+      '@typescript-eslint/no-empty-object-type': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      'react-hooks/exhaustive-deps': 'error',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -36,6 +38,7 @@ const eslintConfig = [
       ],
     },
   },
+  globalIgnores([".next/"]),
 ]
 
 export default eslintConfig
