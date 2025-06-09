@@ -28,6 +28,8 @@ jobs:
         shell: bash
       - name: 🧹 Run lint
         run: pnpm lint
+      - name: 🧹 Run eslint
+        run: pnpm eslint
 
   build:
     name: build
