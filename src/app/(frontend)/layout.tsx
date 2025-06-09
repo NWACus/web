@@ -135,11 +135,11 @@ export default async function RootLayout({ children }: Args) {
 }
 
 export const metadata: Metadata = {
-  title: 'AvyWeb',
-  description: 'The homepage for AvyWeb avalanche center websites.',
+  title: 'Avy',
+  description: 'The homepage for Avy avalanche center websites.',
   metadataBase: new URL(getServerSideURL()),
   openGraph: mergeOpenGraph({
-    description: 'AvyWeb avalanche center websites.',
+    description: 'Avy avalanche center websites.',
     images: [
       {
         url: `${getServerSideURL()}/assets/avy-web-og-image.webp`,

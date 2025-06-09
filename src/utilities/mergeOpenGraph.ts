@@ -9,8 +9,8 @@ const defaultOpenGraph: Metadata['openGraph'] = {
       url: `${getServerSideURL()}/assets/avy-web-fallback-og-image.webp`,
     },
   ],
-  siteName: 'AvyWeb',
-  title: 'AvyWeb',
+  siteName: 'Avy',
+  title: 'Avy',
 }
 
 export const mergeOpenGraph = (og?: Metadata['openGraph']): Metadata['openGraph'] => {
