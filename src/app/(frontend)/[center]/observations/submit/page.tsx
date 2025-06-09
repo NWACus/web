@@ -8,6 +8,7 @@ import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.clie
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
+import { NACContainerRemover } from './NACContainerRemover.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -22,9 +23,7 @@ export async function generateStaticParams() {
     },
   })
 
-  // TODO: hit the NAC API for forecast zones, translate active names to slugs
-
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
+  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
 }
 
 type Args = {
@@ -33,15 +32,14 @@ type Args = {
 
 type PathArgs = {
   center: string
-  zone: string
 }
 
 export default async function Page({ params }: Args) {
-  const { center, zone } = await params
+  const { center } = await params
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
-  if (!avalancheCenterPlatforms.forecasts) {
+  if (!avalancheCenterPlatforms.obs) {
     notFound()
   }
 
@@ -49,12 +47,16 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetHashHandler initialHash={`/${zone}/`} />
+      <NACContainerRemover containerElementId="nac-obs-form-widget" />
+      <WidgetHashHandler initialHash="form" />
       <div className="py-6 md:py-8 lg:py-12">
-        <div className="container flex flex-col">
+        <div className="container flex flex-col gap-4">
+          <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
+            <h1>Submit Observation</h1>
+          </div>
           <NACWidget
             center={center}
-            widget={'forecast'}
+            widget={'observations'}
             widgetsVersion={version}
             widgetsBaseUrl={baseUrl}
           />
@@ -66,7 +68,7 @@ export default async function Page({ params }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const payload = await getPayload({ config: configPromise })
-  const { center, zone } = await params
+  const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
     select: {
@@ -80,11 +82,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Avalanche Forecasts`,
+      title: `Submit Observation`,
     }
   }
-  // TODO: translate zone slug to zone name
   return {
-    title: `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
+    title: `${tenant.docs[0].name} - Submit Observation`,
   }
 }

@@ -255,7 +255,7 @@ export const getTopLevelNavItems = async ({
               link: {
                 type: 'internal',
                 label: 'Forecast Archive',
-                url: '/forecasts/avalanche/#/archive/forecast',
+                url: '/forecasts/avalanche/archive',
               },
             },
           ],
@@ -301,7 +301,7 @@ export const getTopLevelNavItems = async ({
               link: {
                 type: 'internal',
                 label: 'Forecast Archive',
-                url: '/forecasts/avalanche/#/archive/forecast',
+                url: '/forecasts/avalanche/archive',
               },
             },
           ],
@@ -326,7 +326,7 @@ export const getTopLevelNavItems = async ({
         link: {
           type: 'internal',
           label: 'Submit Observation',
-          url: '/observations/#/form',
+          url: '/observations/submit',
         },
       },
     ],
