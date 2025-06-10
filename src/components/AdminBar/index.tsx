@@ -1,11 +1,10 @@
 'use client'
 
-import type { PayloadAdminBarProps, PayloadMeUser } from 'payload-admin-bar'
+import type { PayloadAdminBarProps, PayloadMeUser } from '@payloadcms/admin-bar'
 
 import { cn } from '@/utilities/ui'
-import { useRouter, useSelectedLayoutSegments } from 'next/navigation'
-import { PayloadAdminBar } from 'payload-admin-bar'
-import plural from 'pluralize'
+import { PayloadAdminBar } from '@payloadcms/admin-bar'
+import { usePathname, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 import './index.scss'
@@ -14,11 +13,10 @@ import { getClientSideURL } from '@/utilities/getURL'
 
 const baseClass = 'admin-bar'
 
-const Title = () => <span>Dashboard</span>
+const Title = () => <span>AvyFx Admin Panel</span>
 
 export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   const { adminBarProps } = props || {}
-  const segments = useSelectedLayoutSegments()
   const [show, setShow] = useState(false)
   const router = useRouter()
 
@@ -26,16 +24,14 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
     setShow(!!user?.id)
   }, [])
 
-  let collection: string = 'Unknown'
-  if (segments && segments.length > 1) {
-    collection = segments[1].charAt(0).toUpperCase() + segments[1].slice(1)
-  }
+  const pathname = usePathname()
 
   return (
     <div
       className={cn(baseClass, 'py-2 bg-black text-white z-50', {
         block: show,
         hidden: !show,
+        'bg-red-500': adminBarProps?.preview,
       })}
     >
       <div className="container">
@@ -48,16 +44,11 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
             user: 'text-white',
           }}
           cmsURL={getClientSideURL()}
-          collection={collection}
-          collectionLabels={{
-            plural: plural(collection),
-            singular: collection,
-          }}
           logo={<Title />}
           onAuthChange={onAuthChange}
           onPreviewExit={() => {
             fetch('/next/exit-preview').then(() => {
-              router.push('/')
+              router.push(pathname)
               router.refresh()
             })
           }}
