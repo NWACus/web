@@ -10,6 +10,9 @@ importers:
       '@libsql/client':
         specifier: ^0.15.4
         version: 0.15.4
+      '@payloadcms/admin-bar':
+        specifier: ^3.42.0
+        version: 3.42.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@payloadcms/db-sqlite':
         specifier: 3.33.0
         version: 3.33.0(@types/react@19.0.1)(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))(react@19.1.0)
@@ -118,9 +121,6 @@ importers:
       payload:
         specifier: 3.33.0
         version: 3.33.0(graphql@16.10.0)(typescript@5.7.2)
-      payload-admin-bar:
-        specifier: ^1.0.6
-        version: 1.0.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       pino:
         specifier: ^9.6.0
         version: 9.6.0
@@ -2227,6 +2227,15 @@ packages:
         integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==,
       }
     engines: { node: '>=12.4.0' }
+
+  '@payloadcms/admin-bar@3.42.0':
+    resolution:
+      {
+        integrity: sha512-Upmf0B2r2nijvwtejM1L0NMSnsdgVk73R18Qy+l2n0gNWrU+q3Te4bKHVFUgoROG31TUTUSpMCZOQslj5N/Ejw==,
+      }
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@payloadcms/db-sqlite@3.33.0':
     resolution:
@@ -7043,15 +7052,6 @@ packages:
       }
     engines: { node: '>=8' }
 
-  payload-admin-bar@1.0.7:
-    resolution:
-      {
-        integrity: sha512-eY/FjfCGkyXOxRupv4IPZ+HFh8CQnJBQS++VItgTXe/g9H0B4RqxfdpU3g3tART3e8MzmZYGOBxV5EGGO2+jbg==,
-      }
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   payload@3.33.0:
     resolution:
       {
@@ -10151,6 +10151,11 @@ snapshots:
       fastq: 1.19.1
 
   '@nolyfill/is-core-module@1.0.39': {}
+
+  '@payloadcms/admin-bar@3.42.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@payloadcms/db-sqlite@3.33.0(@types/react@19.0.1)(payload@3.33.0(graphql@16.10.0)(typescript@5.7.2))(react@19.1.0)':
     dependencies:
@@ -13632,11 +13637,6 @@ snapshots:
   path-to-regexp@6.3.0: {}
 
   path-type@4.0.0: {}
-
-  payload-admin-bar@1.0.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
-    dependencies:
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
 
   payload@3.33.0(graphql@16.10.0)(typescript@5.7.2):
     dependencies:
