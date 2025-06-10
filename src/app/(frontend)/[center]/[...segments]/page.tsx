@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 import { cache } from 'react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
@@ -101,6 +101,27 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
 
   const payload = await getPayload({ config: configPromise })
 
+  const conditions: Where[] = [
+    {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    {
+      slug: {
+        equals: slug,
+      },
+    },
+  ]
+
+  if (!draft) {
+    conditions.push({
+      _status: {
+        equals: 'published',
+      },
+    })
+  }
+
   const result = await payload.find({
     collection: 'pages',
     draft,
@@ -109,23 +130,7 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
     depth: 99,
     overrideAccess: draft,
     where: {
-      and: [
-        {
-          'tenant.slug': {
-            equals: center,
-          },
-        },
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-      ],
+      and: conditions,
     },
   })
 
