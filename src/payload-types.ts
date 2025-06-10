@@ -178,6 +178,7 @@ export interface Media {
     [k: string]: unknown;
   } | null;
   contentHash?: string | null;
+  blurDataUrl?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1599,6 +1600,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
   contentHash?: T;
+  blurDataUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
