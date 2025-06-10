@@ -1,7 +1,7 @@
 {
   "name": "web",
   "version": "1.0.0",
-  "description": "Website template for Payload",
+  "description": "AvyFx admin panel and AvyWeb avalanche center websites",
   "license": "MIT",
   "type": "module",
   "scripts": {

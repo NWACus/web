@@ -60,11 +60,46 @@ export default async function RootLayout({ children, params }: Args) {
   )
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getServerSideURL()),
-  openGraph: mergeOpenGraph(),
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@payloadcms',
-  },
+export async function generateMetadata({ params }: Args): Promise<Metadata> {
+  const payload = await getPayload({ config: configPromise })
+  const { center } = await params
+  const tenantsRes = await payload.find({
+    collection: 'tenants',
+    select: {
+      name: true,
+    },
+    where: {
+      slug: {
+        equals: center,
+      },
+    },
+  })
+
+  const tenant = tenantsRes.docs.length > 1 ? tenantsRes.docs[0] : null
+
+  if (!tenant) {
+    return {
+      metadataBase: new URL(getServerSideURL()),
+      openGraph: mergeOpenGraph(),
+      twitter: {
+        card: 'summary_large_image',
+      },
+    }
+  }
+
+  const title = tenant.name
+  const description = `${tenant.name}'s website.`
+
+  return {
+    title,
+    description, // TODO add description to tenant or a settings global collection and use that here
+    metadataBase: new URL(getServerSideURL()),
+    openGraph: mergeOpenGraph({
+      title,
+      description,
+    }),
+    twitter: {
+      card: 'summary_large_image',
+    },
+  }
 }

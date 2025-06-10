@@ -31,12 +31,8 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeLogin` statement on line 15.
-      beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
-      beforeDashboard: ['@/components/BeforeDashboard'],
+      beforeDashboard:
+        process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
       beforeNavLinks: [
         {
           clientProps: { label: 'Avalanche Center' },
@@ -63,6 +59,38 @@ export default buildConfig({
           },
         },
       ],
+      graphics: {
+        Logo: '@/components/Logo/AvyFxLogo#AvyFxLogo',
+        Icon: '@/components/Icon/AvyFxIcon#AvyFxIcon',
+      },
+      logout: {
+        Button: '@/components/LogoutButton#LogoutButton',
+      },
+    },
+    meta: {
+      title: 'Admin Panel',
+      description: 'The admin panel for AvyWeb and AvyApp.',
+      icons: [
+        {
+          type: 'image/png',
+          rel: 'icon',
+          url: '/assets/icon.png',
+        },
+      ],
+      openGraph: {
+        title: 'AvyFx Admin Panel',
+        siteName: 'AvyFx',
+        description: 'The admin panel for AvyWeb and AvyApp.',
+        images: [
+          {
+            url: '/assets/avy-fx-og-image.webp',
+            width: 1200,
+            height: 630,
+          },
+        ],
+      },
+      defaultOGImageType: 'static',
+      titleSuffix: '- AvyFx',
     },
     importMap: {
       baseDir: path.resolve(dirname),

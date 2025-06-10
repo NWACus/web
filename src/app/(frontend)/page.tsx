@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { getServerSideURL } from '@/utilities/getURL'
@@ -7,10 +6,6 @@ import { getPayload } from 'payload'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
-
-export const metadata: Metadata = {
-  title: 'AvyFx',
-}
 
 export default async function LandingPage() {
   const payload = await getPayload({ config: configPromise })

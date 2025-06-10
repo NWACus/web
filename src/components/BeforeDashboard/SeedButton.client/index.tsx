@@ -1,9 +1,7 @@
 'use client'
 
-import { toast } from '@payloadcms/ui'
-import React, { Fragment, useCallback, useState } from 'react'
-
-import './index.scss'
+import { Button, toast } from '@payloadcms/ui'
+import React, { useCallback, useState } from 'react'
 
 const SuccessMessage = () => (
   <div>
@@ -19,8 +17,8 @@ export const SeedButton = () => {
   const [seeded, setSeeded] = useState(false)
   const [error, setError] = useState<unknown | null>(null)
 
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-    async (e) => {
+  const handleClick = useCallback(
+    async (e: React.MouseEvent) => {
       e.preventDefault()
 
       if (seeded) {
@@ -80,11 +78,8 @@ export const SeedButton = () => {
   if (error) message = ` (error: ${error})`
 
   return (
-    <Fragment>
-      <button className="seedButton" onClick={handleClick}>
-        Seed your database
-      </button>
-      {message}
-    </Fragment>
+    <Button buttonStyle="secondary" className="seedButton" onClick={handleClick}>
+      Seed your database {message}
+    </Button>
   )
 }

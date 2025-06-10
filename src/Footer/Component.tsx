@@ -2,7 +2,6 @@ import configPromise from '@payload-config'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
 
-import { Logo } from '@/components/Logo/Logo'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Icons } from '@/components/ui/icons'
 import { getPayload } from 'payload'
@@ -40,9 +39,11 @@ export async function Footer({ center }: { center?: string }) {
           <p>Sign up for our newsletter</p>
         </div>
         <div>
-          <Link className="flex items-center" href="/">
-            {footerLogo ? <ImageMedia resource={footerLogo} /> : <Logo center={center} />}
-          </Link>
+          {footerLogo && (
+            <Link className="flex items-center" href="/">
+              <ImageMedia resource={footerLogo} />
+            </Link>
+          )}
         </div>
         <div>
           <div className="flex flex-col items-start">
