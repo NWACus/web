@@ -78,13 +78,12 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Forecasts`,
-    }
-  }
+
   // TODO: translate zone slug to zone name
   return {
-    title: `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Forecasts'
+        : `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
   }
 }

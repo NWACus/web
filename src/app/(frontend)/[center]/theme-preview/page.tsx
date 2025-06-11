@@ -560,12 +560,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Theme Preview`,
-    }
-  }
+
   return {
-    title: `${tenant.docs[0].name} - Theme Preview`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Center Theme Preview'
+        : `${tenant.docs[0].name} - Theme Preview`,
   }
 }

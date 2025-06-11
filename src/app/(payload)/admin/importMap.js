@@ -29,8 +29,10 @@ import {
   InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  UnorderedListFeatureClient as UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
 } from '@payloadcms/richtext-lexical/client'
 import {
   LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -80,6 +82,10 @@ export const importMap = {
   '@payloadcms/plugin-seo/client#PreviewComponent':
     PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@/fields/slug/SlugComponent#SlugComponent': SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
+  '@payloadcms/richtext-lexical/client#UnorderedListFeatureClient':
+    UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':
+    OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@/collections/Roles/components/CollectionsField#CollectionsField':
     CollectionsField_49c0311020325b59204cc21d2f536b8d,
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
