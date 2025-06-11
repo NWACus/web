@@ -9,6 +9,7 @@ import type { Props as MediaProps } from '../types'
 
 import { cssVariables } from '@/cssVariables'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
+import { useState } from 'react'
 
 const { breakpoints } = cssVariables
 
@@ -25,6 +26,8 @@ export const ImageMedia = (props: MediaProps) => {
     loading: loadingFromProps,
   } = props
 
+  const [imageError, setImageError] = useState(false)
+
   let width: number | undefined
   let height: number | undefined
   let alt = altFromProps
@@ -40,8 +43,10 @@ export const ImageMedia = (props: MediaProps) => {
       blurDataUrl: blurDataURLFromResource,
     } = resource
 
-    width = fullWidth || 200
-    height = fullHeight || 200
+    // The fallback values are not expected to be used but Payload types
+    // result in these values potentially being undefined
+    width = fullWidth || 400
+    height = fullHeight || 300
     alt = altFromResource || ''
     blurDataURL = blurDataURLFromResource
 
@@ -58,6 +63,35 @@ export const ImageMedia = (props: MediaProps) => {
         .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
         .join(', ')
 
+  const handleError = () => {
+    setImageError(true)
+  }
+
+  // Show blur data URL when image fails to load and blur data is available
+  if (imageError && blurDataURL) {
+    return (
+      <div className={cn('relative', pictureClassName)}>
+        <picture>
+          <NextImage
+            alt={alt || ''}
+            className={cn(imgClassName)}
+            fill={fill}
+            height={!fill ? height : undefined}
+            priority={priority}
+            quality={100}
+            loading={loading}
+            sizes={sizes}
+            src={blurDataURL}
+            width={!fill ? width : undefined}
+          />
+        </picture>
+        <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+          Image unavailable
+        </div>
+      </div>
+    )
+  }
+
   return (
     <picture className={cn(pictureClassName)}>
       <NextImage
@@ -73,6 +107,7 @@ export const ImageMedia = (props: MediaProps) => {
         sizes={sizes}
         src={src}
         width={!fill ? width : undefined}
+        onError={handleError}
       />
     </picture>
   )
