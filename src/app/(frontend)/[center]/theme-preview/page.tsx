@@ -388,19 +388,11 @@ export default async function Page({ params }: Args) {
             <h3 className="text-lg font-semibold">Avatar</h3>
             <div className="flex space-x-4">
               <Avatar>
-                <AvatarImage
-                  className="object-cover"
-                  src="http://www.gravatar.com/avatar/?d=mp "
-                  alt="User Avatar"
-                />
+                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <Avatar>
-                <AvatarImage
-                  className="object-cover"
-                  src="http://www.gravatar.com/avatar/?d=mp "
-                  alt="User Avatar"
-                />
+                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
                 <AvatarFallback>AN</AvatarFallback>
               </Avatar>
             </div>

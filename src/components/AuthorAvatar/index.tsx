@@ -32,7 +32,7 @@ export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['upda
         <div className={cn(`${combinedAuthorsPhotos.length > 1 && 'flex -space-x-2'}`, 'me-4')}>
           {combinedAuthorsPhotos.map((authorPhoto, index) => (
             <Avatar className="size-[60px]" key={index}>
-              <AvatarImage className="object-cover" src={authorPhoto.url || '/placeholder.svg'} />
+              <AvatarImage src={authorPhoto.url || '/placeholder.svg'} />
               <AvatarFallback>{combinedAuthorsInitials[index]}</AvatarFallback>
             </Avatar>
           ))}

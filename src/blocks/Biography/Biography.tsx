@@ -30,11 +30,7 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
               <PopoverTrigger asChild>
                 <button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full">
                   <Avatar className="h-24 w-24 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer">
-                    <AvatarImage
-                      className="object-cover"
-                      src={biography.photo.url || '/placeholder.svg'}
-                      alt={name}
-                    />
+                    <AvatarImage src={biography.photo.url || '/placeholder.svg'} alt={name} />
                     <AvatarFallback>{initials}</AvatarFallback>
                   </Avatar>
                 </button>
@@ -53,11 +49,7 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
             </Popover>
           ) : (
             <Avatar className="h-24 w-24">
-              <AvatarImage
-                className="object-cover"
-                src={biography.photo.url || '/placeholder.svg'}
-                alt={name}
-              />
+              <AvatarImage src={biography.photo.url || '/placeholder.svg'} alt={name} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           )}
