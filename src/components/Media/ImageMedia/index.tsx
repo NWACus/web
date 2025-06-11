@@ -71,7 +71,7 @@ export const ImageMedia = (props: MediaProps) => {
   if (imageError && blurDataURL) {
     return (
       <div className={cn('relative', pictureClassName)}>
-        <picture>
+        <picture className={cn(pictureClassName)}>
           <NextImage
             alt={alt || ''}
             className={cn(imgClassName)}
