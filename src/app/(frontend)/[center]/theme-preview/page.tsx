@@ -6,7 +6,7 @@ import { getPayload } from 'payload'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { draftMode } from 'next/headers'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -387,14 +387,16 @@ export default async function Page({ params }: Args) {
           <section className="space-y-2">
             <h3 className="text-lg font-semibold">Avatar</h3>
             <div className="flex space-x-4">
-              <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
-                <AvatarFallback>AN</AvatarFallback>
-              </Avatar>
+              <MediaAvatar
+                src="http://www.gravatar.com/avatar/?d=mp"
+                alt="User Avatar"
+                fallback="CN"
+              />
+              <MediaAvatar
+                src="http://www.gravatar.com/avatar/?d=mp"
+                alt="User Avatar"
+                fallback="AN"
+              />
             </div>
           </section>
 
