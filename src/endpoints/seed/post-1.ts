@@ -5,17 +5,17 @@ export const post1: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: User[],
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: User[],
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
     slug: 'digital-horizons',
     _status: 'published',
-    authors: [author.id],
+    authors: [author[0].id, author[1].id],
     tenant: tenant.id,
     content: {
       root: {
@@ -292,12 +292,9 @@ export const post1: (
         version: 1,
       },
     },
-    meta: {
-      description:
-        'Dive into the marvels of modern innovation, where the only constant is change. A journey where pixels and data converge to craft the future.',
-      image: image1.id,
-      title: 'Digital Horizons: A Glimpse into Tomorrow',
-    },
+    description:
+      'Dive into the marvels of modern innovation, where the only constant is change. A journey where pixels and data converge to craft the future.',
+    featuredImage: image1.id,
     relatedPosts: [], // this is populated by the seed script
     title: 'Digital Horizons: A Glimpse into Tomorrow',
   }

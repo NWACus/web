@@ -75,12 +75,8 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Homepage`,
-    }
-  }
   return {
-    title: `${tenant.docs[0].name} - Homepage`,
+    title:
+      tenant.docs.length < 1 ? 'Avalanche Center Homepage' : `${tenant.docs[0].name} - Homepage`,
   }
 }

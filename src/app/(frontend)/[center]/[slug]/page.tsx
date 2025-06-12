@@ -10,7 +10,7 @@ import type { Page as PageType } from '@/payload-types'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMetaForPage } from '@/utilities/generateMeta'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -99,7 +99,7 @@ export async function generateMetadata({
     slug: slug,
   })
 
-  return generateMeta({ doc: page })
+  return generateMetaForPage({ center, doc: page })
 }
 
 const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {

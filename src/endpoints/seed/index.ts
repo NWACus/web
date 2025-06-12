@@ -602,12 +602,10 @@ export const seed = async ({
     (obj) => obj.slug,
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
-        post1(
-          tenant,
-          images[tenant.slug]['image1'],
-          images[tenant.slug]['image2'],
+        post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
           users[tenant.slug.toUpperCase() + ' Contributor'],
-        ),
+          users[tenant.slug.toUpperCase() + ' Admin'],
+        ]),
         post2(
           tenant,
           images[tenant.slug]['image2'],

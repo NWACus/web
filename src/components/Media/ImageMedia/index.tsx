@@ -93,7 +93,7 @@ export const ImageMedia = (props: MediaProps) => {
   }
 
   return (
-    <picture className={cn(pictureClassName)}>
+    <picture className={cn('my-2', pictureClassName)}>
       <NextImage
         alt={alt || ''}
         className={cn(imgClassName)}

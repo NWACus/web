@@ -7,6 +7,9 @@ import {
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
+  LinkFeature,
+  OrderedListFeature,
+  UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
 
 import { Banner } from '@/blocks/Banner/config'
@@ -21,24 +24,16 @@ import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { Tenant } from '@/payload-types'
-import {
-  MetaDescriptionField,
-  MetaImageField,
-  MetaTitleField,
-  OverviewField,
-  PreviewField,
-} from '@payloadcms/plugin-seo/fields'
+import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: accessByTenantOrReadPublished('posts'),
   defaultPopulate: {
-    title: true,
+    description: true,
+    featuredImage: true,
     slug: true,
-    meta: {
-      image: true,
-      description: true,
-    },
+    title: true,
   },
   admin: {
     group: 'Content',
@@ -90,102 +85,42 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'text',
       required: true,
     },
-    {
-      type: 'tabs',
-      tabs: [
-        {
-          fields: [
-            {
-              name: 'content',
-              type: 'richText',
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, MediaBlock] }),
-                    FixedToolbarFeature(),
-                    InlineToolbarFeature(),
-                    HorizontalRuleFeature(),
-                  ]
-                },
-              }),
-              label: false,
-              required: true,
-            },
-          ],
-          label: 'Content',
+    MetaImageField({
+      hasGenerateFn: true,
+      relationTo: 'media',
+      overrides: {
+        admin: {
+          allowCreate: true,
         },
-        {
-          fields: [
-            {
-              name: 'relatedPosts',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              filterOptions: ({ id }) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
-              },
-              hasMany: true,
-              relationTo: 'posts',
-            },
-          ],
-          label: 'Meta',
-        },
-        {
-          name: 'meta',
-          label: 'SEO',
-          fields: [
-            OverviewField({
-              titlePath: 'meta.title',
-              descriptionPath: 'meta.description',
-              imagePath: 'meta.image',
-            }),
-            MetaTitleField({
-              hasGenerateFn: true,
-            }),
-            MetaImageField({
-              relationTo: 'media',
-            }),
-
-            MetaDescriptionField({}),
-            PreviewField({
-              // if the `generateUrl` function is configured
-              hasGenerateFn: true,
-
-              // field paths to match the target field for data
-              titlePath: 'meta.title',
-              descriptionPath: 'meta.description',
-            }),
-          ],
-        },
-      ],
-    },
-    {
-      name: 'publishedAt',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
-        },
-        position: 'sidebar',
+        name: 'featuredImage',
+        label: 'Featured image',
       },
-      hooks: {
-        beforeChange: [
-          ({ siblingData, value }) => {
-            if (siblingData._status === 'published' && !value) {
-              return new Date()
-            }
-            return value
-          },
-        ],
-      },
+    }),
+    MetaDescriptionField({
+      hasGenerateFn: true,
+    }),
+    {
+      name: 'content',
+      type: 'richText',
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+            BlocksFeature({ blocks: [Banner, MediaBlock] }),
+            FixedToolbarFeature(),
+            HorizontalRuleFeature(),
+            InlineToolbarFeature(),
+            LinkFeature(),
+            OrderedListFeature(),
+            UnorderedListFeature(),
+          ]
+        },
+      }),
+      required: true,
     },
+
+    // Sidebar
     {
       name: 'authors',
       type: 'relationship',
@@ -193,7 +128,8 @@ export const Posts: CollectionConfig<'posts'> = {
         position: 'sidebar',
       },
       hasMany: true,
-      relationTo: 'users',
+      relationTo: 'biographies',
+      required: true,
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -219,6 +155,43 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
+    {
+      name: 'publishedAt',
+      type: 'date',
+      admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+        position: 'sidebar',
+      },
+      hooks: {
+        beforeChange: [
+          ({ siblingData, value }) => {
+            if (siblingData._status === 'published' && !value) {
+              return new Date()
+            }
+            return value
+          },
+        ],
+      },
+    },
+    {
+      name: 'relatedPosts',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      filterOptions: ({ id }) => {
+        return {
+          id: {
+            not_in: [id],
+          },
+        }
+      },
+      hasMany: true,
+      relationTo: 'posts',
+    },
+
     ...slugField(),
     contentHashField(),
   ],
