@@ -75,7 +75,7 @@ export const imageText = (image: Media): RequiredDataFromCollectionSlug<'pages'>
                   format: 0,
                   mode: 'normal',
                   style: '',
-                  text: 'This is a hrading',
+                  text: 'This is a heading',
                   type: 'text',
                   version: 1,
                 },
