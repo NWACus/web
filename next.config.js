@@ -4,7 +4,7 @@ import redirects from './redirects.js'
 
 const domain = process.env.SERVER_DOMAIN || process.env.VERCEL_URL
 const url = domain
-  ? `https://${domain}`
+  ? `${domain.includes('localhost') ? 'http' : 'https'}://${domain}`
   : process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 
 /** @type {import('next').NextConfig} */

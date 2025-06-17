@@ -63,8 +63,8 @@ export default async function RootLayout({ children, params }: Args) {
       },
     },
   })
-  const tenant = tenantsRes.docs.length > 1 ? tenantsRes.docs[0] : null
-  invariant(tenant, 'Could not determine avalanche center tenant')
+  const tenant = tenantsRes.docs.length >= 1 ? tenantsRes.docs[0] : null
+  invariant(tenant, `Could not determine tenant for center value: ${center}`)
 
   const hostname = await getHostnameFromTenant(tenant)
 

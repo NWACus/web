@@ -34,6 +34,7 @@ export const ImageLinkGrid = (props: Props) => {
                 <a href={`${link?.url}`}>
                   <div className="w-full h-[280px] overflow-hidden">
                     <ImageMedia
+                      pictureClassName="h-full"
                       imgClassName={cn(
                         'object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden',
                         imgClassName,
