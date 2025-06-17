@@ -1,10 +1,8 @@
 import type { Metadata } from 'next/types'
 
-import { CollectionArchive } from '@/components/CollectionArchive'
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { PostsGrid } from './posts-grid'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -21,56 +19,22 @@ export default async function Page({ params }: Args) {
   const payload = await getPayload({ config: configPromise })
   const { center } = await params
 
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 2,
-    limit: 12,
-    select: {
-      authors: true,
-      description: true,
-      featuredImage: true,
-      meta: true,
-      publishedAt: true,
-      slug: true,
-      title: true,
-    },
+  const tags = await payload.find({
+    collection: 'tags',
+    depth: 1,
+    limit: 99,
+    pagination: false,
     where: {
       'tenant.slug': {
         equals: center,
       },
-      _status: {
-        equals: 'published',
-      },
     },
+    sort: 'name',
   })
 
   return (
     <div className="pt-24 pb-24">
-      <div className="container mb-16">
-        {/* Add filter */}
-        {/* Add sort */}
-        {/* Add search */}
-      </div>
-
-      <div className="container mb-8">
-        <PageRange
-          collectionLabels={{
-            plural: 'Posts',
-            singular: 'Post',
-          }}
-          currentPage={posts.page}
-          limit={12}
-          totalDocs={posts.totalDocs}
-        />
-      </div>
-
-      <CollectionArchive posts={posts.docs} />
-
-      <div className="container">
-        {posts.totalPages > 1 && posts.page && (
-          <Pagination page={posts.page} totalPages={posts.totalPages} />
-        )}
-      </div>
+      <PostsGrid tags={tags.docs} center={center} />
     </div>
   )
 }
