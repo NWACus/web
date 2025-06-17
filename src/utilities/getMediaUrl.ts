@@ -10,12 +10,12 @@ import isAbsoluteUrl from './isAbsoluteUrl'
 export const getMediaUrl = (url: string | null | undefined, cacheTag?: string | null): string => {
   if (!url) return ''
 
-  // Check if URL already has http/https protocol
+  // Check if URL is absolute url
   if (isAbsoluteUrl(url)) {
     return cacheTag ? `${url}?${cacheTag}` : url
   }
 
-  // Otherwise prepend client-side URL
+  // Otherwise assume it's a relative path and prepend base url
   const baseUrl = getClientSideURL()
   return cacheTag ? `${baseUrl}${url}?${cacheTag}` : `${baseUrl}${url}`
 }
