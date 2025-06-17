@@ -1,3 +1,4 @@
+import { Tenant } from '@/payload-types'
 import { CollectionConfig } from 'payload'
 
 type BeforeOperationHook = Exclude<
@@ -8,7 +9,7 @@ export const prefixFilenameWithTenant: BeforeOperationHook = async ({ req }) => 
   if (req.file) {
     req.payload.logger.debug(`media: have data ${JSON.stringify(req.data)}`)
     const media = req.data
-    let tenantSlug: string | undefined = undefined
+    let tenantSlug: Tenant['slug'] | undefined = undefined
     if (media && 'tenant' in media && typeof media.tenant === 'number') {
       req.payload.logger.debug(`media: fetching slug for tenant ${media.tenant}`)
       const tenant = await req.payload.find({

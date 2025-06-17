@@ -6,8 +6,8 @@ import { ImageMedia } from './ImageMedia'
 import { VideoMedia } from './VideoMedia'
 
 export const Media = (props: Props & { className?: string }) => {
-  const { className, ...restProps } = props
-  const { htmlElement = 'div', resource } = restProps
+  const { className, ...childComponentProps } = props
+  const { htmlElement = 'div', resource } = childComponentProps
 
   const isVideo = typeof resource === 'object' && resource?.mimeType?.includes('video')
   const Tag = htmlElement || Fragment
@@ -20,7 +20,7 @@ export const Media = (props: Props & { className?: string }) => {
           }
         : {})}
     >
-      {isVideo ? <VideoMedia {...restProps} /> : <ImageMedia {...restProps} />}
+      {isVideo ? <VideoMedia {...childComponentProps} /> : <ImageMedia {...childComponentProps} />}
     </Tag>
   )
 }
