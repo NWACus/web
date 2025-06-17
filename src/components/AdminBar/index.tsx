@@ -7,9 +7,8 @@ import { PayloadAdminBar } from '@payloadcms/admin-bar'
 import { usePathname, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
+import { getURL } from '@/utilities/getURL'
 import './index.scss'
-
-import { getClientSideURL } from '@/utilities/getURL'
 
 const baseClass = 'admin-bar'
 
@@ -43,7 +42,7 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
             logo: 'text-white',
             user: 'text-white',
           }}
-          cmsURL={getClientSideURL()}
+          cmsURL={getURL()}
           logo={<Title />}
           onAuthChange={onAuthChange}
           onPreviewExit={() => {

@@ -7,7 +7,7 @@ import React, { useCallback, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { FormBlock as FormBlockType } from '@/payload-types'
-import { getClientSideURL } from '@/utilities/getURL'
+import { getURL } from '@/utilities/getURL'
 import { buildInitialFormState } from './buildInitialFormState'
 import { fields } from './fields'
 
@@ -60,7 +60,7 @@ export const FormBlock = (props: FormBlockType) => {
           if (typeof props.form !== 'object') {
             return
           }
-          const req = await fetch(`${getClientSideURL()}/api/form-submissions`, {
+          const req = await fetch(`${getURL()}/api/form-submissions`, {
             body: JSON.stringify({
               form: props.form.id,
               submissionData: dataToSend,

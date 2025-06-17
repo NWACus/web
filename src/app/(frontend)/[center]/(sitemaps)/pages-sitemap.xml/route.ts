@@ -1,4 +1,4 @@
-import { getServerSideURL } from '@/utilities/getURL'
+import { getURL } from '@/utilities/getURL'
 import config from '@payload-config'
 import { getServerSideSitemap } from 'next-sitemap'
 import { unstable_cache } from 'next/cache'
@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
-    const SITE_URL = getServerSideURL()
+    const SITE_URL = getURL()
 
     const results = await payload.find({
       collection: 'pages',

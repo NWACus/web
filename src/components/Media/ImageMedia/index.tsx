@@ -8,7 +8,7 @@ import NextImage from 'next/image'
 import type { Props as MediaProps } from '../types'
 
 import { cssVariables } from '@/cssVariables'
-import { getClientSideURL } from '@/utilities/getURL'
+import { getURL } from '@/utilities/getURL'
 
 const { breakpoints } = cssVariables
 
@@ -40,7 +40,7 @@ export const ImageMedia = (props: MediaProps) => {
     height = fullHeight || 0
     alt = altFromResource || ''
 
-    src = `${getClientSideURL()}${url}`
+    src = `${getURL()}${url}`
   }
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)

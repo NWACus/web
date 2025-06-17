@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { getServerSideURL } from '@/utilities/getURL'
+import { getURL } from '@/utilities/getURL'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -18,7 +18,7 @@ export default async function LandingPage() {
     },
   })
 
-  const url = new URL(getServerSideURL())
+  const url = new URL(getURL())
 
   return (
     <div className="pt-24 pb-24">

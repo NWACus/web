@@ -23,7 +23,7 @@ import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
-import { getServerSideURL } from './utilities/getURL'
+import { getURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -145,7 +145,7 @@ export default buildConfig({
     Biographies,
     Teams,
   ],
-  cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
+  cors: ['api.avalanche.org', 'api.snowobs.com', getURL()].filter(Boolean),
   globals: [NACWidgetsConfig],
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,

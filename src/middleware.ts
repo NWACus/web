@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSideURL } from './utilities/getURL'
+import { getURL } from './utilities/getURL'
 
 export const config = {
   matcher: [
@@ -26,7 +26,7 @@ const REDIRECT_TO_CUSTOM_DOMAIN =
   process.env.NODE_ENV === 'production'
 
 export default async function middleware(req: NextRequest) {
-  const host = new URL(getServerSideURL()).host
+  const host = new URL(getURL()).host
   const requestedHost = req.headers.get('host')
   const isDraftMode = req.cookies.has('__prerender_bypass')
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')
