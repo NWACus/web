@@ -5,7 +5,7 @@ import { getProductionTenantSlugs } from './getProductionTenants'
 export function getHostnameFromTenant(tenant: Tenant | null) {
   if (!tenant) return ROOT_DOMAIN
 
-  if (getProductionTenantSlugs().includes(tenant.slug)) {
+  if (getProductionTenantSlugs().includes(tenant.slug) && tenant.customDomain) {
     return tenant.customDomain
   }
 
