@@ -1,4 +1,6 @@
-import { ROOT_SITE_URL } from '@/utilities/domain'
+const PROTOCOL = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
+const ROOT_SITE_URL = `${PROTOCOL}://${ROOT_DOMAIN}`
 
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
