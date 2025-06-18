@@ -8,6 +8,8 @@ import NextImage from 'next/image'
 import type { Props as MediaProps } from '../types'
 
 import { cssVariables } from '@/cssVariables'
+import { useTenant } from '@/providers/TenantProvider'
+import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getMediaURL } from '@/utilities/getURL'
 import { useState } from 'react'
 
@@ -27,6 +29,8 @@ export const ImageMedia = (props: MediaProps) => {
   } = props
 
   const [imageError, setImageError] = useState(false)
+
+  const { tenant } = useTenant()
 
   let width: number | undefined
   let height: number | undefined
@@ -52,7 +56,7 @@ export const ImageMedia = (props: MediaProps) => {
 
     const cacheTag = resource.updatedAt
 
-    src = getMediaURL(url, cacheTag)
+    src = getMediaURL(url, cacheTag, getHostnameFromTenant(tenant))
   }
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)

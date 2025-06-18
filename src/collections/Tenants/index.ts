@@ -22,33 +22,31 @@ export const Tenants: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    // The domains field allows you to associate one or more domains with a tenant.
-    // This is used to determine which tenant is associated with a specific domain,
-    // for example, 'abc.localhost.com' would match to 'Tenant 1'.
     {
-      name: 'domains',
-      type: 'array',
-      fields: [
-        {
-          name: 'domain',
-          type: 'text',
-          required: true,
-        },
-      ],
-      index: true,
+      name: 'customDomain',
+      type: 'text',
+      label: 'Custom Domain',
+    },
+    {
+      name: 'useCustomDomain',
+      type: 'checkbox',
+      label: 'Use Custom Domain',
+      defaultValue: false,
+      admin: {
+        description:
+          'Indicates if the custom domain should be used for middleware, url generation, sitemaps, etc. Uses the tenant slug subdomain if false.',
+      },
     },
     {
       name: 'slug',
       type: 'text',
       admin: {
-        description: 'Used for url paths, example: /tenant-slug/page-slug',
+        description:
+          'Used for subdomains and url paths for previews. This is a unique identifier for a tenant.',
       },
       index: true,
       required: true,
       unique: true,
-      access: {
-        read: () => true, // everyone needs to be able to see tenant slugs to allow frontend to query on them
-      },
     },
     contentHashField(),
   ],

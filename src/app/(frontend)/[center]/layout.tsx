@@ -9,7 +9,7 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getHostnameFromTenant } from '@/utilities/domain'
+import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getURL } from '@/utilities/getURL'
 import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
@@ -66,10 +66,8 @@ export default async function RootLayout({ children, params }: Args) {
   const tenant = tenantsRes.docs.length >= 1 ? tenantsRes.docs[0] : null
   invariant(tenant, `Could not determine tenant for center value: ${center}`)
 
-  const hostname = await getHostnameFromTenant(tenant)
-
   return (
-    <TenantProvider tenant={tenant} hostname={hostname}>
+    <TenantProvider tenant={tenant}>
       <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
         <div className={cn('flex flex-col min-h-screen', center)}>
           <ThemeSetter theme={center} />
@@ -87,9 +85,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center } = await params
   const tenantsRes = await payload.find({
     collection: 'tenants',
-    select: {
-      name: true,
-    },
     where: {
       slug: {
         equals: center,
@@ -109,13 +104,15 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
     }
   }
 
+  const hostname = getHostnameFromTenant(tenant)
+
   const title = tenant.name
   const description = `${tenant.name}'s website.`
 
   return {
     title,
     description, // TODO add description to tenant or a settings global collection and use that here
-    metadataBase: new URL(getURL()),
+    metadataBase: new URL(getURL(hostname)),
     openGraph: mergeOpenGraph({
       title,
       description,

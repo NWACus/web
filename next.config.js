@@ -2,10 +2,9 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 import redirects from './redirects.js'
 
-const domain = process.env.SERVER_DOMAIN || process.env.VERCEL_URL
-const url = domain
-  ? `${domain.includes('localhost') ? 'http' : 'https'}://${domain}`
-  : process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+const PROTOCOL = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
+const ROOT_SITE_URL = `${PROTOCOL}://${ROOT_DOMAIN}`
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,7 +12,7 @@ const nextConfig = {
   images: {
     unoptimized: false,
     remotePatterns: [
-      ...[url]
+      ...[ROOT_SITE_URL]
         .map((item) => {
           const url = new URL(item)
 

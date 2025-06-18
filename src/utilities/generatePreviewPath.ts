@@ -16,12 +16,11 @@ type Props = {
 export const generatePreviewPath = ({ collection, slug, tenant, req }: Props) => {
   // Check if current host is the tenant's domain
   const currentHost = req.headers.get('host') || req.host
-  const isTenantDomain =
-    tenant?.domains && tenant.domains.some(({ domain }) => currentHost === domain)
+  const isTenantCustomDomain = tenant?.customDomain && currentHost === tenant.customDomain
   const isTenantSubdomain = tenant?.slug && currentHost.startsWith(`${tenant.slug}.`)
 
   // Only include tenant slug in path if not already on tenant's domain or subdomain
-  const shouldIncludeTenantSlug = tenant?.slug && !isTenantDomain && !isTenantSubdomain
+  const shouldIncludeTenantSlug = tenant?.slug && !isTenantCustomDomain && !isTenantSubdomain
 
   const path = `${shouldIncludeTenantSlug && tenant ? `/${tenant.slug}` : ''}${collectionPrefixMap[collection]}${slug ? `/${slug}` : ''}`
 

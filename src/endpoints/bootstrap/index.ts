@@ -52,17 +52,17 @@ export const bootstrap = async ({
     {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
-      domains: [{ domain: 'nwac.us' }],
+      customDomain: 'nwac.us',
     },
     {
       name: 'Sierra Avalanche Center',
       slug: 'sac',
-      domains: [{ domain: 'sierraavalanchecenter.org' }],
+      customDomain: 'sierraavalanchecenter.org',
     },
     {
       name: 'Sawtooth Avalanche Center',
       slug: 'snfac',
-      domains: [{ domain: 'sawtoothavalanche.com' }],
+      customDomain: 'sawtoothavalanche.com',
     },
   ]
   for (const data of tenantData) {

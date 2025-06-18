@@ -1,7 +1,8 @@
 import canUseDOM from './canUseDOM'
+import { PROTOCOL, ROOT_DOMAIN } from './domain'
 import isAbsoluteUrl from './isAbsoluteUrl'
 
-export function getURL(hostname?: string) {
+export function getURL(hostname?: string | null) {
   if (canUseDOM) {
     const protocol = window.location.protocol
     const domain = window.location.hostname
@@ -10,10 +11,7 @@ export function getURL(hostname?: string) {
     return `${protocol}//${domain}${port ? `:${port}` : ''}`
   }
 
-  const domain = process.env.SERVER_DOMAIN || process.env.VERCEL_URL
-  return domain
-    ? `https://${domain}`
-    : process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  return `${PROTOCOL}://${hostname || ROOT_DOMAIN}`
 }
 
 /**
@@ -22,7 +20,11 @@ export function getURL(hostname?: string) {
  * @param cacheTag Optional cache tag to append to the URL
  * @returns Properly formatted URL with cache tag if provided
  */
-export const getMediaURL = (url: string | null | undefined, cacheTag?: string | null): string => {
+export const getMediaURL = (
+  url: string | null | undefined,
+  cacheTag?: string | null,
+  hostname?: string | null,
+): string => {
   if (!url) return ''
 
   // Check if URL is absolute url
@@ -31,6 +33,6 @@ export const getMediaURL = (url: string | null | undefined, cacheTag?: string | 
   }
 
   // Otherwise assume it's a relative path and prepend base url
-  const baseUrl = getURL()
+  const baseUrl = getURL(hostname)
   return cacheTag ? `${baseUrl}${url}?${cacheTag}` : `${baseUrl}${url}`
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getURL } from '@/utilities/getURL'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -12,13 +13,7 @@ export default async function LandingPage() {
   const tenants = await payload.find({
     collection: 'tenants',
     limit: 1000,
-    select: {
-      slug: true,
-      name: true,
-    },
   })
-
-  const url = new URL(getURL())
 
   return (
     <div className="pt-24 pb-24">
@@ -29,10 +24,10 @@ export default async function LandingPage() {
             <Link href="/admin">Login</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tenants.docs.map((tenant) => (
+            {tenants.docs.map(async (tenant) => (
               <Link
                 key={tenant.slug}
-                href={`${url.protocol}//${tenant.slug}.${url.host}`}
+                href={getURL(getHostnameFromTenant(tenant))}
                 className="p-6 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
               >
                 <h2 className="mb-2">{tenant.name}</h2>

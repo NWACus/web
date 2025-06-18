@@ -1,11 +1,8 @@
-const domain = process.env.SERVER_DOMAIN || process.env.VERCEL_URL
-const SITE_URL = domain
-  ? `https://${domain}`
-  : process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+import { ROOT_SITE_URL } from '@/utilities/domain'
 
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: SITE_URL,
+  siteUrl: ROOT_SITE_URL,
   generateRobotsTxt: true,
   exclude: ['/posts-sitemap.xml', '/pages-sitemap.xml', '/*', '/posts/*'],
   robotsTxtOptions: {
@@ -15,6 +12,9 @@ module.exports = {
         disallow: '/admin/*',
       },
     ],
-    additionalSitemaps: [`${SITE_URL}/pages-sitemap.xml`, `${SITE_URL}/posts-sitemap.xml`],
+    additionalSitemaps: [
+      `${ROOT_SITE_URL}/pages-sitemap.xml`,
+      `${ROOT_SITE_URL}/posts-sitemap.xml`,
+    ],
   },
 }
