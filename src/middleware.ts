@@ -18,10 +18,10 @@ export const config = {
 
 const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
-const TENANTS: { slug: string; customDomain: string; id: string }[] = [
-  { slug: 'nwac', customDomain: 'nwac.us', id: '1' },
-  { slug: 'sac', customDomain: 'sierraavalanchecenter.org', id: '2' },
-  { slug: 'snfac', customDomain: 'sawtoothavalanche.com', id: '3' },
+const TENANTS: { slug: string; customDomain: string }[] = [
+  { slug: 'nwac', customDomain: 'nwac.us' },
+  { slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
+  { slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
 ]
 
 export default async function middleware(req: NextRequest) {
@@ -58,34 +58,19 @@ export default async function middleware(req: NextRequest) {
 
   // If request is not to root domain
   if (host && requestedHost && !isSeedEndpoint) {
-    for (const { id, slug, customDomain } of TENANTS) {
+    for (const { slug, customDomain } of TENANTS) {
       if (requestedHost === `${customDomain}` || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
 
-        const existingPayloadTenantCookie = req.cookies.get('payload-tenant')?.value
-        const hasCorrectPayloadTenantCookie = existingPayloadTenantCookie === id
-
         if (req.nextUrl.pathname.startsWith('/admin')) {
-          if (hasCorrectPayloadTenantCookie) {
-            return
-          }
-
-          const response = NextResponse.rewrite(rewrite)
-          response.cookies.set('payload-tenant', id, {
-            path: '/',
-            expires: new Date('Fri, 31 Dec 9999 23:59:59 GMT'),
-          })
-          console.log(
-            `rewrote ${original.toString()} to ${rewrite.toString()} with cookie payload-tenant=${id}`,
-          )
-          return response
-        } else {
-          rewrite.pathname = `/${slug}${rewrite.pathname}`
-          console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
-          return NextResponse.rewrite(rewrite)
+          return
         }
+
+        rewrite.pathname = `/${slug}${rewrite.pathname}`
+        console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
+        return NextResponse.rewrite(rewrite)
       }
     }
   }
