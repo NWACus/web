@@ -15,15 +15,11 @@ export const config = {
   ],
 }
 
-const TENANTS: { slug: string; domain: string; id: string }[] = [
-  { slug: 'nwac', domain: 'nwac.us', id: '1' },
-  { slug: 'sac', domain: 'sierraavalanchecenter.org', id: '2' },
-  { slug: 'snfac', domain: 'sawtoothavalanche.com', id: '3' },
+const TENANTS: { slug: string; customDomain: string; useCustomDomain: boolean; id: string }[] = [
+  { slug: 'nwac', customDomain: 'nwac.us', useCustomDomain: false, id: '1' },
+  { slug: 'sac', customDomain: 'sierraavalanchecenter.org', useCustomDomain: false, id: '2' },
+  { slug: 'snfac', customDomain: 'sawtoothavalanche.com', useCustomDomain: false, id: '3' },
 ]
-
-const REDIRECT_TO_CUSTOM_DOMAIN =
-  process.env.REDIRECT_TO_CUSTOM_DOMAIN?.toLowerCase() === 'true' ||
-  process.env.NODE_ENV === 'production'
 
 export default async function middleware(req: NextRequest) {
   const host = new URL(getURL()).host
@@ -44,7 +40,7 @@ export default async function middleware(req: NextRequest) {
       if (tenant && !isDraftMode && !hasNextInPath) {
         // Redirect to the tenant's subdomain or custom domain
         const redirectUrl = new URL(req.nextUrl.clone())
-        redirectUrl.host = REDIRECT_TO_CUSTOM_DOMAIN ? tenant.domain : `${tenant.slug}.${host}`
+        redirectUrl.host = tenant.useCustomDomain ? tenant.customDomain : `${tenant.slug}.${host}`
 
         // Remove the tenant slug from the path for the redirect
         redirectUrl.pathname = `/${pathSegments.slice(1).join('/')}`
@@ -57,8 +53,8 @@ export default async function middleware(req: NextRequest) {
 
   // If request is not to root domain
   if (host && requestedHost && !isSeedEndpoint) {
-    for (const { id, slug, domain } of TENANTS) {
-      if (requestedHost === `${domain}` || requestedHost === `${slug}.${host}`) {
+    for (const { id, slug, customDomain } of TENANTS) {
+      if (requestedHost === `${customDomain}` || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
