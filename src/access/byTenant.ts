@@ -67,7 +67,7 @@ export const accessByTenantWithPermissiveRead: (
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
   return {
     create: byTenant('create', collection),
-    read: () => true, // collections used to render pages need to be world-readable
+    read: byTenant('read', collection),
     update: byTenant('update', collection),
     delete: byTenant('delete', collection),
   }
