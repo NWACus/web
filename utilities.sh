@@ -10,6 +10,8 @@ function cleanup() {
     fi
   done
   rm -f login.json
+  echo "[INFO] Cleaning up .next directory..."
+  rm -rf .next
   if [[ "${return_code}" = "0" ]]; then
     echo "[INFO] Database at dev.db seeded!"
   else

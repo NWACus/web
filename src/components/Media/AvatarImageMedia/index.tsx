@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cssVariables } from '@/cssVariables'
-import { getMediaUrl } from '@/utilities/getMediaUrl'
+import { getMediaURL } from '@/utilities/getURL'
 import { cn } from '@/utilities/ui'
 import NextImage, { StaticImageData } from 'next/image'
 import { forwardRef, useState } from 'react'
@@ -42,7 +42,7 @@ export const MediaAvatarImage = forwardRef<HTMLImageElement, MediaAvatarImagePro
       blurDataURL = blurDataURLFromResource
 
       const cacheTag = resource.updatedAt
-      src = getMediaUrl(url, cacheTag)
+      src = getMediaURL(url, cacheTag)
     }
 
     const loading = loadingFromProps || (!priority ? 'lazy' : undefined)

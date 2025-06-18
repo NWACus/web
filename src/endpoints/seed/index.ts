@@ -338,17 +338,17 @@ export const seed = async ({
     {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
-      domains: [{ domain: 'nwac.us' }],
+      customDomain: 'nwac.us',
     },
     {
       name: 'Sierra Avalanche Center',
       slug: 'sac',
-      domains: [{ domain: 'sierraavalanchecenter.org' }],
+      customDomain: 'sierraavalanchecenter.org',
     },
     {
       name: 'Sawtooth Avalanche Center',
       slug: 'snfac',
-      domains: [{ domain: 'sawtoothavalanche.com' }],
+      customDomain: 'sawtoothavalanche.com',
     },
   ])
   const tenantsById: Record<number, Tenant> = {}
@@ -466,17 +466,17 @@ export const seed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
         {
           name: tenant.slug.toUpperCase() + ' Admin',
-          email: 'admin@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
+          email: 'admin@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
         {
           name: tenant.slug.toUpperCase() + ' Contributor',
-          email: 'contributor@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
+          email: 'contributor@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
         {
           name: tenant.slug.toUpperCase() + ' Viewer',
-          email: 'viewer@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
+          email: 'viewer@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
       ])
