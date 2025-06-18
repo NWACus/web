@@ -650,6 +650,12 @@ export const seed = async ({
       payload.logger.info(
         `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
       )
+      const randomTagId = Object.values(tags[tenant])
+        .map((tag) => tag.id)
+        .filter((tagId) => tagId !== post.id)[
+        Math.floor(Math.random() * Object.values(tags[tenant]).length)
+      ]
+
       await payload.update({
         id: post.id,
         collection: 'posts',
@@ -657,16 +663,6 @@ export const seed = async ({
           relatedPosts: Object.values(posts[tenant])
             .filter((p) => p.id !== post.id)
             .map((p) => p.id),
-        },
-      })
-
-      const randomTagId = Object.values(tags[tenant]).map((tag) => tag.id)[
-        Math.floor(Math.random() * Object.values(tags[tenant]).length)
-      ]
-      await payload.update({
-        id: post.id,
-        collection: 'posts',
-        data: {
           tags: [randomTagId],
         },
       })
