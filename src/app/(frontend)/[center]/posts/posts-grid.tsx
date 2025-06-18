@@ -6,6 +6,13 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { PostPreviewHorizontalData } from '@/components/PostPreviewHorizontal'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Post, Tag } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 import { PaginatedDocs } from 'payload'
@@ -22,9 +29,13 @@ export const PostsGrid = (props: Props) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [filteredPosts, setFilteredPosts] = useState<PostPreviewHorizontalData[] | null>()
   const [error, setError] = useState<{ message: string; status?: string } | null>(null)
+  const [sortOption, setSortOption] = useState('-publishedAt')
 
-  const fetchPosts = async (center: string, selectedTags: string[]) => {
+  const fetchPosts = async (center: string, selectedTags: string[], sortOption: string) => {
     let url = `/api/posts?depth=2&where[tenant.slug][equals]=${center}`
+    if (sortOption) {
+      url += `&sort=${sortOption}`
+    }
     if (selectedTags.length > 0) {
       const tagQuery = selectedTags.map(encodeURIComponent).join(',')
       url += `&where[tags.slug][in]=${tagQuery}`
@@ -76,8 +87,8 @@ export const PostsGrid = (props: Props) => {
   }, [selectedTags])
 
   useEffect(() => {
-    fetchPosts(center, selectedTags)
-  }, [center, selectedTags])
+    fetchPosts(center, selectedTags, sortOption)
+  }, [center, selectedTags, sortOption])
 
   return (
     <div>
@@ -90,8 +101,24 @@ export const PostsGrid = (props: Props) => {
             <h3>There are no posts matching these results.</h3>
           )}
         </div>
+
         <div className="sm:w-[280px]">
-          {/* Add sort */}
+          {/* Sort */}
+          <div>
+            <h4 className="w-full">Sort</h4>
+            <hr className="p-2" />
+            <Select value={sortOption} onValueChange={setSortOption} defaultValue="-publishedAt">
+              <SelectTrigger className="mb-4">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="-publishedAt">Newest to Oldest</SelectItem>
+                <SelectItem value="publishedAt">Oldest to Newest</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Tag filter */}
           {tags.length > 1 && (
             <div>
               <h4 className="w-full">Filter</h4>
