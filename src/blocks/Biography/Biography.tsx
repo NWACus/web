@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
 import { Card, CardContent } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
@@ -20,7 +20,14 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
     biography.name || (typeof biography.user === 'object' && biography.user?.name) || 'Unknown'
   const initials = getAuthorInitials(name)
 
-  // TODO: support image sizes correctly: https://github.com/NWACus/web/issues/144
+  const BiographyAvatar = (
+    <MediaAvatar
+      resource={biography.photo}
+      fallback={initials}
+      className="h-24 w-24 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer"
+    />
+  )
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
@@ -29,10 +36,7 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
             <Popover>
               <PopoverTrigger asChild>
                 <button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full">
-                  <Avatar className="h-24 w-24 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer">
-                    <AvatarImage src={biography.photo.url || '/placeholder.svg'} alt={name} />
-                    <AvatarFallback>{initials}</AvatarFallback>
-                  </Avatar>
+                  {BiographyAvatar}
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-4">
@@ -48,10 +52,7 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
               </PopoverContent>
             </Popover>
           ) : (
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={biography.photo.url || '/placeholder.svg'} alt={name} />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
+            BiographyAvatar
           )}
           <div className="space-y-1 text-center">
             <h3 className="text-xl font-semibold">{name}</h3>

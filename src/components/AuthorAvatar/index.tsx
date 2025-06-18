@@ -5,7 +5,7 @@ import { Media, Post } from '@/payload-types'
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
 import { cn } from '@/utilities/ui'
 import { format, parseISO } from 'date-fns'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { MediaAvatar } from '../Media/AvatarImageMedia'
 
 export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['updatedAt'] }) => {
   const { authors, date } = props
@@ -31,10 +31,12 @@ export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['upda
       <div className="flex items-center mb-6">
         <div className={cn(`${combinedAuthorsPhotos.length > 1 && 'flex -space-x-2'}`, 'me-4')}>
           {combinedAuthorsPhotos.map((authorPhoto, index) => (
-            <Avatar className="size-[60px]" key={index}>
-              <AvatarImage src={authorPhoto.url || '/placeholder.svg'} />
-              <AvatarFallback>{combinedAuthorsInitials[index]}</AvatarFallback>
-            </Avatar>
+            <MediaAvatar
+              resource={authorPhoto}
+              className="size-[60px]"
+              key={index}
+              fallback={combinedAuthorsInitials[index]}
+            />
           ))}
         </div>
         <div className="flex flex-col">
