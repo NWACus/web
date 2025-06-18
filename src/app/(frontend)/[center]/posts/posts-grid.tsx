@@ -22,11 +22,9 @@ export const PostsGrid = (props: Props) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [filteredPosts, setFilteredPosts] = useState<PostPreviewHorizontalData[] | null>()
   const [error, setError] = useState<{ message: string; status?: string } | null>(null)
-  // TODO add loading state
-  // const [loading, setLoading] = useState(false)
 
   const fetchPosts = async (center: string, selectedTags: string[]) => {
-    let url = `/api/posts?depth=1&where[tenant.slug][equals]=${center}`
+    let url = `/api/posts?depth=2&where[tenant.slug][equals]=${center}`
     if (selectedTags.length > 0) {
       const tagQuery = selectedTags.map(encodeURIComponent).join(',')
       url += `&where[tags.slug][in]=${tagQuery}`
@@ -83,50 +81,56 @@ export const PostsGrid = (props: Props) => {
 
   return (
     <div>
-      <div className="container mb-8">
-        <PageRange
-          collectionLabels={{
-            plural: 'Posts',
-            singular: 'Post',
-          }}
-          currentPage={postsData?.page}
-          limit={12}
-          totalDocs={postsData?.totalDocs}
-        />
-      </div>
-
-      <div className="container mb-16 flex flex-col md:flex-row md:flex-row-reverse flex-1 gap-6">
-        <div>
-          {error && <div>{`${error.message || ''}`}</div>}
-          <nav>
-            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', gap: '10px' }}>
-              {tags.map((tag) => (
-                <li key={tag.slug}>
-                  <button
-                    className={cn('p-3 rounded cursor-pointer', {
-                      'bg-callout': selectedTags.includes(tag.slug),
-                      'bg-secondary': !selectedTags.includes(tag.slug),
-                    })}
-                    type="button"
-                    onClick={() => toggleTag(tag.slug)}
-                    aria-pressed={selectedTags.includes(tag.slug)}
-                  >
-                    {tag.title}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          {/* Add sort */}
+      <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
+        {error && <div>{`${error.message || ''}`}</div>}
+        <div className="grow">
+          {postsData && postsData?.totalDocs > 0 ? (
+            <CollectionArchive posts={filteredPosts} />
+          ) : (
+            <h3>There are no posts matching these results.</h3>
+          )}
         </div>
-        <CollectionArchive posts={filteredPosts} />
+        <div className="sm:w-[280px]">
+          {/* Add sort */}
+          {tags.length > 1 && (
+            <div>
+              <h4 className="w-full">Filter</h4>
+              <hr className="p-2" />
+              <ul className="flex gap-4 p-0 list-none">
+                {tags.map((tag) => (
+                  <li key={tag.slug}>
+                    <button
+                      className={cn('p-3 rounded cursor-pointer', {
+                        'bg-callout': selectedTags.includes(tag.slug),
+                        'bg-secondary': !selectedTags.includes(tag.slug),
+                      })}
+                      type="button"
+                      onClick={() => toggleTag(tag.slug)}
+                      aria-pressed={selectedTags.includes(tag.slug)}
+                    >
+                      {tag.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="container">
-        {postsData?.totalPages && postsData?.totalPages > 1 && postsData?.page && (
+      {postsData && postsData.totalPages > 1 && postsData.page && (
+        <div className="container mb-8">
           <Pagination page={postsData?.page} totalPages={postsData?.totalPages} />
-        )}
-      </div>
+          <PageRange
+            collectionLabels={{
+              plural: 'Posts',
+              singular: 'Post',
+            }}
+            currentPage={postsData?.page}
+            limit={12}
+            totalDocs={postsData?.totalDocs}
+          />
+        </div>
+      )}
     </div>
   )
 }
