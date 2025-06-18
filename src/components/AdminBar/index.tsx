@@ -7,9 +7,10 @@ import { PayloadAdminBar } from '@payloadcms/admin-bar'
 import { usePathname, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
+import { useTenant } from '@/providers/TenantProvider'
+import { getURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import './index.scss'
-
-import { getClientSideURL } from '@/utilities/getURL'
 
 const baseClass = 'admin-bar'
 
@@ -25,6 +26,8 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   }, [])
 
   const pathname = usePathname()
+  const { tenant } = useTenant()
+  const hostname = getHostnameFromTenant(tenant)
 
   return (
     <div
@@ -43,7 +46,7 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
             logo: 'text-white',
             user: 'text-white',
           }}
-          cmsURL={getClientSideURL()}
+          cmsURL={getURL(hostname)}
           logo={<Title />}
           onAuthChange={onAuthChange}
           onPreviewExit={() => {

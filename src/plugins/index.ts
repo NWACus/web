@@ -1,6 +1,6 @@
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { Page, Post } from '@/payload-types'
-import { getServerSideURL } from '@/utilities/getURL'
+import { getURL } from '@/utilities/getURL'
 import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
@@ -16,7 +16,7 @@ const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
-  const url = getServerSideURL()
+  const url = getURL()
 
   return doc?.slug ? `${url}/${doc.slug}` : url
 }

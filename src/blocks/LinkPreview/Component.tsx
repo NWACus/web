@@ -38,10 +38,10 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
                 )}
                 key={index}
               >
-                <CardHeader>
+                <CardHeader className="overflow-hidden">
                   <Media
-                    className="w-full flex justify-center bg-muted"
-                    imgClassName="h-[200px] object-cover"
+                    pictureClassName="w-full flex justify-center bg-muted"
+                    imgClassName="h-[200px] w-full object-cover"
                     resource={image}
                   />
                 </CardHeader>

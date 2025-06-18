@@ -180,6 +180,7 @@ export interface Media {
     [k: string]: unknown;
   } | null;
   contentHash?: string | null;
+  blurDataUrl?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -257,14 +258,9 @@ export interface Media {
 export interface Tenant {
   id: number;
   name: string;
-  domains?:
-    | {
-        domain: string;
-        id?: string | null;
-      }[]
-    | null;
+  customDomain?: string | null;
   /**
-   * Used for url paths, example: /tenant-slug/page-slug
+   * Used for subdomains and url paths for previews. This is a unique identifier for a tenant.
    */
   slug: string;
   contentHash?: string | null;
@@ -1614,6 +1610,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
   contentHash?: T;
+  blurDataUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1943,12 +1940,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  domains?:
-    | T
-    | {
-        domain?: T;
-        id?: T;
-      };
+  customDomain?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;

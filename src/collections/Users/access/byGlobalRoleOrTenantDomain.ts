@@ -4,7 +4,7 @@ import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
 
 // byGlobalRoleOrTenantDomain supplants global access review with tenant-scoped user grants, allowing tenant
-// scoped role assignments for user access to apply for all users with e-mails under the tenant domains
+// scoped role assignments for user access to apply for all users with e-mails under the tenant domain
 export const byGlobalRoleOrTenantDomain: (method: ruleMethod) => Access =
   (method: ruleMethod): Access =>
   (args) => {
@@ -31,10 +31,9 @@ export const byGlobalRoleOrTenantDomain: (method: ruleMethod) => Access =
       )
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter
-      .map((tenant) => tenant.domains)
-      .filter((domains) => !!domains)
+      .map((tenant) => tenant.customDomain)
+      .filter(Boolean)
       .flat()
-      .map((domain) => domain.domain)
 
     if (matchingTenantDomains.length > 0) {
       return {

@@ -18,6 +18,5 @@ dev.db-shm
 dev.db-wal
 .env.production
 .env.development
-.env.test
 tsconfig.tsbuildinfo
 .env*.local

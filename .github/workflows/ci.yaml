@@ -102,3 +102,22 @@ jobs:
           fi
       - name: 🧹 Run prettier
         run: if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 🧪 Run tests
+        run: pnpm test

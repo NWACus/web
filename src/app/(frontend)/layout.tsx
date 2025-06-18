@@ -1,6 +1,5 @@
 import { AdminBar } from '@/components/AdminBar'
-import { Providers } from '@/providers'
-import { getServerSideURL } from '@/utilities/getURL'
+import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { cn } from '@/utilities/ui'
 import type { Metadata } from 'next'
@@ -121,14 +120,12 @@ export default async function RootLayout({ children }: Args) {
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
       <body>
-        <Providers>
-          <AdminBar
-            adminBarProps={{
-              preview: isEnabled,
-            }}
-          />
-          {children}
-        </Providers>
+        <AdminBar
+          adminBarProps={{
+            preview: isEnabled,
+          }}
+        />
+        {children}
       </body>
     </html>
   )
@@ -137,12 +134,12 @@ export default async function RootLayout({ children }: Args) {
 export const metadata: Metadata = {
   title: 'Avy',
   description: 'The homepage for Avy avalanche center websites.',
-  metadataBase: new URL(getServerSideURL()),
+  metadataBase: new URL(getURL()),
   openGraph: mergeOpenGraph({
     description: 'Avy avalanche center websites.',
     images: [
       {
-        url: `${getServerSideURL()}/assets/avy-web-og-image.webp`,
+        url: `${getURL()}/assets/avy-web-og-image.webp`,
       },
     ],
   }),

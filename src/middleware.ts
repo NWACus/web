@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSideURL } from './utilities/getURL'
+import { getURL } from './utilities/getURL'
+import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
 
 export const config = {
   matcher: [
@@ -15,18 +16,16 @@ export const config = {
   ],
 }
 
-const TENANTS: { slug: string; domain: string; id: string }[] = [
-  { slug: 'nwac', domain: 'nwac.us', id: '1' },
-  { slug: 'sac', domain: 'sierraavalanchecenter.org', id: '2' },
-  { slug: 'snfac', domain: 'sawtoothavalanche.com', id: '3' },
+const PRODUCTION_TENANTS = getProductionTenantSlugs()
+
+const TENANTS: { slug: string; customDomain: string }[] = [
+  { slug: 'nwac', customDomain: 'nwac.us' },
+  { slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
+  { slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
 ]
 
-const REDIRECT_TO_CUSTOM_DOMAIN =
-  process.env.REDIRECT_TO_CUSTOM_DOMAIN?.toLowerCase() === 'true' ||
-  process.env.NODE_ENV === 'production'
-
 export default async function middleware(req: NextRequest) {
-  const host = new URL(getServerSideURL()).host
+  const host = new URL(getURL()).host
   const requestedHost = req.headers.get('host')
   const isDraftMode = req.cookies.has('__prerender_bypass')
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')
@@ -44,7 +43,9 @@ export default async function middleware(req: NextRequest) {
       if (tenant && !isDraftMode && !hasNextInPath) {
         // Redirect to the tenant's subdomain or custom domain
         const redirectUrl = new URL(req.nextUrl.clone())
-        redirectUrl.host = REDIRECT_TO_CUSTOM_DOMAIN ? tenant.domain : `${tenant.slug}.${host}`
+        redirectUrl.host = PRODUCTION_TENANTS.includes(tenant.slug)
+          ? tenant.customDomain
+          : `${tenant.slug}.${host}`
 
         // Remove the tenant slug from the path for the redirect
         redirectUrl.pathname = `/${pathSegments.slice(1).join('/')}`
@@ -57,34 +58,19 @@ export default async function middleware(req: NextRequest) {
 
   // If request is not to root domain
   if (host && requestedHost && !isSeedEndpoint) {
-    for (const { id, slug, domain } of TENANTS) {
-      if (requestedHost === `${domain}` || requestedHost === `${slug}.${host}`) {
+    for (const { slug, customDomain } of TENANTS) {
+      if (requestedHost === `${customDomain}` || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
 
-        const existingPayloadTenantCookie = req.cookies.get('payload-tenant')?.value
-        const hasCorrectPayloadTenantCookie = existingPayloadTenantCookie === id
-
         if (req.nextUrl.pathname.startsWith('/admin')) {
-          if (hasCorrectPayloadTenantCookie) {
-            return
-          }
-
-          const response = NextResponse.rewrite(rewrite)
-          response.cookies.set('payload-tenant', id, {
-            path: '/',
-            expires: new Date('Fri, 31 Dec 9999 23:59:59 GMT'),
-          })
-          console.log(
-            `rewrote ${original.toString()} to ${rewrite.toString()} with cookie payload-tenant=${id}`,
-          )
-          return response
-        } else {
-          rewrite.pathname = `/${slug}${rewrite.pathname}`
-          console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
-          return NextResponse.rewrite(rewrite)
+          return
         }
+
+        rewrite.pathname = `/${slug}${rewrite.pathname}`
+        console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
+        return NextResponse.rewrite(rewrite)
       }
     }
   }

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import { getServerSideURL } from './getURL'
+import { getURL } from './getURL'
 
 const defaultOpenGraph: Metadata['openGraph'] = {
   type: 'website',
   description: 'Avalanche center website.',
   images: [
     {
-      url: `${getServerSideURL()}/assets/avy-web-fallback-og-image.webp`,
+      url: `${getURL()}/assets/avy-web-fallback-og-image.webp`,
     },
   ],
   siteName: 'Avy',
