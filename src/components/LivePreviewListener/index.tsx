@@ -1,7 +1,7 @@
 'use client'
 import { useTenant } from '@/providers/TenantProvider'
-import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { RefreshRouteOnSave as PayloadLivePreview } from '@payloadcms/live-preview-react'
 import { useRouter } from 'next/navigation'
 

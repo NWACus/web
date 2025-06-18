@@ -8,8 +8,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { useTenant } from '@/providers/TenantProvider'
-import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import './index.scss'
 
 const baseClass = 'admin-bar'

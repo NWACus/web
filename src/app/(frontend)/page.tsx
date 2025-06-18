@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
-import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getURL } from './utilities/getURL'
+import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
 
 export const config = {
   matcher: [
@@ -15,10 +16,12 @@ export const config = {
   ],
 }
 
-const TENANTS: { slug: string; customDomain: string; useCustomDomain: boolean; id: string }[] = [
-  { slug: 'nwac', customDomain: 'nwac.us', useCustomDomain: false, id: '1' },
-  { slug: 'sac', customDomain: 'sierraavalanchecenter.org', useCustomDomain: false, id: '2' },
-  { slug: 'snfac', customDomain: 'sawtoothavalanche.com', useCustomDomain: false, id: '3' },
+const PRODUCTION_TENANTS = getProductionTenantSlugs()
+
+const TENANTS: { slug: string; customDomain: string; id: string }[] = [
+  { slug: 'nwac', customDomain: 'nwac.us', id: '1' },
+  { slug: 'sac', customDomain: 'sierraavalanchecenter.org', id: '2' },
+  { slug: 'snfac', customDomain: 'sawtoothavalanche.com', id: '3' },
 ]
 
 export default async function middleware(req: NextRequest) {
@@ -40,7 +43,9 @@ export default async function middleware(req: NextRequest) {
       if (tenant && !isDraftMode && !hasNextInPath) {
         // Redirect to the tenant's subdomain or custom domain
         const redirectUrl = new URL(req.nextUrl.clone())
-        redirectUrl.host = tenant.useCustomDomain ? tenant.customDomain : `${tenant.slug}.${host}`
+        redirectUrl.host = PRODUCTION_TENANTS.includes(tenant.slug)
+          ? tenant.customDomain
+          : `${tenant.slug}.${host}`
 
         // Remove the tenant slug from the path for the redirect
         redirectUrl.pathname = `/${pathSegments.slice(1).join('/')}`

@@ -8,8 +8,8 @@ import { FormProvider, useForm } from 'react-hook-form'
 
 import { FormBlock as FormBlockType } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
-import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { buildInitialFormState } from './buildInitialFormState'
 import { fields } from './fields'
 

@@ -9,8 +9,8 @@ import type { Props as MediaProps } from '../types'
 
 import { cssVariables } from '@/cssVariables'
 import { useTenant } from '@/providers/TenantProvider'
-import { getHostnameFromTenant } from '@/utilities/getHostnameFromTenant'
 import { getMediaURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { useState } from 'react'
 
 const { breakpoints } = cssVariables
