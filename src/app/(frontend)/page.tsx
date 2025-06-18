@@ -28,8 +28,6 @@ export default async function LandingPage() {
               const hostname = getHostnameFromTenant(tenant)
               const href = getURL(hostname)
 
-              console.log(`href for tenant ${tenant.slug}: ${href}`)
-              console.log(`hostname for tenant ${tenant.slug}: ${hostname}`)
               return (
                 <Link
                   key={tenant.slug}
