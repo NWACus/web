@@ -1,7 +1,8 @@
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
-import { fetchFileByURL } from '@/endpoints/seed/utilities'
+import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import { Form, Media, Tenant } from '@/payload-types'
+import fs from 'fs'
 import { headers } from 'next/headers'
 import type {
   CollectionSlug,
@@ -135,6 +136,17 @@ export const seed = async ({
         ],
       },
     })
+
+    payload.logger.info('- Deleting existing /public/media folder...')
+
+    try {
+      const path = getPath('public/media')
+      fs.rmSync(path, { recursive: true, force: true })
+    } catch (err) {
+      payload.logger.error(
+        `Failed to delete /public/media folder: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      )
+    }
   } else {
     payload.logger.info(`— Skipping database cleanup for incremental seed...`)
   }
@@ -347,50 +359,47 @@ export const seed = async ({
   payload.logger.info(`— Seeding brand media...`)
 
   const logoFiles: Record<string, string> = {
-    bac: 'BAC.png',
-    btac: 'BTAC.png',
-    caic: 'CAIC.jpg',
-    cbac: 'CBAC.png',
-    cnfaic: 'CNFAIC.png',
-    coaa: 'COAA.png',
-    esac: 'ESAC.png',
-    fac: 'FAC.png',
-    gnfac: 'GNFAC.png',
-    hpac: 'HPAC.png',
-    ipac: 'IPAC.png',
-    kpac: 'KPAC.png',
-    msac: 'MSAC.png',
-    mwac: 'MWAC.png',
-    nwac: 'NWAC.png',
-    pac: 'PAC.png',
-    sac: 'SAC.png',
-    snfac: 'SNFAC.png',
-    tac: 'TAC.png',
-    wac: 'WAC.png',
-    wcmac: 'WCMAC.png',
+    bac: 'BAC.webp',
+    btac: 'BTAC.webp',
+    caic: 'CAIC.webp',
+    cbac: 'CBAC.webp',
+    cnfaic: 'CNFAIC.webp',
+    coaa: 'COAA.webp',
+    esac: 'ESAC.webp',
+    fac: 'FAC.webp',
+    gnfac: 'GNFAC.webp',
+    hpac: 'HPAC.webp',
+    ipac: 'IPAC.webp',
+    kpac: 'KPAC.webp',
+    msac: 'MSAC.webp',
+    mwac: 'MWAC.webp',
+    nwac: 'NWAC.webp',
+    pac: 'PAC.webp',
+    sac: 'SAC.webp',
+    snfac: 'SNFAC.webp',
+    tac: 'TAC.webp',
+    wac: 'WAC.webp',
+    wcmac: 'WCMAC.webp',
   }
   const bannerFiles: Record<string, string> = {
-    nwac: 'https://files.nwac.us/wp-content/uploads/2020/10/08140810/nwac-logo-usfs.png',
-    sac: 'https://tahoe.com/sites/default/files/styles/medium/public/business/1900/logo/sac-png-logo.png',
-    snfac: 'https://www.sawtoothavalanche.com/wp-content/uploads/2019/01/sac-usfs-logo.png',
+    nwac: 'nwac-logo-usfs.webp',
+    sac: 'sac-png-logo.webp',
+    snfac: 'sac-usfs-logo.webp',
   }
   const logos: Record<string, File> = {}
   const banners: Record<string, File> = {}
   for (const tenantSlug in tenants) {
     if (tenantSlug in logoFiles) {
-      const logo = await fetchFileByURL(
-        'https://raw.githubusercontent.com/NWACus/avy/refs/heads/main/assets/logos/' +
-          logoFiles[tenantSlug],
-      )
+      const logo = await getSeedImageByFilename(logoFiles[tenantSlug])
       if (!logo) {
-        throw new Error(`Downloading logo for tenant ${tenantSlug} returned null...`)
+        throw new Error(`Getting logo for tenant ${tenantSlug} returned null...`)
       }
       logos[tenantSlug] = logo
     }
     if (tenantSlug in bannerFiles) {
-      const banner = await fetchFileByURL(bannerFiles[tenantSlug])
+      const banner = await getSeedImageByFilename(bannerFiles[tenantSlug])
       if (!banner) {
-        throw new Error(`Downloading banner for tenant ${tenantSlug} returned null...`)
+        throw new Error(`Getting banner for tenant ${tenantSlug} returned null...`)
       }
       banners[tenantSlug] = banner
     }
@@ -545,21 +554,13 @@ export const seed = async ({
     ],
   )
 
-  payload.logger.info(`— Fetching images...`)
+  payload.logger.info(`— Getting images...`)
 
   const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-    ),
+    getSeedImageByFilename('image-post1.webp'),
+    getSeedImageByFilename('image-post2.webp'),
+    getSeedImageByFilename('image-post3.webp'),
+    getSeedImageByFilename('image-post3.webp'),
   ])
 
   const images = await upsert(
