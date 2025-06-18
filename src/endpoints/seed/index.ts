@@ -652,9 +652,7 @@ export const seed = async ({
       )
       const randomTagId = Object.values(tags[tenant])
         .map((tag) => tag.id)
-        .filter((tagId) => tagId !== post.id)[
-        Math.floor(Math.random() * Object.values(tags[tenant]).length)
-      ]
+        .filter((tagId) => tagId !== post.id)[Math.round(Math.random())]
 
       await payload.update({
         id: post.id,
