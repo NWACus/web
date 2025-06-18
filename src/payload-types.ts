@@ -258,10 +258,6 @@ export interface Tenant {
   name: string;
   customDomain?: string | null;
   /**
-   * Indicates if the custom domain should be used for middleware, url generation, sitemaps, etc. Uses the tenant slug subdomain if false.
-   */
-  useCustomDomain?: boolean | null;
-  /**
    * Used for subdomains and url paths for previews. This is a unique identifier for a tenant.
    */
   slug: string;
@@ -1923,7 +1919,6 @@ export interface UsersSelect<T extends boolean = true> {
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   customDomain?: T;
-  useCustomDomain?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;

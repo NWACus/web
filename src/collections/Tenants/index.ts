@@ -28,16 +28,6 @@ export const Tenants: CollectionConfig = {
       label: 'Custom Domain',
     },
     {
-      name: 'useCustomDomain',
-      type: 'checkbox',
-      label: 'Use Custom Domain',
-      defaultValue: false,
-      admin: {
-        description:
-          'Indicates if the custom domain should be used for middleware, url generation, sitemaps, etc. Uses the tenant slug subdomain if false.',
-      },
-    },
-    {
       name: 'slug',
       type: 'text',
       admin: {
