@@ -44,17 +44,7 @@ type PathArgs = {
 export default async function RootLayout({ children, params }: Args) {
   const { center } = await params
 
-  // TODO: can I move these into the generateStaticParams function? I think so
-
-  const platforms = await getAvalancheCenterPlatforms(center)
-  invariant(platforms, 'Could not determine avalanche center platforms')
-
-  const metadata = await getAvalancheCenterMetadata(center)
-  invariant(metadata, 'Could not determine avalanche center metadata')
-
-  // TODO: move into utility function and update everywhere we fetch tenant
   const payload = await getPayload({ config: configPromise })
-  // TODO: omit some attributes?
   const tenantsRes = await payload.find({
     collection: 'tenants',
     where: {
@@ -65,6 +55,12 @@ export default async function RootLayout({ children, params }: Args) {
   })
   const tenant = tenantsRes.docs.length >= 1 ? tenantsRes.docs[0] : null
   invariant(tenant, `Could not determine tenant for center value: ${center}`)
+
+  const platforms = await getAvalancheCenterPlatforms(center)
+  invariant(platforms, 'Could not determine avalanche center platforms')
+
+  const metadata = await getAvalancheCenterMetadata(center)
+  invariant(metadata, 'Could not determine avalanche center metadata')
 
   return (
     <TenantProvider tenant={tenant}>
