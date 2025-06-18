@@ -37,6 +37,9 @@ export const Tenants: CollectionConfig = {
       index: true,
       required: true,
       unique: true,
+      access: {
+        read: () => true, // everyone needs to be able to see tenant slugs to allow frontend to query on them
+      },
     },
     contentHashField(),
   ],
