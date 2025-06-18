@@ -74,10 +74,6 @@ jobs:
         run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_ROOT_DOMAIN preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Log environment variables from Vercel
-        run: |
-          echo "DATABASE_URI: ${DATABASE_URI:-not set}"
-          echo "NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN:-not set}"
       - name: Seed the database
         run: pnpm seed
         env:
@@ -87,7 +83,7 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: 'https://${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -97,7 +93,7 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: 'https://${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
