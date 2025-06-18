@@ -5,7 +5,6 @@ import { File } from 'payload'
 const cache: Record<string, ArrayBuffer> = {}
 
 export async function fetchFileByURL(url: string): Promise<File> {
-  const start = performance.now()
   let data: ArrayBuffer | undefined = undefined
   if (url in cache) {
     data = cache[url]
@@ -29,8 +28,6 @@ export async function fetchFileByURL(url: string): Promise<File> {
     mimetype: `image/${url.split('.').pop()}`,
     size: data.byteLength,
   }
-  const end = performance.now()
-  console.log(`fetchFileByURL for ${url} took ${(end - start).toFixed(2)}ms`)
   return file
 }
 
@@ -39,7 +36,6 @@ export function getPath(relativePath: string) {
 }
 
 export async function getFileByPath(filePath: string): Promise<File> {
-  const start = performance.now()
   const data = await fs.readFile(filePath)
   const name = path.basename(filePath)
   const ext = path.extname(filePath).slice(1)
@@ -71,7 +67,10 @@ export async function getFileByPath(filePath: string): Promise<File> {
     mimetype,
     size: data.byteLength,
   }
-  const end = performance.now()
-  console.log(`getFileByPath for ${filePath} took ${(end - start).toFixed(2)}ms`)
   return file
+}
+
+export async function getSeedImageByFilename(filename: string) {
+  const path = getPath(`src/endpoints/seed/images/${filename}`)
+  return getFileByPath(path)
 }

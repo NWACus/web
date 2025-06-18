@@ -1,5 +1,5 @@
 import { upsert } from '@/endpoints/seed/upsert'
-import { fetchFileByURL, getFileByPath, getPath } from '@/endpoints/seed/utilities'
+import { getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import type { Biography, Media, Team, Tenant, User } from '@/payload-types'
 import { File, Payload, RequiredDataFromCollectionSlug } from 'payload'
 
@@ -12,13 +12,10 @@ export const seedStaff = async (
 ): Promise<Record<string, Team[]>> => {
   payload.logger.info(`— Seeding staff photos...`)
 
-  // const placeholder = await fetchFileByURL(
-  //   'https://upload.wikimedia.org/wikipedia/commons/f/f8/Profile_photo_placeholder_square.svg',
-  // ).catch((e) => payload.logger.error(e))
-  const path = getPath('src/endpoints/seed/images/Profile_photo_placeholder_square.svg')
-  const placeholder = await getFileByPath(path)
+  const placeholder = await getSeedImageByFilename('Profile_photo_placeholder_square.svg')
+
   if (!placeholder) {
-    throw new Error(`Downloading placeholder photo returned null...`)
+    throw new Error(`Getting placeholder photo returned null...`)
   }
   const placeholders = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
     ...Object.values(tenants).map(
@@ -39,9 +36,9 @@ export const seedStaff = async (
 
   const headshotData: { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] = []
   for (const photo of headshots(tenants)) {
-    const image = await fetchFileByURL(photo.url)
+    const image = await getSeedImageByFilename(photo.filename)
     if (!image) {
-      throw new Error(`Downloading ${photo.alt} photo returned null...`)
+      throw new Error(`Getting ${photo.alt} photo returned null...`)
     }
     headshotData.push({
       data: {
@@ -790,356 +787,356 @@ export const biographies: (
 
 export const headshots = (
   tenants: Record<string, Tenant>,
-): { alt: string; url: string; tenant: Tenant }[] => {
+): { alt: string; filename: string; tenant: Tenant }[] => {
   return [
     {
       alt: 'Lee Lazzara',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/18FByYtCHnqoQUV5pfoehG/00595ddfccb9e12585c27476b905f3d1/lee_lazzara.jpg',
+      filename: 'lee_lazzara.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Jason Oelkers',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/1H3fN3LlaQKPWcQrNMsB9w/591d97f494e6f7f17da6b9c3ac5f716d/jason_oelkers.jpg',
+      filename: 'jason_oelkers.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Sara Davidson',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/1OPva6Ty4NncvUUMeakFpX/242cded267dc7c0e1ec334545e8ef867/sara_davidson.jpg',
+      filename: 'sara_davidson.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Scott Schell',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/1PruaWURzpPIyYO04uLkeO/e4387496a0e4dc96e8bde6eb5e46b2cb/scott_schell.jpg',
+      filename: 'scott_schell.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Phaedra Beckert',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/1YKRvNKChsdz9LEySWI2Xm/fd6da4a275cda4f759b4f33eeea042f7/phaedra_beckert.png',
+      filename: 'phaedra_beckert.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Todd Offenbacher',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/1qsrKWZ8sL4caTOfWHVyGy/424c890f9673dd644f6ff7d8ce91949c/todd_offenbacher.jpg',
+      filename: 'todd_offenbacher.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Katie Warren',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/1tbGem26GEGKU9MG6jlPlO/9439104d11d44b8391d784ead0cc4bbc/katie_warren.jpg',
+      filename: 'katie_warren.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Megan Stevenson',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2ECfkiGdpPdKOT0CS68HRN/0d5f1abc6487800a2b751aea45d73e58/megan_stevenson.jpg',
+      filename: 'megan_stevenson.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: "Dennis D'Amico",
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2J8tu4WFxAmq0jpH2wskz1/44027b4bd64632703ce2fc90b56e9f59/dennis_damico.jpg',
+      filename: 'dennis_damico.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Simon Trautman',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2J9FHmQY9BM2m0xmRmdBls/202e82cc27ac045195b8107b92f14596/simon.jpg',
+      filename: 'simon.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Erik Chelstad',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2NaqUusKQhY94Phr4lHxd2/b40d46539e77a199028eff1e5ab5b97c/erik_chelstad.png',
+      filename: 'erik_chelstad.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Chris King',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2SPhl1WhSR3RVpAqqy7eH5/45bd7ffb3dcff8dd8935ca7fb62dedb2/chris_king.jpg',
+      filename: 'chris_king.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Becca Cahall',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2fdcEXqurZnuF9aw2JQMud/61c501b2135273dcdb2bcc1b706c1191/becca_cahal.png',
+      filename: 'becca_cahal.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Liz Daniel',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2kE1zBpifGB8IyF8LmWyp9/a1be4ce46a434ba0c86722075da34666/liz_daniel.jpg',
+      filename: 'liz_daniel.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Devon Schoos',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2ql8d638SxJQq2eLp7ejdl/6f28ecacc1d1726ae5f50114a0737035/devon_schoos.jpg',
+      filename: 'devon_schoos.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Travis Vandenburgh',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2tF1RBdWdZYql4BWXL9hbH/d9125d361eb07f9bcc597fda91fa0588/travis_vanderborough.jpg',
+      filename: 'travis_vanderborough.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Tyler Ferris',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2v2mNTIbmlfc2vv7RcElRZ/36cd888c18e099c54b5a5ac23652a798/tyler_ferris.jpg',
+      filename: 'tyler_ferris.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Ethan Davis',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2vnQwes3i6lRA8XgzRzq1M/2795b0447932f707e6977bed05381460/ethan_davis.jpg',
+      filename: 'ethan_davis.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Angie Fidler',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/2yFXmlw900e4IpRpfhdv5P/a849802fc36e22c47cef6be9182ad734/angie_fidler.png',
+      filename: 'angie_fidler.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Erin Zell',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/37gQ7QPiWi9WT8mu38KaA9/a10c20cb6e09a5e53adb71a302b20be5/erin_zell.jpg',
+      filename: 'erin_zell.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Hannah Marshall',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3HYcq2B9xfe4CmGSFKPcUl/575ab916aa6d89cf2f60384dac9e122f/hannah_marhsall.png',
+      filename: 'hannah_marhsall.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Mark Bunge',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3NaEalkUSqQnqqBEjPu1BC/00fc29902211ff8c6d1e5bfc1c5dbac9/mark_bunge.jpg',
+      filename: 'mark_bunge.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Charlotte Guard',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3SXROD2mJRdtw2FRppWp3B/352fe3e8b36eeb9368765ff8a79fa7af/charlotte_guard.jpg',
+      filename: 'charlotte_guard.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Olin Glenne',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3TkhPI6ZuqQ9nVVmC9NocN/9f44500de24d0dce45f770722ac44a65/olin_glenne.jpg',
+      filename: 'olin_glenne.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Kerry Stendell',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3ghG6uFAgcJVRbzuIIho9e/95c498d58ac6b6370e114ec5330ac03c/kerry_stendell.jpg',
+      filename: 'kerry_stendell.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Travis Feist',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3gkybxeUjAgtyY4GjcSruz/b5047fb7b2736588f247f2b2660c1551/travis_feist.jpg',
+      filename: 'travis_feist.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Zachary Buzaid',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3kwi3V360Hivv6lRTpGyn0/7917c2a9a27869edd326aca77ef9749e/zachary_buzaid.png',
+      filename: 'zachary_buzaid.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Josh Hirshberg',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3w1i96flhFMbfcFx2bdLbM/06c14306ef7355e7ca8b7ccf073cec60/josh_hirshberg.jpg',
+      filename: 'josh_hirshberg.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Craig Shank',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/3yZhisnalx3wSMho1ibscA/29d93c06f13d7d0eb4c77068fa4adb6b/craig_shank.png',
+      filename: 'craig_shank.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Irene Henninger',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/43yIVB4x5OuAiqEpianjjn/8fdf5b4fd9f2d4e9700594370deeb8f5/irene_henninger.jpg',
+      filename: 'irene_henninger.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Sarah Courtney',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/45fdVCDIpMf97cZOJldvqb/f9c3101545106cffbb535d795ca3d6c5/sarah_courtney.png',
+      filename: 'sarah_courtney.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Jason Bilek',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/4CknOy7Wc0Epvt7y3sMXAE/89b64806a47edc19a4409741cfab17ad/jason_bilek.jpg',
+      filename: 'jason_bilek.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Ryan Guess',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/4JN0c3r34pbQYXRvJX9f8E/3b38044a8c378f7880051473dd7e8f20/ryan_guess.jpg',
+      filename: 'ryan_guess.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Brandon Schwartz',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/4K8uXqWsIVnZYdW9t2PSCc/4b0dd908a35ace3e18c01a9fb04514b6/brandon_schwartz.jpg',
+      filename: 'brandon_schwartz.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Andy Anderson',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/4K9NaBRBxTJhMHkgZtNnii/a0a7dbdc6a71a821ad8029f49495cf09/andy_anderson.jpg',
+      filename: 'andy_anderson.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Jon Ferrian',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/4N8oNMLBoJ4GlRh2X9SVlf/4b45d80d428c5827466ca5fba43060be/jon_ferrian.png',
+      filename: 'jon_ferrian.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'David Gorton',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/4ybNX4SUD11RHBISVX2kBo/fd2731220ba586c1bb18e6c39aa4dd4d/david_gorton.png',
+      filename: 'david_gorton.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'David Reichel',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/50DHse1xTDZ1lx5XQZ3URZ/74c11899f5a556493c1ee2db04478fb4/david_reichel.jpg',
+      filename: 'david_reichel.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Berger Dodge',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/53GLyyHqjAi2vxBuMjQIqK/ac9e8ac34f24b713baf5adb6b3e849b7/berger_dodge.png',
+      filename: 'berger_dodge.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Ashley Hartz',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5AsyZcRYrrqHnB4ol6mNd4/1bb34b489a009f0fa966a3c20d3abc2a/ashley_hartz.png',
+      filename: 'ashley_hartz.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Roland Emetaz',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5CaODiNmUYD4S9Y7CaAMwB/76a62151d5cd90271102b9ece88cd723/roland_emetaz.png',
+      filename: 'roland_emetaz.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Annie DeAngelo',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5NFkHSffIXuMxSOCg0lMqe/9ff807af2d5e9e44351c85148789b6a3/annie_deangelo.jpg',
+      filename: 'annie_deangelo.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Cauri Hammer',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5PYAousCI1kqEhB47h1JdG/2b8dbefdfc34438843381d6cce59df7a/cauri_hammer.jpg',
+      filename: 'cauri_hammer.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Steve Butler',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5U1OL1jtQzX2t1YRDBAthv/a561230634d6fae0624361dd6a59a148/steve_butler.jpg',
+      filename: 'steve_butler.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Heather Karell',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5nP0Ht1Ex4LwOSYFrPJJpn/cc6d7740ac9d62b63d9ecdb432fa5777/heather_karell.png',
+      filename: 'heather_karell.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Chris Potts',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5qFfVxFSYIv6Wjhy2G1aXS/988d0785014bb0ab8d533d37768876ab/chris_potts.jpeg',
+      filename: 'chris_potts.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'David Fiore',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/5qGBJ7cqMX59Fa2AzI5VBI/926646d888ed51d0b8df806dc36701f0/david_fiore.jpg',
+      filename: 'david_fiore.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Tyler Frisbee',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/6A4WCpZb2CN9Bwq34EOtse/38e7a8b68926743bb1969238b9cce204/tyler_frisbee.webp',
+      filename: 'tyler_frisbee.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Louise Stumph',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/6IBMvq5M2HNoE76VJOI1PV/50fa6a607d5be91064c2874349eebd6e/louise_stumph.jpg',
+      filename: 'louise_stumph.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Kelsey Noonan',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/6QbOKWwOvDVpezVP7gTjqZ/2234be315ad6e76b1a47bd36b4f01817/kelsey_noonan.png',
+      filename: 'kelsey_noonan.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Gavin Woody',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/6XKJwQamfvmLnNv9jVs5do/bd2f2136ee0d72a47b759619c975f858/gavin_woody.png',
+      filename: 'gavin_woody.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Chris Lundy',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/6YAO95gC9QNYN8RtOLHwEh/cbb7ac1c20dbebfed250a6917a61e14c/chris_lundy.jpg',
+      filename: 'chris_lundy.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Peter Stanton',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/6iE394Pfpk3Pad4PkV28bU/a60e5b3e0b97a32af54562dbad79b8bd/peter_stanton.jpeg',
+      filename: 'peter_stanton.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Lewis Turner',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/6saoLWbc2UUH3PHh68jeIa/0cfa0be91dc2c76fc25ddbd0dfc67159/lewis_turner.png',
+      filename: 'lewis_turner.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Tasha Thomas',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/7IIWtfRV2HWwK7qkHfXGxW/b79c2542220ac9865143b2138bf47bd3/tasha_thomas.jpg',
+      filename: 'tasha_thomas.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'James Brown',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/7JZOQjfoq5J34Vc0tJHCSL/d706ee6176ea45a3524dbced9edb1f2a/jb_james_brown.jpg',
+      filename: 'jb_james_brown.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Arun Jacob',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/7bNpXys7iPzZwRoLGUUqNH/e4a2ee9e321d5200949fa52f8a96b9f1/arun_jacob.png',
+      filename: 'arun_jacob.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Matt Primomo',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/7jaXdT4ZUcG2BGG41icmlP/391082a1478a2f45a43c631dce4c0439/matt_primomo.jpg',
+      filename: 'matt_primomo.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Steve Reynaud',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/7kZdg7oI4zejVm79wEono6/a9f4e9a06c4cea1d0996ac716d14abf7/steve_reynaud.jpg',
+      filename: 'steve_reynaud.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Kendall Stever',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/7wj8mIH9RX7uHQRDrukklP/7e82be2e9088e3812d8fb97e6dd793f2/kendall_stever.png',
+      filename: 'kendall_stever.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Joe Dellaporta',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/CTm6z2eDhnLXSZYbzoglx/616d910a778459cf744a7d47654b212f/joe_dellaporta.jpg',
+      filename: 'joe_dellaporta.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Jonathan Laine',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/FTCuHJAVOznWdLNn4U3Ck/a1fc5592aadfe6585d3c19dfe18c5b4a/jonathan_laine.jpg',
+      filename: 'jonathan_laine.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'David Bunker',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/H2VFKvwWMTYW7AozLhWPJ/61457c03e7fe398e80c58577d8dc799d/david_bunker.jpg',
+      filename: 'david_bunker.webp',
       tenant: tenants['sac'],
     },
     {
       alt: 'Scott Savage',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/SdwQ8QEDf3MppaEW81XNK/5e7057ff9ecb5d261a9e131696668a82/scott_savage.jpg',
+      filename: 'scott_savage.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Dallas Glass',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/TyySzc9bs2uA8mYiI2YbZ/01c0e435a5d6331c10e6209bfa063e24/dallas_glass.jpg',
+      filename: 'dallas_glass.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Brooke Maushund',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/eVravG6Sxi3tuLJLdcRw2/e7cffd7a9dcc44a888efdc5f5b0dd77b/brooke_mashound.jpg',
+      filename: 'brooke_mashound.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Andrew Harrington',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/fkQMLGV7BXCnzzRNSDgG3/034c079324767354f698fcb23ada1653/andrew_harrington.jpg',
+      filename: 'andrew_harrington.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Dawn Bird',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/ikD5YFsSnpnzh4FvY6Ml9/fd5058315316b8836434a8131c127496/dawn_bird.jpg',
+      filename: 'dawn_bird.webp',
       tenant: tenants['snfac'],
     },
     {
       alt: 'Michael Manuel',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/qfF1p5ivQ1Bt6OpJA06YR/29c6a298c347e2de4a01399b7ebab818/michael_manuel.png',
+      filename: 'michael_manuel.webp',
       tenant: tenants['nwac'],
     },
     {
       alt: 'Robert Hahn',
-      url: 'https://images.ctfassets.net/p9ucur4sg9ai/tRpWXvtscrvJbrSsZ994I/a401c7d57fec02d4864d2819d5bf844a/robert_hahn.jpg',
+      filename: 'robert_hahn.webp',
       tenant: tenants['nwac'],
     },
   ]
