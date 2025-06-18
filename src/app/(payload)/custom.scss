@@ -1,2 +1,8 @@
 @tailwind components;
 @tailwind utilities;
+
+.step-nav__home,
+.step-nav__home > span {
+  width: 24px;
+  height: 24px;
+}

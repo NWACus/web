@@ -12,7 +12,6 @@ const getPagesSitemap = unstable_cache(
     const results = await payload.find({
       collection: 'pages',
       overrideAccess: false,
-      draft: false,
       depth: 0,
       limit: 1000,
       pagination: false,
@@ -31,10 +30,6 @@ const getPagesSitemap = unstable_cache(
 
     const defaultSitemap = [
       {
-        loc: `${SITE_URL}/search`,
-        lastmod: dateFallback,
-      },
-      {
         loc: `${SITE_URL}/posts`,
         lastmod: dateFallback,
       },
@@ -45,7 +40,7 @@ const getPagesSitemap = unstable_cache(
           .filter((page) => Boolean(page?.slug))
           .map((page) => {
             return {
-              loc: page?.slug === 'home' ? `${SITE_URL}/` : `${SITE_URL}/${page?.slug}`,
+              loc: `${SITE_URL}/${page?.slug}`,
               lastmod: page.updatedAt || dateFallback,
             }
           })

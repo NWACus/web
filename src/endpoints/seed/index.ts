@@ -1,8 +1,7 @@
 import { page } from '@/endpoints/seed/pages/page'
-import { staffPage } from '@/endpoints/seed/pages/staff-page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { fetchFileByURL } from '@/endpoints/seed/utilities'
-import { Form, Tenant } from '@/payload-types'
+import { Form, Media, Tenant } from '@/payload-types'
 import { headers } from 'next/headers'
 import type {
   CollectionSlug,
@@ -12,11 +11,12 @@ import type {
   PayloadRequest,
   RequiredDataFromCollectionSlug,
 } from 'payload'
+
+import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
-import { imageHero1 } from './image-hero-1'
 import { imageMountain } from './image-mountain'
 import { navigationSeed } from './navigation'
 import { allBlocksPage } from './pages/all-blocks-page'
@@ -29,44 +29,43 @@ const collections: CollectionSlug[] = [
   'brands',
   'themes',
   'palettes',
-  'categories',
   'biographies',
   'media',
   'pages',
   'posts',
   'forms',
   'form-submissions',
-  'search',
   'navigations',
+  'footer',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
   'teams',
   'tenants',
 ]
-const globals: GlobalSlug[] = ['footer']
+const globalsMap: Record<
+  GlobalSlug,
+  {
+    requiredFields: {
+      version: string
+      baseUrl: string
+    }
+  }
+> = {
+  nacWidgetsConfig: {
+    requiredFields: {
+      version: '20250602',
+      baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
+    },
+  },
+}
+const globals: GlobalSlug[] = ['nacWidgetsConfig']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
 // The app is not running to revalidate the pages and so the API routes are not available
 // These error messages can be ignored: `Error hitting revalidate route for...`
 export const seed = async ({
-  payload,
-  req,
-  incremental,
-}: {
-  payload: Payload
-  req: PayloadRequest
-  incremental: boolean
-}): Promise<void> => {
-  try {
-    await innerSeed({ payload, req, incremental })
-  } catch (error) {
-    payload.logger.error(error)
-  }
-}
-
-export const innerSeed = async ({
   payload,
   req,
   incremental,
@@ -84,9 +83,7 @@ export const innerSeed = async ({
       globals.map((global) =>
         payload.updateGlobal({
           slug: global,
-          data: {
-            navItems: [],
-          },
+          data: globalsMap[global].requiredFields,
           depth: 0,
           context: {
             disableRevalidate: true,
@@ -100,13 +97,13 @@ export const innerSeed = async ({
         payload.logger.info(`Deleting collection: ${collection}`)
         return payload.db.deleteMany({ collection, req, where: {} })
       }),
-    ).catch((e) => payload.logger.error(e))
+    )
 
     await Promise.all(
       collections
         .filter((collection) => Boolean(payload.collections[collection].config.versions))
         .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
-    ).catch((e) => payload.logger.error(e))
+    )
 
     payload.logger.info(`— Clearing users...`)
 
@@ -297,7 +294,7 @@ export const innerSeed = async ({
       rules: [
         {
           collections: ['roleAssignments'],
-          actions: ['create', 'update'],
+          actions: ['create', 'read', 'update'],
         },
       ],
     },
@@ -305,8 +302,12 @@ export const innerSeed = async ({
       name: 'Contributor',
       rules: [
         {
-          collections: ['posts', 'pages', 'categories', 'media'],
-          actions: ['create', 'update'],
+          collections: ['posts', 'pages', 'media'],
+          actions: ['*'],
+        },
+        {
+          collections: ['tenants'],
+          actions: ['read'],
         },
       ],
     },
@@ -380,20 +381,16 @@ export const innerSeed = async ({
       const logo = await fetchFileByURL(
         'https://raw.githubusercontent.com/NWACus/avy/refs/heads/main/assets/logos/' +
           logoFiles[tenantSlug],
-      ).catch((e) => payload.logger.error(e))
+      )
       if (!logo) {
-        payload.logger.error(`Downloading logo for tenant ${tenantSlug} returned null...`)
-        return
+        throw new Error(`Downloading logo for tenant ${tenantSlug} returned null...`)
       }
       logos[tenantSlug] = logo
     }
     if (tenantSlug in bannerFiles) {
-      const banner = await fetchFileByURL(bannerFiles[tenantSlug]).catch((e) =>
-        payload.logger.error(e),
-      )
+      const banner = await fetchFileByURL(bannerFiles[tenantSlug])
       if (!banner) {
-        payload.logger.error(`Downloading banner for tenant ${tenantSlug} returned null...`)
-        return
+        throw new Error(`Downloading banner for tenant ${tenantSlug} returned null...`)
       }
       banners[tenantSlug] = banner
     }
@@ -425,7 +422,8 @@ export const innerSeed = async ({
     sac: 'Blue',
     snfac: 'Zinc',
   }
-  const _brands = await upsert(
+  // Brands
+  await upsert(
     'brands',
     payload,
     incremental,
@@ -497,7 +495,8 @@ export const innerSeed = async ({
       user: user.id,
     })
   }
-  const _superAdminRoleAssignment = await upsertGlobals(
+  // SuperAdminRoleAssignment
+  await upsertGlobals(
     'globalRoleAssignments',
     payload,
     incremental,
@@ -505,7 +504,8 @@ export const innerSeed = async ({
     globalRoleAssignments,
   )
 
-  const _roles = await upsert(
+  // Roles
+  await upsert(
     'roleAssignments',
     payload,
     incremental,
@@ -547,24 +547,20 @@ export const innerSeed = async ({
 
   payload.logger.info(`— Fetching images...`)
 
-  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, hero1Buffer] =
-    await Promise.all([
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-      ),
-      fetchFileByURL(
-        'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-hero1.webp',
-      ),
-    ])
+  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
+    ),
+    fetchFileByURL(
+      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
+    ),
+  ])
 
   const images = await upsert(
     'media',
@@ -594,46 +590,6 @@ export const innerSeed = async ({
           data: imageMountain(tenant),
           file: imageMountainBuffer,
         },
-        {
-          data: imageHero1(tenant),
-          file: hero1Buffer,
-        },
-      ])
-      .flat(),
-  )
-
-  const _categories = await upsert(
-    'categories',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => obj.title,
-    Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'categories'>[] => [
-        {
-          title: 'Technology',
-          tenant: tenant.id,
-        },
-        {
-          title: 'News',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Finance',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Design',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Software',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Engineering',
-          tenant: tenant.id,
-        },
       ])
       .flat(),
   )
@@ -646,12 +602,10 @@ export const innerSeed = async ({
     (obj) => obj.slug,
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
-        post1(
-          tenant,
-          images[tenant.slug]['image1'],
-          images[tenant.slug]['image2'],
+        post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
           users[tenant.slug.toUpperCase() + ' Contributor'],
-        ),
+          users[tenant.slug.toUpperCase() + ' Admin'],
+        ]),
         post2(
           tenant,
           images[tenant.slug]['image2'],
@@ -675,17 +629,15 @@ export const innerSeed = async ({
       payload.logger.info(
         `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
       )
-      await payload
-        .update({
-          id: post.id,
-          collection: 'posts',
-          data: {
-            relatedPosts: Object.values(posts[tenant])
-              .filter((p) => p.id !== post.id)
-              .map((p) => p.id),
-          },
-        })
-        .catch(() => payload.logger.error)
+      await payload.update({
+        id: post.id,
+        collection: 'posts',
+        data: {
+          relatedPosts: Object.values(posts[tenant])
+            .filter((p) => p.id !== post.id)
+            .map((p) => p.id),
+        },
+      })
     }
   }
 
@@ -694,17 +646,14 @@ export const innerSeed = async ({
   const contactForms: Record<string, Form> = {}
   for (const tenant of Object.values(tenants)) {
     payload.logger.info(`Creating contact form for tenant ${tenant.name}...`)
-    const contactForm = await payload
-      .create({
-        collection: 'forms',
-        depth: 0,
-        data: { ...contactFormData, tenant: tenant.id },
-      })
-      .catch((e) => payload.logger.error(e))
+    const contactForm = await payload.create({
+      collection: 'forms',
+      depth: 0,
+      data: { ...contactFormData, tenant: tenant.id },
+    })
 
     if (!contactForm) {
-      payload.logger.error(`Creating contact form for tenant ${tenant.name} returned null...`)
-      return
+      throw new Error(`Creating contact form for tenant ${tenant.name} returned null...`)
     }
     contactForms[tenant.name] = contactForm
   }
@@ -719,10 +668,9 @@ export const innerSeed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
         allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
-        staffPage(tenant, teams, images[tenant.slug]['hero'], images[tenant.slug]['image2']),
+        whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Donate & Membership',
           'Support avalanche safety by becoming a member or donating to the avalanche center.',
@@ -730,7 +678,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Workplace Giving',
           'Have you thought about donating to the center through work? Your employer may be able to help you support avalanche safety.',
@@ -738,7 +685,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Other Ways to Give',
           'Learn about alternative methods to support the avalanche center and its mission.',
@@ -746,7 +692,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Corporate Sponsorship',
           "The avalanche center's work is supported by the generosity of our industry partners.",
@@ -754,7 +699,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Volunteer',
           'Interested in volunteering your time for the center? We are always looking for help at events and with various projects.',
@@ -762,7 +706,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'About Us',
           'The avalanche center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
@@ -770,7 +713,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Agency Partners',
           'The avalanche center collaborates with various agencies to enhance avalanche safety and awareness.',
@@ -778,7 +720,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Annual Report/Minutes',
           "Access the avalanche center's annual reports and meeting minutes.",
@@ -786,7 +727,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Employment',
           'Explore career opportunities with the avalanche center.',
@@ -794,7 +734,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Learn',
           'Discover resources and opportunities to learn about avalanche safety and awareness.',
@@ -802,7 +741,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Field Classes',
           'Participate in field-based avalanche education classes offered by the center.',
@@ -810,7 +748,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Avalanche Awareness Classes',
           'The avalanche center offers free avalanche classes to the public throughout our forecast area.',
@@ -818,7 +755,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Courses by External Providers',
           'Find avalanche education courses offered by external providers in your area.',
@@ -826,7 +762,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Workshops',
           'Join specialized avalanche safety workshops for skill development and knowledge enhancement.',
@@ -834,7 +769,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Request a Class',
           'Request an avalanche awareness or safety class for your group or organization.',
@@ -842,7 +776,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Scholarships',
           'Learn about scholarships available for avalanche education and training.',
@@ -850,7 +783,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Mentorship',
           'Connect with experienced backcountry travelers through our mentorship program.',
@@ -858,7 +790,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Beacon Parks',
           'Locate and use avalanche beacon practice parks in your area.',
@@ -866,7 +797,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Local Accident Reports',
           'Access reports of avalanche accidents in your local area.',
@@ -874,7 +804,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Avalanche Accident Statistics',
           'Review statistical data on avalanche accidents and incidents.',
@@ -882,7 +811,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'US Avalanche Accidents',
           'Information about avalanche accidents across the United States.',
@@ -890,7 +818,6 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Grief and Loss Resources',
           'Support resources for those affected by avalanche tragedies.',
@@ -898,17 +825,24 @@ export const innerSeed = async ({
         ),
         page(
           tenant,
-          images[tenant.slug]['hero'],
           images[tenant.slug]['image2'],
           'Avalanche Accident Map',
           'Interactive map showing locations of avalanche accidents and incidents.',
           'avalanche-accident-map',
         ),
+        page(
+          tenant,
+          images[tenant.slug]['image2'],
+          'Weather Tools',
+          'A list of weather links.',
+          'weather-tools',
+        ),
       ])
       .flat(),
   )
 
-  const _navigations = await upsert(
+  // Navigations
+  await upsert(
     'navigations',
     payload,
     incremental,
@@ -920,40 +854,59 @@ export const innerSeed = async ({
     ),
   )
 
-  payload.logger.info(`— Seeding globals...`)
-
-  await Promise.all([
-    payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Admin',
-              url: '/admin',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
-            },
-          },
-        ],
+  payload.logger.info(`— Seeding footers...`)
+  const footerData: Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'footer'>>> = {
+    nwac: {
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/nwacus',
+        facebook: 'https://www.facebook.com/NWACUS/',
+        twitter: 'https://x.com/nwacus',
+        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
+        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
       },
-    }),
-  ])
+    },
+    sac: {
+      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
+      phone: '(530)563-2257',
+      email: 'info@sierraavalanchecenter.org',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/savycenter/',
+        facebook: 'https://www.facebook.com/sacnonprofit',
+        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
+      },
+    },
+    snfac: {
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {},
+    },
+  }
 
+  const footer = (
+    tenant: Tenant,
+    brandImages: Record<Tenant['slug'], Record<string, Media>>,
+  ): RequiredDataFromCollectionSlug<'footer'> => {
+    return {
+      tenant: tenant.id,
+      footerLogo: brandImages[tenant.slug]['logo'].id,
+      name: tenant.name,
+      ...footerData[tenant.slug],
+    }
+  }
+
+  await upsert(
+    'footer',
+    payload,
+    incremental,
+    tenantsById,
+    (_obj) => 'footer',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant, brandImages),
+    ),
+  )
   payload.logger.info('Seeded database successfully!')
 }

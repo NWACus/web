@@ -47,9 +47,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
     },
@@ -74,6 +72,33 @@ export default async function Page({ params }: Args) {
       {draft && <LivePreviewListener />}
       <div className="container mb-16 grid gap-14">
         <h1 className="text-3xl font-bold mb-6">Theme Preview for {center.toUpperCase()}</h1>
+
+        <div>
+          <div className="space-y-4">
+            {[100, 200, 300, 400, 500, 600, 700, 800, 900].map((weight) => (
+              <div key={weight} className="flex items-center gap-6">
+                <p
+                  style={{
+                    fontWeight: weight,
+                    fontStyle: 'normal',
+                  }}
+                  className="text-lg"
+                >
+                  {weight} Normal
+                </p>
+                <p
+                  style={{
+                    fontWeight: weight,
+                    fontStyle: 'italic',
+                  }}
+                  className="text-lg"
+                >
+                  {weight} Italic
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="grid gap-8">
           <h2 className="text-xl font-semibold">Semantic Class Colors</h2>
@@ -526,7 +551,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
-    overrideAccess: true,
     select: {
       name: true,
     },
@@ -536,12 +560,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Theme Preview`,
-    }
-  }
+
   return {
-    title: `${tenant.docs[0].name} - Theme Preview`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Center Theme Preview'
+        : `${tenant.docs[0].name} - Theme Preview`,
   }
 }

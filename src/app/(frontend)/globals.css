@@ -43,11 +43,13 @@
 
     --header: 0 0% 100%;
     --header-foreground: 240 10% 3.9%;
+    --header-foreground-highlight: 240 3.8% 46.1%;
 
     --footer: 0 0% 100%;
     --footer-foreground: 240 10% 3.9%;
+    --footer-foreground-highlight: 240 3.8% 46.1%;
 
-    --callout: 0 0% 100%;
+    --callout: 240 4.8% 95.9%;
     --callout-foreground: 240 10% 3.9%;
 
     --brand-50: 210 40% 98%;
@@ -80,27 +82,50 @@
   }
 
   .nwac {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
     --primary: 217 62% 21%;
-    --primary-foreground: 0 0% 98%;
 
     --secondary: 193 42% 74%;
-    --secondary-foreground: 240 5.9% 10%;
 
     --header: 217 62% 21%;
     --header-foreground: 193 42% 74%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --footer: 300 1% 22%;
     --footer-foreground: 0 0% 100%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --callout: 69 94% 64%;
     --callout-foreground: 240 6% 10%;
   }
 
-  .dark.nwac {
-    /* Placeholder for a dark theme for each avalanche center */
+  .sac {
+    --primary: 202 63% 45%;
+
+    --secondary: 202 91% 63%;
+
+    --header: 0 2% 21%;
+    --header-foreground: 202 100% 75%;
+
+    --footer: 0 2% 21%;
+    --footer-foreground: 202 100% 75%;
+
+    --callout: 60 100% 50%;
+
+    --accent: 27 92% 62%;
+
+    --destructive: 0 59% 53%;
+
+    --brand-50: 207 73% 97%;
+    --brand-100: 207 69% 94%;
+    --brand-200: 204 66% 86%;
+    --brand-300: 203 67% 74%;
+    --brand-400: 202 66% 60%;
+    --brand-500: 202 63% 45%;
+    --brand-600: 204 69% 39%;
+    --brand-700: 205 68% 32%;
+    --brand-800: 205 64% 27%;
+    --brand-900: 206 57% 24%;
+    --brand-950: 208 58% 16%;
   }
 }
 

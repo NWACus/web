@@ -4,6 +4,12 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
+import { Button } from '@/components/ui/button'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -12,9 +18,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
     },
@@ -33,15 +37,35 @@ type PathArgs = {
 
 export default async function Page({ params }: Args) {
   const { center } = await params
+
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+
+  if (!avalancheCenterPlatforms.obs) {
+    notFound()
+  }
+
+  const { version, baseUrl } = await getNACWidgetsConfig()
+
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none" id="nac-widget-container">
-          <h1>Avalanche Observations For {center}</h1>
-          <NACWidget center={center} widget={'observations'} id="nac-widget-container" />
+    <>
+      <WidgetHashHandler initialHash="/view/observations" />
+      <div className="pt-6 md:pt-8 lg:pt-12 flex flex-col gap-4">
+        <div className="container">
+          <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
+            <h1>Observations</h1>
+            <Button asChild variant="secondary" className="no-underline">
+              <Link href="/observations/submit">Submit Observation</Link>
+            </Button>
+          </div>
         </div>
+        <NACWidget
+          center={center}
+          widget={'observations'}
+          widgetsVersion={version}
+          widgetsBaseUrl={baseUrl}
+        />
       </div>
-    </div>
+    </>
   )
 }
 
@@ -50,7 +74,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
-    overrideAccess: true,
     select: {
       name: true,
     },
@@ -62,10 +85,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Avalanche Observations`,
+      title: `Observations`,
     }
   }
   return {
-    title: `${tenant.docs[0].name} - Avalanche Observations`,
+    title: `${tenant.docs[0].name} - Observations`,
   }
 }

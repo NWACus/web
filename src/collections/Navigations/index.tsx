@@ -19,11 +19,11 @@ export const Navigations: CollectionConfig = {
     baseListFilter: filterByTenant,
     group: 'Globals',
     livePreview: {
-      url: async ({ data, req, payload }) => {
+      url: async ({ data, req }) => {
         let tenant = data.tenant
 
         if (typeof tenant === 'number') {
-          tenant = await payload.findByID({
+          tenant = await req.payload.findByID({
             collection: 'tenants',
             id: tenant,
             depth: 2,
@@ -47,7 +47,7 @@ export const Navigations: CollectionConfig = {
       type: 'tabs',
       tabs: [
         topLevelNavTab({
-          name: 'forecast',
+          name: 'forecasts',
           description: 'This nav dropdown is autofilled with your forecast zones.',
           isConfigurable: false,
         }),

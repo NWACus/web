@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
+import { AuthorAvatar } from '@/components/AuthorAvatar'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
@@ -9,22 +10,24 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { PostHero } from '@/heros/PostHero'
-import { generateMeta } from '@/utilities/generateMeta'
-import PageClient from './page.client'
+import { generateMetaForPost } from '@/utilities/generateMeta'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const posts = await payload.find({
     collection: 'posts',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     pagination: false,
     depth: 3,
     select: {
       tenant: true,
       slug: true,
+    },
+    // Need where clause to ignore autosave bug (https://github.com/NWACus/web/pull/204)
+    where: {
+      _status: {
+        equals: 'published',
+      },
     },
   })
 
@@ -60,27 +63,35 @@ export default async function Post({ params: paramsPromise }: Args) {
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="pt-16 pb-16">
-      <PageClient />
-
+    <article className="py-16">
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
-      <PostHero post={post} />
-
       <div className="flex flex-col items-center gap-4 pt-8">
         <div className="container">
-          <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-            />
-          )}
+          <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
+            <h1>{post.title}</h1>
+          </div>
+          <div className="max-w-[48rem] mx-auto">
+            <AuthorAvatar authors={post.authors} date={post.publishedAt ?? ''} />
+          </div>
+          <RichText
+            className="prose max-w-[48rem] mx-auto"
+            data={post.content}
+            enableGutter={false}
+          />
         </div>
       </div>
+      {post.relatedPosts && post.relatedPosts.length > 0 && (
+        <div className="bg-brand-500 p-12">
+          <RelatedPosts
+            className="max-w-[52rem] flex flex-col md:flex-row justify-evenly gap-4 items-stretch"
+            docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+          />
+        </div>
+      )}
     </article>
   )
 }
@@ -89,7 +100,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { center, slug = '' } = await paramsPromise
   const post = await queryPostBySlug({ center: center, slug: slug })
 
-  return generateMeta({ doc: post })
+  return generateMetaForPost({ center: center, doc: post })
 }
 
 const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
@@ -103,6 +114,12 @@ const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: s
     limit: 1,
     overrideAccess: draft,
     pagination: false,
+    populate: {
+      tenants: {
+        slug: true,
+        name: true,
+      },
+    },
     where: {
       and: [
         {

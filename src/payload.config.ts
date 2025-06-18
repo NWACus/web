@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
 import { Brands } from '@/collections/Brands'
-import { Categories } from '@/collections/Categories'
+import { Footer } from '@/collections/Footer/config'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
@@ -21,7 +21,7 @@ import { Tenants } from '@/collections/Tenants'
 import { Themes } from '@/collections/Themes'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { Footer } from './Footer/config'
+import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getServerSideURL } from './utilities/getURL'
 
@@ -31,12 +31,8 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeLogin` statement on line 15.
-      beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
-      beforeDashboard: ['@/components/BeforeDashboard'],
+      beforeDashboard:
+        process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
       beforeNavLinks: [
         {
           clientProps: { label: 'Avalanche Center' },
@@ -56,13 +52,45 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'brands', 'navigations'],
+            globalSlugs: ['settings', 'brands', 'navigations', 'footer'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
           },
         },
       ],
+      graphics: {
+        Logo: '@/components/Logo/AvyFxLogo#AvyFxLogo',
+        Icon: '@/components/Icon/AvyFxIcon#AvyFxIcon',
+      },
+      logout: {
+        Button: '@/components/LogoutButton#LogoutButton',
+      },
+    },
+    meta: {
+      title: 'Admin Panel',
+      description: 'The admin panel for AvyWeb and AvyApp.',
+      icons: [
+        {
+          type: 'image/png',
+          rel: 'icon',
+          url: '/assets/icon.png',
+        },
+      ],
+      openGraph: {
+        title: 'AvyFx Admin Panel',
+        siteName: 'AvyFx',
+        description: 'The admin panel for AvyWeb and AvyApp.',
+        images: [
+          {
+            url: '/assets/avy-fx-og-image.webp',
+            width: 1200,
+            height: 630,
+          },
+        ],
+      },
+      defaultOGImageType: 'static',
+      titleSuffix: '- AvyFx',
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -101,7 +129,6 @@ export default buildConfig({
     },
   }),
   collections: [
-    Categories,
     Media,
     Pages,
     Posts,
@@ -114,11 +141,12 @@ export default buildConfig({
     Themes,
     Palettes,
     Navigations,
+    Footer,
     Biographies,
     Teams,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
-  globals: [Footer],
+  globals: [NACWidgetsConfig],
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,

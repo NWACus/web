@@ -11,6 +11,7 @@ export const revalidate = 600
 
 type Args = {
   params: Promise<{
+    center: string
     pageNumber: string
   }>
 }
@@ -34,9 +35,9 @@ export default async function Page({ params: paramsPromise }: Args) {
   return (
     <div className="pt-24 pb-24">
       <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
-        </div>
+        {/* Add filter */}
+        {/* Add sort */}
+        {/* Add search */}
       </div>
 
       <div className="container mb-8">
@@ -62,10 +63,27 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { pageNumber } = await paramsPromise
+export async function generateMetadata({ params }: Args): Promise<Metadata> {
+  const payload = await getPayload({ config: configPromise })
+  const { center, pageNumber } = await params
+  const tenant = await payload.find({
+    collection: 'tenants',
+    select: {
+      name: true,
+    },
+    where: {
+      slug: {
+        equals: center,
+      },
+    },
+  })
+  if (tenant.docs.length < 1) {
+    return {
+      title: `Avalanche Center Posts Page ${pageNumber || ''}`,
+    }
+  }
   return {
-    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
+    title: `${tenant.docs[0].name} - Posts Page ${pageNumber || ''}`,
   }
 }
 

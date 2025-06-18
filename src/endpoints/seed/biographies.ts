@@ -18,8 +18,7 @@ export const seedStaff = async (
   const path = getPath('src/endpoints/seed/images/Profile_photo_placeholder_square.svg')
   const placeholder = await getFileByPath(path)
   if (!placeholder) {
-    payload.logger.error(`Downloading placeholder photo returned null...`)
-    return {}
+    throw new Error(`Downloading placeholder photo returned null...`)
   }
   const placeholders = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
     ...Object.values(tenants).map(
@@ -40,10 +39,9 @@ export const seedStaff = async (
 
   const headshotData: { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] = []
   for (const photo of headshots(tenants)) {
-    const image = await fetchFileByURL(photo.url).catch((e) => payload.logger.error(e))
+    const image = await fetchFileByURL(photo.url)
     if (!image) {
-      payload.logger.error(`Downloading ${photo.alt} photo returned null...`)
-      return {}
+      throw new Error(`Downloading ${photo.alt} photo returned null...`)
     }
     headshotData.push({
       data: {

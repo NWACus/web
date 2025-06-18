@@ -1,24 +1,160 @@
+'use client'
+
 import Script from 'next/script'
+import { useEffect, useState } from 'react'
 
 export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
 
-export async function NACWidget({
+export const loadersByWidget: Record<
+  Widget,
+  {
+    scriptName: string
+    widgetDataKey:
+      | 'mapWidgetData'
+      | 'forecastWidgetData'
+      | 'warningWidgetData'
+      | 'stationWidgetData'
+      | 'obsWidgetData'
+    widgetControllerKey:
+      | 'mapWidget'
+      | 'forecastWidget'
+      | 'warningWidget'
+      | 'stationWidget'
+      | 'obsWidget'
+  }
+> = {
+  map: {
+    scriptName: 'danger-map',
+    widgetDataKey: 'mapWidgetData',
+    widgetControllerKey: 'mapWidget',
+  },
+  forecast: {
+    scriptName: 'forecasts',
+    widgetDataKey: 'forecastWidgetData',
+    widgetControllerKey: 'forecastWidget',
+  },
+  warning: {
+    scriptName: 'warnings',
+    widgetDataKey: 'warningWidgetData',
+    widgetControllerKey: 'warningWidget',
+  },
+  stations: {
+    scriptName: 'stations',
+    widgetDataKey: 'stationWidgetData',
+    widgetControllerKey: 'stationWidget',
+  },
+  observations: {
+    scriptName: 'observations',
+    widgetDataKey: 'obsWidgetData',
+    widgetControllerKey: 'obsWidget',
+  },
+}
+
+const loadCSS = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const existingLink = document.querySelector(`link[href="${url}"]`)
+    if (existingLink) {
+      resolve(url)
+      return
+    }
+
+    const link = document.createElement('link')
+    link.type = 'text/css'
+    link.rel = 'stylesheet'
+    link.onload = () => resolve(url)
+    link.onerror = () => reject(url)
+    link.href = url
+
+    // Insert before the first stylesheet so other styles take precedence
+    const firstStyle = document.head.querySelector('link[rel="stylesheet"], style')
+    if (firstStyle) {
+      document.head.insertBefore(link, firstStyle)
+    } else {
+      document.head.prepend(link)
+    }
+  })
+}
+
+export function NACWidget({
   center,
   widget,
-  id,
+  widgetsVersion,
+  widgetsBaseUrl,
 }: {
   center: string
   widget: Widget
-  id: string
+  widgetsVersion: string
+  widgetsBaseUrl: string
 }) {
+  const widgetId = `nac-widget-${widget}`
+
+  // Removes any trailing slashes
+  const safeBaseUrl = widgetsBaseUrl.replace(/\/+$/, '')
+
+  const scriptUrl = `${safeBaseUrl}/${widgetsVersion}`
+
+  const { scriptName, widgetDataKey, widgetControllerKey } = loadersByWidget[widget]
+
+  useEffect(
+    function loadWidgetCss() {
+      loadCSS(`${scriptUrl}/${scriptName}.css`).catch((err) =>
+        console.error(`Failed to load style for ${widget} widget:`, err),
+      )
+    },
+    [scriptName, scriptUrl, widget],
+  )
+
+  useEffect(function initializeWidgetData() {
+    // Base URL (used for Google Analytics)
+    const baseUrl = window.location.pathname
+    const widgetData = {
+      googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+      centerId: center.toUpperCase(),
+      devMode: false,
+      mountId: `#${widgetId}`,
+      baseUrl: baseUrl,
+      controlledMount: true,
+    }
+
+    window[widgetDataKey] = widgetData
+  })
+
+  const [widgetScriptReady, setWidgetScriptReady] = useState(false)
+
+  useEffect(
+    function handleWidgetMounting() {
+      if (
+        widgetScriptReady &&
+        window[widgetControllerKey] &&
+        !window[widgetControllerKey]._mounted
+      ) {
+        window[widgetControllerKey].mount()
+      }
+
+      return () => {
+        if (window[widgetControllerKey] && window[widgetControllerKey]._mounted) {
+          window[widgetControllerKey].unmount()
+        }
+      }
+    },
+    [widgetControllerKey, widgetScriptReady],
+  )
+
   return (
-    <Script
-      type="text/javascript"
-      src="https://du6amfiq9m9h7.cloudfront.net/loader/nac-widget-loader.min.js"
-      data-widget={widget}
-      data-center={center.toUpperCase()}
-      data-parent-id={id}
-      data-google-maps-api-key={process.env.GOOGLE_MAPS_API_KEY}
-    ></Script>
+    <>
+      {/* container used for css selectors in src/app/(frontend)/[center]/nac-widgets.css */}
+      <div id="widget-container" data-widget={widget}>
+        <div id={`nac-widget-${widget}`} />
+      </div>
+      <Script
+        src={`${scriptUrl}/${scriptName}.js`}
+        strategy="afterInteractive"
+        crossOrigin="anonymous"
+        type="module"
+        onReady={() => {
+          setWidgetScriptReady(true)
+        }}
+      />
+    </>
   )
 }

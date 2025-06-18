@@ -1,7 +1,7 @@
 import type { Media } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages'>['layout'] => {
+export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages'>['layout'] => {
   return [
     // 3 cards
     {
@@ -28,7 +28,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
             type: 'custom',
             appearance: 'default',
             label: 'Click here',
-            url: '/home',
+            url: '/',
           },
         },
 
@@ -41,7 +41,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
             type: 'custom',
             appearance: 'default',
             label: 'Click here',
-            url: '/home',
+            url: '/',
           },
         },
       ],
@@ -60,7 +60,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
             type: 'custom',
             appearance: 'default',
             label: 'Click here',
-            url: '/home',
+            url: '/',
           },
         },
 
@@ -72,7 +72,7 @@ export const LinkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
             type: 'custom',
             appearance: 'default',
             label: 'Click here',
-            url: '/home',
+            url: '/',
           },
         },
       ],

@@ -4,17 +4,25 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Page } from '@/payload-types'
 
-export const revalidatePage: CollectionAfterChangeHook<Page> = ({
+export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
   doc,
   previousDoc,
   req: { payload, context },
 }) => {
   if (!context.disableRevalidate) {
     if (doc._status === 'published') {
-      if (typeof doc.tenant !== 'object') {
-        throw new Error(`tenant passed by id while revalidating page ${doc.slug}`)
+      let tenantSlug = ''
+      if (typeof doc.tenant === 'object') {
+        tenantSlug = doc.tenant.slug
+      } else {
+        const tenant = await payload.findByID({
+          id: doc.tenant,
+          collection: 'tenants',
+          depth: 0,
+        })
+        tenantSlug = tenant.slug
       }
-      const path = `/${doc.tenant.slug}` + (doc.slug === 'home' ? '/' : `/${doc.slug}`)
+      const path = `/${tenantSlug}/${doc.slug}`
 
       payload.logger.info(`Revalidating page at path: ${path}`)
 
@@ -24,11 +32,18 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
 
     // If the page was previously published, we need to revalidate the old path
     if (previousDoc?._status === 'published' && doc._status !== 'published') {
-      if (typeof previousDoc.tenant !== 'object') {
-        throw new Error(`tenant passed by id while revalidating page ${previousDoc.slug}`)
+      let tenantSlug = ''
+      if (typeof previousDoc.tenant === 'object') {
+        tenantSlug = previousDoc.tenant.slug
+      } else {
+        const tenant = await payload.findByID({
+          id: previousDoc.tenant,
+          collection: 'tenants',
+          depth: 0,
+        })
+        tenantSlug = tenant.slug
       }
-      const oldPath =
-        `/${previousDoc.tenant.slug}` + (previousDoc.slug === 'home' ? '/' : `/${previousDoc.slug}`)
+      const oldPath = `/${tenantSlug}/${previousDoc.slug}`
 
       payload.logger.info(`Revalidating old page at path: ${oldPath}`)
 
@@ -41,7 +56,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
 
 export const revalidateDelete: CollectionAfterDeleteHook<Page> = ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
-    const path = doc?.slug === 'home' ? '/' : `/${doc?.slug}`
+    const path = `/${doc?.slug}`
     revalidatePath(path)
     revalidateTag('pages-sitemap')
   }

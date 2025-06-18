@@ -8,7 +8,7 @@ import { mergeOpenGraph } from './mergeOpenGraph'
 const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   const serverUrl = getServerSideURL()
 
-  let url = serverUrl + '/website-template-OG.webp'
+  let url = serverUrl + '/assets/avy-web-fallback-og-image.webp'
 
   if (image && typeof image === 'object' && 'url' in image) {
     const ogUrl = image.sizes?.og?.url
@@ -19,16 +19,23 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   return url
 }
 
-export const generateMeta = async (args: {
-  doc: Partial<Page> | Partial<Post>
+export const generateMetaForPage = async (args: {
+  customTitle?: string
+  center: string
+  doc: Partial<Page>
+  slugs?: string[]
 }): Promise<Metadata> => {
-  const { doc } = args || {}
+  const { doc, slugs } = args
+
+  const serverUrl = getServerSideURL()
+  const pageSlugs = slugs ? slugs : doc?.slug
+  const url = serverUrl + '/' + (Array.isArray(pageSlugs) ? pageSlugs.join('/') : `${pageSlugs}/`)
 
   const ogImage = getImageURL(doc?.meta?.image)
 
   const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
-    : 'Payload Website Template'
+    ? `${doc?.meta?.title} | ${typeof doc?.tenant === 'object' && doc.tenant.name ? doc.tenant.name : 'Avy'}`
+    : 'Avy'
 
   return {
     description: doc?.meta?.description,
@@ -42,7 +49,39 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url,
+    }),
+    title,
+  }
+}
+
+export const generateMetaForPost = async (args: {
+  customTitle?: string
+  center: string
+  doc: Partial<Post>
+}): Promise<Metadata> => {
+  const { customTitle, center, doc } = args
+
+  const serverUrl = getServerSideURL()
+  const url = `${serverUrl}/posts/${doc?.slug}/`
+
+  const ogImage = getImageURL(doc?.featuredImage)
+
+  const title = customTitle ? customTitle : `${doc?.title} ' | '${center}`
+
+  return {
+    description: doc?.description,
+    openGraph: mergeOpenGraph({
+      description: doc?.description || '',
+      images: ogImage
+        ? [
+            {
+              url: ogImage,
+            },
+          ]
+        : undefined,
+      title,
+      url,
     }),
     title,
   }

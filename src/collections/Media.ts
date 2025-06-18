@@ -15,7 +15,6 @@ import { fileURLToPath } from 'url'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// TODO: why does importing this break?
 type BeforeOperationHook = Exclude<
   Exclude<CollectionConfig['hooks'], undefined>['beforeOperation'],
   undefined
@@ -29,7 +28,6 @@ const prefixFilename: BeforeOperationHook = async ({ req }) => {
       req.payload.logger.debug(`media: fetching slug for tenant ${media.tenant}`)
       const tenant = await req.payload.find({
         collection: 'tenants',
-        overrideAccess: true,
         select: {
           slug: true,
         },
