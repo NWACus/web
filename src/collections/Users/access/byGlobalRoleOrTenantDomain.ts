@@ -19,6 +19,7 @@ export const byGlobalRoleOrTenantDomain: (method: ruleMethod) => Access =
     }
 
     const roleAssignments = roleAssignmentsForUser(args.req.payload.logger, args.req.user)
+
     const matchingTenantDomains = roleAssignments
       .filter(
         (assignment) =>
@@ -45,12 +46,17 @@ export const byGlobalRoleOrTenantDomain: (method: ruleMethod) => Access =
       }
     }
 
+    // allow users to read their own record
+    if (args?.id === args.req.user.id) {
+      return true
+    }
+
     return false
   }
 
 export const accessByGlobalRoleOrTenantDomain: CollectionConfig['access'] = {
   create: byGlobalRoleOrTenantDomain('create'), // TODO: nobody but SSO creates users?
-  read: byGlobalRoleOrTenantDomain('read'), // TODO: allow self-read
-  update: byGlobalRoleOrTenantDomain('update'), // TODO: allow self-update
+  read: byGlobalRoleOrTenantDomain('read'),
+  update: byGlobalRoleOrTenantDomain('update'),
   delete: byGlobalRoleOrTenantDomain('delete'),
 }
