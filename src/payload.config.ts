@@ -12,13 +12,11 @@ import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
 import { Pages } from '@/collections/Pages'
-import { Palettes } from '@/collections/Palettes'
 import { Posts } from '@/collections/Posts'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
-import { Themes } from '@/collections/Themes'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
@@ -138,8 +136,6 @@ export default buildConfig({
     RoleAssignments,
     GlobalRoleAssignments,
     Brands,
-    Themes,
-    Palettes,
     Navigations,
     Footer,
     Biographies,

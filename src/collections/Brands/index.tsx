@@ -38,19 +38,6 @@ export const Brands: CollectionConfig = {
             },
           ],
         },
-        {
-          label: 'Theme',
-          description: 'Theming options for your website.',
-          fields: [
-            {
-              name: 'theme',
-              type: 'relationship',
-              hasMany: false,
-              relationTo: 'themes',
-              required: true,
-            },
-          ],
-        },
       ],
     },
     contentHashField(),

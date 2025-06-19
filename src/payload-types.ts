@@ -76,8 +76,6 @@ export interface Config {
     roleAssignments: RoleAssignment;
     globalRoleAssignments: GlobalRoleAssignment;
     brands: Brand;
-    themes: Theme;
-    palettes: Palette;
     navigations: Navigation;
     footer: Footer;
     biographies: Biography;
@@ -105,8 +103,6 @@ export interface Config {
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
-    themes: ThemesSelect<false> | ThemesSelect<true>;
-    palettes: PalettesSelect<false> | PalettesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
@@ -891,62 +887,6 @@ export interface Brand {
   tenant: number | Tenant;
   logo: number | Media;
   banner: number | Media;
-  theme: number | Theme;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "themes".
- */
-export interface Theme {
-  id: number;
-  name: string;
-  activeColors: {
-    light: string;
-    dark: string;
-  };
-  palettes: {
-    light: number | Palette;
-    dark: number | Palette;
-  };
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "palettes".
- */
-export interface Palette {
-  id: number;
-  name: string;
-  radius: string;
-  background: string;
-  foreground: string;
-  card: string;
-  'card-foreground': string;
-  popover: string;
-  'popover-foreground': string;
-  primary: string;
-  'primary-foreground': string;
-  secondary: string;
-  'secondary-foreground': string;
-  muted: string;
-  'muted-foreground': string;
-  accent: string;
-  'accent-foreground': string;
-  destructive: string;
-  'destructive-foreground': string;
-  border: string;
-  input: string;
-  ring: string;
-  'chart-1': string;
-  'chart-2': string;
-  'chart-3': string;
-  'chart-4': string;
-  'chart-5': string;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1503,14 +1443,6 @@ export interface PayloadLockedDocument {
         value: number | Brand;
       } | null)
     | ({
-        relationTo: 'themes';
-        value: number | Theme;
-      } | null)
-    | ({
-        relationTo: 'palettes';
-        value: number | Palette;
-      } | null)
-    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -1972,64 +1904,6 @@ export interface BrandsSelect<T extends boolean = true> {
   tenant?: T;
   logo?: T;
   banner?: T;
-  theme?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "themes_select".
- */
-export interface ThemesSelect<T extends boolean = true> {
-  name?: T;
-  activeColors?:
-    | T
-    | {
-        light?: T;
-        dark?: T;
-      };
-  palettes?:
-    | T
-    | {
-        light?: T;
-        dark?: T;
-      };
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "palettes_select".
- */
-export interface PalettesSelect<T extends boolean = true> {
-  name?: T;
-  radius?: T;
-  background?: T;
-  foreground?: T;
-  card?: T;
-  'card-foreground'?: T;
-  popover?: T;
-  'popover-foreground'?: T;
-  primary?: T;
-  'primary-foreground'?: T;
-  secondary?: T;
-  'secondary-foreground'?: T;
-  muted?: T;
-  'muted-foreground'?: T;
-  accent?: T;
-  'accent-foreground'?: T;
-  destructive?: T;
-  'destructive-foreground'?: T;
-  border?: T;
-  input?: T;
-  ring?: T;
-  'chart-1'?: T;
-  'chart-2'?: T;
-  'chart-3'?: T;
-  'chart-4'?: T;
-  'chart-5'?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
