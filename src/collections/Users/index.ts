@@ -23,9 +23,6 @@ export const Users: CollectionConfig = {
     {
       name: 'globalRoles',
       type: 'join',
-      access: {
-        read: () => true,
-      },
       collection: 'globalRoleAssignments',
       on: 'user',
       saveToJWT: true,
@@ -34,9 +31,6 @@ export const Users: CollectionConfig = {
     {
       name: 'roles',
       type: 'join',
-      access: {
-        read: () => true,
-      },
       collection: 'roleAssignments',
       on: 'user',
       saveToJWT: true,
