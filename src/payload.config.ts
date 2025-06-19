@@ -6,7 +6,6 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
-import { Brands } from '@/collections/Brands'
 import { Footer } from '@/collections/Footer/config'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
@@ -15,6 +14,7 @@ import { Pages } from '@/collections/Pages'
 import { Posts } from '@/collections/Posts'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
+import { Settings } from '@/collections/Settings'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
@@ -135,11 +135,11 @@ export default buildConfig({
     Roles,
     RoleAssignments,
     GlobalRoleAssignments,
-    Brands,
     Navigations,
     Footer,
     Biographies,
     Teams,
+    Settings,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getURL()].filter(Boolean),
   globals: [NACWidgetsConfig],

@@ -75,11 +75,11 @@ export interface Config {
     roles: Role;
     roleAssignments: RoleAssignment;
     globalRoleAssignments: GlobalRoleAssignment;
-    brands: Brand;
     navigations: Navigation;
     footer: Footer;
     biographies: Biography;
     teams: Team;
+    settings: Setting;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -102,11 +102,11 @@ export interface Config {
     roles: RolesSelect<false> | RolesSelect<true>;
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
-    brands: BrandsSelect<false> | BrandsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
+    settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -880,19 +880,6 @@ export interface Team {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
- */
-export interface Brand {
-  id: number;
-  tenant: number | Tenant;
-  logo: number | Media;
-  banner: number | Media;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
 export interface Navigation {
@@ -1356,6 +1343,34 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * A short description of your avalanche center. This will be used in meta tags for search engine optimization and display in previews on social media and in messaging apps.
+   */
+  description?: string | null;
+  /**
+   * Should be a square aspect ratio image.
+   */
+  logo: number | Media;
+  /**
+   * Should be a compressed, 96x96 pixel, square aspect ratio image. This will be used as the browser tab icon.
+   */
+  icon: number | Media;
+  /**
+   * This will be used in the header of your website next to the USFS logo if added.
+   */
+  banner: number | Media;
+  usfsLogo?: (number | null) | Media;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1439,10 +1454,6 @@ export interface PayloadLockedDocument {
         value: number | GlobalRoleAssignment;
       } | null)
     | ({
-        relationTo: 'brands';
-        value: number | Brand;
-      } | null)
-    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -1457,6 +1468,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'teams';
         value: number | Team;
+      } | null)
+    | ({
+        relationTo: 'settings';
+        value: number | Setting;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1898,18 +1913,6 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands_select".
- */
-export interface BrandsSelect<T extends boolean = true> {
-  tenant?: T;
-  logo?: T;
-  banner?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations_select".
  */
 export interface NavigationsSelect<T extends boolean = true> {
@@ -2271,6 +2274,21 @@ export interface TeamsSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   members?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  description?: T;
+  logo?: T;
+  icon?: T;
+  banner?: T;
+  usfsLogo?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

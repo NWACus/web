@@ -27,7 +27,7 @@ import { post2 } from './post-2'
 import { post3 } from './post-3'
 
 const collections: CollectionSlug[] = [
-  'brands',
+  'settings',
   'biographies',
   'media',
   'pages',
@@ -239,13 +239,27 @@ export const seed = async ({
     wac: 'WAC.webp',
     wcmac: 'WCMAC.webp',
   }
+  const iconFiles: Record<string, string> = {
+    nwac: 'nwac-icon.jpg',
+    sac: 'sac-icon.png',
+    snfac: 'snfac-icon.png',
+  }
   const bannerFiles: Record<string, string> = {
-    nwac: 'nwac-logo-usfs.webp',
+    nwac: 'nwac-banner.webp',
     sac: 'sac-png-logo.webp',
     snfac: 'sac-usfs-logo.webp',
   }
+  // const usfsLogoFiles: Record<string, string> = {
+  //   nwac: 'nwac-usfs-logo.webp',
+  //   sac: 'sac-usfs-logo.webp',
+  //   snfac: 'snfac-usfs-logo.webp',
+  // }
+
   const logos: Record<string, File> = {}
+  const icons: Record<string, File> = {}
   const banners: Record<string, File> = {}
+  // const usfsLogos: Record<string, File> = {}
+
   for (const tenantSlug in tenants) {
     if (tenantSlug in logoFiles) {
       const logo = await getSeedImageByFilename(logoFiles[tenantSlug])
@@ -254,6 +268,13 @@ export const seed = async ({
       }
       logos[tenantSlug] = logo
     }
+    if (tenantSlug in iconFiles) {
+      const icon = await getSeedImageByFilename(iconFiles[tenantSlug])
+      if (!icon) {
+        throw new Error(`Getting icon for tenant ${tenantSlug} returned null...`)
+      }
+      icons[tenantSlug] = icon
+    }
     if (tenantSlug in bannerFiles) {
       const banner = await getSeedImageByFilename(bannerFiles[tenantSlug])
       if (!banner) {
@@ -261,6 +282,13 @@ export const seed = async ({
       }
       banners[tenantSlug] = banner
     }
+    // if (tenantSlug in usfsLogoFiles) {
+    //   const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug])
+    //   if (!usfsLogo) {
+    //     throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
+    //   }
+    //   usfsLogos[tenantSlug] = usfsLogo
+    // }
   }
 
   const brandImages = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
@@ -276,26 +304,49 @@ export const seed = async ({
         {
           data: {
             tenant: tenant.id,
+            alt: 'icon',
+          },
+          file: logos[tenant.slug],
+        },
+        {
+          data: {
+            tenant: tenant.id,
             alt: 'banner',
           },
           file: banners[tenant.slug],
         },
+        // {
+        //   data: {
+        //     tenant: tenant.id,
+        //     alt: 'usfs logo',
+        //   },
+        //   file: usfsLogos[tenant.slug],
+        // },
       ])
       .flat(),
   ])
 
-  // Brands
+  // Settings
+  const descriptions: Record<string, string> = {
+    nwac: 'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
+    sac: 'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
+    snfac: 'Avalanche Safety Information for South Central Idaho',
+  }
+
   await upsert(
-    'brands',
+    'settings',
     payload,
     incremental,
     tenantsById,
     (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
     Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'brands'> => ({
+      (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
         tenant: tenant.id,
+        description: descriptions[tenant.slug],
         logo: brandImages[tenant.slug]['logo'].id,
+        icon: brandImages[tenant.slug]['icon'].id,
         banner: brandImages[tenant.slug]['banner'].id,
+        // usfsLogo: brandImages[tenant.slug]['usfs logo'].id,
       }),
     ),
   )
