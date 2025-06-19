@@ -67,7 +67,7 @@ export const accessByTenantWithPermissiveRead: (
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
   return {
     create: byTenant('create', collection),
-    read: byTenant('read', collection),
+    read: () => true, // world readable for future AvyApp integration
     update: byTenant('update', collection),
     delete: byTenant('delete', collection),
   }
