@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 
 import type { Config, Media, Page, Post } from '@/payload-types'
 
-import { getServerSideURL } from './getURL'
+import { getURL } from './getURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
 
 const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
-  const serverUrl = getServerSideURL()
+  const serverUrl = getURL()
 
   let url = serverUrl + '/assets/avy-web-fallback-og-image.webp'
 
@@ -27,7 +27,7 @@ export const generateMetaForPage = async (args: {
 }): Promise<Metadata> => {
   const { doc, slugs } = args
 
-  const serverUrl = getServerSideURL()
+  const serverUrl = getURL()
   const pageSlugs = slugs ? slugs : doc?.slug
   const url = serverUrl + '/' + (Array.isArray(pageSlugs) ? pageSlugs.join('/') : `${pageSlugs}/`)
 
@@ -62,7 +62,7 @@ export const generateMetaForPost = async (args: {
 }): Promise<Metadata> => {
   const { customTitle, center, doc } = args
 
-  const serverUrl = getServerSideURL()
+  const serverUrl = getURL()
   const url = `${serverUrl}/posts/${doc?.slug}/`
 
   const ogImage = getImageURL(doc?.featuredImage)
