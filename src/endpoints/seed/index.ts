@@ -246,19 +246,18 @@ export const seed = async ({
   }
   const bannerFiles: Record<string, string> = {
     nwac: 'nwac-banner.webp',
-    sac: 'sac-png-logo.webp',
+    sac: 'sac-banner.webp',
     snfac: 'sac-usfs-logo.webp',
   }
-  // const usfsLogoFiles: Record<string, string> = {
-  //   nwac: 'nwac-usfs-logo.webp',
-  //   sac: 'sac-usfs-logo.webp',
-  //   snfac: 'snfac-usfs-logo.webp',
-  // }
+  const usfsLogoFiles: Record<string, string> = {
+    nwac: 'usfs-logo.webp',
+    sac: 'usfs-logo.webp',
+  }
 
   const logos: Record<string, File> = {}
   const icons: Record<string, File> = {}
   const banners: Record<string, File> = {}
-  // const usfsLogos: Record<string, File> = {}
+  const usfsLogos: Record<string, File> = {}
 
   for (const tenantSlug in tenants) {
     if (tenantSlug in logoFiles) {
@@ -282,13 +281,13 @@ export const seed = async ({
       }
       banners[tenantSlug] = banner
     }
-    // if (tenantSlug in usfsLogoFiles) {
-    //   const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug])
-    //   if (!usfsLogo) {
-    //     throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
-    //   }
-    //   usfsLogos[tenantSlug] = usfsLogo
-    // }
+    if (tenantSlug in usfsLogoFiles) {
+      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug])
+      if (!usfsLogo) {
+        throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
+      }
+      usfsLogos[tenantSlug] = usfsLogo
+    }
   }
 
   const brandImages = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
@@ -315,13 +314,17 @@ export const seed = async ({
           },
           file: banners[tenant.slug],
         },
-        // {
-        //   data: {
-        //     tenant: tenant.id,
-        //     alt: 'usfs logo',
-        //   },
-        //   file: usfsLogos[tenant.slug],
-        // },
+        ...(usfsLogos[tenant.slug]
+          ? [
+              {
+                data: {
+                  tenant: tenant.id,
+                  alt: 'usfs logo',
+                },
+                file: usfsLogos[tenant.slug],
+              },
+            ]
+          : []),
       ])
       .flat(),
   ])
@@ -346,7 +349,7 @@ export const seed = async ({
         logo: brandImages[tenant.slug]['logo'].id,
         icon: brandImages[tenant.slug]['icon'].id,
         banner: brandImages[tenant.slug]['banner'].id,
-        // usfsLogo: brandImages[tenant.slug]['usfs logo'].id,
+        usfsLogo: brandImages[tenant.slug]['usfs logo']?.id,
       }),
     ),
   )
