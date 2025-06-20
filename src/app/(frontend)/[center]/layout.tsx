@@ -102,12 +102,22 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   const hostname = getHostnameFromTenant(tenant)
 
+  const websiteSettingsRes = await payload.find({
+    collection: 'settings',
+    where: {
+      'tenant.slug': {
+        equals: tenant.slug,
+      },
+    },
+  })
+  const websiteSettings = websiteSettingsRes.docs.length > 1 ? websiteSettingsRes.docs[0] : null
+
   const title = tenant.name
-  const description = `${tenant.name}'s website.`
+  const description = websiteSettings?.description || `${tenant.name}'s website.`
 
   return {
     title,
-    description, // TODO add description to tenant or a settings global collection and use that here
+    description,
     metadataBase: new URL(getURL(hostname)),
     openGraph: mergeOpenGraph({
       title,

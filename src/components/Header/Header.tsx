@@ -14,8 +14,8 @@ export async function Header({ center }: { center: string }) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
-  const brands = await payload.find({
-    collection: 'brands',
+  const settingsRes = await payload.find({
+    collection: 'settings',
     depth: 99,
     where: {
       'tenant.slug': {
@@ -24,15 +24,15 @@ export async function Header({ center }: { center: string }) {
     },
   })
 
-  if (brands.docs.length < 1) {
-    payload.logger.error(`Brand for tenant ${center} missing`)
-  }
+  const settings = settingsRes.docs[0]
 
-  const banner = brands.docs[0]?.banner
+  invariant(settings, `Settings for center value ${center} not found.`)
+
+  const banner = settings.banner
 
   invariant(
     typeof banner === 'object',
-    `Depth not set correctly when querying brands. Banner for tenant ${center} not an object.`,
+    `Depth not set correctly when querying settings. Banner for tenant ${center} not an object.`,
   )
 
   const navigationRes = await payload.find({
@@ -82,7 +82,7 @@ export async function Header({ center }: { center: string }) {
         donateNavItem={donateNavItem}
         banner={typeof banner !== 'number' ? banner : undefined}
       />
-      {/* content padding since mobile nav is fixed */}
+      {/* content padding since mobile nav is position: fixed */}
       <div className="lg:hidden h-[64px] bg-background" />
 
       <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8">
