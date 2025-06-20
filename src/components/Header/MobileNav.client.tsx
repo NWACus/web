@@ -23,10 +23,12 @@ export const MobileNav = ({
   topLevelNavItems,
   donateNavItem,
   banner,
+  usfsLogo,
 }: {
   topLevelNavItems: TopLevelNavItem[]
   donateNavItem?: TopLevelNavItem
   banner?: Media
+  usfsLogo?: Media | null
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [headerHeight, setHeaderHeight] = useState(64) // fallback to the expected height of the mobile nav bar
@@ -97,13 +99,21 @@ export const MobileNav = ({
             <span className="sr-only">Toggle menu</span>
           </DialogTrigger>
           {banner && (
-            <Link href="/" className="w-fit">
+            <Link href="/" className="w-fit flex gap-4">
               <ImageMedia
                 resource={banner}
                 loading="eager"
                 priority={true}
                 imgClassName="h-[36px] object-contain w-fit"
               />
+              {usfsLogo && (
+                <ImageMedia
+                  resource={usfsLogo}
+                  loading="eager"
+                  priority={true}
+                  imgClassName="h-[36px] object-contain w-fit"
+                />
+              )}
             </Link>
           )}
           {donateNavItem && (
