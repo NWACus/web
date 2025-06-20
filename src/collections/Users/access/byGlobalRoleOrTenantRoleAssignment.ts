@@ -46,12 +46,17 @@ export const byGlobalRoleOrTenantRoleAssignment: (method: ruleMethod) => Access 
       }
     }
 
+    // allow users to read their own record
+    if (args?.id === args.req.user.id) {
+      return true
+    }
+
     return false
   }
 
 export const accessByGlobalRoleOrTenantRoleAssignment: CollectionConfig['access'] = {
   create: byGlobalRoleOrTenantRoleAssignment('create'), // TODO: nobody but SSO creates users?
-  read: byGlobalRoleOrTenantRoleAssignment('read'), // TODO: allow self-read
-  update: byGlobalRoleOrTenantRoleAssignment('update'), // TODO: allow self-update
+  read: byGlobalRoleOrTenantRoleAssignment('read'),
+  update: byGlobalRoleOrTenantRoleAssignment('update'),
   delete: byGlobalRoleOrTenantRoleAssignment('delete'),
 }
