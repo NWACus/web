@@ -16,6 +16,7 @@ export const CollectionsField: TextFieldServerComponent = async ({
     <SelectField
       field={{
         type: 'select',
+        // @ts-expect-error these are different field types which is leading to different expected types
         admin: { ...admin, isClearable: false, isSortable: false },
         ...clientFields,
         options: Object.keys(payload.collections).map((slug) => ({ label: slug, value: slug })),

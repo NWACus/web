@@ -22,6 +22,7 @@ export const Select = ({
   options,
   required,
   width,
+  defaultValue,
 }: SelectField & {
   control: Control<FieldValues, unknown>
   errors: Partial<
@@ -35,7 +36,7 @@ export const Select = ({
       <Label htmlFor={name}>{label}</Label>
       <Controller
         control={control}
-        defaultValue=""
+        defaultValue={defaultValue}
         name={name}
         render={({ field: { onChange, value } }) => {
           const controlledValue = options.find((t) => t.value === value)

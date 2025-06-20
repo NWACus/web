@@ -1,5 +1,7 @@
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
+import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
+import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
@@ -91,6 +93,10 @@ export const importMap = {
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
   '@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription':
     LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
+  '@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName':
+    AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
+  '@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription':
+    USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
   '@/components/LogoutButton#LogoutButton': LogoutButton_db9ac62598c46d0f1db201f6af05442e,
   '@/components/Icon/AvyFxIcon#AvyFxIcon': AvyFxIcon_5698f736c9797d81d0dacf1b1321e327,
   '@/components/Logo/AvyFxLogo#AvyFxLogo': AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,

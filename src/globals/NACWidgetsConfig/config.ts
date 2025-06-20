@@ -10,6 +10,7 @@ export const NACWidgetsConfig: GlobalConfig = {
   slug: 'nacWidgetsConfig',
   label: 'NAC Widgets Config',
   admin: {
+    group: 'Settings',
     description: 'Controls the loading of NAC widgets across all avalanche center websites.',
   },
   access: accessByGlobalRole('nacWidgetsConfig'),
