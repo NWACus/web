@@ -27,7 +27,7 @@ export const Footer: CollectionConfig = {
   admin: {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
-    group: 'Globals',
+    group: 'Settings',
     livePreview: {
       url: async ({ data, req, payload }) => {
         let tenant = data.tenant
