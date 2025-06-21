@@ -41,6 +41,7 @@ const collections: CollectionSlug[] = [
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
+  'tags',
   'teams',
   'tenants',
 ]
@@ -314,7 +315,7 @@ export const seed = async ({
       name: 'Contributor',
       rules: [
         {
-          collections: ['posts', 'pages', 'media'],
+          collections: ['posts', 'pages', 'media', 'tags'],
           actions: ['*'],
         },
         {
@@ -594,7 +595,33 @@ export const seed = async ({
       ])
       .flat(),
   )
-
+  // Tags
+  const tags = await upsert(
+    'tags',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'tags'>[] => [
+        {
+          title: 'Education',
+          slug: 'education',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Gear',
+          slug: 'gear',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Volunteers',
+          slug: 'volunteers',
+          tenant: tenant.id,
+        },
+      ])
+      .flat(),
+  )
   const posts = await upsert(
     'posts',
     payload,
@@ -625,11 +652,12 @@ export const seed = async ({
 
   payload.logger.info(`— Updating post relationships...`)
   for (const tenant in posts) {
-    for (const title in posts[tenant]) {
-      const post = posts[tenant][title]
+    Object.values(posts[tenant]).forEach(async (post, index) => {
       payload.logger.info(
         `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
       )
+      const randomTagId = Object.values(tags[tenant]).map((tag) => tag.id)[index]
+
       await payload.update({
         id: post.id,
         collection: 'posts',
@@ -637,9 +665,10 @@ export const seed = async ({
           relatedPosts: Object.values(posts[tenant])
             .filter((p) => p.id !== post.id)
             .map((p) => p.id),
+          tags: [randomTagId],
         },
       })
-    }
+    })
   }
 
   payload.logger.info(`— Seeding contact forms...`)
