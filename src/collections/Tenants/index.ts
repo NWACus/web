@@ -15,6 +15,7 @@ export const Tenants: CollectionConfig = {
   },
   defaultPopulate: {
     slug: true,
+    customDomain: true, // required for byGlobalRoleOrTenantRoleAssignment
   },
   fields: [
     {
