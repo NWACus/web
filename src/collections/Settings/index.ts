@@ -223,8 +223,8 @@ export const Settings: CollectionConfig = {
           ],
         },
         {
-          label: 'Legal Pages',
-          description: 'Links to legal pages to be displayed in the footer.',
+          label: 'Legal Policies',
+          description: 'Links to legal policy pages to be displayed in the footer.',
           fields: [
             {
               name: 'terms',
