@@ -1,12 +1,12 @@
 import type { CollectionConfig } from 'payload'
 
-import { accessByGlobalRoleOrTenantRoleAssignment } from '@/collections/Users/access/byGlobalRoleOrTenantRoleAssignment'
 import { contentHashField } from '@/fields/contentHashField'
+import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  access: accessByGlobalRoleOrTenantRoleAssignment,
+  access: accessByGlobalRoleOrTenantRoleAssignmentOrDomain,
   admin: {
     useAsTitle: 'email',
     group: 'Permissions',
