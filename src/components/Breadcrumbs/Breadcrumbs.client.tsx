@@ -71,7 +71,7 @@ export function Breadcrumbs() {
   })
 
   return (
-    <Breadcrumb className="container py-6">
+    <Breadcrumb className="container py-4 md:py-6">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
