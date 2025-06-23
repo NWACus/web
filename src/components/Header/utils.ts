@@ -374,3 +374,23 @@ export const getTopLevelNavItems = async ({
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
   ]
 }
+
+// export const getUISitemap = async ({
+//   topLevelNavItems,
+// }: {
+//   topLevelNavItems: TopLevelNavItem[]
+// }): Promise<Record<string, string>> => {
+//   const uiSitemap: Record<string, string> = {}
+
+//   for (const topLevelNavItem of topLevelNavItems) {
+//     if (topLevelNavItem.link) {
+//       uiSitemap[topLevelNavItem.link.url] = topLevelNavItem.link.label
+//     }
+
+//     if (topLevelNavItem.items && topLevelNavItem.items.length > 0) {
+
+//     }
+//   }
+
+//   return uiSitemap
+// }
