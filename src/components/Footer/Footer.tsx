@@ -8,46 +8,59 @@ import { getPayload } from 'payload'
 
 export async function Footer({ center }: { center?: string }) {
   const payload = await getPayload({ config: configPromise })
-  const { docs: data } = await payload.find({
-    collection: 'footer',
-    depth: 10,
+
+  const settingsRes = await payload.find({
+    collection: 'settings',
+    depth: 99,
+    populate: {
+      tenants: {
+        name: true,
+      },
+    },
     where: {
       'tenant.slug': {
         equals: center,
       },
     },
   })
-  const { address, email, hashtag, footerLogo, name, phone, privacy, socialMedia, terms } =
-    data?.[0]
+  const settings = settingsRes.docs[0]
 
+  invariant(settings, `Settings for center value ${center} not found.`)
+
+  const { address, email, logo, phone, privacy, socialMedia, terms, tenant } = settings
+
+  invariant(
+    typeof tenant === 'object',
+    `Depth not set correctly when querying settings. Tenant for center value ${center} not an object.`,
+  )
+  invariant('name' in tenant, `'name' field not on the tenant object when querying settings.`)
   invariant(
     typeof terms === 'object',
-    `Depth not set correctly when querying footer. Terms for tenant ${center} not an object.`,
+    `Depth not set correctly when querying settings. Terms for tenant ${center} not an object.`,
   )
-
   invariant(
     typeof privacy === 'object',
-    `Depth not set correctly when querying footer. Privacy for tenant ${center} not an object.`,
+    `Depth not set correctly when querying settings. Privacy for tenant ${center} not an object.`,
   )
 
   const currentYear = new Date().getFullYear()
   return (
     <footer className="mt-auto border-t border-border bg-footer text-footer-foreground">
-      <div className="container py-8 gap-8 grid grid-cols-3">
+      <div className="container py-8 gap-8 grid md:grid-cols-3">
         <div>
           <h4 className="font-medium text-xl mb-2">Stay updated!</h4>
           <p>Sign up for our newsletter</p>
         </div>
         <div>
-          {footerLogo && (
+          {logo && (
             <Link className="flex items-center" href="/">
-              <ImageMedia resource={footerLogo} />
+              <ImageMedia resource={logo} imgClassName="max-h-[200px] object-contain" />
             </Link>
           )}
         </div>
         <div>
           <div className="flex flex-col items-start">
-            <h4 className="font-medium text-xl mb-2">{name}</h4>
+            <h4 className="font-medium text-xl mb-2">{tenant.name}</h4>
             {address && <div className="whitespace-pre-line">{address}</div>}
             {phone && <a href={`tel:${phone}`}>{phone}</a>}
             {email && (
@@ -85,13 +98,15 @@ export async function Footer({ center }: { center?: string }) {
                 )}
               </div>
             )}
-            {hashtag && <p className="mb-4 text-secondary underline">{hashtag}</p>}
+            {socialMedia?.hashtag && (
+              <p className="mb-4 text-secondary underline">{socialMedia?.hashtag}</p>
+            )}
           </div>
         </div>
       </div>
       <div className="container text-center pb-8">
         <p className="mb-2">
-          All Content © {currentYear} {name}
+          All Content © {currentYear} {tenant.name}
         </p>
         <div className="flex gap-x-2 justify-center">
           {terms && (

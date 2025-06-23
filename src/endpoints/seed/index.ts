@@ -1,7 +1,7 @@
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
-import { Form, Media, Tenant } from '@/payload-types'
+import { Form, Tenant } from '@/payload-types'
 import fs from 'fs'
 import { headers } from 'next/headers'
 import type {
@@ -35,7 +35,6 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'navigations',
-  'footer',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
@@ -330,10 +329,45 @@ export const seed = async ({
   ])
 
   // Settings
-  const descriptions: Record<string, string> = {
-    nwac: 'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
-    sac: 'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
-    snfac: 'Avalanche Safety Information for South Central Idaho',
+  const settingsData: Record<
+    Tenant['slug'],
+    Partial<RequiredDataFromCollectionSlug<'settings'>>
+  > = {
+    nwac: {
+      description:
+        'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
+
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/nwacus',
+        facebook: 'https://www.facebook.com/NWACUS/',
+        twitter: 'https://x.com/nwacus',
+        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
+        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
+      },
+    },
+    sac: {
+      description:
+        'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
+
+      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
+      phone: '(530)563-2257',
+      email: 'info@sierraavalanchecenter.org',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/savycenter/',
+        facebook: 'https://www.facebook.com/sacnonprofit',
+        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
+      },
+    },
+    snfac: {
+      description: 'Avalanche Safety Information for South Central Idaho',
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {},
+    },
   }
 
   await upsert(
@@ -345,7 +379,11 @@ export const seed = async ({
     Object.values(tenants).map(
       (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
         tenant: tenant.id,
-        description: descriptions[tenant.slug],
+        description: settingsData[tenant.slug].description,
+        address: settingsData[tenant.slug].address,
+        phone: settingsData[tenant.slug].phone,
+        email: settingsData[tenant.slug].email,
+        socialMedia: settingsData[tenant.slug].socialMedia,
         logo: brandImages[tenant.slug]['logo'].id,
         icon: brandImages[tenant.slug]['icon'].id,
         banner: brandImages[tenant.slug]['banner'].id,
@@ -761,59 +799,5 @@ export const seed = async ({
     ),
   )
 
-  payload.logger.info(`— Seeding footers...`)
-  const footerData: Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'footer'>>> = {
-    nwac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/nwacus',
-        facebook: 'https://www.facebook.com/NWACUS/',
-        twitter: 'https://x.com/nwacus',
-        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
-        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
-      },
-    },
-    sac: {
-      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
-      phone: '(530)563-2257',
-      email: 'info@sierraavalanchecenter.org',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/savycenter/',
-        facebook: 'https://www.facebook.com/sacnonprofit',
-        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
-      },
-    },
-    snfac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {},
-    },
-  }
-
-  const footer = (
-    tenant: Tenant,
-    brandImages: Record<Tenant['slug'], Record<string, Media>>,
-  ): RequiredDataFromCollectionSlug<'footer'> => {
-    return {
-      tenant: tenant.id,
-      footerLogo: brandImages[tenant.slug]['logo'].id,
-      name: tenant.name,
-      ...footerData[tenant.slug],
-    }
-  }
-
-  await upsert(
-    'footer',
-    payload,
-    incremental,
-    tenantsById,
-    (_obj) => 'footer',
-    Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant, brandImages),
-    ),
-  )
   payload.logger.info('Seeded database successfully!')
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import React from 'react'
 
-import { Footer } from '@/Footer/Component'
+import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
