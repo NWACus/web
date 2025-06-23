@@ -2,7 +2,6 @@ import type { CollectionConfig } from 'payload'
 
 import { accessByGlobalRoleOrTenantDomain } from '@/collections/Users/access/byGlobalRoleOrTenantDomain'
 import { contentHashField } from '@/fields/contentHashField'
-import { externalUsersLogin } from './endpoints/externalUsersLogin'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 
 export const Users: CollectionConfig = {
@@ -13,7 +12,6 @@ export const Users: CollectionConfig = {
     group: 'Permissions',
   },
   auth: true,
-  endpoints: [externalUsersLogin],
   fields: [
     {
       name: 'name',

@@ -1,4 +1,4 @@
-import type { Footer, NacWidgetsConfig } from 'src/payload-types' // adjust import if needed
+import type { NacWidgetsConfig } from 'src/payload-types'
 
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
@@ -7,7 +7,6 @@ import { getPayload } from 'payload'
 type Global = 'nacWidgetsConfig'
 
 type GlobalReturnType = {
-  footer: Footer
   nacWidgetsConfig: NacWidgetsConfig
 }
 
