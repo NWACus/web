@@ -76,7 +76,6 @@ export interface Config {
     roleAssignments: RoleAssignment;
     globalRoleAssignments: GlobalRoleAssignment;
     navigations: Navigation;
-    footer: Footer;
     biographies: Biography;
     teams: Team;
     settings: Setting;
@@ -103,7 +102,6 @@ export interface Config {
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
-    footer: FooterSelect<false> | FooterSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
@@ -1314,35 +1312,6 @@ export interface Navigation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer".
- */
-export interface Footer {
-  id: number;
-  tenant: number | Tenant;
-  footerLogo?: (number | null) | Media;
-  name: string;
-  address?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  /**
-   * Add link to social media page to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.
-   */
-  socialMedia?: {
-    instagram?: string | null;
-    facebook?: string | null;
-    twitter?: string | null;
-    linkedin?: string | null;
-    youtube?: string | null;
-  };
-  hashtag?: string | null;
-  terms?: (number | null) | Page;
-  privacy?: (number | null) | Page;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "settings".
  */
 export interface Setting {
@@ -1352,6 +1321,18 @@ export interface Setting {
    * A short description of your avalanche center. This will be used in meta tags for search engine optimization and display in previews on social media and in messaging apps.
    */
   description?: string | null;
+  /**
+   * Appears in your website footer.
+   */
+  address?: string | null;
+  /**
+   * Appears in your website footer.
+   */
+  phone?: string | null;
+  /**
+   * Appears in your website footer.
+   */
+  email?: string | null;
   /**
    * Should be a square aspect ratio image.
    */
@@ -1365,6 +1346,19 @@ export interface Setting {
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
+  socialMedia?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    twitter?: string | null;
+    linkedin?: string | null;
+    youtube?: string | null;
+    /**
+     * A hashtag for users to mention you on social media platforms. This will appear in the footer if filled out.
+     */
+    hashtag?: string | null;
+  };
+  terms?: (number | null) | Page;
+  privacy?: (number | null) | Page;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1456,10 +1450,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'navigations';
         value: number | Navigation;
-      } | null)
-    | ({
-        relationTo: 'footer';
-        value: number | Footer;
       } | null)
     | ({
         relationTo: 'biographies';
@@ -2225,33 +2215,6 @@ export interface NavigationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer_select".
- */
-export interface FooterSelect<T extends boolean = true> {
-  tenant?: T;
-  footerLogo?: T;
-  name?: T;
-  address?: T;
-  phone?: T;
-  email?: T;
-  socialMedia?:
-    | T
-    | {
-        instagram?: T;
-        facebook?: T;
-        twitter?: T;
-        linkedin?: T;
-        youtube?: T;
-      };
-  hashtag?: T;
-  terms?: T;
-  privacy?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "biographies_select".
  */
 export interface BiographiesSelect<T extends boolean = true> {
@@ -2285,10 +2248,25 @@ export interface TeamsSelect<T extends boolean = true> {
 export interface SettingsSelect<T extends boolean = true> {
   tenant?: T;
   description?: T;
+  address?: T;
+  phone?: T;
+  email?: T;
   logo?: T;
   icon?: T;
   banner?: T;
   usfsLogo?: T;
+  socialMedia?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        twitter?: T;
+        linkedin?: T;
+        youtube?: T;
+        hashtag?: T;
+      };
+  terms?: T;
+  privacy?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

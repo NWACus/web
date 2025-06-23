@@ -35,6 +35,13 @@ export async function Header({ center }: { center: string }) {
     `Depth not set correctly when querying settings. Banner for tenant ${center} not an object.`,
   )
 
+  const usfsLogo = settings.usfsLogo
+
+  invariant(
+    usfsLogo === undefined || typeof usfsLogo === 'object',
+    `Depth not set correctly when querying settings. USFS Logo for tenant ${center} exists but is not an object.`,
+  )
+
   const navigationRes = await payload.find({
     collection: 'navigations',
     depth: 99,
@@ -80,20 +87,29 @@ export async function Header({ center }: { center: string }) {
       <MobileNav
         topLevelNavItems={topLevelNavItems}
         donateNavItem={donateNavItem}
-        banner={typeof banner !== 'number' ? banner : undefined}
+        banner={banner}
+        usfsLogo={usfsLogo}
       />
       {/* content padding since mobile nav is position: fixed */}
       <div className="lg:hidden h-[64px] bg-background" />
 
       <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8">
         {banner && (
-          <Link href="/" className="w-fit">
+          <Link href="/" className="w-fit flex gap-10">
             <ImageMedia
               resource={banner}
               loading="eager"
               priority={true}
               imgClassName="h-[90px] object-contain w-fit"
             />
+            {usfsLogo && (
+              <ImageMedia
+                resource={usfsLogo}
+                loading="eager"
+                priority={true}
+                imgClassName="h-[90px] object-contain w-fit"
+              />
+            )}
           </Link>
         )}
         <DesktopNav topLevelNavItems={topLevelNavItems} donateNavItem={donateNavItem} />

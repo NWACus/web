@@ -6,7 +6,6 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
-import { Footer } from '@/collections/Footer/config'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
@@ -50,7 +49,7 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'brands', 'navigations', 'footer'],
+            globalSlugs: ['settings', 'navigations'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
@@ -136,7 +135,6 @@ export default buildConfig({
     RoleAssignments,
     GlobalRoleAssignments,
     Navigations,
-    Footer,
     Biographies,
     Teams,
     Settings,
