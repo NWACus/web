@@ -63,7 +63,7 @@ export default async function Post({ params: paramsPromise }: Args) {
   if (!post) return <PayloadRedirects url={url} />
 
   return (
-    <article className="py-16">
+    <article className="pt-4 pb-24">
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 

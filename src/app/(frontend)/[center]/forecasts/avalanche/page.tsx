@@ -49,7 +49,7 @@ export default async function Page({ params }: Args) {
     <>
       <WidgetHashHandler initialHash="/all/" />
       <ZoneLinkHijacker />
-      <div className="py-6 md:py-8 lg:py-12">
+      <div className="pt-4 pb-24">
         <div className="container flex flex-col">
           <NACWidget
             center={center}
