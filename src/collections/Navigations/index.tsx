@@ -87,9 +87,7 @@ export const Navigations: CollectionConfig = {
   ],
   versions: {
     drafts: {
-      autosave: {
-        interval: 100,
-      },
+      autosave: true,
     },
     maxPerDoc: 10,
   },

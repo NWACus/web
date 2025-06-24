@@ -7,6 +7,8 @@ export const contentHashField = (): Field => {
     required: false,
     admin: {
       hidden: true,
+      disableListColumn: true,
+      disableListFilter: true,
     },
   }
 }
