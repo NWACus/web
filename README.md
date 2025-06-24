@@ -55,6 +55,7 @@ You will need to add two keys to your `.env` file. Reach out to someone on the d
 In order to use tenant scoped subdomains on localhost you'll need to add the following to your `/etc/hosts` on macOS or `C:\Windows\System32\drivers\etc\hosts` on Windows:
 
 ```
+127.0.0.1       dvac.localhost
 127.0.0.1       nwac.localhost
 127.0.0.1       sac.localhost
 127.0.0.1       snfac.localhost
