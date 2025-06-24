@@ -1,7 +1,7 @@
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
-import { Form, Media, Tenant } from '@/payload-types'
+import { Form, Tenant } from '@/payload-types'
 import fs from 'fs'
 import { headers } from 'next/headers'
 import type {
@@ -27,9 +27,7 @@ import { post2 } from './post-2'
 import { post3 } from './post-3'
 
 const collections: CollectionSlug[] = [
-  'brands',
-  'themes',
-  'palettes',
+  'settings',
   'biographies',
   'media',
   'pages',
@@ -37,7 +35,6 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'navigations',
-  'footer',
   'roles',
   'globalRoleAssignments',
   'roleAssignments',
@@ -151,146 +148,6 @@ export const seed = async ({
     payload.logger.info(`— Skipping database cleanup for incremental seed...`)
   }
 
-  const palettes = await upsertGlobals('palettes', payload, incremental, (obj) => obj.name, [
-    {
-      name: 'Zinc Light',
-      background: '0 0% 100%',
-      foreground: '240 10% 3.9%',
-      card: '0 0% 100%',
-      'card-foreground': '240 10% 3.9%',
-      popover: '0 0% 100%',
-      'popover-foreground': '240 10% 3.9%',
-      primary: '240 5.9% 10%',
-      'primary-foreground': '0 0% 98%',
-      secondary: '240 4.8% 95.9%',
-      'secondary-foreground': '240 5.9% 10%',
-      muted: '240 4.8% 95.9%',
-      'muted-foreground': '240 3.8% 46.1%',
-      accent: '240 4.8% 95.9%',
-      'accent-foreground': '240 5.9% 10%',
-      destructive: '0 84.2% 60.2%',
-      'destructive-foreground': '0 0% 98%',
-      border: '240 5.9% 90%',
-      input: '240 5.9% 90%',
-      ring: '240 5.9% 10%',
-      radius: '0.5rem',
-      'chart-1': '12 76% 61%',
-      'chart-2': '173 58% 39%',
-      'chart-3': '197 37% 24%',
-      'chart-4': '43 74% 66%',
-      'chart-5': '27 87% 67%',
-    },
-    {
-      name: 'Zinc Dark',
-      radius: '0.5rem',
-      background: '240 10% 3.9%',
-      foreground: '0 0% 98%',
-      card: '240 10% 3.9%',
-      'card-foreground': '0 0% 98%',
-      popover: '240 10% 3.9%',
-      'popover-foreground': '0 0% 98%',
-      primary: '0 0% 98%',
-      'primary-foreground': '240 5.9% 10%',
-      secondary: '240 3.7% 15.9%',
-      'secondary-foreground': '0 0% 98%',
-      muted: '240 3.7% 15.9%',
-      'muted-foreground': '240 5% 64.9%',
-      accent: '240 3.7% 15.9%',
-      'accent-foreground': '0 0% 98%',
-      destructive: '0 62.8% 30.6%',
-      'destructive-foreground': '0 0% 98%',
-      border: '240 3.7% 15.9%',
-      input: '240 3.7% 15.9%',
-      ring: '240 4.9% 83.9%',
-      'chart-1': '220 70% 50%',
-      'chart-2': '160 60% 45%',
-      'chart-3': '30 80% 55%',
-      'chart-4': '280 65% 60%',
-      'chart-5': '340 75% 55%',
-    },
-    {
-      name: 'Blue Light',
-      radius: '0.5rem',
-      background: '0 0% 100%',
-      foreground: '222.2 84% 4.9%',
-      card: '0 0% 100%',
-      'card-foreground': '222.2 84% 4.9%',
-      popover: '0 0% 100%',
-      'popover-foreground': '222.2 84% 4.9%',
-      primary: '221.2 83.2% 53.3%',
-      'primary-foreground': '210 40% 98%',
-      secondary: '210 40% 96.1%',
-      'secondary-foreground': '222.2 47.4% 11.2%',
-      muted: '210 40% 96.1%',
-      'muted-foreground': '215.4 16.3% 46.9%',
-      accent: '210 40% 96.1%',
-      'accent-foreground': '222.2 47.4% 11.2%',
-      destructive: '0 84.2% 60.2%',
-      'destructive-foreground': '210 40% 98%',
-      border: '214.3 31.8% 91.4%',
-      input: '214.3 31.8% 91.4%',
-      ring: '221.2 83.2% 53.3%',
-      'chart-1': '12 76% 61%',
-      'chart-2': '173 58% 39%',
-      'chart-3': '197 37% 24%',
-      'chart-4': '43 74% 66%',
-      'chart-5': '27 87% 67%',
-    },
-    {
-      name: 'Blue Dark',
-      radius: '0.5rem',
-      background: '222.2 84% 4.9%',
-      foreground: '210 40% 98%',
-      card: '222.2 84% 4.9%',
-      'card-foreground': '210 40% 98%',
-      popover: '222.2 84% 4.9%',
-      'popover-foreground': '210 40% 98%',
-      primary: '217.2 91.2% 59.8%',
-      'primary-foreground': '222.2 47.4% 11.2%',
-      secondary: '217.2 32.6% 17.5%',
-      'secondary-foreground': '210 40% 98%',
-      muted: '217.2 32.6% 17.5%',
-      'muted-foreground': '215 20.2% 65.1%',
-      accent: '217.2 32.6% 17.5%',
-      'accent-foreground': '210 40% 98%',
-      destructive: '0 62.8% 30.6%',
-      'destructive-foreground': '210 40% 98%',
-      border: '217.2 32.6% 17.5%',
-      input: '217.2 32.6% 17.5%',
-      ring: '224.3 76.3% 48%',
-      'chart-1': '220 70% 50%',
-      'chart-2': '160 60% 45%',
-      'chart-3': '30 80% 55%',
-      'chart-4': '280 65% 60%',
-      'chart-5': '340 75% 55%',
-    },
-  ])
-
-  const themes = await upsertGlobals('themes', payload, incremental, (obj) => obj.name, [
-    {
-      name: 'Zinc',
-      activeColors: {
-        light: '240 5.9% 10%',
-        dark: '240 5.2% 33.9%',
-      },
-      palettes: {
-        light: palettes['Zinc Light'].id,
-        dark: palettes['Zinc Dark'].id,
-      },
-    },
-    {
-      name: 'Blue',
-      activeColors: {
-        light: '221.2 83.2% 53.3%',
-        dark: '217.2 91.2% 59.8%',
-      },
-      palettes: {
-        light: palettes['Blue Light'].id,
-        dark: palettes['Blue Dark'].id,
-      },
-    },
-  ])
-
   const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
     {
       name: 'Admin',
@@ -381,13 +238,26 @@ export const seed = async ({
     wac: 'WAC.webp',
     wcmac: 'WCMAC.webp',
   }
+  const iconFiles: Record<string, string> = {
+    nwac: 'nwac-icon.jpg',
+    sac: 'sac-icon.png',
+    snfac: 'snfac-icon.png',
+  }
   const bannerFiles: Record<string, string> = {
-    nwac: 'nwac-logo-usfs.webp',
-    sac: 'sac-png-logo.webp',
+    nwac: 'nwac-banner.webp',
+    sac: 'sac-banner.webp',
     snfac: 'sac-usfs-logo.webp',
   }
+  const usfsLogoFiles: Record<string, string> = {
+    nwac: 'usfs-logo.webp',
+    sac: 'usfs-logo.webp',
+  }
+
   const logos: Record<string, File> = {}
+  const icons: Record<string, File> = {}
   const banners: Record<string, File> = {}
+  const usfsLogos: Record<string, File> = {}
+
   for (const tenantSlug in tenants) {
     if (tenantSlug in logoFiles) {
       const logo = await getSeedImageByFilename(logoFiles[tenantSlug])
@@ -396,12 +266,26 @@ export const seed = async ({
       }
       logos[tenantSlug] = logo
     }
+    if (tenantSlug in iconFiles) {
+      const icon = await getSeedImageByFilename(iconFiles[tenantSlug])
+      if (!icon) {
+        throw new Error(`Getting icon for tenant ${tenantSlug} returned null...`)
+      }
+      icons[tenantSlug] = icon
+    }
     if (tenantSlug in bannerFiles) {
       const banner = await getSeedImageByFilename(bannerFiles[tenantSlug])
       if (!banner) {
         throw new Error(`Getting banner for tenant ${tenantSlug} returned null...`)
       }
       banners[tenantSlug] = banner
+    }
+    if (tenantSlug in usfsLogoFiles) {
+      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug])
+      if (!usfsLogo) {
+        throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
+      }
+      usfsLogos[tenantSlug] = usfsLogo
     }
   }
 
@@ -418,32 +302,92 @@ export const seed = async ({
         {
           data: {
             tenant: tenant.id,
+            alt: 'icon',
+          },
+          file: logos[tenant.slug],
+        },
+        {
+          data: {
+            tenant: tenant.id,
             alt: 'banner',
           },
           file: banners[tenant.slug],
         },
+        ...(usfsLogos[tenant.slug]
+          ? [
+              {
+                data: {
+                  tenant: tenant.id,
+                  alt: 'usfs logo',
+                },
+                file: usfsLogos[tenant.slug],
+              },
+            ]
+          : []),
       ])
       .flat(),
   ])
 
-  const themesByTenant: Record<string, string> = {
-    nwac: 'Zinc',
-    sac: 'Blue',
-    snfac: 'Zinc',
+  // Settings
+  const settingsData: Record<
+    Tenant['slug'],
+    Partial<RequiredDataFromCollectionSlug<'settings'>>
+  > = {
+    nwac: {
+      description:
+        'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
+
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/nwacus',
+        facebook: 'https://www.facebook.com/NWACUS/',
+        twitter: 'https://x.com/nwacus',
+        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
+        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
+      },
+    },
+    sac: {
+      description:
+        'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
+
+      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
+      phone: '(530)563-2257',
+      email: 'info@sierraavalanchecenter.org',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/savycenter/',
+        facebook: 'https://www.facebook.com/sacnonprofit',
+        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
+      },
+    },
+    snfac: {
+      description: 'Avalanche Safety Information for South Central Idaho',
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {},
+    },
   }
-  // Brands
+
   await upsert(
-    'brands',
+    'settings',
     payload,
     incremental,
     tenantsById,
     (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
     Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'brands'> => ({
+      (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
         tenant: tenant.id,
+        description: settingsData[tenant.slug].description,
+        address: settingsData[tenant.slug].address,
+        phone: settingsData[tenant.slug].phone,
+        email: settingsData[tenant.slug].email,
+        socialMedia: settingsData[tenant.slug].socialMedia,
         logo: brandImages[tenant.slug]['logo'].id,
+        icon: brandImages[tenant.slug]['icon'].id,
         banner: brandImages[tenant.slug]['banner'].id,
-        theme: themes[themesByTenant[tenant.slug]].id,
+        usfsLogo: brandImages[tenant.slug]['usfs logo']?.id,
       }),
     ),
   )
@@ -855,59 +799,5 @@ export const seed = async ({
     ),
   )
 
-  payload.logger.info(`— Seeding footers...`)
-  const footerData: Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'footer'>>> = {
-    nwac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/nwacus',
-        facebook: 'https://www.facebook.com/NWACUS/',
-        twitter: 'https://x.com/nwacus',
-        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
-        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
-      },
-    },
-    sac: {
-      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
-      phone: '(530)563-2257',
-      email: 'info@sierraavalanchecenter.org',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/savycenter/',
-        facebook: 'https://www.facebook.com/sacnonprofit',
-        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
-      },
-    },
-    snfac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {},
-    },
-  }
-
-  const footer = (
-    tenant: Tenant,
-    brandImages: Record<Tenant['slug'], Record<string, Media>>,
-  ): RequiredDataFromCollectionSlug<'footer'> => {
-    return {
-      tenant: tenant.id,
-      footerLogo: brandImages[tenant.slug]['logo'].id,
-      name: tenant.name,
-      ...footerData[tenant.slug],
-    }
-  }
-
-  await upsert(
-    'footer',
-    payload,
-    incremental,
-    tenantsById,
-    (_obj) => 'footer',
-    Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant, brandImages),
-    ),
-  )
   payload.logger.info('Seeded database successfully!')
 }

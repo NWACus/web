@@ -23,10 +23,12 @@ export const MobileNav = ({
   topLevelNavItems,
   donateNavItem,
   banner,
+  usfsLogo,
 }: {
   topLevelNavItems: TopLevelNavItem[]
   donateNavItem?: TopLevelNavItem
   banner?: Media
+  usfsLogo?: Media | null
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [headerHeight, setHeaderHeight] = useState(64) // fallback to the expected height of the mobile nav bar
@@ -52,20 +54,10 @@ export const MobileNav = ({
   useEffect(
     function manageScrollLock() {
       if (mobileNavOpen) {
-        const scrollY = window.scrollY
-
-        document.body.style.position = 'fixed'
-        document.body.style.top = `-${scrollY}px`
-        document.body.style.width = '100%'
         document.body.style.overflow = 'hidden'
 
         return () => {
-          document.body.style.position = ''
-          document.body.style.top = ''
-          document.body.style.width = ''
-          document.body.style.overflow = ''
-
-          window.scrollTo(0, scrollY)
+          document.body.style.overflow = 'unset'
         }
       }
     },
@@ -97,13 +89,21 @@ export const MobileNav = ({
             <span className="sr-only">Toggle menu</span>
           </DialogTrigger>
           {banner && (
-            <Link href="/" className="w-fit">
+            <Link href="/" className="w-fit flex gap-4">
               <ImageMedia
                 resource={banner}
                 loading="eager"
                 priority={true}
                 imgClassName="h-[36px] object-contain w-fit"
               />
+              {usfsLogo && (
+                <ImageMedia
+                  resource={usfsLogo}
+                  loading="eager"
+                  priority={true}
+                  imgClassName="h-[36px] object-contain w-fit"
+                />
+              )}
             </Link>
           )}
           {donateNavItem && (

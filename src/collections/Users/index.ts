@@ -1,19 +1,17 @@
 import type { CollectionConfig } from 'payload'
 
-import { accessByGlobalRoleOrTenantDomain } from '@/collections/Users/access/byGlobalRoleOrTenantDomain'
 import { contentHashField } from '@/fields/contentHashField'
-import { externalUsersLogin } from './endpoints/externalUsersLogin'
+import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  access: accessByGlobalRoleOrTenantDomain,
+  access: accessByGlobalRoleOrTenantRoleAssignmentOrDomain,
   admin: {
     useAsTitle: 'email',
     group: 'Permissions',
   },
   auth: true,
-  endpoints: [externalUsersLogin],
   fields: [
     {
       name: 'name',
@@ -39,7 +37,6 @@ export const Users: CollectionConfig = {
       maxDepth: 3,
     },
     contentHashField(),
-    // TODO: maybe add a set of associated tenants here or something to allow tenant admins to see you
   ],
   hooks: {
     afterLogin: [setCookieBasedOnDomain],

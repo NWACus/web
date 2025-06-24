@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import React from 'react'
 
-import { Footer } from '@/Footer/Component'
+import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
@@ -106,12 +106,22 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   const hostname = getHostnameFromTenant(tenant)
 
+  const websiteSettingsRes = await payload.find({
+    collection: 'settings',
+    where: {
+      'tenant.slug': {
+        equals: tenant.slug,
+      },
+    },
+  })
+  const websiteSettings = websiteSettingsRes.docs.length > 1 ? websiteSettingsRes.docs[0] : null
+
   const title = tenant.name
-  const description = `${tenant.name}'s website.`
+  const description = websiteSettings?.description || `${tenant.name}'s website.`
 
   return {
     title,
-    description, // TODO add description to tenant or a settings global collection and use that here
+    description,
     metadataBase: new URL(getURL(hostname)),
     openGraph: mergeOpenGraph({
       title,
