@@ -152,7 +152,8 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
-  const metadata = await nacFetch(`/v2/public/avalanche-center/${centerSlug.toUpperCase()}`)
+  const replaceCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const metadata = await nacFetch(`/v2/public/avalanche-center/${replaceCenter.toUpperCase()}`)
 
   const parsed = avalancheCenterSchema.safeParse(metadata)
 

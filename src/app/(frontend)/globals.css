@@ -50,6 +50,7 @@
     --footer-foreground-highlight: 240 3.8% 46.1%;
 
     --callout: 240 4.8% 95.9%;
+    --callout-hover: 240 4.8% 95.9%;
     --callout-foreground: 240 10% 3.9%;
 
     --brand-50: 210 40% 98%;
@@ -79,6 +80,17 @@
     --success: 196 52% 74%;
     --warning: 34 89% 85%;
     --error: 10 100% 86%;
+  }
+
+  .dvac {
+    --secondary: 8, 61%, 45%;
+    --secondary-hover: 255 83% 35%;
+
+    --callout: 66, 83%, 35%;
+    --callout-hover: 69, 42%, 30%;
+    --callout-foreground: 0 0% 100%;
+
+    --header-foreground-highlight: 240 3.8% 35.3%;
   }
 
   .nwac {
