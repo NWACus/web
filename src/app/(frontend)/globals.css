@@ -127,6 +127,16 @@
     --brand-900: 206 57% 24%;
     --brand-950: 208 58% 16%;
   }
+
+  .snfac {
+    --secondary: 178 83% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    --callout: 178 83% 35%;
+    --callout-foreground: 0 0% 100%;
+
+    --header-foreground-highlight: 240 3.8% 35.3%;
+  }
 }
 
 @layer base {
