@@ -104,10 +104,12 @@
     --secondary: 202 91% 63%;
 
     --header: 0 2% 21%;
-    --header-foreground: 202 100% 75%;
+    --header-foreground: 204 66% 86%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --footer: 0 2% 21%;
-    --footer-foreground: 202 100% 75%;
+    --footer-foreground: 0 0% 100%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --callout: 60 100% 50%;
 
