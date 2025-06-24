@@ -50,6 +50,11 @@ export const bootstrap = async ({
 
   const tenantData: RequiredDataFromCollectionSlug<'tenants'>[] = [
     {
+      name: 'Death Valley Avalanche Center',
+      slug: 'dvac',
+      customDomain: 'dvac.us',
+    },
+    {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
       customDomain: 'nwac.us',

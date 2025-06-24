@@ -99,6 +99,7 @@ const config = {
         },
         callout: {
           DEFAULT: 'hsl(var(--callout))',
+          hover: 'hsl(var(--callout-hover))',
           foreground: 'hsl(var(--callout-foreground))',
         },
         brand: {
