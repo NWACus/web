@@ -134,9 +134,10 @@ export async function getAllAvalancheCenterCapabilities() {
 
 export async function getAvalancheCenterPlatforms(centerSlug: string) {
   const allAvalancheCenterCapabilities = await getAllAvalancheCenterCapabilities()
+  const fallbackCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
 
   const foundAvalancheCenterBySlug = allAvalancheCenterCapabilities.centers.find(
-    (center) => center.id === centerSlug.toUpperCase(),
+    (center) => center.id === fallbackCenter.toUpperCase(),
   )
 
   if (!foundAvalancheCenterBySlug)
