@@ -6,6 +6,7 @@ import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { PostsSort } from './posts-sort'
+import { PostsTags } from './posts-tags'
 
 type Args = {
   params: Promise<{
@@ -18,6 +19,7 @@ export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
   const resolvedSearchParams = await searchParams
   const sort = resolvedSearchParams?.sort || '-publishedAt'
+  const selectedTag = resolvedSearchParams?.tag
 
   const payload = await getPayload({ config: configPromise })
 
@@ -32,15 +34,30 @@ export default async function Page({ params, searchParams }: Args) {
       _status: {
         equals: 'published',
       },
+      'tags.slug': {
+        in: selectedTag,
+      },
     },
     sort,
+  })
+
+  const tags = await payload.find({
+    collection: 'tags',
+    depth: 1,
+    limit: 99,
+    pagination: false,
+    where: {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    sort: 'name',
   })
 
   return (
     <div className="pt-24 pb-24">
       <div>
         <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
-          {/* {error && <div>{`${error.message || ''}`}</div>} */}
           <div className="grow">
             {posts && posts?.totalDocs > 0 ? (
               <CollectionArchive posts={posts.docs} />
@@ -49,11 +66,14 @@ export default async function Page({ params, searchParams }: Args) {
             )}
           </div>
 
+          {/* Sorting and filters */}
           <div className="sm:w-[280px]">
-            {/* Sort */}
             <PostsSort initialSort={sort} />
+            {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
           </div>
         </div>
+
+        {/* Pagination */}
         {posts.totalPages > 1 && posts.page && (
           <div className="container mb-8">
             <Pagination page={posts?.page} totalPages={posts?.totalPages} />

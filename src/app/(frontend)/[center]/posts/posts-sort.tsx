@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type Props = {
   initialSort: string
@@ -17,6 +17,7 @@ export const PostsSort = ({ initialSort }: Props) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const isFirstRender = useRef(true)
 
   const [sortOption, setSortOption] = useState(initialSort)
 
@@ -25,6 +26,11 @@ export const PostsSort = ({ initialSort }: Props) => {
   }, [initialSort])
 
   useEffect(() => {
+    // Skip URL update on initial load
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     const params = new URLSearchParams(searchParams.toString())
     params.set('sort', sortOption)
     router.push(`${pathname}?${params.toString()}`)
