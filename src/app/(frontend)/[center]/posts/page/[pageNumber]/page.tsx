@@ -1,8 +1,8 @@
 import type { Metadata } from 'next/types'
 
-import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import { PostCollection } from '@/components/PostCollection'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -33,13 +33,22 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   return (
     <div className="pt-24 pb-24">
-      <div className="container mb-16">
-        {/* Add filter */}
-        {/* Add sort */}
-        {/* Add search */}
+      <div>
+        <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
+          <div className="grow">
+            {posts && posts?.totalDocs > 0 ? (
+              <PostCollection posts={posts.docs} />
+            ) : (
+              <h3>There are no posts matching these results.</h3>
+            )}
+          </div>
+
       </div>
 
+        {/* Pagination */}
+        {posts.totalPages > 1 && posts.page && (
       <div className="container mb-8">
+            <Pagination page={posts.page} totalPages={posts.totalPages} />
         <PageRange
           collectionLabels={{
             plural: 'Posts',
@@ -50,12 +59,6 @@ export default async function Page({ params: paramsPromise }: Args) {
           totalDocs={posts.totalDocs}
         />
       </div>
-
-      <CollectionArchive posts={posts.docs} />
-
-      <div className="container">
-        {posts?.page && posts?.totalPages > 1 && (
-          <Pagination page={posts.page} totalPages={posts.totalPages} />
         )}
       </div>
     </div>

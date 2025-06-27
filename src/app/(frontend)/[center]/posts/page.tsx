@@ -1,8 +1,8 @@
 import type { Metadata } from 'next/types'
 
-import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import { PostCollection } from '@/components/PostCollection'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { PostsSort } from './posts-sort'
@@ -59,8 +59,8 @@ export default async function Page({ params, searchParams }: Args) {
       <div>
         <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
           <div className="grow">
-            {posts && posts?.totalDocs > 0 ? (
-              <CollectionArchive posts={posts.docs} />
+            {posts.totalDocs > 0 ? (
+              <PostCollection posts={posts.docs} />
             ) : (
               <h3>There are no posts matching these results.</h3>
             )}

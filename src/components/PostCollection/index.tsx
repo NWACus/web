@@ -7,7 +7,7 @@ export type Props = {
   posts: PostPreviewHorizontalData[] | null | undefined
 }
 
-export const CollectionArchive = (props: Props) => {
+export const PostCollection = (props: Props) => {
   const { posts } = props
 
   return (
