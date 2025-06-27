@@ -6,6 +6,8 @@ import { PostCollection } from '@/components/PostCollection'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
+import { PostsSort } from '../../posts-sort'
+import { PostsTags } from '../../posts-tags'
 
 export const revalidate = 600
 
@@ -14,10 +16,15 @@ type Args = {
     center: string
     pageNumber: string
   }>
+  searchParams: Promise<{ [key: string]: string }>
 }
 
-export default async function Page({ params: paramsPromise }: Args) {
-  const { pageNumber } = await paramsPromise
+export default async function Page({ params: paramsPromise, searchParams }: Args) {
+  const resolvedSearchParams = await searchParams
+  const sort = resolvedSearchParams?.sort || '-publishedAt'
+  const selectedTag = resolvedSearchParams?.tag
+
+  const { center, pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
 
   const sanitizedPageNumber = Number(pageNumber)
@@ -26,9 +33,35 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   const posts = await payload.find({
     collection: 'posts',
-    depth: 1,
-    limit: 12,
+    depth: 2,
+    limit: 10,
     page: sanitizedPageNumber,
+
+    where: {
+      'tenant.slug': {
+        equals: center,
+      },
+      _status: {
+        equals: 'published',
+      },
+      'tags.slug': {
+        in: selectedTag,
+      },
+    },
+    sort,
+  })
+
+  const tags = await payload.find({
+    collection: 'tags',
+    depth: 1,
+    limit: 99,
+    pagination: false,
+    where: {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    sort: 'name',
   })
 
   return (
@@ -43,22 +76,27 @@ export default async function Page({ params: paramsPromise }: Args) {
             )}
           </div>
 
-      </div>
+          {/* Sorting and filters */}
+          <div className="sm:w-[280px]">
+            <PostsSort initialSort={sort} />
+            {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
+          </div>
+        </div>
 
         {/* Pagination */}
         {posts.totalPages > 1 && posts.page && (
-      <div className="container mb-8">
+          <div className="container mb-8">
             <Pagination page={posts.page} totalPages={posts.totalPages} />
-        <PageRange
-          collectionLabels={{
-            plural: 'Posts',
-            singular: 'Post',
-          }}
-          currentPage={posts.page}
-          limit={12}
-          totalDocs={posts.totalDocs}
-        />
-      </div>
+            <PageRange
+              collectionLabels={{
+                plural: 'Posts',
+                singular: 'Post',
+              }}
+              currentPage={posts.page}
+              limit={10}
+              totalDocs={posts.totalDocs}
+            />
+          </div>
         )}
       </div>
     </div>

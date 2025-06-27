@@ -26,7 +26,7 @@ export default async function Page({ params, searchParams }: Args) {
   const posts = await payload.find({
     collection: 'posts',
     depth: 2,
-    limit: 12,
+    limit: 10,
     where: {
       'tenant.slug': {
         equals: center,
@@ -76,15 +76,15 @@ export default async function Page({ params, searchParams }: Args) {
         {/* Pagination */}
         {posts.totalPages > 1 && posts.page && (
           <div className="container mb-8">
-            <Pagination page={posts?.page} totalPages={posts?.totalPages} />
+            <Pagination page={posts.page} totalPages={posts.totalPages} />
             <PageRange
               collectionLabels={{
                 plural: 'Posts',
                 singular: 'Post',
               }}
-              currentPage={posts?.page}
-              limit={12}
-              totalDocs={posts?.totalDocs}
+              currentPage={posts.page}
+              limit={10}
+              totalDocs={posts.totalDocs}
             />
           </div>
         )}
