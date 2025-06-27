@@ -61,7 +61,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
         equals: center,
       },
     },
-    sort: 'name',
+    sort: 'slug',
   })
 
   return (

@@ -1,8 +1,8 @@
 'use client'
 import { Tag } from '@/payload-types'
 import { cn } from '@/utilities/ui'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 
 type Props = {
   tags: Tag[]
@@ -10,26 +10,32 @@ type Props = {
 
 export const PostsTags = ({ tags }: Props) => {
   const router = useRouter()
-  const pathname = usePathname()
   const searchParams = useSearchParams()
+  const hasUserInteracted = useRef(false)
 
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const tagParam = searchParams.get('tag')
+    return tagParam ? tagParam.split(',').filter(Boolean) : []
+  })
 
   const toggleTag = (slug: string) => {
+    hasUserInteracted.current = true
     setSelectedTags((prev) =>
       prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
     )
   }
 
   useEffect(() => {
+    if (!hasUserInteracted.current) return
+
     const params = new URLSearchParams(searchParams.toString())
     if (selectedTags.length > 0) {
       params.set('tag', selectedTags.join(','))
     } else {
       params.delete('tag')
     }
-    router.push(`${pathname}?${params.toString()}`)
-  }, [pathname, router, searchParams, selectedTags])
+    router.push(`/posts?${params.toString()}`)
+  }, [router, searchParams, selectedTags])
 
   return (
     <div className="mb-4">

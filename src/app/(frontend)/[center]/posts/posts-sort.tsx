@@ -26,7 +26,6 @@ export const PostsSort = ({ initialSort }: Props) => {
   }, [initialSort])
 
   useEffect(() => {
-    // Skip URL update on initial load
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
