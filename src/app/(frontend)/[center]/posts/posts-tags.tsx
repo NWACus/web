@@ -13,17 +13,23 @@ export const PostsTags = ({ tags }: Props) => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [selectedTag, setSelectedTag] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+
+  const toggleTag = (slug: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
+    )
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString())
-    if (selectedTag) {
-      params.set('tag', selectedTag)
+    if (selectedTags.length > 0) {
+      params.set('tag', selectedTags.join(','))
     } else {
       params.delete('tag')
     }
     router.push(`${pathname}?${params.toString()}`)
-  }, [pathname, router, searchParams, selectedTag])
+  }, [pathname, router, searchParams, selectedTags])
 
   return (
     <div className="mb-4">
@@ -34,12 +40,12 @@ export const PostsTags = ({ tags }: Props) => {
           <li key={tag.slug}>
             <button
               className={cn('p-2 rounded cursor-pointer', {
-                'bg-callout': selectedTag === tag.slug,
-                'bg-secondary': selectedTag !== tag.slug,
+                'bg-callout': selectedTags.includes(tag.slug),
+                'bg-secondary': !selectedTags.includes(tag.slug),
               })}
               type="button"
-              onClick={() => setSelectedTag(selectedTag === tag.slug ? '' : tag.slug)}
-              aria-pressed={selectedTag === tag.slug}
+              onClick={() => toggleTag(tag.slug)}
+              aria-pressed={selectedTags.includes(tag.slug)}
             >
               {tag.title}
             </button>
