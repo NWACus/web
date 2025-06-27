@@ -179,24 +179,6 @@ export const seed = async ({
           ],
           actions: ['*'],
         },
-      ],
-    },
-    {
-      name: 'User Administrator',
-      rules: [
-        {
-          collections: ['roleAssignments'],
-          actions: ['create', 'read', 'update'],
-        },
-      ],
-    },
-    {
-      name: 'Contributor',
-      rules: [
-        {
-          collections: ['posts', 'pages', 'media', 'tags'],
-          actions: ['*'],
-        },
         {
           collections: ['navigations', 'tenants'],
           actions: ['read'],
