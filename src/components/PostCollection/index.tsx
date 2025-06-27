@@ -15,7 +15,7 @@ export const PostCollection = (props: Props) => {
       {posts?.map((result, index) => {
         if (typeof result === 'object' && result !== null) {
           return (
-            <div className="py-6" key={index}>
+            <div className="mb-8" key={index}>
               <PostPreviewHorizontal className="h-full" doc={result} relationTo="posts" />
             </div>
           )

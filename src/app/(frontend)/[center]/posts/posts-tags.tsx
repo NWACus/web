@@ -26,14 +26,14 @@ export const PostsTags = ({ tags }: Props) => {
   }, [pathname, router, searchParams, selectedTag])
 
   return (
-    <div>
+    <div className="mb-4">
       <h4 className="w-full">Filter by tag</h4>
       <hr className="p-2" />
-      <ul className="flex gap-4 p-0 list-none">
+      <ul className="flex flex-wrap gap-3 p-0 list-none">
         {tags.map((tag) => (
           <li key={tag.slug}>
             <button
-              className={cn('p-3 rounded cursor-pointer', {
+              className={cn('p-2 rounded cursor-pointer', {
                 'bg-callout': selectedTag === tag.slug,
                 'bg-secondary': selectedTag !== tag.slug,
               })}
