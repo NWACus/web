@@ -1,16 +1,16 @@
-import type { Media, Tenant, User } from '@/payload-types'
+import type { Biography, Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const post2: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
     slug: 'global-gaze',
