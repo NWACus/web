@@ -17,7 +17,7 @@ export const PostsSort = ({ initialSort }: Props) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const isFirstRender = useRef(true)
+  const isFirstRender = useRef(initialSort === '-publishedAt')
 
   const [sortOption, setSortOption] = useState(initialSort)
 
