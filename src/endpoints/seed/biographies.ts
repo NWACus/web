@@ -9,7 +9,7 @@ export const seedStaff = async (
   tenants: Record<string, Tenant>, // by tenant slug
   tenantsById: Record<number, Tenant>, // by id
   users: Record<string, User>, // by full name
-): Promise<Record<string, Team[]>> => {
+): Promise<{ teams: Record<string, Team[]>; bios: Record<string, Record<string, Biography>> }> => {
   payload.logger.info(`— Seeding staff photos...`)
 
   const placeholder = await getSeedImageByFilename('Profile_photo_placeholder_square.svg')
@@ -84,7 +84,7 @@ export const seedStaff = async (
       }
     }
   }
-  return orderedTeamsByTenant
+  return { teams: orderedTeamsByTenant, bios }
 }
 
 export const biographies: (
