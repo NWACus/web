@@ -176,6 +176,20 @@ export const Posts: CollectionConfig<'posts'> = {
       },
     },
     {
+      name: 'tags',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      hasMany: true,
+      relationTo: 'tags',
+      filterOptions: ({ data }) => ({
+        tenant: {
+          equals: data.tenant,
+        },
+      }),
+    },
+    {
       name: 'relatedPosts',
       type: 'relationship',
       admin: {

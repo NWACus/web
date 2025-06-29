@@ -79,6 +79,7 @@ export interface Config {
     biographies: Biography;
     teams: Team;
     settings: Setting;
+    tags: Tag;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -105,6 +106,7 @@ export interface Config {
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -726,6 +728,7 @@ export interface Post {
       }[]
     | null;
   publishedAt?: string | null;
+  tags?: (number | Tag)[] | null;
   relatedPosts?: (number | Post)[] | null;
   slug: string;
   slugLock?: boolean | null;
@@ -733,6 +736,20 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  slug: string;
+  slugLock?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1464,6 +1481,10 @@ export interface PayloadLockedDocument {
         value: number | Setting;
       } | null)
     | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -1822,6 +1843,7 @@ export interface PostsSelect<T extends boolean = true> {
         name?: T;
       };
   publishedAt?: T;
+  tags?: T;
   relatedPosts?: T;
   slug?: T;
   slugLock?: T;
@@ -2267,6 +2289,19 @@ export interface SettingsSelect<T extends boolean = true> {
       };
   terms?: T;
   privacy?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  slug?: T;
+  slugLock?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -1,11 +1,15 @@
 import type { Metadata } from 'next/types'
 
-import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import { PostCollection } from '@/components/PostCollection'
+import PostSkeleton from '@/components/PostPreviewHorizontal/PostSkeleton'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
+import { Suspense } from 'react'
+import { PostsSort } from '../../posts-sort'
+import { PostsTags } from '../../posts-tags'
 
 export const revalidate = 600
 
@@ -14,10 +18,15 @@ type Args = {
     center: string
     pageNumber: string
   }>
+  searchParams: Promise<{ [key: string]: string }>
 }
 
-export default async function Page({ params: paramsPromise }: Args) {
-  const { pageNumber } = await paramsPromise
+export default async function Page({ params: paramsPromise, searchParams }: Args) {
+  const resolvedSearchParams = await searchParams
+  const sort = resolvedSearchParams?.sort || '-publishedAt'
+  const selectedTag = resolvedSearchParams?.tag
+
+  const { center, pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
 
   const sanitizedPageNumber = Number(pageNumber)
@@ -26,38 +35,72 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   const posts = await payload.find({
     collection: 'posts',
-    depth: 1,
-    limit: 12,
+    depth: 2,
+    limit: 10,
     page: sanitizedPageNumber,
+
+    where: {
+      'tenant.slug': {
+        equals: center,
+      },
+      _status: {
+        equals: 'published',
+      },
+      'tags.slug': {
+        in: selectedTag,
+      },
+    },
+    sort,
+  })
+
+  const tags = await payload.find({
+    collection: 'tags',
+    depth: 1,
+    limit: 99,
+    pagination: false,
+    where: {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    sort: 'slug',
   })
 
   return (
-    <div className="pt-24 pb-24">
-      <div className="container mb-16">
-        {/* Add filter */}
-        {/* Add sort */}
-        {/* Add search */}
+    <div className="py-6">
+      <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
+        <div className="grow">
+          {posts && posts?.totalDocs > 0 ? (
+            <Suspense fallback={<PostSkeleton />}>
+              <PostCollection posts={posts.docs} />
+            </Suspense>
+          ) : (
+            <h3>There are no posts matching these results.</h3>
+          )}
+        </div>
+
+        {/* Sorting and filters */}
+        <div className="flex justify-between md:justify-start md:flex-col gap-4 md:w-[300px] shrink-0">
+          <PostsSort initialSort={sort} />
+          {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
+        </div>
       </div>
 
-      <div className="container mb-8">
-        <PageRange
-          collectionLabels={{
-            plural: 'Posts',
-            singular: 'Post',
-          }}
-          currentPage={posts.page}
-          limit={12}
-          totalDocs={posts.totalDocs}
-        />
-      </div>
-
-      <CollectionArchive posts={posts.docs} />
-
-      <div className="container">
-        {posts?.page && posts?.totalPages > 1 && (
+      {/* Pagination */}
+      {posts.totalPages > 1 && posts.page && (
+        <div className="container mb-8">
           <Pagination page={posts.page} totalPages={posts.totalPages} />
-        )}
-      </div>
+          <PageRange
+            collectionLabels={{
+              plural: 'Posts',
+              singular: 'Post',
+            }}
+            currentPage={posts.page}
+            limit={10}
+            totalDocs={posts.totalDocs}
+          />
+        </div>
+      )}
     </div>
   )
 }

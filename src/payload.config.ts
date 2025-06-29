@@ -14,6 +14,7 @@ import { Posts } from '@/collections/Posts'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
 import { Settings } from '@/collections/Settings'
+import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
@@ -138,6 +139,7 @@ export default buildConfig({
     Biographies,
     Teams,
     Settings,
+    Tags,
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getURL()].filter(Boolean),
   globals: [NACWidgetsConfig],
