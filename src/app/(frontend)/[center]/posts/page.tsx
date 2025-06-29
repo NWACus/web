@@ -3,8 +3,10 @@ import type { Metadata } from 'next/types'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { PostCollection } from '@/components/PostCollection'
+import PostSkeleton from '@/components/PostPreviewHorizontal/PostSkeleton'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { Suspense } from 'react'
 import { PostsSort } from './posts-sort'
 import { PostsTags } from './posts-tags'
 
@@ -59,7 +61,9 @@ export default async function Page({ params, searchParams }: Args) {
       <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
         <div className="grow">
           {posts.totalDocs > 0 ? (
-            <PostCollection posts={posts.docs} />
+            <Suspense fallback={<PostSkeleton />}>
+              <PostCollection posts={posts.docs} />
+            </Suspense>
           ) : (
             <h3>There are no posts matching these results.</h3>
           )}

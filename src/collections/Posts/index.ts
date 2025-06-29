@@ -183,6 +183,11 @@ export const Posts: CollectionConfig<'posts'> = {
       },
       hasMany: true,
       relationTo: 'tags',
+      filterOptions: ({ data }) => ({
+        tenant: {
+          equals: data.tenant,
+        },
+      }),
     },
     {
       name: 'relatedPosts',
