@@ -150,42 +150,73 @@ export const seed = async ({
 
   const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
     {
+      name: 'Super Admin',
+      rules: [
+        {
+          collections: ['*'],
+          actions: ['*'],
+        },
+      ],
+    },
+    {
       name: 'Admin',
       rules: [
         {
-          collections: ['*'],
-          actions: ['*'],
-        },
-      ],
-    },
-    {
-      name: 'User Administrator',
-      rules: [
-        {
-          collections: ['roleAssignments'],
-          actions: ['create', 'read', 'update'],
-        },
-      ],
-    },
-    {
-      name: 'Contributor',
-      rules: [
-        {
-          collections: ['posts', 'pages', 'media'],
+          collections: [
+            'pages',
+            'posts',
+            'tags',
+            'roleAssignments',
+            'settings',
+            'media',
+            'biographies',
+            'teams',
+            'forms',
+            'formSubmissions',
+            'users',
+            'redirects',
+          ],
           actions: ['*'],
         },
         {
-          collections: ['tenants'],
+          collections: ['navigations', 'tenants'],
           actions: ['read'],
         },
       ],
     },
     {
-      name: 'Viewer',
+      name: 'Forecaster',
       rules: [
         {
-          collections: ['*'],
-          actions: ['read'],
+          collections: [
+            'pages',
+            'posts',
+            'tags',
+            'media',
+            'biographies',
+            'teams',
+            'forms',
+            'formSubmissions',
+          ],
+          actions: ['*'],
+        },
+      ],
+    },
+    {
+      name: 'Non-Profit Staff',
+      rules: [
+        {
+          collections: [
+            'pages',
+            'posts',
+            'tags',
+            'media',
+            'biographies',
+            'teams',
+            'forms',
+            'formSubmissions',
+          ],
+          actions: ['*'],
         },
       ],
     },
@@ -414,13 +445,13 @@ export const seed = async ({
           password: password,
         },
         {
-          name: tenant.slug.toUpperCase() + ' Contributor',
-          email: 'contributor@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
+          name: tenant.slug.toUpperCase() + ' Forecaster',
+          email: 'forecaster@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
         {
-          name: tenant.slug.toUpperCase() + ' Viewer',
-          email: 'viewer@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
+          name: tenant.slug.toUpperCase() + ' Non-Profit Staff',
+          email: 'staff@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
       ])
@@ -438,13 +469,13 @@ export const seed = async ({
   const { user } = await payload.auth({ headers: requestHeaders })
   const globalRoleAssignments: RequiredDataFromCollectionSlug<'globalRoleAssignments'>[] = [
     {
-      roles: [roles['Admin'].id],
+      roles: [roles['Super Admin'].id],
       user: users['Super Admin'].id,
     },
   ]
   if (user && user.email !== users['Super Admin'].email) {
     globalRoleAssignments.push({
-      roles: [roles['Admin'].id],
+      roles: [roles['Super Admin'].id],
       user: user.id,
     })
   }
@@ -474,14 +505,14 @@ export const seed = async ({
           },
           {
             tenant: tenant.id,
-            roles: [roles['Contributor'].id],
-            user: users[tenant.slug.toUpperCase() + ' Contributor'].id,
+            roles: [roles['Forecaster'].id],
+            user: users[tenant.slug.toUpperCase() + ' Forecaster'].id,
           },
 
           {
             tenant: tenant.id,
-            roles: [roles['Viewer'].id],
-            user: users[tenant.slug.toUpperCase() + ' Viewer'].id,
+            roles: [roles['Non-Profit Staff'].id],
+            user: users[tenant.slug.toUpperCase() + ' Non-Profit Staff'].id,
           },
         ])
         .flat(),
@@ -548,7 +579,7 @@ export const seed = async ({
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
         post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
-          users[tenant.slug.toUpperCase() + ' Contributor'],
+          users[tenant.slug.toUpperCase() + ' Forecaster'],
           users[tenant.slug.toUpperCase() + ' Admin'],
         ]),
         post2(
@@ -561,7 +592,7 @@ export const seed = async ({
           tenant,
           images[tenant.slug]['image3'],
           images[tenant.slug]['image1'],
-          users[tenant.slug.toUpperCase() + ' Contributor'],
+          users[tenant.slug.toUpperCase() + ' Forecaster'],
         ),
       ])
       .flat(),
