@@ -14,9 +14,6 @@ import {
 } from '../ui/breadcrumb'
 
 const knownPathsWithoutPages = ['/forecasts', '/weather', '/weather/stations']
-const knownPathTitleOverrides: Record<string, string> = {
-  '/posts': 'Blog',
-}
 
 type BreadcrumbType = {
   name: string
@@ -29,7 +26,7 @@ const createBreadcrumbItem = (
   href: string | null,
   isLast: boolean,
 ): BreadcrumbType => ({
-  name: knownPathTitleOverrides[href || ''] ?? name.replace(/-/g, ' '),
+  name: name.replace(/-/g, ' '),
   href: href && knownPathsWithoutPages.includes(href) ? null : href,
   isLast,
 })
