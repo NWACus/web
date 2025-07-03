@@ -30,7 +30,10 @@ export const PostPreviewHorizontal = (props: {
   const href = `/${relationTo}/${slug}`
 
   return (
-    <article className={cn('flex my-6 hover:cursor-pointer', className)} ref={card.ref}>
+    <article
+      className={cn('flex flex-col md:flex-row my-6 hover:cursor-pointer', className)}
+      ref={card.ref}
+    >
       <div className="relative w-full flex-1">
         {featuredImage && typeof featuredImage !== 'number' && (
           <Media imgClassName="w-full" resource={featuredImage} size="33vw" />

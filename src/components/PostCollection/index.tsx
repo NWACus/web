@@ -12,17 +12,21 @@ export const PostCollection = (props: Props) => {
 
   return (
     <>
-      {posts?.map((result, index) => {
-        if (typeof result === 'object' && result !== null) {
-          return (
-            <div className="mb-8" key={index}>
-              <PostPreviewHorizontal className="h-full" doc={result} relationTo="posts" />
-            </div>
-          )
-        }
+      {posts && posts?.length > 0 ? (
+        posts?.map((result, index) => {
+          if (typeof result === 'object' && result !== null) {
+            return (
+              <div className="mb-8" key={index}>
+                <PostPreviewHorizontal className="h-full" doc={result} relationTo="posts" />
+              </div>
+            )
+          }
 
-        return null
-      })}
+          return null
+        })
+      ) : (
+        <h3>There are no posts matching these results.</h3>
+      )}
     </>
   )
 }
