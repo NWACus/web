@@ -21,7 +21,7 @@ export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
   const resolvedSearchParams = await searchParams
   const sort = resolvedSearchParams?.sort || '-publishedAt'
-  const selectedTag = resolvedSearchParams?.tag
+  const selectedTag = resolvedSearchParams?.tags
 
   const payload = await getPayload({ config: configPromise })
 

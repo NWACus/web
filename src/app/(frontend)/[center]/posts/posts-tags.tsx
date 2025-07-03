@@ -1,4 +1,5 @@
 'use client'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Tag } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -14,7 +15,7 @@ export const PostsTags = ({ tags }: Props) => {
   const hasUserInteracted = useRef(false)
 
   const [selectedTags, setSelectedTags] = useState<string[]>(() => {
-    const tagParam = searchParams.get('tag')
+    const tagParam = searchParams.get('tags')
     return tagParam ? tagParam.split(',').filter(Boolean) : []
   })
 
@@ -30,9 +31,9 @@ export const PostsTags = ({ tags }: Props) => {
 
     const params = new URLSearchParams(searchParams.toString())
     if (selectedTags.length > 0) {
-      params.set('tag', selectedTags.join(','))
+      params.set('tags', selectedTags.join(','))
     } else {
-      params.delete('tag')
+      params.delete('tags')
     }
     router.push(`/posts?${params.toString()}`)
   }, [router, searchParams, selectedTags])
@@ -42,21 +43,24 @@ export const PostsTags = ({ tags }: Props) => {
       <h4 className="w-full">Filter by tag</h4>
       <hr className="p-2" />
       <ul className="flex flex-wrap gap-3 p-0 list-none">
-        {tags.map((tag) => (
-          <li key={tag.slug}>
-            <button
-              className={cn('p-2 rounded cursor-pointer', {
-                'bg-callout': selectedTags.includes(tag.slug),
-                'bg-secondary': !selectedTags.includes(tag.slug),
-              })}
-              type="button"
-              onClick={() => toggleTag(tag.slug)}
-              aria-pressed={selectedTags.includes(tag.slug)}
-            >
-              {tag.title}
-            </button>
-          </li>
-        ))}
+        {tags.map((tag) => {
+          const isChecked = selectedTags.includes(tag.slug)
+          return (
+            <li key={tag.slug}>
+              <div
+                className={cn(
+                  'p-2 rounded-md cursor-pointer flex align-center border border-brand-200 text-primary bg-white',
+                  { 'bg-brand-200': isChecked },
+                )}
+                onClick={() => toggleTag(tag.slug)}
+                aria-pressed={isChecked}
+              >
+                <Checkbox className="mt-1 mr-1" checked={isChecked} />
+                {tag.title}
+              </div>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
