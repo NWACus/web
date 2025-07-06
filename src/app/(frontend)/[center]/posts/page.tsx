@@ -45,7 +45,7 @@ export default async function Page({ params }: Args) {
   })
 
   return (
-    <div className="pt-24 pb-24">
+    <div className="pt-4 pb-24">
       <div className="container mb-16">
         {/* Add filter */}
         {/* Add sort */}
