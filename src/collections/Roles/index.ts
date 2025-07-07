@@ -1,4 +1,4 @@
-import { accessByGlobalRoleWithPermissiveRead } from '@/access/byGlobalRole'
+import { accessByGlobalRoleWithAuthenticatedRead } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
 import type { CollectionConfig, Field } from 'payload'
@@ -38,7 +38,7 @@ export const rulesField: Field = {
 
 export const Roles: CollectionConfig = {
   slug: 'roles',
-  access: accessByGlobalRoleWithPermissiveRead('roles'),
+  access: accessByGlobalRoleWithAuthenticatedRead('roles'),
   admin: {
     useAsTitle: 'name',
     group: 'Permissions',

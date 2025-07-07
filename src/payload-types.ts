@@ -329,12 +329,12 @@ export interface Biography {
 export interface User {
   id: number;
   name: string;
-  globalRoles?: (number | GlobalRole)[] | null;
   roles?: {
     docs?: (number | RoleAssignment)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  globalRoles?: (number | GlobalRole)[] | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -346,22 +346,6 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "globalRoles".
- */
-export interface GlobalRole {
-  id: number;
-  name: string;
-  rules: {
-    collections: string[];
-    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
-    id?: string | null;
-  }[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -382,6 +366,22 @@ export interface RoleAssignment {
  * via the `definition` "roles".
  */
 export interface Role {
+  id: number;
+  name: string;
+  rules: {
+    collections: string[];
+    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
+    id?: string | null;
+  }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoles".
+ */
+export interface GlobalRole {
   id: number;
   name: string;
   rules: {
@@ -1836,8 +1836,8 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
-  globalRoles?: T;
   roles?: T;
+  globalRoles?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
