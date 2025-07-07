@@ -30,3 +30,14 @@ export const accessByGlobalRole: (collection: ruleCollection) => CollectionConfi
     delete: byGlobalRole('delete', collection),
   }
 }
+
+export const accessByGlobalRoleWithPermissiveRead: (
+  collection: ruleCollection,
+) => CollectionConfig['access'] = (collection: ruleCollection) => {
+  return {
+    create: byGlobalRole('create', collection),
+    read: () => true,
+    update: byGlobalRole('update', collection),
+    delete: byGlobalRole('delete', collection),
+  }
+}

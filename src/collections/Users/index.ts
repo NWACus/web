@@ -34,6 +34,9 @@ export const Users: CollectionConfig = {
       on: 'user',
       saveToJWT: true,
       maxDepth: 3,
+      admin: {
+        defaultColumns: ['role'],
+      },
     },
     contentHashField(),
   ],
