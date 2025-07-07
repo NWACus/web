@@ -22,11 +22,10 @@ export const Users: CollectionConfig = {
     },
     {
       name: 'globalRoles',
-      type: 'join',
-      collection: 'globalRoleAssignments',
-      on: 'user',
+      type: 'relationship',
+      relationTo: 'globalRoles',
+      hasMany: true,
       saveToJWT: true,
-      maxDepth: 2,
     },
     {
       name: 'roles',

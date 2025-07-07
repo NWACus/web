@@ -11,16 +11,27 @@ export const RoleAssignments: CollectionConfig = {
   admin: {
     group: 'Permissions',
     baseListFilter: filterByTenant,
+    useAsTitle: 'roleName',
+    defaultColumns: ['role', 'user'],
   },
   fields: [
     tenantField(),
     {
-      name: 'roles',
+      name: 'role',
       type: 'relationship',
       index: true,
       relationTo: 'roles',
-      hasMany: true,
       saveToJWT: true,
+    },
+    {
+      name: 'roleName',
+      type: 'text',
+      virtual: 'role.name',
+      admin: {
+        hidden: true,
+        disableListColumn: true,
+        disableListFilter: true,
+      },
     },
     {
       name: 'user',

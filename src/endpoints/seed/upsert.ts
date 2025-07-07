@@ -14,7 +14,7 @@ import type {
 
 type GlobalCollectionWithHash = Extract<
   CollectionSlug,
-  'users' | 'tenants' | 'roles' | 'globalRoleAssignments'
+  'users' | 'tenants' | 'roles' | 'globalRoles'
 >
 
 const removeNonDeterministicKeys = (obj: object): object => {

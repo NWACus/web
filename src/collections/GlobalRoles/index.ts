@@ -35,9 +35,9 @@ export const rulesField: Field = {
   ],
 }
 
-export const Roles: CollectionConfig = {
-  slug: 'roles',
-  access: accessByGlobalRole('roles'),
+export const GlobalRoles: CollectionConfig = {
+  slug: 'globalRoles',
+  access: accessByGlobalRole('globalRoles'),
   admin: {
     useAsTitle: 'name',
     group: 'Permissions',
