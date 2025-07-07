@@ -68,7 +68,7 @@ export default async function Page({ params }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
-    <div className="pt-24 pb-24">
+    <div className="pt-4 pb-24">
       {draft && <LivePreviewListener />}
       <div className="container mb-16 grid gap-14">
         <h1 className="text-3xl font-bold mb-6">Theme Preview for {center.toUpperCase()}</h1>
