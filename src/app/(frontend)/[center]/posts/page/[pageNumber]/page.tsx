@@ -3,6 +3,7 @@ import type { Metadata } from 'next/types'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { PostCollection } from '@/components/PostCollection'
+import { POSTS_LIMIT } from '@/utilities/constants'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -34,7 +35,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   const posts = await payload.find({
     collection: 'posts',
     depth: 2,
-    limit: 10,
+    limit: POSTS_LIMIT,
     page: sanitizedPageNumber,
     where: {
       'tenant.slug': {
@@ -87,7 +88,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
               singular: 'Post',
             }}
             currentPage={posts.page}
-            limit={10}
+            limit={POSTS_LIMIT}
             totalDocs={posts.totalDocs}
           />
         </div>
