@@ -15,7 +15,7 @@ import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { TeamBlock } from '@/blocks/Team/config'
 
@@ -33,7 +33,7 @@ import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
-  access: accessByTenantOrReadPublished('pages'),
+  access: accessByTenantRoleOrReadPublished('pages'),
   defaultPopulate: {
     title: true,
     slug: true,

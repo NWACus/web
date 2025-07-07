@@ -18,7 +18,7 @@ import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
@@ -28,7 +28,7 @@ import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fie
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
-  access: accessByTenantOrReadPublished('posts'),
+  access: accessByTenantRoleOrReadPublished('posts'),
   defaultPopulate: {
     description: true,
     featuredImage: true,

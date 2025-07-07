@@ -3,12 +3,12 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
 import type { CollectionConfig } from 'payload'
-import { accessByTenantWithSelfRead } from './access/byTenantWithSelfRead'
+import { accessByTenantRoleWithSelfRead } from './access/byTenantRoleWithSelfRead'
 
 // A role assignment binds a user to a set of roles in a tenant.
 export const RoleAssignments: CollectionConfig = {
   slug: 'roleAssignments',
-  access: accessByTenantWithSelfRead('roleAssignments'),
+  access: accessByTenantRoleWithSelfRead('roleAssignments'),
   admin: {
     group: 'Permissions',
     baseListFilter: filterByTenant,

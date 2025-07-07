@@ -1,10 +1,10 @@
-import { byTenant } from '@/access/byTenant'
+import { byTenantRole } from '@/access/byTenantRole'
 import { ruleCollection } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
 
-// byTenantWithSelfRead allows users to read their own role assignments
+// byTenantRoleWithSelfRead allows users to read their own role assignments
 // while using standard tenant-based access for all other operations
-export const byTenantWithSelfRead: (collection: ruleCollection) => Access =
+export const byTenantRoleWithSelfRead: (collection: ruleCollection) => Access =
   (collection: ruleCollection): Access =>
   async (args) => {
     if (!args.req.user) {
@@ -12,7 +12,7 @@ export const byTenantWithSelfRead: (collection: ruleCollection) => Access =
     }
 
     // First check if user has normal tenant-based read access
-    const tenantAccess = await byTenant('read', collection)(args)
+    const tenantAccess = await byTenantRole('read', collection)(args)
     if (typeof tenantAccess === 'boolean' && tenantAccess) {
       // If they have full tenant access, allow it
       return true
@@ -39,13 +39,13 @@ export const byTenantWithSelfRead: (collection: ruleCollection) => Access =
     }
   }
 
-export const accessByTenantWithSelfRead: (
+export const accessByTenantRoleWithSelfRead: (
   collection: ruleCollection,
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
   return {
-    create: byTenant('create', collection),
-    read: byTenantWithSelfRead(collection),
-    update: byTenant('update', collection),
-    delete: byTenant('delete', collection),
+    create: byTenantRole('create', collection),
+    read: byTenantRoleWithSelfRead(collection),
+    update: byTenantRole('update', collection),
+    delete: byTenantRole('delete', collection),
   }
 }
