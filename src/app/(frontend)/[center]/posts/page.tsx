@@ -1,39 +1,33 @@
 import type { Metadata } from 'next/types'
 
-import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import { PostCollection } from '@/components/PostCollection'
+import { POSTS_LIMIT } from '@/utilities/constants'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-
-export const dynamic = 'force-static'
-export const revalidate = 600
+import { PostsSort } from './posts-sort'
+import { PostsTags } from './posts-tags'
 
 type Args = {
-  params: Promise<PathArgs>
+  params: Promise<{
+    center: string[]
+  }>
+  searchParams: Promise<{ [key: string]: string }>
 }
 
-type PathArgs = {
-  center: string
-}
-
-export default async function Page({ params }: Args) {
-  const payload = await getPayload({ config: configPromise })
+export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
+  const resolvedSearchParams = await searchParams
+  const sort = resolvedSearchParams?.sort || '-publishedAt'
+  const selectedTag = resolvedSearchParams?.tags
+
+  const payload = await getPayload({ config: configPromise })
 
   const posts = await payload.find({
     collection: 'posts',
     depth: 2,
-    limit: 12,
-    select: {
-      authors: true,
-      description: true,
-      featuredImage: true,
-      meta: true,
-      publishedAt: true,
-      slug: true,
-      title: true,
-    },
+    limit: POSTS_LIMIT,
     where: {
       'tenant.slug': {
         equals: center,
@@ -41,36 +35,55 @@ export default async function Page({ params }: Args) {
       _status: {
         equals: 'published',
       },
+      'tags.slug': {
+        in: selectedTag,
+      },
     },
+    sort,
+  })
+
+  const tags = await payload.find({
+    collection: 'tags',
+    depth: 1,
+    limit: 99,
+    pagination: false,
+    where: {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    sort: 'slug',
   })
 
   return (
-    <div className="pt-4 pb-24">
-      <div className="container mb-16">
-        {/* Add filter */}
-        {/* Add sort */}
-        {/* Add search */}
+    <div className="py-6">
+      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
+        <div className="grow">
+          <PostCollection posts={posts.docs} />
+        </div>
+
+        {/* Sorting and filters */}
+        <div className="flex flex-col gap-4 shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
+          <PostsSort initialSort={sort} />
+          {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
+        </div>
       </div>
 
-      <div className="container mb-8">
-        <PageRange
-          collectionLabels={{
-            plural: 'Posts',
-            singular: 'Post',
-          }}
-          currentPage={posts.page}
-          limit={12}
-          totalDocs={posts.totalDocs}
-        />
-      </div>
-
-      <CollectionArchive posts={posts.docs} />
-
-      <div className="container">
-        {posts.totalPages > 1 && posts.page && (
+      {/* Pagination */}
+      {posts.totalPages > 1 && posts.page && (
+        <div className="container mb-8">
           <Pagination page={posts.page} totalPages={posts.totalPages} />
-        )}
-      </div>
+          <PageRange
+            collectionLabels={{
+              plural: 'Posts',
+              singular: 'Post',
+            }}
+            currentPage={posts.page}
+            limit={POSTS_LIMIT}
+            totalDocs={posts.totalDocs}
+          />
+        </div>
+      )}
     </div>
   )
 }
