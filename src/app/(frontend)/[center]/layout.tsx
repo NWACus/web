@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
@@ -68,7 +69,10 @@ export default async function RootLayout({ children, params }: Args) {
         <div className={cn('flex flex-col min-h-screen', center)}>
           <ThemeSetter theme={center} />
           <Header center={center} />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow">
+            <Breadcrumbs />
+            {children}
+          </main>
           <Footer center={center} />
         </div>
       </AvalancheCenterProvider>

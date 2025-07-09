@@ -49,7 +49,7 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <WidgetHashHandler initialHash="/view/observations" />
-      <div className="pt-6 md:pt-8 lg:pt-12 flex flex-col gap-4">
+      <div className="pt-4 pb-24 flex flex-col gap-4">
         <div className="container">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
             <h1>Observations</h1>

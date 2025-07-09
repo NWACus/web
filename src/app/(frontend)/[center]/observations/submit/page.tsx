@@ -49,7 +49,7 @@ export default async function Page({ params }: Args) {
     <>
       <NACContainerRemover containerElementId="nac-obs-form-widget" />
       <WidgetHashHandler initialHash="form" />
-      <div className="py-6 md:py-8 lg:py-12">
+      <div className="pt-4 pb-24">
         <div className="container flex flex-col gap-4">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
             <h1>Submit Observation</h1>
