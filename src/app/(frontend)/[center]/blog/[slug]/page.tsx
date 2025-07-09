@@ -57,7 +57,7 @@ type PathArgs = {
 export default async function Post({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center, slug } = await paramsPromise
-  const url = '/posts/' + slug
+  const url = '/blog/' + slug
   const post = await queryPostBySlug({ center: center, slug: slug })
 
   if (!post) return <PayloadRedirects url={url} />

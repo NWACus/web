@@ -35,7 +35,7 @@ export const PostsTags = ({ tags }: Props) => {
     } else {
       params.delete('tags')
     }
-    router.push(`/posts?${params.toString()}`)
+    router.push(`/blog?${params.toString()}`)
   }, [router, searchParams, selectedTags])
 
   return (

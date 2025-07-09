@@ -5,29 +5,38 @@ import { Pagination } from '@/components/Pagination'
 import { PostCollection } from '@/components/PostCollection'
 import { POSTS_LIMIT } from '@/utilities/constants'
 import configPromise from '@payload-config'
+import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
-import { PostsSort } from './posts-sort'
-import { PostsTags } from './posts-tags'
+import { PostsSort } from '../../posts-sort'
+import { PostsTags } from '../../posts-tags'
+
+export const revalidate = 600
 
 type Args = {
   params: Promise<{
-    center: string[]
+    center: string
+    pageNumber: string
   }>
   searchParams: Promise<{ [key: string]: string }>
 }
 
-export default async function Page({ params, searchParams }: Args) {
-  const { center } = await params
+export default async function Page({ params: paramsPromise, searchParams }: Args) {
   const resolvedSearchParams = await searchParams
   const sort = resolvedSearchParams?.sort || '-publishedAt'
   const selectedTag = resolvedSearchParams?.tags
 
+  const { center, pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
+
+  const sanitizedPageNumber = Number(pageNumber)
+
+  if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
   const posts = await payload.find({
     collection: 'posts',
     depth: 2,
     limit: POSTS_LIMIT,
+    page: sanitizedPageNumber,
     where: {
       'tenant.slug': {
         equals: center,
@@ -57,13 +66,13 @@ export default async function Page({ params, searchParams }: Args) {
 
   return (
     <div className="py-6">
-      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
+      <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
         <div className="grow">
           <PostCollection posts={posts.docs} />
         </div>
 
         {/* Sorting and filters */}
-        <div className="flex flex-col gap-4 shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
+        <div className="flex flex-col gap-4 shrink-0 justify-between md:justify-start md:w-[300px]">
           <PostsSort initialSort={sort} />
           {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
         </div>
@@ -90,7 +99,7 @@ export default async function Page({ params, searchParams }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const payload = await getPayload({ config: configPromise })
-  const { center } = await params
+  const { center, pageNumber } = await params
   const tenant = await payload.find({
     collection: 'tenants',
     select: {
@@ -104,10 +113,27 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Avalanche Center Posts`,
+      title: `Avalanche Center Blog Page ${pageNumber || ''}`,
     }
   }
   return {
-    title: `${tenant.docs[0].name} - Posts`,
+    title: `${tenant.docs[0].name} - Blog Page ${pageNumber || ''}`,
   }
+}
+
+export async function generateStaticParams() {
+  const payload = await getPayload({ config: configPromise })
+  const { totalDocs } = await payload.count({
+    collection: 'posts',
+  })
+
+  const totalPages = Math.ceil(totalDocs / 10)
+
+  const pages: { pageNumber: string }[] = []
+
+  for (let i = 1; i <= totalPages; i++) {
+    pages.push({ pageNumber: String(i) })
+  }
+
+  return pages
 }
