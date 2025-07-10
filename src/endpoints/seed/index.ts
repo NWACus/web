@@ -464,7 +464,7 @@ export const seed = async ({
     },
   ])
 
-  const teams = await seedStaff(payload, incremental, tenants, tenantsById, users)
+  const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById, users)
 
   const requestHeaders = await headers()
   const { user } = await payload.auth({ headers: requestHeaders })
@@ -604,24 +604,17 @@ export const seed = async ({
     tenantsById,
     (obj) => obj.slug,
     Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
-        post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
-          users[tenant.slug.toUpperCase() + ' Forecaster'],
-          users[tenant.slug.toUpperCase() + ' Admin'],
-        ]),
-        post2(
-          tenant,
-          images[tenant.slug]['image2'],
-          images[tenant.slug]['image3'],
-          users[tenant.slug.toUpperCase() + ' Admin'],
-        ),
-        post3(
-          tenant,
-          images[tenant.slug]['image3'],
-          images[tenant.slug]['image1'],
-          users[tenant.slug.toUpperCase() + ' Forecaster'],
-        ),
-      ])
+      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => {
+        const authors = Object.values(bios[tenant.slug])
+        return [
+          post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
+            authors[1],
+            authors[2],
+          ]),
+          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[3]),
+          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[4]),
+        ]
+      })
       .flat(),
   )
 
