@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { accessByTenantRoleWithPermissiveRead } from '@/access/byTenantRole'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
@@ -19,7 +19,7 @@ const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  access: accessByTenantRoleWithPermissiveRead('media'),
+  access: accessByTenantRole('media'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Content',
