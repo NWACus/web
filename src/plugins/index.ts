@@ -1,3 +1,4 @@
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { Page, Post } from '@/payload-types'
 import { getURL } from '@/utilities/getURL'
@@ -42,6 +43,7 @@ export const plugins: Plugin[] = [
       hooks: {
         afterChange: [revalidateRedirects],
       },
+      access: accessByTenantRole('redirects'),
     },
   }),
   seoPlugin({
@@ -72,6 +74,10 @@ export const plugins: Plugin[] = [
           return field
         })
       },
+      access: accessByTenantRole('forms'),
+    },
+    formSubmissionOverrides: {
+      access: accessByTenantRole('form-submissions'),
     },
   }),
   payloadCloudPlugin(),
