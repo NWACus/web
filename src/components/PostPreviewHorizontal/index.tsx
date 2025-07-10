@@ -27,7 +27,7 @@ export const PostPreviewHorizontal = (props: {
 
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
-  const href = `/${relationTo}/${slug}`
+  const href = `/${relationTo === 'posts' ? 'blog' : relationTo}/${slug}`
 
   return (
     <article
