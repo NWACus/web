@@ -1,4 +1,4 @@
-import { accessByTenantRoleWithPermissiveRead } from '@/access/byTenantRole'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
@@ -18,7 +18,7 @@ const validateName: Validate<string, unknown, Biography, TextField> = (name, { s
 
 export const Biographies: CollectionConfig = {
   slug: 'biographies',
-  access: accessByTenantRoleWithPermissiveRead('biographies'),
+  access: accessByTenantRole('biographies'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Staff',
