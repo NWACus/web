@@ -79,6 +79,19 @@ Running the seed script may take a while - when reviewing a pull request, you ca
 branch="skuznets/some-feature-thing"; turso db shell "payloadcms-preview-${branch//[^a-z0-9\-]/x}" .dump | sqlite3 dev.db
 ```
 
+### Setting up local email sending
+
+The email adapter for Payload is set up to use nodemailer locally and Resend in production.
+
+For local development it is recommended to use a free mailtrap.io account and their email sandbox. Using this sandbox SMTP server will capture all emails sent from your local environment regardless of email address.
+
+#### Set up mailtrap.io sandbox
+
+1. Create a free account at https://mailtrap.io/register/signup
+2. Select email testing / sandbox during onboarding (not critical)
+3. After onboarding navigate to the "Sandbox" page in the left-hand nav
+4. Copy the SMTP credentials to their respective SMTP\_ environment variables in your `.env` file. See `.env.example`.
+
 ## Git
 
 ### Signing commits
