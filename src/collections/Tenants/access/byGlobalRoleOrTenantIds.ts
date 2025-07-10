@@ -22,12 +22,9 @@ export const byGlobalRoleOrTenantIds: (method: ruleMethod) => Access =
     const matchingTenantIds = roleAssignments
       .filter(
         (assignment) =>
-          assignment.roles &&
-          assignment.roles
-            .filter((role) => typeof role !== 'number') // captured in the getter
-            .map((role) => role.rules)
-            .flat()
-            .some(ruleMatches(method, 'tenants')),
+          assignment.role &&
+          typeof assignment.role !== 'number' && // captured in the getter
+          assignment.role.rules.some(ruleMatches(method, 'tenants')),
       )
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter

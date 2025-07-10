@@ -1,11 +1,11 @@
 import { globalRolesForUser } from '@/utilities/rbac/globalRolesForUser'
 import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
-import type { Access, CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldAccess } from 'payload'
 
 // byGlobalRole walks the global roles bound to the user to determine if they have permissions
 // to take the specified action on a resource of the collection type at the global scope
-export const byGlobalRole: (method: ruleMethod, collection: ruleCollection) => Access =
-  (method: ruleMethod, collection: ruleCollection): Access =>
+export const byGlobalRole: (method: ruleMethod, collection: ruleCollection) => FieldAccess =
+  (method: ruleMethod, collection: ruleCollection): FieldAccess =>
   ({ req: { user, payload } }) => {
     if (!user) {
       return false
@@ -26,6 +26,17 @@ export const accessByGlobalRole: (collection: ruleCollection) => CollectionConfi
   return {
     create: byGlobalRole('create', collection),
     read: byGlobalRole('read', collection),
+    update: byGlobalRole('update', collection),
+    delete: byGlobalRole('delete', collection),
+  }
+}
+
+export const accessByGlobalRoleWithAuthenticatedRead: (
+  collection: ruleCollection,
+) => CollectionConfig['access'] = (collection: ruleCollection) => {
+  return {
+    create: byGlobalRole('create', collection),
+    read: ({ req: { user } }) => !!user,
     update: byGlobalRole('update', collection),
     delete: byGlobalRole('delete', collection),
   }

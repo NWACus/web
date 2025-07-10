@@ -1,4 +1,4 @@
-import { accessByTenant } from '@/access/byTenant'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
@@ -22,7 +22,7 @@ const validateTelephone: TextFieldValidation = (
 
 export const Settings: CollectionConfig = {
   slug: 'settings',
-  access: accessByTenant('settings'),
+  access: accessByTenantRole('settings'),
   labels: {
     singular: 'Website Settings',
     plural: 'Website Settings',

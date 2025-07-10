@@ -1,4 +1,4 @@
-import { accessByTenant } from '@/access/byTenant'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { navLink } from '@/fields/navLink'
@@ -9,7 +9,7 @@ import { topLevelNavTab } from './fields/topLevelNavTab'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
-  access: accessByTenant('navigations'),
+  access: accessByTenantRole('navigations'),
   labels: {
     singular: 'Navigation',
     plural: 'Navigation',
