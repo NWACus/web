@@ -24,7 +24,7 @@ export const Pagination = (props: { className?: string; page: number; totalPages
   const hasExtraNextPages = page + 1 < totalPages
 
   const goToPage = (pageNumber: number) => {
-    router.push(`/posts/page/${pageNumber}${params}`)
+    router.push(`/blog/page/${pageNumber}${params}`)
   }
 
   return (
