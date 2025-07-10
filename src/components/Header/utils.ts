@@ -181,7 +181,7 @@ export function convertToNavLink(
     let url =
       link.reference.relationTo === 'pages'
         ? `/${reference.value.slug}`
-        : `/posts/${reference.value.slug}`
+        : `/blog/${reference.value.slug}`
 
     if (parentItems?.length && parentItems.length > 0) {
       url = `/${parentItems.join('/')}${url}`
@@ -360,7 +360,7 @@ export const getTopLevelNavItems = async ({
       link: {
         label: 'Blog',
         type: 'internal',
-        url: '/posts',
+        url: '/blog',
       },
     },
     {

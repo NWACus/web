@@ -6,7 +6,7 @@ const ROOT_SITE_URL = `${PROTOCOL}://${ROOT_DOMAIN}`
 module.exports = {
   siteUrl: ROOT_SITE_URL,
   generateRobotsTxt: true,
-  exclude: ['/posts-sitemap.xml', '/pages-sitemap.xml', '/*', '/posts/*'],
+  exclude: ['/posts-sitemap.xml', '/pages-sitemap.xml', '/*', '/blog/*'],
   robotsTxtOptions: {
     policies: [
       {

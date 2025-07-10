@@ -63,7 +63,7 @@ export const generateMetaForPost = async (args: {
   const { customTitle, center, doc } = args
 
   const serverUrl = getURL()
-  const url = `${serverUrl}/posts/${doc?.slug}/`
+  const url = `${serverUrl}/blog/${doc?.slug}/`
 
   const ogImage = getImageURL(doc?.featuredImage)
 

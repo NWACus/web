@@ -113,11 +113,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   if (tenant.docs.length < 1) {
     return {
-      title: `Avalanche Center Posts Page ${pageNumber || ''}`,
+      title: `Avalanche Center Blog Page ${pageNumber || ''}`,
     }
   }
   return {
-    title: `${tenant.docs[0].name} - Posts Page ${pageNumber || ''}`,
+    title: `${tenant.docs[0].name} - Blog Page ${pageNumber || ''}`,
   }
 }
 
