@@ -20,7 +20,6 @@ import { useCallback, useState } from 'react'
 
 // TODOs
 // - Update permissions to only be accessible to super-admins
-// - Graceful failing for if a slug is taken
 // - Remove photos from blocks or use a global photo?
 
 export const DuplicatePageFor = () => {
@@ -69,11 +68,14 @@ export const DuplicatePageFor = () => {
         const cleaned = removeIdKey(pageData as Page)
         const { slug, layout, title } = cleaned
 
+        const now = new Date()
+        const timestamp = now.valueOf()
+
         const newPage = {
           layout,
           title,
           tenant,
-          slug: `${slug.replace(/^\/([^/]+)\//, `/${tenant.slug}/`)}-copy`,
+          slug: `${slug.replace(/^\/([^/]+)\//, `/${tenant.slug}/`)}-${timestamp}`,
         }
 
         const createRes = await fetch(`/api/pages`, {
@@ -96,7 +98,8 @@ export const DuplicatePageFor = () => {
             ),
           )
         } else {
-          toast.error('Error duplicating page.')
+          const { errors } = await createRes.json()
+          throw toast.error(errors[0].message || 'Error duplicating page.')
         }
       } catch (err) {
         toast.error('An unexpected error occurred.')
