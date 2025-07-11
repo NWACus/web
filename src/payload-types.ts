@@ -331,7 +331,7 @@ export interface Biography {
  */
 export interface User {
   id: number;
-  name: string;
+  name?: string | null;
   globalRoles?: {
     docs?: (number | GlobalRoleAssignment)[];
     hasNextPage?: boolean;
@@ -342,6 +342,8 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  inviteToken?: string | null;
+  inviteExpiration?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1860,6 +1862,8 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   globalRoles?: T;
   roles?: T;
+  inviteToken?: T;
+  inviteExpiration?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

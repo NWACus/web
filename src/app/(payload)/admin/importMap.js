@@ -2,6 +2,9 @@ import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d }
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
+import { InviteUserButton as InviteUserButton_12d1a33bcb436082b29bbf2ed4cf60ef } from '@/collections/Users/components/InviteUserButton'
+import { InviteUserView as InviteUserView_6e3e07d9fa4e51ec210acd2d4d0c6711 } from '@/collections/Users/components/InviteUserView'
+import { StatusCell as StatusCell_71788b707e862411b6a107662ed99e44 } from '@/collections/Users/components/Status'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
@@ -88,6 +91,9 @@ export const importMap = {
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':
     OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@/collections/Users/components/Status#StatusCell': StatusCell_71788b707e862411b6a107662ed99e44,
+  '@/collections/Users/components/InviteUserButton#InviteUserButton':
+    InviteUserButton_12d1a33bcb436082b29bbf2ed4cf60ef,
   '@/collections/Roles/components/CollectionsField#CollectionsField':
     CollectionsField_49c0311020325b59204cc21d2f536b8d,
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
@@ -108,4 +114,6 @@ export const importMap = {
     TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   '@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler':
     VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
+  '@/collections/Users/components/InviteUserView#InviteUserView':
+    InviteUserView_6e3e07d9fa4e51ec210acd2d4d0c6711,
 }

@@ -67,6 +67,12 @@ export default buildConfig({
       logout: {
         Button: '@/components/LogoutButton#LogoutButton',
       },
+      views: {
+        invite: {
+          Component: '@/collections/Users/components/InviteUserView#InviteUserView',
+          path: '/users/invite',
+        },
+      },
     },
     meta: {
       title: 'Admin Panel',

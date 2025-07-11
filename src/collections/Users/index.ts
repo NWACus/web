@@ -10,6 +10,9 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     group: 'Permissions',
+    components: {
+      beforeList: ['@/collections/Users/components/InviteUserButton#InviteUserButton'],
+    },
   },
   auth: true,
   fields: [
@@ -17,7 +20,6 @@ export const Users: CollectionConfig = {
       name: 'name',
       type: 'text',
       index: true,
-      required: true,
       saveToJWT: true,
     },
     {
@@ -35,6 +37,25 @@ export const Users: CollectionConfig = {
       on: 'user',
       saveToJWT: true,
       maxDepth: 3,
+    },
+    {
+      name: 'inviteToken',
+      type: 'text',
+      hidden: true,
+    },
+    {
+      name: 'inviteExpiration',
+      type: 'date',
+      hidden: true,
+    },
+    {
+      name: 'status',
+      type: 'ui',
+      admin: {
+        components: {
+          Cell: '@/collections/Users/components/Status#StatusCell',
+        },
+      },
     },
     contentHashField(),
   ],
