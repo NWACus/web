@@ -21,7 +21,6 @@ import { useCallback, useState } from 'react'
 // TODOs
 // - Update permissions to only be accessible to super-admins
 // - Graceful failing for if a slug is taken
-// - Why when duplicating to, the current page is updated
 // - Remove photos from blocks or use a global photo?
 
 export const DuplicatePageFor = () => {
@@ -144,7 +143,7 @@ export const DuplicatePageFor = () => {
               <Button buttonStyle="subtle" type="button" onClick={() => closeModal(drawerSlug)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={!selectedTenantId}>
+              <Button onClick={handleDuplicate} disabled={!selectedTenantId}>
                 Duplicate
               </Button>
             </div>
