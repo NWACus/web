@@ -81,6 +81,11 @@ export const Pages: CollectionConfig<'pages'> = {
       })
     },
     useAsTitle: 'title',
+    components: {
+      edit: {
+        editMenuItems: ['@/components/DuplicatePageFor#DuplicatePageFor'],
+      },
+    },
   },
   fields: [
     {
