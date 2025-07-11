@@ -19,6 +19,7 @@ export const config = {
 const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
 const TENANTS: { slug: string; customDomain: string }[] = [
+  { slug: 'dvac', customDomain: 'dvac.us' },
   { slug: 'nwac', customDomain: 'nwac.us' },
   { slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
   { slug: 'snfac', customDomain: 'sawtoothavalanche.com' },

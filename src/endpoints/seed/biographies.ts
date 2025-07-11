@@ -762,6 +762,14 @@ export const biographies: (
       biography:
         'Simon works for the National Avalanche Center and lives in Bellingham, Washington.  He has worked as an avalanche forecaster for the Moonlight Basin Ski Patrol, the Colorado Avalanche Information Center, the Sawtooth Avalanche Center, and the Northwest Avalanche Center.',
     },
+    {
+      tenant: tenants['dvac'].id,
+      photo: 1,
+      name: 'Deva McDeverson',
+      title: 'Fullstack Dev',
+      start_date: null,
+      biography: 'Hello.',
+    },
   ]
 
   for (let i = 0; i < biographies.length; i++) {
@@ -1150,6 +1158,11 @@ export const teams: (
   bios: Record<string, Record<string, Biography>>,
 ): RequiredDataFromCollectionSlug<'teams'>[] => {
   const teams: RequiredDataFromCollectionSlug<'teams'>[] = [
+    {
+      tenant: tenants['dvac'].id,
+      name: 'Development',
+      members: [bios['dvac']['Deva McDeverson'].id],
+    },
     {
       tenant: tenants['nwac'].id,
       name: 'USFS Forecast Staff',
