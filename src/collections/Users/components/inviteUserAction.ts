@@ -50,7 +50,7 @@ function extractPayloadErrorMessage(error: unknown): string {
   return 'Failed to invite user.'
 }
 
-export async function inviteUserAction({ email }: { email: string }) {
+export async function inviteUserAction({ email, name }: { email: string; name: string }) {
   try {
     const payload = await getPayload({ config })
     const headersList = await headers()
@@ -80,6 +80,7 @@ export async function inviteUserAction({ email }: { email: string }) {
       collection: 'users',
       data: {
         email,
+        name,
         password: uuid(),
         inviteToken: crypto.randomBytes(20).toString('hex'),
         inviteExpiration,

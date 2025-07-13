@@ -100,7 +100,7 @@ export function InviteUserDrawer() {
 
   const onSubmit = (data: InviteUserFormValues) => {
     startTransition(async () => {
-      const result = await inviteUserAction({ email: data.email })
+      const result = await inviteUserAction({ email: data.email, name: data.name })
       if (result.success) {
         toast.success(`Invite sent to: ${data.email}`)
         reset()

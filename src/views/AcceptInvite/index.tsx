@@ -36,10 +36,37 @@ export async function AcceptInvite({ initPageResult, searchParams }: AdminViewSe
     )
   }
 
+  // Find user with valid invite token
+  const usersRes = await payload.find({
+    collection: 'users',
+    where: {
+      inviteToken: { equals: token },
+      inviteExpiration: { greater_than: new Date().toISOString() },
+    },
+    limit: 1,
+  })
+
+  if (!usersRes.docs.length) {
+    return (
+      <MinimalTemplate className={`${baseClass}`}>
+        <div>
+          <div className="form-header">
+            <h1>Invite Invalid or Expired</h1>
+            <p>
+              Invite is either invalid or has expired. Please request a new invite from your admin.
+            </p>
+          </div>
+        </div>
+      </MinimalTemplate>
+    )
+  }
+
+  const invitedUser = usersRes.docs[0]
+
   if (user) {
     return (
       <MinimalTemplate className={`${baseClass}`}>
-        <div className={`${baseClass}__wrap`}>
+        <div>
           <div className="form-header">
             <h1>Already Logged In</h1>
             <p>You are already logged in.</p>
@@ -60,9 +87,14 @@ export async function AcceptInvite({ initPageResult, searchParams }: AdminViewSe
       <div className={`${baseClass}__wrap`}>
         <div className="form-header">
           <h1>Accept Invite</h1>
-          <p>Complete your account setup by setting your password.</p>
+          <p>Complete your account setup by setting your password and editing your name.</p>
         </div>
-        <AcceptInviteForm token={token} hostname={currentHost} />
+        <AcceptInviteForm
+          token={token}
+          hostname={currentHost}
+          email={invitedUser.email}
+          name={invitedUser.name}
+        />
         <Link
           href={formatAdminURL({
             adminRoute,

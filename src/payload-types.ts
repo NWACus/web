@@ -331,7 +331,7 @@ export interface Biography {
  */
 export interface User {
   id: number;
-  name?: string | null;
+  name: string;
   globalRoles?: {
     docs?: (number | GlobalRoleAssignment)[];
     hasNextPage?: boolean;

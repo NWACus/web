@@ -20,6 +20,7 @@ export const Users: CollectionConfig = {
       name: 'name',
       type: 'text',
       index: true,
+      required: true,
       saveToJWT: true,
     },
     {

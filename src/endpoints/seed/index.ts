@@ -432,7 +432,7 @@ export const seed = async ({
   }
   const password = process.env.PAYLOAD_SEED_PASSWORD || 'localpass'
   payload.logger.info(`— Using password '${password}'...`)
-  const users = await upsertGlobals('users', payload, incremental, (obj) => obj.name || '', [
+  const users = await upsertGlobals('users', payload, incremental, (obj) => obj.name, [
     {
       name: 'Super Admin',
       email: 'admin@avy.com',

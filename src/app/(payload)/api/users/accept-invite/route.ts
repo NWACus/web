@@ -22,10 +22,11 @@ export async function POST(request: NextRequest) {
 
     const token = req.data?.token
     const password = req.data?.password
+    const name = req.data?.name
 
-    if (!token || !password) {
+    if (!token || !password || !name) {
       return NextResponse.json(
-        { error: 'Missing required fields: token and password' },
+        { error: 'Missing required fields: token, password, name' },
         { status: 400 },
       )
     }
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       collection: 'users',
       id: user.id,
       data: {
+        name,
         password,
         inviteToken: null,
         inviteExpiration: null,

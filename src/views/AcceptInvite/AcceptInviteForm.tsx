@@ -3,19 +3,21 @@
 import { getURL } from '@/utilities/getURL'
 import {
   ConfirmPasswordField,
+  EmailField,
   Form,
   FormSubmit,
   HiddenField,
   PasswordField,
+  TextField,
   useAuth,
   useConfig,
 } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation.js'
 import { type FormState } from 'payload'
 import { formatAdminURL } from 'payload/shared'
-import React from 'react'
+import React, { useCallback } from 'react'
 
-const initialState: FormState = {
+const staticInitialState: FormState = {
   'confirm-password': {
     initialValue: '',
     valid: false,
@@ -28,7 +30,17 @@ const initialState: FormState = {
   },
 }
 
-export function AcceptInviteForm({ token, hostname }: { token: string; hostname: string }) {
+export function AcceptInviteForm({
+  token,
+  hostname,
+  email,
+  name,
+}: {
+  token: string
+  hostname: string
+  email: string
+  name: string
+}) {
   const {
     config: {
       admin: {
@@ -56,6 +68,13 @@ export function AcceptInviteForm({ token, hostname }: { token: string; hostname:
     }
   }, [adminRoute, fetchFullUser, history, loginRoute])
 
+  const validateName = useCallback((value: string | null | undefined) => {
+    if (!value || value.trim() === '') {
+      return 'Name is required'
+    }
+    return true
+  }, [])
+
   if (!token) {
     return (
       <div className="accept-invite__error">
@@ -69,16 +88,46 @@ export function AcceptInviteForm({ token, hostname }: { token: string; hostname:
   return (
     <Form
       action={`${getURL(hostname)}${apiRoute}/${userSlug}/accept-invite`}
-      initialState={initialState}
+      initialState={{
+        ...staticInitialState,
+        email: {
+          initialValue: email,
+          valid: true,
+          value: email,
+        },
+        name: {
+          initialValue: name,
+          valid: name ? true : false,
+          value: name,
+        },
+      }}
       method="POST"
       onSuccess={onSuccess}
       disableSuccessStatus
     >
       <div className="inputWrap">
+        <EmailField
+          field={{
+            name: 'email',
+            label: 'Email',
+          }}
+          readOnly={true}
+          path="email"
+        />
+        <TextField
+          field={{
+            name: 'name',
+            label: 'Name',
+            required: true,
+          }}
+          path="name"
+          schemaPath={`${userSlug}.name`}
+          validate={validateName}
+        />
         <PasswordField
           field={{
             name: 'password',
-            label: 'New Password',
+            label: 'Password',
             required: true,
           }}
           path="password"
