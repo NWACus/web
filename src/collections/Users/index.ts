@@ -11,7 +11,7 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     group: 'Permissions',
     components: {
-      beforeList: ['@/collections/Users/components/InviteUserButton#InviteUserButton'],
+      beforeList: ['@/collections/Users/components/InviteUser#InviteUser'],
     },
   },
   auth: true,

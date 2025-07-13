@@ -1,8 +1,8 @@
-import { Button, Gutter } from '@payloadcms/ui'
 import type { BeforeListServerProps, PayloadRequest } from 'payload'
 import { byGlobalRoleOrTenantRoleAssignmentOrDomain } from '../access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
+import { InviteUserDrawer } from './InviteUserDrawer'
 
-export function InviteUserButton({ payload, user }: BeforeListServerProps) {
+export function InviteUser({ payload, user }: BeforeListServerProps) {
   if (!user) {
     return null
   }
@@ -18,11 +18,5 @@ export function InviteUserButton({ payload, user }: BeforeListServerProps) {
 
   if (!canInvite) return null
 
-  return (
-    <Gutter>
-      <Button buttonStyle="pill" el="link" to="/admin/users/invite">
-        Invite New User
-      </Button>
-    </Gutter>
-  )
+  return <InviteUserDrawer />
 }

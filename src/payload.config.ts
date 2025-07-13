@@ -68,9 +68,9 @@ export default buildConfig({
         Button: '@/components/LogoutButton#LogoutButton',
       },
       views: {
-        invite: {
-          Component: '@/collections/Users/components/InviteUserView#InviteUserView',
-          path: '/users/invite',
+        'accept-invite-with-token': {
+          Component: '@/views/AcceptInvite#AcceptInvite',
+          path: '/accept-invite',
         },
       },
     },
