@@ -37,13 +37,13 @@ export const bootstrap = async ({
 
   payload.logger.info(`— Assigning global roles to user...`)
 
-  // Assign Super Admin global role directly to user
+  // Assign Super Admin global role to user via GlobalRoleAssignments
   try {
-    await payload.update({
-      collection: 'users',
-      id: user.id,
+    await payload.create({
+      collection: 'globalRoleAssignments',
       data: {
-        globalRoles: [globalRoles['Super Admin'].id],
+        user: user.id,
+        globalRole: globalRoles['Super Admin'].id,
       },
     })
   } catch (error) {

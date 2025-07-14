@@ -1,9 +1,9 @@
 import type { User } from '@/payload-types'
 import payload, { ClientUser } from 'payload'
-import { globalRolesForUser } from './globalRolesForUser'
+import { globalRoleAssignmentsForUser } from './globalRoleAssignmentsForUser'
 import { ruleCollection, ruleMatches } from './ruleMatches'
 
-// Checks if a user has read-only access for a given collection based on their global roles.
+// Checks if a user has read-only access for a given collection based on their global role assignments.
 // Returns true if the user can only read (no create, update, or delete permissions).
 export const hasReadOnlyAccess = (
   user: User | ClientUser | null,
@@ -12,20 +12,35 @@ export const hasReadOnlyAccess = (
   if (!user) return true
 
   try {
-    const globalRoles = globalRolesForUser(payload.logger, user)
+    const assignments = globalRoleAssignmentsForUser(payload.logger, user as User)
 
-    const hasCreateAccess = globalRoles
-      .map((role) => role.rules)
+    const hasCreateAccess = assignments
+      .map((assignment) => {
+        if (assignment.globalRole && typeof assignment.globalRole !== 'number') {
+          return assignment.globalRole.rules
+        }
+        return []
+      })
       .flat()
       .some(ruleMatches('create', collection))
 
-    const hasUpdateAccess = globalRoles
-      .map((role) => role.rules)
+    const hasUpdateAccess = assignments
+      .map((assignment) => {
+        if (assignment.globalRole && typeof assignment.globalRole !== 'number') {
+          return assignment.globalRole.rules
+        }
+        return []
+      })
       .flat()
       .some(ruleMatches('update', collection))
 
-    const hasDeleteAccess = globalRoles
-      .map((role) => role.rules)
+    const hasDeleteAccess = assignments
+      .map((assignment) => {
+        if (assignment.globalRole && typeof assignment.globalRole !== 'number') {
+          return assignment.globalRole.rules
+        }
+        return []
+      })
       .flat()
       .some(ruleMatches('delete', collection))
 

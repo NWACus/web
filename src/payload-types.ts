@@ -75,6 +75,7 @@ export interface Config {
     roles: Role;
     roleAssignments: RoleAssignment;
     globalRoles: GlobalRole;
+    globalRoleAssignments: GlobalRoleAssignment;
     navigations: Navigation;
     biographies: Biography;
     teams: Team;
@@ -90,6 +91,7 @@ export interface Config {
   collectionsJoins: {
     users: {
       roles: 'roleAssignments';
+      globalRoleAssignments: 'globalRoleAssignments';
     };
   };
   collectionsSelect: {
@@ -101,6 +103,7 @@ export interface Config {
     roles: RolesSelect<false> | RolesSelect<true>;
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
+    globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
@@ -336,7 +339,11 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  globalRoles?: (number | GlobalRole)[] | null;
+  globalRoleAssignments?: {
+    docs?: (number | GlobalRoleAssignment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -375,6 +382,19 @@ export interface Role {
     actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
     id?: string | null;
   }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoleAssignments".
+ */
+export interface GlobalRoleAssignment {
+  id: number;
+  globalRole?: (number | null) | GlobalRole;
+  globalRoleName?: string | null;
+  user?: (number | null) | User;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1465,6 +1485,10 @@ export interface PayloadLockedDocument {
         value: number | GlobalRole;
       } | null)
     | ({
+        relationTo: 'globalRoleAssignments';
+        value: number | GlobalRoleAssignment;
+      } | null)
+    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -1859,7 +1883,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
-  globalRoles?: T;
+  globalRoleAssignments?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1926,6 +1950,18 @@ export interface GlobalRolesSelect<T extends boolean = true> {
         actions?: T;
         id?: T;
       };
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoleAssignments_select".
+ */
+export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
+  globalRole?: T;
+  globalRoleName?: T;
+  user?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

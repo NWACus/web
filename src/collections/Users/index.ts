@@ -33,15 +33,17 @@ export const Users: CollectionConfig = {
       },
     },
     {
-      name: 'globalRoles',
-      type: 'relationship',
-      relationTo: 'globalRoles',
-      hasMany: true,
+      name: 'globalRoleAssignments',
+      type: 'join',
+      collection: 'globalRoleAssignments',
+      on: 'user',
       saveToJWT: true,
+      maxDepth: 3,
+      admin: {
+        defaultColumns: ['globalRole'],
+      },
       access: {
         read: byGlobalRole('read', 'globalRoles'),
-        create: byGlobalRole('create', 'globalRoles'),
-        update: byGlobalRole('update', 'globalRoles'),
       },
     },
     contentHashField(),

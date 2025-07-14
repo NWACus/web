@@ -1,4 +1,4 @@
-import { globalRolesForUser } from '@/utilities/rbac/globalRolesForUser'
+import { globalRoleAssignmentsForUser } from '@/utilities/rbac/globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
@@ -13,10 +13,14 @@ export const byTenantRole: (method: ruleMethod, collection: ruleCollection) => A
       return false
     }
 
-    const globalRoles = globalRolesForUser(payload.logger, user)
-
-    const globalRolesMatch = globalRoles
-      .map((role) => role.rules)
+    const globalAssignments = globalRoleAssignmentsForUser(payload.logger, user)
+    const globalRolesMatch = globalAssignments
+      .map((assignment) => {
+        if (assignment.globalRole && typeof assignment.globalRole !== 'number') {
+          return assignment.globalRole.rules
+        }
+        return []
+      })
       .flat()
       .some(ruleMatches(method, collection))
     if (globalRolesMatch) {

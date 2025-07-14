@@ -475,20 +475,20 @@ export const seed = async ({
   const { user } = await payload.auth({ headers: requestHeaders })
 
   // Assign global roles directly to users
-  await payload.update({
-    collection: 'users',
-    id: users['Super Admin'].id,
+  await payload.create({
+    collection: 'globalRoleAssignments',
     data: {
-      globalRoles: [globalRoles['Super Admin'].id],
+      user: users['Super Admin'].id,
+      globalRole: globalRoles['Super Admin'].id,
     },
   })
 
   if (user && user.email !== users['Super Admin'].email) {
-    await payload.update({
-      collection: 'users',
-      id: user.id,
+    await payload.create({
+      collection: 'globalRoleAssignments',
       data: {
-        globalRoles: [globalRoles['Super Admin'].id],
+        user: user.id,
+        globalRole: globalRoles['Super Admin'].id,
       },
     })
   }
