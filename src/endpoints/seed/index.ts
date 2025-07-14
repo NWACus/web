@@ -633,11 +633,11 @@ export const seed = async ({
         const authors = Object.values(bios[tenant.slug])
         return [
           post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
+            authors[0],
             authors[1],
-            authors[2],
           ]),
-          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[3]),
-          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[4]),
+          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[2]),
+          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[3]),
         ]
       })
       .flat(),

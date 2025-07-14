@@ -770,6 +770,30 @@ export const biographies: (
       start_date: null,
       biography: 'Hello.',
     },
+    {
+      tenant: tenants['dvac'].id,
+      photo: 1,
+      name: 'Eng McEngerson',
+      title: 'Backend Eng',
+      start_date: null,
+      biography: 'Goodbye.',
+    },
+    {
+      tenant: tenants['dvac'].id,
+      photo: 1,
+      name: 'PM McPmerson',
+      title: 'Product Manager',
+      start_date: null,
+      biography: 'Goodbye.',
+    },
+    {
+      tenant: tenants['dvac'].id,
+      photo: 1,
+      name: 'UX McDesignerson',
+      title: 'UX Designer',
+      start_date: null,
+      biography: 'Goodbye.',
+    },
   ]
 
   for (let i = 0; i < biographies.length; i++) {
