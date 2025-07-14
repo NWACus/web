@@ -130,6 +130,13 @@ export const Posts: CollectionConfig<'posts'> = {
       hasMany: true,
       relationTo: 'biographies',
       required: true,
+      filterOptions: ({ data }) => {
+        return {
+          tenant: {
+            equals: data.tenant,
+          },
+        }
+      },
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -176,15 +183,32 @@ export const Posts: CollectionConfig<'posts'> = {
       },
     },
     {
+      name: 'tags',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      hasMany: true,
+      relationTo: 'tags',
+      filterOptions: ({ data }) => ({
+        tenant: {
+          equals: data.tenant,
+        },
+      }),
+    },
+    {
       name: 'relatedPosts',
       type: 'relationship',
       admin: {
         position: 'sidebar',
       },
-      filterOptions: ({ id }) => {
+      filterOptions: ({ id, data }) => {
         return {
           id: {
             not_in: [id],
+          },
+          tenant: {
+            equals: data.tenant,
           },
         }
       },

@@ -38,6 +38,7 @@ const collections: CollectionSlug[] = [
   'roles',
   'globalRoles',
   'roleAssignments',
+  'tags',
   'teams',
   'tenants',
 ]
@@ -468,7 +469,7 @@ export const seed = async ({
     },
   ])
 
-  const teams = await seedStaff(payload, incremental, tenants, tenantsById, users)
+  const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById, users)
 
   const requestHeaders = await headers()
   const { user } = await payload.auth({ headers: requestHeaders })
@@ -573,7 +574,33 @@ export const seed = async ({
       ])
       .flat(),
   )
-
+  // Tags
+  const tags = await upsert(
+    'tags',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'tags'>[] => [
+        {
+          title: 'Education',
+          slug: 'education',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Gear',
+          slug: 'gear',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Volunteers',
+          slug: 'volunteers',
+          tenant: tenant.id,
+        },
+      ])
+      .flat(),
+  )
   const posts = await upsert(
     'posts',
     payload,
@@ -581,34 +608,28 @@ export const seed = async ({
     tenantsById,
     (obj) => obj.slug,
     Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
-        post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
-          users[tenant.slug.toUpperCase() + ' Forecaster'],
-          users[tenant.slug.toUpperCase() + ' Admin'],
-        ]),
-        post2(
-          tenant,
-          images[tenant.slug]['image2'],
-          images[tenant.slug]['image3'],
-          users[tenant.slug.toUpperCase() + ' Admin'],
-        ),
-        post3(
-          tenant,
-          images[tenant.slug]['image3'],
-          images[tenant.slug]['image1'],
-          users[tenant.slug.toUpperCase() + ' Forecaster'],
-        ),
-      ])
+      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => {
+        const authors = Object.values(bios[tenant.slug])
+        return [
+          post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
+            authors[1],
+            authors[2],
+          ]),
+          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[3]),
+          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[4]),
+        ]
+      })
       .flat(),
   )
 
   payload.logger.info(`— Updating post relationships...`)
   for (const tenant in posts) {
-    for (const title in posts[tenant]) {
-      const post = posts[tenant][title]
+    Object.values(posts[tenant]).forEach(async (post, index) => {
       payload.logger.info(
         `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
       )
+      const randomTagId = Object.values(tags[tenant]).map((tag) => tag.id)[index]
+
       await payload.update({
         id: post.id,
         collection: 'posts',
@@ -616,9 +637,10 @@ export const seed = async ({
           relatedPosts: Object.values(posts[tenant])
             .filter((p) => p.id !== post.id)
             .map((p) => p.id),
+          tags: [randomTagId],
         },
       })
-    }
+    })
   }
 
   payload.logger.info(`— Seeding contact forms...`)

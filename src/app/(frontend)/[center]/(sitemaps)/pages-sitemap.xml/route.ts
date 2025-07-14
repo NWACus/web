@@ -29,7 +29,7 @@ const getPagesSitemap = unstable_cache(
 
     const defaultSitemap = [
       {
-        loc: `${SITE_URL}/posts`,
+        loc: `${SITE_URL}/blog`,
         lastmod: dateFallback,
       },
     ]

@@ -1,16 +1,16 @@
-import type { Media, Tenant, User } from '@/payload-types'
+import type { Biography, Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const post1: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User[],
+  author: Biography[],
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User[],
+  author: Biography[],
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
     slug: 'digital-horizons',
@@ -297,5 +297,6 @@ export const post1: (
     featuredImage: image1.id,
     relatedPosts: [], // this is populated by the seed script
     title: 'Digital Horizons: A Glimpse into Tomorrow',
+    tags: [], // this is populated by the seed script
   }
 }

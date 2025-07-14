@@ -27,10 +27,13 @@ export const PostPreviewHorizontal = (props: {
 
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
-  const href = `/${relationTo}/${slug}`
+  const href = `/${relationTo === 'posts' ? 'blog' : relationTo}/${slug}`
 
   return (
-    <article className={cn('flex my-6 hover:cursor-pointer', className)} ref={card.ref}>
+    <article
+      className={cn('flex flex-col md:flex-row my-6 hover:cursor-pointer', className)}
+      ref={card.ref}
+    >
       <div className="relative w-full flex-1">
         {featuredImage && typeof featuredImage !== 'number' && (
           <Media imgClassName="w-full" resource={featuredImage} size="33vw" />

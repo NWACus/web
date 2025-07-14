@@ -1,16 +1,16 @@
-import type { Media, Tenant, User } from '@/payload-types'
+import type { Biography, Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const post3: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
     slug: 'dollar-and-sense-the-financial-forecast',
@@ -267,5 +267,6 @@ export const post3: (
     featuredImage: image1.id,
     relatedPosts: [], // this is populated by the seed script
     title: 'Dollar and Sense: The Financial Forecast',
+    tags: [], // this is populated by the seed script
   }
 }

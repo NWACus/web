@@ -1,16 +1,16 @@
-import type { Media, Tenant, User } from '@/payload-types'
+import type { Biography, Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const post2: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
     slug: 'global-gaze',
@@ -231,5 +231,6 @@ export const post2: (
     featuredImage: image1.id,
     relatedPosts: [], // this is populated by the seed script
     title: 'Global Gaze: Beyond the Headlines',
+    tags: [], // this is populated by the seed script
   }
 }
