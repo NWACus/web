@@ -10,7 +10,7 @@ export const filterByTenant: BaseListFilter = async ({ req }) => {
 
   if (selectedTenant) {
     return {
-      tenants: {
+      tenant: {
         equals: selectedTenant,
       },
     }

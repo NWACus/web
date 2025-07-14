@@ -14,10 +14,10 @@ export const byTenantRoleOrPublished: (method: ruleMethod, collection: ruleColle
       }
     }
 
-    const globalAccess = byTenantRole(method, collection)(args)
-    if (typeof globalAccess === 'boolean' ? globalAccess : true) {
-      // if globalAccess returned anything but 'false', pass it along
-      return globalAccess
+    const roleAccess = byTenantRole(method, collection)(args)
+    if (typeof roleAccess === 'boolean' ? roleAccess : true) {
+      // if roleAccess returned anything but 'false', pass it along
+      return roleAccess
     }
 
     // allow those without explicit access to see published pages
