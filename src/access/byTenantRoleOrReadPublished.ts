@@ -1,9 +1,9 @@
-import { byTenant } from '@/access/byTenant'
+import { byTenantRole } from '@/access/byTenantRole'
 import { ruleCollection, ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
 
-// byTenantOrPublished supplants access review by allowing unauthenticated access to pages
-export const byTenantOrPublished: (method: ruleMethod, collection: ruleCollection) => Access =
+// byTenantRoleOrPublished supplants access review by allowing unauthenticated access to pages
+export const byTenantRoleOrPublished: (method: ruleMethod, collection: ruleCollection) => Access =
   (method: ruleMethod, collection: ruleCollection): Access =>
   (args) => {
     if (!args.req.user) {
@@ -14,7 +14,7 @@ export const byTenantOrPublished: (method: ruleMethod, collection: ruleCollectio
       }
     }
 
-    const globalAccess = byTenant(method, collection)(args)
+    const globalAccess = byTenantRole(method, collection)(args)
     if (typeof globalAccess === 'boolean' ? globalAccess : true) {
       // if globalAccess returned anything but 'false', pass it along
       return globalAccess
@@ -28,13 +28,13 @@ export const byTenantOrPublished: (method: ruleMethod, collection: ruleCollectio
     }
   }
 
-export const accessByTenantOrReadPublished: (
+export const accessByTenantRoleOrReadPublished: (
   collection: ruleCollection,
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
   return {
-    create: byTenant('update', collection),
-    read: byTenantOrPublished('read', collection),
-    update: byTenant('update', collection),
-    delete: byTenant('update', collection),
+    create: byTenantRole('update', collection),
+    read: byTenantRoleOrPublished('read', collection),
+    update: byTenantRole('update', collection),
+    delete: byTenantRole('update', collection),
   }
 }

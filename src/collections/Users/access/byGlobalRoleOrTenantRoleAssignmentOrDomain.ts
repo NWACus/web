@@ -24,12 +24,9 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
 
     const userCollectionRoleAssignments = roleAssignments.filter(
       (assignment) =>
-        assignment.roles &&
-        assignment.roles
-          .filter((role) => typeof role !== 'number')
-          .map((role) => role.rules)
-          .flat()
-          .some(ruleMatches(method, 'users')),
+        assignment.role &&
+        typeof assignment.role !== 'number' &&
+        assignment.role.rules.some(ruleMatches(method, 'users')),
     )
 
     const conditions = []

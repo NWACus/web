@@ -111,7 +111,7 @@ export async function inviteUserAction({
               collection: 'roleAssignments',
               data: {
                 user: user.id,
-                roles: [assignment.roleId],
+                role: assignment.roleId,
                 tenant: assignment.tenantId,
               },
             })

@@ -1,22 +1,26 @@
-import { globalRolesForUser } from '@/utilities/rbac/globalRolesForUser'
+import { globalRoleAssignmentsForUser } from '@/utilities/rbac/globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
 
-// byTenant walks the roles bound to the user to determine if they have permissions
+// byTenantRole walks the roles bound to the user to determine if they have permissions
 // to take the specified action on a resource of the collection type. Used for
 // tenant-scoped collections
-export const byTenant: (method: ruleMethod, collection: ruleCollection) => Access =
+export const byTenantRole: (method: ruleMethod, collection: ruleCollection) => Access =
   (method: ruleMethod, collection: ruleCollection): Access =>
   async ({ req: { user, payload } }) => {
     if (!user) {
       return false
     }
 
-    const globalRoles = globalRolesForUser(payload.logger, user)
-
-    const globalRolesMatch = globalRoles
-      .map((role) => role.rules)
+    const globalAssignments = globalRoleAssignmentsForUser(payload.logger, user)
+    const globalRolesMatch = globalAssignments
+      .map((assignment) => {
+        if (assignment.globalRole && typeof assignment.globalRole !== 'number') {
+          return assignment.globalRole.rules
+        }
+        return []
+      })
       .flat()
       .some(ruleMatches(method, collection))
     if (globalRolesMatch) {
@@ -28,12 +32,9 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
     const matchingTenantIds = roleAssignments
       .filter(
         (assignment) =>
-          assignment.roles &&
-          assignment.roles
-            .filter((role) => typeof role !== 'number') // captured in the getter
-            .map((role) => role.rules)
-            .flat()
-            .some(ruleMatches(method, collection)),
+          assignment.role &&
+          typeof assignment.role !== 'number' && // captured in the getter
+          assignment.role.rules.some(ruleMatches(method, collection)),
       )
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter
@@ -51,24 +52,13 @@ export const byTenant: (method: ruleMethod, collection: ruleCollection) => Acces
     return false
   }
 
-export const accessByTenant: (collection: ruleCollection) => CollectionConfig['access'] = (
+export const accessByTenantRole: (collection: ruleCollection) => CollectionConfig['access'] = (
   collection: ruleCollection,
 ) => {
   return {
-    create: byTenant('create', collection),
-    read: byTenant('read', collection),
-    update: byTenant('update', collection),
-    delete: byTenant('delete', collection),
-  }
-}
-
-export const accessByTenantWithPermissiveRead: (
-  collection: ruleCollection,
-) => CollectionConfig['access'] = (collection: ruleCollection) => {
-  return {
-    create: byTenant('create', collection),
-    read: () => true, // world readable for future AvyApp integration
-    update: byTenant('update', collection),
-    delete: byTenant('delete', collection),
+    create: byTenantRole('create', collection),
+    read: byTenantRole('read', collection),
+    update: byTenantRole('update', collection),
+    delete: byTenantRole('delete', collection),
   }
 }

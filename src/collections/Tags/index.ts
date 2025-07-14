@@ -1,4 +1,4 @@
-import { accessByTenant } from '@/access/byTenant'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
@@ -7,7 +7,7 @@ import type { CollectionConfig } from 'payload'
 
 export const Tags: CollectionConfig = {
   slug: 'tags',
-  access: accessByTenant('tags'),
+  access: accessByTenantRole('tags'),
   admin: {
     useAsTitle: 'title',
     group: 'Content',

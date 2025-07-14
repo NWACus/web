@@ -18,7 +18,7 @@ import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
@@ -28,7 +28,7 @@ import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fie
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
-  access: accessByTenantOrReadPublished('posts'),
+  access: accessByTenantRoleOrReadPublished('posts'),
   defaultPopulate: {
     description: true,
     featuredImage: true,
@@ -130,6 +130,13 @@ export const Posts: CollectionConfig<'posts'> = {
       hasMany: true,
       relationTo: 'biographies',
       required: true,
+      filterOptions: ({ data }) => {
+        return {
+          tenant: {
+            equals: data.tenant,
+          },
+        }
+      },
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -195,10 +202,13 @@ export const Posts: CollectionConfig<'posts'> = {
       admin: {
         position: 'sidebar',
       },
-      filterOptions: ({ id }) => {
+      filterOptions: ({ id, data }) => {
         return {
           id: {
             not_in: [id],
+          },
+          tenant: {
+            equals: data.tenant,
           },
         }
       },
