@@ -5,7 +5,7 @@ import { DefaultServerCellComponentProps, getPayload } from 'payload'
 export async function StatusCell({ rowData }: DefaultServerCellComponentProps) {
   const payload = await getPayload({ config: configPromise })
 
-  if (!rowData.id) {
+  if (!rowData?.id) {
     return null
   }
 
