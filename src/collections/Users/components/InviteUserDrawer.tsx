@@ -4,6 +4,7 @@ import {
   Button,
   Collapsible,
   Drawer,
+  FieldError,
   FieldLabel,
   Gutter,
   MoreIcon,
@@ -17,6 +18,7 @@ import {
 } from '@payloadcms/ui'
 
 import { Role, Tenant } from '@/payload-types'
+import { cn } from '@/utilities/ui'
 import { OptionObject } from 'payload'
 import React, { useTransition } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -171,6 +173,14 @@ export function InviteUserDrawer() {
     value: tenant.id,
   }))
 
+  const handleAppend = () => {
+    if (tenantOptions && tenantOptions.length === 1) {
+      append({ role: null, tenant: tenantOptions[0] })
+    } else {
+      append({ role: null, tenant: null })
+    }
+  }
+
   return (
     <>
       <Gutter>
@@ -180,18 +190,20 @@ export function InviteUserDrawer() {
       </Gutter>
       <Drawer slug={drawerSlug} title="Invite New User">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pt-8">
-          <div className="field-type text">
+          <div className={cn('field-type text', errors.email && 'error')}>
             <FieldLabel htmlFor="field-email" label="Email" required />
             <div className="field-type__wrap">
               {errors.email && (
-                <div className="field-type__error">
-                  <span>{errors.email.message || 'This field is required'}</span>
-                </div>
+                <FieldError
+                  path="email"
+                  message={errors.email.message || 'This field is required'}
+                  showError={true}
+                />
               )}
               <input
                 id="field-email"
                 type="email"
-                className={`field-type__input ${errors.email ? 'error' : ''}`}
+                className="field-type__input"
                 {...register('email', {
                   required: 'Email is required',
                   pattern: {
@@ -202,13 +214,15 @@ export function InviteUserDrawer() {
               />
             </div>
           </div>
-          <div className="field-type text">
+          <div className={cn('field-type text', errors.email && 'error')}>
             <FieldLabel htmlFor="field-name" label="Name" required />
             <div className="field-type__wrap">
               {errors.name && (
-                <div className="field-type__error">
-                  <span>{errors.name.message || 'This field is required'}</span>
-                </div>
+                <FieldError
+                  path="name"
+                  message={errors.name.message || 'This field is required'}
+                  showError={true}
+                />
               )}
               <input
                 id="field-name"
@@ -255,33 +269,69 @@ export function InviteUserDrawer() {
                   }
                 >
                   <div className="array-field__row-fields space-y-4">
-                    <div className="field-type">
+                    <div
+                      className={cn(
+                        'field-type select',
+                        errors.roleAssignments?.[index]?.role && 'error',
+                      )}
+                    >
                       <FieldLabel htmlFor={`field-${field.id}-role`} label="Role" required />
-                      <Controller
-                        name={`roleAssignments.${index}.role`}
-                        control={control}
-                        render={({ field: controllerField }) => (
-                          <Select
-                            value={controllerField.value ?? undefined}
-                            onChange={controllerField.onChange}
-                            options={roleOptions}
+                      <div className="field-type__wrap">
+                        {errors.roleAssignments?.[index]?.role && (
+                          <FieldError
+                            path={`roleAssignments.${index}.role`}
+                            message={
+                              errors.roleAssignments[index].role?.message || 'Role is required'
+                            }
+                            showError={true}
                           />
                         )}
-                      />
+                        <Controller
+                          name={`roleAssignments.${index}.role`}
+                          control={control}
+                          rules={{ required: 'Role is required' }}
+                          render={({ field: controllerField }) => (
+                            <Select
+                              value={controllerField.value ?? undefined}
+                              onChange={controllerField.onChange}
+                              options={roleOptions}
+                              className={errors.roleAssignments?.[index]?.role ? 'error' : ''}
+                            />
+                          )}
+                        />
+                      </div>
                     </div>
-                    <div className="field-type">
+                    <div
+                      className={cn(
+                        'field-type select',
+                        errors.roleAssignments?.[index]?.tenant && 'error',
+                      )}
+                    >
                       <FieldLabel htmlFor={`field-${field.id}-tenant`} label="Tenant" required />
-                      <Controller
-                        name={`roleAssignments.${index}.tenant`}
-                        control={control}
-                        render={({ field: controllerField }) => (
-                          <Select
-                            value={controllerField.value ?? undefined}
-                            onChange={controllerField.onChange}
-                            options={tenantOptions}
+                      <div className="field-type__wrap">
+                        {errors.roleAssignments?.[index]?.tenant && (
+                          <FieldError
+                            path={`roleAssignments.${index}.tenant`}
+                            message={
+                              errors.roleAssignments[index].tenant?.message || 'Tenant is required'
+                            }
+                            showError={true}
                           />
                         )}
-                      />
+                        <Controller
+                          name={`roleAssignments.${index}.tenant`}
+                          control={control}
+                          rules={{ required: 'Tenant is required' }}
+                          render={({ field: controllerField }) => (
+                            <Select
+                              value={controllerField.value ?? undefined}
+                              onChange={controllerField.onChange}
+                              options={tenantOptions}
+                              className={errors.roleAssignments?.[index]?.tenant ? 'error' : ''}
+                            />
+                          )}
+                        />
+                      </div>
                     </div>
                   </div>
                 </Collapsible>
@@ -293,7 +343,7 @@ export function InviteUserDrawer() {
                 icon="plus"
                 iconPosition="left"
                 iconStyle="with-border"
-                onClick={() => append({ role: null, tenant: null })}
+                onClick={handleAppend}
               >
                 Add Role Assignment
               </Button>
