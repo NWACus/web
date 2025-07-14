@@ -2,183 +2,313 @@
 
 import {
   Button,
-  Collapsible,
   Drawer,
-  FieldError,
-  FieldLabel,
+  EmailField,
+  Form,
+  FormSubmit,
   Gutter,
-  MoreIcon,
-  Popup,
-  PopupList,
-  Select,
+  SelectField,
+  TextField,
   toast,
+  useAllFormFields,
+  useForm,
   useListQuery,
   useModal,
   usePayloadAPI,
 } from '@payloadcms/ui'
 
 import { Role, Tenant } from '@/payload-types'
-import { cn } from '@/utilities/ui'
-import { OptionObject } from 'payload'
-import React, { useTransition } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { type FormState } from 'payload'
+import { useCallback, useMemo } from 'react'
 import { inviteUserAction } from './inviteUserAction'
-
-type InviteUserFormValues = {
-  email: string
-  name: string
-  roleAssignments: {
-    role: OptionObject | null
-    tenant: OptionObject | null
-  }[]
-}
 
 const drawerSlug = 'invite-user-drawer'
 
-function FieldErrorsToast({ errorMessage }: { errorMessage: string }) {
-  const [{ errors, message }] = React.useState(() => createErrorsFromMessage(errorMessage))
+type RoleAssignmentRowInput = {
+  role?: string | number
+  tenant?: string | number
+  [key: string]: unknown
+}
 
+function RoleAssignmentRow({
+  path,
+  index,
+  roleOptions,
+  tenantOptions,
+  onRemove,
+}: {
+  path: string
+  index: number
+  roleOptions: { label: string; value: string }[]
+  tenantOptions: { label: string; value: string }[]
+  onRemove: () => void
+}) {
   return (
-    <div>
-      {message}
-      {Array.isArray(errors) && errors.length > 0 ? (
-        <ul data-testid="field-errors">
-          {errors.map((error, index) => {
-            return <li key={index}>{error}</li>
-          })}
-        </ul>
-      ) : null}
+    <div className="array-field__row pl-4 pb-6">
+      <div className="flex justify-between items-center">
+        <span className="array-field__row-label">
+          Role Assignment {String(index + 1).padStart(2, '0')}
+        </span>
+        <Button
+          buttonStyle="icon-label"
+          className="my-3"
+          icon="x"
+          iconPosition="left"
+          iconStyle="with-border"
+          onClick={onRemove}
+          size="small"
+        >
+          Remove
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <SelectField
+          field={{
+            name: 'role',
+            type: 'select',
+            label: 'Role',
+            required: true,
+            options: roleOptions,
+          }}
+          path={`${path}.role`}
+          validate={(value) => {
+            if (!value) return 'Role is required'
+            return true
+          }}
+        />
+        <SelectField
+          field={{
+            name: 'tenant',
+            type: 'select',
+            label: 'Tenant',
+            required: true,
+            options: tenantOptions,
+          }}
+          path={`${path}.tenant`}
+          validate={(value) => {
+            if (!value) return 'Tenant is required'
+            return true
+          }}
+        />
+      </div>
     </div>
   )
 }
 
-function groupSimilarErrors(items: string[]): string[] {
-  const result: string[] = []
+const collectValidationErrors = (formState: FormState): string[] => {
+  const errors: string[] = []
 
-  for (const item of items) {
-    if (item) {
-      const parts = item.split(' → ')
-      let inserted = false
+  if (formState.email?.valid === false) {
+    errors.push(`Email: ${formState.email.errorMessage || 'Email is required'}`)
+  }
 
-      // Find a place where a similar path exists
-      for (let i = 0; i < result.length; i++) {
-        if (result[i].startsWith(parts[0])) {
-          result.splice(i + 1, 0, item)
-          inserted = true
-          break
-        }
+  if (formState.name?.valid === false) {
+    errors.push(`Name: ${formState.name.errorMessage || 'Name is required'}`)
+  }
+
+  const roleAssignmentFields = Object.keys(formState).filter(
+    (key) =>
+      key.startsWith('roleAssignments.') && (key.endsWith('.role') || key.endsWith('.tenant')),
+  )
+
+  // Group by row index
+  const rowErrors: { [index: number]: { role?: string; tenant?: string } } = {}
+
+  roleAssignmentFields.forEach((fieldPath) => {
+    const field = formState[fieldPath]
+    if (field?.valid === false && field?.errorMessage) {
+      const pathParts = fieldPath.split('.')
+      const rowIndex = parseInt(pathParts[1])
+      const fieldType = pathParts[2] // 'role' or 'tenant'
+
+      if (!rowErrors[rowIndex]) {
+        rowErrors[rowIndex] = {}
       }
 
-      // If no similar path was found, add to the end
-      if (!inserted) {
-        result.push(item)
-      }
+      rowErrors[rowIndex][fieldType as 'role' | 'tenant'] = field.errorMessage
     }
-  }
+  })
 
-  return result
-}
-
-function createErrorsFromMessage(message: string): {
-  errors?: string[]
-  message: string
-} {
-  const [intro, errorsString] = message.split(':')
-
-  if (!errorsString) {
-    return {
-      message: intro,
+  // Convert grouped errors to validation messages
+  Object.entries(rowErrors).forEach(([index, rowError]) => {
+    const rowNumber = parseInt(index) + 1
+    if (rowError.role) {
+      errors.push(`Role Assignment ${rowNumber}: ${rowError.role}`)
     }
-  }
-
-  const errors = errorsString.split(',').map((error) => error.replaceAll(' > ', ' → ').trim())
-
-  if (errors.length === 1) {
-    return {
-      errors,
-      message: `${intro}:`,
+    if (rowError.tenant) {
+      errors.push(`Role Assignment ${rowNumber}: ${rowError.tenant}`)
     }
-  }
+  })
 
-  return {
-    errors: groupSimilarErrors(errors),
-    message: `${intro} (${errors.length}):`,
-  }
+  return errors
 }
 
 export function InviteUserDrawer() {
   const { openModal, closeModal } = useModal()
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<InviteUserFormValues>({
-    defaultValues: { email: '', name: '', roleAssignments: [] },
-  })
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'roleAssignments',
-  })
-
-  const [isPending, startTransition] = useTransition()
-
   const { refineListData } = useListQuery()
 
-  const onSubmit = (data: InviteUserFormValues) => {
-    startTransition(async () => {
-      const transformedRoleAssignments = data.roleAssignments
-        .filter((assignment): assignment is { role: OptionObject; tenant: OptionObject } =>
-          Boolean(
-            assignment.role &&
-              assignment.role.value &&
-              assignment.tenant &&
-              assignment.tenant.value,
-          ),
-        )
-        .map((assignment) => ({
-          roleId: Number(assignment.role.value),
-          tenantId: Number(assignment.tenant.value),
-        }))
-      const result = await inviteUserAction({
-        email: data.email,
-        name: data.name,
-        roleAssignments: transformedRoleAssignments,
-      })
-      if (result.success) {
-        toast.success(`Invite sent to: ${data.email}`)
-        reset()
-        closeModal(drawerSlug)
-
-        // Trigger Payload to refetch the list view
-        refineListData({})
-      } else {
-        toast.error(<FieldErrorsToast errorMessage={result.error || 'Failed to invite user.'} />)
-      }
-    })
-  }
-
   const [{ data: rolesData }] = usePayloadAPI('/api/roles?limit=100')
-  const roleOptions = rolesData?.docs?.map((role: Role) => ({
-    label: role.name,
-    value: role.id,
-  }))
-
   const [{ data: tenantsData }] = usePayloadAPI('/api/tenants?limit=100')
-  const tenantOptions = tenantsData?.docs?.map((tenant: Tenant) => ({
-    label: tenant.name,
-    value: tenant.id,
-  }))
 
-  const handleAppend = () => {
-    if (tenantOptions && tenantOptions.length === 1) {
-      append({ role: null, tenant: tenantOptions[0] })
-    } else {
-      append({ role: null, tenant: null })
-    }
+  const roleOptions = useMemo(
+    () =>
+      rolesData?.docs?.map((role: Role) => ({
+        label: role.name,
+        value: String(role.id),
+      })) || [],
+    [rolesData],
+  )
+
+  const tenantOptions = useMemo(
+    () =>
+      tenantsData?.docs?.map((tenant: Tenant) => ({
+        label: tenant.name,
+        value: String(tenant.id),
+      })) || [],
+    [tenantsData],
+  )
+
+  const initialState: FormState = useMemo(
+    () => ({
+      email: {
+        initialValue: '',
+        valid: false,
+        value: '',
+      },
+      name: {
+        initialValue: '',
+        valid: false,
+        value: '',
+      },
+      roleAssignments: {
+        initialValue: [],
+        valid: true, // Valid by default since it's optional
+        value: [],
+        rows: [],
+      },
+    }),
+    [],
+  )
+
+  const handleSubmit = useCallback(
+    async (formState: FormState) => {
+      // Check for client side validation errors before submitting
+      const validationErrors = collectValidationErrors(formState)
+
+      if (validationErrors.length > 0) {
+        // Format error message exactly like Payload's FieldErrorsToast
+        const errorMessage =
+          validationErrors.length === 1
+            ? validationErrors[0]
+            : `Please correct the following errors (${validationErrors.length}):`
+
+        // Create a React component that matches Payload's format
+        const ErrorToast = () => (
+          <div>
+            {errorMessage}
+            {validationErrors.length > 1 && (
+              <ul data-testid="field-errors">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )
+
+        toast.error(<ErrorToast />)
+        return
+      }
+
+      try {
+        const rows: RoleAssignmentRowInput[] = Array.isArray(formState.roleAssignments?.rows)
+          ? formState.roleAssignments.rows
+          : []
+
+        const roleAssignments = rows
+          .filter((row) => row.role !== undefined && row.tenant !== undefined)
+          .map((row) => ({
+            roleId: Number(row.role),
+            tenantId: Number(row.tenant),
+          }))
+
+        const result = await inviteUserAction({
+          email: String(formState.email?.value) || '',
+          name: String(formState.name?.value) || '',
+          roleAssignments,
+        })
+
+        if (result.success) {
+          toast.success(`Invite sent to: ${formState.email?.value}`)
+          closeModal(drawerSlug)
+
+          // Trigger Payload to refetch the list view
+          refineListData({})
+        } else {
+          toast.error(result.error || 'Failed to invite user.')
+        }
+      } catch (error) {
+        console.error('Error inviting user:', error)
+        toast.error('An unexpected error occurred while inviting the user.')
+      }
+    },
+    [closeModal, refineListData],
+  )
+
+  const RoleAssignmentsArray = ({ path }: { path: string }) => {
+    const { dispatchFields, removeFieldRow, addFieldRow } = useForm()
+
+    const [formState] = useAllFormFields()
+    const roleAssignmentsField = formState?.[path]
+    const rows = Array.isArray(roleAssignmentsField?.rows) ? roleAssignmentsField.rows : []
+
+    const addRow = useCallback(() => {
+      addFieldRow({ path, schemaPath: path })
+
+      // If there's only one tenant, set it automatically
+      if (tenantOptions.length === 1) {
+        dispatchFields({
+          type: 'UPDATE',
+          path: `${path}.${rows.length}.tenant`,
+          value: tenantOptions[0].value,
+          valid: true,
+        })
+      }
+    }, [addFieldRow, dispatchFields, path, rows.length])
+
+    const removeRow = useCallback(
+      (index: number) => {
+        removeFieldRow({ path, rowIndex: index })
+      },
+      [removeFieldRow, path],
+    )
+
+    return (
+      <div className="field-type">
+        <div className="field-type__wrap">
+          {rows.map((row: any, index: number) => (
+            <RoleAssignmentRow
+              key={row.id || index}
+              path={`${path}.${index}`}
+              index={index}
+              roleOptions={roleOptions}
+              tenantOptions={tenantOptions}
+              onRemove={() => removeRow(index)}
+            />
+          ))}
+        </div>
+        <Button
+          buttonStyle="icon-label"
+          className="field-type__add-button"
+          icon="plus"
+          iconPosition="left"
+          iconStyle="with-border"
+          onClick={addRow}
+        >
+          Add Role Assignment
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -189,170 +319,49 @@ export function InviteUserDrawer() {
         </Button>
       </Gutter>
       <Drawer slug={drawerSlug} title="Invite New User">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pt-8">
-          <div className={cn('field-type text', errors.email && 'error')}>
-            <FieldLabel htmlFor="field-email" label="Email" required />
-            <div className="field-type__wrap">
-              {errors.email && (
-                <FieldError
-                  path="email"
-                  message={errors.email.message || 'This field is required'}
-                  showError={true}
-                />
-              )}
-              <input
-                id="field-email"
-                type="email"
-                className="field-type__input"
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Please enter a valid email address',
-                  },
-                })}
-              />
-            </div>
-          </div>
-          <div className={cn('field-type text', errors.email && 'error')}>
-            <FieldLabel htmlFor="field-name" label="Name" required />
-            <div className="field-type__wrap">
-              {errors.name && (
-                <FieldError
-                  path="name"
-                  message={errors.name.message || 'This field is required'}
-                  showError={true}
-                />
-              )}
-              <input
-                id="field-name"
-                type="text"
-                className={`field-type__input ${errors.name ? 'error' : ''}`}
-                {...register('name', {
-                  required: 'Name is required',
-                })}
-              />
-            </div>
-          </div>
+        <Form
+          initialState={initialState}
+          onSubmit={handleSubmit}
+          disableValidationOnSubmit={true}
+          className="space-y-8 pt-8"
+        >
+          <EmailField
+            field={{
+              name: 'email',
+              type: 'email',
+              label: 'Email',
+              required: true,
+            }}
+            path="email"
+            validate={(value) => {
+              if (!value) return 'Email is required'
+              const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+              if (!emailRegex.test(value)) return 'Please enter a valid email address'
+              return true
+            }}
+          />
+
+          <TextField
+            field={{
+              name: 'name',
+              type: 'text',
+              label: 'Name',
+              required: true,
+            }}
+            path="name"
+            validate={(value) => {
+              if (!value) return 'Name is required'
+              return true
+            }}
+          />
+
           <div className="field-type space-y-2">
-            <FieldLabel label="Role Assignments" />
-            <div className="field-type__wrap space-y-4">
-              {fields.map((field, index) => (
-                <Collapsible
-                  key={field.id}
-                  header={
-                    <div className="array-field__row-header">
-                      <span className="array-field__row-label">
-                        Role Assignment {String(index + 1).padStart(2, '0')}
-                      </span>
-                    </div>
-                  }
-                  actions={
-                    <Popup
-                      button={<MoreIcon />}
-                      horizontalAlign="center"
-                      buttonClassName="array-actions__button popup-button--default"
-                      render={({ close }) => (
-                        <PopupList.ButtonGroup buttonSize="small">
-                          <PopupList.Button
-                            onClick={() => {
-                              remove(index)
-                              close()
-                            }}
-                          >
-                            Remove
-                          </PopupList.Button>
-                        </PopupList.ButtonGroup>
-                      )}
-                      size="medium"
-                    />
-                  }
-                >
-                  <div className="array-field__row-fields space-y-4">
-                    <div
-                      className={cn(
-                        'field-type select',
-                        errors.roleAssignments?.[index]?.role && 'error',
-                      )}
-                    >
-                      <FieldLabel htmlFor={`field-${field.id}-role`} label="Role" required />
-                      <div className="field-type__wrap">
-                        {errors.roleAssignments?.[index]?.role && (
-                          <FieldError
-                            path={`roleAssignments.${index}.role`}
-                            message={
-                              errors.roleAssignments[index].role?.message || 'Role is required'
-                            }
-                            showError={true}
-                          />
-                        )}
-                        <Controller
-                          name={`roleAssignments.${index}.role`}
-                          control={control}
-                          rules={{ required: 'Role is required' }}
-                          render={({ field: controllerField }) => (
-                            <Select
-                              value={controllerField.value ?? undefined}
-                              onChange={controllerField.onChange}
-                              options={roleOptions}
-                              className={errors.roleAssignments?.[index]?.role ? 'error' : ''}
-                            />
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div
-                      className={cn(
-                        'field-type select',
-                        errors.roleAssignments?.[index]?.tenant && 'error',
-                      )}
-                    >
-                      <FieldLabel htmlFor={`field-${field.id}-tenant`} label="Tenant" required />
-                      <div className="field-type__wrap">
-                        {errors.roleAssignments?.[index]?.tenant && (
-                          <FieldError
-                            path={`roleAssignments.${index}.tenant`}
-                            message={
-                              errors.roleAssignments[index].tenant?.message || 'Tenant is required'
-                            }
-                            showError={true}
-                          />
-                        )}
-                        <Controller
-                          name={`roleAssignments.${index}.tenant`}
-                          control={control}
-                          rules={{ required: 'Tenant is required' }}
-                          render={({ field: controllerField }) => (
-                            <Select
-                              value={controllerField.value ?? undefined}
-                              onChange={controllerField.onChange}
-                              options={tenantOptions}
-                              className={errors.roleAssignments?.[index]?.tenant ? 'error' : ''}
-                            />
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Collapsible>
-              ))}
-              <Button
-                type="button"
-                buttonStyle="icon-label"
-                className="array-field__add-row"
-                icon="plus"
-                iconPosition="left"
-                iconStyle="with-border"
-                onClick={handleAppend}
-              >
-                Add Role Assignment
-              </Button>
-            </div>
+            <div className="field-type__label">Role Assignments</div>
+            <RoleAssignmentsArray path="roleAssignments" />
           </div>
-          <Button type="submit" disabled={isSubmitting || isPending}>
-            {isPending ? 'Inviting...' : 'Invite User'}
-          </Button>
-        </form>
+
+          <FormSubmit>Invite User</FormSubmit>
+        </Form>
       </Drawer>
     </>
   )
