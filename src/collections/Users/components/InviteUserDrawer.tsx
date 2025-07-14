@@ -11,6 +11,7 @@ import {
   PopupList,
   Select,
   toast,
+  useListQuery,
   useModal,
   usePayloadAPI,
 } from '@payloadcms/ui'
@@ -123,6 +124,8 @@ export function InviteUserDrawer() {
 
   const [isPending, startTransition] = useTransition()
 
+  const { refineListData } = useListQuery()
+
   const onSubmit = (data: InviteUserFormValues) => {
     startTransition(async () => {
       const transformedRoleAssignments = data.roleAssignments
@@ -149,7 +152,7 @@ export function InviteUserDrawer() {
         closeModal(drawerSlug)
 
         // Trigger Payload to refetch the list view
-        window.dispatchEvent(new Event('payload.reload'))
+        refineListData({})
       } else {
         toast.error(<FieldErrorsToast errorMessage={result.error || 'Failed to invite user.'} />)
       }

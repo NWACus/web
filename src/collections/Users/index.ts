@@ -14,6 +14,7 @@ export const Users: CollectionConfig = {
     components: {
       beforeList: ['@/collections/Users/components/InviteUser#InviteUser'],
     },
+    defaultColumns: ['email', 'name', 'roles', 'status'],
   },
   auth: true,
   fields: [
