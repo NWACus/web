@@ -4,10 +4,10 @@ export default function EmailLogo({ appUrl }: { appUrl: string }) {
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
         paddingTop: '24px',
+        marginRight: 'auto',
+        marginLeft: 'auto',
+        width: 'fit-content',
       }}
     >
       <Img src={`${appUrl}/assets/icon.png`} alt="Logo" width="80" height="80" />
