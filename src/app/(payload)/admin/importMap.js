@@ -4,7 +4,7 @@ import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
 import { InviteUser as InviteUser_6042b6804e11048cd4fbe6206cbc2b0f } from '@/collections/Users/components/InviteUser'
 import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735 } from '@/collections/Users/components/ResendInviteButton'
-import { StatusCell as StatusCell_71788b707e862411b6a107662ed99e44 } from '@/collections/Users/components/Status'
+import { UserStatusCell as UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee } from '@/collections/Users/components/UserStatusCell'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
@@ -92,7 +92,8 @@ export const importMap = {
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':
     OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@/collections/Users/components/Status#StatusCell': StatusCell_71788b707e862411b6a107662ed99e44,
+  '@/collections/Users/components/UserStatusCell#UserStatusCell':
+    UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
   '@/collections/Users/components/InviteUser#InviteUser':
     InviteUser_6042b6804e11048cd4fbe6206cbc2b0f,
   '@/collections/Users/components/ResendInviteButton#ResendInviteButton':

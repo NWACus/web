@@ -19,7 +19,7 @@ export const Users: CollectionConfig = {
         ],
       },
     },
-    defaultColumns: ['email', 'name', 'roles', 'inviteStatus'],
+    defaultColumns: ['email', 'name', 'roles', 'userStatus'],
   },
   auth: true,
   fields: [
@@ -66,11 +66,11 @@ export const Users: CollectionConfig = {
       hidden: true,
     },
     {
-      name: 'inviteStatus',
+      name: 'userStatus',
       type: 'ui',
       admin: {
         components: {
-          Cell: '@/collections/Users/components/Status#StatusCell',
+          Cell: '@/collections/Users/components/UserStatusCell#UserStatusCell',
         },
       },
     },

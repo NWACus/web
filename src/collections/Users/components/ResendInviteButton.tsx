@@ -56,7 +56,7 @@ export function ResendInviteButton() {
   }
 
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex items-end gap-3 pr-6">
       <p className="text-error">Invite Expired</p>
       <Button onClick={handleResendInvite} disabled={isLoading}>
         {isLoading ? 'Resending...' : 'Resend Invite'}
