@@ -36,7 +36,7 @@ const collections: CollectionSlug[] = [
   'form-submissions',
   'navigations',
   'roles',
-  'globalRoleAssignments',
+  'globalRoles',
   'roleAssignments',
   'tags',
   'teams',
@@ -149,7 +149,8 @@ export const seed = async ({
     payload.logger.info(`— Skipping database cleanup for incremental seed...`)
   }
 
-  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
+  // Create global roles first
+  const globalRoles = await upsertGlobals('globalRoles', payload, incremental, (obj) => obj.name, [
     {
       name: 'Super Admin',
       rules: [
@@ -159,6 +160,32 @@ export const seed = async ({
         },
       ],
     },
+  ])
+
+  const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
+    {
+      name: 'Northwest Avalanche Center',
+      slug: 'nwac',
+      customDomain: 'nwac.us',
+    },
+    {
+      name: 'Sierra Avalanche Center',
+      slug: 'sac',
+      customDomain: 'sierraavalanchecenter.org',
+    },
+    {
+      name: 'Sawtooth Avalanche Center',
+      slug: 'snfac',
+      customDomain: 'sawtoothavalanche.com',
+    },
+  ])
+  const tenantsById: Record<number, Tenant> = {}
+  for (const tenant in tenants) {
+    tenantsById[tenants[tenant].id] = tenants[tenant]
+  }
+
+  // Create global roles
+  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
     {
       name: 'Admin',
       rules: [
@@ -222,28 +249,6 @@ export const seed = async ({
       ],
     },
   ])
-
-  const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
-    {
-      name: 'Northwest Avalanche Center',
-      slug: 'nwac',
-      customDomain: 'nwac.us',
-    },
-    {
-      name: 'Sierra Avalanche Center',
-      slug: 'sac',
-      customDomain: 'sierraavalanchecenter.org',
-    },
-    {
-      name: 'Sawtooth Avalanche Center',
-      slug: 'snfac',
-      customDomain: 'sawtoothavalanche.com',
-    },
-  ])
-  const tenantsById: Record<number, Tenant> = {}
-  for (const tenant in tenants) {
-    tenantsById[tenants[tenant].id] = tenants[tenant]
-  }
 
   payload.logger.info(`— Seeding brand media...`)
 
@@ -468,26 +473,25 @@ export const seed = async ({
 
   const requestHeaders = await headers()
   const { user } = await payload.auth({ headers: requestHeaders })
-  const globalRoleAssignments: RequiredDataFromCollectionSlug<'globalRoleAssignments'>[] = [
-    {
-      roles: [roles['Super Admin'].id],
+
+  // Assign global roles directly to users
+  await payload.create({
+    collection: 'globalRoleAssignments',
+    data: {
       user: users['Super Admin'].id,
+      globalRole: globalRoles['Super Admin'].id,
     },
-  ]
+  })
+
   if (user && user.email !== users['Super Admin'].email) {
-    globalRoleAssignments.push({
-      roles: [roles['Super Admin'].id],
-      user: user.id,
+    await payload.create({
+      collection: 'globalRoleAssignments',
+      data: {
+        user: user.id,
+        globalRole: globalRoles['Super Admin'].id,
+      },
     })
   }
-  // SuperAdminRoleAssignment
-  await upsertGlobals(
-    'globalRoleAssignments',
-    payload,
-    incremental,
-    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
-    globalRoleAssignments,
-  )
 
   // Roles
   await upsert(
@@ -495,36 +499,36 @@ export const seed = async ({
     payload,
     incremental,
     tenantsById,
-    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
+    (obj) => `${obj.user} ${obj.role}`,
     [
       ...Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
           {
             tenant: tenant.id,
-            roles: [roles['Admin'].id],
+            role: roles['Admin'].id,
             user: users[tenant.slug.toUpperCase() + ' Admin'].id,
           },
           {
             tenant: tenant.id,
-            roles: [roles['Forecaster'].id],
+            role: roles['Forecaster'].id,
             user: users[tenant.slug.toUpperCase() + ' Forecaster'].id,
           },
 
           {
             tenant: tenant.id,
-            roles: [roles['Non-Profit Staff'].id],
+            role: roles['Non-Profit Staff'].id,
             user: users[tenant.slug.toUpperCase() + ' Non-Profit Staff'].id,
           },
         ])
         .flat(),
       {
         tenant: tenants['snfac'].id,
-        roles: [roles['Admin'].id],
+        role: roles['Admin'].id,
         user: users['Multi-center Admin'].id,
       },
       {
         tenant: tenants['nwac'].id,
-        roles: [roles['Admin'].id],
+        role: roles['Admin'].id,
         user: users['Multi-center Admin'].id,
       },
     ],

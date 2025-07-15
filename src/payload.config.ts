@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
+import { GlobalRoles } from '@/collections/GlobalRoles'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
 import { Pages } from '@/collections/Pages'
@@ -134,6 +135,7 @@ export default buildConfig({
     Tenants,
     Roles,
     RoleAssignments,
+    GlobalRoles,
     GlobalRoleAssignments,
     Navigations,
     Biographies,

@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
@@ -21,20 +22,29 @@ export const Users: CollectionConfig = {
       saveToJWT: true,
     },
     {
-      name: 'globalRoles',
-      type: 'join',
-      collection: 'globalRoleAssignments',
-      on: 'user',
-      saveToJWT: true,
-      maxDepth: 2,
-    },
-    {
       name: 'roles',
       type: 'join',
       collection: 'roleAssignments',
       on: 'user',
       saveToJWT: true,
       maxDepth: 3,
+      admin: {
+        defaultColumns: ['role'],
+      },
+    },
+    {
+      name: 'globalRoleAssignments',
+      type: 'join',
+      collection: 'globalRoleAssignments',
+      on: 'user',
+      saveToJWT: true,
+      maxDepth: 3,
+      admin: {
+        defaultColumns: ['globalRole'],
+      },
+      access: {
+        read: byGlobalRole('read', 'globalRoles'),
+      },
     },
     contentHashField(),
   ],

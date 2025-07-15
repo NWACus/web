@@ -14,7 +14,7 @@ import type {
 
 type GlobalCollectionWithHash = Extract<
   CollectionSlug,
-  'users' | 'tenants' | 'roles' | 'globalRoleAssignments'
+  'users' | 'tenants' | 'roles' | 'globalRoles'
 >
 
 const removeNonDeterministicKeys = (obj: object): object => {
@@ -115,6 +115,7 @@ type TenantScopedCollectionWithHash = Exclude<
   | 'payload-locked-documents'
   | 'payload-preferences'
   | 'payload-migrations'
+  | 'globalRoleAssignments'
 >
 
 export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
