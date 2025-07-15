@@ -80,7 +80,6 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
 
 export const accessByGlobalRoleOrTenantRoleAssignmentOrDomain: CollectionConfig['access'] = {
   create: () => false, // Disallow create for the users collection in favor of a custom invite flow which uses the create rule on the users collection
-  // create: byGlobalRoleOrTenantRoleAssignmentOrDomain('create'),
   read: byGlobalRoleOrTenantRoleAssignmentOrDomain('read'),
   update: byGlobalRoleOrTenantRoleAssignmentOrDomain('update'),
   delete: byGlobalRoleOrTenantRoleAssignmentOrDomain('delete'),
