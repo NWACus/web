@@ -1,3 +1,4 @@
+import { byGlobalRole } from '@/access/byGlobalRole'
 import type { BeforeListServerProps, PayloadRequest } from 'payload'
 import { byGlobalRoleOrTenantRoleAssignmentOrDomain } from '../access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { InviteUserDrawer } from './InviteUserDrawer'
@@ -16,7 +17,12 @@ export function InviteUser({ payload, user }: BeforeListServerProps) {
     req: mockedPayloadReq,
   })
 
+  const canCreateGlobalRoleAssignments = !!byGlobalRole(
+    'create',
+    'globalRoleAssignments',
+  )({ req: mockedPayloadReq })
+
   if (!canInvite) return null
 
-  return <InviteUserDrawer />
+  return <InviteUserDrawer canCreateGlobalRoleAssignments={canCreateGlobalRoleAssignments} />
 }

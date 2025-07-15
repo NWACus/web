@@ -1,5 +1,6 @@
 'use server'
 
+import { byGlobalRole } from '@/access/byGlobalRole'
 import { User } from '@/payload-types'
 import { generateInviteUserEmail } from '@/utilities/email/generateInviteUserEmail'
 import { getURL } from '@/utilities/getURL'
@@ -57,6 +58,7 @@ export async function inviteUserAction({
   email,
   name,
   roleAssignments,
+  globalRoleAssignments,
 }: {
   email: string
   name: string
@@ -64,6 +66,7 @@ export async function inviteUserAction({
     roleId: number
     tenantId: number
   }[]
+  globalRoleAssignments: number[]
 }) {
   try {
     const payload = await getPayload({ config })
@@ -91,7 +94,8 @@ export async function inviteUserAction({
     const inviteExpiration = new Date(Date.now() + inviteTokenExpirationMs).toISOString()
 
     let user: User | undefined
-    const createdRoleAssignmentIds: string[] = []
+    const createdRoleAssignmentIds: number[] = []
+    const createdGlobalRoleAssignmentIds: number[] = []
 
     try {
       user = await payload.create({
@@ -117,8 +121,31 @@ export async function inviteUserAction({
                 tenant: assignment.tenantId,
               },
             })
-            createdRoleAssignmentIds.push(String(roleAssignment.id))
+            createdRoleAssignmentIds.push(roleAssignment.id)
           }
+        }
+      }
+
+      const canCreateGlobalRoleAssignments = !!byGlobalRole(
+        'create',
+        'globalRoleAssignments',
+      )({ req: mockedPayloadReq })
+
+      if (
+        canCreateGlobalRoleAssignments &&
+        user &&
+        Array.isArray(globalRoleAssignments) &&
+        globalRoleAssignments.length > 0
+      ) {
+        for (const assignment of globalRoleAssignments) {
+          const globalRoleAssignment = await payload.create({
+            collection: 'globalRoleAssignments',
+            data: {
+              user: user.id,
+              globalRole: assignment,
+            },
+          })
+          createdGlobalRoleAssignmentIds.push(globalRoleAssignment.id)
         }
       }
 
@@ -148,7 +175,7 @@ export async function inviteUserAction({
         `Failed to create user or role assignments: ${error instanceof Error ? error.message : 'Unknown error'}`,
       )
 
-      // Roll back: delete created user and created role assignments if any role assignments fail
+      // Roll back: delete created user, created role assignments if any role assignments fail, and created global role assignments if any role assignments fail
       for (const id of createdRoleAssignmentIds) {
         try {
           await payload.delete({
@@ -161,6 +188,20 @@ export async function inviteUserAction({
           )
         }
       }
+
+      for (const id of createdGlobalRoleAssignmentIds) {
+        try {
+          await payload.delete({
+            collection: 'globalRoleAssignments',
+            id,
+          })
+        } catch (e) {
+          payload.logger.error(
+            `Failed to delete global role assignment ${id}: ${e instanceof Error ? e.message : e}`,
+          )
+        }
+      }
+
       if (user?.id) {
         try {
           await payload.delete({

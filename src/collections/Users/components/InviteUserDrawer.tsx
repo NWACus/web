@@ -4,9 +4,11 @@ import {
   Button,
   Drawer,
   EmailField,
+  FieldLabel,
   Form,
   FormSubmit,
   Gutter,
+  SelectField,
   TextField,
   toast,
   useAllFormFields,
@@ -16,7 +18,7 @@ import {
   usePayloadAPI,
 } from '@payloadcms/ui'
 
-import { Role, Tenant } from '@/payload-types'
+import { GlobalRole, Role, Tenant } from '@/payload-types'
 import { type FormState } from 'payload'
 import { reduceFieldsToValues } from 'payload/shared'
 import { useCallback, useState } from 'react'
@@ -96,9 +98,19 @@ const initialState: FormState = {
     value: [],
     rows: [],
   },
+  globalRoleAssignments: {
+    initialValue: [],
+    valid: true, // Valid by default since it's optional
+    value: [],
+    rows: [],
+  },
 }
 
-export function InviteUserDrawer() {
+export function InviteUserDrawer({
+  canCreateGlobalRoleAssignments,
+}: {
+  canCreateGlobalRoleAssignments: boolean
+}) {
   const { openModal, closeModal } = useModal()
   const { refineListData } = useListQuery()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -115,6 +127,13 @@ export function InviteUserDrawer() {
     tenantsData?.docs?.map((tenant: Tenant) => ({
       label: tenant.name,
       value: String(tenant.id),
+    })) || []
+
+  const [{ data: globalRolesData }] = usePayloadAPI('/api/globalRoles?limit=100')
+  const globalRoleOptions =
+    globalRolesData?.docs?.map((globalRole: GlobalRole) => ({
+      label: globalRole.name,
+      value: String(globalRole.id),
     })) || []
 
   const handleSubmit = useCallback(
@@ -160,11 +179,15 @@ export function InviteUserDrawer() {
                 tenantId: Number(row.tenant),
               }))
           : []
+        const globalRoleAssignments = Array.isArray(reducedVals.globalRoleAssignments)
+          ? reducedVals.globalRoleAssignments.map((roleId) => Number(roleId))
+          : []
 
         const result = await inviteUserAction({
           email: String(formState.email?.value) || '',
           name: String(formState.name?.value) || '',
           roleAssignments,
+          globalRoleAssignments,
         })
 
         if (result.success) {
@@ -287,9 +310,22 @@ export function InviteUserDrawer() {
           />
 
           <div className="field-type space-y-2">
-            <div className="field-type__label">Role Assignments</div>
+            <FieldLabel label="Role Assignments" />
             <RoleAssignmentsArray path="roleAssignments" />
           </div>
+
+          {canCreateGlobalRoleAssignments && (
+            <SelectField
+              field={{
+                name: 'globalRoles',
+                type: 'select',
+                label: 'Global Role Assignments',
+                options: globalRoleOptions,
+                hasMany: true,
+              }}
+              path="globalRoleAssignments"
+            />
+          )}
 
           <FormSubmit className="w-fit px-6" disabled={isSubmitting}>
             {isSubmitting ? 'Inviting...' : 'Invite User'}
