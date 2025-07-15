@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
+import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 
@@ -21,7 +22,14 @@ export const Users: CollectionConfig = {
     },
     defaultColumns: ['email', 'name', 'roles', 'userStatus'],
   },
-  auth: true,
+  auth: {
+    forgotPassword: {
+      generateEmailHTML: async (args) => {
+        const { html } = await generateForgotPasswordEmail(args)
+        return html
+      },
+    },
+  },
   fields: [
     {
       name: 'name',

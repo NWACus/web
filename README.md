@@ -105,3 +105,15 @@ To avoid an error when attempting to merge a PR on a feature branch into main, y
 3. Configure git to use your GPG key: [GitHub guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-gpg-key)
 
 Note: When configuring git to automatically sign commits you could leave out the `--global` flag if you only want to automatically sign commits in this repo, not all repos.
+
+## Developing Emails
+
+This repo is setup to use [React Email](https://react.email/) for custom email development.
+
+react-email allows us to use React components to develop emails. The `./src/emails` directory stores our React emails and can be previewed using the react-email preview server.
+
+Run `pnpm email:dev` to run the email server on `http://localhost:3001`.
+
+Any file inside `./src/emails` (except for inside the `./src/emails/_components` dir) will be interpreted as an email. Passing `PreviewProps` to the default export will render the email on the preview server with those props.
+
+You likely won't use `pnpm email:build` or `pnpm email:export`. The primary method of using these emails is through the [render](https://react.email/docs/utilities/render) utility. See `./src/utilities/email/generateInviteUserEmail.tsx` for an example.

@@ -1,5 +1,6 @@
 'use server'
 
+import { generateInviteUserEmail } from '@/utilities/email/generateInviteUserEmail'
 import { getURL } from '@/utilities/getURL'
 import config from '@payload-config'
 import crypto from 'crypto'
@@ -153,22 +154,14 @@ export async function resendInviteAction(
       serverURL,
     })
 
-    const html = `
-      <p>You have been invited to join AvyFx.</p>
-      <p>Please click the link below to set your password and complete your account setup:</p>
-      <a href="${acceptInviteURL}">${acceptInviteURL}</a>
-      <p>This link will expire in 10 days.</p>
-      <p>If you did not expect this invitation, please ignore this email.</p>
-    `
-
-    const subject = 'You have been invited to join AvyFx'
-
-    const emailDefaultFromName = process.env.EMAIL_DEFAULT_FROM_NAME || 'AvyFx Support'
-    const emailDefaultFromAddress = process.env.EMAIL_DEFAULT_FROM_ADDRESS || 'support@avy-fx.org'
+    const { html, text, subject } = await generateInviteUserEmail({
+      appUrl: serverURL,
+      inviteUrl: acceptInviteURL,
+    })
 
     await payload.email.sendEmail({
-      from: `"${emailDefaultFromName}" <${emailDefaultFromAddress}>`,
       html,
+      text,
       subject,
       to: user.email,
     })
