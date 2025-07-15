@@ -13,8 +13,13 @@ export const Users: CollectionConfig = {
     group: 'Permissions',
     components: {
       beforeList: ['@/collections/Users/components/InviteUser#InviteUser'],
+      edit: {
+        beforeDocumentControls: [
+          '@/collections/Users/components/ResendInviteButton#ResendInviteButton',
+        ],
+      },
     },
-    defaultColumns: ['email', 'name', 'roles', 'status'],
+    defaultColumns: ['email', 'name', 'roles', 'inviteStatus'],
   },
   auth: true,
   fields: [
@@ -61,7 +66,7 @@ export const Users: CollectionConfig = {
       hidden: true,
     },
     {
-      name: 'status',
+      name: 'inviteStatus',
       type: 'ui',
       admin: {
         components: {

@@ -15,6 +15,7 @@ export async function StatusCell({ rowData }: DefaultServerCellComponentProps) {
     showHiddenFields: true,
     select: {
       inviteToken: true,
+      inviteExpiration: true,
     },
   })
 
@@ -23,6 +24,16 @@ export async function StatusCell({ rowData }: DefaultServerCellComponentProps) {
   }
 
   if (user.inviteToken) {
+    const now = new Date().toISOString()
+
+    if (user.inviteExpiration && user.inviteExpiration < now) {
+      return (
+        <Pill size="small" pillStyle="error">
+          Expired
+        </Pill>
+      )
+    }
+
     return (
       <Pill size="small" pillStyle="warning">
         Invited
@@ -30,5 +41,5 @@ export async function StatusCell({ rowData }: DefaultServerCellComponentProps) {
     )
   }
 
-  return <Pill size="small">Active</Pill>
+  return <Pill size="small">Accepted</Pill>
 }

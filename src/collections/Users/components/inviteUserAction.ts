@@ -9,6 +9,7 @@ import { getPayload, PayloadRequest } from 'payload'
 import { formatAdminURL } from 'payload/shared'
 import { v4 as uuid } from 'uuid'
 import { byGlobalRoleOrTenantRoleAssignmentOrDomain } from '../access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
+import { inviteTokenExpirationMs } from './inviteUtils'
 
 function extractPayloadErrorMessage(error: unknown): string {
   if (
@@ -86,7 +87,7 @@ export async function inviteUserAction({
       throw new Error('You are not allowed to perform that action.')
     }
 
-    const inviteExpiration = new Date(Date.now() + 864_000_000).toISOString() // 10 days
+    const inviteExpiration = new Date(Date.now() + inviteTokenExpirationMs).toISOString()
 
     let user: User | undefined
     const createdRoleAssignmentIds: string[] = []

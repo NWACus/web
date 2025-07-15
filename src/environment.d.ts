@@ -16,6 +16,7 @@ declare global {
       SMTP_USER: string
       SMTP_PASS: string
       RESEND_API_KEY: string
+      INVITE_TOKEN_EXPIRATION_MS: string
     }
   }
 }
