@@ -7,7 +7,6 @@ import {
   Form,
   FormSubmit,
   Gutter,
-  SelectField,
   TextField,
   toast,
   useAllFormFields,
@@ -19,80 +18,17 @@ import {
 
 import { Role, Tenant } from '@/payload-types'
 import { type FormState } from 'payload'
-import { useCallback, useMemo } from 'react'
+import { reduceFieldsToValues } from 'payload/shared'
+import { useCallback, useState } from 'react'
 import { inviteUserAction } from './inviteUserAction'
+import { RoleAssignmentRow } from './RoleAssignmentRow'
 
 const drawerSlug = 'invite-user-drawer'
 
 type RoleAssignmentRowInput = {
-  role?: string | number
-  tenant?: string | number
-  [key: string]: unknown
-}
-
-function RoleAssignmentRow({
-  path,
-  index,
-  roleOptions,
-  tenantOptions,
-  onRemove,
-}: {
-  path: string
-  index: number
-  roleOptions: { label: string; value: string }[]
-  tenantOptions: { label: string; value: string }[]
-  onRemove: () => void
-}) {
-  return (
-    <div className="array-field__row pl-4 pb-6">
-      <div className="flex justify-between items-center">
-        <span className="array-field__row-label">
-          Role Assignment {String(index + 1).padStart(2, '0')}
-        </span>
-        <Button
-          buttonStyle="icon-label"
-          className="my-3"
-          icon="x"
-          iconPosition="left"
-          iconStyle="with-border"
-          onClick={onRemove}
-          size="small"
-        >
-          Remove
-        </Button>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <SelectField
-          field={{
-            name: 'role',
-            type: 'select',
-            label: 'Role',
-            required: true,
-            options: roleOptions,
-          }}
-          path={`${path}.role`}
-          validate={(value) => {
-            if (!value) return 'Role is required'
-            return true
-          }}
-        />
-        <SelectField
-          field={{
-            name: 'tenant',
-            type: 'select',
-            label: 'Tenant',
-            required: true,
-            options: tenantOptions,
-          }}
-          path={`${path}.tenant`}
-          validate={(value) => {
-            if (!value) return 'Tenant is required'
-            return true
-          }}
-        />
-      </div>
-    </div>
-  )
+  id: string
+  role: string
+  tenant: string
 }
 
 const collectValidationErrors = (formState: FormState): string[] => {
@@ -143,52 +79,43 @@ const collectValidationErrors = (formState: FormState): string[] => {
   return errors
 }
 
+const initialState: FormState = {
+  email: {
+    initialValue: '',
+    valid: false,
+    value: '',
+  },
+  name: {
+    initialValue: '',
+    valid: false,
+    value: '',
+  },
+  roleAssignments: {
+    initialValue: [],
+    valid: true, // Valid by default since it's optional
+    value: [],
+    rows: [],
+  },
+}
+
 export function InviteUserDrawer() {
   const { openModal, closeModal } = useModal()
   const { refineListData } = useListQuery()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [{ data: rolesData }] = usePayloadAPI('/api/roles?limit=100')
+  const roleOptions =
+    rolesData?.docs?.map((role: Role) => ({
+      label: role.name,
+      value: String(role.id),
+    })) || []
+
   const [{ data: tenantsData }] = usePayloadAPI('/api/tenants?limit=100')
-
-  const roleOptions = useMemo(
-    () =>
-      rolesData?.docs?.map((role: Role) => ({
-        label: role.name,
-        value: String(role.id),
-      })) || [],
-    [rolesData],
-  )
-
-  const tenantOptions = useMemo(
-    () =>
-      tenantsData?.docs?.map((tenant: Tenant) => ({
-        label: tenant.name,
-        value: String(tenant.id),
-      })) || [],
-    [tenantsData],
-  )
-
-  const initialState: FormState = useMemo(
-    () => ({
-      email: {
-        initialValue: '',
-        valid: false,
-        value: '',
-      },
-      name: {
-        initialValue: '',
-        valid: false,
-        value: '',
-      },
-      roleAssignments: {
-        initialValue: [],
-        valid: true, // Valid by default since it's optional
-        value: [],
-        rows: [],
-      },
-    }),
-    [],
-  )
+  const tenantOptions =
+    tenantsData?.docs?.map((tenant: Tenant) => ({
+      label: tenant.name,
+      value: String(tenant.id),
+    })) || []
 
   const handleSubmit = useCallback(
     async (formState: FormState) => {
@@ -221,16 +148,18 @@ export function InviteUserDrawer() {
       }
 
       try {
-        const rows: RoleAssignmentRowInput[] = Array.isArray(formState.roleAssignments?.rows)
-          ? formState.roleAssignments.rows
+        setIsSubmitting(true)
+        const reducedVals = reduceFieldsToValues(formState, true)
+        const roleAssignments = Array.isArray(reducedVals.roleAssignments)
+          ? reducedVals.roleAssignments
+              .filter(
+                (row: RoleAssignmentRowInput) => row.role !== undefined && row.tenant !== undefined,
+              )
+              .map((row: RoleAssignmentRowInput) => ({
+                roleId: Number(row.role),
+                tenantId: Number(row.tenant),
+              }))
           : []
-
-        const roleAssignments = rows
-          .filter((row) => row.role !== undefined && row.tenant !== undefined)
-          .map((row) => ({
-            roleId: Number(row.role),
-            tenantId: Number(row.tenant),
-          }))
 
         const result = await inviteUserAction({
           email: String(formState.email?.value) || '',
@@ -250,6 +179,8 @@ export function InviteUserDrawer() {
       } catch (error) {
         console.error('Error inviting user:', error)
         toast.error('An unexpected error occurred while inviting the user.')
+      } finally {
+        setIsSubmitting(false)
       }
     },
     [closeModal, refineListData],
@@ -286,7 +217,7 @@ export function InviteUserDrawer() {
     return (
       <div className="field-type">
         <div className="field-type__wrap">
-          {rows.map((row: any, index: number) => (
+          {rows.map((row, index) => (
             <RoleAssignmentRow
               key={row.id || index}
               path={`${path}.${index}`}
@@ -360,7 +291,9 @@ export function InviteUserDrawer() {
             <RoleAssignmentsArray path="roleAssignments" />
           </div>
 
-          <FormSubmit>Invite User</FormSubmit>
+          <FormSubmit className="w-fit px-6" disabled={isSubmitting}>
+            {isSubmitting ? 'Inviting...' : 'Invite User'}
+          </FormSubmit>
         </Form>
       </Drawer>
     </>
