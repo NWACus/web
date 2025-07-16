@@ -7,10 +7,12 @@
   }
 }
 
-.accept-invite__wrap {
-  .inputWrap {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--base) * 0.8);
+.accept-invite {
+  &__wrap {
+    .inputWrap {
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--base) * 0.8);
+    }
   }
 }
