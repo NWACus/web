@@ -46,7 +46,7 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   // Resolves an error from Sentry
   // Reference: https://github.com/getsentry/sentry-javascript/issues/15209#issuecomment-2820494802
-  serverExternalPackages: ['require-in-the-middle'],
+  serverExternalPackages: ['require-in-the-middle', 'import-in-the-middle'],
   webpack: (config) => {
     // Ignores a nasty-looking but apparently harmless error resulting from importing Sentry in client components
     // Reference: https://github.com/getsentry/sentry-javascript/issues/12077#issuecomment-2407569917
