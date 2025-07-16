@@ -119,8 +119,8 @@ export const DuplicatePageForDrawer = () => {
         <div className="p-6">
           {modified && (
             <Banner>
-              <b>Warning:</b> this page has been modified Continuing with duplication will not apply
-              changes.
+              <b>Warning:</b> this page has been modified. Continuing with duplication will not
+              apply changes.
             </Banner>
           )}
           <p className="text-xl mb-4">
