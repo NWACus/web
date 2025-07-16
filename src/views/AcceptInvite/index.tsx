@@ -4,6 +4,7 @@ import { MinimalTemplate } from '@payloadcms/next/templates'
 import { Button, Link } from '@payloadcms/ui'
 
 import { AvyFxLogo } from '@/components/Logo/AvyFxLogo'
+import { LogoutButton } from '@/components/LogoutButton'
 import { formatAdminURL } from 'payload/shared'
 import { AcceptInviteForm } from './AcceptInviteForm'
 import './index.scss'
@@ -75,6 +76,7 @@ export async function AcceptInvite({ initPageResult, searchParams }: AdminViewSe
             {i18n.t('general:backToDashboard')}
           </Button>
         </div>
+        <LogoutButton />
       </MinimalTemplate>
     )
   }
