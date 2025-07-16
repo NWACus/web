@@ -4,6 +4,7 @@ import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
+import { setLastLogin } from './hooks/setLastLogin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -46,9 +47,16 @@ export const Users: CollectionConfig = {
         read: byGlobalRole('read', 'globalRoles'),
       },
     },
+    {
+      name: 'lastLogin',
+      type: 'date',
+      admin: {
+        readOnly: true,
+      },
+    },
     contentHashField(),
   ],
   hooks: {
-    afterLogin: [setCookieBasedOnDomain],
+    afterLogin: [setCookieBasedOnDomain, setLastLogin],
   },
 }
