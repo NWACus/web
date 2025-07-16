@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
+import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 
 export const Users: CollectionConfig = {
@@ -49,6 +50,6 @@ export const Users: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterLogin: [setCookieBasedOnDomain],
+    afterLogin: [setCookieBasedOnDomain, posthogIdentifyAfterLogin],
   },
 }
