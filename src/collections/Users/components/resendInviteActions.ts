@@ -50,7 +50,7 @@ function extractPayloadErrorMessage(error: unknown): string {
 
 export async function checkExpiredInviteAction(
   userId: string,
-): Promise<{ hasExpiredInvite: boolean; error?: string }> {
+): Promise<{ hasExpiredInvite: boolean; inviteToken?: string | null; error?: string }> {
   try {
     const payload = await getPayload({ config })
     const headersList = await headers()
@@ -88,10 +88,11 @@ export async function checkExpiredInviteAction(
       user.inviteExpiration && new Date(user.inviteExpiration) < new Date(),
     )
 
-    return { hasExpiredInvite }
+    return { hasExpiredInvite, inviteToken: user.inviteToken }
   } catch (error) {
     return {
       hasExpiredInvite: false,
+      inviteToken: null,
       error: extractPayloadErrorMessage(error),
     }
   }
