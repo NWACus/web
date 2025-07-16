@@ -1,4 +1,5 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import { withSentryConfig } from '@sentry/nextjs'
 
 import redirects from './redirects.js'
 
@@ -25,6 +26,28 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  webpack: (config) => {
+    // Ignores a nasty-looking but apparently harmless error resulting from importing Sentry in client components
+    // Reference: https://github.com/getsentry/sentry-javascript/issues/12077#issuecomment-2407569917
+    config.ignoreWarnings = [{ module: /@opentelemetry\/instrumentation/ }]
+    return config
+  },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+const configWithPayload = withPayload(nextConfig, { devBundleServerPackages: false })
+
+const configWithSentry = withSentryConfig(configWithPayload, {
+  org: 'nwac',
+  project: 'avy-web',
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  tunnelRoute: '/monitoring',
+
+  // Automatically tree-shake Sentry logger statements to reduce bundle size
+  disableLogger: true,
+
+  // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
+  automaticVercelMonitors: true,
+})
+
+export default process.env.NODE_ENV === 'production' ? configWithSentry : configWithPayload

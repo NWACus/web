@@ -4,10 +4,12 @@ import { Page, Post } from '@/payload-types'
 import { getURL } from '@/utilities/getURL'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
+import { sentryPlugin } from '@payloadcms/plugin-sentry'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import * as Sentry from '@sentry/nextjs'
 import { Plugin } from 'payload'
 import tenantFieldPlugin from './tenantFieldPlugin'
 
@@ -95,4 +97,5 @@ export const plugins: Plugin[] = [
     },
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
   }),
+  sentryPlugin({ Sentry, enabled: process.env.NODE_ENV === 'production' }),
 ]

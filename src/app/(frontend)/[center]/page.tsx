@@ -11,6 +11,8 @@ import { draftMode } from 'next/headers'
 export const dynamic = 'force-static'
 export const revalidate = 600
 
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
