@@ -97,7 +97,7 @@ export function AcceptInviteForm({
         },
         name: {
           initialValue: name,
-          valid: name ? true : false,
+          valid: !!name,
           value: name,
         },
       }}
