@@ -8,7 +8,7 @@ export const ANALYTICS_PROPERTY = {
 export function useAnalytics() {
   const { tenant } = useTenant()
 
-  function captureWithTenant(event: string, properties: Record<string, any> = {}) {
+  function captureWithTenant(event: string, properties: Record<string, string> = {}) {
     posthog.capture(event, {
       ...properties,
       [ANALYTICS_PROPERTY.TENANT]: tenant?.slug ?? 'unknown',
