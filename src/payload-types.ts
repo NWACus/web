@@ -346,6 +346,7 @@ export interface User {
   };
   inviteToken?: string | null;
   inviteExpiration?: string | null;
+  lastLogin?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1888,6 +1889,7 @@ export interface UsersSelect<T extends boolean = true> {
   globalRoleAssignments?: T;
   inviteToken?: T;
   inviteExpiration?: T;
+  lastLogin?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
