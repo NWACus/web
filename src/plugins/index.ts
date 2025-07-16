@@ -97,5 +97,5 @@ export const plugins: Plugin[] = [
     },
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
   }),
-  sentryPlugin({ Sentry, enabled: process.env.NODE_ENV === 'production' }),
+  sentryPlugin({ Sentry }),
 ]
