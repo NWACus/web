@@ -3,6 +3,7 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { User } from '@/payload-types'
 import { generateInviteUserEmail } from '@/utilities/email/generateInviteUserEmail'
+import { sendEmail } from '@/utilities/email/sendEmail'
 import { getURL } from '@/utilities/getURL'
 import config from '@payload-config'
 import crypto from 'crypto'
@@ -162,7 +163,7 @@ export async function inviteUserAction({
         inviteUrl: acceptInviteURL,
       })
 
-      await payload.email.sendEmail({
+      await sendEmail({
         html,
         text,
         subject,

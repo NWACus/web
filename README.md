@@ -92,6 +92,10 @@ For local development it is recommended to use a free mailtrap.io account and th
 3. After onboarding navigate to the "Sandbox" page in the left-hand nav
 4. Copy the SMTP credentials to their respective SMTP\_ environment variables in your `.env` file. See `.env.example`.
 
+#### Customized sendEmail function
+
+You should use the customized `./src/utilities/email/sendEmail#sendEmail` function because it adds our default `replyTo` address which we use for email receiving.
+
 ## Git
 
 ### Signing commits
