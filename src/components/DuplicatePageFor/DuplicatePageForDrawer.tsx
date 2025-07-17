@@ -22,7 +22,7 @@ import { useCallback, useState } from 'react'
 // - Remove photos from blocks or use a global photo?
 
 export const DuplicatePageForDrawer = () => {
-  const { initialData: pageData } = useDocumentInfo()
+  const { savedDocumentData: pageData } = useDocumentInfo()
   const modified = useFormModified()
   const router = useRouter()
   const { options } = useTenantSelection()
@@ -119,7 +119,8 @@ export const DuplicatePageForDrawer = () => {
         <div className="p-6">
           {modified && (
             <Banner>
-              <b>Warning:</b> this page has been modified. Please save or revert your changes before duplicating this page.
+              <b>Warning:</b> this page has been modified. Please save or revert your changes before
+              duplicating this page.
             </Banner>
           )}
           <p className="text-xl mb-4">
