@@ -12,8 +12,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
         api_host: `${getRootDomainURL()}/ingest`,
         ui_host: 'https://us.posthog.com',
         defaults: '2025-05-24',
-        capture_exceptions: true,
-        debug: process.env.NODE_ENV === 'development',
+        debug: process.env.NODE_ENV !== 'production',
       })
     }
   }, [])
