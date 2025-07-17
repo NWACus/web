@@ -27,7 +27,8 @@
     "reseed": "./reseed.sh",
     "bootstrap": "./bootstrap.sh",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "migrate": "payload migrate"
   },
   "lint-staged": {
     "**/*": "pnpm run prettify"
