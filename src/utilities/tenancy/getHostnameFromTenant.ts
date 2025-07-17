@@ -1,11 +1,11 @@
 import { Tenant } from '@/payload-types'
 import { ROOT_DOMAIN } from '../domain'
-import { getProductionTenantSlugs } from './getProductionTenants'
+import { PRODUCTION_TENANTS } from './tenants'
 
 export function getHostnameFromTenant(tenant: Tenant | null) {
   if (!tenant) return ROOT_DOMAIN
 
-  if (getProductionTenantSlugs().includes(tenant.slug) && tenant.customDomain) {
+  if (PRODUCTION_TENANTS.includes(tenant.slug) && tenant.customDomain) {
     return tenant.customDomain
   }
 
