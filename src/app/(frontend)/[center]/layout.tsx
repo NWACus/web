@@ -7,6 +7,7 @@ import { Header } from '@/components/Header/Header'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
+import { PostHogTenantRegister } from '@/components/PostHogTenantRegister.client'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
@@ -65,6 +66,7 @@ export default async function RootLayout({ children, params }: Args) {
 
   return (
     <TenantProvider tenant={tenant}>
+      <PostHogTenantRegister />
       <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
         <div className={cn('flex flex-col min-h-screen', center)}>
           <ThemeSetter theme={center} />

@@ -14,6 +14,10 @@ export function getURL(hostname?: string | null) {
   return `${PROTOCOL}://${hostname || ROOT_DOMAIN}`
 }
 
+export function getRootDomainURL() {
+  return `${PROTOCOL}://${ROOT_DOMAIN}`
+}
+
 /**
  * Processes media resource URL to ensure proper formatting
  * @param url The original URL from the resource
