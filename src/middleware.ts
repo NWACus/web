@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getURL } from './utilities/getURL'
-import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
+import { PRODUCTION_TENANTS, TENANTS } from './utilities/tenancy/tenants'
 
 export const config = {
   matcher: [
@@ -15,14 +15,6 @@ export const config = {
     '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail).*)',
   ],
 }
-
-const PRODUCTION_TENANTS = getProductionTenantSlugs()
-
-const TENANTS: { slug: string; customDomain: string }[] = [
-  { slug: 'nwac', customDomain: 'nwac.us' },
-  { slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
-  { slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
-]
 
 export default async function middleware(req: NextRequest) {
   const host = new URL(getURL()).host

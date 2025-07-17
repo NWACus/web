@@ -1,18 +1,21 @@
 import { Tenant } from '@/payload-types'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
+import { PRODUCTION_TENANTS } from '@/utilities/tenancy/tenants'
 
-// Mock the getProductionTenantSlugs function
-jest.mock('../../src/utilities/tenancy/getProductionTenants', () => ({
-  getProductionTenantSlugs: jest.fn(),
-}))
-
-import { getProductionTenantSlugs } from '../../src/utilities/tenancy/getProductionTenants'
-
-const mockGetProductionTenantSlugs = getProductionTenantSlugs as jest.MockedFunction<
-  typeof getProductionTenantSlugs
->
+const originalProductionTenants = [...PRODUCTION_TENANTS]
 
 describe('server-side utilities: getHostnameFromTenant', () => {
+  beforeEach(() => {
+    PRODUCTION_TENANTS.length = 0
+    originalProductionTenants.forEach((slug) => PRODUCTION_TENANTS.push(slug))
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN = 'envvar.localhost:3000'
+  })
+
+  afterAll(() => {
+    PRODUCTION_TENANTS.length = 0
+    originalProductionTenants.forEach((slug) => PRODUCTION_TENANTS.push(slug))
+  })
+
   it('returns NEXT_PUBLIC_ROOT_DOMAIN env var when tenant is null', () => {
     const result = getHostnameFromTenant(null)
     expect(result).toBe('envvar.localhost:3000')
@@ -25,7 +28,8 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   })
 
   it('returns custom domain for production tenants', () => {
-    mockGetProductionTenantSlugs.mockReturnValue(['production-tenant'])
+    PRODUCTION_TENANTS.length = 0
+    PRODUCTION_TENANTS.push('production-tenant')
 
     const tenant = {
       slug: 'production-tenant',
@@ -37,7 +41,8 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   })
 
   it('returns subdomain format for non-production tenants', () => {
-    mockGetProductionTenantSlugs.mockReturnValue(['production-tenant'])
+    PRODUCTION_TENANTS.length = 0
+    PRODUCTION_TENANTS.push('production-tenant')
 
     const tenant = {
       slug: 'development-tenant',
@@ -49,7 +54,8 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   })
 
   it('handles multiple production tenants correctly', () => {
-    mockGetProductionTenantSlugs.mockReturnValue(['tenant1', 'tenant2', 'tenant3'])
+    PRODUCTION_TENANTS.length = 0
+    PRODUCTION_TENANTS.push('tenant1', 'tenant2', 'tenant3')
 
     const tenant1: Tenant = {
       slug: 'tenant1',
@@ -72,7 +78,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   })
 
   it('handles empty production tenants list', () => {
-    mockGetProductionTenantSlugs.mockReturnValue([])
+    PRODUCTION_TENANTS.length = 0
 
     const tenant: Tenant = {
       slug: 'any-tenant',
@@ -84,7 +90,8 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   })
 
   it('handles tenant with empty custom domain by falling back to tenant subdomain', () => {
-    mockGetProductionTenantSlugs.mockReturnValue(['production-tenant'])
+    PRODUCTION_TENANTS.length = 0
+    PRODUCTION_TENANTS.push('production-tenant')
 
     const tenant: Tenant = {
       slug: 'production-tenant',

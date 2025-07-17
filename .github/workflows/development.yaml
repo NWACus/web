@@ -14,19 +14,13 @@ jobs:
         run: curl -sSfL https://get.tur.so/install.sh | bash
         env:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
-      - name: Delete existing preview database
+      - name: Clone production database to dev
         run: |
           /home/runner/.turso/turso org switch nwac
           if /home/runner/.turso/turso db show payloadcms-dev; then
             /home/runner/.turso/turso db destroy payloadcms-dev --yes
           fi
-        env:
-          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
-      - name: Create a new database for the preview
-        id: database
-        run: |
-          /home/runner/.turso/turso db create payloadcms-dev --wait
-          /home/runner/.turso/turso db shell payloadcms-dev .tables
+          /home/runner/.turso/turso db clone payloadcms-prod payloadcms-dev --wait
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Record database connection URI and token
@@ -58,6 +52,12 @@ jobs:
         run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Run database migrations
+        run: pnpm migrate
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Seed the database
         run: pnpm seed
         env:
