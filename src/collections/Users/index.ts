@@ -2,7 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
+import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
+import { beforeValidatePassword } from './hooks/beforeValidatePassword'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 import { setLastLogin } from './hooks/setLastLogin'
 
@@ -12,8 +14,24 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     group: 'Permissions',
+    components: {
+      beforeList: ['@/collections/Users/components/InviteUser#InviteUser'],
+      edit: {
+        beforeDocumentControls: [
+          '@/collections/Users/components/ResendInviteButton#ResendInviteButton',
+        ],
+      },
+    },
+    defaultColumns: ['email', 'name', 'roles', 'userStatus'],
   },
-  auth: true,
+  auth: {
+    forgotPassword: {
+      generateEmailHTML: async (args) => {
+        const { html } = await generateForgotPasswordEmail(args)
+        return html
+      },
+    },
+  },
   fields: [
     {
       name: 'name',
@@ -48,6 +66,25 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'inviteToken',
+      type: 'text',
+      hidden: true,
+    },
+    {
+      name: 'inviteExpiration',
+      type: 'date',
+      hidden: true,
+    },
+    {
+      name: 'userStatus',
+      type: 'ui',
+      admin: {
+        components: {
+          Cell: '@/collections/Users/components/UserStatusCell#UserStatusCell',
+        },
+      },
+    },
+    {
       name: 'lastLogin',
       type: 'date',
       admin: {
@@ -67,5 +104,6 @@ export const Users: CollectionConfig = {
   ],
   hooks: {
     afterLogin: [setCookieBasedOnDomain, setLastLogin],
+    beforeValidate: [beforeValidatePassword],
   },
 }
