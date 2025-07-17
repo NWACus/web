@@ -62,3 +62,14 @@ export const accessByTenantRole: (collection: ruleCollection) => CollectionConfi
     delete: byTenantRole('delete', collection),
   }
 }
+
+export const accessByTenantRoleWithPermissiveRead: (
+  collection: ruleCollection,
+) => CollectionConfig['access'] = (collection: ruleCollection) => {
+  return {
+    create: byTenantRole('create', collection),
+    read: () => true, // world readable
+    update: byTenantRole('update', collection),
+    delete: byTenantRole('delete', collection),
+  }
+}
