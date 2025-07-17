@@ -1,6 +1,7 @@
 'use client'
 
 import { getURL } from '@/utilities/getURL'
+import { validateStrongPassword } from '@/utilities/passwordValidation'
 import {
   ConfirmPasswordField,
   EmailField,
@@ -187,6 +188,11 @@ export function AcceptInviteForm({
             required: true,
           }}
           path="password"
+          validate={
+            process.env.NODE_ENV === 'production'
+              ? (value) => validateStrongPassword(value)
+              : undefined
+          }
         />
         <ConfirmPasswordField />
       </div>

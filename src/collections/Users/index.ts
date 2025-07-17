@@ -4,6 +4,7 @@ import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
+import { beforeValidatePassword } from './hooks/beforeValidatePassword'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 import { setLastLogin } from './hooks/setLastLogin'
 
@@ -94,5 +95,6 @@ export const Users: CollectionConfig = {
   ],
   hooks: {
     afterLogin: [setCookieBasedOnDomain, setLastLogin],
+    beforeValidate: [beforeValidatePassword],
   },
 }
