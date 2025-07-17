@@ -145,6 +145,9 @@ export default buildConfig({
   ],
   cors: ['api.avalanche.org', 'api.snowobs.com', getURL()].filter(Boolean),
   globals: [NACWidgetsConfig],
+  graphQL: {
+    disable: true,
+  },
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
