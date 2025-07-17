@@ -6,16 +6,17 @@ import {
   EmailField,
   Form,
   FormSubmit,
-  HiddenField,
   PasswordField,
   TextField,
+  toast,
   useAuth,
   useConfig,
 } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation.js'
 import { type FormState } from 'payload'
 import { formatAdminURL } from 'payload/shared'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
+import { acceptInviteAction } from './acceptInviteAction'
 
 const staticInitialState: FormState = {
   'confirm-password': {
@@ -75,6 +76,75 @@ export function AcceptInviteForm({
     return true
   }, [])
 
+  const initialState = useMemo(
+    () => ({
+      ...staticInitialState,
+      email: {
+        initialValue: email,
+        valid: true,
+        value: email,
+      },
+      name: {
+        initialValue: name,
+        valid: !!name,
+        value: name,
+      },
+    }),
+    [email, name],
+  )
+
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+  const onSubmit = React.useCallback(
+    async (formState: FormState) => {
+      setIsSubmitting(true)
+      try {
+        const tokenValue = token
+        const nameValue = String(formState.name?.value) || ''
+        const passwordValue = String(formState.password?.value) || ''
+        const confirmPasswordValue = String(formState['confirm-password']?.value) || ''
+
+        if (!tokenValue || !nameValue || !passwordValue) {
+          toast.error('Missing required fields.')
+          setIsSubmitting(false)
+          return
+        }
+        if (passwordValue !== confirmPasswordValue) {
+          toast.error('Passwords do not match.')
+          setIsSubmitting(false)
+          return
+        }
+
+        const result = await acceptInviteAction({
+          token: tokenValue,
+          name: nameValue,
+          password: passwordValue,
+        })
+
+        if (result.success) {
+          const loginRes = await fetch(`${getURL(hostname)}${apiRoute}/${userSlug}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: passwordValue }),
+            credentials: 'include',
+          })
+          if (loginRes.ok) {
+            await onSuccess()
+          } else {
+            toast.error('Account updated, but failed to log in. Please log in manually.')
+          }
+        } else {
+          toast.error(result.error || 'Failed to accept invite.')
+        }
+      } catch (_err) {
+        toast.error('Something went wrong accepting invite.')
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [token, hostname, apiRoute, userSlug, email, onSuccess],
+  )
+
   if (!token) {
     return (
       <div className="accept-invite__error">
@@ -87,23 +157,10 @@ export function AcceptInviteForm({
 
   return (
     <Form
-      action={`${getURL(hostname)}${apiRoute}/${userSlug}/accept-invite`}
-      initialState={{
-        ...staticInitialState,
-        email: {
-          initialValue: email,
-          valid: true,
-          value: email,
-        },
-        name: {
-          initialValue: name,
-          valid: !!name,
-          value: name,
-        },
-      }}
-      method="POST"
-      onSuccess={onSuccess}
+      initialState={initialState}
+      onSubmit={onSubmit}
       disableSuccessStatus
+      disabled={isSubmitting}
     >
       <div className="inputWrap">
         <EmailField
@@ -121,7 +178,6 @@ export function AcceptInviteForm({
             required: true,
           }}
           path="name"
-          schemaPath={`${userSlug}.name`}
           validate={validateName}
         />
         <PasswordField
@@ -131,12 +187,12 @@ export function AcceptInviteForm({
             required: true,
           }}
           path="password"
-          schemaPath={`${userSlug}.password`}
         />
         <ConfirmPasswordField />
-        <HiddenField path="token" schemaPath={`${userSlug}.token`} value={token} />
       </div>
-      <FormSubmit size="large">Accept Invite</FormSubmit>
+      <FormSubmit size="large" disabled={isSubmitting}>
+        {isSubmitting ? 'Accepting...' : 'Accept Invite'}
+      </FormSubmit>
     </Form>
   )
 }

@@ -84,7 +84,7 @@ export async function AcceptInvite({ initPageResult, searchParams }: AdminViewSe
   return (
     <MinimalTemplate className={`${baseClass}`}>
       <div className={`${baseClass}__brand`}>
-        <AvyFxLogo />
+        <AvyFxLogo loading="eager" priority="high" />
       </div>
       <div className={`${baseClass}__wrap`}>
         <div className="form-header">
