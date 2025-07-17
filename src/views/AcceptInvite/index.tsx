@@ -52,10 +52,22 @@ export async function AcceptInvite({ initPageResult, searchParams }: AdminViewSe
       <MinimalTemplate className={`${baseClass}`}>
         <div>
           <div className="form-header">
-            <h1>Invite Invalid or Expired</h1>
+            <h1>Invite Invalid</h1>
+            <p>Invite is either invalid, has expired, or has already been accepted.</p>
             <p>
-              Invite is either invalid or has expired. Please request a new invite from your admin.
+              If you have already accepted please{' '}
+              <Link
+                href={formatAdminURL({
+                  adminRoute,
+                  path: loginRoute,
+                })}
+                prefetch={false}
+              >
+                log in
+              </Link>
+              .
             </p>
+            <p>If you think your invite has expired please request a new one from your admin.</p>
           </div>
         </div>
       </MinimalTemplate>
