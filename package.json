@@ -26,6 +26,7 @@
     "seed": "./seed.sh",
     "reseed": "./reseed.sh",
     "bootstrap": "./bootstrap.sh",
+    "sanitize": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/sanitize-db.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "migrate": "payload migrate"

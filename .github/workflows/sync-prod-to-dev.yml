@@ -23,7 +23,7 @@ jobs:
           if /home/runner/.turso/turso db show payloadcms-dev; then
             /home/runner/.turso/turso db destroy payloadcms-dev --yes
           fi
-          /home/runner/.turso/turso db create payloadcms-dev --from-db payloadcms-dev --wait
+          /home/runner/.turso/turso db create payloadcms-dev --from-db payloadcms-prod --wait
           /home/runner/.turso/turso db shell payloadcms-dev .tables
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
@@ -46,14 +46,23 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
-      # TODO
       - name: Sanitize database
         id: sanitize
-        run: echo "Sanitize database"
-      # TODO
+        run: pnpm sanitize
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
       - name: Sync blobs from prod to dev
         id: sync-files
-        run: echo "Sync blobs from prod to dev"
+        run: |
+          echo "Syncing blobs from prod to dev..."
+          # Note: Vercel Blob doesn't have a direct sync command, but we can copy files
+          # This would require listing all blobs in prod environment and copying them to dev
+          # For now, this is a placeholder - implementation would depend on specific requirements
+          # and available Vercel Blob API endpoints
+          echo "Blob sync placeholder - implement based on Vercel Blob API capabilities"
       - name: Run database migrations
         run: pnpm migrate
         env:
