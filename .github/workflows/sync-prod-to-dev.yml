@@ -1,0 +1,62 @@
+name: Sync Production to Dev
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+on:
+  # Every day at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+  # Allow manual triggering
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Turso CLI
+        run: curl -sSfL https://get.tur.so/install.sh | bash
+        env:
+          TURSO_INSTALL_SKIP_SIGNUP: 'true'
+      - name: Delete dev db and create a new db from prod
+        id: database
+        run: |
+          /home/runner/.turso/turso org switch nwac
+          if /home/runner/.turso/turso db show payloadcms-dev; then
+            /home/runner/.turso/turso db destroy payloadcms-dev --yes
+          fi
+          /home/runner/.turso/turso db create payloadcms-dev --from-db payloadcms-dev --wait
+          /home/runner/.turso/turso db shell payloadcms-dev .tables
+        env:
+          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      - name: Record database connection URI and token
+        id: connection
+        run: |
+          echo "uri=$(/home/runner/.turso/turso db show payloadcms-dev --url)" >> "${GITHUB_OUTPUT}"
+          echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-dev)" >> "${GITHUB_OUTPUT}"
+        env:
+          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      # TODO
+      - name: Sanitize database
+        id: sanitize
+        run: echo "Sanitize database"
+      # TODO
+      - name: Sync blobs from prod to dev
+        id: sync-files
+        run: echo "Sync blobs from prod to dev"
+      - name: Run database migrations
+        run: pnpm migrate
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
