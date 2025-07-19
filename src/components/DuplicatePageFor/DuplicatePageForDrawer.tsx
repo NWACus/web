@@ -40,20 +40,6 @@ export const DuplicatePageForDrawer = () => {
   const { openModal, closeModal } = useModal()
   const [selectedTenantId, setSelectedTenantId] = useState('')
 
-  const removeIdKey = useCallback(<T,>(obj: T): T => {
-    if (Array.isArray(obj)) {
-      return obj.map(removeIdKey) as T
-    }
-    if (obj && typeof obj === 'object') {
-      return Object.fromEntries(
-        Object.entries(obj)
-          .filter(([k]) => !k.toLowerCase().includes('id'))
-          .map(([k, v]) => [k, removeIdKey(v)]),
-      ) as T
-    }
-    return obj
-  }, [])
-
   const handleDuplicate = useCallback(
     async (e?: React.FormEvent) => {
       if (e) e.preventDefault()
@@ -64,27 +50,17 @@ export const DuplicatePageForDrawer = () => {
 
       try {
         const tenant = await fetch(`/api/tenants/${selectedTenantId}`).then((res) => res.json())
-        const cleaned = removeIdKey(pageData as Page)
-        const { slug, layout, title } = cleaned
+        const { slug, layout, title } = pageData as Page
 
-        const now = new Date()
-        const timestamp = now.valueOf()
+        const newPage = { layout, title, tenant, slug }
 
-        const newPage = {
-          layout,
-          title,
-          tenant,
-          slug: `${slug.replace(/^\/([^/]+)\//, `/${tenant.slug}/`)}-${timestamp}`,
-        }
-
-        const createRes = await fetch(`/api/pages`, {
+        const createRes = await fetch('/api/pages/duplicate-to-tenant', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newPage),
+          body: JSON.stringify({ newPage }),
         })
 
         if (createRes.ok) {
-          const { doc } = await createRes.json()
+          const { res } = await createRes.json()
           setSelectedTenantId('')
           closeModal(drawerSlug)
           toast.success('Page duplicated to tenant!')
@@ -92,7 +68,7 @@ export const DuplicatePageForDrawer = () => {
             router.push(
               formatAdminURL({
                 adminRoute,
-                path: `/collections/pages/${doc.id}`,
+                path: `/collections/pages/${res.id}`,
               }),
             ),
           )
@@ -101,10 +77,10 @@ export const DuplicatePageForDrawer = () => {
           throw toast.error(errors[0].message || 'Error duplicating page.')
         }
       } catch (err) {
-        toast.error('An unexpected error occurred.')
+        toast.error((err as Error).message || 'An unexpected error occurred.')
       }
     },
-    [selectedTenantId, removeIdKey, pageData, closeModal, startRouteTransition, router, adminRoute],
+    [adminRoute, closeModal, pageData, router, selectedTenantId, startRouteTransition],
   )
 
   return (

@@ -29,6 +29,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { duplicatePageToTenant } from '@/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
@@ -161,6 +162,19 @@ export const Pages: CollectionConfig<'pages'> = {
     ...slugField(),
     tenantField(),
     contentHashField(),
+  ],
+  endpoints: [
+    {
+      path: '/duplicate-to-tenant',
+      method: 'post',
+
+      handler: async (req) => {
+        const res = await duplicatePageToTenant(req)
+        return Response.json({
+          res,
+        })
+      },
+    },
   ],
   hooks: {
     afterChange: [revalidatePage],
