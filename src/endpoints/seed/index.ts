@@ -118,6 +118,11 @@ export const seed = async ({
           },
           {
             email: {
+              contains: 'dvac.us',
+            },
+          },
+          {
+            email: {
               contains: 'nwac.us',
             },
           },
@@ -163,6 +168,11 @@ export const seed = async ({
   ])
 
   const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
+    {
+      name: 'Death Valley Avalanche Center',
+      slug: 'dvac',
+      customDomain: 'dvac.us',
+    },
     {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
@@ -259,6 +269,7 @@ export const seed = async ({
     cbac: 'CBAC.webp',
     cnfaic: 'CNFAIC.webp',
     coaa: 'COAA.webp',
+    dvac: 'DVAC.webp',
     esac: 'ESAC.webp',
     fac: 'FAC.webp',
     gnfac: 'GNFAC.webp',
@@ -276,11 +287,13 @@ export const seed = async ({
     wcmac: 'WCMAC.webp',
   }
   const iconFiles: Record<string, string> = {
+    dvac: 'dvac-icon.png',
     nwac: 'nwac-icon.jpg',
     sac: 'sac-icon.png',
     snfac: 'snfac-icon.png',
   }
   const bannerFiles: Record<string, string> = {
+    dvac: 'dvac-icon.png',
     nwac: 'nwac-banner.webp',
     sac: 'sac-banner.webp',
     snfac: 'sac-usfs-logo.webp',
@@ -370,6 +383,14 @@ export const seed = async ({
     Tenant['slug'],
     Partial<RequiredDataFromCollectionSlug<'settings'>>
   > = {
+    dvac: {
+      description:
+        'Death Valley Avalanche Center is our templated tenant where we can see and copy data from.',
+      address: '123 Made Up Ave. S\nNowhere, WA 98045',
+      phone: '(111)867-5309',
+      email: 'info@dvac.us',
+      socialMedia: {},
+    },
     nwac: {
       description:
         'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
@@ -612,11 +633,11 @@ export const seed = async ({
         const authors = Object.values(bios[tenant.slug])
         return [
           post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
+            authors[0],
             authors[1],
-            authors[2],
           ]),
-          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[3]),
-          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[4]),
+          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[2]),
+          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[3]),
         ]
       })
       .flat(),
@@ -855,6 +876,15 @@ export const seed = async ({
         navigationSeed(payload, pages, tenant),
     ),
   )
+
+  payload.logger.info(`Remove custom domain from dvac...`)
+  await payload.update({
+    id: tenants['dvac'].id,
+    collection: 'tenants',
+    data: {
+      customDomain: '',
+    },
+  })
 
   payload.logger.info('Seeded database successfully!')
 }
