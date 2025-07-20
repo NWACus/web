@@ -8,6 +8,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`caption\` text,
   	\`content_hash\` text,
   	\`blur_data_url\` text,
+  	\`prefix\` text DEFAULT 'local',
   	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
   	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
   	\`url\` text,
