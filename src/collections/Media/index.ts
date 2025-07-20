@@ -4,6 +4,7 @@ import { accessByTenantRoleWithPermissiveRead } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
+import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -46,6 +47,15 @@ export const Media: CollectionConfig = {
       type: 'text',
       admin: {
         hidden: true,
+      },
+    },
+    {
+      name: 'prefix',
+      type: 'text',
+      defaultValue: getEnvironmentFriendlyName(),
+      admin: {
+        hidden: true,
+        readOnly: true,
       },
     },
   ],
