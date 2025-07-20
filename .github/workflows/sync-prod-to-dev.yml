@@ -56,13 +56,16 @@ jobs:
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
       - name: Sync blobs from prod to dev
         id: sync-files
-        run: |
-          echo "Syncing blobs from prod to dev..."
-          # Note: Vercel Blob doesn't have a direct sync command, but we can copy files
-          # This would require listing all blobs in prod environment and copying them to dev
-          # For now, this is a placeholder - implementation would depend on specific requirements
-          # and available Vercel Blob API endpoints
-          echo "Blob sync placeholder - implement based on Vercel Blob API capabilities"
+        run: pnpm sync-blobs prod dev
+        env:
+          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+      - name: Update media prefix in database
+        id: update-media-prefix
+        run: pnpm update-media-prefix dev
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Run database migrations
         run: pnpm migrate
         env:
