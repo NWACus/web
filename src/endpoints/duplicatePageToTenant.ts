@@ -4,18 +4,23 @@ import configPromise from '@payload-config'
 import { getPayload, PayloadRequest } from 'payload'
 
 export async function duplicatePageToTenant(req: PayloadRequest) {
-  const { newPage } = await req.json?.()
+  const selectedTenantId = req.routeParams?.selectedTenantId as number
 
+  const { newPage } = await req.json?.()
   const newPageSansIds = removeIdKey(newPage)
 
-  const slugIndex = await getUniqueSlug(newPageSansIds.slug, newPage.tenant.id)
+  const slugIndex = await getUniqueSlug(newPageSansIds.slug, selectedTenantId)
 
   const payload = await getPayload({ config: configPromise })
+  const tenant = await payload
+    .find({ collection: 'tenants', where: { id: { equals: selectedTenantId } } })
+    .then((res) => res.docs[0])
+
   return await payload.create({
     collection: 'pages',
     data: {
       ...newPageSansIds,
-      tenant: newPage.tenant,
+      tenant,
       title: `${newPage.title} ${slugIndex}`,
       slug: `${newPage.slug}-${slugIndex}`,
     },

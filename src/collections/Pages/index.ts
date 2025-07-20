@@ -165,7 +165,7 @@ export const Pages: CollectionConfig<'pages'> = {
   ],
   endpoints: [
     {
-      path: '/duplicate-to-tenant',
+      path: '/duplicate-to-tenant/:selectedTenantId',
       method: 'post',
 
       handler: async (req) => {

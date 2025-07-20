@@ -1,6 +1,5 @@
 'use client'
 
-import { Page } from '@/payload-types'
 import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
 import {
   Banner,
@@ -49,12 +48,9 @@ export const DuplicatePageForDrawer = () => {
       }
 
       try {
-        const tenant = await fetch(`/api/tenants/${selectedTenantId}`).then((res) => res.json())
-        const { slug, layout, title } = pageData as Page
+        const newPage = { layout: pageData?.layout, title: pageData?.title, slug: pageData?.slug }
 
-        const newPage = { layout, title, tenant, slug }
-
-        const createRes = await fetch('/api/pages/duplicate-to-tenant', {
+        const createRes = await fetch(`/api/pages/duplicate-to-tenant/${selectedTenantId}`, {
           method: 'POST',
           body: JSON.stringify({ newPage }),
         })
