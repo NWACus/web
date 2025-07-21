@@ -20,10 +20,13 @@ jobs:
         run: |
           head_ref="${{ github.head_ref }}"
           ref="${head_ref//[^a-z0-9\-]/x}"
-          # Truncate ref to ensure total database name stays within 58 character limit
+          # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
+          # and ensuring total database name stays within 58 character limit
           # "payloadcms-preview-" is 19 characters, leaving 39 for the ref
           if [ ${#ref} -gt 39 ]; then
-            ref="${ref:0:39}"
+            prefix="${ref:0:32}"
+            hash=$(echo -n "${ref}" | sha256sum | cut -c1-7)
+            ref="${prefix}-${hash}"
           fi
           echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
 
