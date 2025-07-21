@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+const config = {
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -7,6 +7,7 @@ export default {
     './src/**/*.{ts,tsx}',
   ],
   darkMode: ['selector', '[data-theme="dark"]'],
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
   safelist: [
@@ -145,7 +146,7 @@ export default {
           to: { height: '0' },
         },
       },
-      typography: ({ theme }) => ({
+      typography: ({ _theme }) => ({
         DEFAULT: {
           css: [
             {
@@ -158,7 +159,7 @@ export default {
               p: {
                 marginTop: '1em',
                 marginBottom: '1em',
-                lineHeight: 1.2,
+                lineHeight: 1.4,
               },
             },
           ],
@@ -192,3 +193,5 @@ export default {
     },
   },
 }
+
+export default config

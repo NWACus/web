@@ -1,4 +1,4 @@
-import { accessByTenantWithPermissiveRead } from '@/access/byTenant'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
@@ -6,7 +6,7 @@ import { CollectionConfig } from 'payload'
 
 export const Teams: CollectionConfig = {
   slug: 'teams',
-  access: accessByTenantWithPermissiveRead('teams'),
+  access: accessByTenantRole('teams'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Staff',

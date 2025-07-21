@@ -7,7 +7,9 @@ import React, { useCallback, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { FormBlock as FormBlockType } from '@/payload-types'
-import { getClientSideURL } from '@/utilities/getURL'
+import { useTenant } from '@/providers/TenantProvider'
+import { getURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { buildInitialFormState } from './buildInitialFormState'
 import { fields } from './fields'
 
@@ -40,6 +42,9 @@ export const FormBlock = (props: FormBlockType) => {
   const [error, setError] = useState<{ message: string; status?: string } | undefined>()
   const router = useRouter()
 
+  const { tenant } = useTenant()
+  const hostname = getHostnameFromTenant(tenant)
+
   const onSubmit = useCallback(
     (data: Data) => {
       let loadingTimerID: ReturnType<typeof setTimeout>
@@ -60,7 +65,7 @@ export const FormBlock = (props: FormBlockType) => {
           if (typeof props.form !== 'object') {
             return
           }
-          const req = await fetch(`${getClientSideURL()}/api/form-submissions`, {
+          const req = await fetch(`${getURL(hostname)}/api/form-submissions`, {
             body: JSON.stringify({
               form: props.form.id,
               submissionData: dataToSend,
@@ -107,7 +112,7 @@ export const FormBlock = (props: FormBlockType) => {
 
       void submitForm()
     },
-    [router, props.form],
+    [props.form, hostname, router],
   )
 
   if (typeof props.form === 'number') {

@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
@@ -15,9 +16,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
     },
@@ -46,21 +45,24 @@ export default async function Page({ params }: Args) {
   const { version, baseUrl } = await getNACWidgetsConfig()
 
   return (
-    <div className="py-6 md:py-8 lg:py-12">
-      <div className="container flex flex-col gap-4">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>
-            <span className="uppercase">{center}</span> Weather Station Map
-          </h1>
+    <>
+      <WidgetHashHandler initialHash="/" />
+      <div className="pt-4 pb-24">
+        <div className="container flex flex-col gap-4">
+          <div className="prose dark:prose-invert max-w-none">
+            <h1>
+              <span className="uppercase">{center}</span> Weather Station Map
+            </h1>
+          </div>
+          <NACWidget
+            center={center}
+            widget={'stations'}
+            widgetsVersion={version}
+            widgetsBaseUrl={baseUrl}
+          />
         </div>
-        <NACWidget
-          center={center}
-          widget={'stations'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
       </div>
-    </div>
+    </>
   )
 }
 
@@ -69,7 +71,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
-    overrideAccess: true,
     select: {
       name: true,
     },
@@ -79,12 +80,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Weather Stations`,
-    }
-  }
+
   return {
-    title: `${tenant.docs[0].name} - Weather Stations`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Center Weather Stations'
+        : `${tenant.docs[0].name} - Weather Stations`,
   }
 }

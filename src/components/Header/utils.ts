@@ -181,7 +181,7 @@ export function convertToNavLink(
     let url =
       link.reference.relationTo === 'pages'
         ? `/${reference.value.slug}`
-        : `/posts/${reference.value.slug}`
+        : `/blog/${reference.value.slug}`
 
     if (parentItems?.length && parentItems.length > 0) {
       url = `/${parentItems.join('/')}${url}`
@@ -236,50 +236,76 @@ export const getTopLevelNavItems = async ({
     )
 
     if (activeZones.length > 0) {
-      const zoneLinks: NavItem[] = activeZones
-        .sort((zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity))
-        .map(({ name, url }) => {
-          const lastPathPart = url.split('/').filter(Boolean).pop()
+      if (activeZones.length === 1) {
+        const zoneSlug = activeZones[0].url.split('/').filter(Boolean).pop()
 
-          return {
-            id: lastPathPart || name,
-            link: {
-              type: 'internal',
-              label: name,
-              url: lastPathPart ? `/forecasts/avalanche/${lastPathPart}` : '/forecasts/avalanche',
+        forecastsNavItem = {
+          label: 'Forecasts',
+          items: [
+            {
+              id: 'zone',
+              link: {
+                type: 'internal',
+                label: 'Avalanche',
+                url: `/forecasts/avalanche/${zoneSlug}`,
+              },
             },
-          }
-        })
+            {
+              id: 'archive',
+              link: {
+                type: 'internal',
+                label: 'Forecast Archive',
+                url: '/forecasts/avalanche/archive',
+              },
+            },
+          ],
+        }
+      } else {
+        const zoneLinks: NavItem[] = activeZones
+          .sort((zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity))
+          .map(({ name, url }) => {
+            const zoneSlug = url.split('/').filter(Boolean).pop()
 
-      forecastsNavItem = {
-        label: 'Forecasts',
-        items: [
-          {
-            id: 'all',
-            link: {
-              type: 'internal',
-              label: 'All Forecasts',
-              url: '/forecasts/avalanche',
+            return {
+              id: zoneSlug || name,
+              link: {
+                type: 'internal',
+                label: name,
+                url: zoneSlug ? `/forecasts/avalanche/${zoneSlug}` : '/forecasts/avalanche',
+              },
+            }
+          })
+
+        forecastsNavItem = {
+          label: 'Forecasts',
+          items: [
+            {
+              id: 'all',
+              link: {
+                type: 'internal',
+                label: 'All Forecasts',
+                url: '/forecasts/avalanche',
+              },
             },
-          },
-          {
-            id: 'zones',
-            items: zoneLinks,
-            link: {
-              type: 'internal',
-              label: 'Zones',
-              url: '/forecasts/avalanche',
+            {
+              id: 'zones',
+              items: zoneLinks,
+              link: {
+                type: 'internal',
+                label: 'Zones',
+                url: '/forecasts/avalanche',
+              },
             },
-          },
-          {
-            id: 'archive',
-            link: {
-              type: 'internal',
-              label: 'Forecast Archive',
-              url: '/forecasts/avalanche/#/archive/forecast',
+            {
+              id: 'archive',
+              link: {
+                type: 'internal',
+                label: 'Forecast Archive',
+                url: '/forecasts/avalanche/archive',
+              },
             },
-          },
-        ],
+          ],
+        }
       }
     }
   }
@@ -300,7 +326,7 @@ export const getTopLevelNavItems = async ({
         link: {
           type: 'internal',
           label: 'Submit Observation',
-          url: '/observations/#/form',
+          url: '/observations/submit',
         },
       },
     ],
@@ -334,7 +360,7 @@ export const getTopLevelNavItems = async ({
       link: {
         label: 'Blog',
         type: 'internal',
-        url: '/posts',
+        url: '/blog',
       },
     },
     {

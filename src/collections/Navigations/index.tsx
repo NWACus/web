@@ -1,4 +1,4 @@
-import { accessByTenant } from '@/access/byTenant'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { navLink } from '@/fields/navLink'
@@ -9,7 +9,7 @@ import { topLevelNavTab } from './fields/topLevelNavTab'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
-  access: accessByTenant('navigations'),
+  access: accessByTenantRole('navigations'),
   labels: {
     singular: 'Navigation',
     plural: 'Navigation',
@@ -17,7 +17,7 @@ export const Navigations: CollectionConfig = {
   admin: {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
-    group: 'Globals',
+    group: 'Settings',
     livePreview: {
       url: async ({ data, req }) => {
         let tenant = data.tenant
@@ -87,9 +87,7 @@ export const Navigations: CollectionConfig = {
   ],
   versions: {
     drafts: {
-      autosave: {
-        interval: 100,
-      },
+      autosave: true,
     },
     maxPerDoc: 10,
   },

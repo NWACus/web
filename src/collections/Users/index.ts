@@ -1,19 +1,20 @@
 import type { CollectionConfig } from 'payload'
 
-import { accessByGlobalRoleOrTenantDomain } from '@/collections/Users/access/byGlobalRoleOrTenantDomain'
+import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
-import { externalUsersLogin } from './endpoints/externalUsersLogin'
-import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
+import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
+import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
+import { setLastLogin } from './hooks/setLastLogin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  access: accessByGlobalRoleOrTenantDomain,
+  access: accessByGlobalRoleOrTenantRoleAssignmentOrDomain,
   admin: {
     useAsTitle: 'email',
     group: 'Permissions',
+    baseListFilter: filterByTenantScopedDomain,
   },
   auth: true,
-  endpoints: [externalUsersLogin],
   fields: [
     {
       name: 'name',
@@ -23,31 +24,49 @@ export const Users: CollectionConfig = {
       saveToJWT: true,
     },
     {
-      name: 'globalRoles',
-      type: 'join',
-      access: {
-        read: () => true,
-      },
-      collection: 'globalRoleAssignments',
-      on: 'user',
-      saveToJWT: true,
-      maxDepth: 2,
-    },
-    {
       name: 'roles',
       type: 'join',
-      access: {
-        read: () => true,
-      },
       collection: 'roleAssignments',
       on: 'user',
       saveToJWT: true,
       maxDepth: 3,
+      admin: {
+        defaultColumns: ['role'],
+      },
+    },
+    {
+      name: 'globalRoleAssignments',
+      type: 'join',
+      collection: 'globalRoleAssignments',
+      on: 'user',
+      saveToJWT: true,
+      maxDepth: 3,
+      admin: {
+        defaultColumns: ['globalRole'],
+      },
+      access: {
+        read: byGlobalRole('read', 'globalRoles'),
+      },
+    },
+    {
+      name: 'lastLogin',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        date: {
+          displayFormat: 'LLLL do yyyy, hh:mm a',
+        },
+        condition: (_data, _siblingData, ctx) => {
+          if (ctx.operation === 'create') {
+            return false
+          }
+          return true
+        },
+      },
     },
     contentHashField(),
-    // TODO: maybe add a set of associated tenants here or something to allow tenant admins to see you
   ],
   hooks: {
-    afterLogin: [setCookieBasedOnDomain],
+    afterLogin: [setLastLogin],
   },
 }

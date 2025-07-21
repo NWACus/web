@@ -1,6 +1,5 @@
 import { AdminBar } from '@/components/AdminBar'
-import { Providers } from '@/providers'
-import { getServerSideURL } from '@/utilities/getURL'
+import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { cn } from '@/utilities/ui'
 import type { Metadata } from 'next'
@@ -117,28 +116,34 @@ export default async function RootLayout({ children }: Args) {
   return (
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
       <head>
-        <link href="/favicon.ico" rel="icon" sizes="32x32" />
+        <link href="/favicon.ico" rel="icon" sizes="96x96" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
       <body>
-        <Providers>
-          <AdminBar
-            adminBarProps={{
-              preview: isEnabled,
-            }}
-          />
-          {children}
-        </Providers>
+        <AdminBar
+          adminBarProps={{
+            preview: isEnabled,
+          }}
+        />
+        {children}
       </body>
     </html>
   )
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getServerSideURL()),
-  openGraph: mergeOpenGraph(),
+  title: 'Avy',
+  description: 'The homepage for Avy avalanche center websites.',
+  metadataBase: new URL(getURL()),
+  openGraph: mergeOpenGraph({
+    description: 'Avy avalanche center websites.',
+    images: [
+      {
+        url: `${getURL()}/assets/avy-web-og-image.webp`,
+      },
+    ],
+  }),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
   },
 }

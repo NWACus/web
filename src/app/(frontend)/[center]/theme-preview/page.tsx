@@ -6,7 +6,7 @@ import { getPayload } from 'payload'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { draftMode } from 'next/headers'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -47,9 +47,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
     },
@@ -70,7 +68,7 @@ export default async function Page({ params }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
-    <div className="pt-24 pb-24">
+    <div className="pt-4 pb-24">
       {draft && <LivePreviewListener />}
       <div className="container mb-16 grid gap-14">
         <h1 className="text-3xl font-bold mb-6">Theme Preview for {center.toUpperCase()}</h1>
@@ -389,14 +387,16 @@ export default async function Page({ params }: Args) {
           <section className="space-y-2">
             <h3 className="text-lg font-semibold">Avatar</h3>
             <div className="flex space-x-4">
-              <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
-                <AvatarFallback>AN</AvatarFallback>
-              </Avatar>
+              <MediaAvatar
+                src="http://www.gravatar.com/avatar/?d=mp"
+                alt="User Avatar"
+                fallback="CN"
+              />
+              <MediaAvatar
+                src="http://www.gravatar.com/avatar/?d=mp"
+                alt="User Avatar"
+                fallback="AN"
+              />
             </div>
           </section>
 
@@ -553,7 +553,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
-    overrideAccess: true,
     select: {
       name: true,
     },
@@ -563,12 +562,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Theme Preview`,
-    }
-  }
+
   return {
-    title: `${tenant.docs[0].name} - Theme Preview`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Center Theme Preview'
+        : `${tenant.docs[0].name} - Theme Preview`,
   }
 }

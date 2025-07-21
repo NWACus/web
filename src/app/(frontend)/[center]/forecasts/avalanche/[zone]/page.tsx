@@ -4,10 +4,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
-import { ZoneHashHandler } from './ZoneHashHandler.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -16,9 +16,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
     },
@@ -51,8 +49,8 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <ZoneHashHandler zone={zone} />
-      <div className="py-6 md:py-8 lg:py-12">
+      <WidgetHashHandler initialHash={`/${zone}/`} />
+      <div className="pt-4 pb-24">
         <div className="container flex flex-col">
           <NACWidget
             center={center}
@@ -71,7 +69,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center, zone } = await params
   const tenant = await payload.find({
     collection: 'tenants',
-    overrideAccess: true,
     select: {
       name: true,
     },
@@ -81,13 +78,12 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Forecasts`,
-    }
-  }
+
   // TODO: translate zone slug to zone name
   return {
-    title: `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Forecasts'
+        : `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
   }
 }

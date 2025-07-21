@@ -74,25 +74,24 @@ export interface Config {
     tenants: Tenant;
     roles: Role;
     roleAssignments: RoleAssignment;
+    globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
-    brands: Brand;
-    themes: Theme;
-    palettes: Palette;
     navigations: Navigation;
     biographies: Biography;
     teams: Team;
+    settings: Setting;
+    tags: Tag;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
-    search: Search;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
     users: {
-      globalRoles: 'globalRoleAssignments';
       roles: 'roleAssignments';
+      globalRoleAssignments: 'globalRoleAssignments';
     };
   };
   collectionsSelect: {
@@ -103,17 +102,16 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     roles: RolesSelect<false> | RolesSelect<true>;
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
+    globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
-    brands: BrandsSelect<false> | BrandsSelect<true>;
-    themes: ThemesSelect<false> | ThemesSelect<true>;
-    palettes: PalettesSelect<false> | PalettesSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
+    settings: SettingsSelect<false> | SettingsSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
-    search: SearchSelect<false> | SearchSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -122,11 +120,9 @@ export interface Config {
     defaultIDType: number;
   };
   globals: {
-    footer: Footer;
     nacWidgetsConfig: NacWidgetsConfig;
   };
   globalsSelect: {
-    footer: FooterSelect<false> | FooterSelect<true>;
     nacWidgetsConfig: NacWidgetsConfigSelect<false> | NacWidgetsConfigSelect<true>;
   };
   locale: null;
@@ -180,6 +176,7 @@ export interface Media {
     [k: string]: unknown;
   } | null;
   contentHash?: string | null;
+  blurDataUrl?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -257,14 +254,9 @@ export interface Media {
 export interface Tenant {
   id: number;
   name: string;
-  domains?:
-    | {
-        domain: string;
-        id?: string | null;
-      }[]
-    | null;
+  customDomain?: string | null;
   /**
-   * Used for url paths, example: /tenant-slug/page-slug
+   * Used for subdomains and url paths for previews. This is a unique identifier for a tenant.
    */
   slug: string;
   contentHash?: string | null;
@@ -342,16 +334,17 @@ export interface Biography {
 export interface User {
   id: number;
   name: string;
-  globalRoles?: {
-    docs?: (number | GlobalRoleAssignment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
   roles?: {
     docs?: (number | RoleAssignment)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  globalRoleAssignments?: {
+    docs?: (number | GlobalRoleAssignment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  lastLogin?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -366,11 +359,13 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "globalRoleAssignments".
+ * via the `definition` "roleAssignments".
  */
-export interface GlobalRoleAssignment {
+export interface RoleAssignment {
   id: number;
-  roles?: (number | Role)[] | null;
+  tenant: number | Tenant;
+  role?: (number | null) | Role;
+  roleName?: string | null;
   user?: (number | null) | User;
   contentHash?: string | null;
   updatedAt: string;
@@ -394,13 +389,29 @@ export interface Role {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "roleAssignments".
+ * via the `definition` "globalRoleAssignments".
  */
-export interface RoleAssignment {
+export interface GlobalRoleAssignment {
   id: number;
-  tenant: number | Tenant;
-  roles?: (number | Role)[] | null;
+  globalRole?: (number | null) | GlobalRole;
+  globalRoleName?: string | null;
   user?: (number | null) | User;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoles".
+ */
+export interface GlobalRole {
+  id: number;
+  name: string;
+  rules: {
+    collections: string[];
+    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
+    id?: string | null;
+  }[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -713,6 +724,8 @@ export interface Post {
   id: number;
   tenant: number | Tenant;
   title: string;
+  featuredImage?: (number | null) | Media;
+  description?: string | null;
   content: {
     root: {
       type: string;
@@ -728,29 +741,36 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  relatedPosts?: (number | Post)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  authors?: (number | User)[] | null;
+  authors: (number | Biography)[];
   populatedAuthors?:
     | {
         id?: string | null;
         name?: string | null;
       }[]
     | null;
+  publishedAt?: string | null;
+  tags?: (number | Tag)[] | null;
+  relatedPosts?: (number | Post)[] | null;
   slug: string;
   slugLock?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  slug: string;
+  slugLock?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -890,75 +910,6 @@ export interface Team {
   tenant: number | Tenant;
   name: string;
   members: (number | Biography)[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
- */
-export interface Brand {
-  id: number;
-  tenant: number | Tenant;
-  logo: number | Media;
-  banner: number | Media;
-  theme: number | Theme;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "themes".
- */
-export interface Theme {
-  id: number;
-  name: string;
-  activeColors: {
-    light: string;
-    dark: string;
-  };
-  palettes: {
-    light: number | Palette;
-    dark: number | Palette;
-  };
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "palettes".
- */
-export interface Palette {
-  id: number;
-  name: string;
-  radius: string;
-  background: string;
-  foreground: string;
-  card: string;
-  'card-foreground': string;
-  popover: string;
-  'popover-foreground': string;
-  primary: string;
-  'primary-foreground': string;
-  secondary: string;
-  'secondary-foreground': string;
-  muted: string;
-  'muted-foreground': string;
-  accent: string;
-  'accent-foreground': string;
-  destructive: string;
-  'destructive-foreground': string;
-  border: string;
-  input: string;
-  ring: string;
-  'chart-1': string;
-  'chart-2': string;
-  'chart-3': string;
-  'chart-4': string;
-  'chart-5': string;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1399,6 +1350,59 @@ export interface Navigation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * A short description of your avalanche center. This will be used in meta tags for search engine optimization and display in previews on social media and in messaging apps.
+   */
+  description?: string | null;
+  /**
+   * Appears in your website footer.
+   */
+  address?: string | null;
+  /**
+   * Appears in your website footer.
+   */
+  phone?: string | null;
+  /**
+   * Appears in your website footer.
+   */
+  email?: string | null;
+  /**
+   * Should be a square aspect ratio image.
+   */
+  logo: number | Media;
+  /**
+   * Should be a compressed, 96x96 pixel, square aspect ratio image. This will be used as the browser tab icon.
+   */
+  icon: number | Media;
+  /**
+   * This will be used in the header of your website next to the USFS logo if added.
+   */
+  banner: number | Media;
+  usfsLogo?: (number | null) | Media;
+  socialMedia?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    twitter?: string | null;
+    linkedin?: string | null;
+    youtube?: string | null;
+    /**
+     * A hashtag for users to mention you on social media platforms. This will appear in the footer if filled out.
+     */
+    hashtag?: string | null;
+  };
+  terms?: (number | null) | Page;
+  privacy?: (number | null) | Page;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1443,30 +1447,6 @@ export interface FormSubmission {
   createdAt: string;
 }
 /**
- * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "search".
- */
-export interface Search {
-  id: number;
-  title?: string | null;
-  priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: number | Post;
-  };
-  slug?: string | null;
-  tenant?: (number | null) | Tenant;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
@@ -1502,20 +1482,12 @@ export interface PayloadLockedDocument {
         value: number | RoleAssignment;
       } | null)
     | ({
+        relationTo: 'globalRoles';
+        value: number | GlobalRole;
+      } | null)
+    | ({
         relationTo: 'globalRoleAssignments';
         value: number | GlobalRoleAssignment;
-      } | null)
-    | ({
-        relationTo: 'brands';
-        value: number | Brand;
-      } | null)
-    | ({
-        relationTo: 'themes';
-        value: number | Theme;
-      } | null)
-    | ({
-        relationTo: 'palettes';
-        value: number | Palette;
       } | null)
     | ({
         relationTo: 'navigations';
@@ -1530,6 +1502,14 @@ export interface PayloadLockedDocument {
         value: number | Team;
       } | null)
     | ({
+        relationTo: 'settings';
+        value: number | Setting;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -1540,10 +1520,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'form-submissions';
         value: number | FormSubmission;
-      } | null)
-    | ({
-        relationTo: 'search';
-        value: number | Search;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1596,6 +1572,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
   contentHash?: T;
+  blurDataUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1880,16 +1857,9 @@ export interface TeamBlockSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
+  featuredImage?: T;
+  description?: T;
   content?: T;
-  relatedPosts?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
-  publishedAt?: T;
   authors?: T;
   populatedAuthors?:
     | T
@@ -1897,6 +1867,9 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
         name?: T;
       };
+  publishedAt?: T;
+  tags?: T;
+  relatedPosts?: T;
   slug?: T;
   slugLock?: T;
   contentHash?: T;
@@ -1910,8 +1883,9 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
-  globalRoles?: T;
   roles?: T;
+  globalRoleAssignments?: T;
+  lastLogin?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1929,12 +1903,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  domains?:
-    | T
-    | {
-        domain?: T;
-        id?: T;
-      };
+  customDomain?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -1963,8 +1932,26 @@ export interface RolesSelect<T extends boolean = true> {
  */
 export interface RoleAssignmentsSelect<T extends boolean = true> {
   tenant?: T;
-  roles?: T;
+  role?: T;
+  roleName?: T;
   user?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoles_select".
+ */
+export interface GlobalRolesSelect<T extends boolean = true> {
+  name?: T;
+  rules?:
+    | T
+    | {
+        collections?: T;
+        actions?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1974,78 +1961,9 @@ export interface RoleAssignmentsSelect<T extends boolean = true> {
  * via the `definition` "globalRoleAssignments_select".
  */
 export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
-  roles?: T;
+  globalRole?: T;
+  globalRoleName?: T;
   user?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands_select".
- */
-export interface BrandsSelect<T extends boolean = true> {
-  tenant?: T;
-  logo?: T;
-  banner?: T;
-  theme?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "themes_select".
- */
-export interface ThemesSelect<T extends boolean = true> {
-  name?: T;
-  activeColors?:
-    | T
-    | {
-        light?: T;
-        dark?: T;
-      };
-  palettes?:
-    | T
-    | {
-        light?: T;
-        dark?: T;
-      };
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "palettes_select".
- */
-export interface PalettesSelect<T extends boolean = true> {
-  name?: T;
-  radius?: T;
-  background?: T;
-  foreground?: T;
-  card?: T;
-  'card-foreground'?: T;
-  popover?: T;
-  'popover-foreground'?: T;
-  primary?: T;
-  'primary-foreground'?: T;
-  secondary?: T;
-  'secondary-foreground'?: T;
-  muted?: T;
-  'muted-foreground'?: T;
-  accent?: T;
-  'accent-foreground'?: T;
-  destructive?: T;
-  'destructive-foreground'?: T;
-  border?: T;
-  input?: T;
-  ring?: T;
-  'chart-1'?: T;
-  'chart-2'?: T;
-  'chart-3'?: T;
-  'chart-4'?: T;
-  'chart-5'?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2392,6 +2310,49 @@ export interface TeamsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  description?: T;
+  address?: T;
+  phone?: T;
+  email?: T;
+  logo?: T;
+  icon?: T;
+  banner?: T;
+  usfsLogo?: T;
+  socialMedia?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        twitter?: T;
+        linkedin?: T;
+        youtube?: T;
+        hashtag?: T;
+      };
+  terms?: T;
+  privacy?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  slug?: T;
+  slugLock?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -2560,26 +2521,6 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "search_select".
- */
-export interface SearchSelect<T extends boolean = true> {
-  title?: T;
-  priority?: T;
-  doc?: T;
-  slug?: T;
-  tenant?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
@@ -2611,35 +2552,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer".
- */
-export interface Footer {
-  id: number;
-  navItems?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
  * Controls the loading of NAC widgets across all avalanche center websites.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2651,29 +2563,6 @@ export interface NacWidgetsConfig {
   baseUrl: string;
   updatedAt?: string | null;
   createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer_select".
- */
-export interface FooterSelect<T extends boolean = true> {
-  navItems?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

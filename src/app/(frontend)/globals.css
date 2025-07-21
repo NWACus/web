@@ -104,10 +104,12 @@
     --secondary: 202 91% 63%;
 
     --header: 0 2% 21%;
-    --header-foreground: 202 100% 75%;
+    --header-foreground: 204 66% 86%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --footer: 0 2% 21%;
-    --footer-foreground: 202 100% 75%;
+    --footer-foreground: 0 0% 100%;
+    --header-foreground-highlight: 0 0% 100%;
 
     --callout: 60 100% 50%;
 
@@ -127,6 +129,16 @@
     --brand-900: 206 57% 24%;
     --brand-950: 208 58% 16%;
   }
+
+  .snfac {
+    --secondary: 178 83% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    --callout: 178 83% 35%;
+    --callout-foreground: 0 0% 100%;
+
+    --header-foreground-highlight: 240 3.8% 35.3%;
+  }
 }
 
 @layer base {
@@ -134,6 +146,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground min-h-[100vh] flex flex-col;
+    @apply bg-background text-foreground min-h-[100vh] flex flex-col max-w-[100vw] overflow-x-hidden;
   }
 }

@@ -10,14 +10,13 @@ import { draftMode } from 'next/headers'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
+export const dynamicParams = false
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     select: {
       slug: true,
     },
@@ -68,7 +67,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { center } = await params
   const tenant = await payload.find({
     collection: 'tenants',
-    overrideAccess: true,
     select: {
       name: true,
     },
@@ -78,12 +76,8 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Homepage`,
-    }
-  }
   return {
-    title: `${tenant.docs[0].name} - Homepage`,
+    title:
+      tenant.docs.length < 1 ? 'Avalanche Center Homepage' : `${tenant.docs[0].name} - Homepage`,
   }
 }

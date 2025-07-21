@@ -1,2 +1,3 @@
 pnpm run lint-staged
 pnpm run tsc
+pnpm test

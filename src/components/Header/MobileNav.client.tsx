@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@radix-ui/react-dialog'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
@@ -23,30 +23,41 @@ export const MobileNav = ({
   topLevelNavItems,
   donateNavItem,
   banner,
+  usfsLogo,
 }: {
   topLevelNavItems: TopLevelNavItem[]
   donateNavItem?: TopLevelNavItem
   banner?: Media
+  usfsLogo?: Media | null
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [headerHeight, setHeaderHeight] = useState(64) // fallback to the expected height of the mobile nav bar
+  const headerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        const rect = headerRef.current.getBoundingClientRect()
+        setHeaderHeight(rect.bottom)
+      }
+    }
+
+    updateHeaderHeight()
+
+    window.addEventListener('resize', updateHeaderHeight)
+
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight)
+    }
+  }, [mobileNavOpen])
 
   useEffect(
     function manageScrollLock() {
       if (mobileNavOpen) {
-        const scrollY = window.scrollY
-
-        document.body.style.position = 'fixed'
-        document.body.style.top = `-${scrollY}px`
-        document.body.style.width = '100%'
         document.body.style.overflow = 'hidden'
 
         return () => {
-          document.body.style.position = ''
-          document.body.style.top = ''
-          document.body.style.width = ''
-          document.body.style.overflow = ''
-
-          window.scrollTo(0, scrollY)
+          document.body.style.overflow = 'unset'
         }
       }
     },
@@ -55,7 +66,7 @@ export const MobileNav = ({
 
   return (
     <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
-      <div className="lg:hidden fixed z-50 inset-x-0 py-3 bg-header shadow-sm">
+      <div ref={headerRef} className="lg:hidden fixed z-50 inset-x-0 py-1.5 bg-header shadow-sm">
         <div className="container flex justify-between items-center gap-5">
           <DialogTrigger className="p-2">
             <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">
@@ -78,13 +89,21 @@ export const MobileNav = ({
             <span className="sr-only">Toggle menu</span>
           </DialogTrigger>
           {banner && (
-            <Link href="/" className="w-fit">
+            <Link href="/" className="w-fit flex gap-4">
               <ImageMedia
                 resource={banner}
                 loading="eager"
                 priority={true}
                 imgClassName="h-[36px] object-contain w-fit"
               />
+              {usfsLogo && (
+                <ImageMedia
+                  resource={usfsLogo}
+                  loading="eager"
+                  priority={true}
+                  imgClassName="h-[36px] object-contain w-fit"
+                />
+              )}
             </Link>
           )}
           {donateNavItem && (
@@ -99,7 +118,10 @@ export const MobileNav = ({
           className={cn('lg:hidden fixed inset-0', mobileNavOpen && 'pointer-events-none')}
           onClick={() => setMobileNavOpen(false)}
         />
-        <DialogContent className="lg:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-[64px] border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top">
+        <DialogContent
+          className="lg:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top"
+          style={{ top: `${headerHeight}px` }}
+        >
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>

@@ -3,20 +3,18 @@ import type { Metadata } from 'next'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 import { cache } from 'react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMetaForPage } from '@/utilities/generateMeta'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
     collection: 'pages',
-    draft: false,
     limit: 1000,
-    overrideAccess: true,
     pagination: false,
     depth: 2,
     select: {
@@ -68,7 +66,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { layout } = page
 
   return (
-    <article className="pt-16 pb-24">
+    <article className="pt-4 pb-24">
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
@@ -95,7 +93,7 @@ export async function generateMetadata({
     slug: segments[segments.length - 1],
   })
 
-  return generateMeta({ doc: page })
+  return generateMetaForPage({ center, doc: page, slugs: segments })
 }
 
 const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
@@ -103,26 +101,41 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
 
   const payload = await getPayload({ config: configPromise })
 
+  const conditions: Where[] = [
+    {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    {
+      slug: {
+        equals: slug,
+      },
+    },
+  ]
+
+  if (!draft) {
+    conditions.push({
+      _status: {
+        equals: 'published',
+      },
+    })
+  }
+
   const result = await payload.find({
     collection: 'pages',
     draft,
     limit: 1,
     pagination: false,
     depth: 99,
-    overrideAccess: draft,
+    populate: {
+      tenants: {
+        slug: true,
+        name: true,
+      },
+    },
     where: {
-      and: [
-        {
-          'tenant.slug': {
-            equals: center,
-          },
-        },
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-      ],
+      and: conditions,
     },
   })
 

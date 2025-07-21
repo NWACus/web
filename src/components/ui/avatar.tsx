@@ -23,6 +23,8 @@ const AvatarImage = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Image
     ref={ref}
+    // ATTN: if this file is automatically updated, make sure `object-cover` is added as a class to prevent image distortion
+    // https://github.com/NWACus/web/pull/233#discussion_r2127015011
     className={cn('aspect-square h-full w-full object-cover', className)}
     {...props}
   />

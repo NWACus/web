@@ -6,24 +6,23 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
-import { Brands } from '@/collections/Brands'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
+import { GlobalRoles } from '@/collections/GlobalRoles'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
 import { Pages } from '@/collections/Pages'
-import { Palettes } from '@/collections/Palettes'
 import { Posts } from '@/collections/Posts'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
+import { Settings } from '@/collections/Settings'
+import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
-import { Themes } from '@/collections/Themes'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { Footer } from './Footer/config'
 import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
-import { getServerSideURL } from './utilities/getURL'
+import { getURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -31,18 +30,9 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeLogin` statement on line 15.
-      beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
-      beforeDashboard: ['@/components/BeforeDashboard'],
-      beforeNavLinks: [
-        {
-          clientProps: { label: 'Avalanche Center' },
-          path: '@/components/TenantSelector',
-        },
-      ],
+      beforeDashboard:
+        process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
+      beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
           clientProps: {
@@ -51,18 +41,52 @@ export default buildConfig({
           },
           path: '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider',
         },
+        '@/providers/ViewTypeProvider#ViewTypeProvider',
       ],
       actions: [
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'brands', 'navigations'],
+            globalSlugs: ['settings', 'navigations'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
           },
         },
+        '@/components/ViewTypeAction',
       ],
+      graphics: {
+        Logo: '@/components/Logo/AvyFxLogo#AvyFxLogo',
+        Icon: '@/components/Icon/AvyFxIcon#AvyFxIcon',
+      },
+      logout: {
+        Button: '@/components/LogoutButton#LogoutButton',
+      },
+    },
+    meta: {
+      title: 'Admin Panel',
+      description: 'The admin panel for AvyWeb and AvyApp.',
+      icons: [
+        {
+          type: 'image/png',
+          rel: 'icon',
+          url: '/assets/icon.png',
+        },
+      ],
+      openGraph: {
+        title: 'AvyFx Admin Panel',
+        siteName: 'AvyFx',
+        description: 'The admin panel for AvyWeb and AvyApp.',
+        images: [
+          {
+            url: '/assets/avy-fx-og-image.webp',
+            width: 1200,
+            height: 630,
+          },
+        ],
+      },
+      defaultOGImageType: 'static',
+      titleSuffix: '- AvyFx',
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -108,16 +132,16 @@ export default buildConfig({
     Tenants,
     Roles,
     RoleAssignments,
+    GlobalRoles,
     GlobalRoleAssignments,
-    Brands,
-    Themes,
-    Palettes,
     Navigations,
     Biographies,
     Teams,
+    Settings,
+    Tags,
   ],
-  cors: ['api.avalanche.org', 'api.snowobs.com', getServerSideURL()].filter(Boolean),
-  globals: [Footer, NACWidgetsConfig],
+  cors: ['api.avalanche.org', 'api.snowobs.com', getURL()].filter(Boolean),
+  globals: [NACWidgetsConfig],
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
