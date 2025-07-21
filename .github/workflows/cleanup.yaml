@@ -16,7 +16,13 @@ jobs:
         run: |
           ref="${{ github.event.ref }}"
           branch="${ref##refs/heads/}"
-          name="payloadcms-preview-${branch//[^a-z0-9\-]/x}"
+          clean_branch="${branch//[^a-z0-9\-]/x}"
+          # Truncate branch name to ensure total database name stays within 58 character limit
+          # "payloadcms-preview-" is 19 characters, leaving 39 for the branch
+          if [ ${#clean_branch} -gt 39 ]; then
+            clean_branch="${clean_branch:0:39}"
+          fi
+          name="payloadcms-preview-${clean_branch}"
           echo "[INFO] Deleting databse ${name}"
           /home/runner/.turso/turso db destroy --yes "${name}"
         env:

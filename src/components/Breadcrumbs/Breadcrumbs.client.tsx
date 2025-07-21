@@ -1,5 +1,6 @@
 'use client'
 
+import { useNotFound } from '@/providers/NotFoundProvider'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import { useSelectedLayoutSegments } from 'next/navigation'
@@ -51,8 +52,9 @@ const processNestedSegments = (
 
 export function Breadcrumbs() {
   const segments = useSelectedLayoutSegments()
+  const { isNotFound } = useNotFound()
 
-  if (segments.length === 0) return null
+  if (segments.length === 0 || isNotFound) return null
 
   const breadcrumbItems: BreadcrumbType[] = segments.flatMap((segment, index) => {
     const nestedSegments = segment.split('/').filter((seg) => seg !== '')
