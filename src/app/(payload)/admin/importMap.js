@@ -19,6 +19,7 @@ import {
   GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
 } from '@payloadcms/plugin-multi-tenant/rsc'
+import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
 import {
   MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -118,5 +119,7 @@ export const importMap = {
     TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   '@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler':
     VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
+  '@payloadcms/plugin-sentry/client#AdminErrorBoundary':
+    AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688,
   '@/views/AcceptInvite#AcceptInvite': AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
 }
