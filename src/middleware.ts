@@ -18,10 +18,10 @@ export const config = {
 
 const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
-const TENANTS: { slug: string; customDomain: string }[] = [
-  { slug: 'nwac', customDomain: 'nwac.us' },
-  { slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
-  { slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
+const TENANTS: { id: number; slug: string; customDomain: string }[] = [
+  { id: 1, slug: 'nwac', customDomain: 'nwac.us' },
+  { id: 2, slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
+  { id: 3, slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
 ]
 
 export default async function middleware(req: NextRequest) {
@@ -58,14 +58,20 @@ export default async function middleware(req: NextRequest) {
 
   // If request is not to root domain
   if (host && requestedHost && !isSeedEndpoint) {
-    for (const { slug, customDomain } of TENANTS) {
+    for (const { id, slug, customDomain } of TENANTS) {
       if (requestedHost === `${customDomain}` || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
 
         if (req.nextUrl.pathname.startsWith('/admin')) {
-          return
+          // Set tenant cookie to scope the admin panel to this domain's tenant
+          const response = NextResponse.next()
+          response.cookies.set('payload-tenant', id.toString(), {
+            path: '/',
+            sameSite: 'lax',
+          })
+          return response
         }
 
         rewrite.pathname = `/${slug}${rewrite.pathname}`

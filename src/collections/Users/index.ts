@@ -3,7 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
-import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
+import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
 import { setLastLogin } from './hooks/setLastLogin'
 
 export const Users: CollectionConfig = {
@@ -12,6 +12,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     group: 'Permissions',
+    baseListFilter: filterByTenantScopedDomain,
   },
   auth: true,
   fields: [
@@ -66,6 +67,6 @@ export const Users: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterLogin: [setCookieBasedOnDomain, setLastLogin],
+    afterLogin: [setLastLogin],
   },
 }

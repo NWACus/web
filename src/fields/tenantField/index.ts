@@ -32,7 +32,7 @@ export const tenantField = ({
     beforeChange: [
       ({ req, value }) => {
         if (!value) {
-          const tenantFromCookie = getTenantFromCookie(req.headers, 'text')
+          const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
           if (tenantFromCookie) {
             return tenantFromCookie
           }
