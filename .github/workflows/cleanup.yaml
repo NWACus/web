@@ -21,7 +21,7 @@ jobs:
           # and ensuring total database name stays within 58 character limit
           # "payloadcms-preview-" is 19 characters, leaving 39 for the branch
           if [ ${#clean_branch} -gt 39 ]; then
-            prefix="${clean_branch:0:32}"
+            prefix="${clean_branch:0:31}"
             hash=$(echo -n "${clean_branch}" | sha256sum | cut -c1-7)
             clean_branch="${prefix}-${hash}"
           fi

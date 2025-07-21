@@ -24,7 +24,7 @@ jobs:
           # and ensuring total database name stays within 58 character limit
           # "payloadcms-preview-" is 19 characters, leaving 39 for the ref
           if [ ${#ref} -gt 39 ]; then
-            prefix="${ref:0:32}"
+            prefix="${ref:0:31}"
             hash=$(echo -n "${ref}" | sha256sum | cut -c1-7)
             ref="${prefix}-${hash}"
           fi
