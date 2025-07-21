@@ -53,6 +53,15 @@ export const Users: CollectionConfig = {
       type: 'date',
       admin: {
         readOnly: true,
+        date: {
+          displayFormat: 'LLLL do yyyy, hh:mm a',
+        },
+        condition: (_data, _siblingData, ctx) => {
+          if (ctx.operation === 'create') {
+            return false
+          }
+          return true
+        },
       },
     },
     contentHashField(),

@@ -9,6 +9,7 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
 import { PostHogTenantRegister } from '@/components/PostHogTenantRegister.client'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
+import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getURL } from '@/utilities/getURL'
@@ -65,20 +66,22 @@ export default async function RootLayout({ children, params }: Args) {
   invariant(metadata, 'Could not determine avalanche center metadata')
 
   return (
-    <TenantProvider tenant={tenant}>
-      <PostHogTenantRegister />
-      <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
-        <div className={cn('flex flex-col min-h-screen', center)}>
-          <ThemeSetter theme={center} />
-          <Header center={center} />
-          <main className="flex-grow">
-            <Breadcrumbs />
-            {children}
-          </main>
-          <Footer center={center} />
-        </div>
-      </AvalancheCenterProvider>
-    </TenantProvider>
+    <NotFoundProvider>
+      <TenantProvider tenant={tenant}>
+        <PostHogTenantRegister />
+        <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
+          <div className={cn('flex flex-col min-h-screen', center)}>
+            <ThemeSetter theme={center} />
+            <Header center={center} />
+            <main className="flex-grow">
+              <Breadcrumbs />
+              {children}
+            </main>
+            <Footer center={center} />
+          </div>
+        </AvalancheCenterProvider>
+      </TenantProvider>
+    </NotFoundProvider>
   )
 }
 
