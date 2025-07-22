@@ -20,12 +20,15 @@ import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
+import { getEmailAdapter } from './email-adapter'
 import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const { emailAdapter, emailWarning } = getEmailAdapter()
 
 export default buildConfig({
   admin: {
@@ -64,6 +67,12 @@ export default buildConfig({
       },
       logout: {
         Button: '@/components/LogoutButton#LogoutButton',
+      },
+      views: {
+        'accept-invite-with-token': {
+          Component: '@/views/AcceptInvite#AcceptInvite',
+          path: '/accept-invite',
+        },
       },
     },
     meta: {
@@ -152,4 +161,10 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   debug: true,
+  email: emailAdapter,
+  onInit: (payload) => {
+    if (emailWarning) {
+      payload.logger.warn(emailWarning)
+    }
+  },
 })
