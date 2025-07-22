@@ -344,6 +344,8 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  inviteToken?: string | null;
+  inviteExpiration?: string | null;
   lastLogin?: string | null;
   contentHash?: string | null;
   updatedAt: string;
@@ -1885,6 +1887,8 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
   globalRoleAssignments?: T;
+  inviteToken?: T;
+  inviteExpiration?: T;
   lastLogin?: T;
   contentHash?: T;
   updatedAt?: T;

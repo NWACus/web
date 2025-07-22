@@ -2,6 +2,9 @@ import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d }
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
+import { InviteUser as InviteUser_6042b6804e11048cd4fbe6206cbc2b0f } from '@/collections/Users/components/InviteUser'
+import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735 } from '@/collections/Users/components/ResendInviteButton'
+import { UserStatusCell as UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee } from '@/collections/Users/components/UserStatusCell'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
@@ -12,6 +15,7 @@ import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/component
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
+import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import {
   GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
@@ -91,6 +95,12 @@ export const importMap = {
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':
     OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@/collections/Users/components/UserStatusCell#UserStatusCell':
+    UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
+  '@/collections/Users/components/InviteUser#InviteUser':
+    InviteUser_6042b6804e11048cd4fbe6206cbc2b0f,
+  '@/collections/Users/components/ResendInviteButton#ResendInviteButton':
+    ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735,
   '@/collections/Roles/components/CollectionsField#CollectionsField':
     CollectionsField_49c0311020325b59204cc21d2f536b8d,
   '@/collections/Roles/components/RulesCell#RulesCell': RulesCell_649699f5b285e7a5429592dc58fd6f0c,
@@ -116,4 +126,5 @@ export const importMap = {
     VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   '@payloadcms/plugin-sentry/client#AdminErrorBoundary':
     AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688,
+  '@/views/AcceptInvite#AcceptInvite': AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
 }
