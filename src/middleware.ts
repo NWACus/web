@@ -65,13 +65,19 @@ export default async function middleware(req: NextRequest) {
         const rewrite = req.nextUrl.clone()
 
         if (req.nextUrl.pathname.startsWith('/admin')) {
-          // Set tenant cookie to scope the admin panel to this domain's tenant
-          const response = NextResponse.next()
-          response.cookies.set('payload-tenant', id.toString(), {
-            path: '/',
-            sameSite: 'lax',
-          })
-          return response
+          // Set tenant cookie to scope the admin panel to this domain's tenant if not already set
+          const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
+
+          if (existingPayloadTenantCookie?.value !== id.toString()) {
+            const response = NextResponse.next()
+            response.cookies.set('payload-tenant', id.toString(), {
+              path: '/',
+              sameSite: 'lax',
+            })
+            return response
+          }
+
+          return
         }
 
         rewrite.pathname = `/${slug}${rewrite.pathname}`
