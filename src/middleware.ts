@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { DYNAMIC_TENANTS } from './generated/tenants'
 import { getURL } from './utilities/getURL'
 import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
 
@@ -18,11 +19,49 @@ export const config = {
 
 const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
-const TENANTS: { id: number; slug: string; customDomain: string }[] = [
-  { id: 1, slug: 'nwac', customDomain: 'nwac.us' },
-  { id: 2, slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
-  { id: 3, slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
-]
+// Runtime tenant refresh configuration
+type TenantData = Array<{ id: number; slug: string; customDomain: string | null }>
+let runtimeTenants: TenantData | null = null
+let lastRefresh = 0
+const REFRESH_INTERVAL = 10 * 60 * 1000 // 10 minutes
+
+async function getTenants(): Promise<TenantData> {
+  const now = Date.now()
+
+  // Use runtime cache if available and fresh
+  if (runtimeTenants && now - lastRefresh < REFRESH_INTERVAL) {
+    return runtimeTenants
+  }
+
+  // Try to refresh from ISR endpoint
+  try {
+    const baseUrl = getURL()
+    const response = await fetch(`${baseUrl}/api/tenants-static`, {
+      // Use no-cache to bypass any intermediate caches
+      headers: { 'Cache-Control': 'no-cache' },
+      // Add timeout to prevent hanging
+      signal: AbortSignal.timeout(3000), // 3 second timeout
+    })
+
+    if (response.ok) {
+      const freshTenants = await response.json()
+      // Validate that we got an array
+      if (Array.isArray(freshTenants)) {
+        runtimeTenants = freshTenants
+        lastRefresh = now
+        return runtimeTenants
+      }
+    }
+  } catch (error) {
+    console.warn(
+      'Failed to refresh tenants from API, using build-time data:',
+      error instanceof Error ? error.message : error,
+    )
+  }
+
+  // Always fallback to build-time generated data (guaranteed to be an array)
+  return [...DYNAMIC_TENANTS]
+}
 
 export default async function middleware(req: NextRequest) {
   const host = new URL(getURL()).host
@@ -30,6 +69,9 @@ export default async function middleware(req: NextRequest) {
   const isDraftMode = req.cookies.has('__prerender_bypass')
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')
   const isSeedEndpoint = req.nextUrl.pathname.includes('/next/seed')
+
+  // Get current tenants (with potential runtime refresh)
+  const TENANTS = await getTenants()
 
   // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {
@@ -44,7 +86,7 @@ export default async function middleware(req: NextRequest) {
         // Redirect to the tenant's subdomain or custom domain
         const redirectUrl = new URL(req.nextUrl.clone())
         redirectUrl.host = PRODUCTION_TENANTS.includes(tenant.slug)
-          ? tenant.customDomain
+          ? (tenant.customDomain ?? `${tenant.slug}.${host}`)
           : `${tenant.slug}.${host}`
 
         // Remove the tenant slug from the path for the redirect
@@ -59,7 +101,8 @@ export default async function middleware(req: NextRequest) {
   // If request is not to root domain
   if (host && requestedHost && !isSeedEndpoint) {
     for (const { id, slug, customDomain } of TENANTS) {
-      if (requestedHost === `${customDomain}` || requestedHost === `${slug}.${host}`) {
+      const tenantDomain = customDomain ?? `${slug}.${host}`
+      if (requestedHost === tenantDomain || requestedHost === `${slug}.${host}`) {
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()

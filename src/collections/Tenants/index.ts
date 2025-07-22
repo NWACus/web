@@ -1,4 +1,8 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
+import {
+  revalidateTenantsAfterChange,
+  revalidateTenantsAfterDelete,
+} from '@/collections/Tenants/hooks/revalidateTenantsCache'
 import { contentHashField } from '@/fields/contentHashField'
 import type { CollectionConfig } from 'payload'
 
@@ -16,6 +20,10 @@ export const Tenants: CollectionConfig = {
   defaultPopulate: {
     slug: true,
     customDomain: true, // required for byGlobalRoleOrTenantRoleAssignment
+  },
+  hooks: {
+    afterChange: [revalidateTenantsAfterChange],
+    afterDelete: [revalidateTenantsAfterDelete],
   },
   fields: [
     {
