@@ -70,8 +70,8 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
       }
     }
 
-    // allow users to read their own record
-    if (args?.id === args.req.user.id) {
+    // allow users to read, update their own record
+    if (args?.id === args.req.user.id && method !== 'delete' && method !== 'create') {
       return true
     }
 
