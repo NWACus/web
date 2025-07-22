@@ -5,6 +5,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
 import { setLastLogin } from './hooks/setLastLogin'
+import { validateDomainAccessBeforeLogin } from './hooks/validateDomainAccessBeforeLogin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -29,7 +30,7 @@ export const Users: CollectionConfig = {
       collection: 'roleAssignments',
       on: 'user',
       saveToJWT: true,
-      maxDepth: 3,
+      maxDepth: 4,
       admin: {
         defaultColumns: ['role'],
       },
@@ -68,5 +69,6 @@ export const Users: CollectionConfig = {
   ],
   hooks: {
     afterLogin: [setLastLogin],
+    beforeLogin: [validateDomainAccessBeforeLogin],
   },
 }
