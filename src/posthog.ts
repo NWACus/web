@@ -6,7 +6,7 @@ export default function PostHogClient() {
     const postHogApiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
 
     const posthogClient = new PostHog(postHogApiKey, {
-      host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+      host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.posthog.com',
       flushAt: 1,
       flushInterval: 0,
     })
