@@ -6,9 +6,10 @@
  * 3. Preserving all other user data
  */
 
-import { emailDefaultReplyToAddress } from '@/email-adapter.js'
 import { getPayload } from 'payload'
+import { emailDefaultReplyToAddress } from '../email-adapter'
 import config from '../payload.config.js'
+import { createEmailAlias } from '../utilities/createEmailAlias'
 
 async function sanitizeDatabase() {
   console.log('Starting database sanitization...')
@@ -35,24 +36,7 @@ async function sanitizeDatabase() {
 
     for (const user of users.docs) {
       const originalEmail = user.email
-
-      // Create sanitized email in format: developer+{cleaned_username}-{cleaned_domain}@nwac.us
-      // Remove special characters and make lowercase for consistency
-      const emailParts = originalEmail.split('@')
-      const cleanedUsername = emailParts[0]
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-') // Replace special chars with dashes
-        .replace(/-+/g, '-') // Replace multiple dashes with single dash
-        .replace(/^-|-$/g, '') // Remove leading/trailing dashes
-
-      const cleanedDomain = emailParts[1]
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-') // Replace special chars with dashes
-        .replace(/-+/g, '-') // Replace multiple dashes with single dash
-        .replace(/^-|-$/g, '') // Remove leading/trailing dashes
-
-      const replyToEmailParts = emailDefaultReplyToAddress.split('@')
-      const sanitizedEmail = `${replyToEmailParts[0]}+${cleanedUsername}-${cleanedDomain}@${replyToEmailParts[1]}`
+      const sanitizedEmail = createEmailAlias(originalEmail, emailDefaultReplyToAddress)
 
       console.log(`Updating user: ${originalEmail} -> ${sanitizedEmail}`)
 
