@@ -20,7 +20,7 @@ export const page: (
     _status: 'published',
     layout: [
       {
-        color: 'white',
+        backgroundColor: 'white',
         columns: [
           {
             richText: {
