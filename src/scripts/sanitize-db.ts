@@ -6,11 +6,9 @@
  * 3. Preserving all other user data
  */
 
+import { emailDefaultReplyToAddress } from '@/email-adapter.js'
 import { getPayload } from 'payload'
 import config from '../payload.config.js'
-
-// TODO: update this to use the exported env var from email-adapter once that PR is merged
-const DEFAULT_EMAIL_REPLY_TO = 'developer@nwac.us'
 
 async function sanitizeDatabase() {
   console.log('Starting database sanitization...')
@@ -53,7 +51,7 @@ async function sanitizeDatabase() {
         .replace(/-+/g, '-') // Replace multiple dashes with single dash
         .replace(/^-|-$/g, '') // Remove leading/trailing dashes
 
-      const replyToEmailParts = DEFAULT_EMAIL_REPLY_TO.split('@')
+      const replyToEmailParts = emailDefaultReplyToAddress.split('@')
       const sanitizedEmail = `${replyToEmailParts[0]}+${cleanedUsername}-${cleanedDomain}@${replyToEmailParts[1]}`
 
       console.log(`Updating user: ${originalEmail} -> ${sanitizedEmail}`)
@@ -66,9 +64,8 @@ async function sanitizeDatabase() {
           password: password,
           resetPasswordToken: null,
           resetPasswordExpiration: null,
-          // TODO: clear invites too
-          // inviteToken: null,
-          // inviteExpiration: null,
+          inviteToken: null,
+          inviteExpiration: null,
         },
       })
     }
