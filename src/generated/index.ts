@@ -6,7 +6,8 @@ export type StaticTenant = { id: number; slug: string; customDomain: string | nu
 async function getStaticTenants() {
   try {
     // Try to import the generated file first
-    // @ts-expect-error static-tenants may not exist
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore static tenants might not exist
     const generated = await import('./static-tenants')
     return generated.STATIC_TENANTS
   } catch (_error) {
