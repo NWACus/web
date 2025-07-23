@@ -111,22 +111,10 @@ export type StaticTenant = (typeof STATIC_TENANTS)[number]
   const outputPath = join(generatedDir, 'static-tenants.ts')
   writeFileSync(outputPath, tenantData)
 
-  // Generate index file that re-exports from the generated file
-  const indexData = `// Auto-generated index file - DO NOT EDIT MANUALLY
-// Generated on: ${new Date().toISOString()}
-// This file provides a consistent import interface
-
-export type StaticTenant = { id: number; slug: string; customDomain: string | null }
-
-// Re-export from the generated file
-export { STATIC_TENANTS } from './static-tenants'
-`
-
-  const indexPath = join(generatedDir, 'index.ts')
-  writeFileSync(indexPath, indexData)
-
   console.log(`Generated ${tenants.length} tenants to ${outputPath}`)
-  console.log(`Generated index file at ${indexPath}`)
+  console.log(
+    'Note: index.ts file provides automatic fallback to seed data when generated file is missing',
+  )
   console.log(
     'Tenants:',
     tenants.map((t) => `${t.slug} (${t.customDomain || 'subdomain-only'})`).join(', '),
