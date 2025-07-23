@@ -71,9 +71,9 @@ async function generateTenants() {
   const tenantData = `// Auto-generated at build time - DO NOT EDIT MANUALLY
 // Generated on: ${new Date().toISOString()}
 
-export const DYNAMIC_TENANTS = ${JSON.stringify(tenants, null, 2)} as const
+export const BUILD_TIME_TENANTS = ${JSON.stringify(tenants, null, 2)} as const
 
-export type GeneratedTenant = (typeof DYNAMIC_TENANTS)[number]
+export type GeneratedTenant = (typeof BUILD_TIME_TENANTS)[number]
 `
 
   const outputPath = join(generatedDir, 'tenants.ts')

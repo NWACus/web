@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DYNAMIC_TENANTS } from './generated/tenants'
+import { BUILD_TIME_TENANTS } from './generated/tenants'
 import { getURL } from './utilities/getURL'
 import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
 
@@ -19,49 +19,20 @@ export const config = {
 
 const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
-// Runtime tenant refresh configuration
 type TenantData = Array<{ id: number; slug: string; customDomain: string | null }>
-let runtimeTenants: TenantData | null = null
-let lastRefresh = 0
-const REFRESH_INTERVAL = 10 * 60 * 1000 // 10 minutes
-
-// Performance tracking
-let cacheHits = 0
-let cacheMisses = 0
-let apiCalls = 0
-let totalRequests = 0
-let lastStatsLog = 0
-const STATS_LOG_INTERVAL = 5 * 60 * 1000 // Log stats every 5 minutes
 
 async function getTenants(): Promise<TenantData> {
-  const now = Date.now()
-
-  // Use runtime cache if available and fresh
-  if (runtimeTenants && now - lastRefresh < REFRESH_INTERVAL) {
-    cacheHits++
-    return runtimeTenants
-  }
-
-  cacheMisses++
-
-  // Try to refresh from ISR endpoint
   try {
-    apiCalls++
     const baseUrl = getURL()
-    const response = await fetch(`${baseUrl}/api/tenants-static`, {
-      // Use no-cache to bypass any intermediate caches
-      headers: { 'Cache-Control': 'no-cache' },
-      // Add timeout to prevent hanging
-      signal: AbortSignal.timeout(3000), // 3 second timeout
+    const response = await fetch(`${baseUrl}/api/tenants/cached-public`, {
+      signal: AbortSignal.timeout(500), // 500 ms timeout to keep max middleware execution time low
     })
 
     if (response.ok) {
       const freshTenants = await response.json()
-      // Validate that we got an array
+
       if (Array.isArray(freshTenants)) {
-        runtimeTenants = freshTenants
-        lastRefresh = now
-        return runtimeTenants
+        return freshTenants
       }
     }
   } catch (error) {
@@ -71,8 +42,8 @@ async function getTenants(): Promise<TenantData> {
     )
   }
 
-  // Always fallback to build-time generated data (guaranteed to be an array)
-  return [...DYNAMIC_TENANTS]
+  // Fallback to build-time generated data
+  return [...BUILD_TIME_TENANTS]
 }
 
 export default async function middleware(req: NextRequest) {
@@ -82,36 +53,7 @@ export default async function middleware(req: NextRequest) {
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')
   const isSeedEndpoint = req.nextUrl.pathname.includes('/next/seed')
 
-  // Measure tenant fetch performance
-  const start = performance.now()
   const TENANTS = await getTenants()
-  const getTenantsDuration = performance.now() - start
-
-  // Track total requests and log performance metrics
-  totalRequests++
-
-  // Log performance metrics for tenant fetching
-  if (getTenantsDuration > 5) {
-    console.log(
-      `[Middleware] Tenant fetch: ${getTenantsDuration.toFixed(2)}ms (cache miss/refresh) - ${req.nextUrl.pathname}`,
-    )
-  } else if (getTenantsDuration > 1) {
-    console.log(
-      `[Middleware] Tenant fetch: ${getTenantsDuration.toFixed(2)}ms (cache hit) - ${req.nextUrl.pathname}`,
-    )
-  }
-
-  // Log periodic performance stats
-  const now = Date.now()
-  if (now - lastStatsLog > STATS_LOG_INTERVAL && totalRequests > 0) {
-    const cacheHitRate = ((cacheHits / (cacheHits + cacheMisses)) * 100).toFixed(1)
-    const avgDuration = getTenantsDuration.toFixed(2)
-
-    console.log(
-      `[Middleware Stats] Requests: ${totalRequests}, Cache hit rate: ${cacheHitRate}%, API calls: ${apiCalls}, Last fetch: ${avgDuration}ms`,
-    )
-    lastStatsLog = now
-  }
 
   // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {

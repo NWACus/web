@@ -1,16 +1,10 @@
-import config from '@payload-config'
+import { BUILD_TIME_TENANTS } from '@/generated/tenants'
 import { unstable_cache } from 'next/cache'
-import { NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import type { PayloadRequest } from 'payload'
 
-export const revalidate = 300 // 5 minutes
-
-// Cache the tenant fetching function with tags for revalidation
 const getCachedTenants = unstable_cache(
-  async () => {
-    const payload = await getPayload({ config })
-
-    const tenantsRes = await payload.find({
+  async (req: PayloadRequest) => {
+    const tenantsRes = await req.payload.find({
       collection: 'tenants',
       limit: 1000,
       pagination: false,
@@ -34,11 +28,11 @@ const getCachedTenants = unstable_cache(
   },
 )
 
-export async function GET() {
+export const cachedPublicTenants = async (req: PayloadRequest): Promise<Response> => {
   try {
-    const tenants = await getCachedTenants()
+    const tenants = await getCachedTenants(req)
 
-    return NextResponse.json(tenants, {
+    return Response.json(tenants, {
       headers: {
         // ISR: Cache for 5 minutes, then regenerate in background
         'Cache-Control': 's-maxage=300, stale-while-revalidate=86400',
@@ -48,14 +42,8 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching tenants:', error)
 
-    // Fallback to hardcoded tenants on error
-    const fallbackTenants = [
-      { id: 1, slug: 'nwac', customDomain: 'nwac.us' },
-      { id: 2, slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
-      { id: 3, slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
-    ]
-
-    return NextResponse.json(fallbackTenants, {
+    // Fallback to build-time generated data
+    return Response.json([...BUILD_TIME_TENANTS], {
       headers: {
         'Cache-Control': 'no-cache',
       },

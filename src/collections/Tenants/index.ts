@@ -1,4 +1,5 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
+import { cachedPublicTenants } from '@/collections/Tenants/endpoints/cachedPublicTenants'
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
@@ -21,6 +22,13 @@ export const Tenants: CollectionConfig = {
     slug: true,
     customDomain: true, // required for byGlobalRoleOrTenantRoleAssignment
   },
+  endpoints: [
+    {
+      path: '/cached-public',
+      method: 'get',
+      handler: cachedPublicTenants,
+    },
+  ],
   hooks: {
     afterChange: [revalidateTenantsAfterChange],
     afterDelete: [revalidateTenantsAfterDelete],
