@@ -107,9 +107,10 @@ export function NACWidget({
   useEffect(function initializeWidgetData() {
     // Base URL (used for Google Analytics)
     const baseUrl = window.location.pathname
+    const fallbackCenter = center === 'dvac' ? 'nwac' : center
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-      centerId: center.toUpperCase(),
+      centerId: fallbackCenter.toUpperCase(),
       devMode: false,
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
