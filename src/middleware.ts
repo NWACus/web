@@ -72,7 +72,6 @@ export default async function middleware(req: NextRequest) {
 
   const { tenants: TENANTS, source, duration: getTenantsDuration } = await getTenants()
 
-  // Log getTenants performance
   console.log(
     `[Middleware] getTenants: ${getTenantsDuration.toFixed(2)}ms (${source}) - ${req.nextUrl.pathname}`,
   )
