@@ -1,10 +1,10 @@
+import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
-import { DuplicatePageFor as DuplicatePageFor_ee398e0df9d00c8c914805011863ffb0 } from '@/components/DuplicatePageFor'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
@@ -85,8 +85,8 @@ export const importMap = {
   '@payloadcms/plugin-seo/client#PreviewComponent':
     PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@/fields/slug/SlugComponent#SlugComponent': SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
-  '@/components/DuplicatePageFor#DuplicatePageFor':
-    DuplicatePageFor_ee398e0df9d00c8c914805011863ffb0,
+  '@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor':
+    DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
   '@payloadcms/richtext-lexical/client#UnorderedListFeatureClient':
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':

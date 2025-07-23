@@ -29,7 +29,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
-import { duplicatePageToTenant } from '@/endpoints/duplicatePageToTenant'
+import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
@@ -84,7 +84,7 @@ export const Pages: CollectionConfig<'pages'> = {
     useAsTitle: 'title',
     components: {
       edit: {
-        editMenuItems: ['@/components/DuplicatePageFor#DuplicatePageFor'],
+        editMenuItems: ['@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor'],
       },
     },
   },
