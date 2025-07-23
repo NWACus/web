@@ -146,7 +146,6 @@ src/
 
 - Script connects to your local database and generates `static-tenants.ts` with current data
 - Generated file is gitignored to avoid conflicts
-- `predev` script uses a conditional generation script. If you update `fallback-tenants.ts` then you should re-run the generation script.
 
 **CI/Production:**
 
