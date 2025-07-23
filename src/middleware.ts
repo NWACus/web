@@ -21,7 +21,13 @@ const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
 type TenantData = Array<{ id: number; slug: string; customDomain: string | null }>
 
-async function getTenants(): Promise<TenantData> {
+async function getTenants(): Promise<{
+  tenants: TenantData
+  source: 'api' | 'fallback'
+  duration: number
+}> {
+  const start = performance.now()
+
   try {
     const baseUrl = getURL()
     const response = await fetch(`${baseUrl}/api/tenants/cached-public`, {
@@ -32,7 +38,8 @@ async function getTenants(): Promise<TenantData> {
       const freshTenants = await response.json()
 
       if (Array.isArray(freshTenants)) {
-        return freshTenants
+        const duration = performance.now() - start
+        return { tenants: freshTenants, source: 'api', duration }
       }
     }
   } catch (error) {
@@ -43,17 +50,32 @@ async function getTenants(): Promise<TenantData> {
   }
 
   // Fallback to build-time generated data
-  return [...BUILD_TIME_TENANTS]
+  const duration = performance.now() - start
+  return { tenants: [...BUILD_TIME_TENANTS], source: 'fallback', duration }
 }
 
 export default async function middleware(req: NextRequest) {
+  const middlewareStart = performance.now()
+
+  const logCompletion = (action: string) => {
+    const totalDuration = performance.now() - middlewareStart
+    console.log(
+      `[Middleware] ${action}: ${totalDuration.toFixed(2)}ms total - ${req.nextUrl.pathname}`,
+    )
+  }
+
   const host = new URL(getURL()).host
   const requestedHost = req.headers.get('host')
   const isDraftMode = req.cookies.has('__prerender_bypass')
   const hasNextInPath = req.nextUrl.pathname.includes('/next/')
   const isSeedEndpoint = req.nextUrl.pathname.includes('/next/seed')
 
-  const TENANTS = await getTenants()
+  const { tenants: TENANTS, source, duration: getTenantsDuration } = await getTenants()
+
+  // Log getTenants performance
+  console.log(
+    `[Middleware] getTenants: ${getTenantsDuration.toFixed(2)}ms (${source}) - ${req.nextUrl.pathname}`,
+  )
 
   // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {
@@ -75,6 +97,7 @@ export default async function middleware(req: NextRequest) {
         redirectUrl.pathname = `/${pathSegments.slice(1).join('/')}`
 
         console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
+        logCompletion('redirect')
         return NextResponse.redirect(redirectUrl, process.env.NODE_ENV === 'production' ? 308 : 302)
       }
     }
@@ -99,16 +122,21 @@ export default async function middleware(req: NextRequest) {
               path: '/',
               sameSite: 'lax',
             })
+            logCompletion('admin-cookie-set')
             return response
           }
 
+          logCompletion('admin-passthrough')
           return
         }
 
         rewrite.pathname = `/${slug}${rewrite.pathname}`
         console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
+        logCompletion('rewrite')
         return NextResponse.rewrite(rewrite)
       }
     }
   }
+
+  logCompletion('passthrough')
 }

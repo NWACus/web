@@ -1,10 +1,13 @@
 import { BUILD_TIME_TENANTS } from '@/generated/tenants'
+import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
-import type { PayloadRequest } from 'payload'
+import { getPayload } from 'payload'
 
 const getCachedTenants = unstable_cache(
-  async (req: PayloadRequest) => {
-    const tenantsRes = await req.payload.find({
+  async () => {
+    const payload = await getPayload({ config: configPromise })
+
+    const tenantsRes = await payload.find({
       collection: 'tenants',
       limit: 1000,
       pagination: false,
@@ -28,9 +31,9 @@ const getCachedTenants = unstable_cache(
   },
 )
 
-export const cachedPublicTenants = async (req: PayloadRequest): Promise<Response> => {
+export const cachedPublicTenants = async (): Promise<Response> => {
   try {
-    const tenants = await getCachedTenants(req)
+    const tenants = await getCachedTenants()
 
     return Response.json(tenants, {
       headers: {
