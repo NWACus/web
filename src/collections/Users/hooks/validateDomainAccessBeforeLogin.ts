@@ -40,7 +40,7 @@ export const validateDomainAccessBeforeLogin: CollectionBeforeLoginHook = async 
       if (
         roleAssignment &&
         typeof roleAssignment.tenant !== 'number' &&
-        roleAssignment.tenant.id == domainScopedTenant.id
+        roleAssignment.tenant.id === domainScopedTenant.id
       ) {
         return user
       }
@@ -48,7 +48,7 @@ export const validateDomainAccessBeforeLogin: CollectionBeforeLoginHook = async 
   }
 
   // if a user has an email domain matching the domain scoped tenant's customDomain, let em through
-  if (user.email.includes('@' + domainScopedTenant.customDomain)) {
+  if (user.email.endsWith('@' + domainScopedTenant.customDomain)) {
     return user
   }
 
