@@ -5,6 +5,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
+import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
 import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 import { setLastLogin } from './hooks/setLastLogin'
 
@@ -103,7 +104,7 @@ export const Users: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterLogin: [setCookieBasedOnDomain, setLastLogin],
+    afterLogin: [setCookieBasedOnDomain, setLastLogin, posthogIdentifyAfterLogin],
     beforeValidate: [beforeValidatePassword],
   },
 }

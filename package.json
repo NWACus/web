@@ -82,6 +82,8 @@
     "payload": "3.43.0",
     "pino": "^9.6.0",
     "pluralize": "^8.0.0",
+    "posthog-js": "^1.257.0",
+    "posthog-node": "^5.5.1",
     "prism-react-renderer": "^2.4.1",
     "qs-esm": "^7.0.2",
     "react": "^19.0.1",
