@@ -1,4 +1,5 @@
 import { AdminBar } from '@/components/AdminBar'
+import { PostHogProvider } from '@/providers/PostHogProvider'
 import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { cn } from '@/utilities/ui'
@@ -120,12 +121,14 @@ export default async function RootLayout({ children }: Args) {
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
       <body>
-        <AdminBar
-          adminBarProps={{
-            preview: isEnabled,
-          }}
-        />
-        {children}
+        <PostHogProvider>
+          <AdminBar
+            adminBarProps={{
+              preview: isEnabled,
+            }}
+          />
+          {children}
+        </PostHogProvider>
       </body>
     </html>
   )

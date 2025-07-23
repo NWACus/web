@@ -81,6 +81,17 @@
     --error: 10 100% 86%;
   }
 
+  .dvac {
+    --primary: 240 67% 94%;
+
+    --secondary: 8 61% 45%;
+
+    --callout: 66 83% 35%;
+    --callout-foreground: 0 0% 100%;
+
+    --header-foreground-highlight: 240 3.8% 35.3%;
+  }
+
   .nwac {
     --primary: 217 62% 21%;
 
