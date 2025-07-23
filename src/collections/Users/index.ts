@@ -6,6 +6,7 @@ import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPas
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
+import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
 import { setLastLogin } from './hooks/setLastLogin'
 import { validateDomainAccessBeforeLogin } from './hooks/validateDomainAccessBeforeLogin'
 
@@ -105,7 +106,7 @@ export const Users: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterLogin: [setLastLogin],
+    afterLogin: [setLastLogin, posthogIdentifyAfterLogin],
     beforeLogin: [validateDomainAccessBeforeLogin],
     beforeValidate: [beforeValidatePassword],
   },

@@ -29,6 +29,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
@@ -81,6 +82,11 @@ export const Pages: CollectionConfig<'pages'> = {
       })
     },
     useAsTitle: 'title',
+    components: {
+      edit: {
+        editMenuItems: ['@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor'],
+      },
+    },
   },
   fields: [
     {
@@ -156,6 +162,19 @@ export const Pages: CollectionConfig<'pages'> = {
     ...slugField(),
     tenantField(),
     contentHashField(),
+  ],
+  endpoints: [
+    {
+      path: '/duplicate-to-tenant/:selectedTenantId',
+      method: 'post',
+
+      handler: async (req) => {
+        const res = await duplicatePageToTenant(req)
+        return Response.json({
+          res,
+        })
+      },
+    },
   ],
   hooks: {
     afterChange: [revalidatePage],

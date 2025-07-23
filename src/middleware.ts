@@ -19,9 +19,10 @@ export const config = {
 const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
 const TENANTS: { id: number; slug: string; customDomain: string }[] = [
-  { id: 1, slug: 'nwac', customDomain: 'nwac.us' },
-  { id: 2, slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
-  { id: 3, slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
+  { id: 1, slug: 'dvac', customDomain: 'dvac.us' },
+  { id: 2, slug: 'nwac', customDomain: 'nwac.us' },
+  { id: 3, slug: 'sac', customDomain: 'sierraavalanchecenter.org' },
+  { id: 4, slug: 'snfac', customDomain: 'sawtoothavalanche.com' },
 ]
 
 export default async function middleware(req: NextRequest) {
