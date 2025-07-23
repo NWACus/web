@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { STATIC_TENANTS } from './generated/static-tenants'
+import { STATIC_TENANTS } from './generated'
 import { getURL } from './utilities/getURL'
 import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
 

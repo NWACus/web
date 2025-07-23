@@ -17,7 +17,7 @@ interface Tenant {
 async function loadExistingTenants(): Promise<Pick<Tenant, 'id' | 'slug' | 'customDomain'>[]> {
   try {
     // Try to dynamically import existing generated data
-    const { STATIC_TENANTS } = await import('../generated/static-tenants.js')
+    const { STATIC_TENANTS } = await import('../generated')
     console.log(`Loaded ${STATIC_TENANTS.length} existing tenants from generated file`)
     return [...STATIC_TENANTS]
   } catch {
@@ -111,14 +111,31 @@ export type StaticTenant = (typeof STATIC_TENANTS)[number]
   const outputPath = join(generatedDir, 'static-tenants.ts')
   writeFileSync(outputPath, tenantData)
 
+  // Generate index file that re-exports from the generated file
+  const indexData = `// Auto-generated index file - DO NOT EDIT MANUALLY
+// Generated on: ${new Date().toISOString()}
+// This file provides a consistent import interface
+
+export type StaticTenant = { id: number; slug: string; customDomain: string | null }
+
+// Re-export from the generated file
+export { STATIC_TENANTS } from './static-tenants'
+`
+
+  const indexPath = join(generatedDir, 'index.ts')
+  writeFileSync(indexPath, indexData)
+
   console.log(`Generated ${tenants.length} tenants to ${outputPath}`)
+  console.log(`Generated index file at ${indexPath}`)
   console.log(
     'Tenants:',
     tenants.map((t) => `${t.slug} (${t.customDomain || 'subdomain-only'})`).join(', '),
   )
 }
 
-generateStaticTenants().catch((error) => {
-  console.error('Failed to generate static tenants:', error)
-  process.exit(1)
-})
+generateStaticTenants()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error('Failed to generate static tenants:', error)
+    process.exit(1)
+  })
