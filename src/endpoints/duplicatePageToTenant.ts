@@ -7,27 +7,37 @@ export async function duplicatePageToTenant(req: PayloadRequest) {
   const selectedTenantId = req.routeParams?.selectedTenantId as number
 
   const { newPage } = await req.json?.()
-  const newPageSansIds = removeIdKey(newPage)
 
-  const slugIndex = await getUniqueSlug(newPageSansIds.slug, selectedTenantId)
+  const indexedPageResult = await getIndexedTitleAndSlug(
+    newPage.slug,
+    newPage.title,
+    selectedTenantId,
+  )
 
   const payload = await getPayload({ config: configPromise })
   const tenant = await payload
     .find({ collection: 'tenants', where: { id: { equals: selectedTenantId } } })
     .then((res) => res.docs[0])
 
+  const newPageSansIds = removeIdKey(newPage)
+
   return await payload.create({
     collection: 'pages',
     data: {
       ...newPageSansIds,
       tenant,
-      title: `${newPage.title} ${slugIndex}`,
-      slug: `${newPage.slug}-${slugIndex}`,
+      title: indexedPageResult.title,
+      slug: indexedPageResult.slug,
     },
   })
 }
 
-async function getUniqueSlug(baseSlug: string, tenantId: number, i = 1): Promise<string> {
+async function getIndexedTitleAndSlug(
+  baseSlug: string,
+  baseTitle: string,
+  tenantId: number,
+  i = 1,
+): Promise<{ slug: string; title: string }> {
   const slug = i === 1 ? baseSlug : `${baseSlug}-${i}`
 
   const payload = await getPayload({ config: configPromise })
@@ -44,9 +54,9 @@ async function getUniqueSlug(baseSlug: string, tenantId: number, i = 1): Promise
     },
   })
   if (pageResults.totalDocs < 1) {
-    return `${i}`
+    return { slug, title: `${baseTitle} ${i}` }
   }
-  return getUniqueSlug(baseSlug, tenantId, i + 1)
+  return getIndexedTitleAndSlug(baseSlug, baseTitle, tenantId, i + 1)
 }
 
 const removeIdKey = <T>(obj: T): T => {
