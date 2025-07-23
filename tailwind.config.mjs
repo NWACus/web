@@ -11,18 +11,12 @@ const config = {
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
   safelist: [
-    'bg-[#FFFFFF]',
-    'bg-[#CBD5E1]',
-    'bg-[#475569]',
-    'bg-[#334155]',
-    'border-border',
-    'bg-card',
-    'border-error',
-    'bg-error/30',
-    'border-success',
-    'bg-success/30',
-    'border-warning',
-    'bg-warning/30',
+    {
+      pattern: /^bg-(slate-(300|600|700)|card|(error|success|warning)\/30)$/,
+    },
+    {
+      pattern: /^border-(border|error|success|warning)$/,
+    },
   ],
   theme: {
     container: {

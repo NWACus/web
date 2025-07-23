@@ -10,11 +10,10 @@ type Props = ImageTextProps & {
 }
 
 export const ImageText = (props: Props) => {
-  const { color, imgClassName, imageLayout, image, richText } = props
+  const { backgroundColor, imgClassName, imageLayout, image, richText } = props
 
-  // TODO - import color list from theme
-  const bgColorClass = `bg-[${color}]`
-  const bgColor = Color(`${color}`)
+  const bgColorClass = `bg-[${backgroundColor}]`
+  const bgColor = Color(`${backgroundColor}`)
   const textColor = bgColor.isLight() ? 'text-black' : 'text-white'
   return (
     <div className={`${bgColorClass}`}>

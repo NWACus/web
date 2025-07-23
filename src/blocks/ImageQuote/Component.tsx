@@ -9,11 +9,10 @@ type Props = ImageQuoteProps & {
 }
 
 export const ImageQuote = (props: Props) => {
-  const { author, color, imgClassName, imageLayout, image, quote } = props
+  const { author, backgroundColor, imgClassName, imageLayout, image, quote } = props
 
-  // TODO - import color list from theme
-  const bgColorClass = `bg-[${color}]`
-  const bgColor = Color(`${color}`)
+  const bgColorClass = `bg-[${backgroundColor}]`
+  const bgColor = Color(`${backgroundColor}`)
   const textColor = bgColor.isLight() ? 'text-black' : 'text-white'
   return (
     <div className={`${bgColorClass}`}>
