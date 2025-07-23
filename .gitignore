@@ -27,5 +27,4 @@ tsconfig.tsbuildinfo
 
 # Auto-generated files
 !src/generated/static-tenants.seed.ts
-!src/generated/index.ts
 src/generated/*
