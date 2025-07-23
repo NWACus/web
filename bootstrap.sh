@@ -9,6 +9,9 @@ trap cleanup EXIT
 
 setup_dev_server
 
+echo "[INFO] Generating static tenants..."
+pnpm generate:static-tenants
+
 echo "[INFO] Creating the bootstrap user and running a minimal seed on the database..."
 curl -s -H 'Content-Type: application/json' -H 'Accept: application/json' -X POST --fail-with-body http://localhost:3000/api/users/first-register --data '{"email":"bootstrap@avy.com","password":"localpass","confirm-password":"localpass","name":"Bootstrap User"}' > login.json
 curl -H "Authorization: Bearer $( jq --raw-output .token <login.json )" -X POST --fail-with-body http://localhost:3000/next/bootstrap

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { BUILD_TIME_TENANTS } from './generated/tenants'
+import { STATIC_TENANTS } from './generated/static-tenants'
 import { getURL } from './utilities/getURL'
 import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
 
@@ -51,7 +51,7 @@ async function getTenants(): Promise<{
 
   // Fallback to build-time generated data
   const duration = performance.now() - start
-  return { tenants: [...BUILD_TIME_TENANTS], source: 'fallback', duration }
+  return { tenants: [...STATIC_TENANTS], source: 'fallback', duration }
 }
 
 export default async function middleware(req: NextRequest) {

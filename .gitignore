@@ -26,4 +26,5 @@ tsconfig.tsbuildinfo
 .env.sentry-build-plugin
 
 # Auto-generated files
-src/generated/
+src/generated/*
+!src/generated/static-tenants.seed.ts

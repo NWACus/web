@@ -1,4 +1,4 @@
-import { BUILD_TIME_TENANTS } from '@/generated/tenants'
+import { STATIC_TENANTS } from '@/generated/static-tenants'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
@@ -46,7 +46,7 @@ export const cachedPublicTenants = async (): Promise<Response> => {
     console.error('Error fetching tenants:', error)
 
     // Fallback to build-time generated data
-    return Response.json([...BUILD_TIME_TENANTS], {
+    return Response.json([...STATIC_TENANTS], {
       headers: {
         'Cache-Control': 'no-cache',
       },
