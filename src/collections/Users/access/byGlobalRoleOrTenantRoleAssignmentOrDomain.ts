@@ -71,7 +71,7 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
     }
 
     // allow users to read, update their own record
-    if (args?.id === args.req.user.id && method !== 'delete' && method !== 'create') {
+    if (args?.id === args.req.user.id && (method === 'read' || method === 'update')) {
       return true
     }
 
