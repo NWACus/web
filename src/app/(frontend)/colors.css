@@ -1,0 +1,137 @@
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
+
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 240 5.9% 10%;
+  --radius: 0.5rem;
+
+  --header: 0 0% 100%;
+  --header-foreground: 240 10% 3.9%;
+  --header-foreground-highlight: 240 3.8% 46.1%;
+
+  --footer: 0 0% 100%;
+  --footer-foreground: 240 10% 3.9%;
+  --footer-foreground-highlight: 240 3.8% 46.1%;
+
+  --callout: 240 4.8% 95.9%;
+  --callout-foreground: 240 10% 3.9%;
+
+  --brand-50: 210 40% 98%;
+  --brand-100: 210 40% 96%;
+  --brand-200: 214 32% 91%;
+  --brand-300: 213 27% 84%;
+  --brand-400: 215 20% 65%;
+  --brand-500: 215 25% 47%;
+  --brand-600: 215 19% 35%;
+  --brand-700: 215 25% 27%;
+  --brand-800: 217 33% 17%;
+  --brand-900: 222 47% 11%;
+  --brand-950: 229 84% 5%;
+
+  --brand-foreground-50: 222 47% 11%;
+  --brand-foreground-100: 222 47% 11%;
+  --brand-foreground-200: 222 47% 11%;
+  --brand-foreground-300: 222 47% 11%;
+  --brand-foreground-400: 222 47% 11%;
+  --brand-foreground-500: 210 40% 98%;
+  --brand-foreground-600: 210 40% 98%;
+  --brand-foreground-700: 210 40% 98%;
+  --brand-foreground-800: 210 40% 98%;
+  --brand-foreground-900: 210 40% 98%;
+  --brand-foreground-950: 210 40% 98%;
+
+  --success: 196 52% 74%;
+  --warning: 34 89% 85%;
+  --error: 10 100% 86%;
+}
+
+.dvac {
+  --primary: 240 67% 94%;
+
+  --secondary: 8 61% 45%;
+
+  --callout: 66 83% 35%;
+  --callout-foreground: 0 0% 100%;
+
+  --header-foreground-highlight: 240 3.8% 35.3%;
+}
+
+.nwac {
+  --primary: 217 62% 21%;
+
+  --secondary: 193 42% 74%;
+
+  --header: 217 62% 21%;
+  --header-foreground: 193 42% 74%;
+  --header-foreground-highlight: 0 0% 100%;
+
+  --footer: 300 1% 22%;
+  --footer-foreground: 0 0% 100%;
+  --header-foreground-highlight: 0 0% 100%;
+
+  --callout: 69 94% 64%;
+  --callout-foreground: 240 6% 10%;
+}
+
+.sac {
+  --primary: 202 63% 45%;
+
+  --secondary: 202 91% 63%;
+
+  --header: 0 2% 21%;
+  --header-foreground: 204 66% 86%;
+  --header-foreground-highlight: 0 0% 100%;
+
+  --footer: 0 2% 21%;
+  --footer-foreground: 0 0% 100%;
+  --header-foreground-highlight: 0 0% 100%;
+
+  --callout: 60 100% 50%;
+
+  --accent: 27 92% 62%;
+
+  --destructive: 0 59% 53%;
+
+  --brand-50: 207 73% 97%;
+  --brand-100: 207 69% 94%;
+  --brand-200: 204 66% 86%;
+  --brand-300: 203 67% 74%;
+  --brand-400: 202 66% 60%;
+  --brand-500: 202 63% 45%;
+  --brand-600: 204 69% 39%;
+  --brand-700: 205 68% 32%;
+  --brand-800: 205 64% 27%;
+  --brand-900: 206 57% 24%;
+  --brand-950: 208 58% 16%;
+}
+
+.snfac {
+  --secondary: 178 83% 35%;
+  --secondary-foreground: 0 0% 100%;
+
+  --callout: 178 83% 35%;
+  --callout-foreground: 0 0% 100%;
+
+  --header-foreground-highlight: 240 3.8% 35.3%;
+}
