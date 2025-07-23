@@ -134,9 +134,10 @@ export async function getAllAvalancheCenterCapabilities() {
 
 export async function getAvalancheCenterPlatforms(centerSlug: string) {
   const allAvalancheCenterCapabilities = await getAllAvalancheCenterCapabilities()
+  const actualAvyCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
 
   const foundAvalancheCenterBySlug = allAvalancheCenterCapabilities.centers.find(
-    (center) => center.id === centerSlug.toUpperCase(),
+    (center) => center.id === actualAvyCenter.toUpperCase(),
   )
 
   if (!foundAvalancheCenterBySlug)
@@ -152,7 +153,8 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
-  const metadata = await nacFetch(`/v2/public/avalanche-center/${centerSlug.toUpperCase()}`)
+  const actualAvyCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const metadata = await nacFetch(`/v2/public/avalanche-center/${actualAvyCenter.toUpperCase()}`)
 
   const parsed = avalancheCenterSchema.safeParse(metadata)
 

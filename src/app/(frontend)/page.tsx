@@ -13,6 +13,11 @@ export default async function LandingPage() {
   const tenants = await payload.find({
     collection: 'tenants',
     limit: 1000,
+    where: {
+      slug: {
+        not_equals: 'dvac', // Filter out templated tenant
+      },
+    },
   })
 
   return (
