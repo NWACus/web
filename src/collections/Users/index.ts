@@ -8,6 +8,7 @@ import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
 import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
 import { setLastLogin } from './hooks/setLastLogin'
+import { validateDomainAccessBeforeLogin } from './hooks/validateDomainAccessBeforeLogin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -48,7 +49,7 @@ export const Users: CollectionConfig = {
       collection: 'roleAssignments',
       on: 'user',
       saveToJWT: true,
-      maxDepth: 3,
+      maxDepth: 4,
       admin: {
         defaultColumns: ['role'],
       },
@@ -106,6 +107,7 @@ export const Users: CollectionConfig = {
   ],
   hooks: {
     afterLogin: [setLastLogin, posthogIdentifyAfterLogin],
+    beforeLogin: [validateDomainAccessBeforeLogin],
     beforeValidate: [beforeValidatePassword],
   },
 }

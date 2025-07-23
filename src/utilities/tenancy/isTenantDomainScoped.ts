@@ -3,10 +3,15 @@ import configPromise from '@payload-config'
 import { cookies, headers } from 'next/headers'
 import { getPayload } from 'payload'
 
-interface TenantDomainScopeResult {
-  isDomainScoped: boolean
-  tenant: Tenant | null
-}
+type TenantDomainScopeResult =
+  | {
+      isDomainScoped: true
+      tenant: Tenant
+    }
+  | {
+      isDomainScoped: false
+      tenant: null
+    }
 
 export async function isTenantDomainScoped(): Promise<TenantDomainScopeResult> {
   const headersList = await headers()
@@ -36,8 +41,15 @@ export async function isTenantDomainScoped(): Promise<TenantDomainScopeResult> {
 
   const isDomainScoped = !!domainScopedTenant && !!payloadTenantCookie
 
+  if (!isDomainScoped) {
+    return {
+      isDomainScoped,
+      tenant: null,
+    }
+  }
+
   return {
     isDomainScoped,
-    tenant: isDomainScoped ? domainScopedTenant : null,
+    tenant: domainScopedTenant,
   }
 }
