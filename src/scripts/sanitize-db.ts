@@ -38,8 +38,6 @@ async function sanitizeDatabase() {
       const originalEmail = user.email
       const sanitizedEmail = createEmailAlias(originalEmail, emailDefaultReplyToAddress)
 
-      console.log(`Updating user: ${originalEmail} -> ${sanitizedEmail}`)
-
       await payload.update({
         collection: 'users',
         id: user.id,
