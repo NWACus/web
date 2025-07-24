@@ -1,13 +1,15 @@
 /**
  * Database sanitization script for sync-prod-to-dev workflow
  * This script sanitizes user data by:
- * 1. Updating emails to format: developer+{original_email}@nwac.us
- * 2. Updating passwords to use PAYLOAD_SEED_PASSWORD (properly hashed)
- * 3. Preserving all other user data
+ * 1. Updating emails to format: developer+{environment friendly name}-{user's id}@nwac.us
+ * 2. Updating names to format: {environment friendly name}-{user's name}
+ * 3. Updating passwords to use NON_PROD_SYNC_PASSWORD (or generated UUID fallback)
+ * 4. Preserving all other user data
  */
 
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
 import { getPayload } from 'payload'
+import { v4 as uuid } from 'uuid'
 import { emailDefaultReplyToAddress } from '../email-adapter'
 import config from '../payload.config.js'
 import { createEmailAlias } from '../utilities/createEmailAlias'
@@ -17,14 +19,14 @@ async function sanitizeDatabase() {
 
   const payload = await getPayload({ config })
 
-  if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {
-    payload.logger.fatal(
-      "$PAYLOAD_SEED_PASSWORD missing and ALLOW_SIMPLE_PASSWORDS not set to 'true' - either opt into simple passwords or provide a seed password.",
-    )
-    process.exit(1)
+  let password: string
+  if (process.env.NON_PROD_SYNC_PASSWORD) {
+    password = process.env.NON_PROD_SYNC_PASSWORD
+    payload.logger.info(`Using NON_PROD_SYNC_PASSWORD from environment`)
+  } else {
+    password = uuid()
+    payload.logger.info(`NON_PROD_SYNC_PASSWORD not set, using generated password.`)
   }
-  const password = process.env.PAYLOAD_SEED_PASSWORD || 'localpass'
-  payload.logger.info(`Using password '${password}'...`)
 
   try {
     const users = await payload.find({

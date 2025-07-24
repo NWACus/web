@@ -50,6 +50,11 @@ jobs:
         run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
         run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Generate random non-prod sync password
+        id: generate-sync-password
+        run: echo "password=$(openssl rand -base64 32)" >> "${GITHUB_OUTPUT}"
+      - name: Update non-prod sync password in Vercel
+        run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
       - name: Sanitize database
@@ -59,7 +64,7 @@ jobs:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
+          NON_PROD_SYNC_PASSWORD: '${{ steps.generate-sync-password.outputs.password }}'
       - name: Sync blobs from prod to dev
         id: sync-files
         run: pnpm sync-blobs prod dev
