@@ -1,4 +1,4 @@
-import { FALLBACK_TENANTS } from '@/scripts/fallback-tenants'
+import { FALLBACK_TENANTS } from '@/utilities/tenancy/fallback-tenants'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 

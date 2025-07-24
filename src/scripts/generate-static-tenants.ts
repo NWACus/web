@@ -3,7 +3,7 @@ import { configDotenv } from 'dotenv'
 import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { getPayload } from 'payload'
-import { FALLBACK_TENANTS } from './fallback-tenants'
+import { FALLBACK_TENANTS } from '../utilities/tenancy/fallback-tenants'
 
 configDotenv()
 
