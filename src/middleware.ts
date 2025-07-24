@@ -88,9 +88,21 @@ export default async function middleware(req: NextRequest) {
       if (tenant && !isDraftMode && !hasNextInPath) {
         // Redirect to the tenant's subdomain or custom domain
         const redirectUrl = new URL(req.nextUrl.clone())
-        redirectUrl.host = PRODUCTION_TENANTS.includes(tenant.slug)
-          ? (tenant.customDomain ?? `${tenant.slug}.${host}`)
-          : `${tenant.slug}.${host}`
+
+        // For production tenants: use custom domain if available, otherwise fall back to subdomain
+        // For non-production tenants: always use subdomain
+        if (PRODUCTION_TENANTS.includes(tenant.slug)) {
+          if (tenant.customDomain) {
+            redirectUrl.host = tenant.customDomain
+          } else {
+            console.error(
+              `Production tenant "${tenant.slug}" is missing a custom domain. Falling back to subdomain.`,
+            )
+            redirectUrl.host = `${tenant.slug}.${host}`
+          }
+        } else {
+          redirectUrl.host = `${tenant.slug}.${host}`
+        }
 
         // Remove the tenant slug from the path for the redirect
         redirectUrl.pathname = `/${pathSegments.slice(1).join('/')}`
