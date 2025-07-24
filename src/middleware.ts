@@ -1,5 +1,6 @@
 import { STATIC_TENANTS } from '@/generated/tenants'
 import { NextRequest, NextResponse } from 'next/server'
+import { getEnvironmentFriendlyName } from './utilities/getEnvironmentFriendlyName'
 import { getURL } from './utilities/getURL'
 import { PRODUCTION_TENANTS } from './utilities/tenancy/tenants'
 
@@ -60,6 +61,37 @@ export default async function middleware(req: NextRequest) {
     console.log(
       `[Middleware] ${action}: ${totalDuration.toFixed(2)}ms total - ${req.nextUrl.pathname}`,
     )
+  }
+
+  // Basic auth for dev and preview environments
+  const environment = getEnvironmentFriendlyName()
+  if (environment === 'preview' || environment === 'dev') {
+    const basicAuth = req.headers.get('authorization')
+
+    if (basicAuth) {
+      const authValue = basicAuth.split(' ')[1]
+      const [user, pwd] = atob(authValue).split(':')
+
+      if (user === process.env.BASIC_AUTH_USER && pwd === process.env.BASIC_AUTH_PASSWORD) {
+        logCompletion('basic-auth-success')
+      } else {
+        logCompletion('basic-auth-failed')
+        return new Response('Authentication required', {
+          status: 401,
+          headers: {
+            'WWW-Authenticate': 'Basic realm="Secure Area"',
+          },
+        })
+      }
+    } else {
+      logCompletion('basic-auth-required')
+      return new Response('Authentication required', {
+        status: 401,
+        headers: {
+          'WWW-Authenticate': 'Basic realm="Secure Area"',
+        },
+      })
+    }
   }
 
   const host = new URL(getURL()).host
