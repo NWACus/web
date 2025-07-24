@@ -1,4 +1,4 @@
-import { STATIC_TENANTS } from '@/generated'
+import { STATIC_TENANTS } from '@/generated/tenants'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
