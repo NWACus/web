@@ -4,7 +4,7 @@ import { FieldLabel, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
 
 const ColorPicker = (props: TextFieldClientProps) => {
-  const colorOptions = ['white', 'slate-300', 'brand-600', 'brand-700']
+  const colorOptions = ['white', 'brand-300', 'brand-600', 'brand-700']
   const { path, field } = props
 
   const { value, setValue } = useField({ path })

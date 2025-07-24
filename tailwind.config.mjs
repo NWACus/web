@@ -12,7 +12,7 @@ const config = {
   prefix: '',
   safelist: [
     {
-      pattern: /^bg-(slate-(300|600|700)|card|(error|success|warning)\/30)$/,
+      pattern: /^bg-(brand-(300|600|700)|card|(error|success|warning)\/30)$/,
     },
     {
       pattern: /^border-(border|error|success|warning)$/,
