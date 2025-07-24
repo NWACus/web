@@ -5,12 +5,14 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "prebuild": "pnpm generate:static-tenants",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "dev": "cross-env NODE_OPTIONS=\"${NODE_OPTIONS} --no-deprecation --inspect\" next dev",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap && pnpm prettify",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types && pnpm prettify",
+    "generate:static-tenants": "pnpm payload run ./src/scripts/generate-static-tenants.ts",
     "ii": "pnpm --ignore-workspace install",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "eslint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
@@ -112,6 +114,7 @@
     "@types/react-dom": "19.0.1",
     "autoprefixer": "^10.4.20",
     "copyfiles": "^2.4.1",
+    "dotenv": "^17.2.0",
     "eslint": "^9.17.0",
     "eslint-config-next": "15.1.0",
     "eslint-config-prettier": "^10.1.1",
@@ -126,6 +129,7 @@
     "react-email": "4.0.8",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "5.7.2"
   },
   "engines": {
