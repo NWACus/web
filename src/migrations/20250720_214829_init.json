@@ -4724,6 +4724,20 @@
           "notNull": true,
           "autoincrement": false
         },
+        "invite_token": {
+          "name": "invite_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "invite_expiration": {
+          "name": "invite_expiration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "last_login": {
           "name": "last_login",
           "type": "text",
@@ -10761,6 +10775,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "d030fa26-5ed8-4082-8d63-fd2a6364f2d6",
+  "id": "6e36b61a-74ea-45c3-bf8b-357efe0af886",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
