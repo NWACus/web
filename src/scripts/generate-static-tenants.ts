@@ -94,8 +94,9 @@ async function generateStaticTenants() {
   const generatedDir = join(process.cwd(), 'src/generated')
   try {
     mkdirSync(generatedDir, { recursive: true })
-  } catch {
-    // Directory might already exist, that's fine
+  } catch (error) {
+    console.error('Error creating src/generated directory:', error)
+    process.exit(1)
   }
 
   // Generate TypeScript file with static tenant data
