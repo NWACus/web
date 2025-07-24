@@ -36,12 +36,7 @@ export default buildConfig({
     components: {
       beforeDashboard:
         process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
-      beforeNavLinks: [
-        {
-          clientProps: { label: 'Avalanche Center' },
-          path: '@/components/TenantSelector',
-        },
-      ],
+      beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
           clientProps: {
@@ -50,6 +45,7 @@ export default buildConfig({
           },
           path: '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider',
         },
+        '@/providers/ViewTypeProvider#ViewTypeProvider',
       ],
       actions: [
         {
@@ -61,6 +57,7 @@ export default buildConfig({
             useAsTitle: 'slug',
           },
         },
+        '@/components/ViewTypeAction',
       ],
       graphics: {
         Logo: '@/components/Logo/AvyFxLogo#AvyFxLogo',

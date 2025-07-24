@@ -11,9 +11,11 @@ import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/component
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
-import { default as default_9d7720c4b50db35595dfefa592fabd33 } from '@/components/TenantSelector'
+import { default as default_2aead22399b7847b21b134dc4a7931e0 } from '@/components/TenantSelector/TenantSelector'
+import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/components/ViewTypeAction'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
+import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import {
@@ -116,10 +118,13 @@ export const importMap = {
   '@/components/Logo/AvyFxLogo#AvyFxLogo': AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
+  '@/components/ViewTypeAction#default': default_cb0ad5752e1389a2a940bb73c2c0e7d2,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,
-  '@/components/TenantSelector#default': default_9d7720c4b50db35595dfefa592fabd33,
+  '@/components/TenantSelector/TenantSelector#default': default_2aead22399b7847b21b134dc4a7931e0,
   '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider':
     TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
+  '@/providers/ViewTypeProvider#ViewTypeProvider':
+    ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0,
   '@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler':
     VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   '@payloadcms/plugin-sentry/client#AdminErrorBoundary':

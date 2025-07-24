@@ -1,15 +1,16 @@
 'use client'
 import type { ReactSelectOption } from '@payloadcms/ui'
-import type { ViewTypes } from 'payload'
 
 import { SelectInput } from '@payloadcms/ui'
 import React from 'react'
 
+import { useViewType } from '@/providers/ViewTypeProvider'
 import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
 import './index.scss'
 
-const TenantSelector = ({ label, viewType }: { label: string; viewType?: ViewTypes }) => {
+const TenantSelectorClient = ({ label }: { label: string }) => {
   const { options, selectedTenantID, setTenant } = useTenantSelection()
+  const viewType = useViewType()
 
   const handleChange = React.useCallback(
     (option: ReactSelectOption | ReactSelectOption[]) => {
@@ -41,4 +42,4 @@ const TenantSelector = ({ label, viewType }: { label: string; viewType?: ViewTyp
   )
 }
 
-export default TenantSelector
+export default TenantSelectorClient
