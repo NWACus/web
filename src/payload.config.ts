@@ -24,6 +24,7 @@ import { getEmailAdapter } from './email-adapter'
 import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getURL } from './utilities/getURL'
+import { getProductionTenantUrls } from './utilities/tenancy/getProductionTenantUrls'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -149,8 +150,14 @@ export default buildConfig({
     Settings,
     Tags,
   ],
-  cors: ['api.avalanche.org', 'api.snowobs.com', getURL()].filter(Boolean),
+  cors: ['api.avalanche.org', 'api.snowobs.com', getURL(), ...getProductionTenantUrls()].filter(
+    Boolean,
+  ),
+  csrf: [getURL(), ...getProductionTenantUrls()].filter(Boolean),
   globals: [NACWidgetsConfig],
+  graphQL: {
+    disable: true,
+  },
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,

@@ -21,7 +21,7 @@ The implementation accomplishes this with:
 
 1. An async `getTenants()` function that fetches from `/api/tenants/cached-public` with a 500ms timeout
 2. 5-minute ISR cache at the collection endpoint level using `unstable_cache` with Next.js tags
-3. Build-time generated `BUILD_TIME_TENANTS` data as the ultimate fallback
+3. Build-time static tenant data from `src/generated/tenants/static-tenants.json` as the ultimate fallback
 4. Automatic cache invalidation when tenants are created or updated using Payload hooks
 
 ## Consequences

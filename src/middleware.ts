@@ -1,7 +1,7 @@
+import { STATIC_TENANTS } from '@/generated/tenants'
 import { NextRequest, NextResponse } from 'next/server'
-import { STATIC_TENANTS } from './generated'
 import { getURL } from './utilities/getURL'
-import { getProductionTenantSlugs } from './utilities/tenancy/getProductionTenants'
+import { PRODUCTION_TENANTS } from './utilities/tenancy/tenants'
 
 export const config = {
   matcher: [
@@ -16,8 +16,6 @@ export const config = {
     '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail).*)',
   ],
 }
-
-const PRODUCTION_TENANTS = getProductionTenantSlugs()
 
 type TenantData = Array<{ id: number; slug: string; customDomain: string | null }>
 

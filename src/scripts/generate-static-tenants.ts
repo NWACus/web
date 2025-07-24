@@ -3,7 +3,7 @@ import { configDotenv } from 'dotenv'
 import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { getPayload } from 'payload'
-import { FALLBACK_TENANTS } from './fallback-tenants'
+import { FALLBACK_TENANTS } from '../utilities/tenancy/fallback-tenants'
 
 configDotenv()
 
@@ -12,25 +12,6 @@ interface Tenant {
   name: string
   slug: string
   customDomain?: string | null
-}
-
-async function loadExistingTenants(): Promise<Pick<Tenant, 'id' | 'slug' | 'customDomain'>[]> {
-  try {
-    // Try to dynamically import existing generated data
-    const { STATIC_TENANTS } = await import('../generated')
-    console.log(`Loaded ${STATIC_TENANTS.length} existing tenants from generated file`)
-    return [...STATIC_TENANTS]
-  } catch {
-    try {
-      // Fall back to seed file (committed baseline data)
-      const { STATIC_TENANTS } = await import('../generated/static-tenants.seed.js')
-      console.log(`Loaded ${STATIC_TENANTS.length} tenants from seed file`)
-      return [...STATIC_TENANTS]
-    } catch {
-      console.log('No existing generated or seed tenants found (this is normal on first run)')
-      return []
-    }
-  }
 }
 
 async function fetchTenantsFromDatabase(): Promise<Pick<Tenant, 'id' | 'slug' | 'customDomain'>[]> {
@@ -67,9 +48,6 @@ async function fetchTenantsFromDatabase(): Promise<Pick<Tenant, 'id' | 'slug' | 
 async function generateStaticTenants() {
   console.log('Starting static tenant generation...')
 
-  // Load existing data first (to avoid circular dependency)
-  const existingTenants = await loadExistingTenants()
-
   // Try to fetch fresh data from database
   const freshTenants = await fetchTenantsFromDatabase()
 
@@ -80,9 +58,6 @@ async function generateStaticTenants() {
   if (freshTenants.length > 0) {
     tenants = freshTenants
     dataSource = 'database'
-  } else if (existingTenants.length > 0) {
-    tenants = existingTenants
-    dataSource = 'existing generated data'
   } else {
     tenants = [...FALLBACK_TENANTS]
     dataSource = 'hardcoded fallback'
@@ -91,7 +66,7 @@ async function generateStaticTenants() {
   console.log(`Using tenant data from: ${dataSource}`)
 
   // Ensure the generated directory exists
-  const generatedDir = join(process.cwd(), 'src/generated')
+  const generatedDir = join(process.cwd(), 'src/generated/tenants')
   try {
     mkdirSync(generatedDir, { recursive: true })
   } catch (error) {
@@ -99,23 +74,11 @@ async function generateStaticTenants() {
     process.exit(1)
   }
 
-  // Generate TypeScript file with static tenant data
-  const tenantData = `// Auto-generated at build time - DO NOT EDIT MANUALLY
-// Generated on: ${new Date().toISOString()}
-// Data source: ${dataSource}
+  // Generate JSON file with static tenant data
+  const jsonOutputPath = join(generatedDir, 'static-tenants.json')
+  writeFileSync(jsonOutputPath, JSON.stringify(tenants, null, 2))
 
-export const STATIC_TENANTS = ${JSON.stringify(tenants, null, 2)} as const
-
-export type StaticTenant = (typeof STATIC_TENANTS)[number]
-`
-
-  const outputPath = join(generatedDir, 'static-tenants.ts')
-  writeFileSync(outputPath, tenantData)
-
-  console.log(`Generated ${tenants.length} tenants to ${outputPath}`)
-  console.log(
-    'Note: index.ts file provides automatic fallback to seed data when generated file is missing',
-  )
+  console.log(`Generated ${tenants.length} tenants to ${jsonOutputPath}`)
   console.log(
     'Tenants:',
     tenants.map((t) => `${t.slug} (${t.customDomain || 'subdomain-only'})`).join(', '),

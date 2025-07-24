@@ -1,6 +1,7 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { Page, Post } from '@/payload-types'
+import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
 import { getURL } from '@/utilities/getURL'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
@@ -93,7 +94,9 @@ export const plugins: Plugin[] = [
   vercelBlobStorage({
     enabled: !!process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
     collections: {
-      media: true,
+      media: {
+        prefix: getEnvironmentFriendlyName(),
+      },
     },
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
   }),

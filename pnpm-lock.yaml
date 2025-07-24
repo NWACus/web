@@ -94,6 +94,9 @@ importers:
       '@types/pluralize':
         specifier: ^0.0.33
         version: 0.0.33
+      '@vercel/blob':
+        specifier: ^1.1.1
+        version: 1.1.1
       axios:
         specifier: 1.8.3
         version: 1.8.3
@@ -272,9 +275,6 @@ importers:
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.17(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.7.2))
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@22.5.4)(typescript@5.7.2)
       tsx:
         specifier: ^4.20.3
         version: 4.20.3
@@ -6451,6 +6451,13 @@ packages:
       }
     engines: { node: '>=16.14' }
 
+  '@vercel/blob@1.1.1':
+    resolution:
+      {
+        integrity: sha512-heiJGj2qt5qTv6yiShH9f6KRAoZGj+lz61GQ+lBRL4lhvUmKI9A51KYlQTnsUd9ymdFlKHBlvmPeG+yGz2Qsbg==,
+      }
+    engines: { node: '>=16.14' }
+
   '@webassemblyjs/ast@1.14.1':
     resolution:
       {
@@ -9366,6 +9373,12 @@ packages:
         integrity: sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==,
       }
     engines: { node: '>= 0.4' }
+
+  is-node-process@1.2.0:
+    resolution:
+      {
+        integrity: sha512-Vg4o6/fqPxIjtxgUH5QLJhwZ7gW5diGCVlXpuUfELC62CuxM1iHcRe51f2W1FDy04Ai4KJkagKjx3XaqyfRKXw==,
+      }
 
   is-number-object@1.1.1:
     resolution:
@@ -12525,6 +12538,13 @@ packages:
         integrity: sha512-OqyPZ9u96VohAyMfJykzmivOrY2wfMSf3C5TtFJVgN+Hm6aj+voFhlK+kZEIv2FBh1X6Xp3DlnCOfEQ3B2J86A==,
       }
 
+  throttleit@2.1.0:
+    resolution:
+      {
+        integrity: sha512-nt6AMGKW1p/70DF/hGBdJB57B8Tspmbp5gfJ8ilhLnt7kkr2ye7hzD6NVG8GGErk2HWF34igrL2CXmNIkzKqKw==,
+      }
+    engines: { node: '>=18' }
+
   through2@2.0.5:
     resolution:
       {
@@ -13611,6 +13631,7 @@ snapshots:
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+    optional: true
 
   '@csstools/color-helpers@5.0.2': {}
 
@@ -14641,6 +14662,7 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+    optional: true
 
   '@jsdevtools/ono@7.1.3': {}
 
@@ -17430,13 +17452,17 @@ snapshots:
 
   '@tokenizer/token@0.3.0': {}
 
-  '@tsconfig/node10@1.0.11': {}
+  '@tsconfig/node10@1.0.11':
+    optional: true
 
-  '@tsconfig/node12@1.0.11': {}
+  '@tsconfig/node12@1.0.11':
+    optional: true
 
-  '@tsconfig/node14@1.0.3': {}
+  '@tsconfig/node14@1.0.3':
+    optional: true
 
-  '@tsconfig/node16@1.0.4': {}
+  '@tsconfig/node16@1.0.4':
+    optional: true
 
   '@tybys/wasm-util@0.9.0':
     dependencies:
@@ -17830,6 +17856,14 @@ snapshots:
       is-buffer: 2.0.5
       undici: 5.29.0
 
+  '@vercel/blob@1.1.1':
+    dependencies:
+      async-retry: 1.3.3
+      is-buffer: 2.0.5
+      is-node-process: 1.2.0
+      throttleit: 2.1.0
+      undici: 5.29.0
+
   '@webassemblyjs/ast@1.14.1':
     dependencies:
       '@webassemblyjs/helper-numbers': 1.13.2
@@ -17929,7 +17963,8 @@ snapshots:
 
   acorn-walk@8.3.4:
     dependencies:
-      acorn: 8.14.1
+      acorn: 8.15.0
+    optional: true
 
   acorn@8.12.1: {}
 
@@ -17995,7 +18030,8 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  arg@4.1.3: {}
+  arg@4.1.3:
+    optional: true
 
   arg@5.0.2: {}
 
@@ -18439,7 +18475,8 @@ snapshots:
       path-type: 4.0.0
       yaml: 1.10.2
 
-  create-require@1.1.1: {}
+  create-require@1.1.1:
+    optional: true
 
   croner@9.0.0: {}
 
@@ -18579,7 +18616,8 @@ snapshots:
 
   didyoumean@1.2.2: {}
 
-  diff@4.0.2: {}
+  diff@4.0.2:
+    optional: true
 
   dlv@1.1.3: {}
 
@@ -19703,6 +19741,8 @@ snapshots:
 
   is-map@2.0.3: {}
 
+  is-node-process@1.2.0: {}
+
   is-number-object@1.1.1:
     dependencies:
       call-bound: 1.0.4
@@ -20398,7 +20438,8 @@ snapshots:
     dependencies:
       semver: 7.7.1
 
-  make-error@1.3.6: {}
+  make-error@1.3.6:
+    optional: true
 
   makeerror@1.0.12:
     dependencies:
@@ -22161,6 +22202,8 @@ snapshots:
     dependencies:
       real-require: 0.2.0
 
+  throttleit@2.1.0: {}
+
   through2@2.0.5:
     dependencies:
       readable-stream: 2.3.8
@@ -22232,7 +22275,7 @@ snapshots:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
       '@types/node': 22.5.4
-      acorn: 8.14.1
+      acorn: 8.15.0
       acorn-walk: 8.3.4
       arg: 4.1.3
       create-require: 1.1.1
@@ -22241,6 +22284,7 @@ snapshots:
       typescript: 5.7.2
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+    optional: true
 
   tsconfig-paths@3.15.0:
     dependencies:
@@ -22472,7 +22516,8 @@ snapshots:
 
   uuid@9.0.0: {}
 
-  v8-compile-cache-lib@3.0.1: {}
+  v8-compile-cache-lib@3.0.1:
+    optional: true
 
   v8-to-istanbul@9.3.0:
     dependencies:
@@ -22693,7 +22738,8 @@ snapshots:
     dependencies:
       lib0: 0.2.114
 
-  yn@3.1.1: {}
+  yn@3.1.1:
+    optional: true
 
   yocto-queue@0.1.0: {}
 

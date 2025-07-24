@@ -9,6 +9,8 @@ declare global {
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: string
       NAC_HOST: string
       AFP_HOST: string
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: string
+      VERCEL_BLOB_READ_WRITE_TOKEN: string
       EMAIL_DEFAULT_FROM_ADDRESS: string
       EMAIL_DEFAULT_FROM_NAME: string
       SMTP_HOST: string

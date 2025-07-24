@@ -51,6 +51,11 @@ const nextConfig = {
     // Ignores a nasty-looking but apparently harmless error resulting from importing Sentry in client components
     // Reference: https://github.com/getsentry/sentry-javascript/issues/12077#issuecomment-2407569917
     config.ignoreWarnings = [{ module: /@opentelemetry\/instrumentation/ }]
+
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false, // allows us to use the node.js fs package (specifically in ./src/generated/tenants/index.ts)
+    }
     return config
   },
 }
