@@ -4,10 +4,11 @@ import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
 import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
+import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
 import { posthogIdentifyAfterLogin } from './hooks/posthogIdentifyAfterLogin'
-import { setCookieBasedOnDomain } from './hooks/setCookieBasedOnDomain'
 import { setLastLogin } from './hooks/setLastLogin'
+import { validateDomainAccessBeforeLogin } from './hooks/validateDomainAccessBeforeLogin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -15,6 +16,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     group: 'Permissions',
+    baseListFilter: filterByTenantScopedDomain,
     components: {
       beforeList: ['@/collections/Users/components/InviteUser#InviteUser'],
       edit: {
@@ -47,7 +49,7 @@ export const Users: CollectionConfig = {
       collection: 'roleAssignments',
       on: 'user',
       saveToJWT: true,
-      maxDepth: 3,
+      maxDepth: 4,
       admin: {
         defaultColumns: ['role'],
       },
@@ -104,7 +106,8 @@ export const Users: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterLogin: [setCookieBasedOnDomain, setLastLogin, posthogIdentifyAfterLogin],
+    afterLogin: [setLastLogin, posthogIdentifyAfterLogin],
+    beforeLogin: [validateDomainAccessBeforeLogin],
     beforeValidate: [beforeValidatePassword],
   },
 }
