@@ -6,6 +6,7 @@
  * 3. Preserving all other user data
  */
 
+import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
 import { getPayload } from 'payload'
 import { emailDefaultReplyToAddress } from '../email-adapter'
 import config from '../payload.config.js'
@@ -35,14 +36,19 @@ async function sanitizeDatabase() {
     console.log(`Found ${users.docs.length} users to sanitize`)
 
     for (const user of users.docs) {
-      const originalEmail = user.email
-      const sanitizedEmail = createEmailAlias(originalEmail, emailDefaultReplyToAddress)
+      const anonymizedEmail = createEmailAlias({
+        plusAddress: user.id,
+        plusAddressPrefix: getEnvironmentFriendlyName(),
+        baseAddress: emailDefaultReplyToAddress,
+      })
+      const anonymizedName = `${getEnvironmentFriendlyName()}-${user.id}`
 
       await payload.update({
         collection: 'users',
         id: user.id,
         data: {
-          email: sanitizedEmail,
+          name: anonymizedName,
+          email: anonymizedEmail,
           password: password,
           resetPasswordToken: null,
           resetPasswordExpiration: null,
