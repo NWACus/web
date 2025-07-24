@@ -92,6 +92,8 @@ jobs:
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
           NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
+          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -102,6 +104,8 @@ jobs:
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
           NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
+          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
