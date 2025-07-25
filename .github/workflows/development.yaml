@@ -53,6 +53,8 @@ jobs:
       - name: Generate random non-prod sync password
         id: generate-sync-password
         run: echo "password=$(openssl rand -base64 32)" >> "${GITHUB_OUTPUT}"
+      - name: Mask sync password
+        run: echo "::add-mask::${{ steps.generate-sync-password.outputs.password }}"
       - name: Update non-prod sync password in Vercel
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
