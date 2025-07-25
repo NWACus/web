@@ -29,9 +29,6 @@ export async function fetchFileByURL(url: string): Promise<File> {
     mimetype: `image/${url.split('.').pop()}`,
     size: data.byteLength,
   }
-  console.log(
-    `fetched file: ${JSON.stringify({ name: file.name, mimetype: file.mimetype, size: file.size }, null, 2)}`,
-  )
   return file
 }
 
