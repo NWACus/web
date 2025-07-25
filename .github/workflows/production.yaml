@@ -17,7 +17,8 @@ jobs:
       - name: Record database connection URI and token
         id: connection
         run: |
-          echo "uri=$(/home/runner/.turso/turso db show payloadcms-prod --url)" >> "${GITHUB_OUTPUT}"
+          /home/runner/.turso/turso org switch nwac
+          echo "uri=$(/home/runner/.turso/turso db show payloadcms-prod --url )" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-prod )" >> "${GITHUB_OUTPUT}"
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
