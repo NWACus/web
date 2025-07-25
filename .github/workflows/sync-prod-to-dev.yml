@@ -53,6 +53,12 @@ jobs:
         run: echo "password=$(openssl rand -base64 32)" >> "${GITHUB_OUTPUT}"
       - name: Update non-prod sync password in Vercel
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Run database migrations
+        run: pnpm migrate
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Sanitize database
         id: sanitize
         run: pnpm sanitize
@@ -69,12 +75,6 @@ jobs:
       - name: Update media prefix in database
         id: update-media-prefix
         run: pnpm update-media-prefix dev
-        env:
-          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
-          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-      - name: Run database migrations
-        run: pnpm migrate
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'

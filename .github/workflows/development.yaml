@@ -60,6 +60,12 @@ jobs:
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Run database migrations
+        run: pnpm migrate
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Sanitize database
         id: sanitize
         run: pnpm sanitize
@@ -76,12 +82,6 @@ jobs:
       - name: Update media prefix in database
         id: update-media-prefix
         run: pnpm update-media-prefix dev
-        env:
-          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
-          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-      - name: Run database migrations
-        run: pnpm migrate
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
