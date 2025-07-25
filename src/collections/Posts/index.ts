@@ -172,16 +172,6 @@ export const Posts: CollectionConfig<'posts'> = {
         },
         position: 'sidebar',
       },
-      hooks: {
-        beforeChange: [
-          ({ siblingData, value }) => {
-            if (siblingData._status === 'published' && !value) {
-              return new Date()
-            }
-            return value
-          },
-        ],
-      },
     },
     {
       name: 'tags',
