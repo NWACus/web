@@ -1,0 +1,137 @@
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(240 10% 3.9%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(240 10% 3.9%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(240 10% 3.9%);
+
+  --primary: hsl(240 5.9% 10%);
+  --primary-foreground: hsl(0 0% 98%);
+
+  --secondary: hsl(240 4.8% 95.9%);
+  --secondary-foreground: hsl(240 5.9% 10%);
+
+  --muted: hsl(240 4.8% 95.9%);
+  --muted-foreground: hsl(240 3.8% 46.1%);
+
+  --accent: hsl(240 4.8% 95.9%);
+  --accent-foreground: hsl(240 5.9% 10%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 5.9% 90%);
+  --input: hsl(240 5.9% 90%);
+  --ring: hsl(240 5.9% 10%);
+  --radius: 0.5rem;
+
+  --header: hsl(0 0% 100%);
+  --header-foreground: hsl(240 10% 3.9%);
+  --header-foreground-highlight: hsl(240 3.8% 46.1%);
+
+  --footer: hsl(0 0% 100%);
+  --footer-foreground: hsl(240 10% 3.9%);
+  --footer-foreground-highlight: hsl(240 3.8% 46.1%);
+
+  --callout: hsl(240 4.8% 95.9%);
+  --callout-foreground: hsl(240 10% 3.9%);
+
+  --brand-50: hsl(210 40% 98%);
+  --brand-100: hsl(210 40% 96%);
+  --brand-200: hsl(214 32% 91%);
+  --brand-300: hsl(213 27% 84%);
+  --brand-400: hsl(215 20% 65%);
+  --brand-500: hsl(215 25% 47%);
+  --brand-600: hsl(215 19% 35%);
+  --brand-700: hsl(215 25% 27%);
+  --brand-800: hsl(217 33% 17%);
+  --brand-900: hsl(222 47% 11%);
+  --brand-950: hsl(229 84% 5%);
+
+  --brand-foreground-50: hsl(222 47% 11%);
+  --brand-foreground-100: hsl(222 47% 11%);
+  --brand-foreground-200: hsl(222 47% 11%);
+  --brand-foreground-300: hsl(222 47% 11%);
+  --brand-foreground-400: hsl(222 47% 11%);
+  --brand-foreground-500: hsl(210 40% 98%);
+  --brand-foreground-600: hsl(210 40% 98%);
+  --brand-foreground-700: hsl(210 40% 98%);
+  --brand-foreground-800: hsl(210 40% 98%);
+  --brand-foreground-900: hsl(210 40% 98%);
+  --brand-foreground-950: hsl(210 40% 98%);
+
+  --success: hsl(196 52% 74%);
+  --warning: hsl(34 89% 85%);
+  --error: hsl(10 100% 86%);
+}
+
+.dvac {
+  --primary: hsl(240 67% 94%);
+
+  --secondary: hsl(8 61% 45%);
+
+  --callout: hsl(66 83% 35%);
+  --callout-foreground: hsl(0 0% 100%);
+
+  --header-foreground-highlight: hsl(240 3.8% 35.3%);
+}
+
+.nwac {
+  --primary: hsl(217 62% 21%);
+
+  --secondary: hsl(193 42% 74%);
+
+  --header: hsl(217 62% 21%);
+  --header-foreground: hsl(193 42% 74%);
+  --header-foreground-highlight: hsl(0 0% 100%);
+
+  --footer: hsl(300 1% 22%);
+  --footer-foreground: hsl(0 0% 100%);
+  --header-foreground-highlight: hsl(0 0% 100%);
+
+  --callout: hsl(69 94% 64%);
+  --callout-foreground: hsl(240 6% 10%);
+}
+
+.sac {
+  --primary: hsl(202 63% 45%);
+
+  --secondary: hsl(202 91% 63%);
+
+  --header: hsl(0 2% 21%);
+  --header-foreground: hsl(204 66% 86%);
+  --header-foreground-highlight: hsl(0 0% 100%);
+
+  --footer: hsl(0 2% 21%);
+  --footer-foreground: hsl(0 0% 100%);
+  --header-foreground-highlight: hsl(0 0% 100%);
+
+  --callout: hsl(60 100% 50%);
+
+  --accent: hsl(27 92% 62%);
+
+  --destructive: hsl(0 59% 53%);
+
+  --brand-50: hsl(207 73% 97%);
+  --brand-100: hsl(207 69% 94%);
+  --brand-200: hsl(204 66% 86%);
+  --brand-300: hsl(203 67% 74%);
+  --brand-400: hsl(202 66% 60%);
+  --brand-500: hsl(202 63% 45%);
+  --brand-600: hsl(204 69% 39%);
+  --brand-700: hsl(205 68% 32%);
+  --brand-800: hsl(205 64% 27%);
+  --brand-900: hsl(206 57% 24%);
+  --brand-950: hsl(208 58% 16%);
+}
+
+.snfac {
+  --secondary: hsl(178 83% 35%);
+  --secondary-foreground: hsl(0 0% 100%);
+
+  --callout: hsl(178 83% 35%);
+  --callout-foreground: hsl(0 0% 100%);
+
+  --header-foreground-highlight: hsl(240 3.8% 35.3%);
+}

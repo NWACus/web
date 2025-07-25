@@ -24,7 +24,7 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
   const colsSpanClass = colsClasses[numOfCols]
 
   return (
-    <div className="bg-slate-500 py-8">
+    <div className="bg-brand-500 py-8">
       <div className="container grid grid-cols-4 lg:grid-cols-12 gap-x-4">
         {cards &&
           cards.length > 0 &&

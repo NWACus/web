@@ -424,7 +424,7 @@ export interface GlobalRole {
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
-  color: string;
+  backgroundColor: string;
   columns?:
     | {
         richText?: {
@@ -780,7 +780,7 @@ export interface Tag {
  * via the `definition` "ImageQuote".
  */
 export interface ImageQuote {
-  color: string;
+  backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
   quote: string;
@@ -794,7 +794,7 @@ export interface ImageQuote {
  * via the `definition` "ImageText".
  */
 export interface ImageText {
-  color: string;
+  backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
   richText: {
@@ -1714,7 +1714,7 @@ export interface BiographyBlockSelect<T extends boolean = true> {
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
-  color?: T;
+  backgroundColor?: T;
   columns?:
     | T
     | {
@@ -1773,7 +1773,7 @@ export interface ImageLinkGridSelect<T extends boolean = true> {
  * via the `definition` "ImageQuote_select".
  */
 export interface ImageQuoteSelect<T extends boolean = true> {
-  color?: T;
+  backgroundColor?: T;
   imageLayout?: T;
   image?: T;
   quote?: T;
@@ -1786,7 +1786,7 @@ export interface ImageQuoteSelect<T extends boolean = true> {
  * via the `definition` "ImageText_select".
  */
 export interface ImageTextSelect<T extends boolean = true> {
-  color?: T;
+  backgroundColor?: T;
   imageLayout?: T;
   image?: T;
   richText?: T;

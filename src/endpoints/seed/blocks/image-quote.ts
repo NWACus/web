@@ -4,7 +4,7 @@ import { RequiredDataFromCollectionSlug } from 'payload'
 export const imageQuote = (image: Media): RequiredDataFromCollectionSlug<'pages'>['layout'] => {
   return [
     {
-      color: '#FFFFFF',
+      backgroundColor: 'white',
       imageLayout: 'left',
       image: image.id,
       quote:
@@ -14,7 +14,7 @@ export const imageQuote = (image: Media): RequiredDataFromCollectionSlug<'pages'
       blockType: 'imageQuote',
     },
     {
-      color: '#334155',
+      backgroundColor: 'brand-700',
       imageLayout: 'right',
       image: image.id,
       quote:

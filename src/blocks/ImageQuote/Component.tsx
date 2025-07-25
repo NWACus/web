@@ -2,19 +2,18 @@ import { cn } from '@/utilities/ui'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import type { ImageQuote as ImageQuoteProps } from '@/payload-types'
-import Color from 'color'
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 
 type Props = ImageQuoteProps & {
   imgClassName?: string
 }
 
 export const ImageQuote = (props: Props) => {
-  const { author, color, imgClassName, imageLayout, image, quote } = props
+  const { author, backgroundColor, imgClassName, imageLayout, image, quote } = props
 
-  // TODO - import color list from theme
-  const bgColorClass = `bg-[${color}]`
-  const bgColor = Color(`${color}`)
-  const textColor = bgColor.isLight() ? 'text-black' : 'text-white'
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
+
   return (
     <div className={`${bgColorClass}`}>
       <div className="container md:px-0 py-16">
