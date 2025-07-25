@@ -17,6 +17,7 @@ export const post2: (
     _status: 'published',
     authors: [author.id],
     tenant: tenant.id,
+    publishedAt: new Date().toISOString(),
     content: {
       root: {
         type: 'root',

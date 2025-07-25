@@ -19,6 +19,7 @@ export const allBlocksPage: (
     tenant: tenant.id,
     title: 'Blocks',
     _status: 'published',
+    publishedAt: new Date().toISOString(),
     layout: [
       ...imageLinkGrid(image1),
       ...imageQuote(image1),

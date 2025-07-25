@@ -23,6 +23,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { Tenant } from '@/payload-types'
 import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 
@@ -171,16 +172,6 @@ export const Posts: CollectionConfig<'posts'> = {
         },
         position: 'sidebar',
       },
-      hooks: {
-        beforeChange: [
-          ({ siblingData, value }) => {
-            if (siblingData._status === 'published' && !value) {
-              return new Date()
-            }
-            return value
-          },
-        ],
-      },
     },
     {
       name: 'tags',
@@ -220,6 +211,7 @@ export const Posts: CollectionConfig<'posts'> = {
     contentHashField(),
   ],
   hooks: {
+    beforeChange: [populatePublishedAt],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidateDelete],
