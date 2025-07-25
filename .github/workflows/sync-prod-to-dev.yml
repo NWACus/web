@@ -46,6 +46,8 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
       - name: Generate random non-prod sync password
         id: generate-sync-password
         run: echo "password=$(openssl rand -base64 32)" >> "${GITHUB_OUTPUT}"
