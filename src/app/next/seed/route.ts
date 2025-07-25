@@ -1,12 +1,16 @@
-import { byGlobalRole } from '@/access/byGlobalRole'
 import { seed } from '@/endpoints/seed'
 import config from '@payload-config'
 import { headers } from 'next/headers'
-import { createLocalReq, getPayload, PayloadRequest } from 'payload'
+import { createLocalReq, getPayload } from 'payload'
 
 export const maxDuration = 240 // seconds
 
 export async function POST(): Promise<Response> {
+  // Don't allow seeding in production
+  if (process.env.NODE_ENV === 'production') {
+    return new Response('Not allowed.', { status: 403 })
+  }
+
   const payload = await getPayload({ config })
   const requestHeaders = await headers()
 
@@ -15,23 +19,6 @@ export async function POST(): Promise<Response> {
 
   if (!user) {
     return new Response('Action forbidden.', { status: 403 })
-  }
-
-  // Only allow access in production if the user is a super admin or the only existing user
-  if (process.env.NODE_ENV === 'production') {
-    const usersRes = await payload.count({
-      collection: 'users',
-    })
-
-    const mockedPayloadReq = {
-      user,
-      payload,
-    } as PayloadRequest
-    const isSuperAdmin = byGlobalRole('*', '*')({ req: mockedPayloadReq })
-
-    if (!isSuperAdmin && usersRes.totalDocs > 1) {
-      return new Response('Not allowed.', { status: 403 })
-    }
   }
 
   try {
