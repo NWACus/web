@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 import { File } from 'payload'
+import { Logger } from 'pino'
 
 const cache: Record<string, ArrayBuffer> = {}
 
@@ -28,6 +29,9 @@ export async function fetchFileByURL(url: string): Promise<File> {
     mimetype: `image/${url.split('.').pop()}`,
     size: data.byteLength,
   }
+  console.log(
+    `fetched file: ${JSON.stringify({ name: file.name, mimetype: file.mimetype, size: file.size }, null, 2)}`,
+  )
   return file
 }
 
@@ -70,7 +74,21 @@ export async function getFileByPath(filePath: string): Promise<File> {
   return file
 }
 
-export async function getSeedImageByFilename(filename: string) {
+export async function getSeedImageByFilename(filename: string, logger: Logger) {
   const path = getPath(`src/endpoints/seed/images/${filename}`)
-  return getFileByPath(path)
+
+  try {
+    return await getFileByPath(path)
+  } catch (error) {
+    // Fallback to GitHub URL if the file doesn't exist locally
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      logger.info(`Couldn't find file locally, fetching from GitHub...`)
+      const baseUrl =
+        'https://raw.githubusercontent.com/NWACus/web/refs/heads/main/src/endpoints/seed/images'
+      const fileUrl = `${baseUrl}/${filename}`
+      return fetchFileByURL(fileUrl)
+    }
+
+    throw error
+  }
 }
