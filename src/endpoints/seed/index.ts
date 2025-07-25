@@ -310,28 +310,28 @@ export const seed = async ({
 
   for (const tenantSlug in tenants) {
     if (tenantSlug in logoFiles) {
-      const logo = await getSeedImageByFilename(logoFiles[tenantSlug])
+      const logo = await getSeedImageByFilename(logoFiles[tenantSlug], payload.logger)
       if (!logo) {
         throw new Error(`Getting logo for tenant ${tenantSlug} returned null...`)
       }
       logos[tenantSlug] = logo
     }
     if (tenantSlug in iconFiles) {
-      const icon = await getSeedImageByFilename(iconFiles[tenantSlug])
+      const icon = await getSeedImageByFilename(iconFiles[tenantSlug], payload.logger)
       if (!icon) {
         throw new Error(`Getting icon for tenant ${tenantSlug} returned null...`)
       }
       icons[tenantSlug] = icon
     }
     if (tenantSlug in bannerFiles) {
-      const banner = await getSeedImageByFilename(bannerFiles[tenantSlug])
+      const banner = await getSeedImageByFilename(bannerFiles[tenantSlug], payload.logger)
       if (!banner) {
         throw new Error(`Getting banner for tenant ${tenantSlug} returned null...`)
       }
       banners[tenantSlug] = banner
     }
     if (tenantSlug in usfsLogoFiles) {
-      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug])
+      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug], payload.logger)
       if (!usfsLogo) {
         throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
       }
@@ -558,10 +558,10 @@ export const seed = async ({
   payload.logger.info(`— Getting images...`)
 
   const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
-    getSeedImageByFilename('image-post1.webp'),
-    getSeedImageByFilename('image-post2.webp'),
-    getSeedImageByFilename('image-post3.webp'),
-    getSeedImageByFilename('image-post3.webp'),
+    getSeedImageByFilename('image-post1.webp', payload.logger),
+    getSeedImageByFilename('image-post2.webp', payload.logger),
+    getSeedImageByFilename('image-post3.webp', payload.logger),
+    getSeedImageByFilename('image-post3.webp', payload.logger),
   ])
 
   const images = await upsert(

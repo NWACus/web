@@ -12,7 +12,10 @@ export const seedStaff = async (
 ): Promise<{ teams: Record<string, Team[]>; bios: Record<string, Record<string, Biography>> }> => {
   payload.logger.info(`— Seeding staff photos...`)
 
-  const placeholder = await getSeedImageByFilename('Profile_photo_placeholder_square.svg')
+  const placeholder = await getSeedImageByFilename(
+    'Profile_photo_placeholder_square.svg',
+    payload.logger,
+  )
 
   if (!placeholder) {
     throw new Error(`Getting placeholder photo returned null...`)
@@ -36,7 +39,7 @@ export const seedStaff = async (
 
   const headshotData: { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] = []
   for (const photo of headshots(tenants)) {
-    const image = await getSeedImageByFilename(photo.filename)
+    const image = await getSeedImageByFilename(photo.filename, payload.logger)
     if (!image) {
       throw new Error(`Getting ${photo.alt} photo returned null...`)
     }
