@@ -3,19 +3,18 @@ import { cn } from '@/utilities/ui'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import type { ImageText as ImageTextProps } from '@/payload-types'
-import Color from 'color'
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 
 type Props = ImageTextProps & {
   imgClassName?: string
 }
 
 export const ImageText = (props: Props) => {
-  const { color, imgClassName, imageLayout, image, richText } = props
+  const { backgroundColor, imgClassName, imageLayout, image, richText } = props
 
-  // TODO - import color list from theme
-  const bgColorClass = `bg-[${color}]`
-  const bgColor = Color(`${color}`)
-  const textColor = bgColor.isLight() ? 'text-black' : 'text-white'
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
+
   return (
     <div className={`${bgColorClass}`}>
       <div className="w-full max-w-xl md:max-w-4xl lg:max-w-5xl mx-auto px-4 py-16">
