@@ -4,7 +4,21 @@ import { FieldLabel, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
 
 const ColorPicker = (props: TextFieldClientProps) => {
-  const colorOptions = ['white', 'brand-300', 'brand-600', 'brand-700']
+  const colorOptions = [
+    'white',
+    'brand-50',
+    'brand-100',
+    'brand-200',
+    'brand-300',
+    'brand-400',
+    'brand-500',
+    'brand-600',
+    'brand-700',
+    'brand-800',
+    'brand-900',
+    'brand-950',
+  ]
+
   const { path, field } = props
 
   const { value, setValue } = useField({ path })
@@ -12,7 +26,7 @@ const ColorPicker = (props: TextFieldClientProps) => {
   return (
     <div className="flex items-start mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      <ul className="flex flex-wrap list-none">
+      <ul className="grid grid-cols-6 grid-rows-2 list-none">
         {colorOptions.map((color, i) => {
           const bgColor = `bg-${color}`
           return (
