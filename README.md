@@ -111,54 +111,23 @@ To avoid an error when attempting to merge a PR on a feature branch into main, y
 
 Note: When configuring git to automatically sign commits you could leave out the `--global` flag if you only want to automatically sign commits in this repo, not all repos.
 
-## Static Tenant Generation
+## Tenant Lookup System
 
-The application uses a build-time tenant generation system to provide tenant data for middleware. This system ensures reliable tenant data availability across different environments.
+The application uses **Vercel Edge Config** for fast, globally distributed tenant lookups in middleware, with a cached API route as fallback.
 
 ### How It Works
 
-The system uses a three-tier fallback approach:
+The system operates with these priorities:
 
-1. **Fresh Database Data** (preferred) - Fetches current tenant data from the database
-2. **Seed File Data** (CI bootstrap) - Uses committed baseline data from `src/generated/tenants/static-tenants.json`
-3. **Hardcoded Fallback** (emergency) - Uses minimal fallback data from `src/utilities/tenancy/fallback-tenants.ts`
+1. **Edge Config Lookup** (primary) - Fast tenants lookup (~10ms globally)
+2. **Cached API Route** (fallback) - Database query with 5-minute cache when Edge Config fails
 
-### File Structure
+### Infra
 
-```
-src/
-├── generated/
-│   └── tenants/
-│       ├── index.ts                    # Determines which tenant (in git)
-│       └── static-tenants.json         # Committed baseline (in git)
-├── scripts/
-│   └── generate-static-tenants.ts      # Generation script
-└── utilities/
-    └── tenancy/
-        └── fallback-tenants.ts         # Hardcoded fallback data - would add new ACs over time here
-```
+We have two edge config stores in Vercel:
 
-### Commands
-
-- `pnpm generate:static-tenants` - Generate tenant data (runs automatically before `dev` and `build`)
-- Manual generation also happens during `bootstrap` and `seed` scripts
-
-### Development Workflow
-
-**Local Development:**
-
-- Script connects to your local database and generates `static-tenants.ts` with current data
-- Generated file is gitignored to avoid conflicts
-
-**CI/Production:**
-
-- If database is available: generates fresh data from database
-- If database unavailable: uses `static-tenants.json` (committed baseline)
-- Final fallback: uses hardcoded data from `fallback-tenants.ts`
-
-### Updating Fallback Data
-
-When adding new tenants to production, update `src/utilities/tenancy/fallback-tenants.ts` to keep the baseline current. The seed file will automatically use the updated fallback data.
+1. For preview environment. This can also be used for local dev if needed for testing. But an edge config is not required for local development because of the cached API route fallback.
+2. For prod environment
 
 ## Developing Emails
 

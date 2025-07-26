@@ -45,41 +45,5 @@ describe('PRODUCTION_TENANTS validation', () => {
       expect(result).toEqual(['nwac', 'sac'])
       expect(consoleWarnSpy).not.toHaveBeenCalled()
     })
-
-    it('should filter out invalid tenant slugs and warn', () => {
-      const result = validateProductionTenants('nwac,invalid-tenant,sac')
-      expect(result).toEqual(['nwac', 'sac'])
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'Invalid tenant slugs found in PRODUCTION_TENANTS env var. Omitting: invalid-tenant',
-        ),
-      )
-    })
-
-    it('should filter out multiple invalid tenant slugs and warn', () => {
-      const result = validateProductionTenants('invalid1,nwac,invalid2')
-      expect(result).toEqual(['nwac'])
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'Invalid tenant slugs found in PRODUCTION_TENANTS env var. Omitting: invalid1, invalid2',
-        ),
-      )
-    })
-
-    it('should not warn when all tenant slugs are valid', () => {
-      const result = validateProductionTenants('nwac,sac,snfac')
-      expect(result).toEqual(['nwac', 'sac', 'snfac'])
-      expect(consoleWarnSpy).not.toHaveBeenCalled()
-    })
-
-    it('should return empty array when all tenant slugs are invalid', () => {
-      const result = validateProductionTenants('invalid1,invalid2,invalid3')
-      expect(result).toEqual([])
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'Invalid tenant slugs found in PRODUCTION_TENANTS env var. Omitting: invalid1, invalid2, invalid3',
-        ),
-      )
-    })
   })
 })

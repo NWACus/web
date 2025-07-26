@@ -97,6 +97,9 @@ importers:
       '@vercel/blob':
         specifier: ^1.1.1
         version: 1.1.1
+      '@vercel/edge-config':
+        specifier: ^1.4.0
+        version: 1.4.0(@opentelemetry/api@1.9.0)
       axios:
         specifier: 1.8.3
         version: 1.8.3
@@ -6457,6 +6460,24 @@ packages:
         integrity: sha512-heiJGj2qt5qTv6yiShH9f6KRAoZGj+lz61GQ+lBRL4lhvUmKI9A51KYlQTnsUd9ymdFlKHBlvmPeG+yGz2Qsbg==,
       }
     engines: { node: '>=16.14' }
+
+  '@vercel/edge-config-fs@0.1.0':
+    resolution:
+      {
+        integrity: sha512-NRIBwfcS0bUoUbRWlNGetqjvLSwgYH/BqKqDN7vK1g32p7dN96k0712COgaz6VFizAm9b0g6IG6hR6+hc0KCPg==,
+      }
+
+  '@vercel/edge-config@1.4.0':
+    resolution:
+      {
+        integrity: sha512-69Wg5gw9DzwnyUmnjToSeLRm1nm8mCPgN0kflX8EHRHyqvzH80wPem5A8rI2LXPb2Y9tJNoqN3vXPcQhS2Wh5g==,
+      }
+    engines: { node: '>=14.6' }
+    peerDependencies:
+      '@opentelemetry/api': ^1.7.0
+    peerDependenciesMeta:
+      '@opentelemetry/api':
+        optional: true
 
   '@webassemblyjs/ast@1.14.1':
     resolution:
@@ -17863,6 +17884,14 @@ snapshots:
       is-node-process: 1.2.0
       throttleit: 2.1.0
       undici: 5.29.0
+
+  '@vercel/edge-config-fs@0.1.0': {}
+
+  '@vercel/edge-config@1.4.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@vercel/edge-config-fs': 0.1.0
+    optionalDependencies:
+      '@opentelemetry/api': 1.9.0
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:

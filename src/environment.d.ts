@@ -19,6 +19,9 @@ declare global {
       SMTP_PASS: string
       RESEND_API_KEY: string
       INVITE_TOKEN_EXPIRATION_MS: string
+      VERCEL_EDGE_CONFIG: string
+      VERCEL_TOKEN: string
+      VERCEL_TEAM_ID: string
     }
   }
 }

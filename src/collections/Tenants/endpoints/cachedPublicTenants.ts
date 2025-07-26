@@ -1,9 +1,8 @@
-import { STATIC_TENANTS } from '@/generated/tenants'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
-const getCachedTenants = unstable_cache(
+export const getCachedTenants = unstable_cache(
   async () => {
     const payload = await getPayload({ config: configPromise })
 
@@ -45,8 +44,8 @@ export const cachedPublicTenants = async (): Promise<Response> => {
   } catch (error) {
     console.error('Error fetching tenants:', error)
 
-    // Fallback to build-time generated data
-    return Response.json([...STATIC_TENANTS], {
+    // TODO: should this throw an error instead? Hmm when would this fail?
+    return Response.json([], {
       headers: {
         'Cache-Control': 'no-cache',
       },
