@@ -41,7 +41,7 @@ export const Biographies: CollectionConfig = {
     },
     {
       name: 'photo',
-      type: 'relationship',
+      type: 'upload',
       relationTo: 'media',
       hasMany: false,
       required: true,
