@@ -10,14 +10,6 @@ const config = {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
-  safelist: [
-    {
-      pattern: /^bg-(brand-(300|600|700)|card|(error|success|warning)\/30)$/,
-    },
-    {
-      pattern: /^border-(border|error|success|warning)$/,
-    },
-  ],
   theme: {
     container: {
       center: true,

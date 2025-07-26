@@ -4,5 +4,5 @@ export default function getTextColorFromBgColor(colorClassName: string): string 
 
   const color = colorClassName.slice(0, lastDash)
   const shade = colorClassName.slice(lastDash + 1)
-  return `${color}-foreground-${shade}`
+  return `text-${color}-foreground-${shade}`
 }
