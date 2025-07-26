@@ -43,7 +43,7 @@ const ColorPicker = (props: TextFieldClientProps) => {
                 onClick={() => setValue(color)}
               >
                 {color === 'transparent' && (
-                  <div className="absolute inset-0 bg-destructive h-1 w-full -rotate-45 top-[45%]"></div>
+                  <div className="absolute inset-0 bg-destructive h-1 w-full transform -rotate-45 top-[45%]"></div>
                 )}
               </div>
             </li>
