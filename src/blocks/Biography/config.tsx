@@ -9,6 +9,13 @@ export const BiographyBlock: Block = {
       relationTo: 'biographies',
       hasMany: false,
       required: true,
+      filterOptions: ({ data }) => {
+        return {
+          tenant: {
+            equals: data.tenant,
+          },
+        }
+      },
     },
   ],
   interfaceName: 'BiographyBlock',
@@ -16,4 +23,5 @@ export const BiographyBlock: Block = {
     plural: 'Biographies',
     singular: 'Biography',
   },
+  imageURL: '/thumbnail/BiographyThumbnail.jpg',
 }
