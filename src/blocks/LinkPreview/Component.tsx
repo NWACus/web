@@ -13,7 +13,7 @@ import type { LinkPreviewBlock as LinkPreviewBlockProps } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
 export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
-  const { cards } = props
+  const { backgroundColor, cards } = props
 
   const numOfCols = cards?.length ?? 2
 
@@ -23,8 +23,10 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
   }
   const colsSpanClass = colsClasses[numOfCols]
 
+  const bgColorClass = `bg-${backgroundColor}`
+
   return (
-    <div className="bg-brand-500 py-8">
+    <div className={`${bgColorClass} py-8`}>
       <div className="container grid grid-cols-4 lg:grid-cols-12 gap-x-4">
         {cards &&
           cards.length > 0 &&
@@ -38,13 +40,15 @@ export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
                 )}
                 key={index}
               >
-                <CardHeader className="overflow-hidden">
-                  <Media
-                    pictureClassName="w-full flex justify-center bg-muted"
-                    imgClassName="h-[200px] w-full object-cover"
-                    resource={image}
-                  />
-                </CardHeader>
+                {image && (
+                  <CardHeader className="overflow-hidden">
+                    <Media
+                      pictureClassName="w-full flex justify-center bg-muted"
+                      imgClassName="h-[200px] w-full object-cover"
+                      resource={image}
+                    />
+                  </CardHeader>
+                )}
                 <CardContent>
                   <div className="flex flex-col justify-between items-start">
                     <div>

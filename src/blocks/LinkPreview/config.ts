@@ -1,6 +1,7 @@
 import type { Block, Field } from 'payload'
 
 import { button } from '@/fields/button'
+import colorPickerField from '@/fields/color'
 
 const cardFields: Field[] = [
   {
@@ -31,12 +32,13 @@ export const LinkPreviewBlock: Block = {
   interfaceName: 'LinkPreviewBlock',
   imageURL: '/thumbnail/LinkPreviewThumbnail.jpg',
   fields: [
+    colorPickerField('Background color'),
     {
       name: 'cards',
-      label: 'Link preview',
+      label: '',
       labels: {
-        plural: 'Link previews',
-        singular: 'Link preview',
+        plural: 'Link preview cards',
+        singular: 'Link preview card',
       },
       type: 'array',
       fields: cardFields,

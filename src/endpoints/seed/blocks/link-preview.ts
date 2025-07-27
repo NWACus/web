@@ -5,6 +5,7 @@ export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
   return [
     // 3 cards
     {
+      backgroundColor: 'transparent',
       blockName: '3 cards',
       cards: [
         {
@@ -50,6 +51,7 @@ export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
     // 2 column layout
     {
       blockName: '2 cards',
+      backgroundColor: 'brand-500',
       cards: [
         {
           image: image.id,
