@@ -49,11 +49,6 @@
   display: none;
 }
 
-/* Hide All Archived Forecasts in date picker */
-#nac-date-selector .nac-container-fluid {
-  display: none;
-}
-
 #nac-app {
   min-height: initial !important;
 }
