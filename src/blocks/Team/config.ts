@@ -9,6 +9,13 @@ export const TeamBlock: Block = {
       relationTo: 'teams',
       hasMany: false,
       required: true,
+      filterOptions: ({ data }) => {
+        return {
+          tenant: {
+            equals: data.tenant,
+          },
+        }
+      },
     },
   ],
   interfaceName: 'TeamBlock',
@@ -16,4 +23,5 @@ export const TeamBlock: Block = {
     plural: 'Teams',
     singular: 'Team',
   },
+  imageURL: '/thumbnail/TeamThumbnail.jpg',
 }
