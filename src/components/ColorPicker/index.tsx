@@ -27,7 +27,7 @@ const ColorPicker = (props: TextFieldClientProps) => {
   return (
     <div className="flex items-start justify-between mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      <ul className="flex flex-wrap max-w-[200px] list-none">
+      <ul className="flex flex-wrap max-w-[260px] list-none">
         {colorOptions.map((color, i) => {
           const bgColor = `bg-${color}`
           return (
@@ -36,16 +36,13 @@ const ColorPicker = (props: TextFieldClientProps) => {
                 className={cn(
                   `relative w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor}`,
                   {
-                    'border border-solid border-muted-foreground': color === 'transparent',
+                    'bg-white bg-[repeating-linear-gradient(45deg,#aaa_25%,transparent_25%,transparent_75%,#aaa_75%,#aaa),repeating-linear-gradient(45deg,#aaa_25%,#e5e5f7_25%,#e5e5f7_75%,#aaa_75%,#aaa)] bg-[position:0_0,10px_10px] bg-[size:20px_20px] bg-repeat':
+                      color === 'transparent',
                   },
                 )}
                 aria-label={color}
                 onClick={() => setValue(color)}
-              >
-                {color === 'transparent' && (
-                  <div className="absolute inset-0 bg-destructive h-1 w-full transform -rotate-45 top-[45%]"></div>
-                )}
-              </div>
+              />
             </li>
           )
         })}
