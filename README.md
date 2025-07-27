@@ -127,7 +127,9 @@ The system operates with these priorities:
 We have two edge config stores in Vercel:
 
 1. For preview environment. This can also be used for local dev if needed for testing. But an edge config is not required for local development because of the cached API route fallback.
+1. For preview environment
 2. For prod environment
+NOTE: This can also be used for local dev if needed for testing, but an edge config is not required for local development because of the cached API route fallback.
 
 ## Developing Emails
 
