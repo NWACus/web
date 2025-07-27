@@ -62,7 +62,11 @@ export const ImageTextList: Block = {
     },
     {
       name: 'columns',
-      label: 'Image with text columns',
+      label: '',
+      labels: {
+        singular: 'Column',
+        plural: 'Columns',
+      },
       type: 'array',
       admin: {
         initCollapsed: true,
