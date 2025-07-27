@@ -1,4 +1,4 @@
-import { STATIC_TENANTS } from '@/generated/tenants'
+import { createClient } from '@vercel/edge-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { getURL } from './utilities/getURL'
 import { PRODUCTION_TENANTS } from './utilities/tenancy/tenants'
@@ -17,14 +17,35 @@ export const config = {
   ],
 }
 
-type TenantData = Array<{ id: number; slug: string; customDomain: string | null }>
+export type TenantData = Array<{ id: number; slug: string; customDomain: string | null }>
 
 async function getTenants(): Promise<{
   tenants: TenantData
-  source: 'api' | 'fallback'
+  source: 'edge-config' | 'api' | 'error'
   duration: number
 }> {
   const start = performance.now()
+
+  try {
+    const edgeConfigClient = createClient(process.env.VERCEL_EDGE_CONFIG)
+    const allItems = await edgeConfigClient.getAll()
+    if (!allItems) throw new Error('No items in edge config.')
+
+    const tenants: TenantData = []
+    for (const [key, value] of Object.entries(allItems)) {
+      if (key.startsWith('tenant_') && value) {
+        tenants.push(value as TenantData[number])
+      }
+    }
+
+    const duration = performance.now() - start
+    return { tenants, source: 'edge-config', duration }
+  } catch (error) {
+    console.warn(
+      'Failed to get all tenants from Edge Config, falling back to cached API route:',
+      error instanceof Error ? error.message : error,
+    )
+  }
 
   try {
     const baseUrl = getURL()
@@ -42,14 +63,13 @@ async function getTenants(): Promise<{
     }
   } catch (error) {
     console.warn(
-      'Failed to refresh tenants from API, using build-time data:',
+      'Failed to refresh tenants from API:',
       error instanceof Error ? error.message : error,
     )
   }
 
-  // Fallback to build-time generated data
   const duration = performance.now() - start
-  return { tenants: [...STATIC_TENANTS], source: 'fallback', duration }
+  return { tenants: [], source: 'error', duration }
 }
 
 export default async function middleware(req: NextRequest) {
