@@ -1,4 +1,4 @@
-import type { GlobalRoleAssignment, Role } from '@/payload-types'
+import type { GlobalRoleAssignment } from '@/payload-types'
 import { canAssignRole } from '@/utilities/rbac/escalationCheck'
 import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
@@ -12,61 +12,49 @@ export const validateEscalation: CollectionBeforeValidateHook<GlobalRoleAssignme
       errors: [
         {
           message: 'You must be logged in to assign roles.',
-          path: 'roles',
+          path: 'globalRole',
         },
       ],
     })
   }
 
-  if (!data || !data.roles || data.roles.length === 0) {
-    // No roles to assign, so no escalation check needed
+  if (!data || !data.globalRole) {
+    // No role to assign, so no escalation check needed
     return data
   }
 
-  // Fetch the roles being assigned to check their permissions
-  const roleIds = data.roles.filter((role): role is number => typeof role === 'number')
+  // Check if the global role being assigned needs permission validation
+  const globalRole = data.globalRole
 
-  if (roleIds.length === 0) {
-    // All roles are already populated objects, we can check them directly
-    const roles = data.roles.filter(
-      (role): role is Role => typeof role === 'object' && 'rules' in role,
-    )
-
-    for (const role of roles) {
-      if (!canAssignRole(req.payload.logger, req.user, role)) {
-        throw new ValidationError({
-          errors: [
-            {
-              message: `You cannot assign the role "${role.name}" because you do not have sufficient permissions. You can only assign roles with permissions equal to or less than your own.`,
-              path: 'roles',
-            },
-          ],
-        })
-      }
-    }
-  } else {
-    // Fetch roles from the database
-    const roles = await req.payload.find({
-      collection: 'roles',
-      where: {
-        id: {
-          in: roleIds,
-        },
-      },
+  if (typeof globalRole === 'number') {
+    // Fetch global role from the database
+    const globalRoleDoc = await req.payload.findByID({
+      collection: 'globalRoles',
+      id: globalRole,
       depth: 0,
     })
 
-    for (const role of roles.docs) {
-      if (!canAssignRole(req.payload.logger, req.user, role)) {
-        throw new ValidationError({
-          errors: [
-            {
-              message: `You cannot assign the role "${role.name}" because you do not have sufficient permissions. You can only assign roles with permissions equal to or less than your own.`,
-              path: 'roles',
-            },
-          ],
-        })
-      }
+    if (!canAssignRole(req.payload.logger, req.user, globalRoleDoc)) {
+      throw new ValidationError({
+        errors: [
+          {
+            message: `You cannot assign the global role "${globalRoleDoc.name}" because you do not have sufficient permissions. You can only assign roles with permissions equal to or less than your own.`,
+            path: 'globalRole',
+          },
+        ],
+      })
+    }
+  } else if (typeof globalRole === 'object' && globalRole && 'rules' in globalRole) {
+    // Global role is already populated, check it directly
+    if (!canAssignRole(req.payload.logger, req.user, globalRole)) {
+      throw new ValidationError({
+        errors: [
+          {
+            message: `You cannot assign the global role "${globalRole.name}" because you do not have sufficient permissions. You can only assign roles with permissions equal to or less than your own.`,
+            path: 'globalRole',
+          },
+        ],
+      })
     }
   }
 

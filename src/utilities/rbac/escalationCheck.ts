@@ -1,6 +1,6 @@
 import { Role, User } from '@/payload-types'
 import { Logger } from 'pino'
-import { globalRolesForUser } from './globalRolesForUser'
+import { globalRoleAssignmentsForUser } from './globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from './roleAssignmentsForUser'
 import { ruleMatches } from './ruleMatches'
 
@@ -21,13 +21,14 @@ export const canAssignRole = (
   tenantId?: string | number,
 ): boolean => {
   // Get all roles the user has
-  const userGlobalRoles = globalRolesForUser(logger, user)
+  const userGlobalRoleAssignments = globalRoleAssignmentsForUser(logger, user)
   const userRoleAssignments = roleAssignmentsForUser(logger, user)
 
   // Check if user has any global roles that grant them permission to assign roles
-  const hasGlobalRolePermission = userGlobalRoles.some((role) =>
-    role.rules.some(ruleMatches('create', 'globalRoleAssignments')),
-  )
+  const hasGlobalRolePermission = userGlobalRoleAssignments.some((assignment) => {
+    if (typeof assignment.globalRole === 'number') return false
+    return assignment.globalRole?.rules.some(ruleMatches('create', 'globalRoleAssignments'))
+  })
 
   if (hasGlobalRolePermission) {
     // Global role permission trumps all - they can assign any role
@@ -43,12 +44,10 @@ export const canAssignRole = (
       return assignment.tenant?.id === tenantId
     })
 
-    const hasTenantRolePermission = userTenantRoleAssignments.some((assignment) =>
-      assignment.roles?.some((role) => {
-        if (typeof role === 'number') return false
-        return role.rules.some(ruleMatches('create', 'roleAssignments'))
-      }),
-    )
+    const hasTenantRolePermission = userTenantRoleAssignments.some((assignment) => {
+      if (typeof assignment.role === 'number') return false
+      return assignment.role?.rules.some(ruleMatches('create', 'roleAssignments'))
+    })
 
     if (!hasTenantRolePermission) {
       return false
@@ -56,6 +55,10 @@ export const canAssignRole = (
   }
 
   // Now check if the user's roles have at least the same permissions as the target role
+  const userGlobalRoles = userGlobalRoleAssignments
+    .map((assignment) => assignment.globalRole)
+    .filter((role): role is Role => typeof role !== 'number' && role !== null)
+
   const userRoles = [...userGlobalRoles]
 
   // Add tenant-scoped roles if we're in a tenant context
@@ -68,12 +71,8 @@ export const canAssignRole = (
     })
 
     userTenantRoleAssignments.forEach((assignment) => {
-      if (assignment.roles) {
-        assignment.roles.forEach((role) => {
-          if (typeof role !== 'number') {
-            userRoles.push(role)
-          }
-        })
+      if (assignment.role && typeof assignment.role !== 'number') {
+        userRoles.push(assignment.role)
       }
     })
   }
@@ -81,26 +80,32 @@ export const canAssignRole = (
   // Check if user's roles cover all the permissions in the target role
   const userPermissions = new Set<string>()
 
-  userRoles.forEach((role) => {
-    role.rules.forEach((rule) => {
-      rule.collections.forEach((collection) => {
-        rule.actions.forEach((action) => {
-          if (collection === '*' && action === '*') {
-            // Wildcard permission - covers everything
-            userPermissions.add('*:*')
-          } else if (collection === '*') {
-            // Wildcard collection with specific action
-            userPermissions.add(`*:${action}`)
-          } else if (action === '*') {
-            // Specific collection with wildcard action
-            userPermissions.add(`${collection}:*`)
-          } else {
-            // Specific collection and action
-            userPermissions.add(`${collection}:${action}`)
-          }
+  userRoles.forEach((role: Role) => {
+    role.rules.forEach(
+      (rule: {
+        collections: string[]
+        actions: ('*' | 'create' | 'read' | 'update' | 'delete')[]
+        id?: string | null
+      }) => {
+        rule.collections.forEach((collection: string) => {
+          rule.actions.forEach((action: string) => {
+            if (collection === '*' && action === '*') {
+              // Wildcard permission - covers everything
+              userPermissions.add('*:*')
+            } else if (collection === '*') {
+              // Wildcard collection with specific action
+              userPermissions.add(`*:${action}`)
+            } else if (action === '*') {
+              // Specific collection with wildcard action
+              userPermissions.add(`${collection}:*`)
+            } else {
+              // Specific collection and action
+              userPermissions.add(`${collection}:${action}`)
+            }
+          })
         })
-      })
-    })
+      },
+    )
   })
 
   // Check if target role's permissions are covered by user's permissions
