@@ -5,10 +5,11 @@ import { User } from '@/payload-types'
 import { generateInviteUserEmail } from '@/utilities/email/generateInviteUserEmail'
 import { sendEmail } from '@/utilities/email/sendEmail'
 import { getURL } from '@/utilities/getURL'
+import { canAssignGlobalRole, canAssignRole } from '@/utilities/rbac/escalationCheck'
 import config from '@payload-config'
 import crypto from 'crypto'
 import { headers } from 'next/headers'
-import { getPayload, PayloadRequest } from 'payload'
+import { getPayload, PayloadRequest, ValidationError } from 'payload'
 import { formatAdminURL } from 'payload/shared'
 import { v4 as uuid } from 'uuid'
 import { byGlobalRoleOrTenantRoleAssignmentOrDomain } from '../access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
@@ -114,6 +115,20 @@ export async function inviteUserAction({
       if (user && Array.isArray(roleAssignments) && roleAssignments.length > 0) {
         for (const assignment of roleAssignments) {
           if (assignment.roleId && assignment.tenantId) {
+            const role = await payload.findByID({
+              collection: 'roles',
+              id: assignment.roleId,
+            })
+            if (!canAssignRole(payload.logger, loggedInUser, role, assignment.tenantId)) {
+              throw new ValidationError({
+                errors: [
+                  {
+                    message: `You are not allowed to assign the ${role.name} role.`,
+                    path: 'roles',
+                  },
+                ],
+              })
+            }
             const roleAssignment = await payload.create({
               collection: 'roleAssignments',
               data: {
@@ -138,12 +153,31 @@ export async function inviteUserAction({
         Array.isArray(globalRoleAssignments) &&
         globalRoleAssignments.length > 0
       ) {
-        for (const assignment of globalRoleAssignments) {
+        const populatedGlobalRolesRes = await payload.find({
+          collection: 'globalRoles',
+          where: {
+            id: {
+              in: globalRoleAssignments,
+            },
+          },
+        })
+
+        for (const globalRole of populatedGlobalRolesRes.docs) {
+          if (!canAssignGlobalRole(payload.logger, loggedInUser, globalRole)) {
+            throw new ValidationError({
+              errors: [
+                {
+                  message: `You are not allowed to assign the ${globalRole.name} global role.`,
+                  path: 'globalRoles',
+                },
+              ],
+            })
+          }
           const globalRoleAssignment = await payload.create({
             collection: 'globalRoleAssignments',
             data: {
               user: user.id,
-              globalRole: assignment,
+              globalRole: globalRole.id,
             },
           })
           createdGlobalRoleAssignmentIds.push(globalRoleAssignment.id)

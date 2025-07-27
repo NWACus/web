@@ -75,16 +75,6 @@ const hasPermissionsForRole = (
 export const canAssignGlobalRole = (logger: Logger, user: User, targetRole: Role): boolean => {
   const userGlobalRoleAssignments = globalRoleAssignmentsForUser(logger, user)
 
-  // Check if user has any global roles that grant them permission to assign global roles
-  const hasGlobalRolePermission = userGlobalRoleAssignments.some((assignment) => {
-    if (typeof assignment.globalRole === 'number') return false
-    return assignment.globalRole?.rules.some(ruleMatches('create', 'globalRoleAssignments'))
-  })
-
-  if (hasGlobalRolePermission) {
-    return true
-  }
-
   // Check if user's global roles have at least the same permissions as the target role
   const userGlobalRoles = userGlobalRoleAssignments
     .map((assignment) => assignment.globalRole)
