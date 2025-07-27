@@ -52,7 +52,10 @@ export const DesktopNav = ({
 
           return (
             <NavigationMenuItem key={label} value={label}>
-              <NavigationMenuTrigger className="data-[state=open]:text-header-foreground-highlight font-medium">
+              <NavigationMenuTrigger
+                onClick={(e) => e.preventDefault()}
+                className="data-[state=open]:text-header-foreground-highlight font-medium"
+              >
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
