@@ -49,19 +49,14 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
               </button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  <h4 className="font-medium text-lg">{name}</h4>
-                  <p className="text-sm font-medium text-muted-foreground">{biography.title}</p>
-                </DialogTitle>
-                <DialogDescription>
-                  <div>
-                    <div className="border-t pt-2 mt-2">
-                      <p className="text-muted-foreground leading-relaxed">{biography.biography}</p>
-                    </div>
-                  </div>
-                </DialogDescription>
+              <DialogHeader className="flex flex-col items-center">
+                <MediaAvatar resource={biography.photo} fallback={initials} className="h-32 w-32" />
+                <DialogTitle>{name}</DialogTitle>
+                <p className="text-sm font-medium text-muted-foreground">{biography.title}</p>
               </DialogHeader>
+              <DialogDescription className="border-t pt-2">
+                <p className="text-muted-foreground leading-relaxed">{biography.biography}</p>
+              </DialogDescription>
             </DialogContent>
           </Dialog>
         ) : (
