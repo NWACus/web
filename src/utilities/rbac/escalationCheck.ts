@@ -7,7 +7,7 @@ import { ruleMatches } from './ruleMatches'
 /**
  * Helper function to check if user's permissions cover all permissions in target role
  */
-const hasPermissionsForRole = (
+export const hasPermissionsForRole = (
   userRoles: Role[],
   targetRole: Role,
   logger: Logger,
@@ -66,11 +66,6 @@ const hasPermissionsForRole = (
 /**
  * Checks if a user has sufficient permissions to assign a global role.
  * A user can only assign global roles that have permissions equal to or less than their own.
- *
- * @param logger - Logger instance
- * @param user - The user attempting to assign the global role
- * @param targetRole - The global role being assigned
- * @returns true if the user has sufficient permissions, false otherwise
  */
 export const canAssignGlobalRole = (logger: Logger, user: User, targetRole: Role): boolean => {
   const userGlobalRoleAssignments = globalRoleAssignmentsForUser(logger, user)
@@ -86,12 +81,6 @@ export const canAssignGlobalRole = (logger: Logger, user: User, targetRole: Role
 /**
  * Checks if a user has sufficient permissions to assign a tenant-scoped role.
  * A user can only assign roles that have permissions equal to or less than their own for that tenant.
- *
- * @param logger - Logger instance
- * @param user - The user attempting to assign the role
- * @param targetRole - The role being assigned
- * @param tenantId - Tenant ID for the role assignment
- * @returns true if the user has sufficient permissions, false otherwise
  */
 export const canAssignRole = (
   logger: Logger,
