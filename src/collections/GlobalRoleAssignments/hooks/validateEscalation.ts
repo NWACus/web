@@ -1,5 +1,5 @@
 import type { GlobalRoleAssignment } from '@/payload-types'
-import { canAssignRole } from '@/utilities/rbac/escalationCheck'
+import { canAssignGlobalRole } from '@/utilities/rbac/escalationCheck'
 import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
 
@@ -7,6 +7,12 @@ export const validateEscalation: CollectionBeforeValidateHook<GlobalRoleAssignme
   data,
   req,
 }) => {
+  // Bypass the escalation check if this request is from the Local API
+  // The admin panel uses the REST API
+  if (req.payloadAPI === 'local') {
+    return data
+  }
+
   if (!req.user) {
     throw new ValidationError({
       errors: [
@@ -34,7 +40,7 @@ export const validateEscalation: CollectionBeforeValidateHook<GlobalRoleAssignme
       depth: 0,
     })
 
-    if (!canAssignRole(req.payload.logger, req.user, globalRoleDoc)) {
+    if (!canAssignGlobalRole(req.payload.logger, req.user, globalRoleDoc)) {
       throw new ValidationError({
         errors: [
           {
@@ -46,7 +52,7 @@ export const validateEscalation: CollectionBeforeValidateHook<GlobalRoleAssignme
     }
   } else if (typeof globalRole === 'object' && globalRole && 'rules' in globalRole) {
     // Global role is already populated, check it directly
-    if (!canAssignRole(req.payload.logger, req.user, globalRole)) {
+    if (!canAssignGlobalRole(req.payload.logger, req.user, globalRole)) {
       throw new ValidationError({
         errors: [
           {

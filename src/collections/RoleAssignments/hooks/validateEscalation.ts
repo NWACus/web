@@ -7,6 +7,12 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
   data,
   req,
 }) => {
+  // Bypass the escalation check if this request is from the Local API
+  // The admin panel uses the REST API
+  if (req.payloadAPI === 'local') {
+    return data
+  }
+
   if (!req.user) {
     throw new ValidationError({
       errors: [
@@ -25,6 +31,17 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
 
   // Get the tenant ID for context
   const tenantId = typeof data.tenant === 'object' ? data.tenant.id : data.tenant
+
+  if (!tenantId) {
+    throw new ValidationError({
+      errors: [
+        {
+          message: 'No tenant set for this role assignment.',
+          path: 'tenant',
+        },
+      ],
+    })
+  }
 
   // Check if the role being assigned needs permission validation
   const role = data.role
