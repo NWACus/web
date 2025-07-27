@@ -15,7 +15,7 @@ import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { TeamBlock } from '@/blocks/Team/config'
 
@@ -29,11 +29,12 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
-  access: accessByTenantOrReadPublished('pages'),
+  access: accessByTenantRoleOrReadPublished('pages'),
   defaultPopulate: {
     title: true,
     slug: true,
@@ -81,6 +82,11 @@ export const Pages: CollectionConfig<'pages'> = {
       })
     },
     useAsTitle: 'title',
+    components: {
+      edit: {
+        editMenuItems: ['@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor'],
+      },
+    },
   },
   fields: [
     {
@@ -156,6 +162,19 @@ export const Pages: CollectionConfig<'pages'> = {
     ...slugField(),
     tenantField(),
     contentHashField(),
+  ],
+  endpoints: [
+    {
+      path: '/duplicate-to-tenant/:selectedTenantId',
+      method: 'post',
+
+      handler: async (req) => {
+        const res = await duplicatePageToTenant(req)
+        return Response.json({
+          res,
+        })
+      },
+    },
   ],
   hooks: {
     afterChange: [revalidatePage],

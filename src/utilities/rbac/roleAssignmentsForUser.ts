@@ -9,11 +9,9 @@ export const roleAssignmentsForUser = (logger: Logger, user: User): RoleAssignme
         logger.info(`unexpected role assignment as number!`)
         continue
       }
-      if (roleAssignment.roles) {
-        for (const role of roleAssignment.roles) {
-          if (typeof role === 'number') {
-            logger.info(`unexpected role ref in role assignment as number!`)
-          }
+      if (roleAssignment.role) {
+        if (typeof roleAssignment.role === 'number') {
+          logger.info(`unexpected role ref in role assignment as number!`)
         }
         if (typeof roleAssignment.tenant === 'number') {
           logger.info(`unexpected tenant ref in role assignment as number!`)

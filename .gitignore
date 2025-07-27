@@ -5,6 +5,7 @@ node_modules
 .env
 .next
 .vercel
+.cursor
 
 # Payload default media upload directory
 public/media/
@@ -20,3 +21,10 @@ dev.db-wal
 .env.development
 tsconfig.tsbuildinfo
 .env*.local
+
+# Sentry Config File
+.env.sentry-build-plugin
+
+# Auto-generated files
+!src/generated/tenants/index.ts
+src/generated/*

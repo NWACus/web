@@ -14,26 +14,11 @@ jobs:
         run: curl -sSfL https://get.tur.so/install.sh | bash
         env:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
-      # TODO: once we're ready for a persistent database, don't delete anything, just run migrations
-      - name: Delete existing database
-        run: |
-          /home/runner/.turso/turso org switch nwac
-          if /home/runner/.turso/turso db show payloadcms-prod; then
-            /home/runner/.turso/turso db destroy payloadcms-prod --yes
-          fi
-        env:
-          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
-      - name: Create a new database
-        id: database
-        run: |
-          /home/runner/.turso/turso db create payloadcms-prod --wait
-          /home/runner/.turso/turso db shell payloadcms-prod .tables
-        env:
-          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Record database connection URI and token
         id: connection
         run: |
-          echo "uri=$(/home/runner/.turso/turso db show payloadcms-prod --url)" >> "${GITHUB_OUTPUT}"
+          /home/runner/.turso/turso org switch nwac
+          echo "uri=$(/home/runner/.turso/turso db show payloadcms-prod --url )" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-prod )" >> "${GITHUB_OUTPUT}"
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
@@ -59,16 +44,12 @@ jobs:
         run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD production --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} .env.production
-      - name: Seed the database
-        run: pnpm seed
+      - name: Run database migrations
+        run: pnpm migrate
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: 'avy-fx.org'
       - name: Build Project Artifacts
         run: vercel build --yes --target=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -79,6 +60,8 @@ jobs:
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
           NEXT_PUBLIC_ROOT_DOMAIN: 'avy-fx.org'
+          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
+          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |

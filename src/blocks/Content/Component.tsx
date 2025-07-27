@@ -1,14 +1,14 @@
 import RichText from '@/components/RichText'
-import { cn } from '@/utilities/ui'
-import Color from 'color'
-
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { cn } from '@/utilities/ui'
 
 export const ContentBlock = (props: ContentBlockProps) => {
-  const { columns, color } = props
+  const { columns, backgroundColor } = props
   const numOfCols = columns?.length ?? 1
 
-  const bgColorClass = `bg-[${color}]`
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
 
   const colsClasses: { [key: number]: string } = {
     1: 'lg:col-span-12',
@@ -18,9 +18,6 @@ export const ContentBlock = (props: ContentBlockProps) => {
   }
   const colsSpanClass = colsClasses[numOfCols]
 
-  // TODO - import color list from theme
-  const bgColor = Color(`${color}`)
-  const textColor = bgColor.isLight() ? 'text-black' : 'text-white'
   return (
     <div className={`${bgColorClass}`}>
       <div className="container py-16">

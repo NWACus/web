@@ -1,8 +1,17 @@
 @tailwind components;
 @tailwind utilities;
+@import '../\(frontend\)/colors.css';
 
 .step-nav__home,
 .step-nav__home > span {
   width: 24px;
   height: 24px;
+}
+
+#duplicate-page-drawer .drawer__content {
+  max-width: 600px;
+}
+
+.text-error {
+  color: var(--theme-error-800);
 }

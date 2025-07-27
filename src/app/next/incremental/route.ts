@@ -6,6 +6,11 @@ import { createLocalReq, getPayload } from 'payload'
 export const maxDuration = 240 // seconds
 
 export async function POST(): Promise<Response> {
+  // Don't allow incremental seeding in production
+  if (process.env.NODE_ENV === 'production') {
+    return new Response('Not allowed.', { status: 403 })
+  }
+
   const payload = await getPayload({ config })
   const requestHeaders = await headers()
 

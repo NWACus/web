@@ -1,4 +1,5 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
+import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 
@@ -19,13 +20,21 @@ describe('Breadcrumbs', () => {
 
   it('does not render breadcrumbs on the root route', () => {
     mockUseSelectedLayoutSegments.mockReturnValue([])
-    const { container } = render(<Breadcrumbs />)
+    const { container } = render(
+      <NotFoundProvider>
+        <Breadcrumbs />
+      </NotFoundProvider>,
+    )
     expect(container).toBeEmptyDOMElement()
   })
 
   it('renders breadcrumbs for a knownPathsWithoutPages route and does not render those breadcrumb items as links', () => {
     mockUseSelectedLayoutSegments.mockReturnValue(['weather', 'stations', 'map'])
-    render(<Breadcrumbs />)
+    render(
+      <NotFoundProvider>
+        <Breadcrumbs />
+      </NotFoundProvider>,
+    )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
     // weather and stations are in knownPathsWithoutPages, so not clickable
@@ -37,7 +46,11 @@ describe('Breadcrumbs', () => {
 
   it('renders breadcrumbs for a catch-all segment (single string with slashes)', () => {
     mockUseSelectedLayoutSegments.mockReturnValue(['education/classes/field-classes'])
-    render(<Breadcrumbs />)
+    render(
+      <NotFoundProvider>
+        <Breadcrumbs />
+      </NotFoundProvider>,
+    )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
     // All segments from catch-all are not clickable
@@ -52,7 +65,11 @@ describe('Breadcrumbs', () => {
       'blog',
       'two-feet-of-right-side-up-pow-fell-overnight',
     ])
-    render(<Breadcrumbs />)
+    render(
+      <NotFoundProvider>
+        <Breadcrumbs />
+      </NotFoundProvider>,
+    )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
     // blog is clickable

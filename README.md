@@ -55,6 +55,7 @@ You will need to add two keys to your `.env` file. Reach out to someone on the d
 In order to use tenant scoped subdomains on localhost you'll need to add the following to your `/etc/hosts` on macOS or `C:\Windows\System32\drivers\etc\hosts` on Windows:
 
 ```
+127.0.0.1       dvac.localhost
 127.0.0.1       nwac.localhost
 127.0.0.1       sac.localhost
 127.0.0.1       snfac.localhost
@@ -79,6 +80,23 @@ Running the seed script may take a while - when reviewing a pull request, you ca
 branch="skuznets/some-feature-thing"; turso db shell "payloadcms-preview-${branch//[^a-z0-9\-]/x}" .dump | sqlite3 dev.db
 ```
 
+### Setting up local email sending
+
+The email adapter for Payload is set up to use nodemailer locally and Resend in production.
+
+For local development it is recommended to use a free mailtrap.io account and their email sandbox. Using this sandbox SMTP server will capture all emails sent from your local environment regardless of email address.
+
+#### Set up mailtrap.io sandbox
+
+1. Create a free account at https://mailtrap.io/register/signup
+2. Select email testing / sandbox during onboarding (not critical)
+3. After onboarding navigate to the "Sandbox" page in the left-hand nav
+4. Copy the SMTP credentials to their respective SMTP\_ environment variables in your `.env` file. See `.env.example`.
+
+#### Customized sendEmail function
+
+You should use the customized `./src/utilities/email/sendEmail#sendEmail` function because it adds our default `replyTo` address which we use for email receiving.
+
 ## Git
 
 ### Signing commits
@@ -92,3 +110,33 @@ To avoid an error when attempting to merge a PR on a feature branch into main, y
 3. Configure git to use your GPG key: [GitHub guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-gpg-key)
 
 Note: When configuring git to automatically sign commits you could leave out the `--global` flag if you only want to automatically sign commits in this repo, not all repos.
+
+## Tenant Lookup System
+
+The application uses **Vercel Edge Config** for fast, globally distributed tenant lookups in middleware, with a cached API route as fallback.
+
+### How It Works
+
+The system operates with these priorities:
+
+1. **Edge Config Lookup** (primary) - Fast tenants lookup (~10ms globally)
+2. **Cached API Route** (fallback) - Database query with 5-minute cache when Edge Config fails
+
+### Infra
+
+We have two edge config stores in Vercel:
+
+1. For preview environment. This can also be used for local dev if needed for testing. But an edge config is not required for local development because of the cached API route fallback.
+2. For prod environment
+
+## Developing Emails
+
+This repo is setup to use [React Email](https://react.email/) for custom email development.
+
+react-email allows us to use React components to develop emails. The `./src/emails` directory stores our React emails and can be previewed using the react-email preview server.
+
+Run `pnpm email:dev` to run the email server on `http://localhost:3001`.
+
+Any file inside `./src/emails` (except for inside the `./src/emails/_components` dir) will be interpreted as an email. Passing `PreviewProps` to the default export will render the email on the preview server with those props.
+
+You likely won't use `pnpm email:build` or `pnpm email:export`. The primary method of using these emails is through the [render](https://react.email/docs/utilities/render) utility. See `./src/utilities/email/generateInviteUserEmail.tsx` for an example.

@@ -66,7 +66,7 @@ export const MobileNav = ({
 
   return (
     <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
-      <div ref={headerRef} className="lg:hidden fixed z-50 inset-x-0 py-3 bg-header shadow-sm">
+      <div ref={headerRef} className="lg:hidden fixed z-50 inset-x-0 py-1.5 bg-header shadow-sm">
         <div className="container flex justify-between items-center gap-5">
           <DialogTrigger className="p-2">
             <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">

@@ -1,5 +1,6 @@
-import { accessByGlobalRole } from '@/access/byGlobalRole'
+import { accessByGlobalRoleWithAuthenticatedRead } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
+import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
 import type { CollectionConfig, Field } from 'payload'
 
 export const collectionsField: Field = {
@@ -11,7 +12,6 @@ export const collectionsField: Field = {
     components: {
       Field: '@/collections/Roles/components/CollectionsField#CollectionsField',
     },
-    position: 'sidebar',
   },
 }
 
@@ -23,7 +23,6 @@ export const rulesField: Field = {
     components: {
       Cell: '@/collections/Roles/components/RulesCell#RulesCell',
     },
-    position: 'sidebar',
   },
   fields: [
     collectionsField,
@@ -39,10 +38,11 @@ export const rulesField: Field = {
 
 export const Roles: CollectionConfig = {
   slug: 'roles',
-  access: accessByGlobalRole('roles'),
+  access: accessByGlobalRoleWithAuthenticatedRead('roles'),
   admin: {
     useAsTitle: 'name',
     group: 'Permissions',
+    hidden: ({ user }) => hasReadOnlyAccess(user, 'roles'),
   },
   fields: [
     {

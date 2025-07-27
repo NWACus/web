@@ -24,12 +24,9 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
 
     const userCollectionRoleAssignments = roleAssignments.filter(
       (assignment) =>
-        assignment.roles &&
-        assignment.roles
-          .filter((role) => typeof role !== 'number')
-          .map((role) => role.rules)
-          .flat()
-          .some(ruleMatches(method, 'users')),
+        assignment.role &&
+        typeof assignment.role !== 'number' &&
+        assignment.role.rules.some(ruleMatches(method, 'users')),
     )
 
     const conditions = []
@@ -73,8 +70,8 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
       }
     }
 
-    // allow users to read their own record
-    if (args?.id === args.req.user.id) {
+    // allow users to read, update their own record
+    if (args?.id === args.req.user.id && (method === 'read' || method === 'update')) {
       return true
     }
 
@@ -82,7 +79,7 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
   }
 
 export const accessByGlobalRoleOrTenantRoleAssignmentOrDomain: CollectionConfig['access'] = {
-  create: byGlobalRoleOrTenantRoleAssignmentOrDomain('create'),
+  create: () => false, // Disallow create for the users collection in favor of a custom invite flow which uses the create rule on the users collection
   read: byGlobalRoleOrTenantRoleAssignmentOrDomain('read'),
   update: byGlobalRoleOrTenantRoleAssignmentOrDomain('update'),
   delete: byGlobalRoleOrTenantRoleAssignmentOrDomain('delete'),

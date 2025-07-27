@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
+import { normalizePath } from '../utils'
 import { allAvalancheCenterCapabilitiesSchema, avalancheCenterSchema } from './types/schemas'
 
 const host = process.env.NAC_HOST || 'https://api.avalanche.org'
@@ -20,11 +21,6 @@ export class NACError extends Error {
 type Options = {
   tags?: string[]
   cachedTime?: number | false
-}
-
-// normalize paths by removing leading/trailing slashes
-function normalizePath(path: string): string {
-  return path.replace(/^\/+|\/+$/g, '')
 }
 
 export async function nacFetch(path: string, options: Options = {}) {
@@ -134,9 +130,10 @@ export async function getAllAvalancheCenterCapabilities() {
 
 export async function getAvalancheCenterPlatforms(centerSlug: string) {
   const allAvalancheCenterCapabilities = await getAllAvalancheCenterCapabilities()
+  const actualAvyCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
 
   const foundAvalancheCenterBySlug = allAvalancheCenterCapabilities.centers.find(
-    (center) => center.id === centerSlug.toUpperCase(),
+    (center) => center.id === actualAvyCenter.toUpperCase(),
   )
 
   if (!foundAvalancheCenterBySlug)
@@ -152,7 +149,8 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
-  const metadata = await nacFetch(`/v2/public/avalanche-center/${centerSlug.toUpperCase()}`)
+  const actualAvyCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const metadata = await nacFetch(`/v2/public/avalanche-center/${actualAvyCenter.toUpperCase()}`)
 
   const parsed = avalancheCenterSchema.safeParse(metadata)
 

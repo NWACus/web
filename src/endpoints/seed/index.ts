@@ -36,7 +36,7 @@ const collections: CollectionSlug[] = [
   'form-submissions',
   'navigations',
   'roles',
-  'globalRoleAssignments',
+  'globalRoles',
   'roleAssignments',
   'tags',
   'teams',
@@ -118,6 +118,11 @@ export const seed = async ({
           },
           {
             email: {
+              contains: 'dvac.us',
+            },
+          },
+          {
+            email: {
               contains: 'nwac.us',
             },
           },
@@ -149,7 +154,8 @@ export const seed = async ({
     payload.logger.info(`— Skipping database cleanup for incremental seed...`)
   }
 
-  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
+  // Create global roles first
+  const globalRoles = await upsertGlobals('globalRoles', payload, incremental, (obj) => obj.name, [
     {
       name: 'Super Admin',
       rules: [
@@ -159,6 +165,37 @@ export const seed = async ({
         },
       ],
     },
+  ])
+
+  const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
+    {
+      name: 'Death Valley Avalanche Center',
+      slug: 'dvac',
+      customDomain: 'dvac.us',
+    },
+    {
+      name: 'Northwest Avalanche Center',
+      slug: 'nwac',
+      customDomain: 'nwac.us',
+    },
+    {
+      name: 'Sierra Avalanche Center',
+      slug: 'sac',
+      customDomain: 'sierraavalanchecenter.org',
+    },
+    {
+      name: 'Sawtooth Avalanche Center',
+      slug: 'snfac',
+      customDomain: 'sawtoothavalanche.com',
+    },
+  ])
+  const tenantsById: Record<number, Tenant> = {}
+  for (const tenant in tenants) {
+    tenantsById[tenants[tenant].id] = tenants[tenant]
+  }
+
+  // Create global roles
+  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
     {
       name: 'Admin',
       rules: [
@@ -223,28 +260,6 @@ export const seed = async ({
     },
   ])
 
-  const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
-    {
-      name: 'Northwest Avalanche Center',
-      slug: 'nwac',
-      customDomain: 'nwac.us',
-    },
-    {
-      name: 'Sierra Avalanche Center',
-      slug: 'sac',
-      customDomain: 'sierraavalanchecenter.org',
-    },
-    {
-      name: 'Sawtooth Avalanche Center',
-      slug: 'snfac',
-      customDomain: 'sawtoothavalanche.com',
-    },
-  ])
-  const tenantsById: Record<number, Tenant> = {}
-  for (const tenant in tenants) {
-    tenantsById[tenants[tenant].id] = tenants[tenant]
-  }
-
   payload.logger.info(`— Seeding brand media...`)
 
   const logoFiles: Record<string, string> = {
@@ -254,6 +269,7 @@ export const seed = async ({
     cbac: 'CBAC.webp',
     cnfaic: 'CNFAIC.webp',
     coaa: 'COAA.webp',
+    dvac: 'DVAC.webp',
     esac: 'ESAC.webp',
     fac: 'FAC.webp',
     gnfac: 'GNFAC.webp',
@@ -271,11 +287,13 @@ export const seed = async ({
     wcmac: 'WCMAC.webp',
   }
   const iconFiles: Record<string, string> = {
+    dvac: 'dvac-icon.png',
     nwac: 'nwac-icon.jpg',
     sac: 'sac-icon.png',
     snfac: 'snfac-icon.png',
   }
   const bannerFiles: Record<string, string> = {
+    dvac: 'dvac-icon.png',
     nwac: 'nwac-banner.webp',
     sac: 'sac-banner.webp',
     snfac: 'sac-usfs-logo.webp',
@@ -292,28 +310,28 @@ export const seed = async ({
 
   for (const tenantSlug in tenants) {
     if (tenantSlug in logoFiles) {
-      const logo = await getSeedImageByFilename(logoFiles[tenantSlug])
+      const logo = await getSeedImageByFilename(logoFiles[tenantSlug], payload.logger)
       if (!logo) {
         throw new Error(`Getting logo for tenant ${tenantSlug} returned null...`)
       }
       logos[tenantSlug] = logo
     }
     if (tenantSlug in iconFiles) {
-      const icon = await getSeedImageByFilename(iconFiles[tenantSlug])
+      const icon = await getSeedImageByFilename(iconFiles[tenantSlug], payload.logger)
       if (!icon) {
         throw new Error(`Getting icon for tenant ${tenantSlug} returned null...`)
       }
       icons[tenantSlug] = icon
     }
     if (tenantSlug in bannerFiles) {
-      const banner = await getSeedImageByFilename(bannerFiles[tenantSlug])
+      const banner = await getSeedImageByFilename(bannerFiles[tenantSlug], payload.logger)
       if (!banner) {
         throw new Error(`Getting banner for tenant ${tenantSlug} returned null...`)
       }
       banners[tenantSlug] = banner
     }
     if (tenantSlug in usfsLogoFiles) {
-      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug])
+      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug], payload.logger)
       if (!usfsLogo) {
         throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
       }
@@ -365,6 +383,14 @@ export const seed = async ({
     Tenant['slug'],
     Partial<RequiredDataFromCollectionSlug<'settings'>>
   > = {
+    dvac: {
+      description:
+        'Death Valley Avalanche Center is our templated tenant where we can see and copy data from.',
+      address: '123 Made Up Ave. S\nNowhere, WA 98045',
+      phone: '(111)867-5309',
+      email: 'info@dvac.us',
+      socialMedia: {},
+    },
     nwac: {
       description:
         'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
@@ -464,30 +490,29 @@ export const seed = async ({
     },
   ])
 
-  const teams = await seedStaff(payload, incremental, tenants, tenantsById, users)
+  const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById, users)
 
   const requestHeaders = await headers()
   const { user } = await payload.auth({ headers: requestHeaders })
-  const globalRoleAssignments: RequiredDataFromCollectionSlug<'globalRoleAssignments'>[] = [
-    {
-      roles: [roles['Super Admin'].id],
+
+  // Assign global roles directly to users
+  await payload.create({
+    collection: 'globalRoleAssignments',
+    data: {
       user: users['Super Admin'].id,
+      globalRole: globalRoles['Super Admin'].id,
     },
-  ]
+  })
+
   if (user && user.email !== users['Super Admin'].email) {
-    globalRoleAssignments.push({
-      roles: [roles['Super Admin'].id],
-      user: user.id,
+    await payload.create({
+      collection: 'globalRoleAssignments',
+      data: {
+        user: user.id,
+        globalRole: globalRoles['Super Admin'].id,
+      },
     })
   }
-  // SuperAdminRoleAssignment
-  await upsertGlobals(
-    'globalRoleAssignments',
-    payload,
-    incremental,
-    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
-    globalRoleAssignments,
-  )
 
   // Roles
   await upsert(
@@ -495,36 +520,36 @@ export const seed = async ({
     payload,
     incremental,
     tenantsById,
-    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
+    (obj) => `${obj.user} ${obj.role}`,
     [
       ...Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
           {
             tenant: tenant.id,
-            roles: [roles['Admin'].id],
+            role: roles['Admin'].id,
             user: users[tenant.slug.toUpperCase() + ' Admin'].id,
           },
           {
             tenant: tenant.id,
-            roles: [roles['Forecaster'].id],
+            role: roles['Forecaster'].id,
             user: users[tenant.slug.toUpperCase() + ' Forecaster'].id,
           },
 
           {
             tenant: tenant.id,
-            roles: [roles['Non-Profit Staff'].id],
+            role: roles['Non-Profit Staff'].id,
             user: users[tenant.slug.toUpperCase() + ' Non-Profit Staff'].id,
           },
         ])
         .flat(),
       {
         tenant: tenants['snfac'].id,
-        roles: [roles['Admin'].id],
+        role: roles['Admin'].id,
         user: users['Multi-center Admin'].id,
       },
       {
         tenant: tenants['nwac'].id,
-        roles: [roles['Admin'].id],
+        role: roles['Admin'].id,
         user: users['Multi-center Admin'].id,
       },
     ],
@@ -533,10 +558,10 @@ export const seed = async ({
   payload.logger.info(`— Getting images...`)
 
   const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
-    getSeedImageByFilename('image-post1.webp'),
-    getSeedImageByFilename('image-post2.webp'),
-    getSeedImageByFilename('image-post3.webp'),
-    getSeedImageByFilename('image-post3.webp'),
+    getSeedImageByFilename('image-post1.webp', payload.logger),
+    getSeedImageByFilename('image-post2.webp', payload.logger),
+    getSeedImageByFilename('image-post3.webp', payload.logger),
+    getSeedImageByFilename('image-post3.webp', payload.logger),
   ])
 
   const images = await upsert(
@@ -604,24 +629,17 @@ export const seed = async ({
     tenantsById,
     (obj) => obj.slug,
     Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
-        post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
-          users[tenant.slug.toUpperCase() + ' Forecaster'],
-          users[tenant.slug.toUpperCase() + ' Admin'],
-        ]),
-        post2(
-          tenant,
-          images[tenant.slug]['image2'],
-          images[tenant.slug]['image3'],
-          users[tenant.slug.toUpperCase() + ' Admin'],
-        ),
-        post3(
-          tenant,
-          images[tenant.slug]['image3'],
-          images[tenant.slug]['image1'],
-          users[tenant.slug.toUpperCase() + ' Forecaster'],
-        ),
-      ])
+      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => {
+        const authors = Object.values(bios[tenant.slug])
+        return [
+          post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
+            authors[0],
+            authors[1],
+          ]),
+          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[2]),
+          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[3]),
+        ]
+      })
       .flat(),
   )
 
@@ -858,6 +876,15 @@ export const seed = async ({
         navigationSeed(payload, pages, tenant),
     ),
   )
+
+  payload.logger.info(`Remove custom domain from dvac...`)
+  await payload.update({
+    id: tenants['dvac'].id,
+    collection: 'tenants',
+    data: {
+      customDomain: '',
+    },
+  })
 
   payload.logger.info('Seeded database successfully!')
 }

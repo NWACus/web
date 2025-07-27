@@ -1,4 +1,4 @@
-import { Role, User } from '@/payload-types'
+import { GlobalRole, User } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
 
 export const bootstrap = async ({
@@ -8,11 +8,11 @@ export const bootstrap = async ({
   payload: Payload
   user: User
 }): Promise<void> => {
-  payload.logger.info(`— Seeding role...`)
+  payload.logger.info(`— Seeding global role...`)
 
-  const roleData: RequiredDataFromCollectionSlug<'roles'>[] = [
+  const globalRoleData: RequiredDataFromCollectionSlug<'globalRoles'>[] = [
     {
-      name: 'Admin',
+      name: 'Super Admin',
       rules: [
         {
           collections: ['*'],
@@ -21,34 +21,44 @@ export const bootstrap = async ({
       ],
     },
   ]
-  const roles: Record<string, Role> = {}
-  for (const data of roleData) {
-    payload.logger.info(`Creating ${data.name} role...`)
-    const role = await payload.create({
-      collection: 'roles',
+  const globalRoles: Record<string, GlobalRole> = {}
+  for (const data of globalRoleData) {
+    payload.logger.info(`Creating ${data.name} global role...`)
+    const globalRole = await payload.create({
+      collection: 'globalRoles',
       data: data,
     })
 
-    if (!role) {
-      throw new Error(`Creating ${data.name} role returned null...`)
+    if (!globalRole) {
+      throw new Error(`Creating ${data.name} global role returned null...`)
     }
-    roles[data.name] = role
+    globalRoles[data.name] = globalRole
   }
 
-  payload.logger.info(`— Seeding global role assignments...`)
+  payload.logger.info(`— Assigning global roles to user...`)
 
-  // Super admin role assignment
-  await payload.create({
-    collection: 'globalRoleAssignments',
-    data: {
-      roles: [roles['Admin']],
-      user: user,
-    },
-  })
+  // Assign Super Admin global role to user via GlobalRoleAssignments
+  try {
+    await payload.create({
+      collection: 'globalRoleAssignments',
+      data: {
+        user: user.id,
+        globalRole: globalRoles['Super Admin'].id,
+      },
+    })
+  } catch (error) {
+    payload.logger.warn(`Could not assign global role to user ${user.id}: ${error}`)
+    // Continue with bootstrap even if this fails
+  }
 
   payload.logger.info(`— Seeding tenants...`)
 
   const tenantData: RequiredDataFromCollectionSlug<'tenants'>[] = [
+    {
+      name: 'Death Valley Avalanche Center',
+      slug: 'dvac',
+      customDomain: 'dvac.us',
+    },
     {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',

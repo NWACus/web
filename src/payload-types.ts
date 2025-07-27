@@ -74,6 +74,7 @@ export interface Config {
     tenants: Tenant;
     roles: Role;
     roleAssignments: RoleAssignment;
+    globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
     navigations: Navigation;
     biographies: Biography;
@@ -89,8 +90,8 @@ export interface Config {
   };
   collectionsJoins: {
     users: {
-      globalRoles: 'globalRoleAssignments';
       roles: 'roleAssignments';
+      globalRoleAssignments: 'globalRoleAssignments';
     };
   };
   collectionsSelect: {
@@ -101,6 +102,7 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     roles: RolesSelect<false> | RolesSelect<true>;
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
+    globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
@@ -175,6 +177,7 @@ export interface Media {
   } | null;
   contentHash?: string | null;
   blurDataUrl?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -332,16 +335,19 @@ export interface Biography {
 export interface User {
   id: number;
   name: string;
-  globalRoles?: {
-    docs?: (number | GlobalRoleAssignment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
   roles?: {
     docs?: (number | RoleAssignment)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  globalRoleAssignments?: {
+    docs?: (number | GlobalRoleAssignment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  inviteToken?: string | null;
+  inviteExpiration?: string | null;
+  lastLogin?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -356,11 +362,13 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "globalRoleAssignments".
+ * via the `definition` "roleAssignments".
  */
-export interface GlobalRoleAssignment {
+export interface RoleAssignment {
   id: number;
-  roles?: (number | Role)[] | null;
+  tenant: number | Tenant;
+  role?: (number | null) | Role;
+  roleName?: string | null;
   user?: (number | null) | User;
   contentHash?: string | null;
   updatedAt: string;
@@ -384,13 +392,29 @@ export interface Role {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "roleAssignments".
+ * via the `definition` "globalRoleAssignments".
  */
-export interface RoleAssignment {
+export interface GlobalRoleAssignment {
   id: number;
-  tenant: number | Tenant;
-  roles?: (number | Role)[] | null;
+  globalRole?: (number | null) | GlobalRole;
+  globalRoleName?: string | null;
   user?: (number | null) | User;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoles".
+ */
+export interface GlobalRole {
+  id: number;
+  name: string;
+  rules: {
+    collections: string[];
+    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
+    id?: string | null;
+  }[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -400,7 +424,7 @@ export interface RoleAssignment {
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
-  color: string;
+  backgroundColor: string;
   columns?:
     | {
         richText?: {
@@ -756,7 +780,7 @@ export interface Tag {
  * via the `definition` "ImageQuote".
  */
 export interface ImageQuote {
-  color: string;
+  backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
   quote: string;
@@ -770,7 +794,7 @@ export interface ImageQuote {
  * via the `definition` "ImageText".
  */
 export interface ImageText {
-  color: string;
+  backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
   richText: {
@@ -1461,6 +1485,10 @@ export interface PayloadLockedDocument {
         value: number | RoleAssignment;
       } | null)
     | ({
+        relationTo: 'globalRoles';
+        value: number | GlobalRole;
+      } | null)
+    | ({
         relationTo: 'globalRoleAssignments';
         value: number | GlobalRoleAssignment;
       } | null)
@@ -1548,6 +1576,7 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   contentHash?: T;
   blurDataUrl?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1685,7 +1714,7 @@ export interface BiographyBlockSelect<T extends boolean = true> {
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
-  color?: T;
+  backgroundColor?: T;
   columns?:
     | T
     | {
@@ -1744,7 +1773,7 @@ export interface ImageLinkGridSelect<T extends boolean = true> {
  * via the `definition` "ImageQuote_select".
  */
 export interface ImageQuoteSelect<T extends boolean = true> {
-  color?: T;
+  backgroundColor?: T;
   imageLayout?: T;
   image?: T;
   quote?: T;
@@ -1757,7 +1786,7 @@ export interface ImageQuoteSelect<T extends boolean = true> {
  * via the `definition` "ImageText_select".
  */
 export interface ImageTextSelect<T extends boolean = true> {
-  color?: T;
+  backgroundColor?: T;
   imageLayout?: T;
   image?: T;
   richText?: T;
@@ -1858,8 +1887,11 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
-  globalRoles?: T;
   roles?: T;
+  globalRoleAssignments?: T;
+  inviteToken?: T;
+  inviteExpiration?: T;
+  lastLogin?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1906,8 +1938,26 @@ export interface RolesSelect<T extends boolean = true> {
  */
 export interface RoleAssignmentsSelect<T extends boolean = true> {
   tenant?: T;
-  roles?: T;
+  role?: T;
+  roleName?: T;
   user?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoles_select".
+ */
+export interface GlobalRolesSelect<T extends boolean = true> {
+  name?: T;
+  rules?:
+    | T
+    | {
+        collections?: T;
+        actions?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1917,7 +1967,8 @@ export interface RoleAssignmentsSelect<T extends boolean = true> {
  * via the `definition` "globalRoleAssignments_select".
  */
 export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
-  roles?: T;
+  globalRole?: T;
+  globalRoleName?: T;
   user?: T;
   contentHash?: T;
   updatedAt?: T;

@@ -20,6 +20,14 @@ jobs:
         run: |
           head_ref="${{ github.head_ref }}"
           ref="${head_ref//[^a-z0-9\-]/x}"
+          # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
+          # and ensuring total database name stays within 58 character limit
+          # "payloadcms-preview-" is 19 characters, leaving 39 for the ref
+          if [ ${#ref} -gt 39 ]; then
+            prefix="${ref:0:31}"
+            hash=$(echo -n "${ref}" | sha256sum | cut -c1-7)
+            ref="${prefix}-${hash}"
+          fi
           echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
 
           name="payloadcms-preview-${ref}"
@@ -84,6 +92,8 @@ jobs:
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
           NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
+          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -94,6 +104,8 @@ jobs:
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
           VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
           NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
+          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
+          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |

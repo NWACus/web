@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
+import { GlobalRoles } from '@/collections/GlobalRoles'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
 import { Pages } from '@/collections/Pages'
@@ -19,24 +20,23 @@ import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
 import { defaultLexical } from '@/fields/defaultLexical'
+import { getEmailAdapter } from './email-adapter'
 import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getURL } from './utilities/getURL'
+import { getProductionTenantUrls } from './utilities/tenancy/getProductionTenantUrls'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const { emailAdapter, emailWarning } = getEmailAdapter()
 
 export default buildConfig({
   admin: {
     components: {
       beforeDashboard:
         process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
-      beforeNavLinks: [
-        {
-          clientProps: { label: 'Avalanche Center' },
-          path: '@/components/TenantSelector',
-        },
-      ],
+      beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
           clientProps: {
@@ -45,6 +45,7 @@ export default buildConfig({
           },
           path: '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider',
         },
+        '@/providers/ViewTypeProvider#ViewTypeProvider',
       ],
       actions: [
         {
@@ -56,6 +57,7 @@ export default buildConfig({
             useAsTitle: 'slug',
           },
         },
+        '@/components/ViewTypeAction',
       ],
       graphics: {
         Logo: '@/components/Logo/AvyFxLogo#AvyFxLogo',
@@ -63,6 +65,12 @@ export default buildConfig({
       },
       logout: {
         Button: '@/components/LogoutButton#LogoutButton',
+      },
+      views: {
+        'accept-invite-with-token': {
+          Component: '@/views/AcceptInvite#AcceptInvite',
+          path: '/accept-invite',
+        },
       },
     },
     meta: {
@@ -123,7 +131,6 @@ export default buildConfig({
     client: {
       url: process.env.DATABASE_URI || '',
       authToken: process.env.DATABASE_AUTH_TOKEN || '',
-      // concurrency: 1,
     },
   }),
   collections: [
@@ -134,6 +141,7 @@ export default buildConfig({
     Tenants,
     Roles,
     RoleAssignments,
+    GlobalRoles,
     GlobalRoleAssignments,
     Navigations,
     Biographies,
@@ -141,8 +149,17 @@ export default buildConfig({
     Settings,
     Tags,
   ],
-  cors: ['api.avalanche.org', 'api.snowobs.com', getURL()].filter(Boolean),
+  cors: [
+    'api.avalanche.org',
+    'api.snowobs.com',
+    getURL(),
+    ...(await getProductionTenantUrls()),
+  ].filter(Boolean),
+  csrf: [getURL(), ...(await getProductionTenantUrls())].filter(Boolean),
   globals: [NACWidgetsConfig],
+  graphQL: {
+    disable: true,
+  },
   plugins: [...plugins],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
@@ -150,4 +167,10 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   debug: true,
+  email: emailAdapter,
+  onInit: (payload) => {
+    if (emailWarning) {
+      payload.logger.warn(emailWarning)
+    }
+  },
 })

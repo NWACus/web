@@ -38,7 +38,7 @@ const eslintConfig = [
       ],
     },
   },
-  globalIgnores(['.next/']),
+  globalIgnores(['.next/', 'src/migrations/']),
 ]
 
 export default eslintConfig

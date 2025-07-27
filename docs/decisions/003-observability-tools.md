@@ -2,7 +2,7 @@
 
 Date: 2025-03-18
 
-Status: proposed
+Status: accepted
 
 ## Context
 
@@ -23,7 +23,7 @@ Sentry:
 PostHog:
 - Analytics
 
-___:
+BetterStack:
 - Logs drain
 
 ## Consequences
