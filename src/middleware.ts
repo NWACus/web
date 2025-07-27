@@ -39,7 +39,7 @@ async function getTenants(): Promise<{
     }
 
     const duration = performance.now() - start
-    return { tenants, source: 'api', duration }
+    return { tenants, source: 'edge-config', duration }
   } catch (error) {
     console.warn(
       'Failed to get all tenants from Edge Config, falling back to cached API route:',
