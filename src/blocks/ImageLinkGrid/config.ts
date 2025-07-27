@@ -73,7 +73,7 @@ export const ImageLinkGrid: Block = {
   fields: [
     {
       name: 'columns',
-      label: 'Image with links',
+      label: '',
       type: 'array',
       admin: {
         initCollapsed: true,
