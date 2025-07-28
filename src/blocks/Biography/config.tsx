@@ -9,13 +9,11 @@ export const BiographyBlock: Block = {
       relationTo: 'biographies',
       hasMany: false,
       required: true,
-      filterOptions: ({ data }) => {
-        return {
-          tenant: {
-            equals: data.tenant,
-          },
-        }
-      },
+      filterOptions: ({ data }) => ({
+        tenant: {
+          equals: data.tenant,
+        },
+      }),
     },
   ],
   interfaceName: 'BiographyBlock',

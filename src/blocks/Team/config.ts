@@ -9,13 +9,11 @@ export const TeamBlock: Block = {
       relationTo: 'teams',
       hasMany: false,
       required: true,
-      filterOptions: ({ data }) => {
-        return {
-          tenant: {
-            equals: data.tenant,
-          },
-        }
-      },
+      filterOptions: ({ data }) => ({
+        tenant: {
+          equals: data.tenant,
+        },
+      }),
     },
   ],
   interfaceName: 'TeamBlock',
