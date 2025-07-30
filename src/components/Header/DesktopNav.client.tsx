@@ -53,7 +53,7 @@ export const DesktopNav = ({
           return (
             <NavigationMenuItem key={label} value={label}>
               <NavigationMenuTrigger
-             onClick={(e) => {
+                onClick={(e) => {
                   // maintains accessibility via clicking space bar or enter with this trigger focused
                   // but disables mouse clicks or touch events
                   if ('pointerType' in e.nativeEvent && e.nativeEvent.pointerType !== '') {
