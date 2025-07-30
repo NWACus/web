@@ -3,12 +3,14 @@
 import { cn } from '@/utilities/ui'
 import { useEffect, useRef } from 'react'
 
-import { getURL } from '@/utilities/getURL'
+import { useTenant } from '@/providers/TenantProvider'
+import { getMediaURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import type { Props as MediaProps } from '../types'
 
 export const VideoMedia = (props: MediaProps) => {
-  const { onClick, resource, videoClassName } = props
-
+  const { onClick, resource, showVideoControls, videoClassName } = props
+  const { tenant } = useTenant()
   const videoRef = useRef<HTMLVideoElement>(null)
   // const [showFallback] = useState<boolean>()
 
@@ -23,20 +25,23 @@ export const VideoMedia = (props: MediaProps) => {
   }, [])
 
   if (resource && typeof resource === 'object') {
-    const { filename } = resource
+    const { url } = resource
+    const cacheTag = resource.updatedAt
+
+    const src = getMediaURL(url, cacheTag, getHostnameFromTenant(tenant))
 
     return (
       <video
         autoPlay
         className={cn(videoClassName)}
-        controls={false}
+        controls={showVideoControls || true}
         loop
         muted
         onClick={onClick}
         playsInline
         ref={videoRef}
       >
-        <source src={`${getURL()}/media/${filename}`} />
+        <source src={src} />
       </video>
     )
   }
