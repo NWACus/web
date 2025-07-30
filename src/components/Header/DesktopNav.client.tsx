@@ -53,7 +53,13 @@ export const DesktopNav = ({
           return (
             <NavigationMenuItem key={label} value={label}>
               <NavigationMenuTrigger
-                onClick={(e) => e.preventDefault()}
+             onClick={(e) => {
+                  // maintains accessibility via clicking space bar or enter with this trigger focused
+                  // but disables mouse clicks or touch events
+                  if ('pointerType' in e.nativeEvent && e.nativeEvent.pointerType !== '') {
+                    e.preventDefault()
+                  }
+                }}
                 className="data-[state=open]:text-header-foreground-highlight font-medium"
               >
                 {label}
