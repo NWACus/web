@@ -1,3 +1,4 @@
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
 export const BiographyBlock: Block = {
@@ -9,11 +10,7 @@ export const BiographyBlock: Block = {
       relationTo: 'biographies',
       hasMany: false,
       required: true,
-      filterOptions: ({ data }) => ({
-        tenant: {
-          equals: data.tenant,
-        },
-      }),
+      filterOptions: getTenantFilter,
     },
   ],
   interfaceName: 'BiographyBlock',

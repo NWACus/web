@@ -1,5 +1,6 @@
 import type { Block, Field } from 'payload'
 
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -12,9 +13,7 @@ const columnFields: Field[] = [
     type: 'upload',
     relationTo: 'media',
     required: true,
-    filterOptions: {
-      mimeType: { contains: 'image' },
-    },
+    filterOptions: getImageTypeFilter,
   },
   {
     name: 'title',

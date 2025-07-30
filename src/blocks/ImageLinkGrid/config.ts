@@ -1,3 +1,4 @@
+import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
 import type { GroupField } from 'payload'
@@ -53,6 +54,7 @@ const linkField: GroupField = {
       label: 'Document to link to',
       relationTo: ['pages', 'posts'],
       required: true,
+      filterOptions: getTenantFilter,
     },
     {
       name: 'url',
@@ -84,9 +86,7 @@ export const ImageLinkGrid: Block = {
           type: 'upload',
           relationTo: 'media',
           required: true,
-          filterOptions: {
-            mimeType: { contains: 'image' },
-          },
+          filterOptions: getImageTypeFilter,
         },
         { ...linkField },
         {
