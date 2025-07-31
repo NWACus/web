@@ -2,6 +2,7 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig, TextFieldValidation } from 'payload'
 
 const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
@@ -231,12 +232,14 @@ export const Settings: CollectionConfig = {
               label: 'Terms of Service',
               type: 'relationship',
               relationTo: 'pages',
+              filterOptions: getTenantFilter,
             },
             {
               name: 'privacy',
               label: 'Privacy Policy',
               type: 'relationship',
               relationTo: 'pages',
+              filterOptions: getTenantFilter,
             },
           ],
         },

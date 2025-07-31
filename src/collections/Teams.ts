@@ -2,6 +2,7 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
 
 export const Teams: CollectionConfig = {
@@ -25,6 +26,7 @@ export const Teams: CollectionConfig = {
       relationTo: 'biographies',
       hasMany: true,
       required: true,
+      filterOptions: getTenantFilter,
     },
     contentHashField(),
   ],
