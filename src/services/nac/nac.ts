@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
+import { normalizePath } from '../utils'
 import { allAvalancheCenterCapabilitiesSchema, avalancheCenterSchema } from './types/schemas'
 
 const host = process.env.NAC_HOST || 'https://api.avalanche.org'
@@ -20,11 +21,6 @@ export class NACError extends Error {
 type Options = {
   tags?: string[]
   cachedTime?: number | false
-}
-
-// normalize paths by removing leading/trailing slashes
-function normalizePath(path: string): string {
-  return path.replace(/^\/+|\/+$/g, '')
 }
 
 export async function nacFetch(path: string, options: Options = {}) {

@@ -131,7 +131,6 @@ export default buildConfig({
     client: {
       url: process.env.DATABASE_URI || '',
       authToken: process.env.DATABASE_AUTH_TOKEN || '',
-      // concurrency: 1,
     },
   }),
   collections: [
@@ -150,10 +149,13 @@ export default buildConfig({
     Settings,
     Tags,
   ],
-  cors: ['api.avalanche.org', 'api.snowobs.com', getURL(), ...getProductionTenantUrls()].filter(
-    Boolean,
-  ),
-  csrf: [getURL(), ...getProductionTenantUrls()].filter(Boolean),
+  cors: [
+    'api.avalanche.org',
+    'api.snowobs.com',
+    getURL(),
+    ...(await getProductionTenantUrls()),
+  ].filter(Boolean),
+  csrf: [getURL(), ...(await getProductionTenantUrls())].filter(Boolean),
   globals: [NACWidgetsConfig],
   graphQL: {
     disable: true,
