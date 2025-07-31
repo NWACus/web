@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/utilities/ui'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
 import { useTenant } from '@/providers/TenantProvider'
 import { getMediaURL } from '@/utilities/getURL'
@@ -12,17 +12,6 @@ export const VideoMedia = (props: MediaProps) => {
   const { onClick, resource, showVideoControls, videoClassName } = props
   const { tenant } = useTenant()
   const videoRef = useRef<HTMLVideoElement>(null)
-  // const [showFallback] = useState<boolean>()
-
-  useEffect(() => {
-    const { current: video } = videoRef
-    if (video) {
-      video.addEventListener('suspend', () => {
-        // setShowFallback(true);
-        // console.warn('Video was suspended, rendering fallback image.')
-      })
-    }
-  }, [])
 
   if (resource && typeof resource === 'object') {
     const { url } = resource
@@ -32,9 +21,8 @@ export const VideoMedia = (props: MediaProps) => {
 
     return (
       <video
-        autoPlay
         className={cn(videoClassName)}
-        controls={showVideoControls || true}
+        controls={showVideoControls ?? true}
         loop
         muted
         onClick={onClick}
