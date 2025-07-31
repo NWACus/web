@@ -4,6 +4,7 @@ import { tenantField } from '@/fields/tenantField'
 import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
 import type { CollectionConfig } from 'payload'
 import { accessByTenantRoleWithSelfRead } from './access/byTenantRoleWithSelfRead'
+import { validateEscalation } from './hooks/validateEscalation'
 
 // A role assignment binds a user to a set of roles in a tenant.
 export const RoleAssignments: CollectionConfig = {
@@ -47,4 +48,7 @@ export const RoleAssignments: CollectionConfig = {
     },
     contentHashField(),
   ],
+  hooks: {
+    beforeValidate: [validateEscalation],
+  },
 }

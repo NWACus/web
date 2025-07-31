@@ -2,6 +2,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
 import type { CollectionConfig } from 'payload'
 import { accessByGlobalRoleWithSelfRead } from './access/byGlobalRoleWithSelfRead'
+import { validateEscalation } from './hooks/validateEscalation'
 
 // A global role assignment binds a user to a set of roles in all tenants.
 export const GlobalRoleAssignments: CollectionConfig = {
@@ -43,4 +44,7 @@ export const GlobalRoleAssignments: CollectionConfig = {
     },
     contentHashField(),
   ],
+  hooks: {
+    beforeValidate: [validateEscalation],
+  },
 }
