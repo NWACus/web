@@ -25,6 +25,7 @@ import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
 import { plugins } from './plugins'
 import { getURL } from './utilities/getURL'
 import { getProductionTenantUrls } from './utilities/tenancy/getProductionTenantUrls'
+import { getTenantSubdomainUrls } from './utilities/tenancy/getTenantSubdomainUrls'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -155,7 +156,11 @@ export default buildConfig({
     getURL(),
     ...(await getProductionTenantUrls()),
   ].filter(Boolean),
-  csrf: [getURL(), ...(await getProductionTenantUrls())].filter(Boolean),
+  csrf: [
+    getURL(),
+    ...(await getTenantSubdomainUrls()),
+    ...(await getProductionTenantUrls()),
+  ].filter(Boolean),
   globals: [NACWidgetsConfig],
   graphQL: {
     disable: true,
