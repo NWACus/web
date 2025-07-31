@@ -12,6 +12,7 @@ export const contact: (
     slug: 'contact',
     tenant: tenant.id,
     _status: 'published',
+    publishedAt: new Date().toISOString(),
     layout: [
       {
         blockType: 'formBlock',
