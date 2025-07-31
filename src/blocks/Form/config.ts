@@ -11,6 +11,7 @@ import {
 export const FormBlock: Block = {
   slug: 'formBlock',
   interfaceName: 'FormBlock',
+  imageURL: '/thumbnail/FormThumbnail.jpg',
   fields: [
     {
       name: 'form',
