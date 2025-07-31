@@ -21,7 +21,7 @@ export const ImageQuote = (props: Props) => {
           <div
             className={`items-center md:col-span-4 self-start ${imageLayout === 'right' ? 'order-last ms-6' : 'me-6 '}`}
           >
-            <ImageMedia imgClassName={cn(imgClassName)} resource={image} />
+            {image && <ImageMedia imgClassName={cn(imgClassName)} resource={image} />}
           </div>
           <div className={`md:col-span-8 self-center ${textColor}`}>
             <blockquote className="border-s-4 ps-6 ">

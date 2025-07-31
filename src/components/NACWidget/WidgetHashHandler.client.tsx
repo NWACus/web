@@ -1,14 +1,15 @@
 'use client'
+import { useHash } from '@/utilities/useHash'
 import { useEffect } from 'react'
 
 export function WidgetHashHandler({ initialHash }: { initialHash: string }) {
-  useEffect(() => {
-    const url = new URL(window.location.href)
+  const hash = useHash()
 
-    if (!url.hash.includes(initialHash)) {
-      window.location.replace(`${url.pathname}${url.search}#${initialHash}`)
+  useEffect(() => {
+    if (!hash) {
+      window.location.hash = initialHash
     }
-  }, [initialHash])
+  }, [hash, initialHash])
 
   return null
 }

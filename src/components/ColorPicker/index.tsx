@@ -1,12 +1,12 @@
 'use client'
 
+import { cn } from '@/utilities/ui'
 import { FieldLabel, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
 
 const ColorPicker = (props: TextFieldClientProps) => {
   const colorOptions = [
     'white',
-    'brand-50',
     'brand-100',
     'brand-200',
     'brand-300',
@@ -17,6 +17,7 @@ const ColorPicker = (props: TextFieldClientProps) => {
     'brand-800',
     'brand-900',
     'brand-950',
+    'transparent',
   ]
 
   const { path, field } = props
@@ -24,15 +25,21 @@ const ColorPicker = (props: TextFieldClientProps) => {
   const { value, setValue } = useField({ path })
 
   return (
-    <div className="flex items-start mb-6">
+    <div className="flex items-start justify-between mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      <ul className="grid grid-cols-6 grid-rows-2 list-none">
+      <ul className="flex flex-wrap max-w-[260px] list-none">
         {colorOptions.map((color, i) => {
           const bgColor = `bg-${color}`
           return (
-            <li key={i} className={`border ${color === value ? 'border-solid' : ''}`}>
+            <li key={i} className={cn('border', { 'border-solid': color === value })}>
               <div
-                className={`w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor}`}
+                className={cn(
+                  `relative w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor}`,
+                  {
+                    'bg-white bg-[repeating-linear-gradient(45deg,#aaa_25%,transparent_25%,transparent_75%,#aaa_75%,#aaa),repeating-linear-gradient(45deg,#aaa_25%,#e5e5f7_25%,#e5e5f7_75%,#aaa_75%,#aaa)] bg-[position:0_0,10px_10px] bg-[size:20px_20px] bg-repeat':
+                      color === 'transparent',
+                  },
+                )}
                 aria-label={color}
                 onClick={() => setValue(color)}
               />

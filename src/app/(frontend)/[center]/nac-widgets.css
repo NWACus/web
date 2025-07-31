@@ -39,10 +39,12 @@
   @apply bg-background text-foreground !important;
 }
 
+/* Hide Zone selector on top right */
 #nac-zone-selector {
   display: none;
 }
 
+/* Hide back to top button */
 #nac-app .nac-btn.nac-to-top {
   display: none;
 }

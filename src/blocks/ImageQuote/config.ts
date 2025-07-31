@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
 
 export const ImageQuote: Block = {
   slug: 'imageQuote',
@@ -30,9 +31,7 @@ export const ImageQuote: Block = {
       type: 'upload',
       relationTo: 'media',
       required: true,
-      filterOptions: {
-        mimeType: { contains: 'image' },
-      },
+      filterOptions: getImageTypeFilter,
     },
     {
       name: 'quote',

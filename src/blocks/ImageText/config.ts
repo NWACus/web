@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import {
   FixedToolbarFeature,
   HeadingFeature,
@@ -36,9 +37,7 @@ export const ImageText: Block = {
       type: 'upload',
       relationTo: 'media',
       required: true,
-      filterOptions: {
-        mimeType: { contains: 'image' },
-      },
+      filterOptions: getImageTypeFilter,
     },
     {
       name: 'richText',

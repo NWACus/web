@@ -1,3 +1,4 @@
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
 export const TeamBlock: Block = {
@@ -9,6 +10,7 @@ export const TeamBlock: Block = {
       relationTo: 'teams',
       hasMany: false,
       required: true,
+      filterOptions: getTenantFilter,
     },
   ],
   interfaceName: 'TeamBlock',
@@ -16,4 +18,5 @@ export const TeamBlock: Block = {
     plural: 'Teams',
     singular: 'Team',
   },
+  imageURL: '/thumbnail/TeamThumbnail.jpg',
 }

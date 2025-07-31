@@ -1,3 +1,4 @@
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
 export const BiographyBlock: Block = {
@@ -9,6 +10,7 @@ export const BiographyBlock: Block = {
       relationTo: 'biographies',
       hasMany: false,
       required: true,
+      filterOptions: getTenantFilter,
     },
   ],
   interfaceName: 'BiographyBlock',
@@ -16,4 +18,5 @@ export const BiographyBlock: Block = {
     plural: 'Biographies',
     singular: 'Biography',
   },
+  imageURL: '/thumbnail/BiographyThumbnail.jpg',
 }
