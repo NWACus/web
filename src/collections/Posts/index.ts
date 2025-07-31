@@ -25,6 +25,7 @@ import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { Tenant } from '@/payload-types'
+import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 
 export const Posts: CollectionConfig<'posts'> = {
@@ -131,13 +132,7 @@ export const Posts: CollectionConfig<'posts'> = {
       hasMany: true,
       relationTo: 'biographies',
       required: true,
-      filterOptions: ({ data }) => {
-        return {
-          tenant: {
-            equals: data.tenant,
-          },
-        }
-      },
+      filterOptions: getTenantFilter,
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -181,11 +176,7 @@ export const Posts: CollectionConfig<'posts'> = {
       },
       hasMany: true,
       relationTo: 'tags',
-      filterOptions: ({ data }) => ({
-        tenant: {
-          equals: data.tenant,
-        },
-      }),
+      filterOptions: getTenantFilter,
     },
     {
       name: 'relatedPosts',
@@ -193,16 +184,7 @@ export const Posts: CollectionConfig<'posts'> = {
       admin: {
         position: 'sidebar',
       },
-      filterOptions: ({ id, data }) => {
-        return {
-          id: {
-            not_in: [id],
-          },
-          tenant: {
-            equals: data.tenant,
-          },
-        }
-      },
+      filterOptions: getTenantAndIdFilter,
       hasMany: true,
       relationTo: 'posts',
     },

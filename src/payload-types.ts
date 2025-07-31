@@ -853,6 +853,7 @@ export interface ImageTextList {
  * via the `definition` "LinkPreviewBlock".
  */
 export interface LinkPreviewBlock {
+  backgroundColor: string;
   cards?:
     | {
         image: number | Media;
@@ -1815,6 +1816,7 @@ export interface ImageTextListSelect<T extends boolean = true> {
  * via the `definition` "LinkPreviewBlock_select".
  */
 export interface LinkPreviewBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
   cards?:
     | T
     | {

@@ -14,6 +14,7 @@ import { ButtonsBlock } from '../Buttons/config'
 export const Content: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
+  imageURL: '/thumbnail/ContentThumbnail.jpg',
   fields: [
     // Background color
     colorPickerField('Background color'),

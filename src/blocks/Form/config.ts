@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
   FixedToolbarFeature,
   HeadingFeature,
@@ -10,12 +11,14 @@ import {
 export const FormBlock: Block = {
   slug: 'formBlock',
   interfaceName: 'FormBlock',
+  imageURL: '/thumbnail/FormThumbnail.jpg',
   fields: [
     {
       name: 'form',
       type: 'relationship',
       relationTo: 'forms',
       required: true,
+      filterOptions: getTenantFilter,
     },
     {
       name: 'enableIntro',

@@ -11,6 +11,7 @@ import { ButtonsBlock } from '../Buttons/config'
 export const ContentWithCallout: Block = {
   slug: 'contentWithCallout',
   interfaceName: 'ContentWithCalloutBlock',
+  imageURL: '/thumbnail/ContentCalloutThumbnail.jpg',
   fields: [
     {
       name: 'richText',

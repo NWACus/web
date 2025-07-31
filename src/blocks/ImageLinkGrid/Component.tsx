@@ -33,18 +33,22 @@ export const ImageLinkGrid = (props: Props) => {
               <div className={cn('group', colsSpanClass, className)} key={index}>
                 <a href={`${link?.url}`}>
                   <div className="w-full h-[280px] overflow-hidden">
-                    <ImageMedia
-                      pictureClassName="h-full"
-                      imgClassName={cn(
-                        'object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden',
-                        imgClassName,
-                      )}
-                      resource={image}
-                    />
+                    {image && (
+                      <ImageMedia
+                        pictureClassName="h-full"
+                        imgClassName={cn(
+                          'object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden',
+                          imgClassName,
+                        )}
+                        resource={image}
+                      />
+                    )}
                   </div>
-                  <div className="w-full bg-accent p-2 text-small text-center group-hover:bg-accent/90">
-                    {caption}
-                  </div>
+                  {caption && (
+                    <div className="w-full bg-accent p-2 text-small text-center group-hover:bg-accent/90">
+                      {caption}
+                    </div>
+                  )}
                 </a>
               </div>
             )

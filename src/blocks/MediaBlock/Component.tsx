@@ -32,15 +32,7 @@ export const MediaBlock = (props: Props) => {
   if (media && typeof media === 'object') caption = media.caption
 
   return (
-    <div
-      className={cn(
-        'my-4',
-        {
-          container: enableGutter,
-        },
-        className,
-      )}
-    >
+    <div className={cn('my-4', { container: enableGutter }, className)}>
       {(media || staticImage) && (
         <Media
           className="my-0"
@@ -50,14 +42,7 @@ export const MediaBlock = (props: Props) => {
         />
       )}
       {caption && (
-        <div
-          className={cn(
-            {
-              container: !disableInnerContainer,
-            },
-            captionClassName,
-          )}
-        >
+        <div className={cn({ container: !disableInnerContainer }, captionClassName)}>
           <RichText data={caption} enableGutter={false} className="text-xs" />
         </div>
       )}
