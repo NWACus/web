@@ -26,7 +26,7 @@ export const DesktopNav = ({
   donateNavItem?: TopLevelNavItem
 }) => {
   return (
-    <NavigationMenu>
+    <NavigationMenu delayDuration={100}>
       <NavigationMenuList>
         {topLevelNavItems.map((navItem) => {
           const label = navItem.label || navItem.link?.label
@@ -52,7 +52,16 @@ export const DesktopNav = ({
 
           return (
             <NavigationMenuItem key={label} value={label}>
-              <NavigationMenuTrigger className="data-[state=open]:text-header-foreground-highlight font-medium">
+              <NavigationMenuTrigger
+                onClick={(e) => {
+                  // maintains accessibility via clicking space bar or enter with this trigger focused
+                  // but disables mouse clicks or touch events
+                  if ('pointerType' in e.nativeEvent && e.nativeEvent.pointerType !== '') {
+                    e.preventDefault()
+                  }
+                }}
+                className="data-[state=open]:text-header-foreground-highlight font-medium"
+              >
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
