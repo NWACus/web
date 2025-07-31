@@ -7,11 +7,18 @@ export async function getTenants(): Promise<TenantData> {
 
   try {
     tenants = await getAllTenantsFromEdgeConfig()
-  } catch {}
+  } catch (error) {
+    console.warn(
+      'Failed to get all tenants from Edge Config, falling back to cached API route:',
+      error instanceof Error ? error.message : error,
+    )
+  }
 
   try {
     tenants = await getCachedTenants()
-  } catch {}
+  } catch (error) {
+    console.warn('Failed to get cached tenants:', error instanceof Error ? error.message : error)
+  }
 
   return tenants
 }
