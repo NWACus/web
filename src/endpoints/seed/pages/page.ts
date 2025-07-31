@@ -18,6 +18,7 @@ export const page: (
     slug: slug,
     tenant: tenant.id,
     _status: 'published',
+    publishedAt: new Date().toISOString(),
     layout: [
       {
         backgroundColor: 'white',
