@@ -21,7 +21,7 @@ export const page: (
     publishedAt: new Date().toISOString(),
     layout: [
       {
-        color: 'white',
+        backgroundColor: 'white',
         columns: [
           {
             richText: {

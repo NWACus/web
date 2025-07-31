@@ -4,6 +4,10 @@ import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
 } from '@/collections/Tenants/hooks/revalidateTenantsCache'
+import {
+  updateEdgeConfigAfterChange,
+  updateEdgeConfigAfterDelete,
+} from '@/collections/Tenants/hooks/updateEdgeConfig'
 import { contentHashField } from '@/fields/contentHashField'
 import type { CollectionConfig } from 'payload'
 
@@ -30,8 +34,8 @@ export const Tenants: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [revalidateTenantsAfterChange],
-    afterDelete: [revalidateTenantsAfterDelete],
+    afterChange: [revalidateTenantsAfterChange, updateEdgeConfigAfterChange],
+    afterDelete: [revalidateTenantsAfterDelete, updateEdgeConfigAfterDelete],
   },
   fields: [
     {
