@@ -1,3 +1,4 @@
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Field, GroupField } from 'payload'
 
 export type ButtonAppearances =
@@ -93,6 +94,7 @@ export const button: ButtonType = (appearances) => {
             label: 'Document to button to',
             relationTo: ['pages', 'posts'],
             required: true,
+            filterOptions: getTenantFilter,
           },
           {
             name: 'url',
