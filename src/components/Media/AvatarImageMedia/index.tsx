@@ -81,6 +81,7 @@ interface MediaAvatarProps {
   size?: string
   priority?: boolean
   loading?: 'lazy' | 'eager'
+  isCircle?: boolean
 
   // Avatar-specific props
   fallback?: React.ReactNode

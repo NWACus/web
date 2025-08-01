@@ -36,6 +36,7 @@ export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['upda
               className="xl:size-[60px] shadow-md"
               key={index}
               fallback={combinedAuthorsInitials[index]}
+              isCircle
             />
           ))}
         </div>
