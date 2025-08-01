@@ -9,27 +9,27 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   previousDoc,
   req: { payload, context },
 }) => {
-  if (!context.disableRevalidate) {
-    if (doc._status === 'published') {
-      // TODO: revalidate path based on tenant
-      const path = `/blog/${doc.slug}`
+  // if (!context.disableRevalidate) {
+  //   if (doc._status === 'published') {
+  //     // TODO: revalidate path based on tenant
+  //     const path = `/blog/${doc.slug}`
 
-      payload.logger.info(`Revalidating post at path: ${path}`)
+  //     payload.logger.info(`Revalidating post at path: ${path}`)
 
-      revalidatePath(path)
-      revalidateTag('posts-sitemap')
-    }
+  //     revalidatePath(path)
+  //     revalidateTag('posts-sitemap')
+  //   }
 
-    // If the post was previously published, we need to revalidate the old path
-    if (previousDoc._status === 'published' && doc._status !== 'published') {
-      const oldPath = `/blog/${previousDoc.slug}`
+  //   // If the post was previously published, we need to revalidate the old path
+  //   if (previousDoc._status === 'published' && doc._status !== 'published') {
+  //     const oldPath = `/blog/${previousDoc.slug}`
 
-      payload.logger.info(`Revalidating old post at path: ${oldPath}`)
+  //     payload.logger.info(`Revalidating old post at path: ${oldPath}`)
 
-      revalidatePath(oldPath)
-      revalidateTag('posts-sitemap')
-    }
-  }
+  //     revalidatePath(oldPath)
+  //     revalidateTag('posts-sitemap')
+  //   }
+  // }
   return doc
 }
 
