@@ -12,8 +12,9 @@ export const config = {
      * 3. /_static (inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
      * 5. /media and /thumbnail (inside /public)
+     * 6. files in /src/assets (used in Payload config and logo and icon components)
      */
-    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail).*)',
+    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
   ],
 }
 
