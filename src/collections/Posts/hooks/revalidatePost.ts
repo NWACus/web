@@ -21,11 +21,13 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
     }
 
     if (doc._status === 'published') {
-      const path = `/${tenant.slug}/blog/${doc.slug}`
+      const preRewritePath = `/blog/${doc.slug}`
+      const postRewritePath = `/${tenant.slug}${preRewritePath}`
 
-      payload.logger.info(`Revalidating post at path: ${path}`)
+      payload.logger.info(`Revalidating post at paths: ${preRewritePath}, ${postRewritePath}`)
 
-      revalidatePath(path)
+      revalidatePath(preRewritePath)
+      revalidatePath(postRewritePath)
       revalidateTag(`posts-sitemap-${tenant.slug}`)
     }
 
@@ -35,11 +37,15 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
       previousDoc._status === 'published' &&
       (doc._status !== 'published' || previousDoc.slug !== doc.slug)
     ) {
-      const oldPath = `/${tenant.slug}/blog/${previousDoc.slug}`
+      const oldPreRewritePath = `/blog/${previousDoc.slug}`
+      const oldPostRewritePath = `/${tenant.slug}${oldPreRewritePath}`
 
-      payload.logger.info(`Revalidating old post at path: ${oldPath}`)
+      payload.logger.info(
+        `Revalidating old post at paths: ${oldPreRewritePath}, ${oldPostRewritePath}`,
+      )
 
-      revalidatePath(oldPath)
+      revalidatePath(oldPreRewritePath)
+      revalidatePath(oldPostRewritePath)
       revalidateTag(`posts-sitemap-${tenant.slug}`)
     }
   }
@@ -61,11 +67,13 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = async ({
       })
     }
 
-    const path = `/${tenant.slug}/blog/${doc?.slug}`
+    const preRewritePath = `/blog/${doc?.slug}`
+    const postRewritepath = `/${tenant.slug}${preRewritePath}`
 
-    payload.logger.info(`Revalidating deleted post at path: ${path}`)
+    payload.logger.info(`Revalidating deleted post at paths: ${preRewritePath}, ${postRewritepath}`)
 
-    revalidatePath(path)
+    revalidatePath(preRewritePath)
+    revalidatePath(postRewritepath)
     revalidateTag(`posts-sitemap-${tenant.slug}`)
   }
 

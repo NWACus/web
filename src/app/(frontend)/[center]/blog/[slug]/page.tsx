@@ -7,10 +7,11 @@ import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
-import { cache } from 'react'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPost } from '@/utilities/generateMeta'
+
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -103,7 +104,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   return generateMetaForPost({ center: center, doc: post })
 }
 
-const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
+const queryPostBySlug = async ({ center, slug }: { center: string; slug: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -131,9 +132,14 @@ const queryPostBySlug = cache(async ({ center, slug }: { center: string; slug: s
             equals: slug,
           },
         },
+        {
+          _status: {
+            equals: 'published',
+          },
+        },
       ],
     },
   })
 
   return result.docs?.[0] || null
-})
+}
