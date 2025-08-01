@@ -1,3 +1,4 @@
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
 import { GroupField, TextFieldSingleValidation } from 'payload'
 
@@ -43,6 +44,7 @@ export const navLink: GroupField = {
       },
       label: 'Document to link to',
       relationTo: ['pages', 'posts'],
+      filterOptions: getTenantFilter,
     },
     {
       name: 'url',
