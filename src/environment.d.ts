@@ -22,6 +22,8 @@ declare global {
       VERCEL_EDGE_CONFIG: string
       VERCEL_TOKEN: string
       VERCEL_TEAM_ID: string
+      LOCAL_FLAG_ENABLE_FULL_URL_LOGGING: string
+      LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS: string
     }
   }
 }
