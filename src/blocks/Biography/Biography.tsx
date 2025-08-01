@@ -1,21 +1,14 @@
-import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { getAuthorInitials } from '@/utilities/getAuthorInitials'
 import { format, parseISO } from 'date-fns'
 import { Payload } from 'payload'
 import type { BiographyBlock as BiographyBlockProps } from 'src/payload-types'
 
+import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
+import { getAuthorInitials } from '@/utilities/getAuthorInitials'
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+
 type Props = BiographyBlockProps & { payload: Payload }
 
-export const BiographyBlock = ({ biography, payload }: Props) => {
+export const BiographyBlock = ({ backgroundColor, biography, imageLayout, payload }: Props) => {
   // For live preview when bio not selected
   if (!biography) return null
 
@@ -26,52 +19,40 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
     return <></>
   }
 
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
+
   const name: string =
     biography.name || (typeof biography.user === 'object' && biography.user?.name) || 'Unknown'
   const initials = getAuthorInitials(name)
 
-  const BiographyAvatar = (
-    <MediaAvatar
-      resource={biography.photo}
-      fallback={initials}
-      className="h-32 w-32 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer"
-    />
-  )
-
   return (
-    <Card className="w-full flex items-center justify-center">
-      <CardContent className="p-6 flex flex-col items-center space-y-4">
-        {biography.biography ? (
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full">
-                {BiographyAvatar}
-              </button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader className="flex flex-col items-center">
-                <MediaAvatar resource={biography.photo} fallback={initials} className="h-32 w-32" />
-                <DialogTitle>{name}</DialogTitle>
-                <p className="text-sm font-medium text-muted-foreground">{biography.title}</p>
-              </DialogHeader>
-              <DialogDescription className="border-t pt-2">
-                <p className="text-muted-foreground leading-relaxed">{biography.biography}</p>
-              </DialogDescription>
-            </DialogContent>
-          </Dialog>
-        ) : (
-          BiographyAvatar
-        )}
-        <div className="space-y-1 text-center">
-          <h3 className="text-xl font-semibold">{name}</h3>
-          {biography.title && <h2 className="text-sm text-muted-foreground">{biography.title}</h2>}
-          {biography.start_date && (
-            <p className="text-sm italic text-muted-foreground">
-              Since {format(parseISO(biography.start_date), 'MMMM yyyy')}
-            </p>
-          )}
+    <div className={`${bgColorClass}`}>
+      <div className="container py-16">
+        <div className="grid md:grid-cols-12 gap-x-6 gap-y-6">
+          <div
+            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' ? 'order-last ms-6' : 'me-6 '}`}
+          >
+            <MediaAvatar
+              resource={biography.photo}
+              fallback={initials}
+              className="h-auto w-full max-w-xs aspect-square object-cover"
+            />
+          </div>
+          <div className={`md:col-span-8 self-center ${textColor}`}>
+            <div className="mb-4">
+              <p className="text-md">{name}</p>
+              {biography.title && <p className="text-md italic">{biography.title}</p>}
+              {biography.start_date && (
+                <p className="text-sm">
+                  Since {format(parseISO(biography.start_date), 'MMMM yyyy')}
+                </p>
+              )}
+            </div>
+            {biography.biography && <p>{biography.biography}</p>}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

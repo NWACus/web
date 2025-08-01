@@ -39,13 +39,11 @@ export const TeamBlock = ({ team, payload }: Props) => {
               <div className="flex flex-col items-center space-y-4">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full">
-                      <MediaAvatar
-                        resource={member.photo}
-                        fallback={initials}
-                        className="h-48 w-48 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer"
-                      />
-                    </button>
+                    <MediaAvatar
+                      resource={member.photo}
+                      fallback={initials}
+                      className="h-48 w-48 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer"
+                    />
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader className="flex flex-col items-center">

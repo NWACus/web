@@ -340,7 +340,9 @@ export interface Page {
  * via the `definition` "BiographyBlock".
  */
 export interface BiographyBlock {
+  backgroundColor: string;
   biography: number | Biography;
+  imageLayout: 'left' | 'right';
   id?: string | null;
   blockName?: string | null;
   blockType: 'biography';
@@ -2056,7 +2058,9 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "BiographyBlock_select".
  */
 export interface BiographyBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
   biography?: T;
+  imageLayout?: T;
   id?: T;
   blockName?: T;
 }
