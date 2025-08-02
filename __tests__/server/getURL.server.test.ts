@@ -37,10 +37,27 @@ describe('utilities: getURL', () => {
 
   it('uses https protocol in production', async () => {
     Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', configurable: true })
+    Object.defineProperty(process.env, 'LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS', {
+      value: undefined,
+      configurable: true,
+    })
     process.env.NEXT_PUBLIC_ROOT_DOMAIN = 'prod.example.com'
     jest.resetModules()
     const { getURL: freshGetURL } = await import('../../src/utilities/getURL')
     const result = freshGetURL()
     expect(result).toBe('https://prod.example.com')
+  })
+
+  it('uses http protocol when NODE_ENV is production but LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS is "true"', async () => {
+    Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', configurable: true })
+    Object.defineProperty(process.env, 'LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS', {
+      value: 'true',
+      configurable: true,
+    })
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN = 'localhost:3000'
+    jest.resetModules()
+    const { getURL: freshGetURL } = await import('../../src/utilities/getURL')
+    const result = freshGetURL()
+    expect(result).toBe('http://localhost:3000')
   })
 })
