@@ -4,10 +4,17 @@ import { getServerSideSitemap } from 'next-sitemap'
 import { unstable_cache } from 'next/cache'
 import { headers } from 'next/headers'
 import { getPayload } from 'payload'
+import { SitemapField } from '../../sitemap.xml/route'
 
 const getPostsSitemap = (center: string) =>
   unstable_cache(
-    async ({ center, serverURL }: { center: string; serverURL: string }) => {
+    async ({
+      center,
+      serverURL,
+    }: {
+      center: string
+      serverURL: string
+    }): Promise<SitemapField[]> => {
       const payload = await getPayload({ config })
 
       const results = await payload.find({
@@ -31,12 +38,13 @@ const getPostsSitemap = (center: string) =>
 
       const dateFallback = new Date().toISOString()
 
-      const sitemap = results.docs
+      const sitemap: SitemapField[] = results.docs
         ? results.docs
             .filter((post) => Boolean(post?.slug))
             .map((post) => ({
               loc: `${serverURL}/blog/${post?.slug}`,
               lastmod: post.updatedAt || dateFallback,
+              changefreq: 'daily',
             }))
         : []
 
