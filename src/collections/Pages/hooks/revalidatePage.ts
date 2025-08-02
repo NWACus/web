@@ -10,55 +10,71 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
   req: { payload, context },
 }) => {
   if (!context.disableRevalidate) {
-    if (doc._status === 'published') {
-      let tenantSlug = ''
-      if (typeof doc.tenant === 'object') {
-        tenantSlug = doc.tenant.slug
-      } else {
-        const tenant = await payload.findByID({
-          id: doc.tenant,
-          collection: 'tenants',
-          depth: 0,
-        })
-        tenantSlug = tenant.slug
-      }
-      const path = `/${tenantSlug}/${doc.slug}`
+    let tenant = doc.tenant
 
-      payload.logger.info(`Revalidating page at path: ${path}`)
-
-      revalidatePath(path)
-      revalidateTag('pages-sitemap')
+    if (typeof tenant === 'number') {
+      tenant = await payload.findByID({
+        collection: 'tenants',
+        id: tenant,
+        depth: 0,
+      })
     }
 
-    // If the page was previously published, we need to revalidate the old path
-    if (previousDoc?._status === 'published' && doc._status !== 'published') {
-      let tenantSlug = ''
-      if (typeof previousDoc.tenant === 'object') {
-        tenantSlug = previousDoc.tenant.slug
-      } else {
-        const tenant = await payload.findByID({
-          id: previousDoc.tenant,
-          collection: 'tenants',
-          depth: 0,
-        })
-        tenantSlug = tenant.slug
-      }
-      const oldPath = `/${tenantSlug}/${previousDoc.slug}`
+    if (doc._status === 'published') {
+      const preRewritePath = `/${doc.slug}`
+      const postRewritePath = `/${tenant.slug}${preRewritePath}`
 
-      payload.logger.info(`Revalidating old page at path: ${oldPath}`)
+      payload.logger.info(`Revalidating page at paths: ${preRewritePath}, ${postRewritePath}`)
 
-      revalidatePath(oldPath)
-      revalidateTag('pages-sitemap')
+      revalidatePath(preRewritePath)
+      revalidatePath(postRewritePath)
+      revalidateTag(`pages-sitemap-${tenant.slug}`)
+    }
+
+    // If the page was previously published, and it is no longer published or the slug has changed
+    // we need to revalidate the old path
+    if (
+      previousDoc._status === 'published' &&
+      (doc._status !== 'published' || previousDoc.slug !== doc.slug)
+    ) {
+      const oldPreRewritePath = `/${previousDoc.slug}`
+      const oldPostRewritePath = `/${tenant.slug}${oldPreRewritePath}`
+
+      payload.logger.info(
+        `Revalidating old page at paths: ${oldPreRewritePath}, ${oldPostRewritePath}`,
+      )
+
+      revalidatePath(oldPreRewritePath)
+      revalidatePath(oldPostRewritePath)
+      revalidateTag(`pages-sitemap-${tenant.slug}`)
     }
   }
   return doc
 }
 
-export const revalidateDelete: CollectionAfterDeleteHook<Page> = ({ doc, req: { context } }) => {
+export const revalidateDelete: CollectionAfterDeleteHook<Page> = async ({
+  doc,
+  req: { payload, context },
+}) => {
   if (!context.disableRevalidate) {
-    const path = `/${doc?.slug}`
-    revalidatePath(path)
-    revalidateTag('pages-sitemap')
+    let tenant = doc.tenant
+
+    if (typeof tenant === 'number') {
+      tenant = await payload.findByID({
+        collection: 'tenants',
+        id: tenant,
+        depth: 0,
+      })
+    }
+
+    const preRewritePath = `/${doc.slug}`
+    const postRewritePath = `/${tenant.slug}${preRewritePath}`
+
+    payload.logger.info(`Revalidating deleted page at paths: ${preRewritePath}, ${postRewritePath}`)
+
+    revalidatePath(preRewritePath)
+    revalidatePath(postRewritePath)
+    revalidateTag(`pages-sitemap-${tenant.slug}`)
   }
 
   return doc

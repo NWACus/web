@@ -16,7 +16,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
       tenant = await payload.findByID({
         collection: 'tenants',
         id: tenant,
-        depth: 2,
+        depth: 0,
       })
     }
 
@@ -63,7 +63,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = async ({
       tenant = await payload.findByID({
         collection: 'tenants',
         id: tenant,
-        depth: 2,
+        depth: 0,
       })
     }
 
