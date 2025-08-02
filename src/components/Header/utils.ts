@@ -5,6 +5,14 @@ import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import invariant from 'tiny-invariant'
+import { findNavigationItemBySlug } from './utils-pure'
+
+export {
+  extractAllInternalUrls,
+  findNavigationItemBySlug,
+  getCanonicalUrlsFromNavigation,
+  getNavigationPathForSlug,
+} from './utils-pure'
 
 export type NavLink =
   | {
@@ -415,112 +423,6 @@ export const getCachedTopLevelNavItems = (center: string) =>
       tags: ['navigation', `navigation-${center}`],
     },
   )
-
-export function extractAllInternalUrls(navItems: TopLevelNavItem[]): string[] {
-  const urls: string[] = []
-
-  function extractFromNavItem(item: NavItem | TopLevelNavItem): void {
-    if (item.link && item.link.type === 'internal') {
-      urls.push(item.link.url)
-    }
-
-    if (item.items) {
-      item.items.forEach(extractFromNavItem)
-    }
-  }
-
-  navItems.forEach(extractFromNavItem)
-
-  return Array.from(new Set(urls)).sort()
-}
-
-export function findNavigationItemBySlug(
-  navItems: TopLevelNavItem[],
-  slug: string,
-): NavItem | TopLevelNavItem | null {
-  function searchInNavItem(item: NavItem | TopLevelNavItem): NavItem | TopLevelNavItem | null {
-    if (item.link && item.link.type === 'internal') {
-      const itemSlug = item.link.url.split('/').filter(Boolean).pop()
-      if (itemSlug === slug) {
-        return item
-      }
-    }
-
-    if (item.items) {
-      for (const childItem of item.items) {
-        const found = searchInNavItem(childItem)
-        if (found) return found
-      }
-    }
-
-    return null
-  }
-
-  for (const navItem of navItems) {
-    const found = searchInNavItem(navItem)
-    if (found) return found
-  }
-
-  return null
-}
-
-export function getNavigationPathForSlug(navItems: TopLevelNavItem[], slug: string): string[] {
-  function buildPath(item: NavItem | TopLevelNavItem, currentPath: string[] = []): string[] | null {
-    const newPath = item.link ? [...currentPath, item.link.url] : currentPath
-
-    if (item.link && item.link.type === 'internal') {
-      const itemSlug = item.link.url.split('/').filter(Boolean).pop()
-      if (itemSlug === slug) {
-        return newPath
-      }
-    }
-
-    if (item.items) {
-      for (const childItem of item.items) {
-        const found = buildPath(childItem, newPath)
-        if (found) return found
-      }
-    }
-
-    return null
-  }
-
-  for (const navItem of navItems) {
-    const path = buildPath(navItem)
-    if (path) return path
-  }
-
-  return []
-}
-
-export function getCanonicalUrlsFromNavigation(
-  navigationUrls: string[],
-  pages: Array<{ slug: string; updatedAt?: string }>,
-): { canonicalUrls: string[]; excludedSlugs: string[] } {
-  const navigationSlugs = new Set<string>()
-  const excludedSlugs: string[] = []
-
-  // Extract slugs from navigation URLs
-  navigationUrls.forEach((url) => {
-    const slug = url.split('/').filter(Boolean).pop()
-    if (slug) {
-      navigationSlugs.add(slug)
-    }
-  })
-
-  // Check which page slugs are also in navigation
-  pages.forEach((page) => {
-    if (navigationSlugs.has(page.slug)) {
-      excludedSlugs.push(page.slug)
-    }
-  })
-
-  // Return navigation URLs as canonical, and list of slugs to exclude from pages
-  return {
-    canonicalUrls: navigationUrls,
-    excludedSlugs,
-  }
-}
 
 export async function getCanonicalUrlForSlug(center: string, slug: string): Promise<string | null> {
   try {
