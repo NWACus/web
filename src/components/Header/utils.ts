@@ -1,5 +1,9 @@
 import { Navigation, Page, Post } from '@/payload-types'
+import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { AvalancheCenter, AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
+import configPromise from '@payload-config'
+import { unstable_cache } from 'next/cache'
+import { getPayload } from 'payload'
 import invariant from 'tiny-invariant'
 
 export type NavLink =
@@ -373,4 +377,162 @@ export const getTopLevelNavItems = async ({
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
   ]
+}
+
+export const getCachedTopLevelNavItems = (center: string) =>
+  unstable_cache(
+    async (center: string): Promise<TopLevelNavItem[]> => {
+      const payload = await getPayload({ config: configPromise })
+
+      const navigationRes = await payload.find({
+        collection: 'navigations',
+        depth: 99,
+        where: {
+          'tenant.slug': {
+            equals: center,
+          },
+        },
+      })
+
+      const navigation = navigationRes.docs[0]
+
+      if (!navigation) {
+        payload.logger.error(`Navigation for tenant ${center} missing`)
+        return []
+      }
+
+      const avalancheCenterMetadata = await getAvalancheCenterMetadata(center)
+      const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+
+      return await getTopLevelNavItems({
+        navigation,
+        avalancheCenterMetadata,
+        avalancheCenterPlatforms,
+      })
+    },
+    [`top-level-nav-items-${center}`],
+    {
+      tags: ['navigation', `navigation-${center}`],
+    },
+  )
+
+export function extractAllInternalUrls(navItems: TopLevelNavItem[]): string[] {
+  const urls: string[] = []
+
+  function extractFromNavItem(item: NavItem | TopLevelNavItem): void {
+    if (item.link && item.link.type === 'internal') {
+      urls.push(item.link.url)
+    }
+
+    if (item.items) {
+      item.items.forEach(extractFromNavItem)
+    }
+  }
+
+  navItems.forEach(extractFromNavItem)
+
+  return Array.from(new Set(urls)).sort()
+}
+
+export function findNavigationItemBySlug(
+  navItems: TopLevelNavItem[],
+  slug: string,
+): NavItem | TopLevelNavItem | null {
+  function searchInNavItem(item: NavItem | TopLevelNavItem): NavItem | TopLevelNavItem | null {
+    if (item.link && item.link.type === 'internal') {
+      const itemSlug = item.link.url.split('/').filter(Boolean).pop()
+      if (itemSlug === slug) {
+        return item
+      }
+    }
+
+    if (item.items) {
+      for (const childItem of item.items) {
+        const found = searchInNavItem(childItem)
+        if (found) return found
+      }
+    }
+
+    return null
+  }
+
+  for (const navItem of navItems) {
+    const found = searchInNavItem(navItem)
+    if (found) return found
+  }
+
+  return null
+}
+
+export function getNavigationPathForSlug(navItems: TopLevelNavItem[], slug: string): string[] {
+  function buildPath(item: NavItem | TopLevelNavItem, currentPath: string[] = []): string[] | null {
+    const newPath = item.link ? [...currentPath, item.link.url] : currentPath
+
+    if (item.link && item.link.type === 'internal') {
+      const itemSlug = item.link.url.split('/').filter(Boolean).pop()
+      if (itemSlug === slug) {
+        return newPath
+      }
+    }
+
+    if (item.items) {
+      for (const childItem of item.items) {
+        const found = buildPath(childItem, newPath)
+        if (found) return found
+      }
+    }
+
+    return null
+  }
+
+  for (const navItem of navItems) {
+    const path = buildPath(navItem)
+    if (path) return path
+  }
+
+  return []
+}
+
+export function getCanonicalUrlsFromNavigation(
+  navigationUrls: string[],
+  pages: Array<{ slug: string; updatedAt?: string }>,
+): { canonicalUrls: string[]; excludedSlugs: string[] } {
+  const navigationSlugs = new Set<string>()
+  const excludedSlugs: string[] = []
+
+  // Extract slugs from navigation URLs
+  navigationUrls.forEach((url) => {
+    const slug = url.split('/').filter(Boolean).pop()
+    if (slug) {
+      navigationSlugs.add(slug)
+    }
+  })
+
+  // Check which page slugs are also in navigation
+  pages.forEach((page) => {
+    if (navigationSlugs.has(page.slug)) {
+      excludedSlugs.push(page.slug)
+    }
+  })
+
+  // Return navigation URLs as canonical, and list of slugs to exclude from pages
+  return {
+    canonicalUrls: navigationUrls,
+    excludedSlugs,
+  }
+}
+
+export async function getCanonicalUrlForSlug(center: string, slug: string): Promise<string | null> {
+  try {
+    const topLevelNavItems = await getCachedTopLevelNavItems(center)(center)
+    const navigationItem = findNavigationItemBySlug(topLevelNavItems, slug)
+
+    if (navigationItem?.link?.type === 'internal') {
+      return navigationItem.link.url
+    }
+
+    return null
+  } catch (_error) {
+    return null
+  }
 }

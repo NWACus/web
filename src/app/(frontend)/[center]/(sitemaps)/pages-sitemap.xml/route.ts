@@ -1,3 +1,8 @@
+import {
+  extractAllInternalUrls,
+  getCachedTopLevelNavItems,
+  getCanonicalUrlsFromNavigation,
+} from '@/components/Header/utils'
 import { getURL } from '@/utilities/getURL'
 import config from '@payload-config'
 import { getServerSideSitemap } from 'next-sitemap'
@@ -17,7 +22,10 @@ const getPagesSitemap = (center: string) =>
     }): Promise<SitemapField[]> => {
       const payload = await getPayload({ config })
 
-      const results = await payload.find({
+      const topLevelNavItems = await getCachedTopLevelNavItems(center)(center)
+      const navigationUrls = extractAllInternalUrls(topLevelNavItems)
+
+      const pagesRes = await payload.find({
         collection: 'pages',
         depth: 0,
         limit: 1000,
@@ -38,17 +46,23 @@ const getPagesSitemap = (center: string) =>
 
       const dateFallback = new Date().toISOString()
 
-      const defaultSitemap: SitemapField[] = [
-        {
-          loc: `${serverURL}/blog`,
-          lastmod: dateFallback,
-          changefreq: 'daily',
-        },
-      ]
+      // Get canonical URLs and determine which page slugs to exclude
+      const { canonicalUrls, excludedSlugs } = getCanonicalUrlsFromNavigation(
+        navigationUrls,
+        pagesRes.docs || [],
+      )
 
-      const sitemap: SitemapField[] = results.docs
-        ? results.docs
-            .filter((page) => Boolean(page?.slug))
+      // Create sitemap entries for navigation URLs (canonical)
+      const navigationSitemap: SitemapField[] = canonicalUrls.map((url) => ({
+        loc: `${serverURL}${url}`,
+        lastmod: dateFallback,
+        changefreq: url.includes('blog') || url.includes('observations') ? 'daily' : 'weekly',
+      }))
+
+      // Create sitemap entries for pages, excluding those that are canonical in navigation
+      const pagesSitemap: SitemapField[] = pagesRes.docs
+        ? pagesRes.docs
+            .filter((page) => Boolean(page?.slug) && !excludedSlugs.includes(page.slug))
             .map((page) => {
               return {
                 loc: `${serverURL}/${page?.slug}`,
@@ -58,11 +72,25 @@ const getPagesSitemap = (center: string) =>
             })
         : []
 
-      return [...defaultSitemap, ...sitemap]
+      // Enhance navigation sitemap with lastmod from matching pages
+      const enhancedNavigationSitemap = navigationSitemap.map((navItem) => {
+        const url = navItem.loc.replace(serverURL, '')
+        const matchingPageSlug = url.split('/').filter(Boolean).pop()
+        const matchingPage = pagesRes.docs?.find((page) => page.slug === matchingPageSlug)
+
+        return {
+          ...navItem,
+          lastmod: matchingPage?.updatedAt || navItem.lastmod,
+        }
+      })
+
+      const combinedSitemap: SitemapField[] = [...enhancedNavigationSitemap, ...pagesSitemap]
+
+      return combinedSitemap.sort((a, b) => a.loc.localeCompare(b.loc))
     },
     [`pages-sitemap-${center}`],
     {
-      tags: ['pages-sitemap', `pages-sitemap-${center}`],
+      tags: ['pages-sitemap', `pages-sitemap-${center}`, 'navigation', `navigation-${center}`],
     },
   )
 
