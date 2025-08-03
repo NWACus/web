@@ -46,20 +46,22 @@ const getPagesSitemap = (center: string) =>
 
       const dateFallback = new Date().toISOString()
 
-      // Get canonical URLs and determine which page slugs to exclude
       const { canonicalUrls, excludedSlugs } = getCanonicalUrlsFromNavigation(
         navigationUrls,
         pagesRes.docs || [],
       )
 
-      // Create sitemap entries for navigation URLs (canonical)
-      const navigationSitemap: SitemapField[] = canonicalUrls.map((url) => ({
-        loc: `${serverURL}${url}`,
-        lastmod: dateFallback,
-        changefreq: url.includes('blog') || url.includes('observations') ? 'daily' : 'weekly',
-      }))
+      const navigationSitemap: SitemapField[] = canonicalUrls.map((url) => {
+        const pageSlug = url.split('/').filter(Boolean).pop()
+        const matchingPage = pagesRes.docs?.find((page) => page.slug === pageSlug)
 
-      // Create sitemap entries for pages, excluding those that are canonical in navigation
+        return {
+          loc: `${serverURL}${url}`,
+          lastmod: matchingPage?.updatedAt || dateFallback,
+        }
+      })
+
+      // Exclude those that are canonical in navigation
       const pagesSitemap: SitemapField[] = pagesRes.docs
         ? pagesRes.docs
             .filter((page) => Boolean(page?.slug) && !excludedSlugs.includes(page.slug))
@@ -67,26 +69,20 @@ const getPagesSitemap = (center: string) =>
               return {
                 loc: `${serverURL}/${page?.slug}`,
                 lastmod: page.updatedAt || dateFallback,
-                changefreq: 'monthly',
               }
             })
         : []
 
-      // Enhance navigation sitemap with lastmod from matching pages
-      const enhancedNavigationSitemap = navigationSitemap.map((navItem) => {
-        const url = navItem.loc.replace(serverURL, '')
-        const matchingPageSlug = url.split('/').filter(Boolean).pop()
-        const matchingPage = pagesRes.docs?.find((page) => page.slug === matchingPageSlug)
+      const combinedSitemap: SitemapField[] = [
+        {
+          loc: serverURL,
+          lastmod: dateFallback,
+        },
+        ...navigationSitemap,
+        ...pagesSitemap,
+      ]
 
-        return {
-          ...navItem,
-          lastmod: matchingPage?.updatedAt || navItem.lastmod,
-        }
-      })
-
-      const combinedSitemap: SitemapField[] = [...enhancedNavigationSitemap, ...pagesSitemap]
-
-      return combinedSitemap.sort((a, b) => a.loc.localeCompare(b.loc))
+      return combinedSitemap
     },
     [`pages-sitemap-${center}`],
     {

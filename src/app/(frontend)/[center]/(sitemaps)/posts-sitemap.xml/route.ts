@@ -44,7 +44,6 @@ const getPostsSitemap = (center: string) =>
             .map((post) => ({
               loc: `${serverURL}/blog/${post?.slug}`,
               lastmod: post.updatedAt || dateFallback,
-              changefreq: 'daily',
             }))
         : []
 
