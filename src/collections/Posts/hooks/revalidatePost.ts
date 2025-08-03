@@ -47,6 +47,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
       revalidatePath(oldPreRewritePath)
       revalidatePath(oldPostRewritePath)
       revalidateTag(`posts-sitemap-${tenant.slug}`)
+      revalidateTag(`navigation-${tenant.slug}`) // Navigation links can derive URLs from post slugs
     }
   }
   return doc
@@ -75,6 +76,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = async ({
     revalidatePath(preRewritePath)
     revalidatePath(postRewritepath)
     revalidateTag(`posts-sitemap-${tenant.slug}`)
+    revalidateTag(`navigation-${tenant.slug}`) // Navigation links can derive URLs from post slugs
   }
 
   return doc

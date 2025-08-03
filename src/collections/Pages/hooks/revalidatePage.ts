@@ -110,7 +110,10 @@ export const revalidateDelete: CollectionAfterDeleteHook<Page> = async ({
       const topLevelNavItems = await getCachedTopLevelNavItems(tenant.slug)(tenant.slug)
       const navigationPaths = getNavigationPathForSlug(topLevelNavItems, doc.slug)
 
-      const allPaths = [...basePaths, ...navigationPaths.map((path) => `/${tenant.slug}${path}`)]
+      const allPaths = [
+        ...basePaths,
+        ...navigationPaths.flatMap((path) => [path, `/${tenant.slug}${path}`]),
+      ]
       const uniquePaths = Array.from(new Set(allPaths))
 
       payload.logger.info(`Revalidating deleted page at paths: ${uniquePaths.join(', ')}`)
@@ -125,6 +128,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Page> = async ({
     }
 
     revalidateTag(`pages-sitemap-${tenant.slug}`)
+    revalidateTag(`navigation-${tenant.slug}`) // Navigation links derive URLs from page slugs
   }
 
   return doc
