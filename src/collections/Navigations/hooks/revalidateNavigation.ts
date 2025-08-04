@@ -29,8 +29,8 @@ export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async
 
     try {
       // Get current and previous navigation URLs to find what changed
-      const currentNavItems = await getCachedTopLevelNavItems(tenant.slug)(tenant.slug)
-      const currentUrls = extractAllInternalUrls(currentNavItems)
+      const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
+      const currentUrls = extractAllInternalUrls(topLevelNavItems)
 
       // Revalidate all current navigation paths
       currentUrls.forEach((url) => {

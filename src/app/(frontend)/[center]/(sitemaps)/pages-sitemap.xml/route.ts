@@ -22,7 +22,7 @@ const getPagesSitemap = (center: string) =>
     }): Promise<SitemapField[]> => {
       const payload = await getPayload({ config })
 
-      const topLevelNavItems = await getCachedTopLevelNavItems(center)(center)
+      const { topLevelNavItems } = await getCachedTopLevelNavItems(center)()
       const navigationUrls = extractAllInternalUrls(topLevelNavItems)
 
       const pagesRes = await payload.find({

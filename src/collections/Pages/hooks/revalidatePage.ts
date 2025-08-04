@@ -25,7 +25,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
       const basePaths = [`/${doc.slug}`, `/${tenant.slug}/${doc.slug}`]
 
       try {
-        const topLevelNavItems = await getCachedTopLevelNavItems(tenant.slug)(tenant.slug)
+        const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
         const navigationPaths = getNavigationPathForSlug(topLevelNavItems, doc.slug)
 
         // Include both the direct paths and the navigation paths
@@ -62,7 +62,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
       const oldBasePaths = [`/${previousDoc.slug}`, `/${tenant.slug}/${previousDoc.slug}`]
 
       try {
-        const topLevelNavItems = await getCachedTopLevelNavItems(tenant.slug)(tenant.slug)
+        const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
         const oldNavigationPaths = getNavigationPathForSlug(topLevelNavItems, previousDoc.slug)
 
         const allOldPaths = [
@@ -107,7 +107,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Page> = async ({
     const basePaths = [`/${doc.slug}`, `/${tenant.slug}/${doc.slug}`]
 
     try {
-      const topLevelNavItems = await getCachedTopLevelNavItems(tenant.slug)(tenant.slug)
+      const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
       const navigationPaths = getNavigationPathForSlug(topLevelNavItems, doc.slug)
 
       const allPaths = [
