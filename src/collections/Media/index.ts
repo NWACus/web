@@ -14,6 +14,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { generateBlurDataUrl } from './hooks/generateBlurDataUrl'
 import { prefixFilenameWithTenant } from './hooks/prefixFilenameWithTenant'
+import { revalidateDelete, revalidateMedia } from './hooks/revalidateMedia'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -100,5 +101,7 @@ export const Media: CollectionConfig = {
   hooks: {
     beforeOperation: [prefixFilenameWithTenant],
     beforeChange: [generateBlurDataUrl],
+    afterChange: [revalidateMedia],
+    afterDelete: [revalidateDelete],
   },
 }

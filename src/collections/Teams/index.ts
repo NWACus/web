@@ -4,6 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
+import { revalidateDelete, revalidateTeam } from './hooks/revalidateTeam'
 
 export const Teams: CollectionConfig = {
   slug: 'teams',
@@ -30,4 +31,8 @@ export const Teams: CollectionConfig = {
     },
     contentHashField(),
   ],
+  hooks: {
+    afterChange: [revalidateTeam],
+    afterDelete: [revalidateDelete],
+  },
 }
