@@ -3,7 +3,11 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 import redirects from './redirects.js'
 
-const PROTOCOL = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+const PROTOCOL =
+  process.env.NODE_ENV === 'production' &&
+  process.env.LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS !== 'true'
+    ? 'https'
+    : 'http'
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
 const ROOT_SITE_URL = `${PROTOCOL}://${ROOT_DOMAIN}`
 const url = new URL(ROOT_SITE_URL)
@@ -53,6 +57,20 @@ const nextConfig = {
     config.ignoreWarnings = [{ module: /@opentelemetry\/instrumentation/ }]
     return config
   },
+  ...(process.env.LOCAL_FLAG_ENABLE_FULL_URL_LOGGING === 'true' && {
+    logging: {
+      fetches: {
+        fullUrl: true,
+      },
+    },
+  }),
+  ...(process.env.LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS === 'true' && {
+    experimental: {
+      // to solve https://github.com/WiseLibs/better-sqlite3/issues/1155
+      workerThreads: false,
+      cpus: 1,
+    },
+  }),
 }
 
 const configWithPayload = withPayload(nextConfig, { devBundleServerPackages: false })
