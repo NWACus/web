@@ -126,10 +126,10 @@ The system operates with these priorities:
 
 We have two edge config stores in Vercel:
 
-1. For preview environment. This can also be used for local dev if needed for testing. But an edge config is not required for local development because of the cached API route fallback.
-1. For preview environment
-1. For prod environment
-   NOTE: This can also be used for local dev if needed for testing, but an edge config is not required for local development because of the cached API route fallback.
+1. For prod environment `avy-edge-config-prod`
+1. For preview environments `avy-edge-config-preview`
+
+   NOTE: This should also be used for local dev. Our preview environments still use our seed script so these values _should_ be in sync with our local environments. The preview edge config can updated manually in Vercel if you need additional tenants in your local env.
 
 ## Developing Emails
 
