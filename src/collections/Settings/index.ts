@@ -4,6 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig, TextFieldValidation } from 'payload'
+import { revalidateSettings } from './hooks/revalidateSettings'
 
 const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
   return value
@@ -31,6 +32,9 @@ export const Settings: CollectionConfig = {
   admin: {
     baseListFilter: filterByTenant,
     group: 'Settings',
+  },
+  hooks: {
+    afterChange: [revalidateSettings],
   },
   fields: [
     tenantField({ unique: true }),
