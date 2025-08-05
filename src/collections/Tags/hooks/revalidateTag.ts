@@ -2,10 +2,15 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import type { Tag } from '@/payload-types'
 import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
+import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 export const revalidateTag: CollectionAfterChangeHook<Tag> = async ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
     await revalidateBlockReferences({
+      collection: 'tags',
+      id: doc.id,
+    })
+    await revalidateRelationshipReferences({
       collection: 'tags',
       id: doc.id,
     })
@@ -19,6 +24,10 @@ export const revalidateDelete: CollectionAfterDeleteHook<Tag> = async ({
 }) => {
   if (!context.disableRevalidate) {
     await revalidateBlockReferences({
+      collection: 'tags',
+      id: doc.id,
+    })
+    await revalidateRelationshipReferences({
       collection: 'tags',
       id: doc.id,
     })

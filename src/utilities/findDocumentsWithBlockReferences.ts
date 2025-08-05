@@ -1,28 +1,17 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { getBlocksFromConfig } from './getBlocksFromConfig'
-
-export interface BlockReference {
-  collection: 'biographies' | 'teams' | 'media' | 'forms' | 'tags'
-  id: number
-}
-
-export interface DocumentWithBlockReference {
-  collection: 'pages' | 'posts'
-  id: number
-  slug: string
-  tenant: number | { id: number; slug: string }
-}
+import { DocumentForRevalidation, RevalidationReference } from './revalidateDocument'
 
 /**
  * Find all pages and posts that contain blocks referencing a specific document
  * This is used for revalidation when reference collections (biographies, teams, media, forms) change
  */
 export async function findDocumentsWithBlockReferences(
-  reference: BlockReference,
-): Promise<DocumentWithBlockReference[]> {
+  reference: RevalidationReference,
+): Promise<DocumentForRevalidation[]> {
   const payload = await getPayload({ config: configPromise })
-  const results: DocumentWithBlockReference[] = []
+  const results: DocumentForRevalidation[] = []
 
   const { pagesBlockMappings, postsBlockMappings } = await getBlocksFromConfig()
 
@@ -50,7 +39,7 @@ export async function findDocumentsWithBlockReferences(
         depth: 1,
       })
 
-      const pagesWithBlocks: DocumentWithBlockReference[] = pagesWithBlocksRes.docs.map((doc) => ({
+      const pagesWithBlocks: DocumentForRevalidation[] = pagesWithBlocksRes.docs.map((doc) => ({
         collection: 'pages',
         id: doc.id,
         slug: doc.slug,
@@ -92,7 +81,7 @@ export async function findDocumentsWithBlockReferences(
         depth: 1,
       })
 
-      const postsWithBlocks: DocumentWithBlockReference[] = postsWithBlocksRes.docs.map((doc) => ({
+      const postsWithBlocks: DocumentForRevalidation[] = postsWithBlocksRes.docs.map((doc) => ({
         collection: 'posts',
         id: doc.id,
         slug: doc.slug,

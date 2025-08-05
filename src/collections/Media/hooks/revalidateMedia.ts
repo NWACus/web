@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import type { Media } from '@/payload-types'
 import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
+import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 export const revalidateMedia: CollectionAfterChangeHook<Media> = async ({
   doc,
@@ -9,6 +10,10 @@ export const revalidateMedia: CollectionAfterChangeHook<Media> = async ({
 }) => {
   if (!context.disableRevalidate) {
     await revalidateBlockReferences({
+      collection: 'media',
+      id: doc.id,
+    })
+    await revalidateRelationshipReferences({
       collection: 'media',
       id: doc.id,
     })
@@ -22,6 +27,10 @@ export const revalidateDelete: CollectionAfterDeleteHook<Media> = async ({
 }) => {
   if (!context.disableRevalidate) {
     await revalidateBlockReferences({
+      collection: 'media',
+      id: doc.id,
+    })
+    await revalidateRelationshipReferences({
       collection: 'media',
       id: doc.id,
     })

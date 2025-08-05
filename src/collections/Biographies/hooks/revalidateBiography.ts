@@ -3,15 +3,18 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import { getPayload } from 'payload'
 
 import type { Biography } from '@/payload-types'
-import {
-  revalidateBlockReferences,
-  revalidateDocument,
-} from '@/utilities/revalidateBlockReferences'
+import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
+import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 async function revalidateBiographyWithCascading(biographyId: number) {
   const payload = await getPayload({ config: configPromise })
 
   await revalidateBlockReferences({
+    collection: 'biographies',
+    id: biographyId,
+  })
+
+  await revalidateRelationshipReferences({
     collection: 'biographies',
     id: biographyId,
   })
@@ -49,54 +52,6 @@ async function revalidateBiographyWithCascading(biographyId: number) {
     }
   } catch (error) {
     payload.logger.warn(`Error finding teams with biography member ${biographyId}: ${error}`)
-  }
-
-  try {
-    // Also revalidate posts with this biography as an author
-    payload.logger.info(`Checking for post author references for biography ID ${biographyId}`)
-
-    const postsWithAuthorRes = await payload.find({
-      collection: 'posts',
-      where: {
-        and: [
-          {
-            _status: { equals: 'published' },
-          },
-          {
-            authors: { equals: biographyId },
-          },
-        ],
-      },
-      select: {
-        id: true,
-        slug: true,
-        tenant: true,
-      },
-      depth: 1,
-    })
-
-    const postWithAuthor = postsWithAuthorRes.docs.map((doc) => ({
-      collection: 'posts' as const,
-      id: doc.id,
-      slug: doc.slug,
-      tenant: doc.tenant,
-    }))
-
-    payload.logger.info(
-      `Found ${postWithAuthor.length} posts documents referencing biography ID ${biographyId} as author`,
-    )
-
-    for (const doc of postWithAuthor) {
-      await revalidateDocument(doc)
-    }
-
-    payload.logger.info(
-      `Completed revalidation of posts where biography ID ${biographyId} is an author`,
-    )
-  } catch (error) {
-    payload.logger.warn(
-      `Error querying posts for biography author reference ${biographyId}: ${error}`,
-    )
   }
 }
 

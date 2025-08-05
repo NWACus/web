@@ -1,10 +1,15 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
+import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 export const revalidateForm: CollectionAfterChangeHook = async ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
     await revalidateBlockReferences({
+      collection: 'forms',
+      id: doc.id,
+    })
+    await revalidateRelationshipReferences({
       collection: 'forms',
       id: doc.id,
     })
@@ -18,6 +23,10 @@ export const revalidateFormDelete: CollectionAfterDeleteHook = async ({
 }) => {
   if (!context.disableRevalidate) {
     await revalidateBlockReferences({
+      collection: 'forms',
+      id: doc.id,
+    })
+    await revalidateRelationshipReferences({
       collection: 'forms',
       id: doc.id,
     })
