@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import { getBlocksFromConfig } from './getBlocksFromConfig'
 
 export interface BlockReference {
-  collection: 'biographies' | 'teams' | 'media' | 'forms'
+  collection: 'biographies' | 'teams' | 'media' | 'forms' | 'tags'
   id: number
 }
 
