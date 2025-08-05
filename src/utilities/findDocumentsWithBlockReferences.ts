@@ -69,9 +69,41 @@ export async function findDocumentsWithBlockReferences(
 
   if (postsMapping) {
     try {
-      // TODO will query posts based on a new field which records the blocks and their ids that are in content
+      const postsWithBlocksRes = await payload.find({
+        collection: 'posts',
+        where: {
+          and: [
+            {
+              _status: { equals: 'published' },
+            },
+            {
+              'blocksInContent.collection': { equals: reference.collection },
+            },
+            {
+              'blocksInContent.blockId': { equals: reference.id },
+            },
+          ],
+        },
+        select: {
+          id: true,
+          slug: true,
+          tenant: true,
+        },
+        depth: 1,
+      })
+
+      const postsWithBlocks: DocumentWithBlockReference[] = postsWithBlocksRes.docs.map((doc) => ({
+        collection: 'posts',
+        id: doc.id,
+        slug: doc.slug,
+        tenant: doc.tenant,
+      }))
+
+      results.push(...postsWithBlocks)
     } catch (error) {
-      payload.logger.warn(`Error querying posts for media reference ${reference.id}: ${error}`)
+      payload.logger.warn(
+        `Error querying posts for ${reference.collection} reference ${reference.id}: ${error}`,
+      )
     }
   }
 

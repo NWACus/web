@@ -754,6 +754,14 @@ export interface Post {
   publishedAt?: string | null;
   tags?: (number | Tag)[] | null;
   relatedPosts?: (number | Post)[] | null;
+  blocksInContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        blockId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   slug: string;
   slugLock?: boolean | null;
   contentHash?: string | null;
@@ -1876,6 +1884,14 @@ export interface PostsSelect<T extends boolean = true> {
   publishedAt?: T;
   tags?: T;
   relatedPosts?: T;
+  blocksInContent?:
+    | T
+    | {
+        blockType?: T;
+        collection?: T;
+        blockId?: T;
+        id?: T;
+      };
   slug?: T;
   slugLock?: T;
   contentHash?: T;
