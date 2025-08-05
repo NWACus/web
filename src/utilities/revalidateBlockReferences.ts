@@ -53,25 +53,37 @@ export async function revalidateDocument(doc: DocumentWithBlockReference): Promi
     }
   }
 
-  const basePaths = [`/${doc.slug}`, `/${tenant.slug}/${doc.slug}`]
+  if (doc.collection === 'pages') {
+    const basePaths = [`/${doc.slug}`, `/${tenant.slug}/${doc.slug}`]
 
-  try {
-    const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
-    const navigationPaths = getNavigationPathForSlug(topLevelNavItems, doc.slug)
+    try {
+      const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
+      const navigationPaths = getNavigationPathForSlug(topLevelNavItems, doc.slug)
 
-    const allPaths = [
-      ...basePaths,
-      ...navigationPaths.flatMap((path) => [path, `/${tenant.slug}${path}`]),
-    ]
+      const allPaths = [
+        ...basePaths,
+        ...navigationPaths.flatMap((path) => [path, `/${tenant.slug}${path}`]),
+      ]
+
+      payload.logger.info(
+        `Revalidating ${doc.collection} ${doc.slug} at paths: ${allPaths.join(', ')}`,
+      )
+
+      allPaths.forEach((path) => revalidatePath(path))
+    } catch (error) {
+      payload.logger.warn(
+        `Failed to get navigation paths for ${doc.collection} ${doc.slug}, falling back to basic paths: ${error}`,
+      )
+
+      basePaths.forEach((path) => revalidatePath(path))
+    }
+  }
+
+  if (doc.collection === 'posts') {
+    const basePaths = [`/blog/${doc.slug}`, `/${tenant.slug}/blog/${doc.slug}`]
 
     payload.logger.info(
-      `Revalidating ${doc.collection} ${doc.slug} at paths: ${allPaths.join(', ')}`,
-    )
-
-    allPaths.forEach((path) => revalidatePath(path))
-  } catch (error) {
-    payload.logger.warn(
-      `Failed to get navigation paths for ${doc.collection} ${doc.slug}, falling back to basic paths: ${error}`,
+      `Revalidating ${doc.collection} ${doc.slug} at paths: ${basePaths.join(', ')}`,
     )
 
     basePaths.forEach((path) => revalidatePath(path))
