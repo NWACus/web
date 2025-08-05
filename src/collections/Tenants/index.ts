@@ -3,7 +3,7 @@ import { cachedPublicTenants } from '@/collections/Tenants/endpoints/cachedPubli
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
-} from '@/collections/Tenants/hooks/revalidateTenantsCache'
+} from '@/collections/Tenants/hooks/revalidateTenants'
 import {
   updateEdgeConfigAfterChange,
   updateEdgeConfigAfterDelete,
@@ -54,10 +54,14 @@ export const Tenants: CollectionConfig = {
       admin: {
         description:
           'Used for subdomains and url paths for previews. This is a unique identifier for a tenant.',
+        readOnly: true,
       },
       index: true,
       required: true,
       unique: true,
+      access: {
+        update: () => false, // we should never change this after initial creation
+      },
     },
     contentHashField(),
   ],

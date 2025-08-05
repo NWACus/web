@@ -20,7 +20,6 @@ export const revalidateSettings: CollectionAfterChangeHook<Setting> = async ({
     }
 
     // Settings affect all pages since they appear in global components (header/footer)
-    // Revalidate all paths for this tenant
     payload.logger.info(`Revalidating all paths for tenant ${tenant.slug} due to settings change`)
 
     // Revalidate the tenant's root path and all nested paths
