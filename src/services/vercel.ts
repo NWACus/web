@@ -1,6 +1,6 @@
 import { TenantData } from '@/middleware'
+import { normalizePath } from '@/utilities/path'
 import { createClient } from '@vercel/edge-config'
-import { normalizePath } from './utils'
 
 const token = process.env.VERCEL_TOKEN
 const teamId = process.env.VERCEL_TEAM_ID

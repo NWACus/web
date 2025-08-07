@@ -5,6 +5,7 @@ import { resolveTenant } from '@/utilities/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Page } from '@/payload-types'
+import { normalizePath } from '@/utilities/path'
 
 const revalidatePagePaths = async ({
   slug,
@@ -25,7 +26,9 @@ const revalidatePagePaths = async ({
 
     const allPaths = [...basePaths, ...navigationPaths.map((path) => `/${tenantSlug}${path}`)]
 
-    const uniquePaths = Array.from(new Set(allPaths))
+    const uniquePaths = Array.from(new Set(allPaths)).map((path) =>
+      normalizePath(path, { ensureLeadingSlash: true }),
+    )
 
     payload.logger.info(`${logPrefix} at paths: ${uniquePaths.join(', ')}`)
 
