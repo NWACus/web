@@ -3,6 +3,8 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Post } from '@/payload-types'
+import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
+import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
   doc,
@@ -49,6 +51,16 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
       revalidateTag(`posts-sitemap-${tenant.slug}`)
       revalidateTag(`navigation-${tenant.slug}`) // Navigation links can derive URLs from post slugs
     }
+
+    await revalidateBlockReferences({
+      collection: 'posts',
+      id: doc.id,
+    })
+
+    await revalidateRelationshipReferences({
+      collection: 'posts',
+      id: doc.id,
+    })
   }
   return doc
 }
@@ -77,6 +89,16 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = async ({
     revalidatePath(postRewritepath)
     revalidateTag(`posts-sitemap-${tenant.slug}`)
     revalidateTag(`navigation-${tenant.slug}`) // Navigation links can derive URLs from post slugs
+
+    await revalidateBlockReferences({
+      collection: 'posts',
+      id: doc.id,
+    })
+
+    await revalidateRelationshipReferences({
+      collection: 'posts',
+      id: doc.id,
+    })
   }
 
   return doc
