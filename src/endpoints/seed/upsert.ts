@@ -1,4 +1,5 @@
 import { Tenant } from '@/payload-types'
+import { removeNonDeterministicKeys } from '@/utilities/removeNonDeterministicKeys'
 import crypto from 'crypto'
 import stringify from 'json-stable-stringify'
 import merge from 'lodash.merge'
@@ -16,23 +17,6 @@ type GlobalCollectionWithHash = Extract<
   CollectionSlug,
   'users' | 'tenants' | 'roles' | 'globalRoles'
 >
-
-const removeNonDeterministicKeys = (obj: object): object => {
-  if (obj !== Object(obj)) {
-    return obj
-  }
-  if (Array.isArray(obj)) {
-    return obj.map((item: object): object => removeNonDeterministicKeys(item))
-  }
-
-  return Object.keys(obj as object)
-    .filter((k) => !['loginAt', 'createdAt', 'updatedAt', 'publishedAt', 'contentHash'].includes(k))
-    .reduce(
-      // @ts-expect-error this is so nasty anyway, yuck
-      (acc: object, x): object => Object.assign(acc, { [x]: removeNonDeterministicKeys(obj[x]) }),
-      {} as object,
-    )
-}
 
 export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
   collection: TSlug,
