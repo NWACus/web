@@ -1,6 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 import { extractAllInternalUrls, getCachedTopLevelNavItems } from '@/components/Header/utils'
+import { resolveTenant } from '@/utilities/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Navigation } from '@/payload-types'
@@ -12,15 +13,7 @@ export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async
 }) => {
   if (context.disableRevalidate) return
 
-  let tenant = doc.tenant
-
-  if (typeof tenant === 'number') {
-    tenant = await payload.findByID({
-      collection: 'tenants',
-      id: tenant,
-      depth: 0,
-    })
-  }
+  const tenant = await resolveTenant(doc.tenant, payload)
 
   payload.logger.info(`Revalidating navigation cache for tenant: ${tenant.slug}`)
 
@@ -56,15 +49,7 @@ export const revalidateNavigationDelete: CollectionAfterDeleteHook<Navigation> =
 }) => {
   if (context.disableRevalidate) return
 
-  let tenant = doc.tenant
-
-  if (typeof tenant === 'number') {
-    tenant = await payload.findByID({
-      collection: 'tenants',
-      id: tenant,
-      depth: 0,
-    })
-  }
+  const tenant = await resolveTenant(doc.tenant, payload)
 
   payload.logger.info(`Revalidating navigation cache for deleted tenant: ${tenant.slug}`)
 

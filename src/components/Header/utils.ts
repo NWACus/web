@@ -452,7 +452,11 @@ export async function getCanonicalUrlForSlug(center: string, slug: string): Prom
     }
 
     return null
-  } catch (_error) {
+  } catch (error) {
+    console.warn(
+      `Error in getCanonicalUrlForSlug for center ${center} and slug ${slug}. Returning null as a fallback. Error: `,
+      error,
+    )
     return null
   }
 }

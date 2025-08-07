@@ -1,10 +1,43 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
+import type { BasePayload, CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
+import { resolveTenant } from '@/utilities/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Post } from '@/payload-types'
 import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
 import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
+
+const revalidate = async ({
+  docId,
+  slug,
+  tenantSlug,
+  payload,
+}: {
+  docId: number
+  slug: string
+  tenantSlug: string
+  payload: BasePayload
+}) => {
+  const preRewritePath = `/blog/${slug}`
+  const postRewritePath = `/${tenantSlug}${preRewritePath}`
+
+  payload.logger.info(`Revalidating paths: ${[preRewritePath, postRewritePath].join(', ')}`)
+
+  revalidatePath(preRewritePath)
+  revalidatePath(postRewritePath)
+  revalidateTag(`posts-sitemap-${tenantSlug}`)
+  revalidateTag(`navigation-${tenantSlug}`)
+
+  await revalidateBlockReferences({
+    collection: 'posts',
+    id: docId,
+  })
+
+  await revalidateRelationshipReferences({
+    collection: 'posts',
+    id: docId,
+  })
+}
 
 export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
   doc,
@@ -13,25 +46,10 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
 }) => {
   if (context.disableRevalidate) return
 
-  let tenant = doc.tenant
-
-  if (typeof tenant === 'number') {
-    tenant = await payload.findByID({
-      collection: 'tenants',
-      id: tenant,
-      depth: 0,
-    })
-  }
+  const tenant = await resolveTenant(doc.tenant, payload)
 
   if (doc._status === 'published') {
-    const preRewritePath = `/blog/${doc.slug}`
-    const postRewritePath = `/${tenant.slug}${preRewritePath}`
-
-    payload.logger.info(`Revalidating post at paths: ${preRewritePath}, ${postRewritePath}`)
-
-    revalidatePath(preRewritePath)
-    revalidatePath(postRewritePath)
-    revalidateTag(`posts-sitemap-${tenant.slug}`)
+    revalidate({ docId: doc.id, slug: doc.slug, tenantSlug: tenant.slug, payload })
   }
 
   // If the post was previously published, and it is no longer published or the slug has changed
@@ -40,28 +58,9 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
     previousDoc._status === 'published' &&
     (doc._status !== 'published' || previousDoc.slug !== doc.slug)
   ) {
-    const oldPreRewritePath = `/blog/${previousDoc.slug}`
-    const oldPostRewritePath = `/${tenant.slug}${oldPreRewritePath}`
-
-    payload.logger.info(
-      `Revalidating old post at paths: ${oldPreRewritePath}, ${oldPostRewritePath}`,
-    )
-
-    revalidatePath(oldPreRewritePath)
-    revalidatePath(oldPostRewritePath)
-    revalidateTag(`posts-sitemap-${tenant.slug}`)
-    revalidateTag(`navigation-${tenant.slug}`) // Navigation links can derive URLs from post slugs
+    payload.logger.info('Revalidating old post')
+    revalidate({ docId: doc.id, slug: previousDoc.slug, tenantSlug: tenant.slug, payload })
   }
-
-  await revalidateBlockReferences({
-    collection: 'posts',
-    id: doc.id,
-  })
-
-  await revalidateRelationshipReferences({
-    collection: 'posts',
-    id: doc.id,
-  })
 }
 
 export const revalidatePostDelete: CollectionAfterDeleteHook<Post> = async ({
@@ -70,33 +69,7 @@ export const revalidatePostDelete: CollectionAfterDeleteHook<Post> = async ({
 }) => {
   if (context.disableRevalidate) return
 
-  let tenant = doc.tenant
+  const tenant = await resolveTenant(doc.tenant, payload)
 
-  if (typeof tenant === 'number') {
-    tenant = await payload.findByID({
-      collection: 'tenants',
-      id: tenant,
-      depth: 0,
-    })
-  }
-
-  const preRewritePath = `/blog/${doc?.slug}`
-  const postRewritepath = `/${tenant.slug}${preRewritePath}`
-
-  payload.logger.info(`Revalidating deleted post at paths: ${preRewritePath}, ${postRewritepath}`)
-
-  revalidatePath(preRewritePath)
-  revalidatePath(postRewritepath)
-  revalidateTag(`posts-sitemap-${tenant.slug}`)
-  revalidateTag(`navigation-${tenant.slug}`) // Navigation links can derive URLs from post slugs
-
-  await revalidateBlockReferences({
-    collection: 'posts',
-    id: doc.id,
-  })
-
-  await revalidateRelationshipReferences({
-    collection: 'posts',
-    id: doc.id,
-  })
+  revalidate({ docId: doc.id, slug: doc.slug, tenantSlug: tenant.slug, payload })
 }
