@@ -63,6 +63,9 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
             TSlug,
             SelectFromCollectionSlug<TSlug>
           >['data'],
+          context: {
+            disableRevalidate: true,
+          },
         })
 
         if (!updated) {
@@ -80,6 +83,9 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
     const created = await payload.create({
       collection: collection,
       data: item,
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!created) {
@@ -178,6 +184,9 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
             TSlug,
             SelectFromCollectionSlug<TSlug>
           >['data'],
+          context: {
+            disableRevalidate: true,
+          },
         })
 
         if (!updated) {
@@ -199,6 +208,9 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
       collection: collection,
       data: item,
       file: file,
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!created) {

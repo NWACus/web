@@ -2,11 +2,13 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 export const revalidateTenantsAfterChange: CollectionAfterChangeHook = async ({
-  req: { payload },
+  req: { payload, context },
   doc,
   previousDoc,
   operation,
 }) => {
+  if (context.disableRevalidate) return
+
   try {
     revalidateTag('tenants')
     payload.logger.info(
@@ -38,7 +40,13 @@ export const revalidateTenantsAfterChange: CollectionAfterChangeHook = async ({
   }
 }
 
-export const revalidateTenantsAfterDelete: CollectionAfterDeleteHook = async ({ req, doc }) => {
+export const revalidateTenantsAfterDelete: CollectionAfterDeleteHook = async ({
+  req: { context },
+  req,
+  doc,
+}) => {
+  if (context.disableRevalidate) return
+
   try {
     revalidateTag('tenants')
     req.payload.logger.info(

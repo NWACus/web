@@ -4,7 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { Biography } from '@/payload-types'
 import { CollectionConfig, TextField, Validate } from 'payload'
-import { revalidateBiography, revalidateDelete } from './hooks/revalidateBiography'
+import { revalidateBiography, revalidateBiographyDelete } from './hooks/revalidateBiography'
 
 // the types like TextFieldValidation are not parameterized by the collection, so they have `unknown` for siblingData
 const validateName: Validate<string, unknown, Biography, TextField> = (name, { siblingData }) => {
@@ -67,6 +67,6 @@ export const Biographies: CollectionConfig = {
   ],
   hooks: {
     afterChange: [revalidateBiography],
-    afterDelete: [revalidateDelete],
+    afterDelete: [revalidateBiographyDelete],
   },
 }

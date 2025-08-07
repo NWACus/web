@@ -59,18 +59,16 @@ export const revalidateBiography: CollectionAfterChangeHook<Biography> = async (
   doc,
   req: { context },
 }) => {
-  if (!context.disableRevalidate) {
-    await revalidateBiographyWithCascading(doc.id)
-  }
-  return doc
+  if (context.disableRevalidate) return
+
+  await revalidateBiographyWithCascading(doc.id)
 }
 
-export const revalidateDelete: CollectionAfterDeleteHook<Biography> = async ({
+export const revalidateBiographyDelete: CollectionAfterDeleteHook<Biography> = async ({
   doc,
   req: { context },
 }) => {
-  if (!context.disableRevalidate) {
-    await revalidateBiographyWithCascading(doc.id)
-  }
-  return doc
+  if (context.disableRevalidate) return
+
+  await revalidateBiographyWithCascading(doc.id)
 }

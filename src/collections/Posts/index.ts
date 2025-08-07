@@ -17,7 +17,7 @@ import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { populateBlocksInContent } from './hooks/populateBlocksInContent'
-import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
+import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
@@ -224,7 +224,7 @@ export const Posts: CollectionConfig<'posts'> = {
     beforeChange: [populatePublishedAt, populateBlocksInContent],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
-    afterDelete: [revalidateDelete],
+    afterDelete: [revalidatePostDelete],
   },
   versions: {
     drafts: {
