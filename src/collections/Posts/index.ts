@@ -36,6 +36,7 @@ export const Posts: CollectionConfig<'posts'> = {
     featuredImage: true,
     slug: true,
     title: true,
+    _status: true,
   },
   admin: {
     group: 'Content',
