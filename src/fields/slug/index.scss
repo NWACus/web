@@ -1,4 +1,5 @@
 .slug-field-component {
+  position: relative;
   .label-wrapper {
     display: flex;
     justify-content: space-between;
@@ -6,6 +7,10 @@
   }
 
   .lock-button {
+    position: absolute;
+    right: 1em;
+    z-index: 1;
+    bottom: 0.4em;
     margin: 0;
     padding-bottom: 0.3125rem;
   }

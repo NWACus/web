@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 
 import { Button, FieldLabel, TextInput, useField, useForm, useFormFields } from '@payloadcms/ui'
 
+import { Check, Lock } from 'lucide-react'
 import { formatSlug } from './formatSlug'
 import './index.scss'
 
@@ -43,15 +44,13 @@ export const SlugComponent = ({
     return fields[fieldToUse]?.value as string
   })
 
-  // Sync slug from targetFieldValue only when locked and user has NOT manually edited
+  // Only auto-update slug when locked *and* user has not manually edited slug
   useEffect(() => {
     if (checkboxValue) {
-      if (targetFieldValue) {
-        const formattedSlug = formatSlug(targetFieldValue)
-
-        if (value !== formattedSlug) setValue(formattedSlug)
-      } else {
-        if (value !== '') setValue('')
+      const formattedSlug = targetFieldValue ? formatSlug(targetFieldValue) : ''
+      if (value !== formattedSlug && !hasManuallyEditedSlug.current) {
+        setValue(formattedSlug)
+        hasManuallyEditedSlug.current = false
       }
     }
   }, [checkboxValue, targetFieldValue, setValue, value])
@@ -61,24 +60,13 @@ export const SlugComponent = ({
       e.preventDefault()
       const newCheckboxValue = !checkboxValue
 
-      if (newCheckboxValue) {
-        // Only auto-update slug if user has NOT manually edited it
-        if (!hasManuallyEditedSlug.current && targetFieldValue) {
-          const formattedSlug = formatSlug(targetFieldValue)
-          if (value !== formattedSlug) setValue(formattedSlug)
-        }
-      } else {
-        // On unlock, reset manual edit tracker so user can edit freely
-        hasManuallyEditedSlug.current = false
-      }
-
       dispatchFields({
         type: 'UPDATE',
         path: checkboxFieldPath,
         value: newCheckboxValue,
       })
     },
-    [checkboxValue, checkboxFieldPath, dispatchFields, targetFieldValue, setValue, value],
+    [checkboxValue, checkboxFieldPath, dispatchFields],
   )
 
   const readOnly = readOnlyFromProps || checkboxValue
@@ -94,7 +82,7 @@ export const SlugComponent = ({
         <FieldLabel htmlFor={`field-${path}`} label={label} />
 
         <Button className="lock-button" buttonStyle="none" onClick={handleLock}>
-          {checkboxValue ? 'Unlock' : 'Lock'}
+          {checkboxValue ? <Lock className="w-4" /> : <Check className="w-4" />}
         </Button>
       </div>
 
