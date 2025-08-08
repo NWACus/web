@@ -8,38 +8,41 @@ import type { Navigation } from '@/payload-types'
 
 export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async ({
   doc,
-  previousDoc,
-  req: { payload, context },
+  req: { payload, context, query },
 }) => {
   if (context.disableRevalidate) return
 
-  const tenant = await resolveTenant(doc.tenant, payload)
+  if (query && query.autosave === 'true') return
 
-  payload.logger.info(`Revalidating navigation cache for tenant: ${tenant.slug}`)
+  if (doc._status === 'published') {
+    const tenant = await resolveTenant(doc.tenant, payload)
 
-  // Invalidate navigation cache tags first
-  revalidateTag(`navigation-${tenant.slug}`)
-  revalidateTag(`pages-sitemap-${tenant.slug}`)
+    payload.logger.info(`Revalidating navigation cache for tenant: ${tenant.slug}`)
 
-  try {
-    // Get current and previous navigation URLs to find what changed
-    const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
-    const currentUrls = extractAllInternalUrls(topLevelNavItems)
+    // Invalidate navigation cache tags first
+    revalidateTag(`navigation-${tenant.slug}`)
+    revalidateTag(`pages-sitemap-${tenant.slug}`)
 
-    // Revalidate all current navigation paths
-    currentUrls.forEach((url) => {
-      revalidatePath(`/${tenant.slug}${url}`)
+    try {
+      // Get current and previous navigation URLs to find what changed
+      const { topLevelNavItems } = await getCachedTopLevelNavItems(tenant.slug)()
+      const currentUrls = extractAllInternalUrls(topLevelNavItems)
 
-      // Also revalidate the root slug path in case it redirects to this navigation path
-      const slug = url.split('/').filter(Boolean).pop()
-      if (slug) {
-        revalidatePath(`/${tenant.slug}/${slug}`)
-      }
-    })
+      // Revalidate all current navigation paths
+      currentUrls.forEach((url) => {
+        revalidatePath(`/${tenant.slug}${url}`)
 
-    payload.logger.info(`Navigation updated - revalidated ${currentUrls.length} navigation paths`)
-  } catch (error) {
-    payload.logger.warn(`Failed to revalidate navigation paths: ${error}`)
+        // Also revalidate the root slug path in case it redirects to this navigation path
+        const slug = url.split('/').filter(Boolean).pop()
+        if (slug) {
+          revalidatePath(`/${tenant.slug}/${slug}`)
+        }
+      })
+
+      payload.logger.info(`Navigation updated - revalidated ${currentUrls.length} navigation paths`)
+    } catch (error) {
+      payload.logger.warn(`Failed to revalidate navigation paths: ${error}`)
+    }
   }
 }
 

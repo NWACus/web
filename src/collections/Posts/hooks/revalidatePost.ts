@@ -42,9 +42,11 @@ const revalidate = async ({
 export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
   doc,
   previousDoc,
-  req: { payload, context },
+  req: { payload, context, query },
 }) => {
   if (context.disableRevalidate) return
+
+  if (query && query.autosave === 'true') return
 
   const tenant = await resolveTenant(doc.tenant, payload)
 
