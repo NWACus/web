@@ -1,7 +1,7 @@
+import { normalizePath } from '@/utilities/path'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
-import { normalizePath } from '../utils'
 import { allAvalancheCenterCapabilitiesSchema, avalancheCenterSchema } from './types/schemas'
 
 const host = process.env.NAC_HOST || 'https://api.avalanche.org'
