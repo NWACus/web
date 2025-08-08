@@ -50,57 +50,56 @@ const revalidatePageTags = (tenantSlug: string) => {
 export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
   doc,
   previousDoc,
-  req: { payload, context },
+  req: { payload, context, query },
 }) => {
-  if (!context.disableRevalidate) {
-    const tenant = await resolveTenant(doc.tenant, payload)
+  if (context.disableRevalidate) return
 
-    if (doc._status === 'published') {
-      await revalidatePagePaths({
-        slug: doc.slug,
-        tenantSlug: tenant.slug,
-        payload,
-        logPrefix: 'Revalidating page',
-      })
+  if (query && query.autosave === 'true') return
 
-      revalidatePageTags(tenant.slug)
-    }
+  const tenant = await resolveTenant(doc.tenant, payload)
 
-    // If the page was previously published, and it is no longer published or the slug has changed
-    // we need to revalidate the old path
-    if (
-      previousDoc._status === 'published' &&
-      (doc._status !== 'published' || previousDoc.slug !== doc.slug)
-    ) {
-      await revalidatePagePaths({
-        slug: previousDoc.slug,
-        tenantSlug: tenant.slug,
-        payload,
-        logPrefix: 'Revalidating old page',
-      })
-
-      revalidatePageTags(tenant.slug)
-    }
-  }
-  return doc
-}
-
-export const revalidateDelete: CollectionAfterDeleteHook<Page> = async ({
-  doc,
-  req: { payload, context },
-}) => {
-  if (!context.disableRevalidate) {
-    const tenant = await resolveTenant(doc.tenant, payload)
-
+  if (doc._status === 'published') {
     await revalidatePagePaths({
       slug: doc.slug,
       tenantSlug: tenant.slug,
       payload,
-      logPrefix: 'Revalidating deleted page',
+      logPrefix: 'Revalidating page',
     })
 
     revalidatePageTags(tenant.slug)
   }
 
-  return doc
+  // If the page was previously published, and it is no longer published or the slug has changed
+  // we need to revalidate the old path
+  if (
+    previousDoc._status === 'published' &&
+    (doc._status !== 'published' || previousDoc.slug !== doc.slug)
+  ) {
+    await revalidatePagePaths({
+      slug: previousDoc.slug,
+      tenantSlug: tenant.slug,
+      payload,
+      logPrefix: 'Revalidating old page',
+    })
+
+    revalidatePageTags(tenant.slug)
+  }
+}
+
+export const revalidatePageDelete: CollectionAfterDeleteHook<Page> = async ({
+  doc,
+  req: { payload, context },
+}) => {
+  if (context.disableRevalidate) return
+
+  const tenant = await resolveTenant(doc.tenant, payload)
+
+  await revalidatePagePaths({
+    slug: doc.slug,
+    tenantSlug: tenant.slug,
+    payload,
+    logPrefix: 'Revalidating deleted page',
+  })
+
+  revalidatePageTags(tenant.slug)
 }

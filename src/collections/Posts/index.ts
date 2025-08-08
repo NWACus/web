@@ -16,7 +16,8 @@ import { Banner } from '@/blocks/Banner/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
-import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
+import { populateBlocksInContent } from './hooks/populateBlocksInContent'
+import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
@@ -189,15 +190,40 @@ export const Posts: CollectionConfig<'posts'> = {
       hasMany: true,
       relationTo: 'posts',
     },
-
+    // Hidden field to track blocks embedded in content for revalidation purposes
+    {
+      name: 'blocksInContent',
+      type: 'array',
+      access: {
+        update: () => false,
+      },
+      admin: {
+        disabled: true,
+        readOnly: true,
+      },
+      fields: [
+        {
+          name: 'blockType',
+          type: 'text',
+        },
+        {
+          name: 'collection',
+          type: 'text',
+        },
+        {
+          name: 'blockId',
+          type: 'number',
+        },
+      ],
+    },
     ...slugField(),
     contentHashField(),
   ],
   hooks: {
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, populateBlocksInContent],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
-    afterDelete: [revalidateDelete],
+    afterDelete: [revalidatePostDelete],
   },
   versions: {
     drafts: {

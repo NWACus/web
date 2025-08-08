@@ -8,10 +8,13 @@ import type { Navigation } from '@/payload-types'
 
 export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async ({
   doc,
-  previousDoc,
-  req: { payload, context },
+  req: { payload, context, query },
 }) => {
-  if (!context.disableRevalidate) {
+  if (context.disableRevalidate) return
+
+  if (query && query.autosave === 'true') return
+
+  if (doc._status === 'published') {
     const tenant = await resolveTenant(doc.tenant, payload)
 
     payload.logger.info(`Revalidating navigation cache for tenant: ${tenant.slug}`)
@@ -36,33 +39,23 @@ export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async
         }
       })
 
-      // If there was a previous version, also revalidate paths that might have been removed
-      if (previousDoc) {
-        // Note: We can't easily get the previous navigation structure since the cache is invalidated
-        // But the page revalidation hooks will handle individual page changes
-        payload.logger.info(
-          `Navigation updated - revalidated ${currentUrls.length} navigation paths`,
-        )
-      }
+      payload.logger.info(`Navigation updated - revalidated ${currentUrls.length} navigation paths`)
     } catch (error) {
       payload.logger.warn(`Failed to revalidate navigation paths: ${error}`)
     }
   }
-  return doc
 }
 
 export const revalidateNavigationDelete: CollectionAfterDeleteHook<Navigation> = async ({
   doc,
   req: { payload, context },
 }) => {
-  if (!context.disableRevalidate) {
-    const tenant = await resolveTenant(doc.tenant, payload)
+  if (context.disableRevalidate) return
 
-    payload.logger.info(`Revalidating navigation cache for deleted tenant: ${tenant.slug}`)
+  const tenant = await resolveTenant(doc.tenant, payload)
 
-    revalidateTag(`navigation-${tenant.slug}`)
-    revalidateTag(`pages-sitemap-${tenant.slug}`)
-  }
+  payload.logger.info(`Revalidating navigation cache for deleted tenant: ${tenant.slug}`)
 
-  return doc
+  revalidateTag(`navigation-${tenant.slug}`)
+  revalidateTag(`pages-sitemap-${tenant.slug}`)
 }
