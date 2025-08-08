@@ -189,7 +189,6 @@ export const Posts: CollectionConfig<'posts'> = {
       hasMany: true,
       relationTo: 'posts',
     },
-
     // Hidden field to track blocks embedded in content for revalidation purposes
     {
       name: 'blocksInContent',
@@ -216,7 +215,6 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-
     ...slugField(),
     contentHashField(),
   ],

@@ -87,15 +87,13 @@ async function extractBlockReferencesFromLexical(
 }
 
 export const populateBlocksInContent: CollectionBeforeChangeHook<Post> = async ({ data, req }) => {
+  if (data._status === 'draft') return data
+
   if (data.content) {
     try {
       const blockReferences = await extractBlockReferencesFromLexical(data.content)
 
       data.blocksInContent = blockReferences
-
-      req.payload.logger.info(
-        `Extracted ${blockReferences.length} block references from post content`,
-      )
     } catch (error) {
       req.payload.logger.warn(`Error extracting block references: ${error}`)
       data.blocksInContent = []
