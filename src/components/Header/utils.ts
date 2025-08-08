@@ -176,6 +176,11 @@ export function convertToNavLink(
       `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
     )
 
+    // Do not render documents in draft state
+    if (reference.value._status === 'draft') {
+      return undefined
+    }
+
     if (
       !linkLabel &&
       typeof reference.value === 'object' &&
@@ -362,20 +367,34 @@ export const getTopLevelNavItems = async ({
     weatherNavItem.items.splice(weatherStationsNavItemIndex, 1)
   }
 
+  const payload = await getPayload({ config: configPromise })
+  const publishedPosts = await payload.count({
+    collection: 'posts',
+    where: {
+      'tenant.slug': {
+        equals: typeof navigation.tenant === 'number' ? navigation.tenant : navigation.tenant.id,
+      },
+      _status: {
+        equals: 'published',
+      },
+    },
+  })
+  const blogNavItem: TopLevelNavItem = {
+    label: 'Blog',
+    link: {
+      label: 'Blog',
+      type: 'internal',
+      url: '/blog',
+    },
+  }
+
   const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
     weatherNavItem,
     ...(avalancheCenterPlatforms.obs ? [observationsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
-    {
-      label: 'Blog',
-      link: {
-        label: 'Blog',
-        type: 'internal',
-        url: '/blog',
-      },
-    },
+    ...(publishedPosts.totalDocs > 0 ? [blogNavItem] : []),
     {
       label: 'Events',
       link: {

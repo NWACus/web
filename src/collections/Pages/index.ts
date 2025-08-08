@@ -39,6 +39,7 @@ export const Pages: CollectionConfig<'pages'> = {
     title: true,
     slug: true,
     meta: true,
+    _status: true,
   },
   admin: {
     group: 'Content',
