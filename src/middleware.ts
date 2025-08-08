@@ -11,10 +11,14 @@ export const config = {
      * 2. /_next (Next.js internals)
      * 3. /_static (inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
-     * 5. /media and /thumbnail (inside /public)
-     * 6. files in /src/assets (used in Payload config and logo and icon components)
+     * 5. /media, /thumbnail, /assets (inside /public)
+     * 6. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
      */
     '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
+    '/sitemap.xml',
+    '/robots.txt',
+    '/pages-sitemap.xml',
+    '/posts-sitemap.xml',
   ],
 }
 

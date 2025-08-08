@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 
+import { getCanonicalUrlForSlug } from '@/components/Header/utils'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { getPayload, Where } from 'payload'
 import { cache } from 'react'
 
@@ -59,6 +61,12 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center, slug } = await paramsPromise
   const url = '/' + center + '/' + slug
+
+  // Check if this slug exists in navigation and should redirect to canonical URL
+  const canonicalUrl = await getCanonicalUrlForSlug(center, slug)
+  if (canonicalUrl && canonicalUrl !== `/${slug}`) {
+    redirect(canonicalUrl)
+  }
 
   const page: PageType | null = await queryPageBySlug({
     center: center,

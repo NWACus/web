@@ -1,6 +1,18 @@
 import { Navigation, Page, Post } from '@/payload-types'
+import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { AvalancheCenter, AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
+import configPromise from '@payload-config'
+import { unstable_cache } from 'next/cache'
+import { getPayload } from 'payload'
 import invariant from 'tiny-invariant'
+import { findNavigationItemBySlug } from './utils-pure'
+
+export {
+  extractAllInternalUrls,
+  findNavigationItemBySlug,
+  getCanonicalUrlsFromNavigation,
+  getNavigationPathForSlug,
+} from './utils-pure'
 
 export type NavLink =
   | {
@@ -221,7 +233,7 @@ export const getTopLevelNavItems = async ({
   navigation: Navigation
   avalancheCenterMetadata?: AvalancheCenter
   avalancheCenterPlatforms: AvalancheCenterPlatforms
-}): Promise<TopLevelNavItem[]> => {
+}): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
   let forecastsNavItem: TopLevelNavItem = {
     link: {
       label: 'Forecasts',
@@ -350,13 +362,14 @@ export const getTopLevelNavItems = async ({
     weatherNavItem.items.splice(weatherStationsNavItemIndex, 1)
   }
 
-  return [
+  const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
     weatherNavItem,
     ...(avalancheCenterPlatforms.obs ? [observationsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
     {
+      label: 'Blog',
       link: {
         label: 'Blog',
         type: 'internal',
@@ -364,6 +377,7 @@ export const getTopLevelNavItems = async ({
       },
     },
     {
+      label: 'Events',
       link: {
         label: 'Events',
         type: 'internal',
@@ -373,4 +387,76 @@ export const getTopLevelNavItems = async ({
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
   ]
+
+  let donateNavItem: TopLevelNavItem | undefined = undefined
+
+  if (navigation.donate?.link) {
+    const link = convertToNavLink(navigation.donate.link)
+
+    if (link) {
+      donateNavItem = {
+        label: link.label,
+        link,
+      }
+    }
+  }
+
+  return { topLevelNavItems, donateNavItem }
+}
+
+export const getCachedTopLevelNavItems = (center: string, draft: boolean = false) =>
+  unstable_cache(
+    async (): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
+      const payload = await getPayload({ config: configPromise })
+
+      const navigationRes = await payload.find({
+        collection: 'navigations',
+        depth: 99,
+        draft,
+        where: {
+          'tenant.slug': {
+            equals: center,
+          },
+        },
+      })
+
+      const navigation = navigationRes.docs[0]
+
+      if (!navigation) {
+        payload.logger.error(`Navigation for tenant ${center} missing`)
+        return { topLevelNavItems: [] }
+      }
+
+      const avalancheCenterMetadata = await getAvalancheCenterMetadata(center)
+      const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
+
+      return await getTopLevelNavItems({
+        navigation,
+        avalancheCenterMetadata,
+        avalancheCenterPlatforms,
+      })
+    },
+    [`top-level-nav-items-${center}`],
+    {
+      tags: ['navigation', `navigation-${center}`],
+    },
+  )
+
+export async function getCanonicalUrlForSlug(center: string, slug: string): Promise<string | null> {
+  try {
+    const { topLevelNavItems } = await getCachedTopLevelNavItems(center)()
+    const navigationItem = findNavigationItemBySlug(topLevelNavItems, slug)
+
+    if (navigationItem?.link?.type === 'internal') {
+      return navigationItem.link.url
+    }
+
+    return null
+  } catch (error) {
+    console.warn(
+      `Error in getCanonicalUrlForSlug for center ${center} and slug ${slug}. Returning null as a fallback. Error: `,
+      error,
+    )
+    return null
+  }
 }

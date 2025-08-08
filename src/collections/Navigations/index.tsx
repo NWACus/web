@@ -6,10 +6,15 @@ import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
 import { topLevelNavTab } from './fields/topLevelNavTab'
+import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
   access: accessByTenantRole('navigations'),
+  hooks: {
+    afterChange: [revalidateNavigation],
+    afterDelete: [revalidateNavigationDelete],
+  },
   labels: {
     singular: 'Navigation',
     plural: 'Navigation',
