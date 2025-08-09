@@ -8,7 +8,15 @@ import { useViewType } from '@/providers/ViewTypeProvider'
 import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
 import './index.scss'
 
-const TenantSelectorClient = ({ label }: { label: string }) => {
+const TenantSelectorClient = ({
+  label,
+  isGlobalDocument,
+  hideTenantSelect,
+}: {
+  label: string
+  isGlobalDocument: boolean | undefined
+  hideTenantSelect: boolean | undefined
+}) => {
   const { options, selectedTenantID, setTenant } = useTenantSelection()
   const viewType = useViewType()
 
@@ -22,6 +30,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
     },
     [setTenant],
   )
+  if (hideTenantSelect) return null
 
   if (options.length <= 1) {
     return null
@@ -36,6 +45,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
         onChange={handleChange}
         options={options}
         path="setTenant"
+        readOnly={viewType === 'document' && !isGlobalDocument}
         value={selectedTenantID as string | undefined}
       />
     </div>
