@@ -63,6 +63,17 @@ export const accessByTenantRole: (collection: ruleCollection) => CollectionConfi
   }
 }
 
+export const accessByTenantRoleWithPermissiveCreate: (
+  collection: ruleCollection,
+) => CollectionConfig['access'] = (collection: ruleCollection) => {
+  return {
+    create: () => true, // world creatable
+    read: byTenantRole('read', collection),
+    update: byTenantRole('update', collection),
+    delete: byTenantRole('delete', collection),
+  }
+}
+
 export const accessByTenantRoleWithPermissiveRead: (
   collection: ruleCollection,
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
