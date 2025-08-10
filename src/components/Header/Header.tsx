@@ -1,14 +1,13 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
 import { DesktopNav } from './DesktopNav.client'
 import { MobileNav } from './MobileNav.client'
-import { convertToNavLink, getTopLevelNavItems, TopLevelNavItem } from './utils'
+import { getCachedTopLevelNavItems } from './utils'
 
 export async function Header({ center }: { center: string }) {
   const { isEnabled: draft } = await draftMode()
@@ -42,45 +41,7 @@ export async function Header({ center }: { center: string }) {
     `Depth not set correctly when querying settings. USFS Logo for tenant ${center} exists but is not an object.`,
   )
 
-  const navigationRes = await payload.find({
-    collection: 'navigations',
-    depth: 99,
-    draft,
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-    },
-  })
-
-  const navigation = navigationRes.docs[0]
-
-  if (!navigation) {
-    payload.logger.error(`Navigation for tenant ${center} missing`)
-    return <></>
-  }
-
-  const avalancheCenterMetadata = await getAvalancheCenterMetadata(center)
-  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
-
-  const topLevelNavItems = await getTopLevelNavItems({
-    navigation,
-    avalancheCenterMetadata,
-    avalancheCenterPlatforms,
-  })
-
-  let donateNavItem: TopLevelNavItem | undefined = undefined
-
-  if (navigation.donate?.link) {
-    const link = convertToNavLink(navigation.donate.link)
-
-    if (link) {
-      donateNavItem = {
-        label: link.label,
-        link,
-      }
-    }
-  }
+  const { topLevelNavItems, donateNavItem } = await getCachedTopLevelNavItems(center, draft)()
 
   return (
     <header className="bg-header lg:shadow-sm lg:border-b">

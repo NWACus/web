@@ -27,6 +27,9 @@ export const bootstrap = async ({
     const globalRole = await payload.create({
       collection: 'globalRoles',
       data: data,
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!globalRole) {
@@ -44,6 +47,9 @@ export const bootstrap = async ({
       data: {
         user: user.id,
         globalRole: globalRoles['Super Admin'].id,
+      },
+      context: {
+        disableRevalidate: true,
       },
     })
   } catch (error) {
@@ -80,6 +86,9 @@ export const bootstrap = async ({
     const tenant = await payload.create({
       collection: 'tenants',
       data: data,
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!tenant) {

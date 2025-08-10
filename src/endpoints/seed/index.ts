@@ -138,6 +138,9 @@ export const seed = async ({
           },
         ],
       },
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     payload.logger.info('- Deleting existing /public/media folder...')
@@ -502,6 +505,9 @@ export const seed = async ({
       user: users['Super Admin'].id,
       globalRole: globalRoles['Super Admin'].id,
     },
+    context: {
+      disableRevalidate: true,
+    },
   })
 
   if (user && user.email !== users['Super Admin'].email) {
@@ -510,6 +516,9 @@ export const seed = async ({
       data: {
         user: user.id,
         globalRole: globalRoles['Super Admin'].id,
+      },
+      context: {
+        disableRevalidate: true,
       },
     })
   }
@@ -659,6 +668,9 @@ export const seed = async ({
             .filter((p) => p.id !== post.id)
             .map((p) => p.id),
           tags: [randomTagId],
+        },
+        context: {
+          disableRevalidate: true,
         },
       })
     })
@@ -883,6 +895,9 @@ export const seed = async ({
     collection: 'tenants',
     data: {
       customDomain: '',
+    },
+    context: {
+      disableRevalidate: true,
     },
   })
 

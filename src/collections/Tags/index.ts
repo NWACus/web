@@ -4,6 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
+import { revalidateDelete, revalidateTag } from './hooks/revalidateTag'
 
 export const Tags: CollectionConfig = {
   slug: 'tags',
@@ -23,4 +24,8 @@ export const Tags: CollectionConfig = {
     ...slugField(),
     contentHashField(),
   ],
+  hooks: {
+    afterChange: [revalidateTag],
+    afterDelete: [revalidateDelete],
+  },
 }

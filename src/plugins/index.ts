@@ -1,4 +1,5 @@
 import { accessByTenantRole, accessByTenantRoleWithPermissiveCreate } from '@/access/byTenantRole'
+import { revalidateForm, revalidateFormDelete } from '@/hooks/revalidateForm'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { Page, Post } from '@/payload-types'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
@@ -77,6 +78,10 @@ export const plugins: Plugin[] = [
         })
       },
       access: accessByTenantRole('forms'),
+      hooks: {
+        afterChange: [revalidateForm],
+        afterDelete: [revalidateFormDelete],
+      },
     },
     formSubmissionOverrides: {
       access: accessByTenantRoleWithPermissiveCreate('form-submissions'),
