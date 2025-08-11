@@ -1395,6 +1395,10 @@ export interface Setting {
    * This will be used in the header of your website next to the USFS logo if added.
    */
   banner: number | Media;
+  /**
+   * Custom image for social media previews. If not provided, a dynamic image will be generated using your branding. Recommended size: 1200x630 pixels.
+   */
+  ogImage?: (number | null) | Media;
   usfsLogo?: (number | null) | Media;
   socialMedia?: {
     instagram?: string | null;
@@ -2345,6 +2349,7 @@ export interface SettingsSelect<T extends boolean = true> {
   logo?: T;
   icon?: T;
   banner?: T;
+  ogImage?: T;
   usfsLogo?: T;
   socialMedia?:
     | T
