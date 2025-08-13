@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Preview
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash

@@ -11,6 +11,7 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    environment: Dev
     env:
       NODE_ENV: production
     steps:
@@ -74,8 +75,6 @@ jobs:
       - name: Sync blobs from prod to dev
         id: sync-files
         run: pnpm sync-blobs prod dev
-        env:
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
       - name: Update media prefix in database
         id: update-media-prefix
         run: pnpm update-media-prefix dev

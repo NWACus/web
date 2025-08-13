@@ -33,6 +33,7 @@ jobs:
 
   build:
     name: build
+    environment: Preview
     runs-on: ubuntu-latest
     steps:
       - name: 🏗 Setup repo
@@ -56,7 +57,6 @@ jobs:
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
           ALLOW_SIMPLE_PASSWORDS: 'true'
       - name: 🧹 Run build
         run: pnpm build
@@ -64,7 +64,6 @@ jobs:
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
 
   prettier:
     name: prettier

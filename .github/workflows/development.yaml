@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Dev
     env:
       NODE_ENV: production
     steps:
