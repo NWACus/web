@@ -2,7 +2,7 @@ import { Tenant } from '@/payload-types'
 import { removeNonDeterministicKeys } from '@/utilities/removeNonDeterministicKeys'
 import crypto from 'crypto'
 import stringify from 'json-stable-stringify'
-import merge from 'lodash.merge'
+import { merge } from 'lodash-es'
 import { SelectFromCollectionSlug } from 'node_modules/payload/dist/collections/config/types'
 import { ByIDOptions } from 'node_modules/payload/dist/collections/operations/local/update'
 import type {

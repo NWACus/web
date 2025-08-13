@@ -19,13 +19,14 @@ import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
+import { getEmailAdapter } from '@/email-adapter'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getEmailAdapter } from './email-adapter'
-import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
-import { plugins } from './plugins'
-import { getURL } from './utilities/getURL'
-import { getProductionTenantUrls } from './utilities/tenancy/getProductionTenantUrls'
-import { getTenantSubdomainUrls } from './utilities/tenancy/getTenantSubdomainUrls'
+import { DiagnosticsConfig } from '@/globals/Diagnostics/config'
+import { NACWidgetsConfig } from '@/globals/NACWidgetsConfig/config'
+import { plugins } from '@/plugins'
+import { getURL } from '@/utilities/getURL'
+import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
+import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -161,7 +162,7 @@ export default buildConfig({
     ...(await getTenantSubdomainUrls()),
     ...(await getProductionTenantUrls()),
   ].filter(Boolean),
-  globals: [NACWidgetsConfig],
+  globals: [NACWidgetsConfig, DiagnosticsConfig],
   graphQL: {
     disable: true,
   },

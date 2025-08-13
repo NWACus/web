@@ -121,9 +121,11 @@ export interface Config {
   };
   globals: {
     nacWidgetsConfig: NacWidgetsConfig;
+    diagnostics: Diagnostic;
   };
   globalsSelect: {
     nacWidgetsConfig: NacWidgetsConfigSelect<false> | NacWidgetsConfigSelect<true>;
+    diagnostics: DiagnosticsSelect<false> | DiagnosticsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -2589,12 +2591,32 @@ export interface NacWidgetsConfig {
   createdAt?: string | null;
 }
 /**
+ * Displays diagnostic data about the current environment.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "diagnostics".
+ */
+export interface Diagnostic {
+  id: number;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "nacWidgetsConfig_select".
  */
 export interface NacWidgetsConfigSelect<T extends boolean = true> {
   version?: T;
   baseUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "diagnostics_select".
+ */
+export interface DiagnosticsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

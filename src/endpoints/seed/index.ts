@@ -7,7 +7,6 @@ import { headers } from 'next/headers'
 import type {
   CollectionSlug,
   File,
-  GlobalSlug,
   Payload,
   PayloadRequest,
   RequiredDataFromCollectionSlug,
@@ -42,23 +41,12 @@ const collections: CollectionSlug[] = [
   'teams',
   'tenants',
 ]
-const globalsMap: Record<
-  GlobalSlug,
-  {
-    requiredFields: {
-      version: string
-      baseUrl: string
-    }
-  }
-> = {
-  nacWidgetsConfig: {
-    requiredFields: {
-      version: '20250602',
-      baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
-    },
+const defaultNacWidgetsConfig = {
+  requiredFields: {
+    version: '20250602',
+    baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
   },
 }
-const globals: GlobalSlug[] = ['nacWidgetsConfig']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -77,19 +65,15 @@ export const seed = async ({
   if (!incremental) {
     payload.logger.info(`— Clearing collections and globals...`)
 
-    // clear the database
-    await Promise.all(
-      globals.map((global) =>
-        payload.updateGlobal({
-          slug: global,
-          data: globalsMap[global].requiredFields,
-          depth: 0,
-          context: {
-            disableRevalidate: true,
-          },
-        }),
-      ),
-    )
+    // reset the nacWidgetsConfig global
+    await payload.updateGlobal({
+      slug: 'nacWidgetsConfig',
+      data: defaultNacWidgetsConfig.requiredFields,
+      depth: 0,
+      context: {
+        disableRevalidate: true,
+      },
+    })
 
     await Promise.all(
       collections.map((collection) => {
