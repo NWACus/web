@@ -23,6 +23,7 @@
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "seed": "./seed.sh",
+    "seed:standalone": "payload run ./src/scripts/standalone-seed.ts",
     "reseed": "./reseed.sh",
     "bootstrap": "./bootstrap.sh",
     "sanitize": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/sanitize-db.ts",

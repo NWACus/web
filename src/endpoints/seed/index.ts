@@ -479,9 +479,6 @@ export const seed = async ({
 
   const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById, users)
 
-  const requestHeaders = await headers()
-  const { user } = await payload.auth({ headers: requestHeaders })
-
   // Assign global roles directly to users
   await payload.create({
     collection: 'globalRoleAssignments',
@@ -494,17 +491,26 @@ export const seed = async ({
     },
   })
 
-  if (user && user.email !== users['Super Admin'].email) {
-    await payload.create({
-      collection: 'globalRoleAssignments',
-      data: {
-        user: user.id,
-        globalRole: globalRoles['Super Admin'].id,
-      },
-      context: {
-        disableRevalidate: true,
-      },
-    })
+  try {
+    const requestHeaders = await headers()
+    const { user } = await payload.auth({ headers: requestHeaders })
+
+    if (user && user.email !== users['Super Admin'].email) {
+      await payload.create({
+        collection: 'globalRoleAssignments',
+        data: {
+          user: user.id,
+          globalRole: globalRoles['Super Admin'].id,
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+  } catch (err) {
+    payload.logger.error(
+      `Error authenticating current user. We may be running in standalone mode. Error: ${err instanceof Error ? err.message : err}`,
+    )
   }
 
   // Roles
