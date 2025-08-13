@@ -64,26 +64,34 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center, zone } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
+export async function generateMetadata(
+  { params }: Args,
+  parent: Promise<Metadata>,
+): Promise<Metadata> {
+  const parentMeta = await parent
+  const { zone } = await params
 
-  // TODO: translate zone slug to zone name
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
+  const zoneName = zone
+    .split('-')
+    .map((word) => `${word.substring(0, 1).toUpperCase()}${word.substring(1)}`)
+    .join(' ')
+
   return {
-    title:
-      tenant.docs.length < 1
-        ? 'Avalanche Forecasts'
-        : `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
+    title: `${parentTitle} - ${zoneName} - Avalanche Forecast`,
+    alternates: {
+      canonical: `/forecasts/avalanche/${zone}`,
+    },
+    openGraph: {
+      ...parentOg,
+      title: `${parentTitle} - ${zoneName} - Avalanche Forecast`,
+      url: `/forecasts/avalanche/${zone}`,
+    },
   }
 }

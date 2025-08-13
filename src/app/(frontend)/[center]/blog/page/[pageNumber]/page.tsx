@@ -97,27 +97,30 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center, pageNumber } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Blog Page ${pageNumber || ''}`,
-    }
-  }
+export async function generateMetadata(
+  { params }: Args,
+  parent: Promise<Metadata>,
+): Promise<Metadata> {
+  const parentMeta = await parent
+  const { pageNumber } = await params
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
   return {
-    title: `${tenant.docs[0].name} - Blog Page ${pageNumber || ''}`,
+    title: `${parentTitle} - Blog Page ${pageNumber}`,
+    alternates: {
+      canonical: `/blog/page/${pageNumber}`,
+    },
+    openGraph: {
+      ...parentOg,
+      title: `${parentTitle} - Blog Page ${pageNumber}`,
+      url: `/blog/page/${pageNumber}`,
+    },
   }
 }
 

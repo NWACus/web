@@ -4,7 +4,6 @@ import React from 'react'
 
 import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
-import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
 import { PostHogTenantRegister } from '@/components/PostHogTenantRegister.client'
@@ -13,6 +12,8 @@ import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getURL } from '@/utilities/getURL'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { resolveTenant } from '@/utilities/resolveTenant'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
@@ -88,52 +89,46 @@ export default async function RootLayout({ children, params }: Args) {
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const payload = await getPayload({ config: configPromise })
   const { center } = await params
-  const tenantsRes = await payload.find({
-    collection: 'tenants',
+
+  const settingsRes = await payload.find({
+    collection: 'settings',
+    depth: 1,
     where: {
-      slug: {
+      'tenant.slug': {
         equals: center,
       },
     },
+    populate: {
+      tenants: {
+        slug: true,
+        customDomain: true,
+        name: true,
+      },
+    },
   })
 
-  const tenant = tenantsRes.docs.length > 1 ? tenantsRes.docs[0] : null
-
-  if (!tenant) {
-    return {
-      metadataBase: new URL(getURL()),
-      openGraph: mergeOpenGraph(),
-      twitter: {
-        card: 'summary_large_image',
-      },
-    }
-  }
+  const settings = settingsRes.docs[0]
+  const tenant = await resolveTenant(settings.tenant, payload, {
+    select: {
+      name: true,
+    },
+  })
 
   const hostname = getHostnameFromTenant(tenant)
-
-  const websiteSettingsRes = await payload.find({
-    collection: 'settings',
-    where: {
-      'tenant.slug': {
-        equals: tenant.slug,
-      },
-    },
-  })
-  const websiteSettings = websiteSettingsRes.docs.length > 1 ? websiteSettingsRes.docs[0] : null
-
-  const title = tenant.name
-  const description = websiteSettings?.description || `${tenant.name}'s website.`
+  const serverURL = getURL(hostname)
 
   return {
-    title,
-    description,
-    metadataBase: new URL(getURL(hostname)),
-    openGraph: mergeOpenGraph({
-      title,
-      description,
-    }),
-    twitter: {
-      card: 'summary_large_image',
+    title: tenant ? tenant.name : 'Home',
+    description: settings.description ?? `${tenant.name}'s website.`,
+    metadataBase: new URL(serverURL),
+    alternates: {
+      canonical: serverURL,
     },
+    openGraph: mergeOpenGraph({
+      title: tenant ? tenant.name : 'Home',
+      description: settings.description ?? `${tenant.name}'s website.`,
+      siteName: hostname,
+      url: serverURL,
+    }),
   }
 }
