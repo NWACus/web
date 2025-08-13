@@ -52,7 +52,7 @@ jobs:
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
       - name: 🧹 Run seed
-        run: pnpm seed
+        run: pnpm seed:standalone
         shell: bash
         env:
           DATABASE_URI: 'file:./dev.db'
