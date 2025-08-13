@@ -36,14 +36,14 @@ interface GenerateRouteImageParams {
   center: string
   routeTitle?: string
   title?: string
-  subtitle?: string
+  description?: string
 }
 
 export async function generateOGImage({
   center,
   routeTitle,
   title,
-  subtitle,
+  description,
 }: GenerateRouteImageParams): Promise<ImageResponse> {
   const payload = await getPayload({ config: configPromise })
 
@@ -112,6 +112,26 @@ export async function generateOGImage({
       }
     }
 
+    let usfsLogoImgProps = null
+
+    if (
+      settings.usfsLogo &&
+      typeof settings.usfsLogo !== 'number' &&
+      settings.tenant &&
+      typeof settings.tenant !== 'number'
+    ) {
+      usfsLogoImgProps = getImgAttrsFromMediaResource(settings.usfsLogo, settings.tenant)
+
+      // Convert WebP to PNG if needed
+      // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
+      if (
+        settings.usfsLogo.mimeType?.toLowerCase() === 'image/webp' ||
+        settings.usfsLogo.filename?.endsWith('.webp')
+      ) {
+        usfsLogoImgProps.src = await convertWebpToPng(settings.usfsLogo, settings.tenant)
+      }
+    }
+
     const latoBold = await readFile(join(process.cwd(), 'src/app/(frontend)/fonts/Lato-Bold.ttf'))
 
     return new ImageResponse(
@@ -129,7 +149,7 @@ export async function generateOGImage({
           }}
         >
           {settings?.banner && bannerImgProps && (
-            <div tw="flex justify-center mb-8">
+            <div tw="flex justify-center mb-8 gap-2 w-fit">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={bannerImgProps.src}
@@ -138,19 +158,29 @@ export async function generateOGImage({
                 height={bannerImgProps.height}
                 style={{
                   objectFit: 'contain',
-                  maxWidth: '600px',
-                  height: Math.min(
-                    bannerImgProps.height,
-                    (600 * bannerImgProps.height) / bannerImgProps.width,
-                  ),
+                  height: '150px',
+                  width: (150 * bannerImgProps.width) / bannerImgProps.height,
                 }}
               />
+              {settings?.usfsLogo && usfsLogoImgProps && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={usfsLogoImgProps.src}
+                  alt={usfsLogoImgProps.alt}
+                  width={usfsLogoImgProps.width}
+                  height={usfsLogoImgProps.height}
+                  style={{
+                    objectFit: 'contain',
+                    height: '150px',
+                  }}
+                />
+              )}
             </div>
           )}
           <div tw="flex flex-col items-center text-center">
             <h1
               style={{
-                fontSize: '4.5rem',
+                fontSize: '4rem',
                 fontWeight: 'bold',
                 color: colors.headerForeground,
                 marginBottom: '1rem',
@@ -160,14 +190,14 @@ export async function generateOGImage({
             </h1>
             <p
               style={{
-                fontSize: '2rem',
+                fontSize: '1.75rem',
                 fontWeight: 'bold',
                 color: colors.headerForeground,
                 marginBottom: '1rem',
                 maxWidth: '80%',
               }}
             >
-              {subtitle ?? settings.description}
+              {description ?? settings.description}
             </p>
           </div>
         </div>
