@@ -85,6 +85,7 @@ jobs:
       - name: Seed the database
         run: pnpm seed:standalone
         env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
@@ -92,6 +93,10 @@ jobs:
         run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
