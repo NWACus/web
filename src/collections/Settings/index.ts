@@ -134,19 +134,6 @@ export const Settings: CollectionConfig = {
               required: true,
             },
             {
-              name: 'ogImage',
-              label: 'OpenGraph Image',
-              type: 'upload',
-              relationTo: 'media',
-              filterOptions: {
-                mimeType: { contains: 'image' },
-              },
-              admin: {
-                description:
-                  'Custom image for social media previews. If not provided, a dynamic image will be generated using your branding. Recommended size: 1200x630 pixels.',
-              },
-            },
-            {
               name: 'usfsLogo',
               label: 'USFS Logo',
               type: 'upload',

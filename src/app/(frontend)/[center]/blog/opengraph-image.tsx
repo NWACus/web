@@ -1,6 +1,4 @@
-import { generateRouteImage } from '@/utilities/generateRouteImage'
-
-export const runtime = 'edge'
+import { generateOGImage } from '@/utilities/generateOGImage'
 
 export const alt = 'Blog'
 export const size = {
@@ -10,11 +8,10 @@ export const size = {
 export const contentType = 'image/png'
 
 export default async function Image({ params }: { params: Promise<{ center: string }> }) {
-  const resolvedParams = await params
+  const { center } = await params
 
-  return generateRouteImage({
-    params: resolvedParams,
-    type: 'blog',
-    platform: 'og',
+  return generateOGImage({
+    center,
+    routeTitle: 'Blog',
   })
 }

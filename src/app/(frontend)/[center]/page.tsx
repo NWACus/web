@@ -77,7 +77,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
     },
   })
   return {
-    title:
-      tenant.docs.length < 1 ? 'Avalanche Center Homepage' : `${tenant.docs[0].name} - Homepage`,
+    title: tenant.docs.length < 1 ? 'Home' : `${tenant.docs[0].name}`,
   }
 }

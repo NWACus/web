@@ -1,20 +1,17 @@
-import { generateRouteImage } from '@/utilities/generateRouteImage'
+import { generateOGImage } from '@/utilities/generateOGImage'
 
-export const runtime = 'edge'
-
-export const alt = 'Weather Station Map'
+export const alt = 'Weather Stations'
 export const size = {
   width: 1200,
-  height: 600,
+  height: 630,
 }
 export const contentType = 'image/png'
 
 export default async function Image({ params }: { params: Promise<{ center: string }> }) {
-  const resolvedParams = await params
+  const { center } = await params
 
-  return generateRouteImage({
-    params: resolvedParams,
-    type: 'weather',
-    platform: 'twitter',
+  return generateOGImage({
+    center,
+    routeTitle: 'Weather Stations',
   })
 }
