@@ -82,18 +82,22 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({
-  params: paramsPromise,
-}: {
-  params: Promise<PathArgs>
-}): Promise<Metadata> {
+export async function generateMetadata(
+  {
+    params: paramsPromise,
+  }: {
+    params: Promise<PathArgs>
+  },
+  parent: Promise<Metadata>,
+): Promise<Metadata> {
+  const parentMeta = await parent
   const { center, segments } = await paramsPromise
   const page = await queryPageBySlug({
     center: center,
     slug: segments[segments.length - 1],
   })
 
-  return generateMetaForPage({ center, doc: page, slugs: segments })
+  return generateMetaForPage({ center, doc: page, slugs: segments, parentMeta })
 }
 
 const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
@@ -132,6 +136,7 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
       tenants: {
         slug: true,
         name: true,
+        customDomain: true,
       },
     },
     where: {

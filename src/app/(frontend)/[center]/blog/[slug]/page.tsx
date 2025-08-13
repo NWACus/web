@@ -97,11 +97,15 @@ export default async function Post({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
+export async function generateMetadata(
+  { params: paramsPromise }: Args,
+  parent: Promise<Metadata>,
+): Promise<Metadata> {
+  const parentMeta = await parent
   const { center, slug = '' } = await paramsPromise
   const post = await queryPostBySlug({ center: center, slug: slug })
 
-  return generateMetaForPost({ center: center, doc: post })
+  return generateMetaForPost({ center: center, doc: post, parentMeta })
 }
 
 const queryPostBySlug = async ({ center, slug }: { center: string; slug: string }) => {
