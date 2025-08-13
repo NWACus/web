@@ -27,6 +27,8 @@ import { plugins } from '@/plugins'
 import { getURL } from '@/utilities/getURL'
 import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
+import pino from 'pino'
+import { build } from 'pino-pretty'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -178,5 +180,19 @@ export default buildConfig({
     if (emailWarning) {
       payload.logger.warn(emailWarning)
     }
+  },
+  logger: {
+    options: {
+      name: 'payload',
+      enabled: process.env.DISABLE_LOGGING !== 'true', // Payload's default logic
+      serializers: {
+        err: pino.stdSerializers.err, // Includes stack traces
+      },
+    },
+    destination: build({
+      colorize: true,
+      ignore: 'pid,hostname',
+      translateTime: 'SYS:HH:MM:ss',
+    }),
   },
 })

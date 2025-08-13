@@ -4,7 +4,7 @@ import { pick } from 'lodash-es'
 import { UIFieldServerProps } from 'payload'
 import { ThemedCodeDisplay } from './ThemedCodeEditor.client'
 
-const configKeysToDisplay = ['cors', 'csrf', 'loggingLevels', 'serverURL']
+const configKeysToDisplay = ['cors', 'csrf', 'serverURL']
 
 export function DiagnosticsDisplay({ req, payload }: UIFieldServerProps) {
   const configSubset = pick(payload.config, configKeysToDisplay)
