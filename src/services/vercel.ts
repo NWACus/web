@@ -31,7 +31,7 @@ export async function updateEdgeConfig(payload: Record<string, unknown>): Promis
 
   if (!edgeConfigId || !token || !teamId) {
     console.warn(
-      'EDGE_CONFIG, VERCEL_TOKEN, OR VERCEL_TEAM_ID not available, skipping Edge Config update',
+      'VERCEL_EDGE_CONFIG, VERCEL_TOKEN, OR VERCEL_TEAM_ID not available, skipping Edge Config update',
     )
     return
   }

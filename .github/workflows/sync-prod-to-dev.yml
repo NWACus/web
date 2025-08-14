@@ -11,6 +11,9 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    environment: Dev
+    env:
+      NODE_ENV: production
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
@@ -53,6 +56,8 @@ jobs:
         run: echo "password=$(openssl rand -base64 32)" >> "${GITHUB_OUTPUT}"
       - name: Update non-prod sync password in Vercel
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Variables into .env file
+        run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Run database migrations
         run: pnpm migrate
         env:
@@ -70,8 +75,6 @@ jobs:
       - name: Sync blobs from prod to dev
         id: sync-files
         run: pnpm sync-blobs prod dev
-        env:
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
       - name: Update media prefix in database
         id: update-media-prefix
         run: pnpm update-media-prefix dev

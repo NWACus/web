@@ -1,5 +1,5 @@
 import { navLink } from '@/fields/navLink'
-import merge from 'lodash.merge'
+import { merge } from 'lodash-es'
 import { ArrayField } from 'payload'
 
 export const itemsField = ({
