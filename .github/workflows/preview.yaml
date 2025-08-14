@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Preview
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
@@ -80,32 +81,23 @@ jobs:
         run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview ${{ github.head_ref }} --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update server domain in Vercel
         run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_ROOT_DOMAIN preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Variables into .env file
+        run: vercel env pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Seed the database
-        run: pnpm seed
+        run: pnpm seed:standalone
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
-          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
-          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: '${{ steps.domains.outputs.preview_alias }}'
-          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
-          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |

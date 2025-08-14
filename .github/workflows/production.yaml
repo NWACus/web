@@ -9,6 +9,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Production
+    env:
+      NODE_ENV: production
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
@@ -40,28 +43,22 @@ jobs:
         run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI production --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel
         run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN production --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Update bootstrap password in Vercel
-        run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD production --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} .env.production
+      - name: Pull Vercel Environment Variables into .env file
+        run: vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Run database migrations
         run: pnpm migrate
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --yes --target=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: 'avy-fx.org'
-          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
-          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
