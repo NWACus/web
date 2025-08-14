@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
@@ -93,8 +93,11 @@ export default async function Page({ params, searchParams }: Args) {
   )
 }
 
-export async function generateMetadata(_props: Args, parent: Promise<Metadata>): Promise<Metadata> {
-  const parentMeta = await parent
+export async function generateMetadata(
+  _props: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title

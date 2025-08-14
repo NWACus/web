@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, ResolvedMetadata } from 'next'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
@@ -88,9 +88,9 @@ export async function generateMetadata(
   }: {
     params: Promise<PathArgs>
   },
-  parent: Promise<Metadata>,
+  parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
-  const parentMeta = await parent
+  const parentMeta = (await parent) as Metadata
   const { center, segments } = await paramsPromise
   const page = await queryPageBySlug({
     center: center,

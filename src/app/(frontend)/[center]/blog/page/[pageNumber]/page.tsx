@@ -1,4 +1,4 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
@@ -99,9 +99,9 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
 
 export async function generateMetadata(
   { params }: Args,
-  parent: Promise<Metadata>,
+  parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
-  const parentMeta = await parent
+  const parentMeta = (await parent) as Metadata
   const { pageNumber } = await params
 
   const parentTitle =

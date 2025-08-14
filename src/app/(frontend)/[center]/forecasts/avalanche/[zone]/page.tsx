@@ -1,4 +1,4 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -66,9 +66,9 @@ export default async function Page({ params }: Args) {
 
 export async function generateMetadata(
   { params }: Args,
-  parent: Promise<Metadata>,
+  parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
-  const parentMeta = await parent
+  const parentMeta = (await parent) as Metadata
   const { zone } = await params
 
   const parentTitle =
