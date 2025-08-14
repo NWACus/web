@@ -120,3 +120,34 @@ jobs:
         shell: bash
       - name: 🧪 Run tests
         run: pnpm test
+
+  migrations-check:
+    name: migrations-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: Check if a migration is needed
+        run: |
+          output=$(pnpm payload migrate:create --skip-empty 2>&1)
+          echo "$output"
+          if echo "$output" | grep -q "Migration created at"; then
+            echo "❌ A migration was created, which means the schema is out of sync"
+            echo "Please run 'pnpm payload migrate:create' locally and commit the migration"
+            exit 1
+          else
+            echo "✅ No migration needed - schema is up to date"
+          fi
+        env:
+          DATABASE_URI: 'file:./dev.db'
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
