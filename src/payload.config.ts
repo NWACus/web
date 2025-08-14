@@ -29,7 +29,6 @@ import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenant
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
 import pino from 'pino'
 import { build } from 'pino-pretty'
-import { PowDays } from './collections/PowDays'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -153,7 +152,6 @@ export default buildConfig({
     Teams,
     Settings,
     Tags,
-    PowDays,
   ],
   cors: [
     'api.avalanche.org',

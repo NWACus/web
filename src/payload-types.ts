@@ -81,7 +81,6 @@ export interface Config {
     teams: Team;
     settings: Setting;
     tags: Tag;
-    powDays: PowDay;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -110,7 +109,6 @@ export interface Config {
     teams: TeamsSelect<false> | TeamsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
-    powDays: PowDaysSelect<false> | PowDaysSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1419,18 +1417,6 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "powDays".
- */
-export interface PowDay {
-  id: number;
-  tenant: number | Tenant;
-  inches?: number | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1536,10 +1522,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tags';
         value: number | Tag;
-      } | null)
-    | ({
-        relationTo: 'powDays';
-        value: number | PowDay;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2391,17 +2373,6 @@ export interface TagsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   slugLock?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "powDays_select".
- */
-export interface PowDaysSelect<T extends boolean = true> {
-  tenant?: T;
-  inches?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
