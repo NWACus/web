@@ -11,7 +11,7 @@ import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
 import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getURL } from '@/utilities/getURL'
+import { getMediaURL, getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { resolveTenant } from '@/utilities/resolveTenant'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
@@ -117,6 +117,18 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const hostname = getHostnameFromTenant(tenant)
   const serverURL = getURL(hostname)
 
+  let iconImgSrc
+
+  if (settings.icon && typeof settings.icon !== 'number') {
+    const cacheTag = settings.icon.updatedAt
+
+    iconImgSrc = getMediaURL(
+      settings.icon.sizes?.thumbnail?.url,
+      cacheTag,
+      getHostnameFromTenant(tenant),
+    )
+  }
+
   return {
     title: tenant ? tenant.name : 'Home',
     description: settings.description ?? `${tenant.name}'s website.`,
@@ -124,6 +136,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
     alternates: {
       canonical: serverURL,
     },
+    ...(iconImgSrc
+      ? {
+          icons: iconImgSrc,
+        }
+      : {}),
     openGraph: mergeOpenGraph({
       title: tenant ? tenant.name : 'Home',
       description: settings.description ?? `${tenant.name}'s website.`,
