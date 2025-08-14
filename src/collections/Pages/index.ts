@@ -160,7 +160,8 @@ export const Pages: CollectionConfig<'pages'> = {
         position: 'sidebar',
       },
     },
-    ...slugField(),
+    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
+    slugField(),
     tenantField(),
     contentHashField(),
   ],
