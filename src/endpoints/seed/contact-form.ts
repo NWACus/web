@@ -35,7 +35,7 @@ export const contactForm: Omit<RequiredDataFromCollectionSlug<'forms'>, 'tenant'
   createdAt: '2023-01-12T21:47:41.374Z',
   emails: [
     {
-      emailFrom: '"Payload" \u003Cdemo@payloadcms.com\u003E',
+      emailFrom: '"AvyFX" \u003Cnoreply@avy-fx.org\u003E',
       emailTo: '{{email}}',
       message: {
         root: {
