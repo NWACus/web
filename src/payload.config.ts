@@ -50,7 +50,6 @@ export default buildConfig({
           path: '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider',
         },
         '@/providers/ViewTypeProvider#ViewTypeProvider',
-        '@/providers/CollectionTypeProvider#CollectionTypeProvider',
       ],
       actions: [
         {
@@ -62,7 +61,6 @@ export default buildConfig({
             useAsTitle: 'slug',
           },
         },
-        '@/components/CollectionTypeAction',
         '@/components/ViewTypeAction',
       ],
       graphics: {

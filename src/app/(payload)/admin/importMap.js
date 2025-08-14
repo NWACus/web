@@ -7,7 +7,6 @@ import { InviteUser as InviteUser_6042b6804e11048cd4fbe6206cbc2b0f } from '@/col
 import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735 } from '@/collections/Users/components/ResendInviteButton'
 import { UserStatusCell as UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee } from '@/collections/Users/components/UserStatusCell'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
-import { default as default_b8a94821c4b4acc8db1dd6e2b306e4ce } from '@/components/CollectionTypeAction'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
@@ -17,7 +16,6 @@ import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/component
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
-import { CollectionTypeProvider as CollectionTypeProvider_94ebadf5e7139a9f78a562ae4ae74e76 } from '@/providers/CollectionTypeProvider'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
@@ -123,7 +121,6 @@ export const importMap = {
   '@/components/Logo/AvyFxLogo#AvyFxLogo': AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
-  '@/components/CollectionTypeAction#default': default_b8a94821c4b4acc8db1dd6e2b306e4ce,
   '@/components/ViewTypeAction#default': default_cb0ad5752e1389a2a940bb73c2c0e7d2,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,
   '@/components/TenantSelector/TenantSelector#default': default_2aead22399b7847b21b134dc4a7931e0,
@@ -131,8 +128,6 @@ export const importMap = {
     TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   '@/providers/ViewTypeProvider#ViewTypeProvider':
     ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0,
-  '@/providers/CollectionTypeProvider#CollectionTypeProvider':
-    CollectionTypeProvider_94ebadf5e7139a9f78a562ae4ae74e76,
   '@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler':
     VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   '@payloadcms/plugin-sentry/client#AdminErrorBoundary':
