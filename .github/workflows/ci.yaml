@@ -138,7 +138,16 @@ jobs:
         run: pnpm ii
         shell: bash
       - name: Check if a migration is needed
-        run: pnpm payload migrate:create --skip-empty
+        run: |
+          output=$(pnpm payload migrate:create --skip-empty 2>&1)
+          echo "$output"
+          if echo "$output" | grep -q "Migration created at"; then
+            echo "❌ A migration was created, which means the schema is out of sync"
+            echo "Please run 'pnpm payload migrate:create' locally and commit the migration"
+            exit 1
+          else
+            echo "✅ No migration needed - schema is up to date"
+          fi
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
