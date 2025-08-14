@@ -150,6 +150,8 @@ export async function generateOGImage({
         >
           {settings?.banner && bannerImgProps && (
             <div tw="flex justify-center mb-8 gap-2 w-fit">
+              {/* NextImage will not render correctly here / is not supported by `satori`
+              due to NextImage's use of client-side image optimizations */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={bannerImgProps.src}
@@ -163,6 +165,8 @@ export async function generateOGImage({
                 }}
               />
               {settings?.usfsLogo && usfsLogoImgProps && (
+                // NextImage will not render correctly here / is not supported by `satori`
+                // due to NextImage's use of client-side image optimizations
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={usfsLogoImgProps.src}
