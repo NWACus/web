@@ -12,6 +12,8 @@ This outlines steps required when a new center (tenant) comes on board. This doc
 
 ### Click ops / manual changes
 
-edge config
-create in prod
-copy pages over from template tenant
+We also need to get the new tenant into our Vercel Edge Config. Adding a new tenant in production *should* do this via a Payload hook but please verify the entry has been added by checking the Edge Config values in the Vercel dashboard (go to the project -> Storage -> production Edge Config).
+
+- [ ] Create the new tenant in the production admin panel
+- [ ] Fill out the new tenant's website settings
+- [ ] Copy pages from the template tenant to the new tenant using the "Duplicate to..." functionality (page document view -> three dot menu)
