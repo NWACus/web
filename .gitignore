@@ -19,8 +19,9 @@ dev.db-wal
 .env.production
 .env.development
 tsconfig.tsbuildinfo
-.env*.local
 .env.*
+!.env.example
+!.env.test
 
 # Sentry Config File
 .env.sentry-build-plugin
