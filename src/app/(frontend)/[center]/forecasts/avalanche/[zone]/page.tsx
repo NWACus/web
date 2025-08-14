@@ -84,13 +84,13 @@ export async function generateMetadata(
     .join(' ')
 
   return {
-    title: `${parentTitle} - ${zoneName} - Avalanche Forecast`,
+    title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
     alternates: {
       canonical: `/forecasts/avalanche/${zone}`,
     },
     openGraph: {
       ...parentOg,
-      title: `${parentTitle} - ${zoneName} - Avalanche Forecast`,
+      title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
       url: `/forecasts/avalanche/${zone}`,
     },
   }

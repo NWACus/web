@@ -61,26 +61,25 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Forecast Archive`,
-    }
-  }
+export async function generateMetadata(_props: Args, parent: Promise<Metadata>): Promise<Metadata> {
+  const parentMeta = await parent
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
   return {
-    title: `${tenant.docs[0].name} - Avalanche Forecast Archive`,
+    title: `Avalanche Forecast Archive | ${parentTitle}`,
+    alternates: {
+      canonical: `/forecasts/avalanche/archive`,
+    },
+    openGraph: {
+      ...parentOg,
+      title: `Avalanche Forecast Archive | ${parentTitle}`,
+      url: `/forecasts/avalanche/archive`,
+    },
   }
 }

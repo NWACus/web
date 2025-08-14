@@ -104,13 +104,13 @@ export async function generateMetadata(_props: Args, parent: Promise<Metadata>):
   const parentOg = parentMeta.openGraph
 
   return {
-    title: `${parentTitle} - Blog`,
+    title: `Blog | ${parentTitle}`,
     alternates: {
       canonical: '/blog',
     },
     openGraph: {
       ...parentOg,
-      title: `${parentTitle} - Blog`,
+      title: `Blog | ${parentTitle}`,
       url: '/blog',
     },
   }

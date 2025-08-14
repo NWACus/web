@@ -37,7 +37,7 @@ export const generateMetaForPage = async (args: {
       : parentMeta?.title
 
   const title = doc.meta?.title
-    ? `${parentTitle ?? tenant?.name} - ${doc.meta?.title}`
+    ? `${doc.meta?.title} | ${parentTitle ?? tenant?.name}`
     : doc.meta?.title
 
   return {
@@ -81,7 +81,7 @@ export const generateMetaForPost = async (args: {
       ? parentMeta?.title.absolute
       : parentMeta?.title
 
-  const title = customTitle ? customTitle : `${parentTitle ?? tenant?.name} - ${doc?.title}`
+  const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
 
   return {
     ...(parentMeta ? { ...parentMeta } : {}),
