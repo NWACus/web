@@ -120,3 +120,25 @@ jobs:
         shell: bash
       - name: 🧪 Run tests
         run: pnpm test
+
+  migrations-check:
+    name: migrations-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: Check if a migration is needed
+        run: pnpm payload migrate:create --skip-empty
+        env:
+          DATABASE_URI: 'file:./dev.db'
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
