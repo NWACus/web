@@ -9,6 +9,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Dev
+    env:
+      NODE_ENV: production
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
@@ -58,8 +61,8 @@ jobs:
           echo "password=$generated_password" >> "$GITHUB_OUTPUT"
       - name: Update non-prod sync password in Vercel
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Variables into .env file
+        run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Run database migrations
         run: pnpm migrate
         env:
@@ -73,12 +76,9 @@ jobs:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NON_PROD_SYNC_PASSWORD: '${{ steps.generate-sync-password.outputs.password }}'
       - name: Sync blobs from prod to dev
         id: sync-files
         run: pnpm sync-blobs prod dev
-        env:
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
       - name: Update media prefix in database
         id: update-media-prefix
         run: pnpm update-media-prefix dev
@@ -86,18 +86,14 @@ jobs:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: 'dev.avy-fx.org'
-          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
-          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
