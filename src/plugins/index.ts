@@ -1,4 +1,4 @@
-import { accessByTenantRole, accessByTenantRoleWithPermissiveCreate } from '@/access/byTenantRole'
+import { accessByTenantRole, accessForFormSubmission } from '@/access/byTenantRole'
 import { revalidateForm, revalidateFormDelete } from '@/hooks/revalidateForm'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { Page, Post } from '@/payload-types'
@@ -84,7 +84,7 @@ export const plugins: Plugin[] = [
       },
     },
     formSubmissionOverrides: {
-      access: accessByTenantRoleWithPermissiveCreate('form-submissions'),
+      access: accessForFormSubmission('form-submissions'),
     },
   }),
   tenantFieldPlugin({
