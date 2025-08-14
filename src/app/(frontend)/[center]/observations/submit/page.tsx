@@ -1,4 +1,4 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -66,26 +66,28 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Submit Observation`,
-    }
-  }
+export async function generateMetadata(
+  _props: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
   return {
-    title: `${tenant.docs[0].name} - Submit Observation`,
+    title: `Submit Observation | ${parentTitle}`,
+    alternates: {
+      canonical: '/observations/submit',
+    },
+    openGraph: {
+      ...parentOg,
+      title: `Submit Observation | ${parentTitle}`,
+      url: '/observations/submit',
+    },
   }
 }

@@ -1,57 +1,58 @@
 import type { Metadata } from 'next'
 
-import type { Config, Media, Page, Post } from '@/payload-types'
+import type { Page, Post, Tenant } from '@/payload-types'
 
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 import { getURL } from './getURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
-
-const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
-  const serverUrl = getURL()
-
-  let url = serverUrl + '/assets/avy-web-fallback-og-image.webp'
-
-  if (image && typeof image === 'object' && 'url' in image) {
-    const ogUrl = image.sizes?.og?.url
-
-    url = ogUrl ? serverUrl + ogUrl : serverUrl + image.url
-  }
-
-  return url
-}
+import { resolveTenant } from './resolveTenant'
+import { getHostnameFromTenant } from './tenancy/getHostnameFromTenant'
 
 export const generateMetaForPage = async (args: {
   customTitle?: string
   center: string
   doc: Partial<Page>
   slugs?: string[]
+  parentMeta?: Metadata
 }): Promise<Metadata> => {
-  const { doc, slugs } = args
+  const { doc, slugs, parentMeta } = args
 
-  const serverUrl = getURL()
+  let tenant: Tenant | undefined
+  let hostname
+
+  if (doc.tenant) {
+    const payload = await getPayload({ config: configPromise })
+    tenant = await resolveTenant(doc.tenant, payload)
+    hostname = getHostnameFromTenant(tenant)
+  }
+
+  const serverUrl = getURL(hostname)
   const pageSlugs = slugs ? slugs : doc?.slug
   const url = serverUrl + '/' + (Array.isArray(pageSlugs) ? pageSlugs.join('/') : `${pageSlugs}/`)
 
-  const ogImage = getImageURL(doc?.meta?.image)
+  const parentTitle =
+    parentMeta?.title && typeof parentMeta?.title !== 'string' && 'absolute' in parentMeta?.title
+      ? parentMeta?.title.absolute
+      : parentMeta?.title
 
-  const title = doc?.meta?.title
-    ? `${doc?.meta?.title} | ${typeof doc?.tenant === 'object' && doc.tenant.name ? doc.tenant.name : 'Avy'}`
-    : 'Avy'
+  const title = doc.meta?.title
+    ? `${doc.meta?.title} | ${parentTitle ?? tenant?.name}`
+    : doc.meta?.title
 
   return {
+    ...(parentMeta ? { ...parentMeta } : {}),
+    title,
     description: doc?.meta?.description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: mergeOpenGraph({
+      ...(parentMeta ? { ...parentMeta.openGraph } : {}),
       description: doc?.meta?.description || '',
-      images: ogImage
-        ? [
-            {
-              url: ogImage,
-            },
-          ]
-        : undefined,
-      title,
+      title: title || '',
       url,
     }),
-    title,
   }
 }
 
@@ -59,30 +60,41 @@ export const generateMetaForPost = async (args: {
   customTitle?: string
   center: string
   doc: Partial<Post>
+  parentMeta?: Metadata
 }): Promise<Metadata> => {
-  const { customTitle, center, doc } = args
+  const { customTitle, doc, parentMeta } = args
 
-  const serverUrl = getURL()
+  let tenant: Tenant | undefined
+  let hostname
+
+  if (doc.tenant) {
+    const payload = await getPayload({ config: configPromise })
+    tenant = await resolveTenant(doc.tenant, payload)
+    hostname = getHostnameFromTenant(tenant)
+  }
+
+  const serverUrl = getURL(hostname)
   const url = `${serverUrl}/blog/${doc?.slug}/`
 
-  const ogImage = getImageURL(doc?.featuredImage)
+  const parentTitle =
+    parentMeta?.title && typeof parentMeta?.title !== 'string' && 'absolute' in parentMeta?.title
+      ? parentMeta?.title.absolute
+      : parentMeta?.title
 
-  const title = customTitle ? customTitle : `${doc?.title} ' | '${center}`
+  const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
 
   return {
-    description: doc?.description,
+    ...(parentMeta ? { ...parentMeta } : {}),
+    title,
+    description: doc.description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: mergeOpenGraph({
-      description: doc?.description || '',
-      images: ogImage
-        ? [
-            {
-              url: ogImage,
-            },
-          ]
-        : undefined,
-      title,
+      ...(parentMeta ? { ...parentMeta.openGraph } : {}),
+      description: doc.description || '',
+      title: title || '',
       url,
     }),
-    title,
   }
 }

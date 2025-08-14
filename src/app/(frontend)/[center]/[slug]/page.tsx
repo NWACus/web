@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, ResolvedMetadata } from 'next'
 
 import { getCanonicalUrlForSlug } from '@/components/Header/utils'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
@@ -96,18 +96,22 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({
-  params: paramsPromise,
-}: {
-  params: Promise<PathArgs>
-}): Promise<Metadata> {
+export async function generateMetadata(
+  {
+    params: paramsPromise,
+  }: {
+    params: Promise<PathArgs>
+  },
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
   const { center, slug } = await paramsPromise
   const page = await queryPageBySlug({
     center: center,
     slug: slug,
   })
 
-  return generateMetaForPage({ center, doc: page })
+  return generateMetaForPage({ center, doc: page, parentMeta })
 }
 
 const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
@@ -146,6 +150,7 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
       tenants: {
         slug: true,
         name: true,
+        customDomain: true,
       },
     },
     where: {

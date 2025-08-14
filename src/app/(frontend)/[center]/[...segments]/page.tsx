@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, ResolvedMetadata } from 'next'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
@@ -82,18 +82,22 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({
-  params: paramsPromise,
-}: {
-  params: Promise<PathArgs>
-}): Promise<Metadata> {
+export async function generateMetadata(
+  {
+    params: paramsPromise,
+  }: {
+    params: Promise<PathArgs>
+  },
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
   const { center, segments } = await paramsPromise
   const page = await queryPageBySlug({
     center: center,
     slug: segments[segments.length - 1],
   })
 
-  return generateMetaForPage({ center, doc: page, slugs: segments })
+  return generateMetaForPage({ center, doc: page, slugs: segments, parentMeta })
 }
 
 const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
@@ -132,6 +136,7 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
       tenants: {
         slug: true,
         name: true,
+        customDomain: true,
       },
     },
     where: {
