@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
@@ -93,26 +93,28 @@ export default async function Page({ params, searchParams }: Args) {
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Blog`,
-    }
-  }
+export async function generateMetadata(
+  _props: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
   return {
-    title: `${tenant.docs[0].name} - Blog`,
+    title: `Blog | ${parentTitle}`,
+    alternates: {
+      canonical: '/blog',
+    },
+    openGraph: {
+      ...parentOg,
+      title: `Blog | ${parentTitle}`,
+      url: '/blog',
+    },
   }
 }
