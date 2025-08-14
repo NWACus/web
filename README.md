@@ -22,6 +22,8 @@ Run `pnpm bootstrap`, which will create a new database file for you, add a `boos
 
 Run `pnpm seed`, which will create a new database file for you and add all the seed data. Then, run `pnpm dev` and start work straight away by logging in as any of the users defined in the seed corpus. If you've changed how the seed is done or the contents of some record, run `pnpm reseed` to incrementally update just the values that were changed.
 
+You can also run the seed in standalone mode which doesn't spin up a Next.js dev server: `pnpm seed:standalone`. This should run a little faster than `pnpm seed`.
+
 ### Creating a new database
 
 Start a new database with:

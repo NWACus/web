@@ -1,0 +1,27 @@
+import { byGlobalRole } from '@/access/byGlobalRole'
+import type { GlobalConfig } from 'payload'
+
+export const DiagnosticsConfig: GlobalConfig = {
+  slug: 'diagnostics',
+  label: 'Diagnostics',
+  admin: {
+    group: 'Settings',
+    description: 'Displays diagnostic data about the current environment.',
+  },
+  access: {
+    read: byGlobalRole('*', '*'),
+    update: () => false,
+  },
+  fields: [
+    {
+      type: 'ui',
+      name: 'diagnosticsDisplay',
+      admin: {
+        components: {
+          Field: '@/globals/Diagnostics/components/DiagnosticsDisplay#DiagnosticsDisplay',
+        },
+        disableListColumn: true,
+      },
+    },
+  ],
+}
