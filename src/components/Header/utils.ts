@@ -267,14 +267,6 @@ export const getTopLevelNavItems = async ({
                 url: `/forecasts/avalanche/${zoneSlug}`,
               },
             },
-            {
-              id: 'archive',
-              link: {
-                type: 'internal',
-                label: 'Forecast Archive',
-                url: '/forecasts/avalanche/archive',
-              },
-            },
           ],
         }
       } else {
@@ -311,14 +303,6 @@ export const getTopLevelNavItems = async ({
                 type: 'internal',
                 label: 'Zones',
                 url: '/forecasts/avalanche',
-              },
-            },
-            {
-              id: 'archive',
-              link: {
-                type: 'internal',
-                label: 'Forecast Archive',
-                url: '/forecasts/avalanche/archive',
               },
             },
           ],
