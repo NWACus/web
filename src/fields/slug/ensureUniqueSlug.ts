@@ -35,7 +35,7 @@ export const ensureUniqueSlug: FieldHook = async ({ data, originalDoc, req, valu
     throw new ValidationError({
       errors: [
         {
-          message: `A page with the slug ${value} already exists. Slug must be unique per tenant.`,
+          message: `A page with the slug ${value} already exists. Slug must be unique per avalanche center.`,
           path: 'slug',
         },
       ],

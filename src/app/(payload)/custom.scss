@@ -15,3 +15,7 @@
 .text-error {
   color: var(--theme-error-800);
 }
+
+.tooltip .tooltip-content {
+  text-wrap: auto;
+}
