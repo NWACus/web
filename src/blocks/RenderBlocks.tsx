@@ -14,6 +14,7 @@ import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
+import { GenericEmbedBlock } from './GenericEmbed/Component'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
   const { blocks } = props
@@ -62,5 +63,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <ContentWithCalloutBlock {...block} />
     case 'team':
       return <TeamBlock {...block} payload={payload} />
+    case 'genericEmbed':
+      return <GenericEmbedBlock {...block} />
   }
 }
