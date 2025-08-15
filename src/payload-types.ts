@@ -937,6 +937,7 @@ export interface GenericEmbedBlock {
    */
   wrapInContainer?: boolean | null;
   backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'genericEmbed';
@@ -1884,8 +1885,9 @@ export interface TeamBlockSelect<T extends boolean = true> {
  * via the `definition` "GenericEmbedBlock_select".
  */
 export interface GenericEmbedBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
   html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
   id?: T;
   blockName?: T;
 }

@@ -1,5 +1,6 @@
+import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
-import type { Block, Field } from 'payload'
+import type { Block, Field, RowField } from 'payload'
 
 const genericEmbedWithFields = (fields: Field[]) => ({
   slug: 'genericEmbed',
@@ -8,14 +9,19 @@ const genericEmbedWithFields = (fields: Field[]) => ({
   interfaceName: 'GenericEmbedBlock',
 })
 
+const colorAndAlignmentRow: RowField = {
+  type: 'row',
+  fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
+}
+
 export const GenericEmbed: Block = genericEmbedWithFields([
-  colorPickerField('Background color'),
   {
     name: 'html',
     label: 'HTML',
     type: 'textarea',
     required: true,
   },
+  colorAndAlignmentRow,
 ])
 
 export const GenericEmbedLexical: Block = genericEmbedWithFields([
@@ -34,5 +40,5 @@ export const GenericEmbedLexical: Block = genericEmbedWithFields([
     type: 'checkbox',
     defaultValue: false,
   },
-  colorPickerField('Background color'),
+  colorAndAlignmentRow,
 ])
