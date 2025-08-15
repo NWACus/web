@@ -71,11 +71,45 @@ export const Settings: CollectionConfig = {
               },
             },
             {
+              name: 'phoneLabel',
+              type: 'select',
+              options: [
+                { label: 'Phone', value: 'Phone' },
+                { label: 'Office', value: 'office' },
+                { label: 'Text', value: 'text' },
+                { label: 'Call', value: 'call' },
+              ],
+              admin: {
+                description: 'Optional label for phone in your website footer.',
+              },
+            },
+            {
               name: 'phone',
               type: 'text',
               validate: validateTelephone,
               admin: {
                 description: 'Appears in your website footer.',
+              },
+            },
+            {
+              name: 'phoneSecondaryLabel',
+              type: 'select',
+              options: [
+                { label: 'Phone', value: 'phone' },
+                { label: 'Office', value: 'office' },
+                { label: 'Text', value: 'text' },
+                { label: 'Call', value: 'call' },
+              ],
+              admin: {
+                description: 'Optional label for secondary phone in your website footer.',
+              },
+            },
+            {
+              name: 'phoneSecondary',
+              type: 'text',
+              validate: validateTelephone,
+              admin: {
+                description: 'Secondary phone appears in your website footer.',
               },
             },
             {
