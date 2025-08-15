@@ -1,5 +1,6 @@
 import { byTenantRole } from '@/access/byTenantRole'
 import { ruleCollection, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
 import { Access, CollectionConfig } from 'payload'
 
 // byTenantRoleOrPublished supplants access review by allowing unauthenticated access to pages
@@ -28,13 +29,16 @@ export const byTenantRoleOrPublished: (method: ruleMethod, collection: ruleColle
     }
   }
 
-export const accessByTenantRoleOrReadPublished: (
+export const accessForPagesAndPosts: (collection: ruleCollection) => CollectionConfig['access'] = (
   collection: ruleCollection,
-) => CollectionConfig['access'] = (collection: ruleCollection) => {
+) => {
   return {
-    create: byTenantRole('update', collection),
+    create: ({ req }) => {
+      const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
+      return tenantFromCookie ? byTenantRole('create', collection)({ req }) : false
+    },
     read: byTenantRoleOrPublished('read', collection),
     update: byTenantRole('update', collection),
-    delete: byTenantRole('update', collection),
+    delete: byTenantRole('delete', collection),
   }
 }

@@ -19,7 +19,7 @@ import { populateAuthors } from './hooks/populateAuthors'
 import { populateBlocksInContent } from './hooks/populateBlocksInContent'
 import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
-import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
+import { accessForPagesAndPosts } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
@@ -31,7 +31,7 @@ import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fie
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
-  access: accessByTenantRoleOrReadPublished('posts'),
+  access: accessForPagesAndPosts('posts'),
   defaultPopulate: {
     description: true,
     featuredImage: true,
