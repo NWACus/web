@@ -1,79 +1,52 @@
 'use client'
 import { TextFieldClientProps } from 'payload'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 
-import { Button, FieldLabel, TextInput, useField, useForm, useFormFields } from '@payloadcms/ui'
+import { Button, FieldLabel, TextInput, useField, useFormFields } from '@payloadcms/ui'
 
+import { RefreshCw } from 'lucide-react'
 import { formatSlug } from './formatSlug'
 import './index.scss'
 
 type SlugComponentProps = {
   fieldToUse: string
-  checkboxFieldPath: string
 } & TextFieldClientProps
 
 export const SlugComponent = ({
   field,
   fieldToUse,
-  checkboxFieldPath: checkboxFieldPathFromProps,
   path,
   readOnly: readOnlyFromProps,
 }: SlugComponentProps) => {
   const { label } = field
 
-  const checkboxFieldPath = path?.includes('.')
-    ? `${path}.${checkboxFieldPathFromProps}`
-    : checkboxFieldPathFromProps
-
   const { value, setValue } = useField<string>({ path: path || field.name })
+  const { value: currentSlug } = useField<string>({ path: 'slug' })
 
-  const { dispatchFields } = useForm()
-
-  // The value of the checkbox
-  // We're using separate useFormFields to minimise re-renders
-  const checkboxValue = useFormFields(([fields]) => {
-    return fields[checkboxFieldPath]?.value as string
-  })
-
-  // The value of the field we're listening to for the slug
+  // Get the current value of the title field
   const targetFieldValue = useFormFields(([fields]) => {
     return fields[fieldToUse]?.value as string
   })
 
-  useEffect(() => {
-    if (checkboxValue) {
-      if (targetFieldValue) {
-        const formattedSlug = formatSlug(targetFieldValue)
-
-        if (value !== formattedSlug) setValue(formattedSlug)
-      } else {
-        if (value !== '') setValue('')
-      }
-    }
-  }, [targetFieldValue, checkboxValue, setValue, value])
-
-  const handleLock = useCallback(
+  const handleGenerate = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
-
-      dispatchFields({
-        type: 'UPDATE',
-        path: checkboxFieldPath,
-        value: !checkboxValue,
-      })
+      const newSlug = formatSlug(targetFieldValue)
+      if (targetFieldValue && newSlug !== currentSlug) {
+        setValue(formatSlug(targetFieldValue))
+      }
     },
-    [checkboxValue, checkboxFieldPath, dispatchFields],
+    [targetFieldValue, currentSlug, setValue],
   )
-
-  const readOnly = readOnlyFromProps || checkboxValue
+  const readOnly = readOnlyFromProps || false
 
   return (
     <div className="field-type slug-field-component">
       <div className="label-wrapper">
         <FieldLabel htmlFor={`field-${path}`} label={label} />
 
-        <Button className="lock-button" buttonStyle="none" onClick={handleLock}>
-          {checkboxValue ? 'Unlock' : 'Lock'}
+        <Button className="generate-button" buttonStyle="icon-label" onClick={handleGenerate}>
+          <RefreshCw className="w-4" />
         </Button>
       </div>
 

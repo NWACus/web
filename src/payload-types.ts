@@ -296,7 +296,6 @@ export interface Page {
   };
   publishedAt?: string | null;
   slug: string;
-  slugLock?: boolean | null;
   tenant: number | Tenant;
   contentHash?: string | null;
   updatedAt: string;
@@ -765,7 +764,6 @@ export interface Post {
       }[]
     | null;
   slug: string;
-  slugLock?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -780,7 +778,6 @@ export interface Tag {
   tenant: number | Tenant;
   title: string;
   slug: string;
-  slugLock?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1704,7 +1701,6 @@ export interface PagesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   slug?: T;
-  slugLock?: T;
   tenant?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -1895,7 +1891,6 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
       };
   slug?: T;
-  slugLock?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2372,7 +2367,6 @@ export interface TagsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   slug?: T;
-  slugLock?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
