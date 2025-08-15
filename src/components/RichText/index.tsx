@@ -56,7 +56,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     genericEmbed: ({ node }) => (
       <GenericEmbedBlock
         {...node.fields}
-        // making typescript happy - there are two variants of genericEmbed with and without wrapInContainer
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),

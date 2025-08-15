@@ -64,6 +64,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'team':
       return <TeamBlock {...block} payload={payload} />
     case 'genericEmbed':
+      // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbed variant
       return <GenericEmbedBlock {...block} wrapInContainer={block.wrapInContainer || true} />
   }
 }
