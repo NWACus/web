@@ -931,6 +931,7 @@ export interface Team {
  * via the `definition` "GenericEmbedBlock".
  */
 export interface GenericEmbedBlock {
+  backgroundColor: string;
   html: string;
   id?: string | null;
   blockName?: string | null;
@@ -1879,6 +1880,7 @@ export interface TeamBlockSelect<T extends boolean = true> {
  * via the `definition` "GenericEmbedBlock_select".
  */
 export interface GenericEmbedBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
   html?: T;
   id?: T;
   blockName?: T;

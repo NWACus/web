@@ -1,21 +1,22 @@
 'use client'
 
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import DOMPurify from 'isomorphic-dompurify'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
 
 type Props = GenericEmbedBlockProps & {
   className?: string
 }
 
-export const GenericEmbedBlock = ({ id, html, className }: Props) => {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-
+export const GenericEmbedBlock = ({ id, html, backgroundColor, className }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
   const [shouldBeIframe, setShouldBeIFrame] = useState(false)
   const [iframeHeight, setIframeHeight] = useState<number>(600)
+
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
 
   useEffect(() => {
     if (typeof window === 'undefined' || !html) return
@@ -37,6 +38,7 @@ export const GenericEmbedBlock = ({ id, html, className }: Props) => {
         'src',
         'height',
         'id',
+        'allowpaymentrequest',
       ],
     })
 
@@ -68,12 +70,12 @@ export const GenericEmbedBlock = ({ id, html, className }: Props) => {
             console.error('Failed to send height:', error);
           }
         }
-        
+
         function waitForContent() {
           var retries = 0;
           var maxRetries = 50; // 5 seconds max
           var checkInterval = 100;
-          
+
           function check() {
             try {
               var currentHeight = document.body.scrollHeight || document.documentElement.scrollHeight;
@@ -81,7 +83,7 @@ export const GenericEmbedBlock = ({ id, html, className }: Props) => {
                 sendHeight();
                 return;
               }
-              
+
               retries++;
               if (retries < maxRetries) {
                 setTimeout(check, checkInterval);
@@ -94,13 +96,13 @@ export const GenericEmbedBlock = ({ id, html, className }: Props) => {
               sendHeight(); // Send anyway as fallback
             }
           }
-          
+
           check();
         }
-        
+
         window.addEventListener('load', sendHeight);
         window.addEventListener('resize', sendHeight);
-        
+
         // Dynamic content loading detection
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', waitForContent);
@@ -118,7 +120,6 @@ export const GenericEmbedBlock = ({ id, html, className }: Props) => {
       if (event.data?.type === 'embed-resize' && event.data?.id === id) {
         const newHeight = event.data.height
         if (newHeight && typeof newHeight === 'number') {
-          console.log('--- setting height: ' + newHeight + ' ---')
           setIframeHeight(newHeight)
         }
       }
@@ -133,28 +134,31 @@ export const GenericEmbedBlock = ({ id, html, className }: Props) => {
   if (sanitizedHtml === null) return null
 
   return (
-    <div
-      ref={containerRef}
-      className={cn('prose max-w-none prose-figure:mx-auto prose-img:shadow-lg', className)}
-      style={{ height: shouldBeIframe ? iframeHeight : undefined }}
-    >
-      {shouldBeIframe ? (
-        <iframe
-          ref={iframeRef}
-          id={String(id)}
-          title={`Embedded content ${id}`}
-          srcDoc={sanitizedHtml}
-          sandbox="allow-scripts allow-forms allow-same-origin"
-          style={{
-            width: '100%',
-            height: iframeHeight,
-            border: 'none',
-            margin: 0,
-          }}
-        />
-      ) : (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
-      )}
+    <div className={cn(bgColorClass, textColor)}>
+      <div
+        className={cn(
+          'container py-16 max-w-none mx-auto prose md:prose-md dark:prose-invert',
+          className,
+        )}
+        style={{ height: shouldBeIframe ? iframeHeight : undefined }}
+      >
+        {shouldBeIframe ? (
+          <iframe
+            id={String(id)}
+            title={`Embedded content ${id}`}
+            srcDoc={sanitizedHtml}
+            sandbox="allow-scripts allow-forms allow-same-origin"
+            style={{
+              width: '100%',
+              height: iframeHeight,
+              border: 'none',
+              margin: 0,
+            }}
+          />
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+        )}
+      </div>
     </div>
   )
 }
