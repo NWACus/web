@@ -1,11 +1,7 @@
 import type { Block, Field } from 'payload'
 
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
-import {
-  FixedToolbarFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 const columnFields: Field[] = [
   {
@@ -25,7 +21,7 @@ const columnFields: Field[] = [
     type: 'richText',
     editor: lexicalEditor({
       features: ({ rootFeatures }) => {
-        return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
+        return [...rootFeatures, InlineToolbarFeature()]
       },
     }),
     label: false,

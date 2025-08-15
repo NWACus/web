@@ -3,8 +3,6 @@ import type { Block } from 'payload'
 import colorPickerField from '@/fields/color'
 import {
   BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
@@ -48,8 +46,6 @@ export const Content: Block = {
                   blocks: [ButtonsBlock, GenericEmbedLexical],
                 }),
                 HorizontalRuleFeature(),
-                HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-                FixedToolbarFeature(),
                 InlineToolbarFeature(),
               ]
             },
