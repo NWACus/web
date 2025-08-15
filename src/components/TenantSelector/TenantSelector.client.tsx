@@ -18,10 +18,14 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
   const isGlobal = params.segments && params.segments[0] === 'globals'
   const isCollection = params.segments && params.segments[0] === 'collections'
   const slugFromParams = params.segments && params.segments[1]
-  const isUnique = config.collections
-    .find((collectionConfig) => collectionConfig.slug === slugFromParams)
-    // @ts-expect-error not picking up FieldBaseClient types
-    ?.fields.find((fieldConfig) => fieldConfig.name === 'tenant')?.unique
+
+  const collectionConfig = config.collections.find(
+    (collectionConfig) => collectionConfig.slug === slugFromParams,
+  )
+  const collectionTenantFieldConfig = collectionConfig?.fields.find(
+    (fieldConfig) => 'name' in fieldConfig && fieldConfig.name === 'tenant',
+  )
+  const isUnique = !!collectionTenantFieldConfig?.unique
 
   let isReadOnly = false
 
@@ -37,13 +41,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
   )
 
   // hide for Global RoleRoles, NAC widget & Diagnostics
-  if (
-    isGlobal ||
-    params?.segments?.includes('roles') ||
-    params?.segments?.includes('globalRoles') ||
-    params?.segments?.includes('globalRoleAssignments')
-  )
-    return null
+  if (isGlobal || !collectionTenantFieldConfig) return null
 
   if (options.length <= 1) {
     return null
