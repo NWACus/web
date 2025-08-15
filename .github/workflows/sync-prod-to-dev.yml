@@ -51,11 +51,18 @@ jobs:
         shell: bash
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
+      - name: Update database URI in Vercel
+        run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview main --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Update database token in Vercel
+        run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Generate random non-prod sync password
         id: generate-sync-password
-        run: echo "password=$(openssl rand -base64 32)" >> "${GITHUB_OUTPUT}"
+        run: |
+          generated_password=$(openssl rand -base64 32)
+          echo "::add-mask::$generated_password"
+          echo "password=$generated_password" >> "$GITHUB_OUTPUT"
       - name: Update non-prod sync password in Vercel
-        run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
+        run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Run database migrations
