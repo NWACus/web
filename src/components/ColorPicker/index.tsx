@@ -25,9 +25,9 @@ const ColorPicker = (props: TextFieldClientProps) => {
   const { value, setValue } = useField({ path })
 
   return (
-    <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col mb-6">
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      <ul className="flex flex-wrap max-w-[260px] list-none">
+      <ul className="flex flex-wrap max-w-[260px] list-none pl-0">
         {colorOptions.map((color, i) => {
           const bgColor = `bg-${color}`
           return (
