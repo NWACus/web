@@ -39,8 +39,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
     },
     [setTenant],
   )
-
-  // hide for Global RoleRoles, NAC widget & Diagnostics
+  // hide for Diagnostics, NAC widget, Global Role, Roles, & Users
   if (isGlobal || !collectionTenantFieldConfig) return null
 
   if (options.length <= 1) {
