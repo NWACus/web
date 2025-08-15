@@ -64,6 +64,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'team':
       return <TeamBlock {...block} payload={payload} />
     case 'genericEmbed':
-      return <GenericEmbedBlock {...block} />
+      return <GenericEmbedBlock {...block} wrapInContainer={block.wrapInContainer || true} />
   }
 }

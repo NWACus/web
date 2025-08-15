@@ -7,6 +7,7 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 import { ButtonsBlock } from '../Buttons/config'
+import { GenericEmbedLexical } from '../GenericEmbed/config'
 
 export const ContentWithCallout: Block = {
   slug: 'contentWithCallout',
@@ -22,7 +23,7 @@ export const ContentWithCallout: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonsBlock],
+              blocks: [ButtonsBlock, GenericEmbedLexical],
             }),
             HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           ]
@@ -40,7 +41,7 @@ export const ContentWithCallout: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonsBlock],
+              blocks: [ButtonsBlock, GenericEmbedLexical],
             }),
             HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           ]

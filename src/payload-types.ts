@@ -931,8 +931,12 @@ export interface Team {
  * via the `definition` "GenericEmbedBlock".
  */
 export interface GenericEmbedBlock {
-  backgroundColor: string;
   html: string;
+  /**
+   * Checking this will render the embed with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  backgroundColor: string;
   id?: string | null;
   blockName?: string | null;
   blockType: 'genericEmbed';

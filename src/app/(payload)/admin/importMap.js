@@ -75,13 +75,13 @@ export const importMap = {
     ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#LinkFeatureClient':
     LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@payloadcms/richtext-lexical/client#BlocksFeatureClient':
+    BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@/components/ColorPicker#default': default_55a7d1ebef7afeed563b856ae2e2cbf4,
   '@payloadcms/richtext-lexical/client#HeadingFeatureClient':
     HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient':
     HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@payloadcms/richtext-lexical/client#BlocksFeatureClient':
-    BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/plugin-seo/client#OverviewComponent':
     OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/plugin-seo/client#MetaTitleComponent':
@@ -119,9 +119,9 @@ export const importMap = {
   '@/components/LogoutButton#LogoutButton': LogoutButton_db9ac62598c46d0f1db201f6af05442e,
   '@/components/Icon/AvyFxIcon#AvyFxIcon': AvyFxIcon_5698f736c9797d81d0dacf1b1321e327,
   '@/components/Logo/AvyFxLogo#AvyFxLogo': AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
-  '@/components/ViewTypeAction#default': default_cb0ad5752e1389a2a940bb73c2c0e7d2,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
+  '@/components/ViewTypeAction#default': default_cb0ad5752e1389a2a940bb73c2c0e7d2,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,
   '@/components/TenantSelector/TenantSelector#default': default_2aead22399b7847b21b134dc4a7931e0,
   '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider':

@@ -8,9 +8,16 @@ import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-ty
 
 type Props = GenericEmbedBlockProps & {
   className?: string
+  wrapInContainer?: boolean
 }
 
-export const GenericEmbedBlock = ({ id, html, backgroundColor, className }: Props) => {
+export const GenericEmbedBlock = ({
+  id,
+  html,
+  backgroundColor,
+  className,
+  wrapInContainer = true,
+}: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
   const [shouldBeIframe, setShouldBeIFrame] = useState(false)
   const [iframeHeight, setIframeHeight] = useState<number>(600)
@@ -137,7 +144,8 @@ export const GenericEmbedBlock = ({ id, html, backgroundColor, className }: Prop
     <div className={cn(bgColorClass, textColor)}>
       <div
         className={cn(
-          'container py-16 max-w-none mx-auto prose md:prose-md dark:prose-invert',
+          wrapInContainer && 'container py-16',
+          'max-w-none mx-auto prose md:prose-md dark:prose-invert',
           className,
         )}
         style={{ height: shouldBeIframe ? iframeHeight : undefined }}
