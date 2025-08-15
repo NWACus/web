@@ -63,17 +63,6 @@ export const accessByTenantRole: (collection: ruleCollection) => CollectionConfi
   }
 }
 
-export const accessForFormSubmission: (collection: ruleCollection) => CollectionConfig['access'] = (
-  collection: ruleCollection,
-) => {
-  return {
-    create: () => true, // world creatable
-    read: byTenantRole('read', collection),
-    update: () => false,
-    delete: () => false,
-  }
-}
-
 export const accessByTenantRoleWithPermissiveRead: (
   collection: ruleCollection,
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
