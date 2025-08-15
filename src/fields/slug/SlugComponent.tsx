@@ -21,6 +21,7 @@ export const SlugComponent = ({
   const { label } = field
 
   const { value, setValue } = useField<string>({ path: path || field.name })
+  const { value: currentSlug } = useField<string>({ path: 'slug' })
 
   // Get the current value of the title field
   const targetFieldValue = useFormFields(([fields]) => {
@@ -30,13 +31,13 @@ export const SlugComponent = ({
   const handleGenerate = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
-      if (targetFieldValue) {
+      const newSlug = formatSlug(targetFieldValue)
+      if (targetFieldValue && newSlug !== currentSlug) {
         setValue(formatSlug(targetFieldValue))
       }
     },
-    [targetFieldValue, setValue],
+    [targetFieldValue, currentSlug, setValue],
   )
-
   const readOnly = readOnlyFromProps || false
 
   return (
@@ -44,7 +45,7 @@ export const SlugComponent = ({
       <div className="label-wrapper">
         <FieldLabel htmlFor={`field-${path}`} label={label} />
 
-        <Button className="lock-button" buttonStyle="icon-label" onClick={handleGenerate}>
+        <Button className="generate-button" buttonStyle="icon-label" onClick={handleGenerate}>
           <RefreshCw className="w-4" />
         </Button>
       </div>
