@@ -241,7 +241,7 @@ export const getTopLevelNavItems = async ({
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
   let forecastsNavItem: TopLevelNavItem = {
     link: {
-      label: 'Avalanche Forecast',
+      label: 'Forecasts',
       type: 'internal',
       url: '/forecasts/avalanche',
     },
@@ -257,9 +257,8 @@ export const getTopLevelNavItems = async ({
         const zoneSlug = activeZones[0].url.split('/').filter(Boolean).pop()
 
         forecastsNavItem = {
-          label: 'Forecasts',
           link: {
-            label: 'Forecasts',
+            label: 'Avalanche Forecast',
             type: 'internal',
             url: `/forecasts/avalanche/${zoneSlug}`,
           },
