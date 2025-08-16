@@ -15,6 +15,7 @@ import type {
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
+import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
@@ -28,6 +29,7 @@ import { post3 } from './post-3'
 const collections: CollectionSlug[] = [
   'settings',
   'biographies',
+  'homePages',
   'media',
   'pages',
   'posts',
@@ -683,6 +685,20 @@ export const seed = async ({
     contactForms[tenant.name] = contactForm
   }
 
+  payload.logger.info(`— Seeding home pages...`)
+
+  const homePages = await upsert(
+    'homePages',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => 'homepage',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
+        homePage(tenant, images[tenant.slug]['imageMountain']),
+    ),
+  )
+
   const pages = await upsert(
     'pages',
     payload,
@@ -865,6 +881,44 @@ export const seed = async ({
       ])
       .flat(),
   )
+
+  payload.logger.info(`— Updating home page quick links...`)
+  for (const tenant of Object.values(tenants)) {
+    const aboutUsPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
+    const donatePage = Object.values(pages[tenant.slug]).find(
+      (page) => page.slug === 'donate-membership',
+    )
+
+    if (aboutUsPage && donatePage) {
+      await payload.update({
+        id: homePages[tenant.slug]['homepage'].id,
+        collection: 'homePages',
+        data: {
+          quickLinks: [
+            {
+              type: 'reference',
+              label: 'Learn More',
+              reference: {
+                relationTo: 'pages',
+                value: aboutUsPage.id,
+              },
+            },
+            {
+              type: 'reference',
+              label: 'Donate',
+              reference: {
+                relationTo: 'pages',
+                value: donatePage.id,
+              },
+            },
+          ],
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+  }
 
   // Navigations
   await upsert(
