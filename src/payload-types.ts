@@ -1377,7 +1377,7 @@ export interface Setting {
   /**
    * Optional label for phone in your website footer.
    */
-  phoneLabel?: ('Phone' | 'office' | 'text' | 'call') | null;
+  phoneLabel?: ('phone' | 'office' | 'text' | 'call') | null;
   /**
    * Appears in your website footer.
    */

@@ -74,7 +74,7 @@ export const Settings: CollectionConfig = {
               name: 'phoneLabel',
               type: 'select',
               options: [
-                { label: 'Phone', value: 'Phone' },
+                { label: 'Phone', value: 'phone' },
                 { label: 'Office', value: 'office' },
                 { label: 'Text', value: 'text' },
                 { label: 'Call', value: 'call' },
