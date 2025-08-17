@@ -277,7 +277,7 @@ export const seed = async ({
   }
   const iconFiles: Record<string, string> = {
     dvac: 'dvac-icon.png',
-    nwac: 'nwac-icon.jpg',
+    nwac: 'nwac-icon.png',
     sac: 'sac-icon.png',
     snfac: 'snfac-icon.png',
   }
