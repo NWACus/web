@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
+import { BlogListBlock } from '@/blocks/BlogList/config'
 import { Content } from '@/blocks/Content/config'
 import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
@@ -10,6 +11,7 @@ import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
@@ -105,6 +107,7 @@ export const Pages: CollectionConfig<'pages'> = {
               type: 'blocks',
               blocks: [
                 BiographyBlock,
+                BlogListBlock,
                 Content,
                 ContentWithCallout,
                 FormBlock,
@@ -114,6 +117,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 ImageTextList,
                 LinkPreviewBlock,
                 MediaBlock,
+                SingleBlogPostBlock,
                 TeamBlock,
               ],
               required: true,

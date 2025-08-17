@@ -13,8 +13,8 @@ import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getMediaURL, getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { resolveTenant } from '@/utilities/resolveTenant'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -108,7 +108,7 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
 
   const settings = settingsRes.docs[0]
-  const tenant = await resolveTenant(settings.tenant, payload, {
+  const tenant = await resolveTenant(settings.tenant, {
     select: {
       name: true,
     },

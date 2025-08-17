@@ -2,12 +2,10 @@ import type { Metadata } from 'next'
 
 import type { Page, Post, Tenant } from '@/payload-types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import { getURL } from './getURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
-import { resolveTenant } from './resolveTenant'
 import { getHostnameFromTenant } from './tenancy/getHostnameFromTenant'
+import { resolveTenant } from './tenancy/resolveTenant'
 
 export const generateMetaForPage = async (args: {
   customTitle?: string
@@ -22,8 +20,7 @@ export const generateMetaForPage = async (args: {
   let hostname
 
   if (doc.tenant) {
-    const payload = await getPayload({ config: configPromise })
-    tenant = await resolveTenant(doc.tenant, payload)
+    tenant = await resolveTenant(doc.tenant)
     hostname = getHostnameFromTenant(tenant)
   }
 
@@ -68,8 +65,7 @@ export const generateMetaForPost = async (args: {
   let hostname
 
   if (doc.tenant) {
-    const payload = await getPayload({ config: configPromise })
-    tenant = await resolveTenant(doc.tenant, payload)
+    tenant = await resolveTenant(doc.tenant)
     hostname = getHostnameFromTenant(tenant)
   }
 

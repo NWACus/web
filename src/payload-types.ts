@@ -275,6 +275,7 @@ export interface Page {
   title: string;
   layout: (
     | BiographyBlock
+    | BlogListBlock
     | ContentBlock
     | ContentWithCalloutBlock
     | FormBlock
@@ -284,6 +285,7 @@ export interface Page {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
+    | SingleBlogPostBlock
     | TeamBlock
   )[];
   meta?: {
@@ -419,6 +421,112 @@ export interface GlobalRole {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogListBlock".
+ */
+export interface BlogListBlock {
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the blog list.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Optionally select tags to filter posts in this list by.
+   */
+  filterByTags?: (number | Tag)[] | null;
+  /**
+   * Select how the list of posts will be sorted.
+   */
+  sortBy: '-publishedAt' | 'publishedAt';
+  /**
+   * Maximum number of posts that will be displayed.
+   */
+  maxPosts?: number | null;
+  /**
+   * Use this to select specific posts to display here instead of displaying a dynamic list of posts based on tags, sort by, and max posts.
+   */
+  staticPosts?: (number | Post)[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'blogList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  featuredImage?: (number | null) | Media;
+  description?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  authors: (number | Biography)[];
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  publishedAt?: string | null;
+  tags?: (number | Tag)[] | null;
+  relatedPosts?: (number | Post)[] | null;
+  blocksInContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        blockId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -722,68 +830,6 @@ export interface ImageLinkGrid {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  featuredImage?: (number | null) | Media;
-  description?: string | null;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  authors: (number | Biography)[];
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
-  publishedAt?: string | null;
-  tags?: (number | Tag)[] | null;
-  relatedPosts?: (number | Post)[] | null;
-  blocksInContent?:
-    | {
-        blockType?: string | null;
-        collection?: string | null;
-        blockId?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
- */
-export interface Tag {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ImageQuote".
  */
 export interface ImageQuote {
@@ -901,6 +947,19 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock".
+ */
+export interface SingleBlogPostBlock {
+  /**
+   * Select a blog post to display
+   */
+  post: number | Post;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleBlogPost';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1693,6 +1752,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         biography?: T | BiographyBlockSelect<T>;
+        blogList?: T | BlogListBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
@@ -1702,6 +1762,7 @@ export interface PagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   meta?:
@@ -1725,6 +1786,20 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface BiographyBlockSelect<T extends boolean = true> {
   biography?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogListBlock_select".
+ */
+export interface BlogListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  filterByTags?: T;
+  sortBy?: T;
+  maxPosts?: T;
+  staticPosts?: T;
   id?: T;
   blockName?: T;
 }
@@ -1862,6 +1937,15 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock_select".
+ */
+export interface SingleBlogPostBlockSelect<T extends boolean = true> {
+  post?: T;
   id?: T;
   blockName?: T;
 }

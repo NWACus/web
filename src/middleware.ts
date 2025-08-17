@@ -146,11 +146,12 @@ export default async function middleware(req: NextRequest) {
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
 
-        if (req.nextUrl.pathname.startsWith('/admin')) {
-          // Set tenant cookie to scope the admin panel to this domain's tenant if not already set
-          const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
+        // Set tenant cookie for all scenarios if not already set or different
+        const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
+        const shouldSetCookie = existingPayloadTenantCookie?.value !== id.toString()
 
-          if (existingPayloadTenantCookie?.value !== id.toString()) {
+        if (req.nextUrl.pathname.startsWith('/admin')) {
+          if (shouldSetCookie) {
             const response = NextResponse.next()
             response.cookies.set('payload-tenant', id.toString(), {
               path: '/',
@@ -164,8 +165,20 @@ export default async function middleware(req: NextRequest) {
           return
         }
 
+        // For non-admin routes, set cookie and rewrite
         rewrite.pathname = `/${slug}${rewrite.pathname}`
         console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
+
+        if (shouldSetCookie) {
+          const response = NextResponse.rewrite(rewrite)
+          response.cookies.set('payload-tenant', id.toString(), {
+            path: '/',
+            sameSite: 'lax',
+          })
+          logCompletion('rewrite-with-cookie')
+          return response
+        }
+
         logCompletion('rewrite')
         return NextResponse.rewrite(rewrite)
       }
