@@ -6,6 +6,9 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
+import { EventGroups } from '@/collections/EventGroups'
+import { Events } from '@/collections/Events'
+import { EventTypes } from '@/collections/EventTypes'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { Media } from '@/collections/Media'
@@ -141,6 +144,9 @@ export default buildConfig({
     Media,
     Pages,
     Posts,
+    Events,
+    EventGroups,
+    EventTypes,
     Users,
     Tenants,
     Roles,

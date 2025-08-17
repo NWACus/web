@@ -70,6 +70,9 @@ export const navigationSeed = (
         },
       ],
     },
+    events: {
+      items: [],
+    },
     education: {
       items: [
         {

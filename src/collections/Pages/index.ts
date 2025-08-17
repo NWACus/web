@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { BiographyBlock } from '@/blocks/Biography/config'
 import { Content } from '@/blocks/Content/config'
 import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
+import { EventsByGroup } from '@/blocks/EventsByGroup/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
@@ -107,6 +108,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 BiographyBlock,
                 Content,
                 ContentWithCallout,
+                EventsByGroup,
                 FormBlock,
                 ImageLinkGrid,
                 ImageQuote,

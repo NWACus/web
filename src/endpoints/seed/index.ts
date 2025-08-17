@@ -15,6 +15,7 @@ import type {
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
+import { seedEventGroups, seedEvents, seedEventTypes } from './events'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
@@ -31,6 +32,9 @@ const collections: CollectionSlug[] = [
   'media',
   'pages',
   'posts',
+  'events',
+  'event-groups',
+  'event-types',
   'forms',
   'form-submissions',
   'navigations',
@@ -190,6 +194,9 @@ export const seed = async ({
           collections: [
             'pages',
             'posts',
+            'events',
+            'event-groups',
+            'event-types',
             'tags',
             'roleAssignments',
             'settings',
@@ -216,6 +223,9 @@ export const seed = async ({
           collections: [
             'pages',
             'posts',
+            'events',
+            'event-groups',
+            'event-types',
             'tags',
             'media',
             'biographies',
@@ -234,6 +244,9 @@ export const seed = async ({
           collections: [
             'pages',
             'posts',
+            'events',
+            'event-groups',
+            'event-types',
             'tags',
             'media',
             'biographies',
@@ -621,6 +634,45 @@ export const seed = async ({
       ])
       .flat(),
   )
+
+  // Event Types
+  const eventTypes = await upsert(
+    'event-types',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'event-types'>[] => seedEventTypes(tenant))
+      .flat(),
+  )
+
+  // Event Groups
+  const eventGroups = await upsert(
+    'event-groups',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'event-groups'>[] => seedEventGroups(tenant))
+      .flat(),
+  )
+
+  // Events
+  await upsert(
+    'events',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'events'>[] =>
+        seedEvents(tenant, eventTypes, eventGroups, images[tenant.slug]['image1']?.id as number),
+      )
+      .flat(),
+  )
+
   const posts = await upsert(
     'posts',
     payload,

@@ -1,10 +1,10 @@
 import { Fragment } from 'react'
 
-import type { Page } from '@/payload-types'
-
+import { BannerBlock } from '@/blocks/Banner/Component'
 import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { ContentWithCalloutBlock } from '@/blocks/ContentWithCallout/Component'
+import { EventsByGroupBlockComponent } from '@/blocks/EventsByGroup/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/Component'
 import { ImageQuote } from '@/blocks/ImageQuote/Component'
@@ -15,7 +15,7 @@ import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
 
-export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
+export const RenderBlocks = (props: { blocks: any[]; payload: Payload }) => {
   const { blocks } = props
 
   const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0
@@ -37,13 +37,17 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payl
   return null
 }
 
-export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payload: Payload }) => {
+export const RenderBlock = ({ block, payload }: { block: any; payload: Payload }) => {
   const { blockType } = block
   switch (blockType) {
+    case 'banner':
+      return <BannerBlock {...block} />
     case 'biography':
       return <BiographyBlock {...block} payload={payload} />
     case 'content':
       return <ContentBlock {...block} />
+    case 'events-by-group':
+      return <EventsByGroupBlockComponent {...block} />
     case 'formBlock':
       return <FormBlock {...block} />
     case 'imageLinkGrid':

@@ -70,6 +70,9 @@ export interface Config {
     media: Media;
     pages: Page;
     posts: Post;
+    events: Event;
+    'event-groups': EventGroup;
+    'event-types': EventType;
     users: User;
     tenants: Tenant;
     roles: Role;
@@ -98,6 +101,9 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    'event-groups': EventGroupsSelect<false> | EventGroupsSelect<true>;
+    'event-types': EventTypesSelect<false> | EventTypesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     roles: RolesSelect<false> | RolesSelect<true>;
@@ -277,6 +283,31 @@ export interface Page {
     | BiographyBlock
     | ContentBlock
     | ContentWithCalloutBlock
+    | {
+        /**
+         * Optional title for this section
+         */
+        title?: string | null;
+        /**
+         * Select event groups to display events from
+         */
+        eventGroups: (number | EventGroup)[];
+        /**
+         * Number of events to display
+         */
+        limit?: number | null;
+        /**
+         * Only show future events
+         */
+        showFutureOnly?: boolean | null;
+        /**
+         * How to display the events
+         */
+        layout?: ('grid' | 'list') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'events-by-group';
+      }
     | FormBlock
     | ImageLinkGrid
     | ImageQuote
@@ -488,6 +519,121 @@ export interface ContentWithCalloutBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'contentWithCallout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-groups".
+ */
+export interface EventGroup {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  /**
+   * Short summary for cards and listings
+   */
+  excerpt?: string | null;
+  featuredImage?: (number | null) | Media;
+  /**
+   * Rich text description for group page header
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Custom page content using blocks
+   */
+  content?:
+    | (
+        | BannerBlock
+        | ContentBlock
+        | MediaBlock
+        | {
+            /**
+             * Optional title for this section
+             */
+            title?: string | null;
+            /**
+             * Select event groups to display events from
+             */
+            eventGroups: (number | EventGroup)[];
+            /**
+             * Number of events to display
+             */
+            limit?: number | null;
+            /**
+             * Only show future events
+             */
+            showFutureOnly?: boolean | null;
+            /**
+             * How to display the events
+             */
+            layout?: ('grid' | 'list') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'events-by-group';
+          }
+      )[]
+    | null;
+  /**
+   * Color for UI theming
+   */
+  color?: string | null;
+  publishedAt?: string | null;
+  meta?: {
+    description?: string | null;
+  };
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  style: 'info' | 'warning' | 'error' | 'success';
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -894,16 +1040,6 @@ export interface LinkPreviewBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
- */
-export interface MediaBlock {
-  media: number | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TeamBlock".
  */
 export interface TeamBlock {
@@ -921,6 +1057,124 @@ export interface Team {
   tenant: number | Tenant;
   name: string;
   members: (number | Biography)[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  /**
+   * Short summary for cards
+   */
+  excerpt?: string | null;
+  featuredImage?: (number | null) | Media;
+  /**
+   * Full event description
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  startDate: string;
+  /**
+   * Optional end date for multi-day events
+   */
+  endDate?: string | null;
+  /**
+   * Event timezone (e.g., "America/Los_Angeles")
+   */
+  timezone?: string | null;
+  location?: {
+    /**
+     * Venue name
+     */
+    venue?: string | null;
+    /**
+     * Full address
+     */
+    address?: string | null;
+    /**
+     * Virtual event flag
+     */
+    isVirtual?: boolean | null;
+    /**
+     * Meeting link for virtual events
+     */
+    virtualUrl?: string | null;
+  };
+  /**
+   * External registration link
+   */
+  registrationUrl?: string | null;
+  /**
+   * Optional external landing page (takes precedence over event page)
+   */
+  externalEventUrl?: string | null;
+  /**
+   * Registration cutoff
+   */
+  registrationDeadline?: string | null;
+  /**
+   * Maximum attendees
+   */
+  capacity?: number | null;
+  /**
+   * Event cost in dollars
+   */
+  cost?: number | null;
+  eventGroups?: (number | EventGroup)[] | null;
+  eventType?: (number | null) | EventType;
+  instructors?: (number | Biography)[] | null;
+  publishedAt?: string | null;
+  meta?: {
+    description?: string | null;
+  };
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-types".
+ */
+export interface EventType {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  icon?: ('course' | 'workshop' | 'awareness' | 'fundraiser') | null;
+  /**
+   * Maps to Salesforce Campaign Type for future CRM integration
+   */
+  salesforceCampaignType?: string | null;
+  /**
+   * Whether to track individual attendance for this event type
+   */
+  trackAttendance?: boolean | null;
+  /**
+   * Whether this type typically generates revenue
+   */
+  generateRevenue?: boolean | null;
+  slug: string;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1477,6 +1731,18 @@ export interface PayloadLockedDocument {
         value: number | Post;
       } | null)
     | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'event-groups';
+        value: number | EventGroup;
+      } | null)
+    | ({
+        relationTo: 'event-types';
+        value: number | EventType;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -1683,6 +1949,17 @@ export interface PagesSelect<T extends boolean = true> {
         biography?: T | BiographyBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
+        'events-by-group'?:
+          | T
+          | {
+              title?: T;
+              eventGroups?: T;
+              limit?: T;
+              showFutureOnly?: T;
+              layout?: T;
+              id?: T;
+              blockName?: T;
+            };
         formBlock?: T | FormBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
@@ -1895,6 +2172,115 @@ export interface PostsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  excerpt?: T;
+  featuredImage?: T;
+  content?: T;
+  startDate?: T;
+  endDate?: T;
+  timezone?: T;
+  location?:
+    | T
+    | {
+        venue?: T;
+        address?: T;
+        isVirtual?: T;
+        virtualUrl?: T;
+      };
+  registrationUrl?: T;
+  externalEventUrl?: T;
+  registrationDeadline?: T;
+  capacity?: T;
+  cost?: T;
+  eventGroups?: T;
+  eventType?: T;
+  instructors?: T;
+  publishedAt?: T;
+  meta?:
+    | T
+    | {
+        description?: T;
+      };
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-groups_select".
+ */
+export interface EventGroupsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  excerpt?: T;
+  featuredImage?: T;
+  description?: T;
+  content?:
+    | T
+    | {
+        banner?: T | BannerBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        'events-by-group'?:
+          | T
+          | {
+              title?: T;
+              eventGroups?: T;
+              limit?: T;
+              showFutureOnly?: T;
+              layout?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  color?: T;
+  publishedAt?: T;
+  meta?:
+    | T
+    | {
+        description?: T;
+      };
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock_select".
+ */
+export interface BannerBlockSelect<T extends boolean = true> {
+  style?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-types_select".
+ */
+export interface EventTypesSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  description?: T;
+  icon?: T;
+  salesforceCampaignType?: T;
+  trackAttendance?: T;
+  generateRevenue?: T;
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2645,31 +3031,6 @@ export interface ButtonsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'buttonsBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
