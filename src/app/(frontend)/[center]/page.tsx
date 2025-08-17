@@ -6,6 +6,7 @@ import HighlightedContent from '@/collections/HomePages/components/HighlightedCo
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
+import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { draftMode } from 'next/headers'
 
@@ -35,24 +36,12 @@ type PathArgs = {
 }
 
 export default async function Page({ params }: Args) {
+  const payload = await getPayload({ config: configPromise })
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
 
   const { version, baseUrl } = await getNACWidgetsConfig()
-
-  const payload = await getPayload({ config: configPromise })
-  const homePageRes = await payload.find({
-    collection: 'homePages',
-    draft,
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-    },
-  })
-  const homePage = homePageRes.docs[0]
-
-  const { quickLinks, highlightedContent, layout } = homePage
+  const { quickLinks, highlightedContent, layout } = await getCachedHomePage(center)()
 
   return (
     <>

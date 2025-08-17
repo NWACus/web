@@ -29,6 +29,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { revalidateHomePage, revalidateHomePageDelete } from './hooks/revalidateHomePage'
 
 export const HomePages: CollectionConfig = {
   slug: 'homePages',
@@ -161,9 +162,9 @@ export const HomePages: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    // afterChange: [revalidatePage],
+    afterChange: [revalidateHomePage],
     beforeChange: [populatePublishedAt],
-    // afterDelete: [revalidatePageDelete],
+    afterDelete: [revalidateHomePageDelete],
   },
   versions: {
     drafts: {

@@ -343,7 +343,7 @@ export const seed = async ({
             tenant: tenant.id,
             alt: 'icon',
           },
-          file: logos[tenant.slug],
+          file: icons[tenant.slug],
         },
         {
           data: {
