@@ -227,8 +227,8 @@ export const seedEventGroups = (
 
 export const seedEvents = (
   tenant: Tenant,
-  eventTypes: Record<string, Record<string, any>>,
-  eventGroups: Record<string, Record<string, any>>,
+  eventTypes: Record<string, Record<string, { id: number }>>,
+  eventGroups: Record<string, Record<string, { id: number }>>,
   featuredImageId?: number,
 ): RequiredDataFromCollectionSlug<'events'>[] => {
   const futureDate1 = new Date()
@@ -271,13 +271,13 @@ export const seedEvents = (
       location: {
         venue: 'NWAC Training Center',
         address: '123 Mountain Way, Seattle, WA 98101',
-        isVirtual: false,
+        isOnline: false,
       },
       registrationUrl: 'https://example.com/register/level-1',
       capacity: 16,
       cost: 350,
-      eventGroups: [eventGroups[tenant.slug]?.['Field Courses']?.id],
-      eventType: eventTypes[tenant.slug]?.['Field Course']?.id,
+      eventGroups: [eventGroups[tenant.slug]?.['Field Courses']?.id as number].filter(Boolean),
+      eventType: eventTypes[tenant.slug]?.['Field Course']?.id as number,
       ...(featuredImageId && { featuredImage: featuredImageId }),
       _status: 'published',
     },
@@ -311,13 +311,15 @@ export const seedEvents = (
       location: {
         venue: 'Snoqualmie Pass Visitor Center',
         address: 'Snoqualmie Pass, WA',
-        isVirtual: false,
+        isOnline: false,
       },
       registrationUrl: 'https://example.com/register/awareness-snoqualmie',
       capacity: 30,
       cost: 0,
-      eventGroups: [eventGroups[tenant.slug]?.['Avalanche Awareness Classes']?.id],
-      eventType: eventTypes[tenant.slug]?.['Avalanche Awareness']?.id,
+      eventGroups: [eventGroups[tenant.slug]?.['Avalanche Awareness Classes']?.id as number].filter(
+        Boolean,
+      ),
+      eventType: eventTypes[tenant.slug]?.['Avalanche Awareness']?.id as number,
       _status: 'published',
     },
     {
@@ -348,14 +350,14 @@ export const seedEvents = (
       },
       startDate: futureDate3.toISOString(),
       location: {
-        isVirtual: true,
+        isOnline: true,
         virtualUrl: 'https://zoom.us/j/example',
       },
       registrationUrl: 'https://example.com/register/weather-workshop',
       capacity: 50,
       cost: 25,
-      eventGroups: [eventGroups[tenant.slug]?.['Community Events']?.id],
-      eventType: eventTypes[tenant.slug]?.['Workshop']?.id,
+      eventGroups: [eventGroups[tenant.slug]?.['Community Events']?.id as number].filter(Boolean),
+      eventType: eventTypes[tenant.slug]?.['Workshop']?.id as number,
       _status: 'published',
     },
   ]

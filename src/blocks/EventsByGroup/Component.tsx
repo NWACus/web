@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 
+import { EventCard } from '@/components/EventCard'
 import type { EventGroup } from '@/payload-types'
 
 export type EventsByGroupProps = {
@@ -34,7 +35,7 @@ export const EventsByGroupBlockComponent = async (props: EventsByGroupProps) => 
   }
 
   // Build where clause for events query
-  const whereClause: any = {
+  const whereClause: Where = {
     _status: {
       equals: 'published',
     },
@@ -75,61 +76,14 @@ export const EventsByGroupBlockComponent = async (props: EventsByGroupProps) => 
         }
       >
         {events.docs.map((event) => (
-          <div key={event.id} className="border rounded-lg p-6 bg-white shadow-sm">
-            {event.featuredImage &&
-              typeof event.featuredImage === 'object' &&
-              event.featuredImage.url && (
-                <div className="mb-4">
-                  <img
-                    src={event.featuredImage.url}
-                    alt={event.featuredImage.alt || ''}
-                    className="w-full h-48 object-cover rounded"
-                  />
-                </div>
-              )}
-
-            <div className="space-y-3">
-              <h3 className="text-xl font-semibold">{event.title}</h3>
-
-              {event.excerpt && <p className="text-gray-600">{event.excerpt}</p>}
-
-              <div className="text-sm text-gray-500">
-                {event.startDate && (
-                  <time dateTime={event.startDate}>
-                    {new Date(event.startDate).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </time>
-                )}
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                {event.registrationUrl && (
-                  <a
-                    href={event.registrationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors"
-                  >
-                    Register
-                  </a>
-                )}
-
-                <a
-                  href={event.externalEventUrl || `/${tenant.slug}/events/${event.slug}`}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded hover:bg-gray-50 transition-colors"
-                  {...(event.externalEventUrl
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
-                >
-                  More Info
-                </a>
-              </div>
-            </div>
-          </div>
+          <EventCard
+            key={event.id}
+            event={event}
+            variant={layout === 'list' ? 'horizontal' : 'vertical'}
+            showGroup={false}
+            showType={true}
+            showDate={true}
+          />
         ))}
       </div>
     </div>

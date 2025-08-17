@@ -39,6 +39,39 @@ export const EventCard = ({
     })
   }
 
+  const getSkillRatingLabel = (rating: string | null) => {
+    switch (rating) {
+      case '0':
+        return 'Beginner Friendly'
+      case '1':
+        return 'Previous Knowledge Helpful'
+      case '2':
+        return 'Prerequisites Required'
+      case '3':
+        return 'Professional Level'
+      default:
+        return null
+    }
+  }
+
+  const formatLocation = () => {
+    if (event.location?.isOnline) {
+      return 'Virtual Event'
+    }
+
+    const parts = []
+    if (event.location?.venue) parts.push(event.location.venue)
+    if (event.location?.city && event.location?.state) {
+      parts.push(`${event.location.city}, ${event.location.state}`)
+    } else if (event.location?.city) {
+      parts.push(event.location.city)
+    } else if (event.location?.state) {
+      parts.push(event.location.state)
+    }
+
+    return parts.join(' - ') || null
+  }
+
   const eventUrl = event.externalEventUrl || `/${tenant?.slug}/events/${event.slug}`
   const isExternal = !!event.externalEventUrl
 
@@ -75,12 +108,17 @@ export const EventCard = ({
 
       <div className="flex flex-col justify-between flex-1 space-y-3">
         <div className="space-y-2">
-          {/* Event Type and Groups */}
-          {(showType || showGroup) && (
+          {/* Event Type, Groups, and Skill Rating */}
+          {(showType || showGroup || event.skillRating) && (
             <div className="flex flex-wrap gap-2">
               {showType && eventType && (
                 <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
                   {eventType.title}
+                </span>
+              )}
+              {event.skillRating && (
+                <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                  {getSkillRatingLabel(event.skillRating)}
                 </span>
               )}
               {showGroup &&
@@ -104,10 +142,17 @@ export const EventCard = ({
             </div>
           )}
 
-          {/* Title */}
-          <h3 className={variant === 'compact' ? 'text-lg font-semibold' : 'text-xl font-semibold'}>
-            {event.title}
-          </h3>
+          {/* Title and Subtitle */}
+          <div>
+            <h3
+              className={variant === 'compact' ? 'text-lg font-semibold' : 'text-xl font-semibold'}
+            >
+              {event.title}
+            </h3>
+            {event.subtitle && (
+              <p className="text-gray-700 text-sm font-medium mt-1">{event.subtitle}</p>
+            )}
+          </div>
 
           {/* Excerpt */}
           {event.excerpt && <p className="text-gray-600 text-sm line-clamp-2">{event.excerpt}</p>}
@@ -121,10 +166,13 @@ export const EventCard = ({
                   {event.startDate && ` at ${formatTime(event.startDate)}`}
                 </time>
               </div>
-              {event.location?.venue && (
+              {formatLocation() && (
                 <div className="flex items-center gap-1">
                   <span>📍</span>
-                  <span>{event.location.isVirtual ? 'Virtual Event' : event.location.venue}</span>
+                  <span>{formatLocation()}</span>
+                  {event.location?.extraInfo && (
+                    <span className="text-xs text-gray-400">({event.location.extraInfo})</span>
+                  )}
                 </div>
               )}
             </div>

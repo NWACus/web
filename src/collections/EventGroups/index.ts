@@ -48,7 +48,7 @@ export const EventGroups: CollectionConfig<'event-groups'> = {
         }
 
         const path = generatePreviewPath({
-          slug: `events/groups/${typeof data?.slug === 'string' ? data.slug : ''}`,
+          slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'event-groups',
           tenant,
           req,
@@ -66,7 +66,7 @@ export const EventGroups: CollectionConfig<'event-groups'> = {
           ? (data.tenant as Tenant)
           : null
       return generatePreviewPath({
-        slug: `events/groups/${typeof data?.slug === 'string' ? data.slug : ''}`,
+        slug: typeof data?.slug === 'string' ? data.slug : '',
         collection: 'event-groups',
         tenant,
         req,

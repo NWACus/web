@@ -15,7 +15,7 @@ import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
 
-export const RenderBlocks = (props: { blocks: any[]; payload: Payload }) => {
+export const RenderBlocks = (props: { blocks: unknown[]; payload: Payload }) => {
   const { blocks } = props
 
   const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0
@@ -24,8 +24,9 @@ export const RenderBlocks = (props: { blocks: any[]; payload: Payload }) => {
     return (
       <Fragment>
         {blocks.map((block) => {
+          const blockData = block as { id: string; blockType: string }
           return (
-            <div className="my-16" key={`${block.id}__${block.blockType}`}>
+            <div className="my-16" key={`${blockData.id}__${blockData.blockType}`}>
               <RenderBlock block={block} payload={props.payload} />
             </div>
           )
@@ -37,34 +38,34 @@ export const RenderBlocks = (props: { blocks: any[]; payload: Payload }) => {
   return null
 }
 
-export const RenderBlock = ({ block, payload }: { block: any; payload: Payload }) => {
-  const { blockType } = block
+export const RenderBlock = ({ block, payload }: { block: unknown; payload: Payload }) => {
+  const { blockType } = block as { blockType: string }
   switch (blockType) {
     case 'banner':
-      return <BannerBlock {...block} />
+      return <BannerBlock {...(block as any)} />
     case 'biography':
-      return <BiographyBlock {...block} payload={payload} />
+      return <BiographyBlock {...(block as any)} payload={payload} />
     case 'content':
-      return <ContentBlock {...block} />
+      return <ContentBlock {...(block as any)} />
     case 'events-by-group':
-      return <EventsByGroupBlockComponent {...block} />
+      return <EventsByGroupBlockComponent {...(block as any)} />
     case 'formBlock':
-      return <FormBlock {...block} />
+      return <FormBlock {...(block as any)} />
     case 'imageLinkGrid':
-      return <ImageLinkGrid {...block} />
+      return <ImageLinkGrid {...(block as any)} />
     case 'imageQuote':
-      return <ImageQuote {...block} />
+      return <ImageQuote {...(block as any)} />
     case 'imageText':
-      return <ImageText {...block} />
+      return <ImageText {...(block as any)} />
     case 'imageTextList':
-      return <ImageTextList {...block} />
+      return <ImageTextList {...(block as any)} />
     case 'linkPreview':
-      return <LinkPreviewBlock {...block} />
+      return <LinkPreviewBlock {...(block as any)} />
     case 'mediaBlock':
-      return <MediaBlock {...block} />
+      return <MediaBlock {...(block as any)} />
     case 'contentWithCallout':
-      return <ContentWithCalloutBlock {...block} />
+      return <ContentWithCalloutBlock {...(block as any)} />
     case 'team':
-      return <TeamBlock {...block} payload={payload} />
+      return <TeamBlock {...(block as any)} payload={payload} />
   }
 }

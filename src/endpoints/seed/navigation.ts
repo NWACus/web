@@ -79,30 +79,39 @@ export const navigationSeed = (
           link: pageLink({ slug: 'learn' }),
         },
         {
-          link: pageLink({
-            label: 'Classes',
-            slug: 'field-classes',
-          }),
+          link: {
+            type: 'internal',
+            label: 'Classes & Events',
+            url: '/events',
+          },
           items: [
             {
-              link: pageLink({
-                slug: 'field-classes',
-              }),
+              link: {
+                type: 'internal',
+                label: 'Field Courses',
+                url: '/education/field-course',
+              },
             },
             {
-              link: pageLink({
-                slug: 'avalanche-awareness-classes',
-              }),
+              link: {
+                type: 'internal',
+                label: 'Avalanche Awareness',
+                url: '/education/avalanche-awareness',
+              },
             },
             {
-              link: pageLink({
-                slug: 'courses-by-external-providers',
-              }),
+              link: {
+                type: 'internal',
+                label: 'Workshops',
+                url: '/education/workshop',
+              },
             },
             {
-              link: pageLink({
-                slug: 'workshops',
-              }),
+              link: {
+                type: 'internal',
+                label: 'All Events',
+                url: '/events',
+              },
             },
             {
               link: pageLink({

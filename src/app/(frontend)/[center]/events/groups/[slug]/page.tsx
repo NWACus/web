@@ -1,7 +1,7 @@
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next/types'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { EventCollection } from '@/components/EventCollection'
@@ -59,7 +59,7 @@ export default async function EventGroupPage({ params, searchParams }: Args) {
   const groupDoc = eventGroup.docs[0] as EventGroup
 
   // Get events in this group
-  const whereClause: any = {
+  const whereClause: Where = {
     'tenant.slug': {
       equals: center,
     },

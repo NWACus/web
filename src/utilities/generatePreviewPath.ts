@@ -5,6 +5,8 @@ import { getURL } from './getURL'
 const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
   posts: '/blog',
   pages: '',
+  events: '/events',
+  'event-groups': '/events/groups',
 }
 
 type Props = {

@@ -1,6 +1,6 @@
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 import { Suspense } from 'react'
 
 import { EventCollection } from '@/components/EventCollection'
@@ -29,7 +29,7 @@ export default async function EventsPage({ params, searchParams }: Args) {
   const payload = await getPayload({ config: configPromise })
 
   // Build where clause
-  const whereClause: any = {
+  const whereClause: Where = {
     'tenant.slug': {
       equals: center,
     },

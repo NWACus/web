@@ -20,6 +20,7 @@ import { getTenantFilter } from '@/utilities/collectionFilters'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 import { revalidateDelete, revalidateEvent } from './hooks/revalidateEvent'
+import { setEventTypeDefaults } from './hooks/setEventTypeDefaults'
 
 export const Events: CollectionConfig<'events'> = {
   slug: 'events',
@@ -51,7 +52,7 @@ export const Events: CollectionConfig<'events'> = {
         }
 
         const path = generatePreviewPath({
-          slug: `events/${typeof data?.slug === 'string' ? data.slug : ''}`,
+          slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'events',
           tenant,
           req,
@@ -69,7 +70,7 @@ export const Events: CollectionConfig<'events'> = {
           ? (data.tenant as Tenant)
           : null
       return generatePreviewPath({
-        slug: `events/${typeof data?.slug === 'string' ? data.slug : ''}`,
+        slug: typeof data?.slug === 'string' ? data.slug : '',
         collection: 'events',
         tenant,
         req,
@@ -83,6 +84,13 @@ export const Events: CollectionConfig<'events'> = {
       name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'subtitle',
+      type: 'text',
+      admin: {
+        description: 'Optional subtitle for the event',
+      },
     },
     {
       name: 'excerpt',
@@ -156,31 +164,64 @@ export const Events: CollectionConfig<'events'> = {
       type: 'group',
       fields: [
         {
+          name: 'isOnline',
+          type: 'checkbox',
+          admin: {
+            description: 'Check if this is an online/virtual event',
+          },
+        },
+        {
           name: 'venue',
           type: 'text',
           admin: {
             description: 'Venue name',
+            condition: (data, siblingData) => !siblingData?.isOnline,
           },
         },
         {
           name: 'address',
-          type: 'textarea',
+          type: 'text',
           admin: {
-            description: 'Full address',
+            description: 'Street address',
+            condition: (data, siblingData) => !siblingData?.isOnline,
           },
         },
         {
-          name: 'isVirtual',
-          type: 'checkbox',
+          name: 'city',
+          type: 'text',
           admin: {
-            description: 'Virtual event flag',
+            description: 'City',
+            condition: (data, siblingData) => !siblingData?.isOnline,
+          },
+        },
+        {
+          name: 'state',
+          type: 'text',
+          admin: {
+            description: 'State',
+            condition: (data, siblingData) => !siblingData?.isOnline,
+          },
+        },
+        {
+          name: 'zip',
+          type: 'text',
+          admin: {
+            description: 'ZIP code',
+            condition: (data, siblingData) => !siblingData?.isOnline,
+          },
+        },
+        {
+          name: 'extraInfo',
+          type: 'text',
+          admin: {
+            description: 'Extra location info (e.g., "Meet in lot 4")',
           },
         },
         {
           name: 'virtualUrl',
           type: 'text',
           admin: {
-            condition: (data, siblingData) => siblingData?.isVirtual,
+            condition: (data, siblingData) => siblingData?.isOnline,
             description: 'Meeting link for virtual events',
           },
         },
@@ -224,6 +265,19 @@ export const Events: CollectionConfig<'events'> = {
       type: 'number',
       admin: {
         description: 'Event cost in dollars',
+      },
+    },
+    {
+      name: 'skillRating',
+      type: 'select',
+      options: [
+        { label: '0 - Beginner Friendly', value: '0' },
+        { label: '1 - Previous Knowledge Helpful', value: '1' },
+        { label: '2 - Prerequisites Required', value: '2' },
+        { label: '3 - Professional Level', value: '3' },
+      ],
+      admin: {
+        description: 'Skill level required for this event',
       },
     },
 
@@ -288,7 +342,7 @@ export const Events: CollectionConfig<'events'> = {
     contentHashField(),
   ],
   hooks: {
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, setEventTypeDefaults],
     afterChange: [revalidateEvent],
     afterDelete: [revalidateDelete],
   },

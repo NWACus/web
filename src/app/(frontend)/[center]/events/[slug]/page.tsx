@@ -206,7 +206,11 @@ export default async function EventPage({ params }: Args) {
             })}
           </div>
 
-          <h1 className="text-4xl font-bold mb-4">{eventDoc.title}</h1>
+          <h1 className="text-4xl font-bold mb-2">{eventDoc.title}</h1>
+
+          {eventDoc.subtitle && (
+            <p className="text-xl text-gray-700 font-medium mb-4">{eventDoc.subtitle}</p>
+          )}
 
           {eventDoc.excerpt && <p className="text-xl text-gray-600 mb-6">{eventDoc.excerpt}</p>}
 
@@ -344,7 +348,7 @@ export default async function EventPage({ params }: Args) {
                 <div className="mb-4">
                   <h4 className="font-medium text-gray-700 mb-1">Where</h4>
                   <div className="text-sm">
-                    {eventDoc.location.isVirtual ? (
+                    {eventDoc.location.isOnline ? (
                       <div>Virtual Event</div>
                     ) : (
                       <>
@@ -352,8 +356,35 @@ export default async function EventPage({ params }: Args) {
                         {eventDoc.location.address && (
                           <div className="text-gray-600">{eventDoc.location.address}</div>
                         )}
+                        {(eventDoc.location.city || eventDoc.location.state) && (
+                          <div className="text-gray-600">
+                            {eventDoc.location.city}
+                            {eventDoc.location.city && eventDoc.location.state && ', '}
+                            {eventDoc.location.state} {eventDoc.location.zip}
+                          </div>
+                        )}
                       </>
                     )}
+                    {eventDoc.location.extraInfo && (
+                      <div className="text-gray-500 text-xs mt-1">
+                        {eventDoc.location.extraInfo}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Skill Rating */}
+              {eventDoc.skillRating && (
+                <div className="mb-4">
+                  <h4 className="font-medium text-gray-700 mb-1">Skill Level</h4>
+                  <div className="text-sm">
+                    <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
+                      {eventDoc.skillRating === '0' && 'Beginner Friendly'}
+                      {eventDoc.skillRating === '1' && 'Previous Knowledge Helpful'}
+                      {eventDoc.skillRating === '2' && 'Prerequisites Required'}
+                      {eventDoc.skillRating === '3' && 'Professional Level'}
+                    </span>
                   </div>
                 </div>
               )}

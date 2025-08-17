@@ -1070,6 +1070,10 @@ export interface Event {
   tenant: number | Tenant;
   title: string;
   /**
+   * Optional subtitle for the event
+   */
+  subtitle?: string | null;
+  /**
    * Short summary for cards
    */
   excerpt?: string | null;
@@ -1103,17 +1107,33 @@ export interface Event {
   timezone?: string | null;
   location?: {
     /**
+     * Check if this is an online/virtual event
+     */
+    isOnline?: boolean | null;
+    /**
      * Venue name
      */
     venue?: string | null;
     /**
-     * Full address
+     * Street address
      */
     address?: string | null;
     /**
-     * Virtual event flag
+     * City
      */
-    isVirtual?: boolean | null;
+    city?: string | null;
+    /**
+     * State
+     */
+    state?: string | null;
+    /**
+     * ZIP code
+     */
+    zip?: string | null;
+    /**
+     * Extra location info (e.g., "Meet in lot 4")
+     */
+    extraInfo?: string | null;
     /**
      * Meeting link for virtual events
      */
@@ -1139,6 +1159,10 @@ export interface Event {
    * Event cost in dollars
    */
   cost?: number | null;
+  /**
+   * Skill level required for this event
+   */
+  skillRating?: ('0' | '1' | '2' | '3') | null;
   eventGroups?: (number | EventGroup)[] | null;
   eventType?: (number | null) | EventType;
   instructors?: (number | Biography)[] | null;
@@ -2180,6 +2204,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface EventsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
+  subtitle?: T;
   excerpt?: T;
   featuredImage?: T;
   content?: T;
@@ -2189,9 +2214,13 @@ export interface EventsSelect<T extends boolean = true> {
   location?:
     | T
     | {
+        isOnline?: T;
         venue?: T;
         address?: T;
-        isVirtual?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        extraInfo?: T;
         virtualUrl?: T;
       };
   registrationUrl?: T;
@@ -2199,6 +2228,7 @@ export interface EventsSelect<T extends boolean = true> {
   registrationDeadline?: T;
   capacity?: T;
   cost?: T;
+  skillRating?: T;
   eventGroups?: T;
   eventType?: T;
   instructors?: T;
