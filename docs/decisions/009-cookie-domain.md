@@ -25,3 +25,5 @@ We will add a cookie prefix in the format `avy-fx-payload-${getEnvironmentFriend
 ## Consequences
 
 This has the side effect that `payload-token` cookies will be shared across subdomains. So if a user logs in at `avy-fx.org` and then visits `sac.avy-fx.org` they will still be logged in.
+
+Setting the `cookiePrefix` does not affect the multi-tenant plugin's token which is `payload-tenant`. This change should _not_ affect the few places where we have hardcoded references to this cookie name.
