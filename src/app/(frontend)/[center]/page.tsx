@@ -76,6 +76,7 @@ export default async function Page({ params }: Args) {
           )}
         </div>
         {highlightedContent &&
+          highlightedContent.enabled &&
           (highlightedContent.heading ||
             (highlightedContent.columns && highlightedContent.columns.length > 0)) && (
             <div className="container">

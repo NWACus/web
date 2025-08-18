@@ -10193,6 +10193,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "highlighted_content_enabled": {
+          "name": "highlighted_content_enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "highlighted_content_heading": {
           "name": "highlighted_content_heading",
           "type": "text",
@@ -12056,6 +12064,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "version_highlighted_content_enabled": {
+          "name": "version_highlighted_content_enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         },
         "version_highlighted_content_heading": {
           "name": "version_highlighted_content_heading",
@@ -14641,6 +14657,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "7d94a0a5-47fd-47b7-b534-eb437ab33928",
+  "id": "d8683cfa-fc5b-4f2d-8745-d19046bb1c0c",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -358,6 +358,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(sql`CREATE TABLE \`home_pages\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`tenant_id\` integer,
+  	\`highlighted_content_enabled\` integer DEFAULT false,
   	\`highlighted_content_heading\` text,
   	\`highlighted_content_background_color\` text DEFAULT 'white',
   	\`published_at\` text,
@@ -772,6 +773,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`parent_id\` integer,
   	\`version_tenant_id\` integer,
+  	\`version_highlighted_content_enabled\` integer DEFAULT false,
   	\`version_highlighted_content_heading\` text,
   	\`version_highlighted_content_background_color\` text DEFAULT 'white',
   	\`version_published_at\` text,

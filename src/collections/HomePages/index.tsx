@@ -91,6 +91,16 @@ export const HomePages: CollectionConfig = {
       type: 'group',
       fields: [
         {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: false,
+          label: 'Show Highlighted Content',
+          required: true,
+          admin: {
+            description: 'This controls whether or not this section is displayed.',
+          },
+        },
+        {
           name: 'heading',
           type: 'text',
         },

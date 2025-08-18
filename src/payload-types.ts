@@ -1455,6 +1455,10 @@ export interface HomePage {
       }[]
     | null;
   highlightedContent: {
+    /**
+     * This controls whether or not this section is displayed.
+     */
+    enabled: boolean;
     heading?: string | null;
     backgroundColor: string;
     columns?:
@@ -2482,6 +2486,7 @@ export interface HomePagesSelect<T extends boolean = true> {
   highlightedContent?:
     | T
     | {
+        enabled?: T;
         heading?: T;
         backgroundColor?: T;
         columns?:

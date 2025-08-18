@@ -12,6 +12,7 @@ export const homePage: (
     tenant: tenant.id,
     quickLinks: [],
     highlightedContent: {
+      enabled: true,
       heading: 'Welcome to ' + tenant.name,
       backgroundColor: 'brand-700',
       columns: [
