@@ -25,12 +25,6 @@ export const GenericEmbedBlock = ({
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
-  // const alignClass =
-  //   alignContent === 'center'
-  //     ? 'text-center'
-  //     : alignContent === 'right'
-  //       ? 'text-right'
-  //       : 'text-left'
 
   useEffect(() => {
     if (typeof window === 'undefined' || !html) return

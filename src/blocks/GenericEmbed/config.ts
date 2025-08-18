@@ -2,7 +2,7 @@ import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
 import type { Block, Field, RowField } from 'payload'
 
-const genericEmbedWithFields = (fields: Field[]) => ({
+const genericEmbedWithFields = (fields: Field[]): Block => ({
   slug: 'genericEmbed',
   imageURL: '/thumbnail/GenericEmbedThumbnail.jpg',
   fields,
@@ -14,7 +14,7 @@ const colorAndAlignmentRow: RowField = {
   fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
 }
 
-export const GenericEmbed: Block = genericEmbedWithFields([
+export const GenericEmbed = genericEmbedWithFields([
   {
     name: 'html',
     label: 'HTML',
@@ -24,7 +24,7 @@ export const GenericEmbed: Block = genericEmbedWithFields([
   colorAndAlignmentRow,
 ])
 
-export const GenericEmbedLexical: Block = genericEmbedWithFields([
+export const GenericEmbedLexical = genericEmbedWithFields([
   {
     name: 'html',
     label: 'HTML',
