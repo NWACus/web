@@ -29,6 +29,7 @@ import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenant
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
 import pino from 'pino'
 import { build } from 'pino-pretty'
+import { getEnvironmentFriendlyName } from './utilities/getEnvironmentFriendlyName'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -153,6 +154,7 @@ export default buildConfig({
     Settings,
     Tags,
   ],
+  cookiePrefix: `avy-fx-payload-${getEnvironmentFriendlyName()}`,
   cors: [
     'api.avalanche.org',
     'api.snowobs.com',

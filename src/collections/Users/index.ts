@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
+import { COOKIE_DOMAIN } from '@/utilities/domain'
 import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
@@ -33,6 +34,9 @@ export const Users: CollectionConfig = {
         const { html } = await generateForgotPasswordEmail(args)
         return html
       },
+    },
+    cookies: {
+      domain: COOKIE_DOMAIN,
     },
   },
   fields: [

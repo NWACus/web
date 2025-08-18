@@ -1,3 +1,4 @@
+import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
 import { getURL } from '@/utilities/getURL'
 import { FieldDescription, FieldLabel } from '@payloadcms/ui'
 import { pick } from 'lodash-es'
@@ -13,6 +14,8 @@ export function DiagnosticsDisplay({ req, payload }: UIFieldServerProps) {
   const currentHost = req?.headers.get('host') || req?.host
   const serverURL = getURL(currentHost)
 
+  const environmentFriendlyName = getEnvironmentFriendlyName()
+
   return (
     <div className="py-8 flex flex-col gap-8">
       <div className="flex flex-col">
@@ -27,6 +30,10 @@ export function DiagnosticsDisplay({ req, payload }: UIFieldServerProps) {
       <div className="flex flex-col gap-2">
         <FieldLabel label="Result of getURL(req?.headers.get('host') || req?.host)" />
         <ThemedCodeDisplay value={serverURL} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <FieldLabel label="Environment Name" />
+        <ThemedCodeDisplay value={environmentFriendlyName} />
       </div>
     </div>
   )

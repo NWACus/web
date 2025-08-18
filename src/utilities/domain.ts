@@ -5,3 +5,8 @@ export const PROTOCOL =
     : 'http'
 export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
 export const ROOT_SITE_URL = `${PROTOCOL}://${ROOT_DOMAIN}`
+
+// this is primarily for local development to make sure we're not including the port in the
+// domain used for the payload-token cookie
+const url = new URL(ROOT_SITE_URL)
+export const COOKIE_DOMAIN = url.hostname
