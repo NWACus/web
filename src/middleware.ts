@@ -146,7 +146,6 @@ export default async function middleware(req: NextRequest) {
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
 
-        // Set tenant cookie for all scenarios if not already set or different
         const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
         const shouldSetCookie = existingPayloadTenantCookie?.value !== id.toString()
 
@@ -165,7 +164,6 @@ export default async function middleware(req: NextRequest) {
           return
         }
 
-        // For non-admin routes, set cookie and rewrite
         rewrite.pathname = `/${slug}${rewrite.pathname}`
         console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
 
