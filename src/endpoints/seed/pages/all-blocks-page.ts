@@ -7,7 +7,6 @@ import { imageQuote } from '../blocks/image-quote'
 import { imageText } from '../blocks/image-text'
 import { imageTextList } from '../blocks/image-text-list'
 import { linkPreview } from '../blocks/link-preview'
-import { singleBlogPostBlock } from '../blocks/single-blog-post'
 
 export const allBlocksPage: (
   tenant: Tenant,
@@ -39,10 +38,6 @@ export const allBlocksPage: (
       {
         ...blogListBlock,
         staticPosts: posts.slice(0, 2).map((post) => post.id), // Use first 2 posts
-      },
-      {
-        ...singleBlogPostBlock,
-        post: posts[0]?.id || 0, // Use first post
       },
     ],
     meta: {

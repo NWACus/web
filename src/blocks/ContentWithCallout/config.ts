@@ -3,7 +3,6 @@ import type { Block } from 'payload'
 import { BlocksFeature, FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonsBlock } from '../Buttons/config'
-import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
 
 export const ContentWithCallout: Block = {
   slug: 'contentWithCallout',
@@ -19,7 +18,7 @@ export const ContentWithCallout: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonsBlock, BlogListBlockLexical, SingleBlogPostBlockLexical],
+              blocks: [ButtonsBlock, BlogListBlockLexical],
             }),
           ]
         },
@@ -35,7 +34,7 @@ export const ContentWithCallout: Block = {
           return [
             ...rootFeatures,
             BlocksFeature({
-              blocks: [ButtonsBlock, BlogListBlockLexical, SingleBlogPostBlockLexical],
+              blocks: [ButtonsBlock, BlogListBlockLexical],
             }),
           ]
         },

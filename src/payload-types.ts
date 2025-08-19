@@ -285,7 +285,6 @@ export interface Page {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
-    | SingleBlogPostBlock
     | TeamBlock
   )[];
   meta?: {
@@ -953,24 +952,6 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock".
- */
-export interface SingleBlogPostBlock {
-  backgroundColor: string;
-  /**
-   * Select a blog post to display
-   */
-  post: number | Post;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleBlogPost';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1773,7 +1754,6 @@ export interface PagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   meta?:
@@ -1950,16 +1930,6 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock_select".
- */
-export interface SingleBlogPostBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  post?: T;
   id?: T;
   blockName?: T;
 }

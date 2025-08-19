@@ -1,5 +1,4 @@
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import {
   BlocksFeature,
   BoldFeature,
@@ -48,7 +47,7 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
         },
       }),
       BlocksFeature({
-        blocks: [BlogListBlockLexical, SingleBlogPostBlockLexical],
+        blocks: [BlogListBlockLexical],
       }),
       FixedToolbarFeature(),
       OrderedListFeature(),
