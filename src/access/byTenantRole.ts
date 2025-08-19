@@ -1,6 +1,7 @@
 import { globalRoleAssignmentsForUser } from '@/utilities/rbac/globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
 import { Access, CollectionConfig } from 'payload'
 
 // byTenantRole walks the roles bound to the user to determine if they have permissions
@@ -56,7 +57,10 @@ export const accessByTenantRole: (collection: ruleCollection) => CollectionConfi
   collection: ruleCollection,
 ) => {
   return {
-    create: byTenantRole('create', collection),
+    create: ({ req }) => {
+      const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
+      return tenantFromCookie ? byTenantRole('create', collection)({ req }) : false
+    },
     read: byTenantRole('read', collection),
     update: byTenantRole('update', collection),
     delete: byTenantRole('delete', collection),
@@ -67,7 +71,7 @@ export const accessByTenantRoleWithPermissiveRead: (
   collection: ruleCollection,
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
   return {
-    create: byTenantRole('create', collection),
+    create: accessByTenantRole(collection)?.create,
     read: () => true, // world readable
     update: byTenantRole('update', collection),
     delete: byTenantRole('delete', collection),
