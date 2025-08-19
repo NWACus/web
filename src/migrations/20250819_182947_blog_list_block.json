@@ -659,7 +659,8 @@
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 4
         },
         "block_name": {
           "name": "block_name",
@@ -2432,7 +2433,8 @@
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 4
         },
         "_uuid": {
           "name": "_uuid",
@@ -11221,6 +11223,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "7f8d245b-6026-4a7b-a371-e3f93652a1c9",
+  "id": "a3bbe2fe-47bd-4d46-86b7-6a70c6eba502",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

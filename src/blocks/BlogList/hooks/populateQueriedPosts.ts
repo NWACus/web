@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import * as Sentry from '@sentry/nextjs'
 import { getPayload, JsonObject, TypeWithID, type FieldHook } from 'payload'
 
-const DEFAULT_POSTS_LIMIT = 4
+const DEFAULT_POSTS_LIMIT = 10
 
 function isBlogListBlock(blockData: JsonObject | undefined): blockData is BlogListBlock {
   return blockData?.blockType === 'blogList'

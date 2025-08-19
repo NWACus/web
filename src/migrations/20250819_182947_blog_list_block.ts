@@ -10,7 +10,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`below_heading_content\` text,
   	\`background_color\` text DEFAULT 'white',
   	\`sort_by\` text DEFAULT '-publishedAt',
-  	\`max_posts\` numeric,
+  	\`max_posts\` numeric DEFAULT 4,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -33,7 +33,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`below_heading_content\` text,
   	\`background_color\` text DEFAULT 'white',
   	\`sort_by\` text DEFAULT '-publishedAt',
-  	\`max_posts\` numeric,
+  	\`max_posts\` numeric DEFAULT 4,
   	\`_uuid\` text,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_pages_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
