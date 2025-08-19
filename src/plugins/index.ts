@@ -81,7 +81,10 @@ export const plugins: Plugin[] = [
     },
     formSubmissionOverrides: {
       access: {
-        create: () => true, // world creatable
+        create: ({ req }) => {
+          const isAdminPanel = req.routeParams?.collection === 'form-submissions'
+          return !isAdminPanel
+        }, // world creatable outside of the admin panel
         read: byTenantRole('read', 'form-submissions'),
         update: () => false,
         delete: byTenantRole('delete', 'form-submissions'),
@@ -89,13 +92,7 @@ export const plugins: Plugin[] = [
     },
   }),
   tenantFieldPlugin({
-    collections: [
-      {
-        slug: 'forms',
-      },
-      { slug: 'form-submissions' },
-      { slug: 'redirects' },
-    ],
+    collections: [{ slug: 'forms' }, { slug: 'form-submissions' }, { slug: 'redirects' }],
   }),
   vercelBlobStorage({
     enabled: !!process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
