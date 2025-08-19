@@ -25,7 +25,7 @@ export const ImageTextList = (props: Props) => {
   const isSideLayout = layout === 'side'
 
   return (
-    <div className="container">
+    <div className="container py-16">
       <div className={`grid grid-cols-4 lg:grid-cols-12 ${!isFullLayout && 'gap-x-4'}`}>
         {columns &&
           columns.length > 0 &&
@@ -34,7 +34,7 @@ export const ImageTextList = (props: Props) => {
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
               <div
-                className={cn(`my-6
+                className={cn(`
                   ${
                     isFullLayout
                       ? 'col-span-full'
