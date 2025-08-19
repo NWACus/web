@@ -115,7 +115,7 @@ const defaultPostRelatedFields: Field[] = [
 const blogListBlockWithFields = (fields: Field[]): Block => ({
   slug: 'blogList',
   interfaceName: 'BlogListBlock',
-  // imageURL: '/thumbnail/ContentThumbnail.jpg',
+  imageURL: '/thumbnail/BlogListThumbnail.jpg',
   fields,
 })
 
