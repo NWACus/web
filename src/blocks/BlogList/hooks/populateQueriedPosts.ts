@@ -16,7 +16,10 @@ export const populateQueriedPosts: FieldHook<TypeWithID, Post[], BlogListBlock> 
   data,
   draft,
   value,
+  context,
 }) => {
+  if (context?.skipAfterRead) return value || []
+
   const payload = await getPayload({ config: configPromise })
 
   const tenant =
@@ -72,6 +75,9 @@ export const populateQueriedPosts: FieldHook<TypeWithID, Post[], BlogListBlock> 
         },
         sort: sortBy,
         draft,
+        context: {
+          skipAfterRead: true,
+        },
       })
       return postsRes.docs
     } catch (err) {

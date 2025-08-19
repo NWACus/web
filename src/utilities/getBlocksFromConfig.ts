@@ -107,10 +107,17 @@ function extractBlockMappings(blocks: Block[]) {
         if (!mappings[field.relationTo]) {
           mappings[field.relationTo] = []
         }
-        mappings[field.relationTo].push({
-          blockType: block.slug,
-          fieldName: field.name,
-        })
+
+        if (
+          !mappings[field.relationTo].find(
+            ({ blockType, fieldName }) => blockType === block.slug && fieldName === field.name,
+          )
+        ) {
+          mappings[field.relationTo].push({
+            blockType: block.slug,
+            fieldName: field.name,
+          })
+        }
       }
     }
   }

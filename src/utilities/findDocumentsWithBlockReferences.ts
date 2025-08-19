@@ -17,8 +17,6 @@ export async function findDocumentsWithBlockReferences(
 
   const pagesMappings = pagesBlockMappings[reference.collection]
 
-  console.log(postsBlockMappings)
-
   if (pagesMappings) {
     for (const mapping of pagesMappings) {
       try {
@@ -73,7 +71,7 @@ export async function findDocumentsWithBlockReferences(
               'blocksInContent.collection': { equals: reference.collection },
             },
             {
-              'blocksInContent.blockId': { equals: reference.id },
+              'blocksInContent.docId': { equals: reference.id },
             },
           ],
         },

@@ -523,7 +523,7 @@ export interface Post {
     | {
         blockType?: string | null;
         collection?: string | null;
-        blockId?: number | null;
+        docId?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -1967,7 +1967,7 @@ export interface PostsSelect<T extends boolean = true> {
     | {
         blockType?: T;
         collection?: T;
-        blockId?: T;
+        docId?: T;
         id?: T;
       };
   slug?: T;

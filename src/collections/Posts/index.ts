@@ -206,7 +206,7 @@ export const Posts: CollectionConfig<'posts'> = {
           type: 'text',
         },
         {
-          name: 'blockId',
+          name: 'docId',
           type: 'number',
         },
       ],
@@ -216,8 +216,8 @@ export const Posts: CollectionConfig<'posts'> = {
     contentHashField(),
   ],
   hooks: {
-    beforeChange: [populatePublishedAt, populateBlocksInContent],
-    afterChange: [revalidatePost],
+    beforeChange: [populatePublishedAt],
+    afterChange: [populateBlocksInContent, revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidatePostDelete],
   },

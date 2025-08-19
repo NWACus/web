@@ -84,8 +84,8 @@ const defaultPostRelatedFields: Field[] = [
       update: () => false,
     },
     admin: {
-      disabled: true,
       readOnly: true,
+      hidden: true,
     },
     hooks: {
       afterRead: [populateQueriedPosts],
