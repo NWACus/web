@@ -27,7 +27,19 @@ export async function Footer({ center }: { center?: string }) {
 
   invariant(settings, `Settings for center value ${center} not found.`)
 
-  const { address, email, logo, phone, privacy, socialMedia, terms, tenant } = settings
+  const {
+    address,
+    email,
+    logo,
+    phone,
+    phoneLabel,
+    phoneSecondary,
+    phoneSecondaryLabel,
+    privacy,
+    socialMedia,
+    terms,
+    tenant,
+  } = settings
 
   invariant(
     typeof tenant === 'object',
@@ -53,7 +65,7 @@ export async function Footer({ center }: { center?: string }) {
         </div>
         <div>
           {logo && (
-            <Link className="flex items-center" href="/">
+            <Link className="flex items-center justify-center" href="/">
               <ImageMedia resource={logo} imgClassName="max-h-[200px] object-contain" />
             </Link>
           )}
@@ -62,7 +74,22 @@ export async function Footer({ center }: { center?: string }) {
           <div className="flex flex-col items-start">
             <h4 className="font-medium text-xl mb-2">{tenant.name}</h4>
             {address && <div className="whitespace-pre-line">{address}</div>}
-            {phone && <a href={`tel:${phone}`}>{phone}</a>}
+            {phone && (
+              <div className="flex">
+                {phoneLabel && <p className="capitalize">{phoneLabel}:&nbsp;</p>}
+                <a className="text-secondary" href={`tel:${phone}`}>
+                  {phone}
+                </a>
+              </div>
+            )}
+            {phoneSecondary && (
+              <div className="flex">
+                {phoneSecondaryLabel && <p className="capitalize">{phoneSecondaryLabel}:&nbsp;</p>}
+                <a className="text-secondary" href={`tel:${phoneSecondary}`}>
+                  {phoneSecondary}
+                </a>
+              </div>
+            )}
             {email && (
               <a className="mb-4 text-secondary underline" href={`mailto:${email}`}>
                 {email}

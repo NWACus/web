@@ -2,12 +2,7 @@ import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
-import {
-  FixedToolbarFeature,
-  HeadingFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export const ImageText: Block = {
   slug: 'imageText',
@@ -44,12 +39,7 @@ export const ImageText: Block = {
       type: 'richText',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
-          return [
-            ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-            FixedToolbarFeature(),
-            InlineToolbarFeature(),
-          ]
+          return [...rootFeatures, InlineToolbarFeature()]
         },
       }),
       label: false,

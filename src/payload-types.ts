@@ -296,7 +296,6 @@ export interface Page {
   };
   publishedAt?: string | null;
   slug: string;
-  slugLock?: boolean | null;
   tenant: number | Tenant;
   contentHash?: string | null;
   updatedAt: string;
@@ -765,7 +764,6 @@ export interface Post {
       }[]
     | null;
   slug: string;
-  slugLock?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -780,7 +778,6 @@ export interface Tag {
   tenant: number | Tenant;
   title: string;
   slug: string;
-  slugLock?: boolean | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1378,9 +1375,21 @@ export interface Setting {
    */
   address?: string | null;
   /**
+   * Optional label for phone in your website footer.
+   */
+  phoneLabel?: ('phone' | 'office' | 'text' | 'call') | null;
+  /**
    * Appears in your website footer.
    */
   phone?: string | null;
+  /**
+   * Optional label for secondary phone in your website footer.
+   */
+  phoneSecondaryLabel?: ('phone' | 'office' | 'text' | 'call') | null;
+  /**
+   * Secondary phone appears in your website footer.
+   */
+  phoneSecondary?: string | null;
   /**
    * Appears in your website footer.
    */
@@ -1704,7 +1713,6 @@ export interface PagesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   slug?: T;
-  slugLock?: T;
   tenant?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -1895,7 +1903,6 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
       };
   slug?: T;
-  slugLock?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2342,7 +2349,10 @@ export interface SettingsSelect<T extends boolean = true> {
   tenant?: T;
   description?: T;
   address?: T;
+  phoneLabel?: T;
   phone?: T;
+  phoneSecondaryLabel?: T;
+  phoneSecondary?: T;
   email?: T;
   logo?: T;
   icon?: T;
@@ -2372,7 +2382,6 @@ export interface TagsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   slug?: T;
-  slugLock?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

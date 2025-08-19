@@ -1,11 +1,6 @@
 import type { Block } from 'payload'
 
-import {
-  BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { BlocksFeature, FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { ButtonsBlock } from '../Buttons/config'
 
 export const ContentWithCallout: Block = {
@@ -24,7 +19,6 @@ export const ContentWithCallout: Block = {
             BlocksFeature({
               blocks: [ButtonsBlock],
             }),
-            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           ]
         },
       }),
@@ -38,11 +32,9 @@ export const ContentWithCallout: Block = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            FixedToolbarFeature(),
             BlocksFeature({
               blocks: [ButtonsBlock],
             }),
-            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           ]
         },
       }),

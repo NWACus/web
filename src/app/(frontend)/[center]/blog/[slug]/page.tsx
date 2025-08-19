@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, ResolvedMetadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { AuthorAvatar } from '@/components/AuthorAvatar'
@@ -97,11 +97,15 @@ export default async function Post({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
+export async function generateMetadata(
+  { params: paramsPromise }: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
   const { center, slug = '' } = await paramsPromise
   const post = await queryPostBySlug({ center: center, slug: slug })
 
-  return generateMetaForPost({ center: center, doc: post })
+  return generateMetaForPost({ center: center, doc: post, parentMeta })
 }
 
 const queryPostBySlug = async ({ center, slug }: { center: string; slug: string }) => {

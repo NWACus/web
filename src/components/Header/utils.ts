@@ -372,7 +372,7 @@ export const getTopLevelNavItems = async ({
     collection: 'posts',
     where: {
       'tenant.slug': {
-        equals: typeof navigation.tenant === 'number' ? navigation.tenant : navigation.tenant.id,
+        equals: typeof navigation.tenant === 'number' ? navigation.tenant : navigation.tenant.slug,
       },
       _status: {
         equals: 'published',

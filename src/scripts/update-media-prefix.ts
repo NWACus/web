@@ -21,6 +21,9 @@ async function updateMediaPrefix(prefix: string) {
     data: {
       prefix,
     },
+    context: {
+      disableRevalidate: true,
+    },
   })
 }
 

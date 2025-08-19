@@ -1,5 +1,3 @@
-import type { Metadata } from 'next/types'
-
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -60,24 +58,4 @@ export default async function Page({ params }: Args) {
       </div>
     </>
   )
-}
-
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  return {
-    title:
-      tenant.docs.length < 1 ? 'Avalanche Center Homepage' : `${tenant.docs[0].name} - Homepage`,
-  }
 }

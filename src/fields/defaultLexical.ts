@@ -1,16 +1,23 @@
 import {
   BoldFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
   ItalicFeature,
   lexicalEditor,
   LinkFeature,
+  OrderedListFeature,
   ParagraphFeature,
   UnderlineFeature,
+  UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
 import { Config } from 'payload'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
     return [
+      HeadingFeature({
+        enabledHeadingSizes: ['h2', 'h3', 'h4'],
+      }),
       ParagraphFeature(),
       UnderlineFeature(),
       BoldFeature(),
@@ -37,6 +44,9 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
           ]
         },
       }),
+      FixedToolbarFeature(),
+      OrderedListFeature(),
+      UnorderedListFeature(),
     ]
   },
 })

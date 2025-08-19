@@ -2,14 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 import {
   BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
-  LinkFeature,
-  OrderedListFeature,
-  UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
 
 import { Banner } from '@/blocks/Banner/config'
@@ -110,14 +105,9 @@ export const Posts: CollectionConfig<'posts'> = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
             BlocksFeature({ blocks: [Banner, MediaBlock] }),
-            FixedToolbarFeature(),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),
-            LinkFeature(),
-            OrderedListFeature(),
-            UnorderedListFeature(),
           ]
         },
       }),
@@ -216,7 +206,8 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-    ...slugField(),
+    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
+    slugField(),
     contentHashField(),
   ],
   hooks: {
