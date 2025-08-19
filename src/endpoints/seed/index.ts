@@ -677,6 +677,9 @@ export const seed = async ({
       collection: 'forms',
       depth: 0,
       data: { ...contactFormData, tenant: tenant.id },
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!contactForm) {
