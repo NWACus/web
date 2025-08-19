@@ -1375,9 +1375,21 @@ export interface Setting {
    */
   address?: string | null;
   /**
+   * Optional label for phone in your website footer.
+   */
+  phoneLabel?: ('phone' | 'office' | 'text' | 'call') | null;
+  /**
    * Appears in your website footer.
    */
   phone?: string | null;
+  /**
+   * Optional label for secondary phone in your website footer.
+   */
+  phoneSecondaryLabel?: ('phone' | 'office' | 'text' | 'call') | null;
+  /**
+   * Secondary phone appears in your website footer.
+   */
+  phoneSecondary?: string | null;
   /**
    * Appears in your website footer.
    */
@@ -2337,7 +2349,10 @@ export interface SettingsSelect<T extends boolean = true> {
   tenant?: T;
   description?: T;
   address?: T;
+  phoneLabel?: T;
   phone?: T;
+  phoneSecondaryLabel?: T;
+  phoneSecondary?: T;
   email?: T;
   logo?: T;
   icon?: T;
