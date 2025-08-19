@@ -15,12 +15,14 @@ import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import type {
   BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
   ButtonsBlock as ButtonsBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   MediaBlock as MediaBlockProps,
+  SingleBlogPostBlock,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
@@ -28,10 +30,11 @@ type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<
       | BannerBlockProps
-      | ButtonsBlockProps
-      | MediaBlockProps
-      | GenericEmbedBlockProps
       | BlogListBlockProps
+      | ButtonsBlockProps
+      | GenericEmbedBlockProps
+      | MediaBlockProps
+      | SingleBlogPostBlock
     >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
@@ -70,6 +73,13 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       <BlogListBlockComponent
         {...node.fields}
         // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    singleBlogPost: ({ node }) => (
+      <SingleBlogPostBlockComponent
+        {...node.fields}
+        // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlockLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),

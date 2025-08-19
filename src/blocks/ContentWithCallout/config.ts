@@ -5,6 +5,7 @@ import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonsBlock } from '../Buttons/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { MediaBlock } from '../MediaBlock/config'
+import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
 
 export const ContentWithCallout: Block = {
   slug: 'contentWithCallout',
@@ -20,7 +21,13 @@ export const ContentWithCallout: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
+              blocks: [
+                BlogListBlockLexical,
+                ButtonsBlock,
+                GenericEmbedLexical,
+                MediaBlock,
+                SingleBlogPostBlockLexical,
+              ],
             }),
           ]
         },
@@ -36,7 +43,13 @@ export const ContentWithCallout: Block = {
           return [
             ...rootFeatures,
             BlocksFeature({
-              blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
+              blocks: [
+                BlogListBlockLexical,
+                ButtonsBlock,
+                GenericEmbedLexical,
+                MediaBlock,
+                SingleBlogPostBlockLexical,
+              ],
             }),
           ]
         },
