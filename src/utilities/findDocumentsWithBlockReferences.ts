@@ -15,48 +15,52 @@ export async function findDocumentsWithBlockReferences(
 
   const { pagesBlockMappings, postsBlockMappings } = await getBlocksFromConfig()
 
-  const pagesMapping = pagesBlockMappings[reference.collection]
+  const pagesMappings = pagesBlockMappings[reference.collection]
 
-  if (pagesMapping) {
-    try {
-      const pagesWithBlocksRes = await payload.find({
-        collection: 'pages',
-        where: {
-          and: [
-            {
-              _status: { equals: 'published' },
-            },
-            {
-              [`layout.${pagesMapping.fieldName}`]: { equals: reference.id },
-            },
-          ],
-        },
-        select: {
-          id: true,
-          slug: true,
-          tenant: true,
-        },
-        depth: 1,
-      })
+  console.log(postsBlockMappings)
 
-      const pagesWithBlocks: DocumentForRevalidation[] = pagesWithBlocksRes.docs.map((doc) => ({
-        collection: 'pages',
-        id: doc.id,
-        slug: doc.slug,
-        tenant: doc.tenant,
-      }))
+  if (pagesMappings) {
+    for (const mapping of pagesMappings) {
+      try {
+        const pagesWithBlocksRes = await payload.find({
+          collection: 'pages',
+          where: {
+            and: [
+              {
+                _status: { equals: 'published' },
+              },
+              {
+                [`layout.${mapping.fieldName}`]: { equals: reference.id },
+              },
+            ],
+          },
+          select: {
+            id: true,
+            slug: true,
+            tenant: true,
+          },
+          depth: 1,
+        })
 
-      results.push(...pagesWithBlocks)
-    } catch (error) {
-      payload.logger.warn(
-        `Error querying pages for ${reference.collection} reference ${reference.id}: ${error}`,
-      )
+        const pagesWithBlocks: DocumentForRevalidation[] = pagesWithBlocksRes.docs.map((doc) => ({
+          collection: 'pages',
+          id: doc.id,
+          slug: doc.slug,
+          tenant: doc.tenant,
+        }))
+
+        results.push(...pagesWithBlocks)
+      } catch (error) {
+        payload.logger.warn(
+          `Error querying pages for ${reference.collection} reference ${reference.id} in field ${mapping.fieldName}: ${error}`,
+        )
+      }
     }
   }
 
-  const postsMapping = postsBlockMappings[reference.collection]
+  const postsMappings = postsBlockMappings[reference.collection]
 
-  if (postsMapping) {
+  if (postsMappings) {
     try {
       const postsWithBlocksRes = await payload.find({
         collection: 'posts',
