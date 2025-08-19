@@ -17,7 +17,7 @@ export const ImageText = (props: Props) => {
 
   return (
     <div className={`${bgColorClass}`}>
-      <div className="w-full max-w-xl md:max-w-4xl lg:max-w-5xl mx-auto px-4 py-16">
+      <div className="container py-16">
         <div className="grid md:grid-cols-12 gap-x-6 gap-y-6 justify-items-center-safe">
           <div
             className={`items-center md:col-span-4 self-start ${imageLayout === 'right' && 'order-last'}`}
