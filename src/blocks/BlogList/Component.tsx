@@ -49,7 +49,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
     <div className={cn(wrapInContainer && bgColorClass)}>
       <div className={cn(wrapInContainer && 'container py-16', className)}>
         <div className="bg-card text-card-foreground p-6 border shadow rounded flex flex-col gap-6">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col justify-start gap-1">
             {heading && (
               <div className="prose md:prose-md dark:prose-invert">
                 <h2>{heading}</h2>
@@ -61,7 +61,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 not-prose">
             {posts && posts?.length > 0 ? (
               posts?.map((post, index) => {
                 if (typeof post === 'object' && post !== null) {
@@ -74,7 +74,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
               <h3>There are no posts matching these results.</h3>
             )}
           </div>
-          <Button asChild className="w-full">
+          <Button asChild className="w-full not-prose">
             <Link
               href={`/blog?sort=${sortBy}${filterByTagsSlugs && filterByTagsSlugs.length > 0 ? `&tags=${filterByTagsSlugs.join(',')}` : ''}`}
             >
