@@ -1,82 +1,88 @@
-import { PostCollection } from '@/components/PostCollection'
+import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
 import RichText from '@/components/RichText'
+import { Button } from '@/components/ui/button'
 import type { BlogListBlock as BlogListBlockProps, Post, Tag } from '@/payload-types'
-import { resolveTenantFromCookie } from '@/utilities/tenancy/resolveTenant'
-import configPromise from '@payload-config'
-import { draftMode, headers } from 'next/headers'
-import { getPayload } from 'payload'
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { cn } from '@/utilities/ui'
+import Link from 'next/link'
 
-const DEFAULT_POSTS_LIMIT = 4
+type BlogListComponentProps = BlogListBlockProps & {
+  className?: string
+  wrapInContainer?: boolean
+}
 
-export const BlogListBlock = async (props: BlogListBlockProps) => {
-  const { heading, belowHeadingContent, filterByTags, sortBy, maxPosts, staticPosts } = props
+export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
+  const {
+    heading,
+    belowHeadingContent,
+    backgroundColor,
+    filterByTags,
+    sortBy,
+    queriedPosts,
+    staticPosts,
+    className,
+    wrapInContainer = true,
+  } = args
 
   let posts = staticPosts?.filter(
     (post): post is Post =>
       typeof post === 'object' && post !== null && post._status === 'published',
   )
 
-  if (!staticPosts || staticPosts.length === 0) {
-    const payload = await getPayload({ config: configPromise })
-
-    const headersList = await headers()
-    const tenant = await resolveTenantFromCookie(headersList)
-
-    if (tenant) {
-      try {
-        const filterByTagsIds = filterByTags
-          ?.filter((tag): tag is Tag => typeof tag === 'object' && tag !== null)
-          .map(({ id }) => id)
-        const { isEnabled: draft } = await draftMode()
-
-        const postsRes = await payload.find({
-          collection: 'posts',
-          depth: 2,
-          limit: maxPosts ?? DEFAULT_POSTS_LIMIT,
-          where: {
-            'tenant.slug': {
-              equals: tenant.slug,
-            },
-            _status: {
-              equals: 'published',
-            },
-            ...(filterByTagsIds &&
-              filterByTagsIds.length > 0 && {
-                tags: {
-                  in: filterByTagsIds,
-                },
-              }),
-          },
-          sort: sortBy,
-          draft,
-        })
-        posts = postsRes.docs
-      } catch (err) {
-        // TODO add sentry capture expection
-        console.error('Failed to query posts for BlogListBlock. Error: ', err)
-      }
-    }
+  if (!staticPosts || (staticPosts.length === 0 && queriedPosts && queriedPosts.length > 0)) {
+    posts = queriedPosts?.filter(
+      (post): post is Post =>
+        typeof post === 'object' && post !== null && post._status === 'published',
+    )
   }
 
   if (!posts) {
     return null
   }
 
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
+
+  const filterByTagsSlugs = filterByTags
+    ?.filter((tag): tag is Tag => typeof tag === 'object' && tag !== null)
+    .map(({ slug }) => slug)
+
   return (
-    <div className="py-16">
-      <div className="container">
-        {heading && (
-          <div className="prose md:prose-md dark:prose-invert">
-            <h2>{heading}</h2>
+    <div className={cn(bgColorClass, textColor)}>
+      <div className={cn(wrapInContainer && 'container py-16', className)}>
+        <div className="bg-card text-card-foreground p-6 border shadow rounded flex flex-col gap-6">
+          <div className="flex flex-col gap-1">
+            {heading && (
+              <div className="prose md:prose-md dark:prose-invert">
+                <h2>{heading}</h2>
+              </div>
+            )}
+            {belowHeadingContent && (
+              <div>
+                <RichText data={belowHeadingContent} enableGutter={false} />
+              </div>
+            )}
           </div>
-        )}
-        {belowHeadingContent && (
-          <div className="mb-8">
-            <RichText data={belowHeadingContent} enableGutter={false} />
+          <div className="flex flex-col gap-4">
+            {posts && posts?.length > 0 ? (
+              posts?.map((post, index) => {
+                if (typeof post === 'object' && post !== null) {
+                  return <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
+                }
+
+                return null
+              })
+            ) : (
+              <h3>There are no posts matching these results.</h3>
+            )}
           </div>
-        )}
-        <div className="grid gap-8">
-          <PostCollection posts={posts} />
+          <Button asChild className="w-full">
+            <Link
+              href={`/blog?sort=${sortBy}${filterByTagsSlugs && filterByTagsSlugs.length > 0 ? `&tags=${filterByTagsSlugs.join(',')}` : ''}`}
+            >
+              View all {heading}
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

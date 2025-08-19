@@ -12,17 +12,27 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { BannerBlock } from '@/blocks/Banner/Component'
+import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
+import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import type {
   BannerBlock as BannerBlockProps,
+  BlogListBlock as BlogListBlockProps,
   ButtonsBlock as ButtonsBlockProps,
   MediaBlock as MediaBlockProps,
+  SingleBlogPostBlock,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<BannerBlockProps | ButtonsBlockProps | MediaBlockProps>
+  | SerializedBlockNode<
+      | BannerBlockProps
+      | ButtonsBlockProps
+      | MediaBlockProps
+      | BlogListBlockProps
+      | SingleBlogPostBlock
+    >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc || {}
@@ -47,6 +57,20 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         captionClassName="mx-auto max-w-[48rem]"
         enableGutter={false}
         disableInnerContainer={true}
+      />
+    ),
+    blogList: ({ node }) => (
+      <BlogListBlockComponent
+        {...node.fields}
+        // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    singleBlogPost: ({ node }) => (
+      <SingleBlogPostBlockComponent
+        {...node.fields}
+        // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
   },

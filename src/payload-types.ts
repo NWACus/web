@@ -446,6 +446,11 @@ export interface BlogListBlock {
     };
     [k: string]: unknown;
   } | null;
+  backgroundColor: string;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
   /**
    * Optionally select tags to filter posts in this list by.
    */
@@ -455,9 +460,10 @@ export interface BlogListBlock {
    */
   sortBy: '-publishedAt' | 'publishedAt';
   /**
-   * Maximum number of posts that will be displayed.
+   * Maximum number of posts that will be displayed. Must be an integer.
    */
   maxPosts?: number | null;
+  queriedPosts?: (number | Post)[] | null;
   /**
    * Use this to select specific posts to display here instead of displaying a dynamic list of posts based on tags, sort by, and max posts.
    */
@@ -953,10 +959,15 @@ export interface MediaBlock {
  * via the `definition` "SingleBlogPostBlock".
  */
 export interface SingleBlogPostBlock {
+  backgroundColor: string;
   /**
    * Select a blog post to display
    */
   post: number | Post;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleBlogPost';
@@ -1796,9 +1807,11 @@ export interface BiographyBlockSelect<T extends boolean = true> {
 export interface BlogListBlockSelect<T extends boolean = true> {
   heading?: T;
   belowHeadingContent?: T;
+  backgroundColor?: T;
   filterByTags?: T;
   sortBy?: T;
   maxPosts?: T;
+  queriedPosts?: T;
   staticPosts?: T;
   id?: T;
   blockName?: T;
@@ -1945,6 +1958,7 @@ export interface MediaBlockSelect<T extends boolean = true> {
  * via the `definition` "SingleBlogPostBlock_select".
  */
 export interface SingleBlogPostBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
   post?: T;
   id?: T;
   blockName?: T;

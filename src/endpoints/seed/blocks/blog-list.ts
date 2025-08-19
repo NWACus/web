@@ -3,6 +3,7 @@ import type { BlogListBlock } from '@/payload-types'
 export const blogListBlock: BlogListBlock = {
   blockType: 'blogList',
   heading: 'Recent Blogs/News',
+  backgroundColor: 'transparent',
   belowHeadingContent: {
     root: {
       type: 'root',

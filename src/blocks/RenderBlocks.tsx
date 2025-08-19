@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 import type { Page } from '@/payload-types'
 
 import { BiographyBlock } from '@/blocks/Biography/Biography'
-import { BlogListBlock } from '@/blocks/BlogList/Component'
+import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { ContentWithCalloutBlock } from '@/blocks/ContentWithCallout/Component'
 import { FormBlock } from '@/blocks/Form/Component'
@@ -13,7 +13,7 @@ import { ImageText } from '@/blocks/ImageText/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/Component'
+import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
 
@@ -45,7 +45,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'biography':
       return <BiographyBlock {...block} payload={payload} />
     case 'blogList':
-      return <BlogListBlock {...block} />
+      // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlock variant
+      return <BlogListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'content':
       return <ContentBlock {...block} />
     case 'formBlock':
@@ -65,7 +66,10 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'contentWithCallout':
       return <ContentWithCalloutBlock {...block} />
     case 'singleBlogPost':
-      return <SingleBlogPostBlock {...block} />
+      // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlock variant
+      return (
+        <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      )
     case 'team':
       return <TeamBlock {...block} payload={payload} />
   }
