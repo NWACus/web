@@ -2,7 +2,6 @@ import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import type { BlogListBlock as BlogListBlockProps, Post, Tag } from '@/payload-types'
-import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 
@@ -41,14 +40,13 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
   }
 
   const bgColorClass = `bg-${backgroundColor}`
-  const textColor = getTextColorFromBgColor(backgroundColor)
 
   const filterByTagsSlugs = filterByTags
     ?.filter((tag): tag is Tag => typeof tag === 'object' && tag !== null)
     .map(({ slug }) => slug)
 
   return (
-    <div className={cn(bgColorClass, textColor)}>
+    <div className={cn(wrapInContainer && bgColorClass)}>
       <div className={cn(wrapInContainer && 'container py-16', className)}>
         <div className="bg-card text-card-foreground p-6 border shadow rounded flex flex-col gap-6">
           <div className="flex flex-col gap-1">
