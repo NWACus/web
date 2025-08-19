@@ -692,7 +692,11 @@ export const seed = async ({
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
-        allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
+        allBlocksPage(
+          tenant,
+          images[tenant.slug]['imageMountain'],
+          Object.values(posts[tenant.slug]),
+        ),
         whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
         page(
           tenant,

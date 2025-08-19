@@ -8,6 +8,7 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 import { ButtonsBlock } from '../Buttons/config'
+import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
 
 export const Content: Block = {
   slug: 'content',
@@ -42,7 +43,7 @@ export const Content: Block = {
               return [
                 ...rootFeatures,
                 BlocksFeature({
-                  blocks: [ButtonsBlock],
+                  blocks: [ButtonsBlock, SingleBlogPostBlockLexical],
                 }),
                 HorizontalRuleFeature(),
                 InlineToolbarFeature(),

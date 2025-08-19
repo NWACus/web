@@ -14,6 +14,7 @@ import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
+import { SingleBlogPostBlockComponent } from './SingleBlogPost/Component'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
   const { blocks } = props
@@ -60,6 +61,11 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <MediaBlock {...block} />
     case 'contentWithCallout':
       return <ContentWithCalloutBlock {...block} />
+    case 'singleBlogPost':
+      // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlock variant
+      return (
+        <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      )
     case 'team':
       return <TeamBlock {...block} payload={payload} />
   }

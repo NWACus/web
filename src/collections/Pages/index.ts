@@ -29,6 +29,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
@@ -114,6 +115,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 ImageTextList,
                 LinkPreviewBlock,
                 MediaBlock,
+                SingleBlogPostBlock,
                 TeamBlock,
               ],
               required: true,
