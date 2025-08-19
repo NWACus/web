@@ -1,5 +1,5 @@
 import { BlogListBlock, Post } from '@/payload-types'
-import { resolveTenant, resolveTenantFromCookie } from '@/utilities/tenancy/resolveTenant'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
 import * as Sentry from '@sentry/nextjs'
 import { getPayload, JsonObject, TypeWithID, type FieldHook } from 'payload'
@@ -16,14 +16,13 @@ export const populateQueriedPosts: FieldHook<TypeWithID, Post[], BlogListBlock> 
   data,
   draft,
   value,
-  req,
 }) => {
   const payload = await getPayload({ config: configPromise })
 
   const tenant =
     data && 'tenant' in data && typeof data?.tenant === 'number'
       ? await resolveTenant(data.tenant)
-      : await resolveTenantFromCookie(req.headers)
+      : null
 
   if (blockData === undefined) {
     payload.logger.error(

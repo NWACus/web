@@ -61,7 +61,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col gap-4 not-prose">
+          <div className="flex flex-col gap-4 not-prose max-h-[400px] overflow-y-auto">
             {posts && posts?.length > 0 ? (
               posts?.map((post, index) => {
                 if (typeof post === 'object' && post !== null) {
