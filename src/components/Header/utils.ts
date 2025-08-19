@@ -257,25 +257,11 @@ export const getTopLevelNavItems = async ({
         const zoneSlug = activeZones[0].url.split('/').filter(Boolean).pop()
 
         forecastsNavItem = {
-          label: 'Forecasts',
-          items: [
-            {
-              id: 'zone',
-              link: {
-                type: 'internal',
-                label: 'Avalanche',
-                url: `/forecasts/avalanche/${zoneSlug}`,
-              },
-            },
-            {
-              id: 'archive',
-              link: {
-                type: 'internal',
-                label: 'Forecast Archive',
-                url: '/forecasts/avalanche/archive',
-              },
-            },
-          ],
+          link: {
+            label: 'Avalanche Forecast',
+            type: 'internal',
+            url: `/forecasts/avalanche/${zoneSlug}`,
+          },
         }
       } else {
         const zoneLinks: NavItem[] = activeZones
@@ -311,14 +297,6 @@ export const getTopLevelNavItems = async ({
                 type: 'internal',
                 label: 'Zones',
                 url: '/forecasts/avalanche',
-              },
-            },
-            {
-              id: 'archive',
-              link: {
-                type: 'internal',
-                label: 'Forecast Archive',
-                url: '/forecasts/avalanche/archive',
               },
             },
           ],
