@@ -98,21 +98,21 @@ async function extractBlockReferencesFromLexical(
   return references
 }
 
-export const populateBlocksInContent: CollectionAfterChangeHook<Post> = async ({ data, req }) => {
-  if (data._status === 'draft') return data
+export const populateBlocksInContent: CollectionAfterChangeHook<Post> = async ({ doc, req }) => {
+  if (doc._status === 'draft') return doc
 
-  if (data.content) {
+  if (doc.content) {
     try {
-      const blockReferences = await extractBlockReferencesFromLexical(data.content)
+      const blockReferences = await extractBlockReferencesFromLexical(doc.content)
 
-      data.blocksInContent = blockReferences
+      doc.blocksInContent = blockReferences
     } catch (error) {
       req.payload.logger.warn(`Error extracting block references: ${error}`)
-      data.blocksInContent = []
+      doc.blocksInContent = []
     }
   } else {
-    data.blocksInContent = []
+    doc.blocksInContent = []
   }
 
-  return data
+  return doc
 }
