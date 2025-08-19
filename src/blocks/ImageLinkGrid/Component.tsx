@@ -22,7 +22,7 @@ export const ImageLinkGrid = (props: Props) => {
   const colsSpanClass = colsClasses[numOfCols]
 
   return (
-    <div className="container">
+    <div className="container py-16">
       <div className="grid sm:grid-cols-12 gap-3">
         {columns &&
           columns?.length > 0 &&

@@ -66,6 +66,7 @@ const defaultPostRelatedFields: Field[] = [
     label: 'Max Posts Displayed',
     min: 1,
     max: 10, // arbitrary but rendering more than 10 in this block's component seems like too much
+    defaultValue: 4,
     admin: {
       description: 'Maximum number of posts that will be displayed. Must be an integer.',
       step: 1,
@@ -115,7 +116,7 @@ const defaultPostRelatedFields: Field[] = [
 const blogListBlockWithFields = (fields: Field[]): Block => ({
   slug: 'blogList',
   interfaceName: 'BlogListBlock',
-  // imageURL: '/thumbnail/ContentThumbnail.jpg',
+  imageURL: '/thumbnail/BlogListThumbnail.jpg',
   fields,
 })
 

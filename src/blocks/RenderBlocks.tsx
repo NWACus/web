@@ -26,7 +26,7 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payl
       <Fragment>
         {blocks.map((block) => {
           return (
-            <div className="my-16" key={`${block.id}__${block.blockType}`}>
+            <div key={`${block.id}__${block.blockType}`}>
               <RenderBlock block={block} payload={props.payload} />
             </div>
           )
