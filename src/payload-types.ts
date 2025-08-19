@@ -1454,6 +1454,9 @@ export interface HomePage {
         id?: string | null;
       }[]
     | null;
+  /**
+   * This section is displayed prominantly below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
+   */
   highlightedContent: {
     /**
      * This controls whether or not this section is displayed.
@@ -1482,6 +1485,9 @@ export interface HomePage {
         }[]
       | null;
   };
+  /**
+   * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
+   */
   layout: (
     | BiographyBlock
     | ContentBlock
