@@ -89,6 +89,10 @@ export const HomePages: CollectionConfig = {
     {
       name: 'highlightedContent',
       type: 'group',
+      admin: {
+        description:
+          'This section is displayed prominantly below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.',
+      },
       fields: [
         {
           name: 'enabled',
@@ -146,6 +150,10 @@ export const HomePages: CollectionConfig = {
     },
     {
       name: 'layout',
+      admin: {
+        description:
+          'This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.',
+      },
       type: 'blocks',
       blocks: [
         BiographyBlock,
