@@ -9,6 +9,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { ButtonsBlock } from '../Buttons/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { MediaBlock } from '../MediaBlock/config'
 
 export const Content: Block = {
   slug: 'content',
@@ -43,7 +44,7 @@ export const Content: Block = {
               return [
                 ...rootFeatures,
                 BlocksFeature({
-                  blocks: [ButtonsBlock, GenericEmbedLexical],
+                  blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical],
                 }),
                 HorizontalRuleFeature(),
                 InlineToolbarFeature(),
