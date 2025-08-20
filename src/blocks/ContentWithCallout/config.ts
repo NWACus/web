@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 import { BlocksFeature, FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { ButtonsBlock } from '../Buttons/config'
+import { GenericEmbedLexical } from '../GenericEmbed/config'
 
 export const ContentWithCallout: Block = {
   slug: 'contentWithCallout',
@@ -17,7 +18,7 @@ export const ContentWithCallout: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonsBlock],
+              blocks: [ButtonsBlock, GenericEmbedLexical],
             }),
           ]
         },
@@ -33,7 +34,7 @@ export const ContentWithCallout: Block = {
           return [
             ...rootFeatures,
             BlocksFeature({
-              blocks: [ButtonsBlock],
+              blocks: [ButtonsBlock, GenericEmbedLexical],
             }),
           ]
         },

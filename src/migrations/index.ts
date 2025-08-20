@@ -5,6 +5,7 @@ import * as migration_20250807_175342_blocks_in_content_field from './20250807_1
 import * as migration_20250814_191230_diagnostics_global from './20250814_191230_diagnostics_global'
 import * as migration_20250814_223446_update_slug_field from './20250814_223446_update_slug_field'
 import * as migration_20250815_201139_add_secondary_phone_to_footer from './20250815_201139_add_secondary_phone_to_footer'
+import * as migration_20250818_061729_generic_embed_block from './20250818_061729_generic_embed_block'
 
 export const migrations = [
   {
@@ -41,5 +42,10 @@ export const migrations = [
     up: migration_20250815_201139_add_secondary_phone_to_footer.up,
     down: migration_20250815_201139_add_secondary_phone_to_footer.down,
     name: '20250815_201139_add_secondary_phone_to_footer',
+  },
+  {
+    up: migration_20250818_061729_generic_embed_block.up,
+    down: migration_20250818_061729_generic_embed_block.down,
+    name: '20250818_061729_generic_embed_block',
   },
 ]

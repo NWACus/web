@@ -285,6 +285,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | TeamBlock
+    | GenericEmbedBlock
   )[];
   meta?: {
     title?: string | null;
@@ -924,6 +925,22 @@ export interface Team {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GenericEmbedBlock".
+ */
+export interface GenericEmbedBlock {
+  html: string;
+  /**
+   * Checking this will render the embed with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'genericEmbed';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1703,6 +1720,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
+        genericEmbed?: T | GenericEmbedBlockSelect<T>;
       };
   meta?:
     | T
@@ -1871,6 +1889,17 @@ export interface MediaBlockSelect<T extends boolean = true> {
  */
 export interface TeamBlockSelect<T extends boolean = true> {
   team?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GenericEmbedBlock_select".
+ */
+export interface GenericEmbedBlockSelect<T extends boolean = true> {
+  html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
   id?: T;
   blockName?: T;
 }
