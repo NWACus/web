@@ -33,6 +33,7 @@ import {
   PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
 } from '@payloadcms/plugin-seo/client'
 import {
+  AlignFeatureClient as AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -86,6 +87,8 @@ export const importMap = {
     OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#UnorderedListFeatureClient':
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@payloadcms/richtext-lexical/client#AlignFeatureClient':
+    AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient':
     HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/plugin-seo/client#OverviewComponent':
