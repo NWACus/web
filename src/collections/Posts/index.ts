@@ -216,8 +216,8 @@ export const Posts: CollectionConfig<'posts'> = {
     contentHashField(),
   ],
   hooks: {
-    beforeChange: [populatePublishedAt],
-    afterChange: [populateBlocksInContent, revalidatePost],
+    beforeChange: [populatePublishedAt, populateBlocksInContent],
+    afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidatePostDelete],
   },

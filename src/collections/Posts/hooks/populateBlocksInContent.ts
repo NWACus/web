@@ -1,4 +1,4 @@
-import type { CollectionAfterChangeHook } from 'payload'
+import type { CollectionBeforeChangeHook } from 'payload'
 
 import type { Post } from '@/payload-types'
 import { getBlocksFromConfig } from '@/utilities/getBlocksFromConfig'
@@ -98,21 +98,26 @@ async function extractBlockReferencesFromLexical(
   return references
 }
 
-export const populateBlocksInContent: CollectionAfterChangeHook<Post> = async ({ doc, req }) => {
-  if (doc._status === 'draft') return doc
+export const populateBlocksInContent: CollectionBeforeChangeHook<Post> = async ({ data, req }) => {
+  if (data._status === 'draft') return data
 
-  if (doc.content) {
+  let blocksInContent = data.blocksInContent
+
+  if (data.content) {
     try {
-      const blockReferences = await extractBlockReferencesFromLexical(doc.content)
+      const blockReferences = await extractBlockReferencesFromLexical(data.content)
 
-      doc.blocksInContent = blockReferences
+      blocksInContent = blockReferences
     } catch (error) {
       req.payload.logger.warn(`Error extracting block references: ${error}`)
-      doc.blocksInContent = []
+      blocksInContent = []
     }
   } else {
-    doc.blocksInContent = []
+    blocksInContent = []
   }
 
-  return doc
+  return {
+    ...data,
+    blocksInContent,
+  }
 }
