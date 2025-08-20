@@ -1,4 +1,6 @@
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import {
+  BlocksFeature,
   BoldFeature,
   FixedToolbarFeature,
   HeadingFeature,
@@ -43,6 +45,9 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
             },
           ]
         },
+      }),
+      BlocksFeature({
+        blocks: [GenericEmbedLexical],
       }),
       FixedToolbarFeature(),
       OrderedListFeature(),

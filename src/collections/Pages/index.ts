@@ -29,6 +29,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { GenericEmbed } from '@/blocks/GenericEmbed/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
@@ -115,6 +116,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 LinkPreviewBlock,
                 MediaBlock,
                 TeamBlock,
+                GenericEmbed,
               ],
               required: true,
               admin: {
