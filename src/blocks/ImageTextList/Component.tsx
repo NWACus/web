@@ -26,7 +26,7 @@ export const ImageTextList = (props: Props) => {
 
   return (
     <div className="container py-16">
-      <div className={`grid grid-cols-4 lg:grid-cols-12 ${!isFullLayout && 'gap-x-4'}`}>
+      <div className="grid grid-cols-4 lg:grid-cols-12 gap-4">
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
@@ -48,10 +48,11 @@ export const ImageTextList = (props: Props) => {
                   {image && (
                     <ImageMedia
                       imgClassName={cn(
-                        'h-[108px] max-w-fit',
+                        'h-[108px] max-w-fit object-contain',
                         `${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`,
                         imgClassName,
                       )}
+                      pictureClassName="overflow-hidden"
                       resource={image}
                     />
                   )}
