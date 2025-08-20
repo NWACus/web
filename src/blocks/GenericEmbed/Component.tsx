@@ -146,7 +146,6 @@ export const GenericEmbedBlock = ({
       <div
         className={cn(
           wrapInContainer && 'container py-16',
-          'max-w-none mx-auto prose md:prose-md dark:prose-invert',
           'flex',
           alignContent === 'left' && 'justify-start',
           alignContent === 'center' && 'justify-center',
@@ -169,7 +168,9 @@ export const GenericEmbedBlock = ({
             }}
           />
         ) : (
-          <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+          <div className="prose md:prose-md dark:prose-invert">
+            <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+          </div>
         )}
       </div>
     </div>
