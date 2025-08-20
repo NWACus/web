@@ -41,7 +41,8 @@ export default async function Page({ params }: Args) {
   const { center } = await params
 
   const { version, baseUrl } = await getNACWidgetsConfig()
-  const { quickLinks, highlightedContent, layout } = await getCachedHomePage(center, draft)()
+  const { quickLinks, highlightedContent, layout } =
+    (await getCachedHomePage(center, draft)()) ?? {}
 
   return (
     <>
