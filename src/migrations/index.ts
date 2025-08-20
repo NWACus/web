@@ -6,6 +6,7 @@ import * as migration_20250814_191230_diagnostics_global from './20250814_191230
 import * as migration_20250814_223446_update_slug_field from './20250814_223446_update_slug_field'
 import * as migration_20250815_201139_add_secondary_phone_to_footer from './20250815_201139_add_secondary_phone_to_footer'
 import * as migration_20250818_061729_generic_embed_block from './20250818_061729_generic_embed_block'
+import * as migration_20250820_004406_home_page_global_collection from './20250820_004406_home_page_global_collection'
 
 export const migrations = [
   {
@@ -47,5 +48,10 @@ export const migrations = [
     up: migration_20250818_061729_generic_embed_block.up,
     down: migration_20250818_061729_generic_embed_block.down,
     name: '20250818_061729_generic_embed_block',
+  },
+  {
+    up: migration_20250820_004406_home_page_global_collection.up,
+    down: migration_20250820_004406_home_page_global_collection.down,
+    name: '20250820_004406_home_page_global_collection',
   },
 ]
