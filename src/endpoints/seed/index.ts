@@ -695,7 +695,7 @@ export const seed = async ({
     payload,
     incremental,
     tenantsById,
-    (obj) => 'homepage',
+    () => 'homepage',
     Object.values(tenants).map(
       (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
         homePage(tenant, images[tenant.slug]['imageMountain']),
