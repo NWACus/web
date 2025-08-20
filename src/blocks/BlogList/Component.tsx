@@ -28,6 +28,8 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
       typeof post === 'object' && post !== null && post._status === 'published',
   )
 
+  const hasStaticPosts = staticPosts && staticPosts.length > 0
+
   if (!staticPosts || (staticPosts.length === 0 && queriedPosts && queriedPosts.length > 0)) {
     posts = queriedPosts?.filter(
       (post): post is Post =>
@@ -35,15 +37,22 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
     )
   }
 
+  const filterByTagsSlugs = filterByTags
+    ?.filter((tag): tag is Tag => typeof tag === 'object' && tag !== null)
+    .map(({ slug }) => slug)
+
+  const blogLinkQueryParams = new URLSearchParams()
+  blogLinkQueryParams.set('sort', sortBy)
+
+  if (filterByTagsSlugs && filterByTagsSlugs.length > 0) {
+    blogLinkQueryParams.set('tags', filterByTagsSlugs.join(','))
+  }
+
   if (!posts) {
     return null
   }
 
   const bgColorClass = `bg-${backgroundColor}`
-
-  const filterByTagsSlugs = filterByTags
-    ?.filter((tag): tag is Tag => typeof tag === 'object' && tag !== null)
-    .map(({ slug }) => slug)
 
   return (
     <div className={cn(wrapInContainer && bgColorClass)}>
@@ -74,13 +83,11 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
               <h3>There are no posts matching these results.</h3>
             )}
           </div>
-          <Button asChild className="w-full not-prose">
-            <Link
-              href={`/blog?sort=${sortBy}${filterByTagsSlugs && filterByTagsSlugs.length > 0 ? `&tags=${filterByTagsSlugs.join(',')}` : ''}`}
-            >
-              View all {heading}
-            </Link>
-          </Button>
+          {!hasStaticPosts && (
+            <Button asChild className="w-full not-prose">
+              <Link href={`/blog?${blogLinkQueryParams.toString()}`}>View all {heading}</Link>
+            </Button>
+          )}
         </div>
       </div>
     </div>
