@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 
 export const getCachedHomePage = (center: string, draft: boolean = false) =>
   unstable_cache(
-    async (): Promise<HomePage> => {
+    async (): Promise<HomePage | undefined> => {
       const payload = await getPayload({ config: configPromise })
 
       const homePageRes = await payload.find({
