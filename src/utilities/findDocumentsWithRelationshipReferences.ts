@@ -4,7 +4,7 @@ import { getRelationshipsFromConfig } from './getRelationshipsFromConfig'
 import { DocumentForRevalidation, RevalidationReference } from './revalidateDocument'
 
 /**
- * Find all pages and posts that contain relationship fields referencing a specific document
+ * Find all pages, posts, and homePages that contain relationship fields referencing a specific document
  * This is used for revalidation when reference collections change
  */
 export async function findDocumentsWithRelationshipReferences(
@@ -13,7 +13,7 @@ export async function findDocumentsWithRelationshipReferences(
   const payload = await getPayload({ config: configPromise })
   const results: DocumentForRevalidation[] = []
 
-  const { pagesRelationshipMappings, postsRelationshipMappings } =
+  const { pagesRelationshipMappings, postsRelationshipMappings, homePagesRelationshipMappings } =
     await getRelationshipsFromConfig()
 
   const pagesMappings = pagesRelationshipMappings[reference.collection]
@@ -97,6 +97,40 @@ export async function findDocumentsWithRelationshipReferences(
       } catch (error) {
         payload.logger.warn(
           `Error querying posts for ${reference.collection} reference ${reference.id} at ${mapping.fieldPath}: ${error}`,
+        )
+      }
+    }
+  }
+
+  const homePagesMappings = homePagesRelationshipMappings[reference.collection]
+
+  if (homePagesMappings) {
+    for (const mapping of homePagesMappings) {
+      try {
+        const homePagesWithRelationsRes = await payload.find({
+          collection: 'homePages',
+          where: {
+            [mapping.fieldPath]: { equals: reference.id },
+          },
+          select: {
+            id: true,
+            tenant: true,
+          },
+          depth: 1,
+        })
+
+        const homePagesWithRelations: DocumentForRevalidation[] =
+          homePagesWithRelationsRes.docs.map((doc) => ({
+            collection: 'homePages',
+            id: doc.id,
+            slug: '',
+            tenant: doc.tenant,
+          }))
+
+        results.push(...homePagesWithRelations)
+      } catch (error) {
+        payload.logger.warn(
+          `Error querying homePages for ${reference.collection} reference ${reference.id} at ${mapping.fieldPath}: ${error}`,
         )
       }
     }

@@ -13,10 +13,12 @@ import {
 
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import type {
   BannerBlock as BannerBlockProps,
   ButtonsBlock as ButtonsBlockProps,
+  GenericEmbedBlock as GenericEmbedBlockProps,
   MediaBlock as MediaBlockProps,
   SingleBlogPostBlock,
 } from '@/payload-types'
@@ -25,7 +27,11 @@ import { cn } from '@/utilities/ui'
 type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<
-      BannerBlockProps | ButtonsBlockProps | MediaBlockProps | SingleBlogPostBlock
+      | BannerBlockProps
+      | ButtonsBlockProps
+      | MediaBlockProps
+      | GenericEmbedBlockProps
+      | SingleBlogPostBlock
     >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
@@ -53,6 +59,13 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         disableInnerContainer={true}
       />
     ),
+    genericEmbed: ({ node }) => (
+      <GenericEmbedBlock
+        {...node.fields}
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
     singleBlogPost: ({ node }) => (
       <SingleBlogPostBlockComponent
         {...node.fields}
@@ -78,7 +91,7 @@ export default function RichText(props: Props) {
         {
           'container ': enableGutter,
           'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md dark:prose-invert ': enableProse,
+          'mx-auto prose md:prose-md dark:prose-invert': enableProse,
         },
         className,
       )}

@@ -19,8 +19,12 @@ import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPu
 import { filterByTenant } from '@/access/filterByTenant'
 import { TeamBlock } from '@/blocks/Team/config'
 
+import { GenericEmbed } from '@/blocks/GenericEmbed/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
+import { Tenant } from '@/payload-types'
 import {
   MetaDescriptionField,
   MetaImageField,
@@ -28,10 +32,6 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-
-import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
-import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
-import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -117,6 +117,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 MediaBlock,
                 SingleBlogPostBlock,
                 TeamBlock,
+                GenericEmbed,
               ],
               required: true,
               admin: {

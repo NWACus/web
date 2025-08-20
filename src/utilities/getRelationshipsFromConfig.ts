@@ -17,9 +17,18 @@ export async function getRelationshipsFromConfig() {
   const postsCollection = config.collections?.find((collection) => collection.slug === 'posts')
   const postsRelationshipMappings = extractRelationshipMappings(postsCollection?.fields || [])
 
+  // Find relationship fields used in HomePages collection
+  const homePagesCollection = config.collections?.find(
+    (collection) => collection.slug === 'homePages',
+  )
+  const homePagesRelationshipMappings = extractRelationshipMappings(
+    homePagesCollection?.fields || [],
+  )
+
   return {
     pagesRelationshipMappings,
     postsRelationshipMappings,
+    homePagesRelationshipMappings,
   }
 }
 

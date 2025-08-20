@@ -8,6 +8,8 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 import { ButtonsBlock } from '../Buttons/config'
+import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { MediaBlock } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
 
 export const Content: Block = {
@@ -43,7 +45,12 @@ export const Content: Block = {
               return [
                 ...rootFeatures,
                 BlocksFeature({
-                  blocks: [ButtonsBlock, SingleBlogPostBlockLexical],
+                  blocks: [
+                    ButtonsBlock,
+                    MediaBlock,
+                    GenericEmbedLexical,
+                    SingleBlogPostBlockLexical,
+                  ],
                 }),
                 HorizontalRuleFeature(),
                 InlineToolbarFeature(),

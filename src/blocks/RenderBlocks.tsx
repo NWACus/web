@@ -14,6 +14,7 @@ import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
+import { GenericEmbedBlock } from './GenericEmbed/Component'
 import { SingleBlogPostBlockComponent } from './SingleBlogPost/Component'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
@@ -26,7 +27,7 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payl
       <Fragment>
         {blocks.map((block) => {
           return (
-            <div className="my-16" key={`${block.id}__${block.blockType}`}>
+            <div key={`${block.id}__${block.blockType}`}>
               <RenderBlock block={block} payload={props.payload} />
             </div>
           )
@@ -68,5 +69,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       )
     case 'team':
       return <TeamBlock {...block} payload={payload} />
+    case 'genericEmbed':
+      // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbed variant
+      return <GenericEmbedBlock {...block} wrapInContainer={block.wrapInContainer || true} />
   }
 }

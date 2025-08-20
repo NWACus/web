@@ -4,7 +4,7 @@ import { getBlocksFromConfig } from './getBlocksFromConfig'
 import { DocumentForRevalidation, RevalidationReference } from './revalidateDocument'
 
 /**
- * Find all pages and posts that contain blocks referencing a specific document
+ * Find all pages, posts, and homePages that contain blocks referencing a specific document
  * This is used for revalidation when reference collections (biographies, teams, media, forms) change
  */
 export async function findDocumentsWithBlockReferences(
@@ -13,7 +13,8 @@ export async function findDocumentsWithBlockReferences(
   const payload = await getPayload({ config: configPromise })
   const results: DocumentForRevalidation[] = []
 
-  const { pagesBlockMappings, postsBlockMappings } = await getBlocksFromConfig()
+  const { pagesBlockMappings, postsBlockMappings, homePagesBlockMappings } =
+    await getBlocksFromConfig()
 
   const pagesMapping = pagesBlockMappings[reference.collection]
 
@@ -92,6 +93,39 @@ export async function findDocumentsWithBlockReferences(
     } catch (error) {
       payload.logger.warn(
         `Error querying posts for ${reference.collection} reference ${reference.id}: ${error}`,
+      )
+    }
+  }
+
+  const homePagesMapping = homePagesBlockMappings[reference.collection]
+
+  if (homePagesMapping) {
+    try {
+      const homePagesWithBlocksRes = await payload.find({
+        collection: 'homePages',
+        where: {
+          [`layout.${homePagesMapping.fieldName}`]: { equals: reference.id },
+        },
+        select: {
+          id: true,
+          tenant: true,
+        },
+        depth: 1,
+      })
+
+      const homePagesWithBlocks: DocumentForRevalidation[] = homePagesWithBlocksRes.docs.map(
+        (doc) => ({
+          collection: 'homePages',
+          id: doc.id,
+          slug: '',
+          tenant: doc.tenant,
+        }),
+      )
+
+      results.push(...homePagesWithBlocks)
+    } catch (error) {
+      payload.logger.warn(
+        `Error querying homePages for ${reference.collection} reference ${reference.id}: ${error}`,
       )
     }
   }

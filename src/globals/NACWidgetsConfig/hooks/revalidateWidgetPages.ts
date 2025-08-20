@@ -1,7 +1,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { GlobalAfterChangeHook } from 'payload'
 
-const revalidateWidgetPages: GlobalAfterChangeHook = async ({ doc, req: { context } }) => {
+const revalidateWidgetPages: GlobalAfterChangeHook = async ({ req: { context } }) => {
   if (context.disableRevalidate) return
 
   // revalidate pages that use the widget config

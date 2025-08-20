@@ -29,6 +29,7 @@ import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenant
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
 import pino from 'pino'
 import { build } from 'pino-pretty'
+import { HomePages } from './collections/HomePages'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -55,7 +56,7 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'navigations'],
+            globalSlugs: ['settings', 'navigations', 'homePages'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
@@ -152,6 +153,7 @@ export default buildConfig({
     Teams,
     Settings,
     Tags,
+    HomePages,
   ],
   cors: [
     'api.avalanche.org',
