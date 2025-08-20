@@ -8,7 +8,6 @@ import {
 } from '@payloadcms/richtext-lexical'
 import type { Block, Field, FilterOptionsProps } from 'payload'
 import { ButtonsBlock } from '../Buttons/config'
-import { populateQueriedPosts } from './hooks/populateQueriedPosts'
 import { validateMaxPosts } from './hooks/validateMaxPosts'
 
 const defaultStylingFields: Field[] = [
@@ -85,10 +84,9 @@ const defaultPostRelatedFields: Field[] = [
     },
     admin: {
       readOnly: true,
-      hidden: true,
-    },
-    hooks: {
-      afterRead: [populateQueriedPosts],
+      components: {
+        Field: '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent',
+      },
     },
   },
   {

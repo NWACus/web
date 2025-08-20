@@ -1,3 +1,4 @@
+import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e } from '@/blocks/BlogList/fields/QueriedPostsComponent'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
@@ -80,6 +81,8 @@ export const importMap = {
   '@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient':
     HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@/components/ColorPicker#default': default_55a7d1ebef7afeed563b856ae2e2cbf4,
+  '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent':
+    QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e,
   '@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient':
     FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':
