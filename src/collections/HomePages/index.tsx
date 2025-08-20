@@ -136,7 +136,7 @@ export const HomePages: CollectionConfig = {
                   return [
                     ...rootFeatures,
                     BlocksFeature({
-                      blocks: [ButtonsBlock, GenericEmbedLexical],
+                      blocks: [ButtonsBlock, GenericEmbedLexical, MediaBlock],
                     }),
                     HorizontalRuleFeature(),
                     InlineToolbarFeature(),
