@@ -79,9 +79,6 @@ const defaultPostRelatedFields: Field[] = [
     type: 'relationship',
     relationTo: 'posts',
     hasMany: true,
-    access: {
-      update: () => false,
-    },
     admin: {
       readOnly: true,
       components: {
