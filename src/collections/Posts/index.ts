@@ -16,6 +16,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -105,7 +106,7 @@ export const Posts: CollectionConfig<'posts'> = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            BlocksFeature({ blocks: [Banner, MediaBlock] }),
+            BlocksFeature({ blocks: [Banner, MediaBlock, GenericEmbedLexical] }),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),
           ]
