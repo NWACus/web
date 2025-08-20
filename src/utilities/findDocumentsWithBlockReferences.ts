@@ -65,7 +65,7 @@ function hasMatchingReference(
 }
 
 /**
- * Find all pages and posts that contain blocks referencing a specific document
+ * Find all pages, posts, and homePages that contain blocks referencing a specific document
  * This is used for revalidation when reference collections (biographies, teams, media, forms) change
  */
 export async function findDocumentsWithBlockReferences(
@@ -74,7 +74,8 @@ export async function findDocumentsWithBlockReferences(
   const payload = await getPayload({ config: configPromise })
   const results: DocumentForRevalidation[] = []
 
-  const { pagesBlockMappings, postsBlockMappings } = await getBlocksFromConfig()
+  const { pagesBlockMappings, postsBlockMappings, homePagesBlockMappings } =
+    await getBlocksFromConfig()
 
   const pagesMappings = pagesBlockMappings[reference.collection]
 
@@ -201,6 +202,86 @@ export async function findDocumentsWithBlockReferences(
       payload.logger.warn(
         `Error querying posts for ${reference.collection} reference ${reference.id}: ${error}`,
       )
+    }
+  }
+
+  const homePagesMapping = homePagesBlockMappings[reference.collection]
+
+  if (homePagesMapping) {
+    for (const mapping of homePagesMapping) {
+      try {
+        if (mapping.isHasMany) {
+          // We can't query nested arrays with the Payload Local API so we need to find all
+          // pages with this blockType and then filter the results using custom logic
+          const homePagesRes = await payload.find({
+            collection: 'homePages',
+            where: {
+              and: [
+                {
+                  _status: { equals: 'published' },
+                },
+                {
+                  'layout.blockType': { equals: mapping.blockType },
+                },
+              ],
+            },
+            select: {
+              id: true,
+              slug: true,
+              tenant: true,
+              layout: true,
+            },
+            depth: 1,
+          })
+
+          const pagesWithMatchingBlocks = homePagesRes.docs.filter(({ layout }) => {
+            const matchingBlocks = layout.find((block) => {
+              if (block.blockType === mapping.blockType) {
+                return hasMatchingReference(block, mapping.fieldName, reference.id)
+              }
+              return false
+            })
+
+            return !!matchingBlocks
+          })
+
+          const pagesWithBlocks: DocumentForRevalidation[] = pagesWithMatchingBlocks.map((doc) => ({
+            collection: 'homePages',
+            id: doc.id,
+            slug: '',
+            tenant: doc.tenant,
+          }))
+
+          results.push(...pagesWithBlocks)
+        } else {
+          const homePagesWithBlocksRes = await payload.find({
+            collection: 'homePages',
+            where: {
+              [`layout.${mapping.fieldName}`]: { equals: reference.id },
+            },
+            select: {
+              id: true,
+              tenant: true,
+            },
+            depth: 1,
+          })
+
+          const homePagesWithBlocks: DocumentForRevalidation[] = homePagesWithBlocksRes.docs.map(
+            (doc) => ({
+              collection: 'homePages',
+              id: doc.id,
+              slug: '',
+              tenant: doc.tenant,
+            }),
+          )
+
+          results.push(...homePagesWithBlocks)
+        }
+      } catch (error) {
+        payload.logger.warn(
+          `Error querying homePages for ${reference.collection} reference ${reference.id}: ${error}`,
+        )
+      }
     }
   }
 

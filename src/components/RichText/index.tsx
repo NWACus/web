@@ -14,17 +14,25 @@ import {
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import type {
   BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
   ButtonsBlock as ButtonsBlockProps,
+  GenericEmbedBlock as GenericEmbedBlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<BannerBlockProps | ButtonsBlockProps | MediaBlockProps | BlogListBlockProps>
+  | SerializedBlockNode<
+      | BannerBlockProps
+      | ButtonsBlockProps
+      | MediaBlockProps
+      | GenericEmbedBlockProps
+      | BlogListBlockProps
+    >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc || {}
@@ -49,6 +57,13 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         captionClassName="mx-auto max-w-[48rem]"
         enableGutter={false}
         disableInnerContainer={true}
+      />
+    ),
+    genericEmbed: ({ node }) => (
+      <GenericEmbedBlock
+        {...node.fields}
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
     blogList: ({ node }) => (
@@ -76,7 +91,7 @@ export default function RichText(props: Props) {
         {
           'container ': enableGutter,
           'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md dark:prose-invert ': enableProse,
+          'mx-auto prose md:prose-md dark:prose-invert': enableProse,
         },
         className,
       )}

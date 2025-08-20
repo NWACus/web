@@ -2,6 +2,7 @@ import type { Media, Post, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 import { blogListBlock } from '../blocks/blog-list'
 import { contentWithCallout } from '../blocks/content-with-callout'
+import { genericEmbed } from '../blocks/generic-embed'
 import { imageLinkGrid } from '../blocks/image-link-grid'
 import { imageQuote } from '../blocks/image-quote'
 import { imageText } from '../blocks/image-text'
@@ -30,6 +31,7 @@ export const allBlocksPage: (
       ...imageTextList(image1),
       ...linkPreview(image1),
       ...contentWithCallout,
+      ...genericEmbed,
       // dynamic posts
       {
         ...blogListBlock,

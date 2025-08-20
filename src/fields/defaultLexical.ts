@@ -1,4 +1,5 @@
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import {
   BlocksFeature,
   BoldFeature,
@@ -47,7 +48,7 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
         },
       }),
       BlocksFeature({
-        blocks: [BlogListBlockLexical],
+        blocks: [GenericEmbedLexical, BlogListBlockLexical],
       }),
       FixedToolbarFeature(),
       OrderedListFeature(),

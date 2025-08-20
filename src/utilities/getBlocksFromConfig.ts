@@ -17,11 +17,20 @@ export async function getBlocksFromConfig() {
   const postsBlocks = extractBlocksFromRichTextBlocksFeature(postsCollection?.fields || [])
   const postsBlockMappings = extractBlockMappings(postsBlocks)
 
+  // Find blocks used in HomePages collection
+  const homePagesCollection = config.collections?.find(
+    (collection) => collection.slug === 'homePages',
+  )
+  const homePagesBlocks = extractBlocksFromFields(homePagesCollection?.fields || [])
+  const homePagesBlockMappings = extractBlockMappings(homePagesBlocks)
+
   return {
     pagesBlocks,
     pagesBlockMappings,
     postsBlocks,
     postsBlockMappings,
+    homePagesBlocks,
+    homePagesBlockMappings,
   }
 }
 
