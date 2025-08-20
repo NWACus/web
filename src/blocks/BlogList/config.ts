@@ -8,6 +8,8 @@ import {
 } from '@payloadcms/richtext-lexical'
 import type { Block, Field, FilterOptionsProps } from 'payload'
 import { ButtonsBlock } from '../Buttons/config'
+import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { MediaBlock } from '../MediaBlock/config'
 import { validateMaxPosts } from './hooks/validateMaxPosts'
 
 const defaultStylingFields: Field[] = [
@@ -20,7 +22,7 @@ const defaultStylingFields: Field[] = [
         return [
           ...rootFeatures,
           BlocksFeature({
-            blocks: [ButtonsBlock],
+            blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical],
           }),
           HorizontalRuleFeature(),
           InlineToolbarFeature(),
