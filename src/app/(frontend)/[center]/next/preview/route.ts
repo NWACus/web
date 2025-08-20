@@ -53,7 +53,6 @@ export async function GET(
 
     const draft = await draftMode()
 
-    // You can add additional checks here to see if the user is allowed to preview this page
     if (!user) {
       draft.disable()
       return new Response('You are not allowed to preview this page', { status: 403 })

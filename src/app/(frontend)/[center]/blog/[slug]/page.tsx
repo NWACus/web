@@ -6,7 +6,7 @@ import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPost } from '@/utilities/generateMeta'
@@ -113,6 +113,27 @@ const queryPostBySlug = async ({ center, slug }: { center: string; slug: string 
 
   const payload = await getPayload({ config: configPromise })
 
+  const conditions: Where[] = [
+    {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    {
+      slug: {
+        equals: slug,
+      },
+    },
+  ]
+
+  if (!draft) {
+    conditions.push({
+      _status: {
+        equals: 'published',
+      },
+    })
+  }
+
   const result = await payload.find({
     collection: 'posts',
     draft,
@@ -122,27 +143,10 @@ const queryPostBySlug = async ({ center, slug }: { center: string; slug: string 
       tenants: {
         slug: true,
         name: true,
+        customDomain: true,
       },
     },
-    where: {
-      and: [
-        {
-          'tenant.slug': {
-            equals: center,
-          },
-        },
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-      ],
-    },
+    where: { and: conditions },
   })
 
   return result.docs?.[0] || null
