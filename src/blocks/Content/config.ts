@@ -10,6 +10,7 @@ import {
 import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonsBlock } from '../Buttons/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { MediaBlock } from '../MediaBlock/config'
 
 export const Content: Block = {
   slug: 'content',
@@ -44,7 +45,7 @@ export const Content: Block = {
               return [
                 ...rootFeatures,
                 BlocksFeature({
-                  blocks: [ButtonsBlock, GenericEmbedLexical, BlogListBlockLexical],
+                  blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
                 }),
                 HorizontalRuleFeature(),
                 InlineToolbarFeature(),

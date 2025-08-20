@@ -4,6 +4,7 @@ import { BlocksFeature, FixedToolbarFeature, lexicalEditor } from '@payloadcms/r
 import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonsBlock } from '../Buttons/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { MediaBlock } from '../MediaBlock/config'
 
 export const ContentWithCallout: Block = {
   slug: 'contentWithCallout',
@@ -19,7 +20,7 @@ export const ContentWithCallout: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             BlocksFeature({
-              blocks: [ButtonsBlock, GenericEmbedLexical, BlogListBlockLexical],
+              blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
             }),
           ]
         },
@@ -35,7 +36,7 @@ export const ContentWithCallout: Block = {
           return [
             ...rootFeatures,
             BlocksFeature({
-              blocks: [ButtonsBlock, GenericEmbedLexical, BlogListBlockLexical],
+              blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
             }),
           ]
         },
