@@ -81,6 +81,7 @@ export interface Config {
     teams: Team;
     settings: Setting;
     tags: Tag;
+    homePages: HomePage;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -109,6 +110,7 @@ export interface Config {
     teams: TeamsSelect<false> | TeamsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
+    homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1443,6 +1445,87 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homePages".
+ */
+export interface HomePage {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * If quick links are added they will appear to the right of the home page map on desktop and below the home page map on mobile. These are optional.
+   */
+  quickLinks?:
+    | {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * This section is displayed prominantly below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
+   */
+  highlightedContent: {
+    /**
+     * This controls whether or not this section is displayed.
+     */
+    enabled: boolean;
+    heading?: string | null;
+    backgroundColor: string;
+    columns?:
+      | {
+          richText?: {
+            root: {
+              type: string;
+              children: {
+                type: string;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
+   */
+  layout: (
+    | BiographyBlock
+    | ContentBlock
+    | ContentWithCalloutBlock
+    | FormBlock
+    | ImageLinkGrid
+    | ImageQuote
+    | ImageText
+    | ImageTextList
+    | LinkPreviewBlock
+    | MediaBlock
+    | TeamBlock
+  )[];
+  publishedAt?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1548,6 +1631,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tags';
         value: number | Tag;
+      } | null)
+    | ({
+        relationTo: 'homePages';
+        value: number | HomePage;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2414,6 +2501,56 @@ export interface TagsSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homePages_select".
+ */
+export interface HomePagesSelect<T extends boolean = true> {
+  tenant?: T;
+  quickLinks?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  highlightedContent?:
+    | T
+    | {
+        enabled?: T;
+        heading?: T;
+        backgroundColor?: T;
+        columns?:
+          | T
+          | {
+              richText?: T;
+              id?: T;
+            };
+      };
+  layout?:
+    | T
+    | {
+        biography?: T | BiographyBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridSelect<T>;
+        imageQuote?: T | ImageQuoteSelect<T>;
+        imageText?: T | ImageTextSelect<T>;
+        imageTextList?: T | ImageTextListSelect<T>;
+        linkPreview?: T | LinkPreviewBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+      };
+  publishedAt?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
