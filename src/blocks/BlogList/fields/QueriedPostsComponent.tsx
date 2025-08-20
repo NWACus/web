@@ -1,34 +1,37 @@
 'use client'
 
-import { Tag } from '@/payload-types'
+import { Post, Tag } from '@/payload-types'
 import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
 import { FieldDescription, SelectInput, useField, useForm, useFormFields } from '@payloadcms/ui'
 import { OptionObject } from 'payload'
 import { useEffect, useState } from 'react'
 
-interface QueriedPostsComponentProps {
+type QueriedPostsComponentProps = {
   path: string
-  label?: string
+  field?: {
+    label?: string
+  }
 }
 
-interface Post {
-  id: number
-  title: string
-}
+export const QueriedPostsComponent = ({ path, field }: QueriedPostsComponentProps) => {
+  const label = field?.label || 'Queried Posts'
+  const parentPathParts = path.split('.').slice(0, -1)
 
-export const QueriedPostsComponent: React.FC<QueriedPostsComponentProps> = ({
-  path,
-  label = 'Queried Posts',
-}) => {
   const { value, setValue } = useField<Post[]>({ path })
   const [isLoading, setIsLoading] = useState(false)
   const [fetchedPosts, setFetchedPosts] = useState<Post[]>([])
   const [selectOptions, setSelectOptions] = useState<OptionObject[]>([])
-  const { setProcessing } = useForm()
+  const { setDisabled } = useForm()
 
-  const filterByTags = useFormFields(([fields]) => fields.filterByTags?.value)
-  const sortBy = useFormFields(([fields]) => fields.sortBy?.value)
-  const maxPosts = useFormFields(([fields]) => fields.maxPosts?.value)
+  const filterByTags = useFormFields(
+    ([fields]) => fields[parentPathParts.concat(['filterByTags']).join('.')]?.value,
+  )
+  const sortBy = useFormFields(
+    ([fields]) => fields[parentPathParts.concat(['sortBy']).join('.')]?.value,
+  )
+  const maxPosts = useFormFields(
+    ([fields]) => fields[parentPathParts.concat(['maxPosts']).join('.')]?.value,
+  )
   const { selectedTenantID: tenant } = useTenantSelection()
 
   useEffect(() => {
@@ -38,7 +41,7 @@ export const QueriedPostsComponent: React.FC<QueriedPostsComponentProps> = ({
 
     const fetchPosts = async () => {
       setIsLoading(true)
-      setProcessing(true)
+      setDisabled(true)
 
       try {
         const tenantId = typeof tenant === 'number' ? tenant : (tenant as { id?: number })?.id
@@ -96,12 +99,12 @@ export const QueriedPostsComponent: React.FC<QueriedPostsComponentProps> = ({
         setValue([])
       } finally {
         setIsLoading(false)
-        setProcessing(false)
+        setDisabled(false)
       }
     }
 
     fetchPosts()
-  }, [filterByTags, sortBy, maxPosts, tenant, setValue, value, setProcessing])
+  }, [filterByTags, sortBy, maxPosts, tenant, setValue, value, setDisabled])
 
   const currentValue = fetchedPosts.map((post) => String(post.id))
 
