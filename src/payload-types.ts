@@ -80,6 +80,7 @@ export interface Config {
     biographies: Biography;
     teams: Team;
     settings: Setting;
+    sponsors: Sponsor;
     tags: Tag;
     homePages: HomePage;
     redirects: Redirect;
@@ -109,6 +110,7 @@ export interface Config {
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -1515,6 +1517,22 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sponsors".
+ */
+export interface Sponsor {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  photo: number | Media;
+  link: string;
+  start_date?: string | null;
+  end_date?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "homePages".
  */
 export interface HomePage {
@@ -1697,6 +1715,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'settings';
         value: number | Setting;
+      } | null)
+    | ({
+        relationTo: 'sponsors';
+        value: number | Sponsor;
       } | null)
     | ({
         relationTo: 'tags';
@@ -2584,6 +2606,21 @@ export interface SettingsSelect<T extends boolean = true> {
       };
   terms?: T;
   privacy?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sponsors_select".
+ */
+export interface SponsorsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  photo?: T;
+  link?: T;
+  start_date?: T;
+  end_date?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

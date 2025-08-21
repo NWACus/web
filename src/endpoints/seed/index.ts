@@ -25,6 +25,7 @@ import { contact as contactPageData } from './pages/contact-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
+import { sponsors } from './sponsors'
 
 const collections: CollectionSlug[] = [
   'settings',
@@ -33,6 +34,7 @@ const collections: CollectionSlug[] = [
   'media',
   'pages',
   'posts',
+  'sponsors',
   'forms',
   'form-submissions',
   'navigations',
@@ -202,6 +204,7 @@ export const seed = async ({
             'formSubmissions',
             'users',
             'redirects',
+            'sponsors',
           ],
           actions: ['*'],
         },
@@ -242,6 +245,7 @@ export const seed = async ({
             'teams',
             'forms',
             'formSubmissions',
+            'sponsors',
           ],
           actions: ['*'],
         },
@@ -558,12 +562,14 @@ export const seed = async ({
 
   payload.logger.info(`— Getting images...`)
 
-  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
-    getSeedImageByFilename('image-post1.webp', payload.logger),
-    getSeedImageByFilename('image-post2.webp', payload.logger),
-    getSeedImageByFilename('image-post3.webp', payload.logger),
-    getSeedImageByFilename('image-post3.webp', payload.logger),
-  ])
+  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, imageAcmeBuffer] =
+    await Promise.all([
+      getSeedImageByFilename('image-post1.webp', payload.logger),
+      getSeedImageByFilename('image-post2.webp', payload.logger),
+      getSeedImageByFilename('image-post3.webp', payload.logger),
+      getSeedImageByFilename('image-mountain.webp', payload.logger),
+      getSeedImageByFilename('acme-corp.webp', payload.logger),
+    ])
 
   const images = await upsert(
     'media',
@@ -592,6 +598,13 @@ export const seed = async ({
         {
           data: imageMountain(tenant),
           file: imageMountainBuffer,
+        },
+        {
+          data: {
+            tenant: tenant.id,
+            alt: 'acmeCorp',
+          },
+          file: imageAcmeBuffer,
         },
       ])
       .flat(),
@@ -887,6 +900,19 @@ export const seed = async ({
         ),
       ])
       .flat(),
+  )
+
+  payload.logger.info(`— Seeding sponsors...`)
+  await upsert(
+    'sponsors',
+    payload,
+    incremental,
+    tenantsById,
+    () => 'sponsors',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'sponsors'> =>
+        sponsors(tenant, images[tenant.slug]['acmeCorp']),
+    ),
   )
 
   payload.logger.info(`— Updating home page quick links...`)
