@@ -1,23 +1,20 @@
-import {
-  PostPreviewHorizontal,
-  PostPreviewHorizontalData,
-} from '@/components/PostPreviewHorizontal'
+import { PostPreview, PostPreviewData } from '@/components/PostPreview'
 
 export type Props = {
-  posts: PostPreviewHorizontalData[] | null | undefined
+  posts: PostPreviewData[] | null | undefined
 }
 
 export const PostCollection = (props: Props) => {
   const { posts } = props
 
   return (
-    <>
+    <div className="@container">
       {posts && posts?.length > 0 ? (
         posts?.map((result, index) => {
           if (typeof result === 'object' && result !== null) {
             return (
               <div className="mb-8" key={index}>
-                <PostPreviewHorizontal className="h-full" doc={result} relationTo="posts" />
+                <PostPreview className="h-full" doc={result} />
               </div>
             )
           }
@@ -27,6 +24,6 @@ export const PostCollection = (props: Props) => {
       ) : (
         <h3>There are no posts matching these results.</h3>
       )}
-    </>
+    </div>
   )
 }
