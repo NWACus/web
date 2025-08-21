@@ -80,7 +80,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
             )}
           </div>
           {!hasStaticPosts && (
-            <Button asChild className="w-full not-prose">
+            <Button asChild className="not-prose md:self-start">
               <Link href={`/blog?${blogLinkQueryParams.toString()}`}>View all {heading}</Link>
             </Button>
           )}
