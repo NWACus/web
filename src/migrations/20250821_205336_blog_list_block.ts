@@ -1,6 +1,10 @@
 import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  await db.run(sql`ALTER TABLE \`posts_blocks_in_content\` RENAME COLUMN "block_id" TO "doc_id";`)
+  await db.run(
+    sql`ALTER TABLE \`_posts_v_version_blocks_in_content\` RENAME COLUMN "block_id" TO "doc_id";`,
+  )
   await db.run(sql`CREATE TABLE \`pages_blocks_blog_list\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -55,6 +59,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  await db.run(sql`ALTER TABLE \`posts_blocks_in_content\` RENAME COLUMN "doc_id" TO "block_id";`)
+  await db.run(
+    sql`ALTER TABLE \`_posts_v_version_blocks_in_content\` RENAME COLUMN "doc_id" TO "block_id";`,
+  )
   await db.run(sql`DROP TABLE \`pages_blocks_blog_list\`;`)
   await db.run(sql`DROP TABLE \`_pages_v_blocks_blog_list\`;`)
   await db.run(sql`PRAGMA foreign_keys=OFF;`)

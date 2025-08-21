@@ -29,7 +29,7 @@ const defaultStylingFields: Field[] = [
         ]
       },
     }),
-    label: 'Below Heading Content',
+    label: 'Content Below Heading',
     admin: {
       description: 'Optional content to display below the heading and above the blog list.',
     },
