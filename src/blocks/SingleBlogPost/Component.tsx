@@ -1,7 +1,5 @@
-import { Card } from '@/components/Card'
-import { PostPreviewHorizontal } from '@/components/PostPreviewHorizontal'
+import { PostPreview } from '@/components/PostPreview'
 import type { SingleBlogPostBlock as SingleBlogPostBlockProps } from '@/payload-types'
-import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 
 type SingleBlogPostComponentProps = SingleBlogPostBlockProps & {
@@ -20,13 +18,11 @@ export const SingleBlogPostBlockComponent = ({
   }
 
   const bgColorClass = `bg-${backgroundColor}`
-  const textColor = getTextColorFromBgColor(backgroundColor)
 
   return (
-    <div className={cn(bgColorClass, textColor)}>
-      <div className={cn(wrapInContainer && 'container py-16', className)}>
-        <Card doc={post} relationTo="posts" className="md:hidden flex-1" />
-        <PostPreviewHorizontal doc={post} relationTo="posts" className="hidden md:flex my-0" />
+    <div className={cn(wrapInContainer && bgColorClass)}>
+      <div className={cn(wrapInContainer && 'container py-16 @container', className)}>
+        <PostPreview doc={post} className={cn('not-prose')} />
       </div>
     </div>
   )

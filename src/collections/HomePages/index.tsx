@@ -19,6 +19,7 @@ import { TeamBlock } from '@/blocks/Team/config'
 
 import { ButtonsBlock } from '@/blocks/Buttons/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -136,7 +137,12 @@ export const HomePages: CollectionConfig = {
                   return [
                     ...rootFeatures,
                     BlocksFeature({
-                      blocks: [ButtonsBlock, GenericEmbedLexical, MediaBlock],
+                      blocks: [
+                        ButtonsBlock,
+                        GenericEmbedLexical,
+                        MediaBlock,
+                        SingleBlogPostBlockLexical,
+                      ],
                     }),
                     HorizontalRuleFeature(),
                     InlineToolbarFeature(),
