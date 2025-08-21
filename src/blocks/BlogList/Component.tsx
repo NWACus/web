@@ -72,13 +72,9 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
           </div>
           <div className="flex flex-col gap-4 not-prose max-h-[400px] overflow-y-auto">
             {posts && posts?.length > 0 ? (
-              posts?.map((post, index) => {
-                if (typeof post === 'object' && post !== null) {
-                  return <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
-                }
-
-                return null
-              })
+              posts?.map((post, index) => (
+                <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
+              ))
             ) : (
               <h3>There are no posts matching these results.</h3>
             )}
