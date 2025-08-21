@@ -17,7 +17,7 @@ export const PostPreviewSmallRow = (props: { className?: string; doc?: Post }) =
   const relativePublishedAt = publishedAt ? getRelativeTime(publishedAt) : null
 
   return (
-    <Link href={`/blog/${slug}`} className="group">
+    <Link href={`/blog/${slug}`} className={cn('group', className)}>
       <article className={cn('flex gap-3', className)}>
         <div className="flex-shrink-0 overflow-hidden">
           {featuredImage && typeof featuredImage !== 'number' ? (

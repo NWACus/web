@@ -215,6 +215,9 @@ importers:
       '@react-email/preview-server':
         specifier: 4.1.3
         version: 4.1.3(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(postcss@8.5.3)(sass@1.77.4)(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.7.2))
+      '@tailwindcss/container-queries':
+        specifier: ^0.1.1
+        version: 0.1.1(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.7.2)))
       '@tailwindcss/typography':
         specifier: ^0.5.15
         version: 0.5.16(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.7.2)))
@@ -5827,6 +5830,14 @@ packages:
       {
         integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==,
       }
+
+  '@tailwindcss/container-queries@0.1.1':
+    resolution:
+      {
+        integrity: sha512-p18dswChx6WnTSaJCSGx6lTmrGzNNvm2FtXmiO6AuA1V4U5REyoqwmT6kgAsIMdjo07QdAfYXHJ4hnMtfHzWgA==,
+      }
+    peerDependencies:
+      tailwindcss: '>=3.2.0'
 
   '@tailwindcss/typography@0.5.16':
     resolution:
@@ -17778,6 +17789,10 @@ snapshots:
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+
+  '@tailwindcss/container-queries@0.1.1(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.7.2)))':
+    dependencies:
+      tailwindcss: 3.4.17(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.7.2))
 
   '@tailwindcss/typography@0.5.16(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.7.2)))':
     dependencies:

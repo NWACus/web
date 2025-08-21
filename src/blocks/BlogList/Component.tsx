@@ -56,7 +56,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
 
   return (
     <div className={cn(wrapInContainer && bgColorClass)}>
-      <div className={cn(wrapInContainer && 'container py-16', className)}>
+      <div className={cn(wrapInContainer && 'container py-16', '@container', className)}>
         <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
           <div className="flex flex-col justify-start gap-1">
             {heading && (
@@ -70,7 +70,12 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col gap-4 not-prose max-h-[400px] overflow-y-auto">
+          <div
+            className={cn(
+              'grid gap-4 not-prose max-h-[400px] overflow-y-auto',
+              posts && posts.length > 1 && '@3xl:grid-cols-2',
+            )}
+          >
             {posts && posts?.length > 0 ? (
               posts?.map((post, index) => (
                 <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
