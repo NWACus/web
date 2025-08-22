@@ -6,6 +6,7 @@ import { ButtonsBlock } from '../Buttons/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { MediaBlock } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
+import { SponsorsBlock } from '../SponsorsBlock/config'
 
 export const ContentWithCallout: Block = {
   slug: 'contentWithCallout',
@@ -27,6 +28,7 @@ export const ContentWithCallout: Block = {
                 GenericEmbedLexical,
                 MediaBlock,
                 SingleBlogPostBlockLexical,
+                SponsorsBlock,
               ],
             }),
           ]

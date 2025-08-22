@@ -1617,6 +1617,7 @@ export interface HomePage {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
+    | SponsorsBlock
     | TeamBlock
   )[];
   publishedAt?: string | null;
@@ -2704,6 +2705,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        sponsors?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   publishedAt?: T;
