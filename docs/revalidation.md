@@ -57,7 +57,7 @@ Finds and revalidates all routable collections that reference a document through
 #### `findDocumentsWithBlockReferences.ts`
 Queries routable collections for block-based references:
 - **Pages**: Searches `layout.{fieldName}` for block references
-- **Posts**: Searches `blocksInContent.collection` and `blocksInContent.blockId` for embedded blocks
+- **Posts**: Searches `blocksInContent.collection` and `blocksInContent.docId` for embedded blocks
 - **HomePages**: Searches `layout.{fieldName}` for block references
 - **🧑‍💻 Code to update**: Must be updated when new routable collections are added
 

@@ -1,11 +1,11 @@
 import type { HomePage } from '@/payload-types'
-import { resolveTenant } from '@/utilities/resolveTenant'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { BasePayload, CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 const revalidate = async (doc: HomePage, payload: BasePayload) => {
   try {
-    const tenant = await resolveTenant(doc.tenant, payload)
+    const tenant = await resolveTenant(doc.tenant)
 
     const tenantHomePath = `/${tenant.slug}`
     payload.logger.info(`Revalidating path: ${tenantHomePath}`)

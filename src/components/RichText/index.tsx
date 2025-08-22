@@ -12,10 +12,12 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { BannerBlock } from '@/blocks/Banner/Component'
+import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import type {
   BannerBlock as BannerBlockProps,
+  BlogListBlock as BlogListBlockProps,
   ButtonsBlock as ButtonsBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   MediaBlock as MediaBlockProps,
@@ -25,7 +27,11 @@ import { cn } from '@/utilities/ui'
 type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<
-      BannerBlockProps | ButtonsBlockProps | MediaBlockProps | GenericEmbedBlockProps
+      | BannerBlockProps
+      | ButtonsBlockProps
+      | MediaBlockProps
+      | GenericEmbedBlockProps
+      | BlogListBlockProps
     >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
@@ -57,6 +63,13 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       <GenericEmbedBlock
         {...node.fields}
         // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    blogList: ({ node }) => (
+      <BlogListBlockComponent
+        {...node.fields}
+        // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),

@@ -1,5 +1,6 @@
-import type { Media, Tenant } from '@/payload-types'
+import type { Media, Post, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
+import { blogListBlock } from '../blocks/blog-list'
 import { contentWithCallout } from '../blocks/content-with-callout'
 import { genericEmbed } from '../blocks/generic-embed'
 import { imageLinkGrid } from '../blocks/image-link-grid'
@@ -11,9 +12,11 @@ import { linkPreview } from '../blocks/link-preview'
 export const allBlocksPage: (
   tenant: Tenant,
   image1: Media,
+  posts: Post[],
 ) => RequiredDataFromCollectionSlug<'pages'> = (
   tenant: Tenant,
   image1: Media,
+  posts: Post[],
 ): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: 'blocks',
@@ -29,6 +32,15 @@ export const allBlocksPage: (
       ...linkPreview(image1),
       ...contentWithCallout,
       ...genericEmbed,
+      // dynamic posts
+      {
+        ...blogListBlock,
+      },
+      // static posts
+      {
+        ...blogListBlock,
+        staticPosts: posts.slice(0, 2).map((post) => post.id), // Use first 2 posts
+      },
     ],
     meta: {
       title: null,

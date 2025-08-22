@@ -1,7 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, Payload } from 'payload'
 
 import { getCachedTopLevelNavItems, getNavigationPathForSlug } from '@/components/Header/utils'
-import { resolveTenant } from '@/utilities/resolveTenant'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Page } from '@/payload-types'
@@ -56,7 +56,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
 
   if (query && query.autosave === 'true') return
 
-  const tenant = await resolveTenant(doc.tenant, payload)
+  const tenant = await resolveTenant(doc.tenant)
 
   if (doc._status === 'published') {
     await revalidatePagePaths({
@@ -92,7 +92,7 @@ export const revalidatePageDelete: CollectionAfterDeleteHook<Page> = async ({
 }) => {
   if (context.disableRevalidate) return
 
-  const tenant = await resolveTenant(doc.tenant, payload)
+  const tenant = await resolveTenant(doc.tenant)
 
   await revalidatePagePaths({
     slug: doc.slug,

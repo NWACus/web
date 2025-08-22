@@ -100,7 +100,10 @@ function extractBlocksFromRichTextBlocksFeature(fields: Field[]): Block[] {
   return blocks
 }
 
-type BlockMapping = Record<string, { blockType: string; fieldName: string }>
+type BlockMapping = Record<
+  string,
+  Array<{ blockType: string; fieldName: string; isHasMany: boolean }>
+>
 
 /**
  * Extract block mappings for reference collections by analyzing block configs
@@ -113,9 +116,20 @@ function extractBlockMappings(blocks: Block[]) {
 
     for (const field of relationshipFields) {
       if (typeof field.relationTo === 'string') {
-        mappings[field.relationTo] = {
-          blockType: block.slug,
-          fieldName: field.name,
+        if (!mappings[field.relationTo]) {
+          mappings[field.relationTo] = []
+        }
+
+        if (
+          !mappings[field.relationTo].find(
+            ({ blockType, fieldName }) => blockType === block.slug && fieldName === field.name,
+          )
+        ) {
+          mappings[field.relationTo].push({
+            blockType: block.slug,
+            fieldName: field.name,
+            isHasMany: field.hasMany ?? false,
+          })
         }
       }
     }

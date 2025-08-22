@@ -3,6 +3,7 @@ import { Fragment } from 'react'
 import type { Page } from '@/payload-types'
 
 import { BiographyBlock } from '@/blocks/Biography/Biography'
+import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { ContentWithCalloutBlock } from '@/blocks/ContentWithCallout/Component'
 import { FormBlock } from '@/blocks/Form/Component'
@@ -43,6 +44,9 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   switch (blockType) {
     case 'biography':
       return <BiographyBlock {...block} payload={payload} />
+    case 'blogList':
+      // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlock variant
+      return <BlogListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'content':
       return <ContentBlock {...block} />
     case 'formBlock':

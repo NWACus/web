@@ -1,7 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 import { extractAllInternalUrls, getCachedTopLevelNavItems } from '@/components/Header/utils'
-import { resolveTenant } from '@/utilities/resolveTenant'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Navigation } from '@/payload-types'
@@ -15,7 +15,7 @@ export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async
   if (query && query.autosave === 'true') return
 
   if (doc._status === 'published') {
-    const tenant = await resolveTenant(doc.tenant, payload)
+    const tenant = await resolveTenant(doc.tenant)
 
     payload.logger.info(`Revalidating navigation cache for tenant: ${tenant.slug}`)
 
@@ -52,7 +52,7 @@ export const revalidateNavigationDelete: CollectionAfterDeleteHook<Navigation> =
 }) => {
   if (context.disableRevalidate) return
 
-  const tenant = await resolveTenant(doc.tenant, payload)
+  const tenant = await resolveTenant(doc.tenant)
 
   payload.logger.info(`Revalidating navigation cache for deleted tenant: ${tenant.slug}`)
 

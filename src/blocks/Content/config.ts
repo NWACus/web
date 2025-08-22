@@ -7,6 +7,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonsBlock } from '../Buttons/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { MediaBlock } from '../MediaBlock/config'
@@ -44,7 +45,7 @@ export const Content: Block = {
               return [
                 ...rootFeatures,
                 BlocksFeature({
-                  blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical],
+                  blocks: [ButtonsBlock, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
                 }),
                 HorizontalRuleFeature(),
                 InlineToolbarFeature(),

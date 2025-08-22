@@ -6,7 +6,7 @@ import { getBlocksFromConfig } from '@/utilities/getBlocksFromConfig'
 interface BlockReference {
   blockType: string
   collection: string
-  blockId: number
+  docId: number
 }
 
 interface LexicalNode {
@@ -24,16 +24,22 @@ interface LexicalContent {
 /**
  * Extract ID from field value (handles both direct ID and populated object)
  */
-function extractIdFromFieldValue(fieldValue: unknown): number | null {
+function extractIdsFromFieldValue(fieldValue: unknown): number[] | null {
   if (typeof fieldValue === 'number') {
-    return fieldValue
+    return [fieldValue]
   }
 
   if (typeof fieldValue === 'object' && fieldValue !== null && 'id' in fieldValue) {
     const obj = fieldValue
     if (typeof obj.id === 'number') {
-      return obj.id
+      return [obj.id]
     }
+  }
+
+  if (Array.isArray(fieldValue) && fieldValue.length > 0) {
+    return fieldValue
+      .flatMap((val) => extractIdsFromFieldValue(val))
+      .filter((val): val is number => val !== null && typeof val === 'number')
   }
 
   return null
@@ -58,17 +64,23 @@ async function extractBlockReferencesFromLexical(
         const blockType = node.fields.blockType
 
         if (typeof blockType === 'string') {
-          for (const [collection, mapping] of Object.entries(postsBlockMappings)) {
-            if (mapping.blockType === blockType) {
-              const fieldValue = node.fields[mapping.fieldName]
-              const blockId = extractIdFromFieldValue(fieldValue)
+          for (const [collection, mappings] of Object.entries(postsBlockMappings)) {
+            const blockTypeMappings = mappings.filter(
+              ({ blockType: mappingBlockType }) => mappingBlockType === blockType,
+            )
 
-              if (blockId !== null) {
-                references.push({
-                  blockType,
-                  collection,
-                  blockId,
-                })
+            for (const mapping of blockTypeMappings) {
+              const fieldValue = node.fields[mapping.fieldName]
+              const docIds = extractIdsFromFieldValue(fieldValue)
+
+              if (docIds !== null) {
+                for (const docId of docIds) {
+                  references.push({
+                    blockType,
+                    collection,
+                    docId,
+                  })
+                }
               }
             }
           }
@@ -89,18 +101,23 @@ async function extractBlockReferencesFromLexical(
 export const populateBlocksInContent: CollectionBeforeChangeHook<Post> = async ({ data, req }) => {
   if (data._status === 'draft') return data
 
+  let blocksInContent = data.blocksInContent
+
   if (data.content) {
     try {
       const blockReferences = await extractBlockReferencesFromLexical(data.content)
 
-      data.blocksInContent = blockReferences
+      blocksInContent = blockReferences
     } catch (error) {
       req.payload.logger.warn(`Error extracting block references: ${error}`)
-      data.blocksInContent = []
+      blocksInContent = []
     }
   } else {
-    data.blocksInContent = []
+    blocksInContent = []
   }
 
-  return data
+  return {
+    ...data,
+    blocksInContent,
+  }
 }

@@ -1,6 +1,6 @@
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { convertWebpToPng } from '@/utilities/convertWebpToPng'
-import { resolveTenant } from '@/utilities/resolveTenant'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
 import * as Sentry from '@sentry/nextjs'
 import { ImageResponse } from '@vercel/og'
@@ -83,7 +83,7 @@ export async function generateOGImage({
       }
     }
 
-    const tenant = await resolveTenant(settings.tenant, payload, {
+    const tenant = await resolveTenant(settings.tenant, {
       select: {
         name: true,
       },

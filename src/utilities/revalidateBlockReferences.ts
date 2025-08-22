@@ -14,7 +14,7 @@ export async function revalidateBlockReferences(reference: RevalidationReference
     const documentsToRevalidate = await findDocumentsWithBlockReferences(reference)
 
     payload.logger.info(
-      `Found ${documentsToRevalidate.length} documents referencing ${reference.collection} ID ${reference.id}`,
+      `Found ${documentsToRevalidate.length} documents with block references to ${reference.collection} ID ${reference.id}`,
     )
 
     for (const doc of documentsToRevalidate) {

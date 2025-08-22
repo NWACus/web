@@ -16,6 +16,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
+import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
@@ -34,6 +35,8 @@ export const Posts: CollectionConfig<'posts'> = {
     slug: true,
     title: true,
     _status: true,
+    publishedAt: true,
+    authors: true,
   },
   admin: {
     group: 'Content',
@@ -106,7 +109,9 @@ export const Posts: CollectionConfig<'posts'> = {
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            BlocksFeature({ blocks: [Banner, MediaBlock, GenericEmbedLexical] }),
+            BlocksFeature({
+              blocks: [Banner, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
+            }),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),
           ]
@@ -202,7 +207,7 @@ export const Posts: CollectionConfig<'posts'> = {
           type: 'text',
         },
         {
-          name: 'blockId',
+          name: 'docId',
           type: 'number',
         },
       ],
