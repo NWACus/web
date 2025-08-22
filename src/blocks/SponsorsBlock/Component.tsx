@@ -8,6 +8,11 @@ export const SponsorsBlock = (props: SponsorsBlockProps) => {
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
+  const truncateTime = (date?: string) => {
+    const now = new Date(date ?? Date.now())
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  }
+
   return (
     <div className="container py-16">
       {title && (
@@ -18,7 +23,12 @@ export const SponsorsBlock = (props: SponsorsBlockProps) => {
       <div className="flex flex-wrap justify-evenly items-center">
         {typeof sponsors === 'object' &&
           sponsors.map((sponsor, index: number) => {
-            if (typeof sponsor === 'object')
+            if (typeof sponsor === 'number') return
+            const now = truncateTime()
+            const showLogoStart = sponsor.startDate ? truncateTime(sponsor.startDate) <= now : true
+            const showLogoEnd = sponsor.endDate ? truncateTime(sponsor.endDate) >= now : true
+
+            if (showLogoStart && showLogoEnd)
               return (
                 <div className="w-1/2 md:w-1/3 lg:w-1/5 p-10" key={index}>
                   <a href={sponsor.link} target="_blank">

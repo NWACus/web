@@ -1000,8 +1000,8 @@ export interface Sponsor {
   name: string;
   photo: number | Media;
   link: string;
-  start_date?: string | null;
-  end_date?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2644,8 +2644,8 @@ export interface SponsorsSelect<T extends boolean = true> {
   name?: T;
   photo?: T;
   link?: T;
-  start_date?: T;
-  end_date?: T;
+  startDate?: T;
+  endDate?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

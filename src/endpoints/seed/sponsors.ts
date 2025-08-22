@@ -12,6 +12,6 @@ export const sponsors: (
   name: 'Acme Corp.',
   photo: image.id,
   link: 'https://acme.com/',
-  start_date: null,
-  end_date: null,
+  startDate: null,
+  endDate: null,
 })

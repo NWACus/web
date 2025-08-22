@@ -2,7 +2,26 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
-import { CollectionConfig } from 'payload'
+import { Sponsor } from '@/payload-types'
+import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
+import { CollectionConfig, DateFieldValidation, TextFieldSingleValidation } from 'payload'
+
+const validateExternalUrl: TextFieldSingleValidation = (val) =>
+  isAbsoluteUrl(val) || 'URL must be an absolute url with a protocol. I.e. https://www.example.com.'
+
+const validateDate: DateFieldValidation = (value, { data }) => {
+  if (!value) return true
+
+  const sponsorData = data as Partial<Sponsor>
+  const startDate = new Date(value)
+  const endDate = sponsorData.endDate ? new Date(sponsorData.endDate) : null
+
+  if (endDate && startDate > endDate) {
+    return 'Start date cannot be after end date'
+  }
+
+  return true
+}
 
 export const Sponsors: CollectionConfig = {
   slug: 'sponsors',
@@ -26,22 +45,23 @@ export const Sponsors: CollectionConfig = {
       required: true,
     },
     {
-      // add validation
       name: 'link',
       type: 'text',
       required: true,
+      validate: validateExternalUrl,
     },
     {
-      name: 'start_date',
+      name: 'startDate',
       type: 'date',
       label: 'Start Date',
       required: false,
       admin: {
         position: 'sidebar',
       },
+      validate: validateDate,
     },
     {
-      name: 'end_date',
+      name: 'endDate',
       type: 'date',
       label: 'End Date',
       required: false,
