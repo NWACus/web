@@ -13,6 +13,7 @@ import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -120,6 +121,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 LinkPreviewBlock,
                 MediaBlock,
                 SingleBlogPostBlock,
+                SponsorsBlock,
                 TeamBlock,
                 GenericEmbed,
               ],

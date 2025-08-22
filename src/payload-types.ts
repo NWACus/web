@@ -290,6 +290,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | SingleBlogPostBlock
+    | SponsorsBlock
     | TeamBlock
     | GenericEmbedBlock
   )[];
@@ -979,6 +980,34 @@ export interface SingleBlogPostBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SponsorsBlock".
+ */
+export interface SponsorsBlock {
+  title?: string | null;
+  backgroundColor: string;
+  sponsors: (number | Sponsor)[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'sponsors';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sponsors".
+ */
+export interface Sponsor {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  photo: number | Media;
+  link: string;
+  start_date?: string | null;
+  end_date?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TeamBlock".
  */
 export interface TeamBlock {
@@ -1517,22 +1546,6 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sponsors".
- */
-export interface Sponsor {
-  id: number;
-  tenant: number | Tenant;
-  name: string;
-  photo: number | Media;
-  link: string;
-  start_date?: string | null;
-  end_date?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "homePages".
  */
 export interface HomePage {
@@ -1900,6 +1913,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        sponsors?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
       };
@@ -2087,6 +2101,17 @@ export interface MediaBlockSelect<T extends boolean = true> {
 export interface SingleBlogPostBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   post?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SponsorsBlock_select".
+ */
+export interface SponsorsBlockSelect<T extends boolean = true> {
+  title?: T;
+  backgroundColor?: T;
+  sponsors?: T;
   id?: T;
   blockName?: T;
 }
