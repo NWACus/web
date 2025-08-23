@@ -8,6 +8,7 @@ import * as migration_20250815_201139_add_secondary_phone_to_footer from './2025
 import * as migration_20250818_061729_generic_embed_block from './20250818_061729_generic_embed_block'
 import * as migration_20250820_004406_home_page_global_collection from './20250820_004406_home_page_global_collection'
 import * as migration_20250821_205336_blog_list_block from './20250821_205336_blog_list_block'
+import * as migration_20250823_200437_add_single_blog_post_block from './20250823_200437_add_single_blog_post_block'
 
 export const migrations = [
   {
@@ -59,5 +60,10 @@ export const migrations = [
     up: migration_20250821_205336_blog_list_block.up,
     down: migration_20250821_205336_blog_list_block.down,
     name: '20250821_205336_blog_list_block',
+  },
+  {
+    up: migration_20250823_200437_add_single_blog_post_block.up,
+    down: migration_20250823_200437_add_single_blog_post_block.down,
+    name: '20250823_200437_add_single_blog_post_block',
   },
 ]
