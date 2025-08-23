@@ -19,7 +19,7 @@ const defaultFields: Field[] = [
 const singleBlogPostWithFields = (fields?: Field[]): Block => ({
   slug: 'singleBlogPost',
   interfaceName: 'SingleBlogPostBlock',
-  // imageURL: '/thumbnail/ContentThumbnail.jpg',
+  imageURL: '/thumbnail/SingleBlogPostThumbnail.jpg',
   fields: [...defaultFields, ...(fields ?? [])],
 })
 
