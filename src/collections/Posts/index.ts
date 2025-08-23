@@ -18,6 +18,7 @@ import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPu
 import { filterByTenant } from '@/access/filterByTenant'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -110,7 +111,13 @@ export const Posts: CollectionConfig<'posts'> = {
           return [
             ...rootFeatures,
             BlocksFeature({
-              blocks: [Banner, MediaBlock, GenericEmbedLexical, BlogListBlockLexical],
+              blocks: [
+                Banner,
+                BlogListBlockLexical,
+                GenericEmbedLexical,
+                MediaBlock,
+                SingleBlogPostBlockLexical,
+              ],
             }),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),

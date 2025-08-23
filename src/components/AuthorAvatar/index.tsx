@@ -33,7 +33,7 @@ export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['upda
           {combinedAuthorsPhotos.map((authorPhoto, index) => (
             <MediaAvatar
               resource={authorPhoto}
-              className="xl:size-[60px]"
+              className="xl:size-[60px] shadow-md"
               key={index}
               fallback={combinedAuthorsInitials[index]}
             />
