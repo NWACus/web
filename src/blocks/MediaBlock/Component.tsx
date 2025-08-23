@@ -36,13 +36,13 @@ export const MediaBlock = (props: Props) => {
       {(media || staticImage) && (
         <Media
           className="my-0"
-          imgClassName={cn(imgClassName)}
+          imgClassName={cn('mx-auto', imgClassName)}
           resource={media}
           src={staticImage}
         />
       )}
       {caption && (
-        <div className={cn({ container: !disableInnerContainer }, captionClassName)}>
+        <div className={cn('mt-4', { container: !disableInnerContainer }, captionClassName)}>
           <RichText data={caption} enableGutter={false} className="text-xs" />
         </div>
       )}
