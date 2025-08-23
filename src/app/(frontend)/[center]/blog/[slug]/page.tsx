@@ -86,9 +86,9 @@ export default async function Post({ params: paramsPromise }: Args) {
         </div>
       </div>
       {post.relatedPosts && post.relatedPosts.length > 0 && (
-        <div className="bg-brand-500 p-12">
+        <div className="bg-brand-500 p-16">
           <RelatedPosts
-            className="max-w-[52rem] flex flex-col md:flex-row justify-evenly gap-4 items-stretch"
+            className="flex flex-col items-center md:flex-row md:justify-center md:items-stretch gap-4 max-w-[48rem] lg:px-0"
             docs={post.relatedPosts.filter((post) => typeof post === 'object')}
           />
         </div>

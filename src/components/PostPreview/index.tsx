@@ -30,14 +30,14 @@ export const PostPreview = (props: {
 
   // NOTE: this component should be rendered inside of an element with the '@container' class on it
   return (
-    <Link href={`/blog/${slug}`} className="group no-underline">
+    <Link href={`/blog/${slug}`} className={cn('group no-underline flex flex-grow', className)}>
       <article
         className={cn(
-          'flex flex-col @lg:flex-row bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden',
+          'flex flex-col @md:flex-row bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden',
           className,
         )}
       >
-        <div className="w-full @lg:w-80 @lg:flex-shrink-0 h-48 @lg:h-auto overflow-hidden">
+        <div className="w-full @md:w-56 @xl:w-72 @2xl:w-80 @md:flex-shrink-0 h-48 @md:h-auto overflow-hidden">
           {featuredImage && typeof featuredImage !== 'number' && (
             <ImageMedia
               imgClassName="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -46,7 +46,7 @@ export const PostPreview = (props: {
             />
           )}
         </div>
-        <div className="flex flex-col justify-between px-6 py-4 flex-1 @lg:border-y border-b border-x rounded-b-lg @lg:rounded-b-none @lg:border-r @lg:rounded-tr-lg @lg:rounded-br-lg">
+        <div className="flex flex-col justify-between px-6 py-4 flex-grow @md:border-y border-b border-x rounded-b-lg @md:rounded-b-none @md:border-r @md:rounded-tr-lg @md:rounded-br-lg">
           <div>
             {titleToUse && (
               <div className="mb-3">
@@ -57,7 +57,7 @@ export const PostPreview = (props: {
               </div>
             )}
             {description && (
-              <p className="text-muted-foreground text-sm @lg:text-base line-clamp-3 mb-4">
+              <p className="text-muted-foreground text-sm @lg:text-base line-clamp-2 @xl:line-clamp-3 mb-4">
                 {sanitizedDescription}
               </p>
             )}
