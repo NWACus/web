@@ -8,6 +8,7 @@ import { ContentBlock } from '@/blocks/Content/Component'
 import { ContentWithCalloutBlock } from '@/blocks/ContentWithCallout/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { HeaderBlock } from '@/blocks/Header/Component'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/Component'
 import { ImageQuote } from '@/blocks/ImageQuote/Component'
 import { ImageText } from '@/blocks/ImageText/Component'
@@ -52,6 +53,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <ContentBlock {...block} />
     case 'formBlock':
       return <FormBlock {...block} />
+    case 'header':
+      return <HeaderBlock {...block} />
     case 'imageLinkGrid':
       return <ImageLinkGrid {...block} />
     case 'imageQuote':

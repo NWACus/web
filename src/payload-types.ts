@@ -281,6 +281,7 @@ export interface Page {
     | ContentBlock
     | ContentWithCalloutBlock
     | FormBlock
+    | HeaderBlock
     | ImageLinkGrid
     | ImageQuote
     | ImageText
@@ -806,6 +807,35 @@ export interface Form {
   tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderBlock".
+ */
+export interface HeaderBlock {
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  backgroundColor: string;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'header';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1580,6 +1610,7 @@ export interface HomePage {
     | ContentBlock
     | ContentWithCalloutBlock
     | FormBlock
+    | HeaderBlock
     | ImageLinkGrid
     | ImageQuote
     | ImageText
@@ -1871,6 +1902,7 @@ export interface PagesSelect<T extends boolean = true> {
         content?: T | ContentBlockSelect<T>;
         contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        header?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
@@ -1954,6 +1986,17 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderBlock_select".
+ */
+export interface HeaderBlockSelect<T extends boolean = true> {
+  richText?: T;
+  backgroundColor?: T;
+  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }
@@ -2636,6 +2679,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         content?: T | ContentBlockSelect<T>;
         contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        header?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;

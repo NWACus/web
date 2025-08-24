@@ -19,6 +19,7 @@ import { TeamBlock } from '@/blocks/Team/config'
 
 import { ButtonsBlock } from '@/blocks/Buttons/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { Header } from '@/blocks/Header/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
@@ -168,6 +169,7 @@ export const HomePages: CollectionConfig = {
         Content,
         ContentWithCallout,
         FormBlock,
+        Header,
         ImageLinkGrid,
         ImageQuote,
         ImageText,
