@@ -9,6 +9,7 @@ import * as migration_20250818_061729_generic_embed_block from './20250818_06172
 import * as migration_20250820_004406_home_page_global_collection from './20250820_004406_home_page_global_collection'
 import * as migration_20250821_205336_blog_list_block from './20250821_205336_blog_list_block'
 import * as migration_20250823_200437_add_single_blog_post_block from './20250823_200437_add_single_blog_post_block'
+import * as migration_20250824_200244_add_footer_form from './20250824_200244_add_footer_form'
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20250823_200437_add_single_blog_post_block.up,
     down: migration_20250823_200437_add_single_blog_post_block.down,
     name: '20250823_200437_add_single_blog_post_block',
+  },
+  {
+    up: migration_20250824_200244_add_footer_form.up,
+    down: migration_20250824_200244_add_footer_form.down,
+    name: '20250824_200244_add_footer_form',
   },
 ]
