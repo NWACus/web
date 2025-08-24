@@ -427,6 +427,9 @@ export const seed = async ({
       (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
         tenant: tenant.id,
         description: settingsData[tenant.slug].description,
+        footerForm: {
+          type: 'none',
+        },
         address: settingsData[tenant.slug].address,
         phone: settingsData[tenant.slug].phone,
         email: settingsData[tenant.slug].email,
