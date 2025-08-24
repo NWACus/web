@@ -3,7 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
-import { CollectionConfig, TextFieldValidation } from 'payload'
+import { CollectionConfig, GroupField, TextFieldValidation } from 'payload'
 import { revalidateSettings } from './hooks/revalidateSettings'
 
 const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
@@ -20,6 +20,68 @@ const validateTelephone: TextFieldValidation = (
     ? /^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value) ||
         `${value} is not a valid phone number`
     : true
+}
+
+const footerForm: GroupField = {
+  name: 'footerForm',
+  type: 'group',
+  admin: {
+    hideGutter: true,
+  },
+  fields: [
+    { name: 'title', type: 'text' },
+    { name: 'subtitle', type: 'text' },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'type',
+          required: true,
+          type: 'radio',
+          label: 'What type of subscribe form would you like in the footer?',
+          admin: {
+            layout: 'horizontal',
+            width: '50%',
+          },
+          defaultValue: 'none',
+          options: [
+            {
+              label: 'None',
+              value: 'none',
+            },
+            {
+              label: 'Embedded',
+              value: 'embedded',
+            },
+            {
+              label: 'Form',
+              value: 'form',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'html',
+      type: 'textarea',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'embedded',
+      },
+      label: 'Custom embed form',
+      required: true,
+    },
+    {
+      name: 'form',
+      type: 'relationship',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'form',
+      },
+      label: 'Choose form',
+      relationTo: ['forms'],
+      required: true,
+      filterOptions: getTenantFilter,
+    },
+  ],
 }
 
 export const Settings: CollectionConfig = {
@@ -62,6 +124,7 @@ export const Settings: CollectionConfig = {
                   'A short description of your avalanche center. This will be used in meta tags for search engine optimization and display in previews on social media and in messaging apps.',
               },
             },
+            footerForm,
             {
               name: 'address',
               type: 'textarea',
