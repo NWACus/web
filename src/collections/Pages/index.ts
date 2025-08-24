@@ -33,6 +33,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { Header } from '@/blocks/Header/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
@@ -113,6 +114,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 Content,
                 ContentWithCallout,
                 FormBlock,
+                Header,
                 ImageLinkGrid,
                 ImageQuote,
                 ImageText,
