@@ -80,6 +80,7 @@ export interface Config {
     biographies: Biography;
     teams: Team;
     settings: Setting;
+    sponsors: Sponsor;
     tags: Tag;
     homePages: HomePage;
     redirects: Redirect;
@@ -109,6 +110,7 @@ export interface Config {
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -288,6 +290,7 @@ export interface Page {
     | LinkPreviewBlock
     | MediaBlock
     | SingleBlogPostBlock
+    | SponsorsBlock
     | TeamBlock
     | GenericEmbedBlock
   )[];
@@ -977,6 +980,34 @@ export interface SingleBlogPostBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SponsorsBlock".
+ */
+export interface SponsorsBlock {
+  title?: string | null;
+  backgroundColor: string;
+  sponsors: (number | Sponsor)[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'sponsors';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sponsors".
+ */
+export interface Sponsor {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  photo: number | Media;
+  link: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TeamBlock".
  */
 export interface TeamBlock {
@@ -1586,6 +1617,7 @@ export interface HomePage {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
+    | SponsorsBlock
     | TeamBlock
   )[];
   publishedAt?: string | null;
@@ -1697,6 +1729,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'settings';
         value: number | Setting;
+      } | null)
+    | ({
+        relationTo: 'sponsors';
+        value: number | Sponsor;
       } | null)
     | ({
         relationTo: 'tags';
@@ -1878,6 +1914,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        sponsors?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
       };
@@ -2065,6 +2102,17 @@ export interface MediaBlockSelect<T extends boolean = true> {
 export interface SingleBlogPostBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   post?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SponsorsBlock_select".
+ */
+export interface SponsorsBlockSelect<T extends boolean = true> {
+  title?: T;
+  backgroundColor?: T;
+  sponsors?: T;
   id?: T;
   blockName?: T;
 }
@@ -2590,6 +2638,21 @@ export interface SettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sponsors_select".
+ */
+export interface SponsorsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  photo?: T;
+  link?: T;
+  startDate?: T;
+  endDate?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tags_select".
  */
 export interface TagsSelect<T extends boolean = true> {
@@ -2642,6 +2705,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        sponsors?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   publishedAt?: T;
