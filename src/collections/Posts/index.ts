@@ -17,6 +17,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { contentHashField } from '@/fields/contentHashField'
@@ -114,6 +115,7 @@ export const Posts: CollectionConfig<'posts'> = {
               blocks: [
                 Banner,
                 BlogListBlockLexical,
+                DocumentBlock,
                 GenericEmbedLexical,
                 MediaBlock,
                 SingleBlogPostBlockLexical,

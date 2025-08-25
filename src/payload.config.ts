@@ -6,6 +6,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
+import { Documents } from '@/collections/Documents'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { Media } from '@/collections/Media'
@@ -139,6 +140,7 @@ export default buildConfig({
     },
   }),
   collections: [
+    Documents,
     Media,
     Pages,
     Posts,
