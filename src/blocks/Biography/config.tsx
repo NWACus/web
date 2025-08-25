@@ -1,9 +1,11 @@
+import colorPickerField from '@/fields/color'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
 export const BiographyBlock: Block = {
   slug: 'biography',
   fields: [
+    colorPickerField('Background color'),
     {
       name: 'biography',
       type: 'relationship',
