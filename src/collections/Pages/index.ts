@@ -35,6 +35,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
@@ -114,6 +115,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 BlogListBlock,
                 Content,
                 ContentWithCallout,
+                DocumentBlock,
                 FormBlock,
                 HeaderBlock,
                 ImageLinkGrid,

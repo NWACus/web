@@ -97,6 +97,9 @@ export const plugins: Plugin[] = [
   vercelBlobStorage({
     enabled: !!process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
     collections: {
+      documents: {
+        prefix: getEnvironmentFriendlyName(),
+      },
       media: {
         prefix: getEnvironmentFriendlyName(),
       },

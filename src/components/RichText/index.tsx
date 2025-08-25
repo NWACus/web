@@ -14,6 +14,7 @@ import {
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
+import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
@@ -21,6 +22,7 @@ import type {
   BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
   ButtonsBlock as ButtonsBlockProps,
+  DocumentBlock as DocumentBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   MediaBlock as MediaBlockProps,
   SingleBlogPostBlock,
@@ -34,6 +36,7 @@ type NodeTypes =
       | BannerBlockProps
       | BlogListBlockProps
       | ButtonsBlockProps
+      | DocumentBlockProps
       | GenericEmbedBlockProps
       | MediaBlockProps
       | SingleBlogPostBlock
@@ -54,15 +57,19 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
     banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
-    buttonsBlock: ({ node }) => <ButtonsBlock {...node.fields} />,
-    mediaBlock: ({ node }) => (
-      <MediaBlock
-        className="col-start-1 col-span-3"
-        imgClassName="m-0"
+    blogList: ({ node }) => (
+      <BlogListBlockComponent
         {...node.fields}
-        captionClassName="mx-auto max-w-[48rem]"
-        enableGutter={false}
-        disableInnerContainer={true}
+        // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    buttonsBlock: ({ node }) => <ButtonsBlock {...node.fields} />,
+    documentBlock: ({ node }) => (
+      <DocumentBlock
+        {...node.fields}
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
     genericEmbed: ({ node }) => (
@@ -72,11 +79,14 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
-    blogList: ({ node }) => (
-      <BlogListBlockComponent
+    mediaBlock: ({ node }) => (
+      <MediaBlock
+        className="col-start-1 col-span-3"
+        imgClassName="m-0"
         {...node.fields}
-        // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
-        wrapInContainer={node.fields.wrapInContainer || false}
+        captionClassName="mx-auto max-w-[48rem]"
+        enableGutter={false}
+        disableInnerContainer={true}
       />
     ),
     singleBlogPost: ({ node }) => (
