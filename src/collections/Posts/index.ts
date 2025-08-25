@@ -44,7 +44,7 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   admin: {
     group: 'Content',
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'slug', 'tags', 'updatedAt'],
     baseListFilter: filterByTenant,
     livePreview: {
       url: async ({ data, req }) => {
@@ -85,6 +85,8 @@ export const Posts: CollectionConfig<'posts'> = {
     },
     useAsTitle: 'title',
   },
+  trash: true,
+  groupBy: true,
   fields: [
     tenantField(),
     {

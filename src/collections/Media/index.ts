@@ -22,6 +22,7 @@ export const Media: CollectionConfig = {
     baseListFilter: filterByTenant,
     group: 'Content',
   },
+  trash: true,
   fields: [
     tenantField(),
     {

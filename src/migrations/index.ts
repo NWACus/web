@@ -10,6 +10,7 @@ import * as migration_20250820_004406_home_page_global_collection from './202508
 import * as migration_20250821_205336_blog_list_block from './20250821_205336_blog_list_block'
 import * as migration_20250823_200437_add_single_blog_post_block from './20250823_200437_add_single_blog_post_block'
 import * as migration_20250824_200244_add_footer_form from './20250824_200244_add_footer_form'
+import * as migration_20250825_013400_update_payload_3_50 from './20250825_013400_update_payload_3_50'
 import * as migration_20250828_211035_add_sponsors from './20250828_211035_add_sponsors'
 import * as migration_20250828_230246_add_header_block from './20250828_230246_add_header_block'
 
@@ -68,6 +69,11 @@ export const migrations = [
     up: migration_20250823_200437_add_single_blog_post_block.up,
     down: migration_20250823_200437_add_single_blog_post_block.down,
     name: '20250823_200437_add_single_blog_post_block',
+  },
+  {
+    up: migration_20250825_013400_update_payload_3_50.up,
+    down: migration_20250825_013400_update_payload_3_50.down,
+    name: '20250825_013400_update_payload_3_51',
   },
   {
     up: migration_20250824_200244_add_footer_form.up,

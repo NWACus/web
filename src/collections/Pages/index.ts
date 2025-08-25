@@ -95,6 +95,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
   },
+  trash: true,
   fields: [
     {
       name: 'title',
