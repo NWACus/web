@@ -48,6 +48,7 @@ export const Pages: CollectionConfig<'pages'> = {
   admin: {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
+    groupBy: true,
     baseListFilter: filterByTenant,
     livePreview: {
       url: async ({ data, req }) => {
@@ -93,6 +94,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
   },
+  trash: true,
   fields: [
     {
       name: 'title',

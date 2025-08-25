@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    allow:
+      - dependency-name: 'payload'
+      - dependency-name: '@payloadcms/admin-bar'
+      - dependency-name: '@payloadcms/db-sqlite'
+      - dependency-name: '@payloadcms/email-nodemailer'
+      - dependency-name: '@payloadcms/email-resend'
+      - dependency-name: '@payloadcms/next'
+      - dependency-name: '@payloadcms/plugin-form-builder'
+      - dependency-name: '@payloadcms/plugin-multi-tenant'
+      - dependency-name: '@payloadcms/plugin-redirects'
+      - dependency-name: '@payloadcms/plugin-sentry'
+      - dependency-name: '@payloadcms/plugin-seo'
+      - dependency-name: '@payloadcms/richtext-lexical'
+      - dependency-name: '@payloadcms/storage-vercel-blob'
+      - dependency-name: '@payloadcms/ui'
+      - dependency-name: '@payloadcms/live-preview-react'
