@@ -1,5 +1,6 @@
 import { createClient } from '@vercel/edge-config'
 import { NextRequest, NextResponse } from 'next/server'
+import { ROOT_DOMAIN } from './utilities/domain'
 import { getURL } from './utilities/getURL'
 import { PRODUCTION_TENANTS } from './utilities/tenancy/tenants'
 
@@ -8,13 +9,14 @@ export const config = {
     /*
      * Match all paths except for:
      * 1. /api routes
-     * 2. /_next (Next.js internals)
+     * 2. /_next (Next.js internals) except /_next/image for validation
      * 3. /_static (inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
      * 5. /media, /thumbnail, /assets (inside /public)
      * 6. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
      */
     '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
+    '/_next/image',
     '/sitemap.xml',
     '/robots.txt',
     '/pages-sitemap.xml',
@@ -106,18 +108,38 @@ export default async function middleware(req: NextRequest) {
 
     if (url) {
       try {
-        // const imageUrl = new URL(url)
-        // const hostname = imageUrl.hostname
+        if (url.startsWith('/_next/static')) return NextResponse.next()
 
-        // Check if hostname is in your database
-        // TODO: check is allowed
-        const isAllowed = true
+        const imageUrl = new URL(url)
+        const imageHost = imageUrl.host
+
+        // Build allowed hostnames using similar pattern as CSRF validation in payload.config.ts
+        const rootDomainUrl = new URL(getURL())
+        const allowedHosts = new Set([rootDomainUrl.hostname])
+
+        // Add all tenant subdomains
+        TENANTS.forEach(({ slug }) => {
+          allowedHosts.add(`${slug}.${ROOT_DOMAIN}`)
+        })
+
+        // Add production tenant custom domains
+        TENANTS.forEach(({ slug, customDomain }) => {
+          if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
+            allowedHosts.add(customDomain)
+          }
+        })
+
+        const isAllowed = allowedHosts.has(imageHost)
 
         if (!isAllowed) {
+          console.warn(`[Middleware] Blocked image optimization for disallowed host: ${imageHost}`)
           return new NextResponse('Forbidden', { status: 403 })
         }
-      } catch {
-        return new NextResponse('Invalid URL', { status: 400 })
+
+        return NextResponse.next()
+      } catch (err) {
+        console.error(`Failed to determined if media url ${url} is allowed. Error: `, err)
+        return new NextResponse('Invalid media URL', { status: 400 })
       }
     }
   }
@@ -211,17 +233,20 @@ export default async function middleware(req: NextRequest) {
   // If request is to subdomain on root domain
   if (host && requestedHost && !isSeedEndpoint) {
     for (const { id, slug, customDomain } of TENANTS) {
-      // Redirect to custom domain if tenant is in PRODUCTION_TENANTS and has a custom domain configured
-      if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
-        const redirectUrl = new URL(req.nextUrl.clone())
-        redirectUrl.host = customDomain
-
-        console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
-        logCompletion('custom-domain-redirect')
-        return NextResponse.redirect(redirectUrl, process.env.NODE_ENV === 'production' ? 308 : 302)
-      }
-
       if (requestedHost === `${slug}.${host}`) {
+        // Redirect to custom domain if tenant is in PRODUCTION_TENANTS and has a custom domain configured
+        if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
+          const redirectUrl = new URL(req.nextUrl.clone())
+          redirectUrl.host = customDomain
+
+          console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
+          logCompletion('custom-domain-redirect')
+          return NextResponse.redirect(
+            redirectUrl,
+            process.env.NODE_ENV === 'production' ? 308 : 302,
+          )
+        }
+
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
