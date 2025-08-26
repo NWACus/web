@@ -1,7 +1,6 @@
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
 import {
   AlignFeature,
   BlocksFeature,
@@ -17,6 +16,7 @@ import {
   UnderlineFeature,
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
+import { validateUrlMinimal } from 'node_modules/@payloadcms/richtext-lexical/dist/lexical/utils/url'
 import { Config, TextFieldSingleValidation } from 'payload'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
@@ -47,14 +47,13 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
               },
               label: ({ t }) => t('fields:enterURL'),
               required: true,
-              validate: ((value, options) => {
+              validate: ((value: string, options) => {
                 if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
-                  return true // no validation needed, as no url should exist for internal links
+                  return // no validation needed, as no url should exist for internal links
                 }
-                return (
-                  isAbsoluteUrl(value) ||
-                  'External URL must be an absolute url with a protocol. I.e. https://www.example.com.'
-                )
+                if (!validateUrlMinimal(value)) {
+                  return 'Invalid URL'
+                }
               }) as TextFieldSingleValidation,
             },
           ]
