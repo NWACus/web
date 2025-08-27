@@ -3,11 +3,8 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { Sponsor } from '@/payload-types'
-import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
-import { CollectionConfig, DateFieldValidation, TextFieldSingleValidation } from 'payload'
-
-const validateExternalUrl: TextFieldSingleValidation = (val) =>
-  isAbsoluteUrl(val) || 'URL must be an absolute url with a protocol. I.e. https://www.example.com.'
+import { validateExternalUrl } from '@/utilities/validateUrl'
+import { CollectionConfig, DateFieldValidation } from 'payload'
 
 const validateDate: DateFieldValidation = (value, { data }) => {
   if (!value) return true
