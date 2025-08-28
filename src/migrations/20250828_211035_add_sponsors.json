@@ -9184,6 +9184,35 @@
           "notNull": false,
           "autoincrement": false
         },
+        "footer_form_title": {
+          "name": "footer_form_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "footer_form_subtitle": {
+          "name": "footer_form_subtitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "footer_form_type": {
+          "name": "footer_form_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'none'"
+        },
+        "footer_form_html": {
+          "name": "footer_form_html",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "address": {
           "name": "address",
           "type": "text",
@@ -9443,6 +9472,91 @@
           "columnsFrom": ["privacy_id"],
           "columnsTo": ["id"],
           "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "settings_rels": {
+      "name": "settings_rels",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "path": {
+          "name": "path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "forms_id": {
+          "name": "forms_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "settings_rels_order_idx": {
+          "name": "settings_rels_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "settings_rels_parent_idx": {
+          "name": "settings_rels_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        },
+        "settings_rels_path_idx": {
+          "name": "settings_rels_path_idx",
+          "columns": ["path"],
+          "isUnique": false
+        },
+        "settings_rels_forms_id_idx": {
+          "name": "settings_rels_forms_id_idx",
+          "columns": ["forms_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "settings_rels_parent_fk": {
+          "name": "settings_rels_parent_fk",
+          "tableFrom": "settings_rels",
+          "tableTo": "settings",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "settings_rels_forms_fk": {
+          "name": "settings_rels_forms_fk",
+          "tableFrom": "settings_rels",
+          "tableTo": "forms",
+          "columnsFrom": ["forms_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -11096,92 +11210,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "home_pages_blocks_sponsors_block": {
-      "name": "home_pages_blocks_sponsors_block",
-      "columns": {
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_path": {
-          "name": "_path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "background_color": {
-          "name": "background_color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'white'"
-        },
-        "block_name": {
-          "name": "block_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "home_pages_blocks_sponsors_block_order_idx": {
-          "name": "home_pages_blocks_sponsors_block_order_idx",
-          "columns": ["_order"],
-          "isUnique": false
-        },
-        "home_pages_blocks_sponsors_block_parent_id_idx": {
-          "name": "home_pages_blocks_sponsors_block_parent_id_idx",
-          "columns": ["_parent_id"],
-          "isUnique": false
-        },
-        "home_pages_blocks_sponsors_block_path_idx": {
-          "name": "home_pages_blocks_sponsors_block_path_idx",
-          "columns": ["_path"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "home_pages_blocks_sponsors_block_parent_id_fk": {
-          "name": "home_pages_blocks_sponsors_block_parent_id_fk",
-          "tableFrom": "home_pages_blocks_sponsors_block",
-          "tableTo": "home_pages",
-          "columnsFrom": ["_parent_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "home_pages_blocks_team": {
       "name": "home_pages_blocks_team",
       "columns": {
@@ -11434,13 +11462,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "sponsors_id": {
-          "name": "sponsors_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -11468,11 +11489,6 @@
           "name": "home_pages_rels_posts_id_idx",
           "columns": ["posts_id"],
           "isUnique": false
-        },
-        "home_pages_rels_sponsors_id_idx": {
-          "name": "home_pages_rels_sponsors_id_idx",
-          "columns": ["sponsors_id"],
-          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -11499,15 +11515,6 @@
           "tableFrom": "home_pages_rels",
           "tableTo": "posts",
           "columnsFrom": ["posts_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "home_pages_rels_sponsors_fk": {
-          "name": "home_pages_rels_sponsors_fk",
-          "tableFrom": "home_pages_rels",
-          "tableTo": "sponsors",
-          "columnsFrom": ["sponsors_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -13061,99 +13068,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "_home_pages_v_blocks_sponsors_block": {
-      "name": "_home_pages_v_blocks_sponsors_block",
-      "columns": {
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_path": {
-          "name": "_path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "background_color": {
-          "name": "background_color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'white'"
-        },
-        "_uuid": {
-          "name": "_uuid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "block_name": {
-          "name": "block_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "_home_pages_v_blocks_sponsors_block_order_idx": {
-          "name": "_home_pages_v_blocks_sponsors_block_order_idx",
-          "columns": ["_order"],
-          "isUnique": false
-        },
-        "_home_pages_v_blocks_sponsors_block_parent_id_idx": {
-          "name": "_home_pages_v_blocks_sponsors_block_parent_id_idx",
-          "columns": ["_parent_id"],
-          "isUnique": false
-        },
-        "_home_pages_v_blocks_sponsors_block_path_idx": {
-          "name": "_home_pages_v_blocks_sponsors_block_path_idx",
-          "columns": ["_path"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "_home_pages_v_blocks_sponsors_block_parent_id_fk": {
-          "name": "_home_pages_v_blocks_sponsors_block_parent_id_fk",
-          "tableFrom": "_home_pages_v_blocks_sponsors_block",
-          "tableTo": "_home_pages_v",
-          "columnsFrom": ["_parent_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "_home_pages_v_blocks_team": {
       "name": "_home_pages_v_blocks_team",
       "columns": {
@@ -13482,13 +13396,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "sponsors_id": {
-          "name": "sponsors_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -13516,11 +13423,6 @@
           "name": "_home_pages_v_rels_posts_id_idx",
           "columns": ["posts_id"],
           "isUnique": false
-        },
-        "_home_pages_v_rels_sponsors_id_idx": {
-          "name": "_home_pages_v_rels_sponsors_id_idx",
-          "columns": ["sponsors_id"],
-          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -13547,15 +13449,6 @@
           "tableFrom": "_home_pages_v_rels",
           "tableTo": "posts",
           "columnsFrom": ["posts_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "_home_pages_v_rels_sponsors_fk": {
-          "name": "_home_pages_v_rels_sponsors_fk",
-          "tableFrom": "_home_pages_v_rels",
-          "tableTo": "sponsors",
-          "columnsFrom": ["sponsors_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -15911,6 +15804,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "0cc66f62-258a-4ec5-a3d0-532a4db75f07",
+  "id": "44be7d5d-924a-440a-96ca-096fe93987be",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
