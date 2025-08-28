@@ -986,6 +986,10 @@ export interface SponsorsBlock {
   title?: string | null;
   backgroundColor: string;
   sponsors: (number | Sponsor)[];
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'sponsorsBlock';
@@ -1617,7 +1621,6 @@ export interface HomePage {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
-    | SponsorsBlock
     | TeamBlock
   )[];
   publishedAt?: string | null;
@@ -2705,7 +2708,6 @@ export interface HomePagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   publishedAt?: T;
