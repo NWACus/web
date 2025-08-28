@@ -6,6 +6,7 @@ import { Content } from '@/blocks/Content/config'
 import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbed } from '@/blocks/GenericEmbed/config'
+import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
@@ -114,6 +115,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 Content,
                 ContentWithCallout,
                 FormBlock,
+                HeaderBlock,
                 ImageLinkGrid,
                 ImageQuote,
                 ImageText,
