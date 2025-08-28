@@ -161,6 +161,7 @@ export const HomePages: CollectionConfig = {
       admin: {
         description:
           'This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.',
+        initCollapsed: false,
       },
       type: 'blocks',
       blocks: [
