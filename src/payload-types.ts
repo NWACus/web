@@ -1464,6 +1464,9 @@ export interface Setting {
     subtitle?: string | null;
     type: 'none' | 'embedded' | 'form';
     html?: string | null;
+    /**
+     * Note: We suggest using Message as the Confirmation Type
+     */
     form?: {
       relationTo: 'forms';
       value: number | Form;

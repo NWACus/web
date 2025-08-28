@@ -75,6 +75,7 @@ const footerForm: GroupField = {
       type: 'relationship',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'form',
+        description: 'Note: We suggest using Message as the Confirmation Type',
       },
       label: 'Choose form',
       relationTo: ['forms'],
