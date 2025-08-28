@@ -15,6 +15,7 @@ import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
+import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
 
@@ -50,8 +51,13 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <BlogListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'content':
       return <ContentBlock {...block} />
+    case 'contentWithCallout':
+      return <ContentWithCalloutBlock {...block} />
     case 'formBlock':
       return <FormBlock {...block} />
+    case 'genericEmbed':
+      // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbed variant
+      return <GenericEmbedBlock {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'imageLinkGrid':
       return <ImageLinkGrid {...block} />
     case 'imageQuote':
@@ -71,10 +77,10 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return (
         <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
       )
+    case 'sponsorsBlock':
+      // src/blocks/SponsorsBlock/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlock variant
+      return <SponsorsBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'team':
       return <TeamBlock {...block} payload={payload} />
-    case 'genericEmbed':
-      // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbed variant
-      return <GenericEmbedBlock {...block} wrapInContainer={block.wrapInContainer || true} />
   }
 }

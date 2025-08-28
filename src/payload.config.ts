@@ -30,6 +30,7 @@ import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUr
 import pino from 'pino'
 import { build } from 'pino-pretty'
 import { HomePages } from './collections/HomePages'
+import { Sponsors } from './collections/Sponsors'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -152,6 +153,7 @@ export default buildConfig({
     Biographies,
     Teams,
     Settings,
+    Sponsors,
     Tags,
     HomePages,
   ],

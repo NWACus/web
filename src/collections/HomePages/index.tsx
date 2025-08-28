@@ -5,21 +5,21 @@ import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
+import { ButtonsBlock } from '@/blocks/Buttons/config'
 import { Content } from '@/blocks/Content/config'
 import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
-
+import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
-import { ButtonsBlock } from '@/blocks/Buttons/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -142,6 +142,7 @@ export const HomePages: CollectionConfig = {
                         GenericEmbedLexical,
                         MediaBlock,
                         SingleBlogPostBlockLexical,
+                        SponsorsBlockLexical,
                       ],
                     }),
                     HorizontalRuleFeature(),

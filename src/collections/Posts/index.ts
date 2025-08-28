@@ -19,6 +19,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -117,6 +118,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 GenericEmbedLexical,
                 MediaBlock,
                 SingleBlogPostBlockLexical,
+                SponsorsBlockLexical,
               ],
             }),
             HorizontalRuleFeature(),
