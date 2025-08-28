@@ -11,6 +11,7 @@ import * as migration_20250821_205336_blog_list_block from './20250821_205336_bl
 import * as migration_20250823_200437_add_single_blog_post_block from './20250823_200437_add_single_blog_post_block'
 import * as migration_20250824_200244_add_footer_form from './20250824_200244_add_footer_form'
 import * as migration_20250828_211035_add_sponsors from './20250828_211035_add_sponsors'
+import * as migration_20250828_230246_add_header_block from './20250828_230246_add_header_block'
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20250828_211035_add_sponsors.up,
     down: migration_20250828_211035_add_sponsors.down,
     name: '20250828_211035_add_sponsors',
+  },
+  {
+    up: migration_20250828_230246_add_header_block.up,
+    down: migration_20250828_230246_add_header_block.down,
+    name: '20250828_230246_add_header_block',
   },
 ]
