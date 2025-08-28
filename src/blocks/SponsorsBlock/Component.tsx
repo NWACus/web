@@ -19,6 +19,19 @@ export const SponsorsBlock = (props: SponsorsBlockProps) => {
   )
   if (!validSponsors) return null
 
+  const getColSpanName = () => {
+    switch (validSponsors.length) {
+      case 1:
+      case 2:
+        return 'w-full md:w-1/2 lg:w-1/3'
+      case 3:
+        return 'w-full md:w-1/2 lg:w-1/4'
+      default:
+        return 'w-1/2 md:w-1/3 lg:w-1/5'
+    }
+  }
+  const colSpanName = getColSpanName()
+
   return (
     <div className="container py-16">
       {title && (
@@ -29,7 +42,7 @@ export const SponsorsBlock = (props: SponsorsBlockProps) => {
       <div className="flex flex-wrap justify-evenly items-center">
         {typeof validSponsors === 'object' &&
           validSponsors.map((sponsor, index: number) => (
-            <div className="w-1/2 md:w-1/3 lg:w-1/5 p-10" key={`{sponsor.id}_${index}`}>
+            <div className={`${colSpanName} p-4 md:p-10`} key={`${sponsor.id}_${index}`}>
               <a href={sponsor.link} target="_blank">
                 <ImageMedia
                   imgClassName="w-full h-auto group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden"
