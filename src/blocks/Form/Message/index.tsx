@@ -5,8 +5,8 @@ import { Width } from '../Width'
 
 export const Message = ({ message }: { message: SerializedEditorState }) => {
   return (
-    <Width className="my-12" width="100">
-      {message && <RichText data={message} />}
+    <Width className="mx-2 my-12" width="100">
+      {message && <RichText data={message} enableGutter={false} />}
     </Width>
   )
 }

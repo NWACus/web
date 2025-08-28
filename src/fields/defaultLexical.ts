@@ -10,12 +10,14 @@ import {
   ItalicFeature,
   lexicalEditor,
   LinkFeature,
+  LinkFields,
   OrderedListFeature,
   ParagraphFeature,
   UnderlineFeature,
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
-import { Config } from 'payload'
+import { validateUrlMinimal } from 'node_modules/@payloadcms/richtext-lexical/dist/lexical/utils/url'
+import { Config, TextFieldSingleValidation } from 'payload'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
@@ -41,10 +43,18 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
               name: 'url',
               type: 'text',
               admin: {
-                condition: ({ linkType }) => linkType !== 'internal',
+                condition: (_data, siblingData) => siblingData?.linkType !== 'internal',
               },
               label: ({ t }) => t('fields:enterURL'),
               required: true,
+              validate: ((value: string, options) => {
+                if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
+                  return // no validation needed, as no url should exist for internal links
+                }
+                if (!validateUrlMinimal(value)) {
+                  return 'Invalid URL'
+                }
+              }) as TextFieldSingleValidation,
             },
           ]
         },

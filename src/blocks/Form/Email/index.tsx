@@ -30,6 +30,7 @@ export const Email = ({
         defaultValue={defaultValue}
         id={name}
         type="text"
+        className="text-black"
         {...register(name, { pattern: /^\S[^\s@]*@\S+$/, required: requiredFromProps })}
       />
 

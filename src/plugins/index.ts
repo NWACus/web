@@ -82,7 +82,7 @@ export const plugins: Plugin[] = [
     formSubmissionOverrides: {
       access: {
         create: ({ req }) => {
-          const isAdminPanel = req.routeParams?.collection === 'form-submissions'
+          const isAdminPanel = req.url?.includes('admin')
           return !isAdminPanel
         }, // world creatable outside of the admin panel
         read: byTenantRole('read', 'form-submissions'),
