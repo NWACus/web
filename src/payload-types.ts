@@ -1459,6 +1459,19 @@ export interface Setting {
    * A short description of your avalanche center. This will be used in meta tags for search engine optimization and display in previews on social media and in messaging apps.
    */
   description?: string | null;
+  footerForm: {
+    title?: string | null;
+    subtitle?: string | null;
+    type: 'none' | 'embedded' | 'form';
+    html?: string | null;
+    /**
+     * Note: We suggest using Message as the Confirmation Type
+     */
+    form?: {
+      relationTo: 'forms';
+      value: number | Form;
+    } | null;
+  };
   /**
    * Appears in your website footer.
    */
@@ -2562,6 +2575,15 @@ export interface TeamsSelect<T extends boolean = true> {
 export interface SettingsSelect<T extends boolean = true> {
   tenant?: T;
   description?: T;
+  footerForm?:
+    | T
+    | {
+        title?: T;
+        subtitle?: T;
+        type?: T;
+        html?: T;
+        form?: T;
+      };
   address?: T;
   phoneLabel?: T;
   phone?: T;
