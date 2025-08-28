@@ -1,6 +1,7 @@
 import { ImageMedia } from '@/components/Media/ImageMedia'
-import { SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
+import { Sponsor, SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { endOfDay, startOfDay } from 'date-fns'
 
 export const SponsorsBlock = (props: SponsorsBlockProps) => {
   const { backgroundColor, sponsors, title } = props
@@ -8,10 +9,15 @@ export const SponsorsBlock = (props: SponsorsBlockProps) => {
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  const truncateTime = (date?: string) => {
-    const now = new Date(date ?? Date.now())
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  }
+  const now = new Date()
+  const validSponsors = sponsors.filter(
+    (sponsor): sponsor is Sponsor =>
+      typeof sponsor === 'object' &&
+      sponsor &&
+      (!sponsor.startDate || startOfDay(new Date(sponsor.startDate)) <= now) &&
+      (!sponsor.endDate || endOfDay(new Date(sponsor.endDate)) >= now),
+  )
+  if (!validSponsors) return null
 
   return (
     <div className="container py-16">
@@ -21,25 +27,17 @@ export const SponsorsBlock = (props: SponsorsBlockProps) => {
         </div>
       )}
       <div className="flex flex-wrap justify-evenly items-center">
-        {typeof sponsors === 'object' &&
-          sponsors.map((sponsor, index: number) => {
-            if (typeof sponsor === 'number') return
-            const now = truncateTime()
-            const showLogoStart = sponsor.startDate ? truncateTime(sponsor.startDate) <= now : true
-            const showLogoEnd = sponsor.endDate ? truncateTime(sponsor.endDate) >= now : true
-
-            if (showLogoStart && showLogoEnd)
-              return (
-                <div className="w-1/2 md:w-1/3 lg:w-1/5 p-10" key={index}>
-                  <a href={sponsor.link} target="_blank">
-                    <ImageMedia
-                      imgClassName="w-full h-auto group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden"
-                      resource={sponsor.photo}
-                    />
-                  </a>
-                </div>
-              )
-          })}
+        {typeof validSponsors === 'object' &&
+          validSponsors.map((sponsor, index: number) => (
+            <div className="w-1/2 md:w-1/3 lg:w-1/5 p-10" key={`{sponsor.id}_${index}`}>
+              <a href={sponsor.link} target="_blank">
+                <ImageMedia
+                  imgClassName="w-full h-auto group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden"
+                  resource={sponsor.photo}
+                />
+              </a>
+            </div>
+          ))}
       </div>
     </div>
   )
