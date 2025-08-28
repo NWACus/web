@@ -8,6 +8,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 
 import { FormBlock as FormBlockType } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
+import { generateInstanceId } from '@/utilities/generateInstanceId'
 import { getURL } from '@/utilities/getURL'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { cn } from '@/utilities/ui'
@@ -28,6 +29,8 @@ type FormBlockTypeProps = { wrapInContainer?: boolean } & FormBlockType
 
 export const FormBlock = (props: FormBlockTypeProps) => {
   const { enableIntro, introContent, wrapInContainer = true } = props
+
+  const uniqueFormId = generateInstanceId()
 
   const formMethods = useForm({
     /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
@@ -137,7 +140,7 @@ export const FormBlock = (props: FormBlockTypeProps) => {
           {error && <div>{`${error.status || '500'}: ${error.message || ''}`}</div>}
           {!hasSubmitted && (
             /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
-            <form id={props.form.id} onSubmit={handleSubmit(onSubmit)}>
+            <form id={uniqueFormId} onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4 last:mb-0">
                 {props.form &&
                   props.form.fields &&
@@ -146,7 +149,7 @@ export const FormBlock = (props: FormBlockTypeProps) => {
                     const Field: React.FC<unknown> = fields?.[field.blockType]
                     if (Field) {
                       return (
-                        <div className="mb-6 last:mb-0" key={index}>
+                        <div className="mb-6 last:mb-0" key={`${field.id}-${index}`}>
                           <Field
                             form={props.form}
                             {...field}
@@ -163,7 +166,7 @@ export const FormBlock = (props: FormBlockTypeProps) => {
                   })}
               </div>
 
-              <Button form={String(props.form.id)} type="submit" variant="default">
+              <Button form={uniqueFormId} type="submit" variant="default">
                 {props.form.submitButtonLabel}
               </Button>
             </form>
