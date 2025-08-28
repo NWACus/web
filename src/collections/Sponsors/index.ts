@@ -5,6 +5,7 @@ import { tenantField } from '@/fields/tenantField'
 import { Sponsor } from '@/payload-types'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { CollectionConfig, DateFieldValidation } from 'payload'
+import { revalidateSponsors, revalidateSponsorsDelete } from './hooks/revalidateSponsors'
 
 const validateDate: DateFieldValidation = (value, { data }) => {
   if (!value) return true
@@ -69,7 +70,7 @@ export const Sponsors: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterChange: [],
-    afterDelete: [],
+    afterChange: [revalidateSponsors],
+    afterDelete: [revalidateSponsorsDelete],
   },
 }
