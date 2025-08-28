@@ -16,6 +16,7 @@ import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
+import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import type {
   BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
@@ -23,6 +24,7 @@ import type {
   GenericEmbedBlock as GenericEmbedBlockProps,
   MediaBlock as MediaBlockProps,
   SingleBlogPostBlock,
+  SponsorsBlock as SponsorsBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
@@ -35,6 +37,7 @@ type NodeTypes =
       | GenericEmbedBlockProps
       | MediaBlockProps
       | SingleBlogPostBlock
+      | SponsorsBlockProps
     >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
@@ -80,6 +83,13 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       <SingleBlogPostBlockComponent
         {...node.fields}
         // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    sponsorsBlock: ({ node }) => (
+      <SponsorsBlockComponent
+        {...node.fields}
+        // src/blocks/SponsorsBlock/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlockLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),

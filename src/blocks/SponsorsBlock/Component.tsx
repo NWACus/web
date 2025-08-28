@@ -1,11 +1,20 @@
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Sponsor, SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
 
-export const SponsorsBlock = (props: SponsorsBlockProps) => {
-  const { backgroundColor, sponsors, title } = props
+type SponsorsBlockComponentProps = SponsorsBlockProps & {
+  className?: string
+  wrapInContainer?: boolean
+}
 
+export const SponsorsBlockComponent = ({
+  backgroundColor,
+  sponsors,
+  title,
+  wrapInContainer = true,
+}: SponsorsBlockComponentProps) => {
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
@@ -33,7 +42,7 @@ export const SponsorsBlock = (props: SponsorsBlockProps) => {
   const colSpanName = getColSpanName()
 
   return (
-    <div className="container py-16">
+    <div className={cn(wrapInContainer, 'py-16')}>
       {title && (
         <div className={`${bgColorClass} prose md:prose-md py-2 text-center max-w-none`}>
           <h2 className={textColor}>{title}</h2>

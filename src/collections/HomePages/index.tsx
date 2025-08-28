@@ -17,7 +17,7 @@ import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { SponsorsBlock, SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
 import colorPickerField from '@/fields/color'
@@ -142,6 +142,7 @@ export const HomePages: CollectionConfig = {
                         GenericEmbedLexical,
                         MediaBlock,
                         SingleBlogPostBlockLexical,
+                        SponsorsBlockLexical,
                       ],
                     }),
                     HorizontalRuleFeature(),

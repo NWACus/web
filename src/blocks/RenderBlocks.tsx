@@ -15,7 +15,7 @@ import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/Component'
+import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 import { Payload } from 'payload'
 
@@ -77,8 +77,9 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return (
         <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
       )
-    case 'sponsors':
-      return <SponsorsBlock {...block} />
+    case 'sponsorsBlock':
+      // src/blocks/SponsorsBlockPost/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlockBlock variant
+      return <SponsorsBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'team':
       return <TeamBlock {...block} payload={payload} />
   }

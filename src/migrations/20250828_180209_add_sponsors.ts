@@ -1,7 +1,7 @@
 import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`CREATE TABLE \`pages_blocks_sponsors\` (
+  await db.run(sql`CREATE TABLE \`pages_blocks_sponsors_block\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`_path\` text NOT NULL,
@@ -13,15 +13,15 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`pages_blocks_sponsors_order_idx\` ON \`pages_blocks_sponsors\` (\`_order\`);`,
+    sql`CREATE INDEX \`pages_blocks_sponsors_block_order_idx\` ON \`pages_blocks_sponsors_block\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`pages_blocks_sponsors_parent_id_idx\` ON \`pages_blocks_sponsors\` (\`_parent_id\`);`,
+    sql`CREATE INDEX \`pages_blocks_sponsors_block_parent_id_idx\` ON \`pages_blocks_sponsors_block\` (\`_parent_id\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`pages_blocks_sponsors_path_idx\` ON \`pages_blocks_sponsors\` (\`_path\`);`,
+    sql`CREATE INDEX \`pages_blocks_sponsors_block_path_idx\` ON \`pages_blocks_sponsors_block\` (\`_path\`);`,
   )
-  await db.run(sql`CREATE TABLE \`_pages_v_blocks_sponsors\` (
+  await db.run(sql`CREATE TABLE \`_pages_v_blocks_sponsors_block\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`_path\` text NOT NULL,
@@ -34,13 +34,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`_pages_v_blocks_sponsors_order_idx\` ON \`_pages_v_blocks_sponsors\` (\`_order\`);`,
+    sql`CREATE INDEX \`_pages_v_blocks_sponsors_block_order_idx\` ON \`_pages_v_blocks_sponsors_block\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`_pages_v_blocks_sponsors_parent_id_idx\` ON \`_pages_v_blocks_sponsors\` (\`_parent_id\`);`,
+    sql`CREATE INDEX \`_pages_v_blocks_sponsors_block_parent_id_idx\` ON \`_pages_v_blocks_sponsors_block\` (\`_parent_id\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`_pages_v_blocks_sponsors_path_idx\` ON \`_pages_v_blocks_sponsors\` (\`_path\`);`,
+    sql`CREATE INDEX \`_pages_v_blocks_sponsors_block_path_idx\` ON \`_pages_v_blocks_sponsors_block\` (\`_path\`);`,
   )
   await db.run(sql`CREATE TABLE \`sponsors\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
@@ -61,7 +61,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(sql`CREATE INDEX \`sponsors_photo_idx\` ON \`sponsors\` (\`photo_id\`);`)
   await db.run(sql`CREATE INDEX \`sponsors_updated_at_idx\` ON \`sponsors\` (\`updated_at\`);`)
   await db.run(sql`CREATE INDEX \`sponsors_created_at_idx\` ON \`sponsors\` (\`created_at\`);`)
-  await db.run(sql`CREATE TABLE \`home_pages_blocks_sponsors\` (
+  await db.run(sql`CREATE TABLE \`home_pages_blocks_sponsors_block\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`_path\` text NOT NULL,
@@ -73,15 +73,15 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`home_pages_blocks_sponsors_order_idx\` ON \`home_pages_blocks_sponsors\` (\`_order\`);`,
+    sql`CREATE INDEX \`home_pages_blocks_sponsors_block_order_idx\` ON \`home_pages_blocks_sponsors_block\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`home_pages_blocks_sponsors_parent_id_idx\` ON \`home_pages_blocks_sponsors\` (\`_parent_id\`);`,
+    sql`CREATE INDEX \`home_pages_blocks_sponsors_block_parent_id_idx\` ON \`home_pages_blocks_sponsors_block\` (\`_parent_id\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`home_pages_blocks_sponsors_path_idx\` ON \`home_pages_blocks_sponsors\` (\`_path\`);`,
+    sql`CREATE INDEX \`home_pages_blocks_sponsors_block_path_idx\` ON \`home_pages_blocks_sponsors_block\` (\`_path\`);`,
   )
-  await db.run(sql`CREATE TABLE \`_home_pages_v_blocks_sponsors\` (
+  await db.run(sql`CREATE TABLE \`_home_pages_v_blocks_sponsors_block\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`_path\` text NOT NULL,
@@ -94,13 +94,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`_home_pages_v_blocks_sponsors_order_idx\` ON \`_home_pages_v_blocks_sponsors\` (\`_order\`);`,
+    sql`CREATE INDEX \`_home_pages_v_blocks_sponsors_block_order_idx\` ON \`_home_pages_v_blocks_sponsors_block\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`_home_pages_v_blocks_sponsors_parent_id_idx\` ON \`_home_pages_v_blocks_sponsors\` (\`_parent_id\`);`,
+    sql`CREATE INDEX \`_home_pages_v_blocks_sponsors_block_parent_id_idx\` ON \`_home_pages_v_blocks_sponsors_block\` (\`_parent_id\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`_home_pages_v_blocks_sponsors_path_idx\` ON \`_home_pages_v_blocks_sponsors\` (\`_path\`);`,
+    sql`CREATE INDEX \`_home_pages_v_blocks_sponsors_block_path_idx\` ON \`_home_pages_v_blocks_sponsors_block\` (\`_path\`);`,
   )
   await db.run(sql`ALTER TABLE \`pages_rels\` ADD \`sponsors_id\` integer REFERENCES sponsors(id);`)
   await db.run(
@@ -133,11 +133,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.run(sql`DROP TABLE \`pages_blocks_sponsors\`;`)
-  await db.run(sql`DROP TABLE \`_pages_v_blocks_sponsors\`;`)
+  await db.run(sql`DROP TABLE \`pages_blocks_sponsors_block\`;`)
+  await db.run(sql`DROP TABLE \`_pages_v_blocks_sponsors_block\`;`)
   await db.run(sql`DROP TABLE \`sponsors\`;`)
-  await db.run(sql`DROP TABLE \`home_pages_blocks_sponsors\`;`)
-  await db.run(sql`DROP TABLE \`_home_pages_v_blocks_sponsors\`;`)
+  await db.run(sql`DROP TABLE \`home_pages_blocks_sponsors_block\`;`)
+  await db.run(sql`DROP TABLE \`_home_pages_v_blocks_sponsors_block\`;`)
   await db.run(sql`PRAGMA foreign_keys=OFF;`)
   await db.run(sql`CREATE TABLE \`__new_pages_rels\` (
   	\`id\` integer PRIMARY KEY NOT NULL,

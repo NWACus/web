@@ -988,7 +988,7 @@ export interface SponsorsBlock {
   sponsors: (number | Sponsor)[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'sponsors';
+  blockType: 'sponsorsBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1914,7 +1914,7 @@ export interface PagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
-        sponsors?: T | SponsorsBlockSelect<T>;
+        sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
       };
@@ -2705,7 +2705,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        sponsors?: T | SponsorsBlockSelect<T>;
+        sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
   publishedAt?: T;
