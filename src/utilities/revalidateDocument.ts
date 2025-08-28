@@ -4,7 +4,15 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
 export interface RevalidationReference {
-  collection: 'biographies' | 'teams' | 'media' | 'forms' | 'tags' | 'posts' | 'homePages'
+  collection:
+    | 'biographies'
+    | 'teams'
+    | 'media'
+    | 'forms'
+    | 'tags'
+    | 'posts'
+    | 'homePages'
+    | 'sponsors'
   id: number
 }
 
