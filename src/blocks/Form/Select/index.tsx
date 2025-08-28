@@ -43,10 +43,10 @@ export const Select = ({
 
           return (
             <SelectComponent onValueChange={(val) => onChange(val)} value={controlledValue?.value}>
-              <SelectTrigger className="w-full" id={name}>
+              <SelectTrigger className="w-full text-black" id={name}>
                 <SelectValue placeholder={label} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="text-black">
                 {options.map(({ label, value }) => {
                   return (
                     <SelectItem key={value} value={value}>

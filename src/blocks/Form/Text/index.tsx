@@ -30,6 +30,7 @@ export const Text = ({
         defaultValue={defaultValue}
         id={name}
         type="text"
+        className="text-black"
         {...register(name, { required: requiredFromProps })}
       />
       {requiredFromProps && errors[name] && <Error />}

@@ -27,7 +27,7 @@ export interface Data {
 type FormBlockTypeProps = { wrapInContainer?: boolean } & FormBlockType
 
 export const FormBlock = (props: FormBlockTypeProps) => {
-  const { enableIntro, introContent, wrapInContainer } = props
+  const { enableIntro, introContent, wrapInContainer = true } = props
 
   const formMethods = useForm({
     /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
