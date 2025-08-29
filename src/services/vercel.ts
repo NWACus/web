@@ -27,7 +27,8 @@ export async function vercelFetch(path: string, options?: RequestInit) {
 
 export async function updateEdgeConfig(payload: Record<string, unknown>): Promise<void> {
   const edgeConfigUrl = new URL(process.env.VERCEL_EDGE_CONFIG)
-  const edgeConfigId = edgeConfigUrl.pathname.replace('/', '')
+  console.log('HERE', edgeConfigUrl)
+  const edgeConfigId = edgeConfigUrl?.pathname?.replace('/', '')
 
   if (!edgeConfigId || !token || !teamId) {
     console.warn(

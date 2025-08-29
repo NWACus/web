@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'check-dev-deploy'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -46,7 +47,7 @@ jobs:
         run: pnpm ii
         shell: bash
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@46.0.2
       - name: Update database URI in Vercel
         run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview main --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update database token in Vercel
