@@ -16,7 +16,6 @@ import {
   UnderlineFeature,
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
-import { validateUrlMinimal } from 'node_modules/@payloadcms/richtext-lexical/dist/lexical/utils/url'
 import { Config, TextFieldSingleValidation } from 'payload'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
@@ -47,13 +46,11 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
               },
               label: ({ t }) => t('fields:enterURL'),
               required: true,
-              validate: ((value: string, options) => {
+              validate: ((value, options) => {
                 if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
-                  return // no validation needed, as no url should exist for internal links
+                  return true // no validation needed, as no url should exist for internal links
                 }
-                if (!validateUrlMinimal(value)) {
-                  return 'Invalid URL'
-                }
+                return value ? true : 'URL is required'
               }) as TextFieldSingleValidation,
             },
           ]
