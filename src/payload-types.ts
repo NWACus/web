@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    documents: Document;
     media: Media;
     pages: Page;
     posts: Post;
@@ -97,6 +98,7 @@ export interface Config {
     };
   };
   collectionsSelect: {
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -157,6 +159,43 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  name: string;
+  customDomain?: string | null;
+  /**
+   * Used for subdomains and url paths for previews. This is a unique identifier for a tenant.
+   */
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -256,22 +295,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants".
- */
-export interface Tenant {
-  id: number;
-  name: string;
-  customDomain?: string | null;
-  /**
-   * Used for subdomains and url paths for previews. This is a unique identifier for a tenant.
-   */
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
@@ -282,6 +305,7 @@ export interface Page {
     | BlogListBlock
     | ContentBlock
     | ContentWithCalloutBlock
+    | DocumentBlock
     | FormBlock
     | HeaderBlock
     | ImageLinkGrid
@@ -368,6 +392,13 @@ export interface User {
   hash?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
   password?: string | null;
 }
 /**
@@ -609,6 +640,16 @@ export interface ContentWithCalloutBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'contentWithCallout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentBlock".
+ */
+export interface DocumentBlock {
+  document: number | Document;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'documentBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1726,6 +1767,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'documents';
+        value: number | Document;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -1845,6 +1890,26 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  tenant?: T;
+  contentHash?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -1953,6 +2018,7 @@ export interface PagesSelect<T extends boolean = true> {
         blogList?: T | BlogListBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
+        documentBlock?: T | DocumentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
@@ -2028,6 +2094,15 @@ export interface ContentBlockSelect<T extends boolean = true> {
 export interface ContentWithCalloutBlockSelect<T extends boolean = true> {
   richText?: T;
   callout?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentBlock_select".
+ */
+export interface DocumentBlockSelect<T extends boolean = true> {
+  document?: T;
   id?: T;
   blockName?: T;
 }
@@ -2250,6 +2325,13 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
