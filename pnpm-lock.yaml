@@ -32,8 +32,8 @@ importers:
         specifier: 3.52.0
         version: 3.52.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2)
       '@payloadcms/plugin-multi-tenant':
-        specifier: 3.52.0
-        version: 3.52.0(@payloadcms/ui@3.52.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2))(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))
+        specifier: 3.49.0
+        version: 3.49.0(@payloadcms/ui@3.52.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2))(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))
       '@payloadcms/plugin-redirects':
         specifier: 3.52.0
         version: 3.52.0(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))
@@ -282,7 +282,7 @@ importers:
         specifier: ^15.5.0
         version: 15.5.0
       postcss:
-        specifier: ^8.4.49
+        specifier: ^8.4.52
         version: 8.5.3
       prettier:
         specifier: ^3.4.2
@@ -3834,15 +3834,15 @@ packages:
       react: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
       react-dom: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
 
-  '@payloadcms/plugin-multi-tenant@3.52.0':
+  '@payloadcms/plugin-multi-tenant@3.49.0':
     resolution:
       {
-        integrity: sha512-FT3kjStsv72orAIMoOY9NQfoix/oAOvLfq4HcA2PZ49t/bArEDF107yhJW+rcinzlITv6fxtLSVchg8L06x8Rg==,
+        integrity: sha512-xVZpnnRBgu2FqUr7OlvUv0CkZokIgTD4xyL/qIHi4+AI38G66QLxau9fflnrshya7yPHX4Ovn1Ww3JOz3+kv5g==,
       }
     peerDependencies:
-      '@payloadcms/ui': 3.52.0
+      '@payloadcms/ui': 3.49.0
       next: ^15.2.3
-      payload: 3.52.0
+      payload: 3.49.0
 
   '@payloadcms/plugin-redirects@3.52.0':
     resolution:
@@ -10243,7 +10243,6 @@ packages:
       {
         integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==,
       }
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   libsql@0.5.6:
@@ -15965,7 +15964,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@payloadcms/plugin-multi-tenant@3.52.0(@payloadcms/ui@3.52.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2))(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))':
+  '@payloadcms/plugin-multi-tenant@3.49.0(@payloadcms/ui@3.52.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2))(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))':
     dependencies:
       '@payloadcms/ui': 3.52.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.52.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2)
       next: 15.2.4(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4)
