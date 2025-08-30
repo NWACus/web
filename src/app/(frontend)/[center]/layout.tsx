@@ -33,7 +33,9 @@ export async function generateStaticParams() {
     },
   })
 
-  return tenants.docs.map((tenant) => ({ center: tenant.slug }))
+  return tenants.docs
+    .filter((tenant) => typeof tenant.slug === 'string' && tenant.slug.trim() !== '')
+    .map((tenant): PathArgs => ({ center: tenant.slug }))
 }
 
 type Args = {

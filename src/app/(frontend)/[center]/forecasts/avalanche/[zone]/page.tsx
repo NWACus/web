@@ -24,7 +24,9 @@ export async function generateStaticParams() {
 
   // TODO: hit the NAC API for forecast zones, translate active names to slugs
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
+  return tenants.docs
+    .filter((tenant) => typeof tenant.slug === 'string' && tenant.slug.trim() !== '')
+    .map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
 }
 
 type Args = {

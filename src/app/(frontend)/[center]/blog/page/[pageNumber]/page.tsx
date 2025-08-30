@@ -126,16 +126,34 @@ export async function generateMetadata(
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
+
+  // Fetch tenants with valid slugs
+  const tenants = await payload.find({
+    collection: 'tenants',
+    limit: 1000,
+    select: {
+      slug: true,
+    },
+  })
+
+  // Filter out tenants with null or invalid slugs
+  const validTenants = tenants.docs.filter(
+    (tenant) => typeof tenant.slug === 'string' && tenant.slug.trim() !== '',
+  )
+
+  // Count total posts to determine pagination
   const { totalDocs } = await payload.count({
     collection: 'posts',
   })
 
   const totalPages = Math.ceil(totalDocs / 10)
 
-  const pages: { pageNumber: string }[] = []
+  const pages: { center: string; pageNumber: string }[] = []
 
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push({ pageNumber: String(i) })
+  for (const tenant of validTenants) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push({ center: tenant.slug, pageNumber: String(i) })
+    }
   }
 
   return pages
