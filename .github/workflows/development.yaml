@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'check-next-version'
 jobs:
   deploy:
     runs-on: ubuntu-latest
