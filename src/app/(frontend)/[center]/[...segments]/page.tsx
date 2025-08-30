@@ -23,14 +23,24 @@ export async function generateStaticParams() {
     },
   })
 
-  // TODO: use same logic as header to walk the tree and find all pages
-
+  // TODO: use same logic as header to walk the tree and find all pages)
   const params: PathArgs[] = []
   for (const post of pages.docs) {
+    if (!post.slug || typeof post.slug !== 'string') {
+      payload.logger.error(`Invalid page slug: ${JSON.stringify(post)}`)
+      continue
+    }
+
     if (typeof post.tenant === 'number') {
       payload.logger.error(`got number for page tenant: ${JSON.stringify(post.tenant)}`)
       continue
     }
+
+    if (!post.tenant || typeof post.tenant.slug !== 'string') {
+      payload.logger.error(`Invalid tenant slug: ${JSON.stringify(post)}`)
+      continue
+    }
+
     if (post.tenant) {
       params.push({ center: post.tenant.slug, segments: [post.slug] })
     }
