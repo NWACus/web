@@ -40,8 +40,12 @@ const { emailAdapter, emailWarning } = getEmailAdapter()
 export default buildConfig({
   admin: {
     components: {
-      beforeDashboard:
-        process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
+      beforeDashboard: [
+        {
+          clientProps: { showDevAction: process.env.NODE_ENV !== 'production' },
+          path: '@/components/BeforeDashboard',
+        },
+      ],
       beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
