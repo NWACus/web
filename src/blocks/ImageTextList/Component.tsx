@@ -25,7 +25,7 @@ export const ImageTextList = (props: Props) => {
   const isSideLayout = layout === 'side'
 
   return (
-    <div className="container py-16">
+    <div className="container py-10">
       <div className="grid grid-cols-4 lg:grid-cols-12 gap-4">
         {columns &&
           columns.length > 0 &&
@@ -40,15 +40,15 @@ export const ImageTextList = (props: Props) => {
                       ? 'col-span-full'
                       : `col-span-4 md:col-span-2  ${colsSpanClass} ${lastOddElement && 'md:col-span-full'} `
                   }`)}
-                key={index}
+                key={`img-text-list__${index}`}
               >
                 <div
-                  className={cn(`${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`, className)}
+                  className={cn({ 'grid grid-cols-4 gap-x-4 ms-auto': isSideLayout }, className)}
                 >
                   {image && (
                     <ImageMedia
                       imgClassName={cn(
-                        'h-[108px] max-w-fit object-contain',
+                        'h-auto max-h-[300px] max-w-full object-contain',
                         `${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`,
                         imgClassName,
                       )}

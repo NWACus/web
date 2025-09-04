@@ -3,7 +3,7 @@ import type { Block } from 'payload'
 export const DocumentBlock: Block = {
   slug: 'documentBlock',
   interfaceName: 'DocumentBlock',
-  imageURL: '/thumbnail/DocumentsThumbnail.jpg',
+  imageURL: '/thumbnail/DocumentThumbnail.jpg',
   fields: [
     {
       name: 'document',

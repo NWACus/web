@@ -145,7 +145,7 @@ export const GenericEmbedBlock = ({
     <div className={cn(bgColorClass, textColor)}>
       <div
         className={cn(
-          wrapInContainer && 'container py-16',
+          wrapInContainer && 'container py-10',
           'flex',
           alignContent === 'left' && 'justify-start',
           alignContent === 'center' && 'justify-center',

@@ -42,7 +42,7 @@ export const SponsorsBlockComponent = ({
   const colSpanName = getColSpanName()
 
   return (
-    <div className={cn(wrapInContainer, 'py-16')}>
+    <div className={cn(wrapInContainer, 'py-10')}>
       {title && (
         <div className={`${bgColorClass} prose md:prose-md py-2 text-center max-w-none`}>
           <h2 className={textColor}>{title}</h2>
