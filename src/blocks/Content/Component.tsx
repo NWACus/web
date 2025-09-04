@@ -20,7 +20,7 @@ export const ContentBlock = (props: ContentBlockProps) => {
 
   return (
     <div className={`${bgColorClass}`}>
-      <div className="container py-16">
+      <div className="container py-10">
         <div className="grid grid-cols-2 lg:grid-cols-12 gap-y-8 gap-x-16">
           {columns?.map((col, index) => {
             const { richText } = col

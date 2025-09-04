@@ -73,7 +73,7 @@ export default async function Post({ params: paramsPromise }: Args) {
       <div className="flex flex-col items-center gap-4 pt-8">
         <div className="container">
           <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
-            <h1>{post.title}</h1>
+            <h1 className="font-bold">{post.title}</h1>
           </div>
           <div className="max-w-[48rem] mx-auto">
             <AuthorAvatar authors={post.authors} date={post.publishedAt ?? ''} />

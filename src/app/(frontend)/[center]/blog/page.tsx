@@ -76,7 +76,7 @@ export default async function Page({ params, searchParams }: Args) {
 
       {/* Pagination */}
       {posts.totalPages > 1 && posts.page && (
-        <div className="container mb-8">
+        <div className="container mb-4">
           <Pagination page={posts.page} totalPages={posts.totalPages} />
           <PageRange
             collectionLabels={{

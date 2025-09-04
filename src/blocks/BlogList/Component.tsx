@@ -56,7 +56,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
 
   return (
     <div className={cn(wrapInContainer && bgColorClass)}>
-      <div className={cn(wrapInContainer && 'container py-16', '@container', className)}>
+      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
         <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
           <div className="flex flex-col justify-start gap-1">
             {heading && (

@@ -25,7 +25,7 @@ export const ImageTextList = (props: Props) => {
   const isSideLayout = layout === 'side'
 
   return (
-    <div className="container py-16">
+    <div className="container py-10">
       <div className="grid grid-cols-4 lg:grid-cols-12 gap-4">
         {columns &&
           columns.length > 0 &&

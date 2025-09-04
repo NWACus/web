@@ -158,11 +158,16 @@ const config = {
         base: {
           css: [
             {
-              h1: {
-                fontSize: '2.5rem',
-              },
               h2: {
+                fontSize: '1.5rem',
+                fontWeight: 600,
+              },
+              h3: {
                 fontSize: '1.25rem',
+                fontWeight: 600,
+              },
+              h4: {
+                fontSize: '1.15rem',
                 fontWeight: 600,
               },
             },
@@ -171,11 +176,17 @@ const config = {
         md: {
           css: [
             {
-              h1: {
-                fontSize: '3.5rem',
-              },
               h2: {
+                fontSize: '1.8rem',
+                fontWeight: 600,
+              },
+              h3: {
                 fontSize: '1.5rem',
+                fontWeight: 600,
+              },
+              h4: {
+                fontSize: '1.25rem',
+                fontWeight: 600,
               },
             },
           ],

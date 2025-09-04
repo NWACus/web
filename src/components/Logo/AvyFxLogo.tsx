@@ -25,7 +25,7 @@ export const AvyFxLogo = (props: Props) => {
         fetchPriority={priority}
         className={cn('w-full max-w-[9.375rem]', className)}
       />
-      <h1>AvyFx</h1>
+      <h1 className="font-bold">AvyFx</h1>
     </div>
   )
 }
