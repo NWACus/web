@@ -57,10 +57,12 @@ const config = {
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
+          hover: 'var(--primary-hover)',
         },
         secondary: {
           DEFAULT: 'var(--secondary)',
           foreground: 'var(--secondary-foreground)',
+          hover: 'var(--secondary-hover)',
         },
         muted: {
           DEFAULT: 'var(--muted)',
@@ -73,6 +75,7 @@ const config = {
         destructive: {
           DEFAULT: 'var(--destructive)',
           foreground: 'var(--destructive-foreground)',
+          hover: 'var(--destructive-hover)',
         },
         border: 'var(--border)',
         input: 'var(--input)',
@@ -90,6 +93,7 @@ const config = {
         callout: {
           DEFAULT: 'var(--callout)',
           foreground: 'var(--callout-foreground)',
+          hover: 'var(--callout-hover)',
         },
         brand: {
           DEFAULT: 'var(--brand-500)',
