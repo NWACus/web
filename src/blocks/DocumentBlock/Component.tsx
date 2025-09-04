@@ -6,11 +6,11 @@ import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant
 import { cn } from '@/utilities/ui'
 
 type Props = DocumentBlockProps & {
-  enableGutter?: boolean
+  wrapInContainer?: boolean
 }
 
 export const DocumentBlock = (props: Props) => {
-  const { document, enableGutter = true } = props
+  const { document, wrapInContainer = true } = props
   const { tenant } = useTenant()
 
   if (!document) return null
@@ -20,7 +20,7 @@ export const DocumentBlock = (props: Props) => {
       : ''
 
   return (
-    <div className={cn('my-4', { container: enableGutter })}>
+    <div className={cn('my-4', { container: wrapInContainer })}>
       <iframe src={src} width="100%" height="600px" title="Document PDF" />
     </div>
   )
