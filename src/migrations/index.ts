@@ -13,6 +13,7 @@ import * as migration_20250824_200244_add_footer_form from './20250824_200244_ad
 import * as migration_20250828_211035_add_sponsors from './20250828_211035_add_sponsors'
 import * as migration_20250828_230246_add_header_block from './20250828_230246_add_header_block'
 import * as migration_20250829_035904_update_payload_version from './20250829_035904_update_payload_version'
+import * as migration_20250904_014605_create_documents from './20250904_014605_create_documents'
 
 export const migrations = [
   {
@@ -89,5 +90,10 @@ export const migrations = [
     up: migration_20250829_035904_update_payload_version.up,
     down: migration_20250829_035904_update_payload_version.down,
     name: '20250829_035904_update_payload_version',
+  },
+  {
+    up: migration_20250904_014605_create_documents.up,
+    down: migration_20250904_014605_create_documents.down,
+    name: '20250904_014605_create_documents',
   },
 ]

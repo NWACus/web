@@ -21,6 +21,7 @@ import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -140,6 +141,7 @@ export const HomePages: CollectionConfig = {
                     BlocksFeature({
                       blocks: [
                         ButtonsBlock,
+                        DocumentBlock,
                         GenericEmbedLexical,
                         MediaBlock,
                         SingleBlogPostBlockLexical,

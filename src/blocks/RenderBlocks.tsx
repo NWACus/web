@@ -1,11 +1,13 @@
 import { Fragment } from 'react'
 
 import type { Page } from '@/payload-types'
+import { Payload } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { ContentWithCalloutBlock } from '@/blocks/ContentWithCallout/Component'
+import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
@@ -18,7 +20,6 @@ import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
-import { Payload } from 'payload'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
   const { blocks } = props
@@ -54,6 +55,9 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <ContentBlock {...block} />
     case 'contentWithCallout':
       return <ContentWithCalloutBlock {...block} />
+    case 'documentBlock':
+      // src/blocks/DocumentBlock/config.ts has two variants - to make TS happy we fallback to the default for the DocumentBlock variant
+      return <DocumentBlock {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'formBlock':
       return <FormBlock {...block} />
     case 'genericEmbed':

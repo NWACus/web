@@ -11,6 +11,7 @@ import {
 
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
@@ -117,6 +118,7 @@ export const Posts: CollectionConfig<'posts'> = {
               blocks: [
                 Banner,
                 BlogListBlockLexical,
+                DocumentBlock,
                 GenericEmbedLexical,
                 HeaderBlock,
                 MediaBlock,
