@@ -19,11 +19,7 @@ const nextConfig = {
     unoptimized: false,
     remotePatterns: [
       {
-        hostname: url.hostname,
-        protocol: url.protocol.replace(':', ''),
-      },
-      {
-        hostname: '*.' + url.hostname,
+        hostname: '**',
         protocol: url.protocol.replace(':', ''),
       },
     ],
