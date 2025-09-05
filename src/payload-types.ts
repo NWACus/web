@@ -995,6 +995,24 @@ export interface ImageTextList {
  * via the `definition` "LinkPreviewBlock".
  */
 export interface LinkPreviewBlock {
+  /**
+   * Leave blank if you do not want a title
+   */
+  header?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   backgroundColor: string;
   cards?:
     | {
@@ -2207,6 +2225,7 @@ export interface ImageTextListSelect<T extends boolean = true> {
  * via the `definition` "LinkPreviewBlock_select".
  */
 export interface LinkPreviewBlockSelect<T extends boolean = true> {
+  header?: T;
   backgroundColor?: T;
   cards?:
     | T
