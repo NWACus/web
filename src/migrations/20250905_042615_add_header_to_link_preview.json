@@ -681,12 +681,28 @@
           "notNull": true,
           "autoincrement": false
         },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'white'"
+        },
         "biography_id": {
           "name": "biography_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "image_layout": {
+          "name": "image_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
         },
         "block_name": {
           "name": "block_name",
@@ -2950,12 +2966,28 @@
           "notNull": true,
           "autoincrement": false
         },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'white'"
+        },
         "biography_id": {
           "name": "biography_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "image_layout": {
+          "name": "image_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -10580,12 +10612,28 @@
           "notNull": true,
           "autoincrement": false
         },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'white'"
+        },
         "biography_id": {
           "name": "biography_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "image_layout": {
+          "name": "image_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
         },
         "block_name": {
           "name": "block_name",
@@ -12441,12 +12489,28 @@
           "notNull": true,
           "autoincrement": false
         },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'white'"
+        },
         "biography_id": {
           "name": "biography_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "image_layout": {
+          "name": "image_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -16665,6 +16729,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "33e83ea3-b2da-45a6-9788-204899d6d2db",
+  "id": "b7760ab2-657d-44a8-a85e-902ebe72dcd3",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
