@@ -145,23 +145,27 @@ export default buildConfig({
     },
   }),
   collections: [
-    Documents,
-    Media,
+    // Content
+    HomePages,
     Pages,
     Posts,
+    Media,
+    Documents,
+    Sponsors,
+    Tags,
+    // Staff
+    Biographies,
+    Teams,
+    // Permissions
     Users,
-    Tenants,
     Roles,
     RoleAssignments,
     GlobalRoles,
     GlobalRoleAssignments,
     Navigations,
-    Biographies,
-    Teams,
+    Tenants,
+    // Settings
     Settings,
-    Sponsors,
-    Tags,
-    HomePages,
   ],
   cors: [
     'api.avalanche.org',

@@ -67,23 +67,23 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    documents: Document;
-    media: Media;
+    homePages: HomePage;
     pages: Page;
     posts: Post;
+    media: Media;
+    documents: Document;
+    sponsors: Sponsor;
+    tags: Tag;
+    biographies: Biography;
+    teams: Team;
     users: User;
-    tenants: Tenant;
     roles: Role;
     roleAssignments: RoleAssignment;
     globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
     navigations: Navigation;
-    biographies: Biography;
-    teams: Team;
+    tenants: Tenant;
     settings: Setting;
-    sponsors: Sponsor;
-    tags: Tag;
-    homePages: HomePage;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -98,23 +98,23 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    documents: DocumentsSelect<false> | DocumentsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
+    homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
+    biographies: BiographiesSelect<false> | BiographiesSelect<true>;
+    teams: TeamsSelect<false> | TeamsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
-    tenants: TenantsSelect<false> | TenantsSelect<true>;
     roles: RolesSelect<false> | RolesSelect<true>;
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
-    biographies: BiographiesSelect<false> | BiographiesSelect<true>;
-    teams: TeamsSelect<false> | TeamsSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
-    sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
-    tags: TagsSelect<false> | TagsSelect<true>;
-    homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -162,24 +162,85 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
+ * via the `definition` "homePages".
  */
-export interface Document {
+export interface HomePage {
   id: number;
   tenant: number | Tenant;
+  /**
+   * If quick links are added they will appear to the right of the home page map on desktop and below the home page map on mobile. These are optional.
+   */
+  quickLinks?:
+    | {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * This section is displayed prominantly below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
+   */
+  highlightedContent: {
+    /**
+     * This controls whether or not this section is displayed.
+     */
+    enabled: boolean;
+    heading?: string | null;
+    backgroundColor: string;
+    columns?:
+      | {
+          richText?: {
+            root: {
+              type: string;
+              children: {
+                type: string;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
+   */
+  layout: (
+    | BiographyBlock
+    | ContentBlock
+    | ContentWithCalloutBlock
+    | FormBlock
+    | HeaderBlock
+    | ImageLinkGrid
+    | ImageQuote
+    | ImageText
+    | ImageTextList
+    | LinkPreviewBlock
+    | MediaBlock
+    | TeamBlock
+  )[];
+  publishedAt?: string | null;
   contentHash?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -196,102 +257,6 @@ export interface Tenant {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  tenant: number | Tenant;
-  alt: string;
-  caption?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  contentHash?: string | null;
-  blurDataUrl?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    square?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    small?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    medium?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    large?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    xlarge?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    og?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -461,6 +426,102 @@ export interface GlobalRole {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  tenant: number | Tenant;
+  alt: string;
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  contentHash?: string | null;
+  blurDataUrl?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    square?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    xlarge?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -656,6 +717,27 @@ export interface DocumentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1640,88 +1722,6 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "homePages".
- */
-export interface HomePage {
-  id: number;
-  tenant: number | Tenant;
-  /**
-   * If quick links are added they will appear to the right of the home page map on desktop and below the home page map on mobile. These are optional.
-   */
-  quickLinks?:
-    | {
-        type?: ('reference' | 'custom') | null;
-        newTab?: boolean | null;
-        reference?:
-          | ({
-              relationTo: 'pages';
-              value: number | Page;
-            } | null)
-          | ({
-              relationTo: 'posts';
-              value: number | Post;
-            } | null);
-        url?: string | null;
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * This section is displayed prominantly below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
-   */
-  highlightedContent: {
-    /**
-     * This controls whether or not this section is displayed.
-     */
-    enabled: boolean;
-    heading?: string | null;
-    backgroundColor: string;
-    columns?:
-      | {
-          richText?: {
-            root: {
-              type: string;
-              children: {
-                type: string;
-                version: number;
-                [k: string]: unknown;
-              }[];
-              direction: ('ltr' | 'rtl') | null;
-              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-              indent: number;
-              version: number;
-            };
-            [k: string]: unknown;
-          } | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
-   */
-  layout: (
-    | BiographyBlock
-    | ContentBlock
-    | ContentWithCalloutBlock
-    | FormBlock
-    | HeaderBlock
-    | ImageLinkGrid
-    | ImageQuote
-    | ImageText
-    | ImageTextList
-    | LinkPreviewBlock
-    | MediaBlock
-    | TeamBlock
-  )[];
-  publishedAt?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1773,12 +1773,8 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'documents';
-        value: number | Document;
-      } | null)
-    | ({
-        relationTo: 'media';
-        value: number | Media;
+        relationTo: 'homePages';
+        value: number | HomePage;
       } | null)
     | ({
         relationTo: 'pages';
@@ -1789,12 +1785,32 @@ export interface PayloadLockedDocument {
         value: number | Post;
       } | null)
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'media';
+        value: number | Media;
       } | null)
     | ({
-        relationTo: 'tenants';
-        value: number | Tenant;
+        relationTo: 'documents';
+        value: number | Document;
+      } | null)
+    | ({
+        relationTo: 'sponsors';
+        value: number | Sponsor;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
+        relationTo: 'biographies';
+        value: number | Biography;
+      } | null)
+    | ({
+        relationTo: 'teams';
+        value: number | Team;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null)
     | ({
         relationTo: 'roles';
@@ -1817,28 +1833,12 @@ export interface PayloadLockedDocument {
         value: number | Navigation;
       } | null)
     | ({
-        relationTo: 'biographies';
-        value: number | Biography;
-      } | null)
-    | ({
-        relationTo: 'teams';
-        value: number | Team;
+        relationTo: 'tenants';
+        value: number | Tenant;
       } | null)
     | ({
         relationTo: 'settings';
         value: number | Setting;
-      } | null)
-    | ({
-        relationTo: 'sponsors';
-        value: number | Sponsor;
-      } | null)
-    | ({
-        relationTo: 'tags';
-        value: number | Tag;
-      } | null)
-    | ({
-        relationTo: 'homePages';
-        value: number | HomePage;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1896,135 +1896,39 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents_select".
+ * via the `definition` "homePages_select".
  */
-export interface DocumentsSelect<T extends boolean = true> {
+export interface HomePagesSelect<T extends boolean = true> {
   tenant?: T;
-  contentHash?: T;
-  prefix?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  tenant?: T;
-  alt?: T;
-  caption?: T;
-  contentHash?: T;
-  blurDataUrl?: T;
-  prefix?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-  sizes?:
+  quickLinks?:
     | T
     | {
-        thumbnail?:
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  highlightedContent?:
+    | T
+    | {
+        enabled?: T;
+        heading?: T;
+        backgroundColor?: T;
+        columns?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        square?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        small?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        medium?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        large?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        xlarge?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        og?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
+              richText?: T;
+              id?: T;
             };
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect<T extends boolean = true> {
-  title?: T;
   layout?:
     | T
     | {
         biography?: T | BiographyBlockSelect<T>;
-        blogList?: T | BlogListBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
-        documentBlock?: T | DocumentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
@@ -2033,21 +1937,9 @@ export interface PagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
-        sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
-        genericEmbed?: T | GenericEmbedBlockSelect<T>;
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
       };
   publishedAt?: T;
-  slug?: T;
-  tenant?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2061,22 +1953,6 @@ export interface BiographyBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   biography?: T;
   imageLayout?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BlogListBlock_select".
- */
-export interface BlogListBlockSelect<T extends boolean = true> {
-  heading?: T;
-  belowHeadingContent?: T;
-  backgroundColor?: T;
-  filterByTags?: T;
-  sortBy?: T;
-  maxPosts?: T;
-  queriedPosts?: T;
-  staticPosts?: T;
   id?: T;
   blockName?: T;
 }
@@ -2102,16 +1978,6 @@ export interface ContentBlockSelect<T extends boolean = true> {
 export interface ContentWithCalloutBlockSelect<T extends boolean = true> {
   richText?: T;
   callout?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "DocumentBlock_select".
- */
-export interface DocumentBlockSelect<T extends boolean = true> {
-  document?: T;
-  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }
@@ -2240,6 +2106,83 @@ export interface MediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock_select".
+ */
+export interface TeamBlockSelect<T extends boolean = true> {
+  team?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  layout?:
+    | T
+    | {
+        biography?: T | BiographyBlockSelect<T>;
+        blogList?: T | BlogListBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
+        documentBlock?: T | DocumentBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        headerBlock?: T | HeaderBlockSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridSelect<T>;
+        imageQuote?: T | ImageQuoteSelect<T>;
+        imageText?: T | ImageTextSelect<T>;
+        imageTextList?: T | ImageTextListSelect<T>;
+        linkPreview?: T | LinkPreviewBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        sponsorsBlock?: T | SponsorsBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+        genericEmbed?: T | GenericEmbedBlockSelect<T>;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  slug?: T;
+  tenant?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogListBlock_select".
+ */
+export interface BlogListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  backgroundColor?: T;
+  filterByTags?: T;
+  sortBy?: T;
+  maxPosts?: T;
+  queriedPosts?: T;
+  staticPosts?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentBlock_select".
+ */
+export interface DocumentBlockSelect<T extends boolean = true> {
+  document?: T;
+  wrapInContainer?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SingleBlogPostBlock_select".
  */
 export interface SingleBlogPostBlockSelect<T extends boolean = true> {
@@ -2256,15 +2199,6 @@ export interface SponsorsBlockSelect<T extends boolean = true> {
   title?: T;
   backgroundColor?: T;
   sponsors?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TeamBlock_select".
- */
-export interface TeamBlockSelect<T extends boolean = true> {
-  team?: T;
   id?: T;
   blockName?: T;
 }
@@ -2315,6 +2249,178 @@ export interface PostsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
+  alt?: T;
+  caption?: T;
+  contentHash?: T;
+  blurDataUrl?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        square?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        xlarge?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  tenant?: T;
+  contentHash?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sponsors_select".
+ */
+export interface SponsorsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  photo?: T;
+  link?: T;
+  startDate?: T;
+  endDate?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "biographies_select".
+ */
+export interface BiographiesSelect<T extends boolean = true> {
+  tenant?: T;
+  user?: T;
+  name?: T;
+  photo?: T;
+  title?: T;
+  start_date?: T;
+  biography?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams_select".
+ */
+export interface TeamsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  members?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -2341,18 +2447,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants_select".
- */
-export interface TenantsSelect<T extends boolean = true> {
-  name?: T;
-  customDomain?: T;
-  slug?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2727,28 +2821,12 @@ export interface NavigationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "biographies_select".
+ * via the `definition` "tenants_select".
  */
-export interface BiographiesSelect<T extends boolean = true> {
-  tenant?: T;
-  user?: T;
+export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  photo?: T;
-  title?: T;
-  start_date?: T;
-  biography?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teams_select".
- */
-export interface TeamsSelect<T extends boolean = true> {
-  tenant?: T;
-  name?: T;
-  members?: T;
+  customDomain?: T;
+  slug?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2794,84 +2872,6 @@ export interface SettingsSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sponsors_select".
- */
-export interface SponsorsSelect<T extends boolean = true> {
-  tenant?: T;
-  name?: T;
-  photo?: T;
-  link?: T;
-  startDate?: T;
-  endDate?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags_select".
- */
-export interface TagsSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
-  slug?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "homePages_select".
- */
-export interface HomePagesSelect<T extends boolean = true> {
-  tenant?: T;
-  quickLinks?:
-    | T
-    | {
-        type?: T;
-        newTab?: T;
-        reference?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  highlightedContent?:
-    | T
-    | {
-        enabled?: T;
-        heading?: T;
-        backgroundColor?: T;
-        columns?:
-          | T
-          | {
-              richText?: T;
-              id?: T;
-            };
-      };
-  layout?:
-    | T
-    | {
-        biography?: T | BiographyBlockSelect<T>;
-        content?: T | ContentBlockSelect<T>;
-        contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
-        formBlock?: T | FormBlockSelect<T>;
-        headerBlock?: T | HeaderBlockSelect<T>;
-        imageLinkGrid?: T | ImageLinkGridSelect<T>;
-        imageQuote?: T | ImageQuoteSelect<T>;
-        imageText?: T | ImageTextSelect<T>;
-        imageTextList?: T | ImageTextListSelect<T>;
-        linkPreview?: T | LinkPreviewBlockSelect<T>;
-        mediaBlock?: T | MediaBlockSelect<T>;
-        team?: T | TeamBlockSelect<T>;
-      };
-  publishedAt?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

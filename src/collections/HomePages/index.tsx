@@ -45,7 +45,7 @@ export const HomePages: CollectionConfig = {
   admin: {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
-    group: 'Built-in Page Configs',
+    group: 'Content',
     livePreview: {
       url: async ({ data, req }) => {
         let tenant = data.tenant
