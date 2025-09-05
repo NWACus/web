@@ -15,6 +15,7 @@ import * as migration_20250828_230246_add_header_block from './20250828_230246_a
 import * as migration_20250829_035904_update_payload_version from './20250829_035904_update_payload_version'
 import * as migration_20250904_014605_create_documents from './20250904_014605_create_documents'
 import * as migration_20250904_233214_add_bg_color_and_layout_for_biography_blocks from './20250904_233214_add_bg_color_and_layout_for_biography_blocks'
+import * as migration_20250905_042615_add_header_to_link_preview from './20250905_042615_add_header_to_link_preview'
 
 export const migrations = [
   {
@@ -101,5 +102,10 @@ export const migrations = [
     up: migration_20250904_233214_add_bg_color_and_layout_for_biography_blocks.up,
     down: migration_20250904_233214_add_bg_color_and_layout_for_biography_blocks.down,
     name: '20250904_233214_add_bg_color_and_layout_for_biography_blocks',
+  },
+  {
+    up: migration_20250905_042615_add_header_to_link_preview.up,
+    down: migration_20250905_042615_add_header_to_link_preview.down,
+    name: '20250905_042615_add_header_to_link_preview',
   },
 ]
