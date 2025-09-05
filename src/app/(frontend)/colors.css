@@ -12,8 +12,8 @@
   --primary-hover: rgba(24, 24, 27, 0.8);
   --primary-foreground: hsl(0 0% 98%);
 
-  --secondary: hsl(240 4.8% 95.9%);
-  --secondary-hover: rgba(244, 244, 245, 0.8);
+  --secondary: rgb(100, 100, 190);
+  --secondary-hover: rgba(100, 100, 190, 0.8);
   --secondary-foreground: hsl(240 5.9% 10%);
 
   --muted: hsl(240 4.8% 95.9%);

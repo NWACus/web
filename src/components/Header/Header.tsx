@@ -54,21 +54,21 @@ export async function Header({ center }: { center: string }) {
       {/* content padding since mobile nav is position: fixed */}
       <div className="lg:hidden h-[64px] bg-background" />
 
-      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-8">
+      <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-4">
         {banner && (
           <Link href="/" className="w-fit flex gap-10">
             <ImageMedia
               resource={banner}
               loading="eager"
               priority={true}
-              imgClassName="h-[90px] object-contain w-fit"
+              imgClassName="h-[80px] object-contain w-fit"
             />
             {usfsLogo && (
               <ImageMedia
                 resource={usfsLogo}
                 loading="eager"
                 priority={true}
-                imgClassName="h-[90px] object-contain w-fit"
+                imgClassName="h-[80px] object-contain w-fit"
               />
             )}
           </Link>
