@@ -34,10 +34,21 @@ export async function generateStaticParams() {
 
   const params: PathArgs[] = []
   for (const post of posts.docs) {
+    if (!post.slug || typeof post.slug !== 'string') {
+      payload.logger.error(`Invalid page slug: ${JSON.stringify(post)}`)
+      continue
+    }
+
     if (typeof post.tenant === 'number') {
       payload.logger.error(`got number for post tenant`)
       continue
     }
+
+    if (!post.tenant || typeof post.tenant.slug !== 'string') {
+      payload.logger.error(`Invalid tenant slug: ${JSON.stringify(post)}`)
+      continue
+    }
+
     if (post.tenant) {
       params.push({ center: post.tenant.slug, slug: post.slug })
     }
