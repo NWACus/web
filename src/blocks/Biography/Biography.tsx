@@ -40,9 +40,9 @@ export const BiographyBlock = ({ backgroundColor, biography, imageLayout, payloa
             />
           </div>
           <div className={`md:col-span-8 self-center ${textColor}`}>
-            <div className="mb-4">
-              <p className="text-md">{name}</p>
-              {biography.title && <p className="text-md italic">{biography.title}</p>}
+            <div className="prose mb-4">
+              <h2 className="mb-0 font-normal leading-none">{name}</h2>
+              {biography.title && <h3 className="italic font-normal mb-0">{biography.title}</h3>}
               {biography.start_date && (
                 <p className="text-sm">
                   Since {format(parseISO(biography.start_date), 'MMMM yyyy')}
