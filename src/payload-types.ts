@@ -225,7 +225,6 @@ export interface HomePage {
   layout: (
     | BiographyBlock
     | ContentBlock
-    | ContentWithCalloutBlock
     | FormBlock
     | HeaderBlock
     | ImageLinkGrid
@@ -269,7 +268,6 @@ export interface Page {
     | BiographyBlock
     | BlogListBlock
     | ContentBlock
-    | ContentWithCalloutBlock
     | DocumentBlock
     | FormBlock
     | HeaderBlock
@@ -665,45 +663,6 @@ export interface ContentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentWithCalloutBlock".
- */
-export interface ContentWithCalloutBlock {
-  richText?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  callout?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'contentWithCallout';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1947,7 +1906,6 @@ export interface HomePagesSelect<T extends boolean = true> {
     | {
         biography?: T | BiographyBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
-        contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
@@ -1988,16 +1946,6 @@ export interface ContentBlockSelect<T extends boolean = true> {
         richText?: T;
         id?: T;
       };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentWithCalloutBlock_select".
- */
-export interface ContentWithCalloutBlockSelect<T extends boolean = true> {
-  richText?: T;
-  callout?: T;
   id?: T;
   blockName?: T;
 }
@@ -2146,7 +2094,6 @@ export interface PagesSelect<T extends boolean = true> {
         biography?: T | BiographyBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
-        contentWithCallout?: T | ContentWithCalloutBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
@@ -3168,6 +3115,31 @@ export interface ButtonsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'buttonsBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "calloutBlock".
+ */
+export interface CalloutBlock {
+  backgroundColor: string;
+  callout?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'calloutBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

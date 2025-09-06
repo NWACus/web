@@ -7,7 +7,6 @@ import type { CollectionConfig } from 'payload'
 import { BiographyBlock } from '@/blocks/Biography/config'
 import { ButtonsBlock } from '@/blocks/Buttons/config'
 import { Content } from '@/blocks/Content/config'
-import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
@@ -170,7 +169,6 @@ export const HomePages: CollectionConfig = {
       blocks: [
         BiographyBlock,
         Content,
-        ContentWithCallout,
         FormBlock,
         HeaderBlock,
         ImageLinkGrid,

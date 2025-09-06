@@ -9,6 +9,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonsBlock } from '../Buttons/config'
+import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../DocumentBlock/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { MediaBlock } from '../MediaBlock/config'
@@ -72,6 +73,7 @@ export const Content: Block = {
                   blocks: [
                     BlogListBlockLexical,
                     ButtonsBlock,
+                    CalloutBlock,
                     DocumentBlock,
                     GenericEmbedLexical,
                     MediaBlock,
