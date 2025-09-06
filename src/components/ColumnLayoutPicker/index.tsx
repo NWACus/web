@@ -32,7 +32,7 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
 
   const filteredLayoutOptions = layoutOptions.filter((option) => {
     const colCount = parseInt(option.value.split('_')[0])
-    return colCount <= numOfCols
+    return colCount === numOfCols
   })
 
   return (
