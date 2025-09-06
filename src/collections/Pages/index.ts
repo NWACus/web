@@ -3,7 +3,6 @@ import type { CollectionConfig } from 'payload'
 import { BiographyBlock } from '@/blocks/Biography/config'
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { Content } from '@/blocks/Content/config'
-import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbed } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
@@ -114,7 +113,6 @@ export const Pages: CollectionConfig<'pages'> = {
                 BiographyBlock,
                 BlogListBlock,
                 Content,
-                ContentWithCallout,
                 DocumentBlock,
                 FormBlock,
                 HeaderBlock,

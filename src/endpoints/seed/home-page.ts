@@ -87,6 +87,7 @@ export const homePage: (
     layout: [
       {
         backgroundColor: 'brand-200',
+        layout: '1_1',
         columns: [
           {
             richText: {
