@@ -641,6 +641,7 @@ export interface Post {
  */
 export interface ContentBlock {
   backgroundColor: string;
+  layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
   columns?:
     | {
         richText?: {
@@ -1980,6 +1981,7 @@ export interface BiographyBlockSelect<T extends boolean = true> {
  */
 export interface ContentBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
+  layout?: T;
   columns?:
     | T
     | {

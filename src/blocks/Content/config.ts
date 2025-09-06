@@ -23,6 +23,27 @@ export const Content: Block = {
     // Background color
     colorPickerField('Background color'),
     {
+      name: 'layout',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'full', value: '1_1' },
+        { label: '1:1', value: '2_11' },
+        { label: '1:1:1', value: '3_111' },
+        { label: '1:2', value: '2_12' },
+        { label: '2:1', value: '2_21' },
+        { label: '1:1:1:1', value: '4_1111' },
+        { label: '1:1:2', value: '3_112' },
+        { label: '1:2:1', value: '3_121' },
+        { label: '2:1:1', value: '3_211' },
+      ],
+      admin: {
+        components: {
+          Field: '@/components/ColumnLayoutPicker',
+        },
+      },
+    },
+    {
       name: 'columns',
       label: false,
       labels: {
