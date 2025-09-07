@@ -87,6 +87,10 @@ jobs:
         shell: bash
       - name: 🧹 Run pnpm generate:type
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           pnpm generate:types
           if [[ ! -z "$(git status --short)" ]]
           then
@@ -96,6 +100,10 @@ jobs:
           fi
       - name: 🧹 Run pnpm generate:importmap
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           pnpm generate:importmap
           if [[ ! -z "$(git status --short)" ]]
           then
@@ -143,6 +151,10 @@ jobs:
         shell: bash
       - name: Check if a migration is needed
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           output=$(pnpm payload migrate:create --skip-empty 2>&1)
           echo "$output"
           if echo "$output" | grep -q "Migration created at"; then
