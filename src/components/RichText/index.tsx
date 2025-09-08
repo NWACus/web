@@ -14,7 +14,6 @@ import {
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
-import { CalloutBlock } from '@/blocks/Callout/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
@@ -23,7 +22,6 @@ import type {
   BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
   ButtonsBlock as ButtonsBlockProps,
-  CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   MediaBlock as MediaBlockProps,
@@ -38,7 +36,6 @@ type NodeTypes =
       | BannerBlockProps
       | BlogListBlockProps
       | ButtonsBlockProps
-      | CalloutBlockProps
       | DocumentBlockProps
       | GenericEmbedBlockProps
       | MediaBlockProps
@@ -68,7 +65,6 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       />
     ),
     buttonsBlock: ({ node }) => <ButtonsBlock {...node.fields} />,
-    calloutBlock: ({ node }) => <CalloutBlock {...node.fields} />,
     documentBlock: ({ node }) => (
       <DocumentBlock
         {...node.fields}

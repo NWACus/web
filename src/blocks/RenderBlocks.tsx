@@ -6,6 +6,7 @@ import { Payload } from 'payload'
 import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
+import { ContentWithCalloutBlock } from '@/blocks/ContentWithCallout/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
@@ -52,6 +53,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <BlogListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'content':
       return <ContentBlock {...block} />
+    case 'contentWithCallout':
+      return <ContentWithCalloutBlock {...block} />
     case 'documentBlock':
       // src/blocks/DocumentBlock/config.ts has two variants - to make TS happy we fallback to the default for the DocumentBlock variant
       return <DocumentBlock {...block} wrapInContainer={block.wrapInContainer || true} />
@@ -74,6 +77,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <LinkPreviewBlock {...block} />
     case 'mediaBlock':
       return <MediaBlock {...block} />
+    case 'contentWithCallout':
+      return <ContentWithCalloutBlock {...block} />
     case 'singleBlogPost':
       // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlock variant
       return (

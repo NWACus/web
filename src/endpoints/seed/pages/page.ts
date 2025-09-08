@@ -22,7 +22,6 @@ export const page: (
     layout: [
       {
         backgroundColor: 'white',
-        layout: '1_1',
         columns: [
           {
             richText: {
