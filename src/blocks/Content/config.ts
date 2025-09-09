@@ -12,6 +12,7 @@ import { ButtonsBlock } from '../Buttons/config'
 import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../DocumentBlock/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { HeaderBlock } from '../Header/config'
 import { MediaBlock } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
 import { SponsorsBlockLexical } from '../SponsorsBlock/config'
@@ -77,6 +78,7 @@ export const Content: Block = {
                     CalloutBlock,
                     DocumentBlock,
                     GenericEmbedLexical,
+                    HeaderBlock,
                     MediaBlock,
                     SingleBlogPostBlockLexical,
                     SponsorsBlockLexical,

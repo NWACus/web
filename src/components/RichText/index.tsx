@@ -17,6 +17,7 @@ import { ButtonsBlock } from '@/blocks/Buttons/Component'
 import { CalloutBlock } from '@/blocks/Callout/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import type {
@@ -26,6 +27,7 @@ import type {
   CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
+  HeaderBlock as HeaderBlockProps,
   MediaBlock as MediaBlockProps,
   SingleBlogPostBlock,
   SponsorsBlock as SponsorsBlockProps,
@@ -41,6 +43,7 @@ type NodeTypes =
       | CalloutBlockProps
       | DocumentBlockProps
       | GenericEmbedBlockProps
+      | HeaderBlockProps
       | MediaBlockProps
       | SingleBlogPostBlock
       | SponsorsBlockProps
@@ -83,6 +86,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
+    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} />,
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"
