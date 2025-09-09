@@ -22,6 +22,10 @@ jobs:
       - name: Create a new database for the preview
         id: database
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           head_ref="${{ github.head_ref }}"
           ref="${head_ref//[^a-z0-9\-]/x}"
           # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
@@ -47,6 +51,10 @@ jobs:
       - name: Record database connection URI and token
         id: connection
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           echo "uri=$(/home/runner/.turso/turso db show "${{ steps.database.outputs.name }}" --url)" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create "${{ steps.database.outputs.name }}")" >> "${GITHUB_OUTPUT}"
         env:
@@ -68,6 +76,10 @@ jobs:
       - name: Generate preview domain names
         id: domains
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           PREVIEW_ALIAS="${{ steps.database.outputs.ref }}.preview.avy-fx.org"
           WILDCARD_PREVIEW_ALIAS="*.${{ steps.database.outputs.ref }}.preview.avy-fx.org"
 
@@ -104,6 +116,10 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           fullName="${{ github.repository }}"
           DEPLOYMENT_URL=$(vercel deploy --yes --prebuilt --target=preview \
             --meta='githubCommitAuthorName=${{ github.event.pull_request.user.login }}' \
@@ -122,6 +138,10 @@ jobs:
       - name: Create aliases for the deployment
         id: aliases
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           echo "Setting preview alias: ${{ steps.domains.outputs.preview_alias }}"
           vercel alias --scope=nwac --token=${{ secrets.VERCEL_TOKEN }} set "${{ steps.deployment.outputs.url }}" "${{ steps.domains.outputs.preview_alias }}"
 

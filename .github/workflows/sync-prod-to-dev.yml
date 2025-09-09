@@ -22,6 +22,10 @@ jobs:
       - name: Delete dev db and create a new db from prod
         id: database
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           /home/runner/.turso/turso org switch nwac
           if /home/runner/.turso/turso db show payloadcms-dev; then
             /home/runner/.turso/turso db destroy payloadcms-dev --yes
@@ -33,6 +37,10 @@ jobs:
       - name: Record database connection URI and token
         id: connection
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           echo "uri=$(/home/runner/.turso/turso db show payloadcms-dev --url)" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-dev)" >> "${GITHUB_OUTPUT}"
         env:
@@ -58,6 +66,10 @@ jobs:
       - name: Generate random non-prod sync password
         id: generate-sync-password
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           generated_password=$(openssl rand -base64 32)
           echo "::add-mask::$generated_password"
           echo "password=$generated_password" >> "$GITHUB_OUTPUT"
@@ -100,6 +112,10 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           fullName="${{ github.repository }}"
           vercel deploy --yes --prebuilt --target=preview \
             --meta='githubCommitAuthorName=${{ github.workflow }}' \

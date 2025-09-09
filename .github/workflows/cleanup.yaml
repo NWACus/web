@@ -14,6 +14,10 @@ jobs:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
       - name: Delete preview database
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           ref="${{ github.event.ref }}"
           branch="${ref##refs/heads/}"
           clean_branch="${branch//[^a-z0-9\-]/x}"

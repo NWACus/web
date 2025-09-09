@@ -20,6 +20,10 @@ jobs:
       - name: Record database connection URI and token
         id: connection
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           /home/runner/.turso/turso org switch nwac
           echo "uri=$(/home/runner/.turso/turso db show payloadcms-prod --url )" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-prod )" >> "${GITHUB_OUTPUT}"
@@ -62,6 +66,10 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           fullName="${{ github.repository }}"
           vercel deploy --yes --prebuilt --target=production \
             --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
