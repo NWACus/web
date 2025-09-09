@@ -5,7 +5,7 @@ import { cn } from '@/utilities/ui'
 
 export const ContentBlock = (props: ContentBlockProps) => {
   const { columns, backgroundColor, layout } = props
-  const layoutCols = layout.split('_')[1]
+  const layoutCols = layout ? layout.split('_')[1] : '1'
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)

@@ -27,6 +27,7 @@ export const Content: Block = {
       name: 'layout',
       type: 'select',
       required: true,
+      defaultValue: '1_1',
       options: [
         { label: 'full', value: '1_1' },
         { label: '1:1', value: '2_11' },
