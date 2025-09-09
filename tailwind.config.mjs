@@ -156,6 +156,10 @@ const config = {
                 marginBottom: '1em',
                 lineHeight: 1.4,
               },
+              hr: {
+                marginTop: '0.6em',
+                marginBottom: '0.6em',
+              },
             },
           ],
         },
@@ -165,6 +169,7 @@ const config = {
               h2: {
                 fontSize: '1.5rem',
                 fontWeight: 600,
+                marginTop: '1em',
               },
               h3: {
                 fontSize: '1.25rem',
@@ -183,6 +188,7 @@ const config = {
               h2: {
                 fontSize: '1.8rem',
                 fontWeight: 600,
+                marginTop: '1em',
               },
               h3: {
                 fontSize: '1.5rem',
