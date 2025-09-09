@@ -17,6 +17,7 @@ import * as migration_20250904_014605_create_documents from './20250904_014605_c
 import * as migration_20250904_233214_add_bg_color_and_layout_for_biography_blocks from './20250904_233214_add_bg_color_and_layout_for_biography_blocks'
 import * as migration_20250905_042615_add_header_to_link_preview from './20250905_042615_add_header_to_link_preview'
 import * as migration_20250906_203111_add_columns_to_content from './20250906_203111_add_columns_to_content'
+import * as migration_20250909_012609_add_columns_to_content_default from './20250909_012609_add_columns_to_content_default'
 
 export const migrations = [
   {
@@ -113,5 +114,10 @@ export const migrations = [
     up: migration_20250906_203111_add_columns_to_content.up,
     down: migration_20250906_203111_add_columns_to_content.down,
     name: '20250906_203111_add_columns_to_content',
+  },
+  {
+    up: migration_20250909_012609_add_columns_to_content_default.up,
+    down: migration_20250909_012609_add_columns_to_content_default.down,
+    name: '20250909_012609_add_columns_to_content_default',
   },
 ]
