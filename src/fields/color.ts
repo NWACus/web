@@ -5,7 +5,7 @@ export const colorPickerField: (label: string) => Field = (label) => ({
   type: 'text',
   label,
   required: true,
-  defaultValue: 'white',
+  defaultValue: 'transparent',
   admin: {
     components: {
       Field: '@/components/ColorPicker',
