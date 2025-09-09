@@ -8,12 +8,14 @@ import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-ty
 
 type Props = GenericEmbedBlockProps & {
   className?: string
+  embedHeight?: number | null
   wrapInContainer?: boolean
 }
 
 export const GenericEmbedBlock = ({
   id,
   html,
+  embedHeight,
   backgroundColor,
   alignContent = 'left',
   className,
@@ -21,7 +23,7 @@ export const GenericEmbedBlock = ({
 }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
   const [shouldBeIframe, setShouldBeIFrame] = useState(false)
-  const [iframeHeight, setIframeHeight] = useState<number>(600)
+  const [iframeHeight, setIframeHeight] = useState<number | string>(embedHeight || 'auto')
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
