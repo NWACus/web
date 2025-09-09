@@ -14,6 +14,15 @@ const colorAndAlignmentRow: RowField = {
   fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
 }
 
+const optionalHeight: Field = {
+  type: 'number',
+  name: 'embedHeight',
+  label: 'Height of embed (in px)',
+  admin: {
+    description: "Add optional height. If left blank, will default to 'auto' ",
+  },
+}
+
 export const GenericEmbed = genericEmbedWithFields([
   {
     name: 'html',
@@ -22,6 +31,7 @@ export const GenericEmbed = genericEmbedWithFields([
     required: true,
   },
   colorAndAlignmentRow,
+  optionalHeight,
 ])
 
 export const GenericEmbedLexical = genericEmbedWithFields([
@@ -41,4 +51,5 @@ export const GenericEmbedLexical = genericEmbedWithFields([
     defaultValue: false,
   },
   colorAndAlignmentRow,
+  optionalHeight,
 ])

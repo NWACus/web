@@ -75,6 +75,7 @@ export async function Footer({ center }: { center?: string }) {
           {footerForm?.type === 'embedded' && (
             <GenericEmbedBlock
               html={footerForm.html || ''}
+              embedHeight={Number(footerForm.embedHeight)}
               backgroundColor="transparent"
               blockType="genericEmbed"
               wrapInContainer={false}

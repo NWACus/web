@@ -16,7 +16,7 @@ export const Columns12 = ({ className = '', ...props }) => (
       strokeLinejoin="round"
     />
     <path
-      d="M9 3V21"
+      d="M15 3V21"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -43,7 +43,7 @@ export const Columns21 = ({ className = '', ...props }) => (
       strokeLinejoin="round"
     />
     <path
-      d="M15 3V21"
+      d="M9 3V21"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -70,14 +70,14 @@ export const Columns112 = ({ className = '', ...props }) => (
       strokeLinejoin="round"
     />
     <path
-      d="M7.5 3V21"
+      d="M12 3V21"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
-      d="M12 3V21"
+      d="M16.5 3V21"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -138,14 +138,14 @@ export const Columns211 = ({ className = '', ...props }) => (
       strokeLinejoin="round"
     />
     <path
-      d="M12 3V21"
+      d="M7.5 3V21"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
-      d="M16.5 3V21"
+      d="M12 3V21"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
