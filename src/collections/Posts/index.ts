@@ -185,6 +185,7 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'relationship',
       admin: {
         position: 'sidebar',
+        sortOptions: 'slug',
       },
       hasMany: true,
       relationTo: 'tags',
