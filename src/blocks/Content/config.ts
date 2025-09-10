@@ -57,11 +57,6 @@ export const Content: Block = {
       admin: {
         initCollapsed: false,
       },
-      defaultValue: [
-        {
-          columns: [],
-        },
-      ],
       maxRows: 4,
       fields: [
         {
