@@ -72,7 +72,7 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
           </div>
           <div
             className={cn(
-              'grid gap-4 not-prose max-h-[400px] overflow-y-auto',
+              'grid gap-4 not-prose max-h-[560px] overflow-y-auto',
               posts && posts.length > 1 && '@3xl:grid-cols-2',
             )}
           >
