@@ -33,14 +33,16 @@ export const allBlocksPage: (
       ...linkPreview(image1),
       ...contentWithCallout,
       ...genericEmbed,
-      // dynamic posts
       {
         ...blogListBlock,
+        postOptions: 'dynamic',
       },
-      // static posts
       {
         ...blogListBlock,
-        staticPosts: posts.slice(0, 2).map((post) => post.id), // Use first 2 posts
+        postOptions: 'static',
+        staticOptions: {
+          staticPosts: posts.slice(0, 2).map((post) => post.id), // Use first 2 posts
+        },
       },
       {
         ...singleBlogPostBlock,

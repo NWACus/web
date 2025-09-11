@@ -94,7 +94,6 @@ export const Posts: CollectionConfig<'posts'> = {
       required: true,
     },
     MetaImageField({
-      hasGenerateFn: true,
       relationTo: 'media',
       overrides: {
         admin: {
@@ -104,9 +103,7 @@ export const Posts: CollectionConfig<'posts'> = {
         label: 'Featured image',
       },
     }),
-    MetaDescriptionField({
-      hasGenerateFn: true,
-    }),
+    MetaDescriptionField({}),
     {
       name: 'content',
       type: 'richText',
@@ -185,6 +182,7 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'relationship',
       admin: {
         position: 'sidebar',
+        sortOptions: 'slug',
       },
       hasMany: true,
       relationTo: 'tags',

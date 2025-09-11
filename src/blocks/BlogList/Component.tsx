@@ -11,17 +11,10 @@ type BlogListComponentProps = BlogListBlockProps & {
 }
 
 export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
-  const {
-    heading,
-    belowHeadingContent,
-    backgroundColor,
-    filterByTags,
-    sortBy,
-    queriedPosts,
-    staticPosts,
-    className,
-    wrapInContainer = true,
-  } = args
+  const { heading, belowHeadingContent, backgroundColor, className, wrapInContainer = true } = args
+
+  const { filterByTags, sortBy, queriedPosts } = args.dynamicOptions || {}
+  const { staticPosts } = args.staticOptions || {}
 
   let posts = staticPosts?.filter(
     (post): post is Post =>
@@ -42,7 +35,9 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
     .map(({ slug }) => slug)
 
   const blogLinkQueryParams = new URLSearchParams()
-  blogLinkQueryParams.set('sort', sortBy)
+  if (sortBy !== undefined) {
+    blogLinkQueryParams.set('sort', sortBy)
+  }
 
   if (filterByTagsSlugs && filterByTagsSlugs.length > 0) {
     blogLinkQueryParams.set('tags', filterByTagsSlugs.join(','))
@@ -72,8 +67,8 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
           </div>
           <div
             className={cn(
-              'grid gap-4 not-prose max-h-[400px] overflow-y-auto',
-              posts && posts.length > 1 && '@3xl:grid-cols-2',
+              'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
+              posts && posts.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
             )}
           >
             {posts && posts?.length > 0 ? (
