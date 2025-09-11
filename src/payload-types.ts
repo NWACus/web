@@ -546,27 +546,32 @@ export interface BlogListBlock {
     [k: string]: unknown;
   } | null;
   backgroundColor: string;
+  postOptions: 'dynamic' | 'static';
   /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.
    */
   wrapInContainer?: boolean | null;
-  /**
-   * Optionally select tags to filter posts in this list by.
-   */
-  filterByTags?: (number | Tag)[] | null;
-  /**
-   * Select how the list of posts will be sorted.
-   */
-  sortBy: '-publishedAt' | 'publishedAt';
-  /**
-   * Maximum number of posts that will be displayed. Must be an integer.
-   */
-  maxPosts?: number | null;
-  queriedPosts?: (number | Post)[] | null;
-  /**
-   * Use this to select specific posts to display here instead of displaying a dynamic list of posts based on tags, sort by, and max posts.
-   */
-  staticPosts?: (number | Post)[] | null;
+  dynamicOptions?: {
+    /**
+     * Select how the list of posts will be sorted.
+     */
+    sortBy: '-publishedAt' | 'publishedAt';
+    /**
+     * Optionally select tags to filter posts in this list by.
+     */
+    filterByTags?: (number | Tag)[] | null;
+    /**
+     * Maximum number of posts that will be displayed. Must be an integer.
+     */
+    maxPosts?: number | null;
+    queriedPosts?: (number | Post)[] | null;
+  };
+  staticOptions?: {
+    /**
+     * Choose new post from dropdown and/or drag and drop to change order
+     */
+    staticPosts?: (number | Post)[] | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'blogList';
@@ -2139,11 +2144,20 @@ export interface BlogListBlockSelect<T extends boolean = true> {
   heading?: T;
   belowHeadingContent?: T;
   backgroundColor?: T;
-  filterByTags?: T;
-  sortBy?: T;
-  maxPosts?: T;
-  queriedPosts?: T;
-  staticPosts?: T;
+  postOptions?: T;
+  dynamicOptions?:
+    | T
+    | {
+        sortBy?: T;
+        filterByTags?: T;
+        maxPosts?: T;
+        queriedPosts?: T;
+      };
+  staticOptions?:
+    | T
+    | {
+        staticPosts?: T;
+      };
   id?: T;
   blockName?: T;
 }

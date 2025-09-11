@@ -35,78 +35,117 @@ const defaultStylingFields: Field[] = [
     },
   },
   colorPickerField('Background color'),
-]
-const defaultPostRelatedFields: Field[] = [
   {
-    name: 'filterByTags',
-    type: 'relationship',
-    relationTo: 'tags',
-    hasMany: true,
-    filterOptions: getTenantFilter,
-    label: 'Filter by Tag(s)',
-    admin: {
-      description: 'Optionally select tags to filter posts in this list by.',
-    },
-  },
-  {
-    name: 'sortBy',
-    type: 'select',
-    defaultValue: '-publishedAt',
-    options: [
-      { label: 'Newest to Oldest', value: '-publishedAt' },
-      { label: 'Oldest to Newest', value: 'publishedAt' },
-    ],
+    type: 'radio',
+    name: 'postOptions',
+    label: 'How do you want to choose your posts?',
+    defaultValue: 'dynamic',
     required: true,
-    admin: {
-      description: 'Select how the list of posts will be sorted.',
-    },
-  },
-  {
-    name: 'maxPosts',
-    type: 'number',
-    label: 'Max Posts Displayed',
-    min: 1,
-    max: 20, // arbitrary but rendering more than 10 in this block's component seems like too much
-    defaultValue: 4,
-    admin: {
-      description: 'Maximum number of posts that will be displayed. Must be an integer.',
-      step: 1,
-    },
-    hooks: {
-      beforeValidate: [validateMaxPosts],
-    },
-  },
-  {
-    name: 'queriedPosts',
-    type: 'relationship',
-    relationTo: 'posts',
-    hasMany: true,
-    admin: {
-      readOnly: true,
-      components: {
-        Field: '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent',
+    options: [
+      {
+        label: 'Do it for me',
+        value: 'dynamic',
       },
-    },
+      {
+        label: 'Let me choose',
+        value: 'static',
+      },
+    ],
   },
+]
+const dynamicPostRelatedFields: Field[] = [
   {
-    name: 'staticPosts',
-    type: 'relationship',
-    relationTo: 'posts',
-    hasMany: true,
+    name: 'dynamicOptions',
+    type: 'group',
     admin: {
-      description:
-        'Use this to select specific posts to display here instead of displaying a dynamic list of posts based on tags, sort by, and max posts.',
+      condition: (_, siblingData) => siblingData?.postOptions === 'dynamic',
     },
-    filterOptions: (props: FilterOptionsProps) => ({
-      and: [
-        getTenantFilter(props),
-        {
-          _status: {
-            equals: 'published',
+    fields: [
+      {
+        name: 'sortBy',
+        type: 'select',
+        defaultValue: '-publishedAt',
+        options: [
+          { label: 'Newest to Oldest', value: '-publishedAt' },
+          { label: 'Oldest to Newest', value: 'publishedAt' },
+        ],
+        required: true,
+        admin: {
+          description: 'Select how the list of posts will be sorted.',
+        },
+      },
+      {
+        name: 'filterByTags',
+        type: 'relationship',
+        relationTo: 'tags',
+        hasMany: true,
+        filterOptions: getTenantFilter,
+        label: 'Filter by Tag(s)',
+        admin: {
+          description: 'Optionally select tags to filter posts in this list by.',
+        },
+      },
+      {
+        name: 'maxPosts',
+        type: 'number',
+        label: 'Max Posts Displayed',
+        min: 1,
+        max: 20, // arbitrary but rendering more than 10 in this block's component seems like too much
+        defaultValue: 4,
+        admin: {
+          description: 'Maximum number of posts that will be displayed. Must be an integer.',
+          step: 1,
+        },
+        hooks: {
+          beforeValidate: [validateMaxPosts],
+        },
+      },
+      {
+        name: 'queriedPosts',
+        type: 'relationship',
+        label: 'Preview Posts Order',
+        relationTo: 'posts',
+        hasMany: true,
+        admin: {
+          readOnly: true,
+          components: {
+            Field: '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent',
           },
         },
-      ],
-    }),
+      },
+    ],
+  },
+]
+
+const staticPostRelatedFields: Field[] = [
+  {
+    name: 'staticOptions',
+    type: 'group',
+    admin: {
+      condition: (_, siblingData) => siblingData?.postOptions === 'static',
+    },
+    fields: [
+      {
+        name: 'staticPosts',
+        type: 'relationship',
+        label: 'Choose posts',
+        relationTo: 'posts',
+        hasMany: true,
+        admin: {
+          description: 'Choose new post from dropdown and/or drag and drop to change order',
+        },
+        filterOptions: (props: FilterOptionsProps) => ({
+          and: [
+            getTenantFilter(props),
+            {
+              _status: {
+                equals: 'published',
+              },
+            },
+          ],
+        }),
+      },
+    ],
   },
 ]
 
@@ -119,7 +158,8 @@ const blogListBlockWithFields = (fields: Field[]): Block => ({
 
 export const BlogListBlock = blogListBlockWithFields([
   ...defaultStylingFields,
-  ...defaultPostRelatedFields,
+  ...dynamicPostRelatedFields,
+  ...staticPostRelatedFields,
 ])
 
 export const BlogListBlockLexical = blogListBlockWithFields([
@@ -133,5 +173,6 @@ export const BlogListBlockLexical = blogListBlockWithFields([
     type: 'checkbox',
     defaultValue: false,
   },
-  ...defaultPostRelatedFields,
+  ...dynamicPostRelatedFields,
+  ...staticPostRelatedFields,
 ])
