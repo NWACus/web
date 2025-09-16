@@ -1,6 +1,6 @@
 import type { BasePayload, CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
-import { resolveTenant } from '@/utilities/resolveTenant'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Post } from '@/payload-types'
@@ -48,7 +48,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
 
   if (query && query.autosave === 'true') return
 
-  const tenant = await resolveTenant(doc.tenant, payload)
+  const tenant = await resolveTenant(doc.tenant)
 
   if (doc._status === 'published') {
     revalidate({ docId: doc.id, slug: doc.slug, tenantSlug: tenant.slug, payload })
@@ -71,7 +71,7 @@ export const revalidatePostDelete: CollectionAfterDeleteHook<Post> = async ({
 }) => {
   if (context.disableRevalidate) return
 
-  const tenant = await resolveTenant(doc.tenant, payload)
+  const tenant = await resolveTenant(doc.tenant)
 
   revalidate({ docId: doc.id, slug: doc.slug, tenantSlug: tenant.slug, payload })
 }

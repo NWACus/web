@@ -1,4 +1,4 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -52,7 +52,7 @@ export default async function Page({ params }: Args) {
       <div className="pt-4 pb-24 flex flex-col gap-4">
         <div className="container">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
-            <h1>Observations</h1>
+            <h1 className="font-bold">Observations</h1>
             <Button asChild variant="secondary" className="no-underline">
               <Link href="/observations/submit">Submit Observation</Link>
             </Button>
@@ -69,26 +69,28 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Observations`,
-    }
-  }
+export async function generateMetadata(
+  _props: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
   return {
-    title: `${tenant.docs[0].name} - Observations`,
+    title: `Observations | ${parentTitle}`,
+    alternates: {
+      canonical: '/observations',
+    },
+    openGraph: {
+      ...parentOg,
+      title: `Observations | ${parentTitle}`,
+      url: '/observations',
+    },
   }
 }

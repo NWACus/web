@@ -7,7 +7,6 @@ import { headers } from 'next/headers'
 import type {
   CollectionSlug,
   File,
-  GlobalSlug,
   Payload,
   PayloadRequest,
   RequiredDataFromCollectionSlug,
@@ -16,6 +15,7 @@ import type {
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { contactForm as contactFormData } from './contact-form'
+import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
@@ -25,13 +25,16 @@ import { contact as contactPageData } from './pages/contact-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
+import { sponsors } from './sponsors'
 
 const collections: CollectionSlug[] = [
   'settings',
   'biographies',
+  'homePages',
   'media',
   'pages',
   'posts',
+  'sponsors',
   'forms',
   'form-submissions',
   'navigations',
@@ -42,23 +45,12 @@ const collections: CollectionSlug[] = [
   'teams',
   'tenants',
 ]
-const globalsMap: Record<
-  GlobalSlug,
-  {
-    requiredFields: {
-      version: string
-      baseUrl: string
-    }
-  }
-> = {
-  nacWidgetsConfig: {
-    requiredFields: {
-      version: '20250602',
-      baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
-    },
+const defaultNacWidgetsConfig = {
+  requiredFields: {
+    version: '20250602',
+    baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
   },
 }
-const globals: GlobalSlug[] = ['nacWidgetsConfig']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -77,19 +69,15 @@ export const seed = async ({
   if (!incremental) {
     payload.logger.info(`— Clearing collections and globals...`)
 
-    // clear the database
-    await Promise.all(
-      globals.map((global) =>
-        payload.updateGlobal({
-          slug: global,
-          data: globalsMap[global].requiredFields,
-          depth: 0,
-          context: {
-            disableRevalidate: true,
-          },
-        }),
-      ),
-    )
+    // reset the nacWidgetsConfig global
+    await payload.updateGlobal({
+      slug: 'nacWidgetsConfig',
+      data: defaultNacWidgetsConfig.requiredFields,
+      depth: 0,
+      context: {
+        disableRevalidate: true,
+      },
+    })
 
     await Promise.all(
       collections.map((collection) => {
@@ -216,6 +204,7 @@ export const seed = async ({
             'formSubmissions',
             'users',
             'redirects',
+            'sponsors',
           ],
           actions: ['*'],
         },
@@ -256,6 +245,7 @@ export const seed = async ({
             'teams',
             'forms',
             'formSubmissions',
+            'sponsors',
           ],
           actions: ['*'],
         },
@@ -291,7 +281,7 @@ export const seed = async ({
   }
   const iconFiles: Record<string, string> = {
     dvac: 'dvac-icon.png',
-    nwac: 'nwac-icon.jpg',
+    nwac: 'nwac-icon.png',
     sac: 'sac-icon.png',
     snfac: 'snfac-icon.png',
   }
@@ -357,7 +347,7 @@ export const seed = async ({
             tenant: tenant.id,
             alt: 'icon',
           },
-          file: logos[tenant.slug],
+          file: icons[tenant.slug],
         },
         {
           data: {
@@ -441,6 +431,9 @@ export const seed = async ({
       (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
         tenant: tenant.id,
         description: settingsData[tenant.slug].description,
+        footerForm: {
+          type: 'none',
+        },
         address: settingsData[tenant.slug].address,
         phone: settingsData[tenant.slug].phone,
         email: settingsData[tenant.slug].email,
@@ -495,9 +488,6 @@ export const seed = async ({
 
   const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById, users)
 
-  const requestHeaders = await headers()
-  const { user } = await payload.auth({ headers: requestHeaders })
-
   // Assign global roles directly to users
   await payload.create({
     collection: 'globalRoleAssignments',
@@ -510,17 +500,26 @@ export const seed = async ({
     },
   })
 
-  if (user && user.email !== users['Super Admin'].email) {
-    await payload.create({
-      collection: 'globalRoleAssignments',
-      data: {
-        user: user.id,
-        globalRole: globalRoles['Super Admin'].id,
-      },
-      context: {
-        disableRevalidate: true,
-      },
-    })
+  try {
+    const requestHeaders = await headers()
+    const { user } = await payload.auth({ headers: requestHeaders })
+
+    if (user && user.email !== users['Super Admin'].email) {
+      await payload.create({
+        collection: 'globalRoleAssignments',
+        data: {
+          user: user.id,
+          globalRole: globalRoles['Super Admin'].id,
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+  } catch (err) {
+    payload.logger.error(
+      `Error authenticating current user. We may be running in standalone mode. Error: ${err instanceof Error ? err.message : err}`,
+    )
   }
 
   // Roles
@@ -566,12 +565,14 @@ export const seed = async ({
 
   payload.logger.info(`— Getting images...`)
 
-  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
-    getSeedImageByFilename('image-post1.webp', payload.logger),
-    getSeedImageByFilename('image-post2.webp', payload.logger),
-    getSeedImageByFilename('image-post3.webp', payload.logger),
-    getSeedImageByFilename('image-post3.webp', payload.logger),
-  ])
+  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, imageAcmeBuffer] =
+    await Promise.all([
+      getSeedImageByFilename('image-post1.webp', payload.logger),
+      getSeedImageByFilename('image-post2.webp', payload.logger),
+      getSeedImageByFilename('image-post3.webp', payload.logger),
+      getSeedImageByFilename('image-mountain.webp', payload.logger),
+      getSeedImageByFilename('acme-corp.webp', payload.logger),
+    ])
 
   const images = await upsert(
     'media',
@@ -600,6 +601,13 @@ export const seed = async ({
         {
           data: imageMountain(tenant),
           file: imageMountainBuffer,
+        },
+        {
+          data: {
+            tenant: tenant.id,
+            alt: 'acmeCorp',
+          },
+          file: imageAcmeBuffer,
         },
       ])
       .flat(),
@@ -685,6 +693,9 @@ export const seed = async ({
       collection: 'forms',
       depth: 0,
       data: { ...contactFormData, tenant: tenant.id },
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!contactForm) {
@@ -692,6 +703,20 @@ export const seed = async ({
     }
     contactForms[tenant.name] = contactForm
   }
+
+  payload.logger.info(`— Seeding home pages...`)
+
+  const homePages = await upsert(
+    'homePages',
+    payload,
+    incremental,
+    tenantsById,
+    () => 'homepage',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
+        homePage(tenant, images[tenant.slug]['imageMountain']),
+    ),
+  )
 
   const pages = await upsert(
     'pages',
@@ -702,7 +727,11 @@ export const seed = async ({
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
-        allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
+        allBlocksPage(
+          tenant,
+          images[tenant.slug]['imageMountain'],
+          Object.values(posts[tenant.slug]),
+        ),
         whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
         page(
           tenant,
@@ -875,6 +904,57 @@ export const seed = async ({
       ])
       .flat(),
   )
+
+  payload.logger.info(`— Seeding sponsors...`)
+  await upsert(
+    'sponsors',
+    payload,
+    incremental,
+    tenantsById,
+    () => 'sponsors',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'sponsors'> =>
+        sponsors(tenant, images[tenant.slug]['acmeCorp']),
+    ),
+  )
+
+  payload.logger.info(`— Updating home page quick links...`)
+  for (const tenant of Object.values(tenants)) {
+    const aboutUsPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
+    const donatePage = Object.values(pages[tenant.slug]).find(
+      (page) => page.slug === 'donate-membership',
+    )
+
+    if (aboutUsPage && donatePage) {
+      await payload.update({
+        id: homePages[tenant.slug]['homepage'].id,
+        collection: 'homePages',
+        data: {
+          quickLinks: [
+            {
+              type: 'reference',
+              label: 'Learn More',
+              reference: {
+                relationTo: 'pages',
+                value: aboutUsPage.id,
+              },
+            },
+            {
+              type: 'reference',
+              label: 'Donate',
+              reference: {
+                relationTo: 'pages',
+                value: donatePage.id,
+              },
+            },
+          ],
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+  }
 
   // Navigations
   await upsert(

@@ -5,11 +5,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
-import {
-  FixedToolbarFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { generateBlurDataUrl } from './hooks/generateBlurDataUrl'
@@ -38,7 +34,7 @@ export const Media: CollectionConfig = {
       type: 'richText',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
-          return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
+          return [...rootFeatures, InlineToolbarFeature()]
         },
       }),
     },
@@ -64,6 +60,7 @@ export const Media: CollectionConfig = {
     staticDir: path.resolve(dirname, '../../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
+    mimeTypes: ['image/*', 'video/*'],
     imageSizes: [
       {
         name: 'thumbnail',

@@ -6,6 +6,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
+import { Documents } from '@/collections/Documents'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { Media } from '@/collections/Media'
@@ -19,13 +20,18 @@ import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
+import { getEmailAdapter } from '@/email-adapter'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getEmailAdapter } from './email-adapter'
-import { NACWidgetsConfig } from './globals/NACWidgetsConfig/config'
-import { plugins } from './plugins'
-import { getURL } from './utilities/getURL'
-import { getProductionTenantUrls } from './utilities/tenancy/getProductionTenantUrls'
-import { getTenantSubdomainUrls } from './utilities/tenancy/getTenantSubdomainUrls'
+import { DiagnosticsConfig } from '@/globals/Diagnostics/config'
+import { NACWidgetsConfig } from '@/globals/NACWidgetsConfig/config'
+import { plugins } from '@/plugins'
+import { getURL } from '@/utilities/getURL'
+import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
+import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
+import pino from 'pino'
+import { build } from 'pino-pretty'
+import { HomePages } from './collections/HomePages'
+import { Sponsors } from './collections/Sponsors'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -35,8 +41,12 @@ const { emailAdapter, emailWarning } = getEmailAdapter()
 export default buildConfig({
   admin: {
     components: {
-      beforeDashboard:
-        process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
+      beforeDashboard: [
+        {
+          clientProps: { showDevAction: process.env.NODE_ENV !== 'production' },
+          path: '@/components/BeforeDashboard',
+        },
+      ],
       beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
@@ -52,7 +62,7 @@ export default buildConfig({
         {
           path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
           serverProps: {
-            globalSlugs: ['settings', 'navigations'],
+            globalSlugs: ['settings', 'navigations', 'homePages'],
             tenantFieldName: 'tenant',
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'slug',
@@ -135,20 +145,27 @@ export default buildConfig({
     },
   }),
   collections: [
-    Media,
+    // Content
+    HomePages,
     Pages,
     Posts,
+    Media,
+    Documents,
+    Sponsors,
+    Tags,
+    // Staff
+    Biographies,
+    Teams,
+    // Permissions
     Users,
-    Tenants,
     Roles,
     RoleAssignments,
     GlobalRoles,
     GlobalRoleAssignments,
     Navigations,
-    Biographies,
-    Teams,
+    Tenants,
+    // Settings
     Settings,
-    Tags,
   ],
   cors: [
     'api.avalanche.org',
@@ -161,7 +178,7 @@ export default buildConfig({
     ...(await getTenantSubdomainUrls()),
     ...(await getProductionTenantUrls()),
   ].filter(Boolean),
-  globals: [NACWidgetsConfig],
+  globals: [NACWidgetsConfig, DiagnosticsConfig],
   graphQL: {
     disable: true,
   },
@@ -177,5 +194,19 @@ export default buildConfig({
     if (emailWarning) {
       payload.logger.warn(emailWarning)
     }
+  },
+  logger: {
+    options: {
+      name: 'payload',
+      enabled: process.env.DISABLE_LOGGING !== 'true', // Payload's default logic
+      serializers: {
+        err: pino.stdSerializers.err, // Includes stack traces
+      },
+    },
+    destination: build({
+      colorize: true,
+      ignore: 'pid,hostname',
+      translateTime: 'SYS:HH:MM:ss',
+    }),
   },
 })

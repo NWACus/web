@@ -3,7 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
-import { CollectionConfig, TextFieldValidation } from 'payload'
+import { CollectionConfig, GroupField, TextFieldValidation } from 'payload'
 import { revalidateSettings } from './hooks/revalidateSettings'
 
 const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
@@ -20,6 +20,78 @@ const validateTelephone: TextFieldValidation = (
     ? /^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value) ||
         `${value} is not a valid phone number`
     : true
+}
+
+const footerForm: GroupField = {
+  name: 'footerForm',
+  type: 'group',
+  admin: {
+    hideGutter: true,
+  },
+  fields: [
+    { name: 'title', type: 'text' },
+    { name: 'subtitle', type: 'text' },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'type',
+          required: true,
+          type: 'radio',
+          label: 'What type of subscribe form would you like in the footer?',
+          admin: {
+            layout: 'horizontal',
+            width: '50%',
+          },
+          defaultValue: 'none',
+          options: [
+            {
+              label: 'None',
+              value: 'none',
+            },
+            {
+              label: 'Embedded',
+              value: 'embedded',
+            },
+            {
+              label: 'Form',
+              value: 'form',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'html',
+      type: 'textarea',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'embedded',
+      },
+      label: 'Custom embed form',
+      required: true,
+    },
+    {
+      type: 'number',
+      name: 'embedHeight',
+      label: 'Height of embed (in px)',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'embedded',
+        description: "Add optional height. If left blank, will default to 'auto' ",
+      },
+    },
+    {
+      name: 'form',
+      type: 'relationship',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'form',
+        description: 'Note: We suggest using Message as the Confirmation Type',
+      },
+      label: 'Choose form',
+      relationTo: ['forms'],
+      required: true,
+      filterOptions: getTenantFilter,
+    },
+  ],
 }
 
 export const Settings: CollectionConfig = {
@@ -62,6 +134,7 @@ export const Settings: CollectionConfig = {
                   'A short description of your avalanche center. This will be used in meta tags for search engine optimization and display in previews on social media and in messaging apps.',
               },
             },
+            footerForm,
             {
               name: 'address',
               type: 'textarea',
@@ -71,11 +144,45 @@ export const Settings: CollectionConfig = {
               },
             },
             {
+              name: 'phoneLabel',
+              type: 'select',
+              options: [
+                { label: 'Phone', value: 'phone' },
+                { label: 'Office', value: 'office' },
+                { label: 'Text', value: 'text' },
+                { label: 'Call', value: 'call' },
+              ],
+              admin: {
+                description: 'Optional label for phone in your website footer.',
+              },
+            },
+            {
               name: 'phone',
               type: 'text',
               validate: validateTelephone,
               admin: {
                 description: 'Appears in your website footer.',
+              },
+            },
+            {
+              name: 'phoneSecondaryLabel',
+              type: 'select',
+              options: [
+                { label: 'Phone', value: 'phone' },
+                { label: 'Office', value: 'office' },
+                { label: 'Text', value: 'text' },
+                { label: 'Call', value: 'call' },
+              ],
+              admin: {
+                description: 'Optional label for secondary phone in your website footer.',
+              },
+            },
+            {
+              name: 'phoneSecondary',
+              type: 'text',
+              validate: validateTelephone,
+              admin: {
+                description: 'Secondary phone appears in your website footer.',
               },
             },
             {

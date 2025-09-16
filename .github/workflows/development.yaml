@@ -9,6 +9,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Dev
+    env:
+      NODE_ENV: production
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
@@ -16,6 +19,10 @@ jobs:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
       - name: Clone production database to dev
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           /home/runner/.turso/turso org switch nwac
           if /home/runner/.turso/turso db show payloadcms-dev; then
             /home/runner/.turso/turso db destroy payloadcms-dev --yes
@@ -26,6 +33,10 @@ jobs:
       - name: Record database connection URI and token
         id: connection
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           echo "uri=$(/home/runner/.turso/turso db show payloadcms-dev --url )" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-dev )" >> "${GITHUB_OUTPUT}"
         env:
@@ -53,13 +64,17 @@ jobs:
       - name: Generate random non-prod sync password
         id: generate-sync-password
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           generated_password=$(openssl rand -base64 32)
           echo "::add-mask::$generated_password"
           echo "password=$generated_password" >> "$GITHUB_OUTPUT"
       - name: Update non-prod sync password in Vercel
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Variables into .env file
+        run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Run database migrations
         run: pnpm migrate
         env:
@@ -73,12 +88,9 @@ jobs:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NON_PROD_SYNC_PASSWORD: '${{ steps.generate-sync-password.outputs.password }}'
       - name: Sync blobs from prod to dev
         id: sync-files
         run: pnpm sync-blobs prod dev
-        env:
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
       - name: Update media prefix in database
         id: update-media-prefix
         run: pnpm update-media-prefix dev
@@ -86,18 +98,14 @@ jobs:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          NEXT_PUBLIC_ROOT_DOMAIN: 'dev.avy-fx.org'
-          NEXT_PUBLIC_POSTHOG_KEY: '${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}'
-          NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |

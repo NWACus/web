@@ -16,20 +16,22 @@
 #widget-container[data-widget='observations'] {
   min-height: 100vh;
 }
-
+#widget-container[data-widget='map'],
 #widget-container[data-widget='stations'] {
   min-height: calc(100vh - 170px) !important;
 }
 
 @media (min-width: 768px) {
+  #widget-container[data-widget='map'],
   #widget-container[data-widget='stations'] {
     min-height: calc(100vh - 180px) !important;
   }
 }
 
 @media (min-width: 1024px) {
+  #widget-container[data-widget='map'],
   #widget-container[data-widget='stations'] {
-    min-height: calc(100vh - 370px) !important;
+    min-height: calc(100vh - 220px) !important;
   }
 }
 
@@ -69,7 +71,7 @@
 
 @media (min-width: 1024px) {
   #nac-app #nac-weather-map:not(.nac-map-fullscreen) {
-    height: calc(100vh - 440px) !important;
+    height: calc(100vh - 300px) !important;
   }
 }
 

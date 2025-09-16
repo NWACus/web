@@ -1,4 +1,4 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -50,7 +50,7 @@ export default async function Page({ params }: Args) {
       <div className="pt-4 pb-24">
         <div className="container flex flex-col gap-4">
           <div className="prose dark:prose-invert max-w-none">
-            <h1>
+            <h1 className="font-bold">
               <span className="uppercase">{center}</span> Weather Station Map
             </h1>
           </div>
@@ -66,25 +66,28 @@ export default async function Page({ params }: Args) {
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
+export async function generateMetadata(
+  _props: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
 
   return {
-    title:
-      tenant.docs.length < 1
-        ? 'Avalanche Center Weather Stations'
-        : `${tenant.docs[0].name} - Weather Stations`,
+    title: `Weather Stations | ${parentTitle}`,
+    alternates: {
+      canonical: '/weather/stations/map',
+    },
+    openGraph: {
+      ...parentOg,
+      title: `Weather Stations | ${parentTitle}`,
+      url: '/weather/stations/map',
+    },
   }
 }

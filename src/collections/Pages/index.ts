@@ -1,25 +1,30 @@
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
+import { BlogListBlock } from '@/blocks/BlogList/config'
 import { Content } from '@/blocks/Content/config'
-import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
+import { GenericEmbed } from '@/blocks/GenericEmbed/config'
+import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
-import { slugField } from '@/fields/slug'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { TeamBlock } from '@/blocks/Team/config'
+
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
-import { TeamBlock } from '@/blocks/Team/config'
 
 import { contentHashField } from '@/fields/contentHashField'
+import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import {
   MetaDescriptionField,
@@ -29,6 +34,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
@@ -105,20 +111,25 @@ export const Pages: CollectionConfig<'pages'> = {
               type: 'blocks',
               blocks: [
                 BiographyBlock,
+                BlogListBlock,
                 Content,
-                ContentWithCallout,
+                DocumentBlock,
                 FormBlock,
+                HeaderBlock,
                 ImageLinkGrid,
                 ImageQuote,
                 ImageText,
                 ImageTextList,
                 LinkPreviewBlock,
                 MediaBlock,
+                SingleBlogPostBlock,
+                SponsorsBlock,
                 TeamBlock,
+                GenericEmbed,
               ],
               required: true,
               admin: {
-                initCollapsed: true,
+                initCollapsed: false,
               },
             },
           ],
@@ -160,7 +171,8 @@ export const Pages: CollectionConfig<'pages'> = {
         position: 'sidebar',
       },
     },
-    ...slugField(),
+    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
+    slugField(),
     tenantField(),
     contentHashField(),
   ],

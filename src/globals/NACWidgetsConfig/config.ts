@@ -1,10 +1,7 @@
 import { accessByGlobalRole } from '@/access/byGlobalRole'
-import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
-import type { GlobalConfig, TextFieldSingleValidation } from 'payload'
+import { validateExternalUrl } from '@/utilities/validateUrl'
+import type { GlobalConfig } from 'payload'
 import revalidateWidgetPages from './hooks/revalidateWidgetPages'
-
-const validateExternalUrl: TextFieldSingleValidation = (val) =>
-  isAbsoluteUrl(val) || 'URL must be an absolute url with a protocol. I.e. https://www.example.com.'
 
 export const NACWidgetsConfig: GlobalConfig = {
   slug: 'nacWidgetsConfig',

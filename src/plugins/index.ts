@@ -1,4 +1,4 @@
-import { accessByTenantRole } from '@/access/byTenantRole'
+import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
 import { revalidateForm, revalidateFormDelete } from '@/hooks/revalidateForm'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { Page, Post } from '@/payload-types'
@@ -9,7 +9,7 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { sentryPlugin } from '@payloadcms/plugin-sentry'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
-import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import * as Sentry from '@sentry/nextjs'
 import { Plugin } from 'payload'
@@ -29,6 +29,7 @@ export const plugins: Plugin[] = [
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {
+      admin: { group: 'Settings' },
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
@@ -58,6 +59,7 @@ export const plugins: Plugin[] = [
       payment: false,
     },
     formOverrides: {
+      admin: { group: 'Content' },
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
           if ('name' in field && field.name === 'confirmationMessage') {
@@ -65,11 +67,7 @@ export const plugins: Plugin[] = [
               ...field,
               editor: lexicalEditor({
                 features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    FixedToolbarFeature(),
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                  ]
+                  return [...rootFeatures]
                 },
               }),
             }
@@ -84,21 +82,27 @@ export const plugins: Plugin[] = [
       },
     },
     formSubmissionOverrides: {
-      access: accessByTenantRole('form-submissions'),
+      access: {
+        create: ({ req }) => {
+          const isAdminPanel = req.url?.includes('admin')
+          return !isAdminPanel
+        }, // world creatable outside of the admin panel
+        read: byTenantRole('read', 'form-submissions'),
+        update: () => false,
+        delete: byTenantRole('delete', 'form-submissions'),
+      },
+      admin: { group: 'Content' },
     },
   }),
   tenantFieldPlugin({
-    collections: [
-      {
-        slug: 'forms',
-      },
-      { slug: 'form-submissions' },
-      { slug: 'redirects' },
-    ],
+    collections: [{ slug: 'forms' }, { slug: 'form-submissions' }, { slug: 'redirects' }],
   }),
   vercelBlobStorage({
     enabled: !!process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
     collections: {
+      documents: {
+        prefix: getEnvironmentFriendlyName(),
+      },
       media: {
         prefix: getEnvironmentFriendlyName(),
       },

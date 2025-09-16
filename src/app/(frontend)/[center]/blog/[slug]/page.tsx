@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, ResolvedMetadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { AuthorAvatar } from '@/components/AuthorAvatar'
@@ -6,7 +6,7 @@ import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPost } from '@/utilities/generateMeta'
@@ -73,7 +73,7 @@ export default async function Post({ params: paramsPromise }: Args) {
       <div className="flex flex-col items-center gap-4 pt-8">
         <div className="container">
           <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
-            <h1>{post.title}</h1>
+            <h1 className="font-bold">{post.title}</h1>
           </div>
           <div className="max-w-[48rem] mx-auto">
             <AuthorAvatar authors={post.authors} date={post.publishedAt ?? ''} />
@@ -86,9 +86,9 @@ export default async function Post({ params: paramsPromise }: Args) {
         </div>
       </div>
       {post.relatedPosts && post.relatedPosts.length > 0 && (
-        <div className="bg-brand-500 p-12">
+        <div className="bg-brand-500 p-16">
           <RelatedPosts
-            className="max-w-[52rem] flex flex-col md:flex-row justify-evenly gap-4 items-stretch"
+            className="flex flex-col items-center md:flex-row md:justify-center md:items-stretch gap-4 max-w-[48rem] lg:px-0"
             docs={post.relatedPosts.filter((post) => typeof post === 'object')}
           />
         </div>
@@ -97,17 +97,42 @@ export default async function Post({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
+export async function generateMetadata(
+  { params: paramsPromise }: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
   const { center, slug = '' } = await paramsPromise
   const post = await queryPostBySlug({ center: center, slug: slug })
 
-  return generateMetaForPost({ center: center, doc: post })
+  return generateMetaForPost({ center: center, doc: post, parentMeta })
 }
 
 const queryPostBySlug = async ({ center, slug }: { center: string; slug: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
+
+  const conditions: Where[] = [
+    {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    {
+      slug: {
+        equals: slug,
+      },
+    },
+  ]
+
+  if (!draft) {
+    conditions.push({
+      _status: {
+        equals: 'published',
+      },
+    })
+  }
 
   const result = await payload.find({
     collection: 'posts',
@@ -118,27 +143,10 @@ const queryPostBySlug = async ({ center, slug }: { center: string; slug: string 
       tenants: {
         slug: true,
         name: true,
+        customDomain: true,
       },
     },
-    where: {
-      and: [
-        {
-          'tenant.slug': {
-            equals: center,
-          },
-        },
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-      ],
-    },
+    where: { and: conditions },
   })
 
   return result.docs?.[0] || null

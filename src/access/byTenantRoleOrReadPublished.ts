@@ -1,4 +1,4 @@
-import { byTenantRole } from '@/access/byTenantRole'
+import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
 import { ruleCollection, ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
 
@@ -32,9 +32,9 @@ export const accessByTenantRoleOrReadPublished: (
   collection: ruleCollection,
 ) => CollectionConfig['access'] = (collection: ruleCollection) => {
   return {
-    create: byTenantRole('update', collection),
+    create: accessByTenantRole(collection)?.create,
     read: byTenantRoleOrPublished('read', collection),
     update: byTenantRole('update', collection),
-    delete: byTenantRole('update', collection),
+    delete: byTenantRole('delete', collection),
   }
 }

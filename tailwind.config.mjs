@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: [
@@ -7,8 +8,11 @@ const config = {
     './src/**/*.{ts,tsx}',
   ],
   darkMode: ['selector', '[data-theme="dark"]'],
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/container-queries'),
+  ],
   prefix: '',
   theme: {
     container: {
@@ -53,10 +57,12 @@ const config = {
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
+          hover: 'var(--primary-hover)',
         },
         secondary: {
           DEFAULT: 'var(--secondary)',
           foreground: 'var(--secondary-foreground)',
+          hover: 'var(--secondary-hover)',
         },
         muted: {
           DEFAULT: 'var(--muted)',
@@ -69,6 +75,7 @@ const config = {
         destructive: {
           DEFAULT: 'var(--destructive)',
           foreground: 'var(--destructive-foreground)',
+          hover: 'var(--destructive-hover)',
         },
         border: 'var(--border)',
         input: 'var(--input)',
@@ -86,6 +93,7 @@ const config = {
         callout: {
           DEFAULT: 'var(--callout)',
           foreground: 'var(--callout-foreground)',
+          hover: 'var(--callout-hover)',
         },
         brand: {
           DEFAULT: 'var(--brand-500)',
@@ -138,6 +146,7 @@ const config = {
             {
               '--tw-prose-body': 'var(--text)',
               '--tw-prose-headings': 'var(--text)',
+              '--tw-prose-links': 'var(--secondary)',
               h1: {
                 fontWeight: 'normal',
                 marginBottom: '0.25em',
@@ -147,17 +156,27 @@ const config = {
                 marginBottom: '1em',
                 lineHeight: 1.4,
               },
+              hr: {
+                marginTop: '0.6em',
+                marginBottom: '0.6em',
+              },
             },
           ],
         },
         base: {
           css: [
             {
-              h1: {
-                fontSize: '2.5rem',
-              },
               h2: {
+                fontSize: '1.5rem',
+                fontWeight: 600,
+                marginTop: '1em',
+              },
+              h3: {
                 fontSize: '1.25rem',
+                fontWeight: 600,
+              },
+              h4: {
+                fontSize: '1.15rem',
                 fontWeight: 600,
               },
             },
@@ -166,11 +185,18 @@ const config = {
         md: {
           css: [
             {
-              h1: {
-                fontSize: '3.5rem',
-              },
               h2: {
+                fontSize: '1.8rem',
+                fontWeight: 600,
+                marginTop: '1em',
+              },
+              h3: {
                 fontSize: '1.5rem',
+                fontWeight: 600,
+              },
+              h4: {
+                fontSize: '1.25rem',
+                fontWeight: 600,
               },
             },
           ],

@@ -2,6 +2,8 @@ import configPromise from '@payload-config'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
 
+import { FormBlock } from '@/blocks/Form/Component'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Icons } from '@/components/ui/icons'
 import { getPayload } from 'payload'
@@ -27,7 +29,20 @@ export async function Footer({ center }: { center?: string }) {
 
   invariant(settings, `Settings for center value ${center} not found.`)
 
-  const { address, email, logo, phone, privacy, socialMedia, terms, tenant } = settings
+  const {
+    address,
+    email,
+    footerForm,
+    logo,
+    phone,
+    phoneLabel,
+    phoneSecondary,
+    phoneSecondaryLabel,
+    privacy,
+    socialMedia,
+    terms,
+    tenant,
+  } = settings
 
   invariant(
     typeof tenant === 'object',
@@ -48,12 +63,28 @@ export async function Footer({ center }: { center?: string }) {
     <footer className="mt-auto border-t border-border bg-footer text-footer-foreground">
       <div className="container py-8 gap-8 grid md:grid-cols-3">
         <div>
-          <h4 className="font-medium text-xl mb-2">Stay updated!</h4>
-          <p>Sign up for our newsletter</p>
+          {footerForm?.title && <h4 className="font-medium text-xl mb-2">{footerForm.title}</h4>}
+          {footerForm?.subtitle && <p className="mb-2">{footerForm.subtitle}</p>}
+          {footerForm?.type === 'form' && (
+            <FormBlock
+              form={footerForm.form?.value || 0}
+              blockType={'formBlock'}
+              wrapInContainer={false}
+            />
+          )}
+          {footerForm?.type === 'embedded' && (
+            <GenericEmbedBlock
+              html={footerForm.html || ''}
+              embedHeight={Number(footerForm.embedHeight)}
+              backgroundColor="transparent"
+              blockType="genericEmbed"
+              wrapInContainer={false}
+            />
+          )}
         </div>
         <div>
           {logo && (
-            <Link className="flex items-center" href="/">
+            <Link className="flex items-center justify-center" href="/">
               <ImageMedia resource={logo} imgClassName="max-h-[200px] object-contain" />
             </Link>
           )}
@@ -62,7 +93,22 @@ export async function Footer({ center }: { center?: string }) {
           <div className="flex flex-col items-start">
             <h4 className="font-medium text-xl mb-2">{tenant.name}</h4>
             {address && <div className="whitespace-pre-line">{address}</div>}
-            {phone && <a href={`tel:${phone}`}>{phone}</a>}
+            {phone && (
+              <div className="flex">
+                {phoneLabel && <p className="capitalize">{phoneLabel}:&nbsp;</p>}
+                <a className="text-secondary" href={`tel:${phone}`}>
+                  {phone}
+                </a>
+              </div>
+            )}
+            {phoneSecondary && (
+              <div className="flex">
+                {phoneSecondaryLabel && <p className="capitalize">{phoneSecondaryLabel}:&nbsp;</p>}
+                <a className="text-secondary" href={`tel:${phoneSecondary}`}>
+                  {phoneSecondary}
+                </a>
+              </div>
+            )}
             {email && (
               <a className="mb-4 text-secondary underline" href={`mailto:${email}`}>
                 {email}

@@ -4,12 +4,20 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
 export interface RevalidationReference {
-  collection: 'biographies' | 'teams' | 'media' | 'forms' | 'tags' | 'posts'
+  collection:
+    | 'biographies'
+    | 'teams'
+    | 'media'
+    | 'forms'
+    | 'tags'
+    | 'posts'
+    | 'homePages'
+    | 'sponsors'
   id: number
 }
 
 export interface DocumentForRevalidation {
-  collection: 'pages' | 'posts'
+  collection: 'pages' | 'posts' | 'homePages'
   id: number
   slug: string
   tenant: number | { id: number; slug: string }
@@ -65,6 +73,16 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
 
     payload.logger.info(
       `Revalidating ${doc.collection} ${doc.slug} at paths: ${basePaths.join(', ')}`,
+    )
+
+    basePaths.forEach((path) => revalidatePath(path))
+  }
+
+  if (doc.collection === 'homePages') {
+    const basePaths = [`/`, `/${tenant.slug}`]
+
+    payload.logger.info(
+      `Revalidating ${doc.collection} for tenant ${tenant.slug} at paths: ${basePaths.join(', ')}`,
     )
 
     basePaths.forEach((path) => revalidatePath(path))

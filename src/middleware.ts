@@ -1,5 +1,6 @@
 import { createClient } from '@vercel/edge-config'
 import { NextRequest, NextResponse } from 'next/server'
+import { ROOT_DOMAIN } from './utilities/domain'
 import { getURL } from './utilities/getURL'
 import { PRODUCTION_TENANTS } from './utilities/tenancy/tenants'
 
@@ -8,13 +9,14 @@ export const config = {
     /*
      * Match all paths except for:
      * 1. /api routes
-     * 2. /_next (Next.js internals)
+     * 2. /_next (Next.js internals) except /_next/image for validation
      * 3. /_static (inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
      * 5. /media, /thumbnail, /assets (inside /public)
      * 6. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
      */
     '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
+    '/_next/image',
     '/sitemap.xml',
     '/robots.txt',
     '/pages-sitemap.xml',
@@ -99,6 +101,97 @@ export default async function middleware(req: NextRequest) {
     `[Middleware] getTenants: ${getTenantsDuration.toFixed(2)}ms (${source}) - ${req.nextUrl.pathname}`,
   )
 
+  // Validate if the request should be allowed for image optimization since we need to be permissive
+  // with our remotePatterns in next.config.mjs due to custom domains
+  if (req.nextUrl.pathname.startsWith('/_next/image')) {
+    const url = req.nextUrl.searchParams.get('url')
+
+    if (url) {
+      try {
+        if (url.startsWith('/_next/static')) return NextResponse.next()
+
+        const imageUrl = new URL(url)
+        const imageHost = imageUrl.host
+
+        // Build allowed hostnames using similar pattern as CSRF validation in payload.config.ts
+        const rootDomainUrl = new URL(getURL())
+        const allowedHosts = new Set([rootDomainUrl.hostname])
+
+        // Add all tenant subdomains
+        TENANTS.forEach(({ slug }) => {
+          allowedHosts.add(`${slug}.${ROOT_DOMAIN}`)
+        })
+
+        // Add production tenant custom domains
+        TENANTS.forEach(({ slug, customDomain }) => {
+          if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
+            allowedHosts.add(customDomain)
+          }
+        })
+
+        const isAllowed = allowedHosts.has(imageHost)
+
+        if (!isAllowed) {
+          console.warn(`[Middleware] Blocked image optimization for disallowed host: ${imageHost}`)
+          return new NextResponse('Forbidden', { status: 403 })
+        }
+
+        return NextResponse.next()
+      } catch (err) {
+        console.error(`Failed to determined if media url ${url} is allowed. Error: `, err)
+        return new NextResponse('Invalid media URL', { status: 400 })
+      }
+    }
+  }
+
+  // If request is to a custom domain
+  if (host && requestedHost && requestedHost !== host && !requestedHost.includes(`.${host}`)) {
+    // Only handle tenants in PRODUCTION_TENANTS
+    const customDomainTenant = TENANTS.find(
+      (tenant) => PRODUCTION_TENANTS.includes(tenant.slug) && tenant.customDomain === requestedHost,
+    )
+
+    if (customDomainTenant && !hasNextInPath) {
+      const pathname = req.nextUrl.pathname
+
+      const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
+      const shouldSetCookie =
+        existingPayloadTenantCookie?.value !== customDomainTenant.id.toString()
+
+      if (pathname.startsWith('/admin')) {
+        if (shouldSetCookie) {
+          const response = NextResponse.next()
+          response.cookies.set('payload-tenant', customDomainTenant.id.toString(), {
+            path: '/',
+            sameSite: 'lax',
+          })
+          logCompletion('custom-domain-admin-cookie-set')
+          return response
+        }
+
+        logCompletion('custom-domain-admin-passthrough')
+        return
+      }
+
+      const rewrite = req.nextUrl.clone()
+      rewrite.pathname = `/${customDomainTenant.slug}${rewrite.pathname}`
+      console.log(`rewrote custom domain ${req.nextUrl.toString()} to ${rewrite.toString()}`)
+
+      if (shouldSetCookie) {
+        const response = NextResponse.rewrite(rewrite)
+        response.cookies.set('payload-tenant', customDomainTenant.id.toString(), {
+          path: '/',
+          sameSite: 'lax',
+        })
+        logCompletion('custom-domain-rewrite-with-cookie')
+        return response
+      }
+
+      logCompletion('custom-domain-rewrite')
+      return NextResponse.rewrite(rewrite)
+    }
+  }
+
   // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {
     const pathSegments = req.nextUrl.pathname.split('/').filter(Boolean)
@@ -137,20 +230,32 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  // If request is not to root domain
+  // If request is to subdomain on root domain
   if (host && requestedHost && !isSeedEndpoint) {
     for (const { id, slug, customDomain } of TENANTS) {
-      const tenantDomain = customDomain ?? `${slug}.${host}`
-      if (requestedHost === tenantDomain || requestedHost === `${slug}.${host}`) {
+      if (requestedHost === `${slug}.${host}`) {
+        // Redirect to custom domain if tenant is in PRODUCTION_TENANTS and has a custom domain configured
+        if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
+          const redirectUrl = new URL(req.nextUrl.clone())
+          redirectUrl.host = customDomain
+
+          console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
+          logCompletion('custom-domain-redirect')
+          return NextResponse.redirect(
+            redirectUrl,
+            process.env.NODE_ENV === 'production' ? 308 : 302,
+          )
+        }
+
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
 
-        if (req.nextUrl.pathname.startsWith('/admin')) {
-          // Set tenant cookie to scope the admin panel to this domain's tenant if not already set
-          const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
+        const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
+        const shouldSetCookie = existingPayloadTenantCookie?.value !== id.toString()
 
-          if (existingPayloadTenantCookie?.value !== id.toString()) {
+        if (req.nextUrl.pathname.startsWith('/admin')) {
+          if (shouldSetCookie) {
             const response = NextResponse.next()
             response.cookies.set('payload-tenant', id.toString(), {
               path: '/',
@@ -166,6 +271,17 @@ export default async function middleware(req: NextRequest) {
 
         rewrite.pathname = `/${slug}${rewrite.pathname}`
         console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
+
+        if (shouldSetCookie) {
+          const response = NextResponse.rewrite(rewrite)
+          response.cookies.set('payload-tenant', id.toString(), {
+            path: '/',
+            sameSite: 'lax',
+          })
+          logCompletion('rewrite-with-cookie')
+          return response
+        }
+
         logCompletion('rewrite')
         return NextResponse.rewrite(rewrite)
       }
