@@ -10,6 +10,7 @@ import { UserStatusCell as UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee } fro
 import { default as default_ef94af202ba9f4dd0fd10062e0964050 } from '@/components/AlignContentPicker'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
+import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
@@ -58,6 +59,7 @@ import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e
 export const importMap = {
   '@payloadcms/plugin-multi-tenant/client#TenantField':
     TenantField_1d0591e3cf4f332c83a86da13a0de59a,
+  '@/components/ColorPicker#default': default_55a7d1ebef7afeed563b856ae2e2cbf4,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell':
     RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalField':
@@ -66,6 +68,11 @@ export const importMap = {
     LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
   '@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient':
     InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient':
+    HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@payloadcms/richtext-lexical/client#BlocksFeatureClient':
+    BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@/components/AlignContentPicker#default': default_ef94af202ba9f4dd0fd10062e0964050,
   '@payloadcms/richtext-lexical/client#HeadingFeatureClient':
     HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#ParagraphFeatureClient':
@@ -78,14 +85,6 @@ export const importMap = {
     ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#LinkFeatureClient':
     LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@payloadcms/richtext-lexical/client#BlocksFeatureClient':
-    BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@/components/ColorPicker#default': default_55a7d1ebef7afeed563b856ae2e2cbf4,
-  '@/components/AlignContentPicker#default': default_ef94af202ba9f4dd0fd10062e0964050,
-  '@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient':
-    HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent':
-    QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e,
   '@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient':
     FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':
@@ -94,6 +93,9 @@ export const importMap = {
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#AlignFeatureClient':
     AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@/components/ColumnLayoutPicker#default': default_923dc5ccc0b72de4298251644cbfe39e,
+  '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent':
+    QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e,
   '@payloadcms/plugin-seo/client#OverviewComponent':
     OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/plugin-seo/client#MetaTitleComponent':

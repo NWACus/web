@@ -14,15 +14,23 @@ import {
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonsBlock } from '@/blocks/Buttons/Component'
+import { CalloutBlock } from '@/blocks/Callout/Component'
+import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
+import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import type {
   BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
   ButtonsBlock as ButtonsBlockProps,
+  CalloutBlock as CalloutBlockProps,
+  DocumentBlock as DocumentBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
+  HeaderBlock as HeaderBlockProps,
   MediaBlock as MediaBlockProps,
   SingleBlogPostBlock,
+  SponsorsBlock as SponsorsBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
@@ -32,9 +40,13 @@ type NodeTypes =
       | BannerBlockProps
       | BlogListBlockProps
       | ButtonsBlockProps
+      | CalloutBlockProps
+      | DocumentBlockProps
       | GenericEmbedBlockProps
+      | HeaderBlockProps
       | MediaBlockProps
       | SingleBlogPostBlock
+      | SponsorsBlockProps
     >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
@@ -51,7 +63,30 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
     banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
+    blogList: ({ node }) => (
+      <BlogListBlockComponent
+        {...node.fields}
+        // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
     buttonsBlock: ({ node }) => <ButtonsBlock {...node.fields} />,
+    calloutBlock: ({ node }) => <CalloutBlock {...node.fields} />,
+    documentBlock: ({ node }) => (
+      <DocumentBlock
+        {...node.fields}
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    genericEmbed: ({ node }) => (
+      <GenericEmbedBlock
+        {...node.fields}
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} />,
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"
@@ -62,24 +97,17 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         disableInnerContainer={true}
       />
     ),
-    genericEmbed: ({ node }) => (
-      <GenericEmbedBlock
-        {...node.fields}
-        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
-    blogList: ({ node }) => (
-      <BlogListBlockComponent
-        {...node.fields}
-        // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
     singleBlogPost: ({ node }) => (
       <SingleBlogPostBlockComponent
         {...node.fields}
         // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    sponsorsBlock: ({ node }) => (
+      <SponsorsBlockComponent
+        {...node.fields}
+        // src/blocks/SponsorsBlock/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlockLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),

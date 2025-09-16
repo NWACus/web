@@ -1,10 +1,6 @@
 import { getTenantFilter } from '@/utilities/collectionFilters'
-import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
+import { validateExternalUrl } from '@/utilities/validateUrl'
 import { GroupField, TextFieldSingleValidation } from 'payload'
-
-const validateExternalUrl: TextFieldSingleValidation = (val) =>
-  isAbsoluteUrl(val) ||
-  'External URL must be an absolute url with a protocol. I.e. https://www.example.com.'
 
 const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
   if (siblingData && typeof siblingData === 'object' && 'type' in siblingData) {

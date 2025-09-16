@@ -29,6 +29,7 @@ export const Number = ({
         defaultValue={defaultValue}
         id={name}
         type="number"
+        className="text-black"
         {...register(name, { required: requiredFromProps })}
       />
       {requiredFromProps && errors[name] && <Error />}

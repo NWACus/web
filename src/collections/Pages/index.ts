@@ -3,9 +3,9 @@ import type { CollectionConfig } from 'payload'
 import { BiographyBlock } from '@/blocks/Biography/config'
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { Content } from '@/blocks/Content/config'
-import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbed } from '@/blocks/GenericEmbed/config'
+import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
@@ -13,6 +13,7 @@ import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -33,6 +34,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
@@ -111,8 +113,9 @@ export const Pages: CollectionConfig<'pages'> = {
                 BiographyBlock,
                 BlogListBlock,
                 Content,
-                ContentWithCallout,
+                DocumentBlock,
                 FormBlock,
+                HeaderBlock,
                 ImageLinkGrid,
                 ImageQuote,
                 ImageText,
@@ -120,6 +123,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 LinkPreviewBlock,
                 MediaBlock,
                 SingleBlogPostBlock,
+                SponsorsBlock,
                 TeamBlock,
                 GenericEmbed,
               ],

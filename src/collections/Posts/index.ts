@@ -1,3 +1,5 @@
+import { Tenant } from '@/payload-types'
+import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 import type { CollectionConfig } from 'payload'
 
 import {
@@ -8,7 +10,16 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { Banner } from '@/blocks/Banner/config'
+import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
+
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { populateBlocksInContent } from './hooks/populateBlocksInContent'
@@ -16,16 +27,9 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
-import { BlogListBlockLexical } from '@/blocks/BlogList/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
-import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { Tenant } from '@/payload-types'
-import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
-import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -90,7 +94,6 @@ export const Posts: CollectionConfig<'posts'> = {
       required: true,
     },
     MetaImageField({
-      hasGenerateFn: true,
       relationTo: 'media',
       overrides: {
         admin: {
@@ -100,9 +103,7 @@ export const Posts: CollectionConfig<'posts'> = {
         label: 'Featured image',
       },
     }),
-    MetaDescriptionField({
-      hasGenerateFn: true,
-    }),
+    MetaDescriptionField({}),
     {
       name: 'content',
       type: 'richText',
@@ -114,9 +115,12 @@ export const Posts: CollectionConfig<'posts'> = {
               blocks: [
                 Banner,
                 BlogListBlockLexical,
+                DocumentBlock,
                 GenericEmbedLexical,
+                HeaderBlock,
                 MediaBlock,
                 SingleBlogPostBlockLexical,
+                SponsorsBlockLexical,
               ],
             }),
             HorizontalRuleFeature(),
@@ -178,6 +182,7 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'relationship',
       admin: {
         position: 'sidebar',
+        sortOptions: 'slug',
       },
       hasMany: true,
       relationTo: 'tags',

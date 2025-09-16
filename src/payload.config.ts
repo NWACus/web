@@ -6,6 +6,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
+import { Documents } from '@/collections/Documents'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { Media } from '@/collections/Media'
@@ -30,6 +31,7 @@ import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUr
 import pino from 'pino'
 import { build } from 'pino-pretty'
 import { HomePages } from './collections/HomePages'
+import { Sponsors } from './collections/Sponsors'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -39,8 +41,12 @@ const { emailAdapter, emailWarning } = getEmailAdapter()
 export default buildConfig({
   admin: {
     components: {
-      beforeDashboard:
-        process.env.NODE_ENV === 'production' ? undefined : ['@/components/BeforeDashboard'],
+      beforeDashboard: [
+        {
+          clientProps: { showDevAction: process.env.NODE_ENV !== 'production' },
+          path: '@/components/BeforeDashboard',
+        },
+      ],
       beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
@@ -139,21 +145,27 @@ export default buildConfig({
     },
   }),
   collections: [
-    Media,
+    // Content
+    HomePages,
     Pages,
     Posts,
+    Media,
+    Documents,
+    Sponsors,
+    Tags,
+    // Staff
+    Biographies,
+    Teams,
+    // Permissions
     Users,
-    Tenants,
     Roles,
     RoleAssignments,
     GlobalRoles,
     GlobalRoleAssignments,
     Navigations,
-    Biographies,
-    Teams,
+    Tenants,
+    // Settings
     Settings,
-    Tags,
-    HomePages,
   ],
   cors: [
     'api.avalanche.org',

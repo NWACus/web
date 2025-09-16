@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/utilities/ui'
+import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
 import { FieldLabel, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
 
@@ -23,9 +24,18 @@ const ColorPicker = (props: TextFieldClientProps) => {
   const { path, field } = props
 
   const { value, setValue } = useField({ path })
+  const { selectedTenantID: tenant } = useTenantSelection() as { selectedTenantID: number }
+
+  // TODO map to slug directly
+  const tenantColorClass: Record<number, string> = {
+    1: 'dvac',
+    2: 'nwac',
+    3: 'sac',
+    4: 'snfac',
+  }
 
   return (
-    <div className="flex flex-col mb-6">
+    <div className={cn(`flex flex-col mb-6 ${tenantColorClass[tenant]}`)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ul className="flex flex-wrap max-w-[260px] list-none pl-0">
         {colorOptions.map((color, i) => {

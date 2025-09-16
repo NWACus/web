@@ -2,6 +2,8 @@ import configPromise from '@payload-config'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
 
+import { FormBlock } from '@/blocks/Form/Component'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Icons } from '@/components/ui/icons'
 import { getPayload } from 'payload'
@@ -30,6 +32,7 @@ export async function Footer({ center }: { center?: string }) {
   const {
     address,
     email,
+    footerForm,
     logo,
     phone,
     phoneLabel,
@@ -60,8 +63,24 @@ export async function Footer({ center }: { center?: string }) {
     <footer className="mt-auto border-t border-border bg-footer text-footer-foreground">
       <div className="container py-8 gap-8 grid md:grid-cols-3">
         <div>
-          <h4 className="font-medium text-xl mb-2">Stay updated!</h4>
-          <p>Sign up for our newsletter</p>
+          {footerForm?.title && <h4 className="font-medium text-xl mb-2">{footerForm.title}</h4>}
+          {footerForm?.subtitle && <p className="mb-2">{footerForm.subtitle}</p>}
+          {footerForm?.type === 'form' && (
+            <FormBlock
+              form={footerForm.form?.value || 0}
+              blockType={'formBlock'}
+              wrapInContainer={false}
+            />
+          )}
+          {footerForm?.type === 'embedded' && (
+            <GenericEmbedBlock
+              html={footerForm.html || ''}
+              embedHeight={Number(footerForm.embedHeight)}
+              backgroundColor="transparent"
+              blockType="genericEmbed"
+              wrapInContainer={false}
+            />
+          )}
         </div>
         <div>
           {logo && (

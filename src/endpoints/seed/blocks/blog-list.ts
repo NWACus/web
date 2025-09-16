@@ -33,7 +33,12 @@ export const blogListBlock: BlogListBlock = {
       direction: 'ltr',
     },
   },
-  filterByTags: null,
-  sortBy: '-publishedAt',
-  staticPosts: [], // Will be populated with actual post references during seeding
+  postOptions: 'dynamic',
+  dynamicOptions: {
+    filterByTags: null,
+    sortBy: '-publishedAt',
+  },
+  staticOptions: {
+    staticPosts: [], // Will be populated with actual post references during seeding
+  },
 }
