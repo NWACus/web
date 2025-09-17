@@ -19,6 +19,7 @@ import * as migration_20250905_042615_add_header_to_link_preview from './2025090
 import * as migration_20250906_203111_add_columns_to_content from './20250906_203111_add_columns_to_content'
 import * as migration_20250909_012609_add_columns_to_content_default from './20250909_012609_add_columns_to_content_default'
 import * as migration_20250909_033830_update_for_prod_content_bugs from './20250909_033830_update_for_prod_content_bugs'
+import * as migration_20250915_230438_update_blog_list from './20250915_230438_update_blog_list'
 
 export const migrations = [
   {
@@ -125,5 +126,10 @@ export const migrations = [
     up: migration_20250909_033830_update_for_prod_content_bugs.up,
     down: migration_20250909_033830_update_for_prod_content_bugs.down,
     name: '20250909_033830_update_for_prod_content_bugs',
+  },
+  {
+    up: migration_20250915_230438_update_blog_list.up,
+    down: migration_20250915_230438_update_blog_list.down,
+    name: '20250915_230438_update_blog_list',
   },
 ]
