@@ -13,10 +13,11 @@ import type { Page as PageType } from '@/payload-types'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPage } from '@/utilities/generateMeta'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const pages = await payload.find({
+  const pagesRes = await payload.find({
     collection: 'pages',
     limit: 1000,
     pagination: false,
@@ -34,13 +35,15 @@ export async function generateStaticParams() {
   })
 
   const params: PathArgs[] = []
-  for (const page of pages.docs) {
-    if (typeof page.tenant === 'number') {
-      payload.logger.error(`got number for page tenant: ${JSON.stringify(page.tenant)}`)
-      continue
-    }
-    if (page.tenant) {
-      params.push({ center: page.tenant.slug, slug: page.slug })
+
+  for (const page of pagesRes.docs) {
+    const pageTenant = await resolveTenant(page.tenant)
+
+    // Check if this slug exists in navigation
+    // Do not generate params if slug exists in navigation
+    const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
+    if (!canonicalUrl) {
+      params.push({ center: pageTenant.slug, slug: page.slug })
     }
   }
 

@@ -5,7 +5,7 @@ import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import invariant from 'tiny-invariant'
-import { findNavigationItemBySlug } from './utils-pure'
+import { extractAllInternalUrls, findNavigationItemBySlug } from './utils-pure'
 
 export {
   extractAllInternalUrls,
@@ -452,6 +452,26 @@ export async function getCanonicalUrlForSlug(center: string, slug: string): Prom
   } catch (error) {
     console.warn(
       `Error in getCanonicalUrlForSlug for center ${center} and slug ${slug}. Returning null as a fallback. Error: `,
+      error,
+    )
+    return null
+  }
+}
+
+export async function getCanonicalUrlForPath(center: string, path: string): Promise<string | null> {
+  try {
+    const { topLevelNavItems } = await getCachedTopLevelNavItems(center)()
+    const navigationUrls = extractAllInternalUrls(topLevelNavItems)
+
+    // Check if this exact path exists in navigation
+    if (navigationUrls.includes(path)) {
+      return path
+    }
+
+    return null
+  } catch (error) {
+    console.warn(
+      `Error in getCanonicalUrlForPath for center ${center} and path ${path}. Returning null as a fallback. Error: `,
       error,
     )
     return null
