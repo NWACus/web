@@ -109,6 +109,13 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const parentMeta = (await parent) as Metadata
   const { center, slug } = await paramsPromise
+
+  // Check if this slug exists in navigation, fall back to parentMeta if so
+  const canonicalUrl = await getCanonicalUrlForSlug(center, slug)
+  if (canonicalUrl && canonicalUrl !== `/${slug}`) {
+    return parentMeta
+  }
+
   const page = await queryPageBySlug({
     center: center,
     slug: slug,
