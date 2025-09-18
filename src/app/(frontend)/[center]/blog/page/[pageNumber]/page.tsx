@@ -65,7 +65,7 @@ export default async function Page({ params: paramsPromise, searchParams }: Args
   })
 
   return (
-    <div className="pt-4 pb-24">
+    <div className="py-4">
       <div className="container mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
         <div className="grow">
           <PostCollection posts={posts.docs} />
