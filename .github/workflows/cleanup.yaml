@@ -1,8 +1,5 @@
 name: cleanup
 on:
-  push:
-    branches:
-      - 'fix-cleanup-script'
   delete:
     branches-ignore:
       - 'main'
@@ -21,7 +18,6 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          # For delete events, extract branch name from the full ref path
           ref="${{ github.event.ref }}"
           branch="${ref##refs/heads/}"
           clean_branch="${branch//[^a-z0-9\-]/x}"
@@ -38,12 +34,8 @@ jobs:
           name="payloadcms-preview-${clean_branch}"
           echo "[INFO] Attempting to delete database ${name}"
 
-          # Switch to the correct organization (add this if needed)
-          # /home/runner/.turso/turso org switch nwac
-
-          # List all databases for debugging
-          echo "[DEBUG] Available databases:"
-          /home/runner/.turso/turso db list
+          # Switch to the correct organization
+          /home/runner/.turso/turso org switch nwac
 
           # Check if database exists before attempting to delete
           if /home/runner/.turso/turso db show "${name}" >/dev/null 2>&1; then
