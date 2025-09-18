@@ -4,9 +4,9 @@ on:
     branches-ignore:
       - 'main'
       - 'release'
-      - 'gh-readonly-queue/**'
 jobs:
   cleanup:
+    if: github.event_name != 'merge_group'
     runs-on: ubuntu-latest
     steps:
       - name: Install Turso CLI
