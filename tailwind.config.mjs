@@ -140,11 +140,12 @@ const config = {
           to: { height: '0' },
         },
       },
-      typography: ({ _theme }) => ({
+      typography: () => ({
         DEFAULT: {
           css: [
             {
               '--tw-prose-body': 'var(--text)',
+              '--tw-prose-bold': 'var(--text)',
               '--tw-prose-headings': 'var(--text)',
               '--tw-prose-links': 'var(--secondary)',
               h1: {
@@ -159,6 +160,9 @@ const config = {
               hr: {
                 marginTop: '0.6em',
                 marginBottom: '0.6em',
+              },
+              strong: {
+                fontWeight: 800,
               },
             },
           ],
