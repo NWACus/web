@@ -38,13 +38,20 @@ jobs:
           name="payloadcms-preview-${clean_branch}"
           echo "[INFO] Attempting to delete database ${name}"
 
+          # Switch to the correct organization (add this if needed)
+          # /home/runner/.turso/turso org switch nwac
+
+          # List all databases for debugging
+          echo "[DEBUG] Available databases:"
+          /home/runner/.turso/turso db list
+
           # Check if database exists before attempting to delete
           if /home/runner/.turso/turso db show "${name}" >/dev/null 2>&1; then
             echo "[INFO] Database ${name} exists, deleting..."
             /home/runner/.turso/turso db destroy --yes "${name}"
             echo "[INFO] Successfully deleted database ${name}"
           else
-            echo "[INFO] Database ${name} does not exist, nothing to delete"
+            echo "[ERROR] Database ${name} does not exist, expected it to be there for cleanup"
             exit 1
           fi
         env:
