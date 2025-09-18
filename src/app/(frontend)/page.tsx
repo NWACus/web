@@ -43,10 +43,10 @@ export default async function LandingPage() {
     .then((result) => result.docs)) as { logo: Media; tenant: Tenant }[]
 
   return (
-    <div className="pt-24 pb-24">
+    <div className="py-12">
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-4">
             <h1 className="font-bold">Avalanche Centers</h1>
             <Link href="/admin">Login</Link>
           </div>
@@ -64,7 +64,7 @@ export default async function LandingPage() {
                   <div className="aspect-square flex items-center justify-center w-48 mx-auto">
                     <ImageMedia resource={logo} imgClassName="w-48" />
                   </div>
-                  <h2>{tenant.name} ➡️</h2>
+                  <div className="text-xl mt-4 font-semibold">{tenant.name} ➡️</div>
                 </Link>
               )
             })}
