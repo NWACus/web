@@ -169,7 +169,6 @@ const config = {
               h2: {
                 fontSize: '1.5rem',
                 fontWeight: 600,
-                marginTop: '1em',
               },
               h3: {
                 fontSize: '1.25rem',
@@ -188,7 +187,6 @@ const config = {
               h2: {
                 fontSize: '1.8rem',
                 fontWeight: 600,
-                marginTop: '1em',
               },
               h3: {
                 fontSize: '1.5rem',
