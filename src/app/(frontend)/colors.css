@@ -83,6 +83,7 @@
   --header-foreground-highlight: hsl(240 3.8% 35.3%);
 }
 
+/* Northwest Avalanche Center */
 .nwac {
   --primary: hsl(217 62% 21%);
   --primary-hover: rgba(20, 46, 87, 0.8);
@@ -96,46 +97,61 @@
 
   --footer: hsl(300 1% 22%);
   --footer-foreground: hsl(0 0% 100%);
-  --header-foreground-highlight: hsl(0 0% 100%);
+  --footer-foreground-highlight: hsl(0 0% 100%);
 
   --callout: hsl(69 94% 64%);
   --callout-hover: rgba(224, 249, 77, 0.8);
   --callout-foreground: hsl(240 6% 10%);
 }
 
+/* Sierra Avalanche Center */
 .sac {
-  --primary: hsl(202 63% 45%);
-  --primary-hover: rgba(42, 134, 187, 0.8);
+  /* PRIMARY */
+  --deep-blue: #0e3051;
+  --sky-blue: #1480b8;
+  --ice-blue: #d6e8f2;
+  /* SECONDARY */
+  --oxford: #0a2238;
+  --sapphire: #1254b5;
+  --moonstone: #1da9bf;
+  /* ADDITIONAL */
+  --alice-blue: #e2ecf2;
+  --indigo: #15477a;
 
-  --secondary: hsl(202 91% 63%);
-  --secondary-hover: rgba(75, 184, 247, 0.8);
+  /*---------*/
+  --primary: var(--deep-blue);
+  --primary-hover: rgb(14, 48, 81, 0.8);
 
-  --header: hsl(0 2% 21%);
-  --header-foreground: hsl(204 66% 86%);
-  --header-foreground-highlight: hsl(0 0% 100%);
+  --secondary: var(--moonstone);
+  --secondary-hover: rgb(29, 169, 191, 0.8);
 
-  --footer: hsl(0 2% 21%);
-  --footer-foreground: hsl(0 0% 100%);
-  --header-foreground-highlight: hsl(0 0% 100%);
+  --header: var(--oxford);
+  --header-foreground: var(--ice-blue);
+  --header-foreground-highlight: white;
 
-  --callout: hsl(60 100% 50%);
-  --callout-hover: rgba(255, 255, 0, 0.8);
+  --footer: var(--oxford);
+  --footer-foreground: var(--ice-blue);
+  --footer-foreground-highlight: white;
+
+  --callout: var(--sky-blue);
+  --callout-hover: rgb(20, 128, 184, 0.8);
+  --callout-foreground: white;
 
   --accent: hsl(27 92% 62%);
 
   --destructive: hsl(0 59% 53%);
 
-  --brand-50: hsl(207 73% 97%);
-  --brand-100: hsl(207 69% 94%);
-  --brand-200: hsl(204 66% 86%);
-  --brand-300: hsl(203 67% 74%);
-  --brand-400: hsl(202 66% 60%);
-  --brand-500: hsl(202 63% 45%);
-  --brand-600: hsl(204 69% 39%);
-  --brand-700: hsl(205 68% 32%);
-  --brand-800: hsl(205 64% 27%);
-  --brand-900: hsl(206 57% 24%);
-  --brand-950: hsl(208 58% 16%);
+  --brand-50: var(--alice-blue);
+  --brand-100: var(--ice-blue);
+  --brand-200: #7ac9d9;
+  --brand-300: var(--moonstone);
+  --brand-400: var(--sky-blue);
+  --brand-500: var(--indigo);
+  --brand-600: #144e98;
+  --brand-700: var(--sapphire);
+  --brand-800: #0e3c77;
+  --brand-900: var(--deep-blue);
+  --brand-950: var(--oxford);
 }
 
 .snfac {
