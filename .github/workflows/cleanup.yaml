@@ -21,8 +21,9 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          # For delete events, the branch name is in github.event.ref without the refs/heads/ prefix
-          branch="${{ github.event.ref }}"
+          # For delete events, extract branch name from the full ref path
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
           clean_branch="${branch//[^a-z0-9\-]/x}"
 
           # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
