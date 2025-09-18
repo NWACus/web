@@ -1,5 +1,8 @@
 name: cleanup
 on:
+  push:
+    branches:
+      - 'fix-cleanup-script'
   delete:
     branches-ignore:
       - 'main'
