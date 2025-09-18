@@ -18,9 +18,10 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          ref="${{ github.event.ref }}"
-          branch="${ref##refs/heads/}"
+          # For delete events, the branch name is in github.event.ref without the refs/heads/ prefix
+          branch="${{ github.event.ref }}"
           clean_branch="${branch//[^a-z0-9\-]/x}"
+
           # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
           # and ensuring total database name stays within 58 character limit
           # "payloadcms-preview-" is 19 characters, leaving 39 for the branch
@@ -29,8 +30,17 @@ jobs:
             hash=$(echo -n "${clean_branch}" | sha256sum | cut -c1-7)
             clean_branch="${prefix}-${hash}"
           fi
+
           name="payloadcms-preview-${clean_branch}"
-          echo "[INFO] Deleting database ${name}"
-          /home/runner/.turso/turso db destroy --yes "${name}"
+          echo "[INFO] Attempting to delete database ${name}"
+
+          # Check if database exists before attempting to delete
+          if /home/runner/.turso/turso db show "${name}" >/dev/null 2>&1; then
+            echo "[INFO] Database ${name} exists, deleting..."
+            /home/runner/.turso/turso db destroy --yes "${name}"
+            echo "[INFO] Successfully deleted database ${name}"
+          else
+            echo "[INFO] Database ${name} does not exist, nothing to delete"
+          fi
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
