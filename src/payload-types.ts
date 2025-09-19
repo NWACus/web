@@ -971,6 +971,9 @@ export interface ImageLinkGrid {
               } | null);
           url?: string | null;
         };
+        /**
+         * Insert text that will overlay the image
+         */
         caption: string;
         id?: string | null;
       }[]
@@ -1113,7 +1116,7 @@ export interface LinkPreviewBlock {
           url?: string | null;
           label?: string | null;
           /**
-           * Choose how the link should be rendered.
+           * Choose the button style.
            */
           appearance?: ('default' | 'secondary' | 'outline') | null;
         };
@@ -3243,32 +3246,29 @@ export interface DiagnosticsSelect<T extends boolean = true> {
  * via the `definition` "ButtonsBlock".
  */
 export interface ButtonsBlock {
-  buttons: {
-    button?: {
-      type?: ('internal' | 'external') | null;
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'builtInPages';
-            value: number | BuiltInPage;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      /**
-       * Choose how the link should be rendered.
-       */
-      appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
-    };
-    id?: string | null;
-  }[];
+  button?: {
+    type?: ('internal' | 'external') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'builtInPages';
+          value: number | BuiltInPage;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null);
+    url?: string | null;
+    label?: string | null;
+    /**
+     * Choose the button style.
+     */
+    appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'buttonsBlock';

@@ -54,7 +54,7 @@ export const button: ButtonType = (appearances) => {
       name: 'appearance',
       type: 'select',
       admin: {
-        description: 'Choose how the link should be rendered.',
+        description: 'Choose the button style.',
       },
       defaultValue: appearanceOptionsToUse[0].value,
       options: appearanceOptionsToUse,

@@ -34,6 +34,9 @@ export const ImageLinkGrid: Block = {
           name: 'caption',
           type: 'text',
           required: true,
+          admin: {
+            description: 'Insert text that will overlay the image',
+          },
         },
       ],
       labels: {

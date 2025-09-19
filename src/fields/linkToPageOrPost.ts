@@ -37,6 +37,8 @@ export const linkChoiceRow: Field[] = [
         admin: {
           style: {
             alignSelf: 'flex-end',
+            alignItems: 'flex-end',
+            marginBottom: '4px',
           },
           width: '50%',
         },
@@ -63,6 +65,7 @@ export const linkDataRow: Field[] = [
     type: 'text',
     admin: {
       condition: (_, siblingData) => siblingData?.type === 'external',
+      width: '100%',
     },
     label: 'External URL',
   },
