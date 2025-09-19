@@ -1,3 +1,4 @@
+import { handleUrl } from '@/utilities/handleUrl'
 import { cn } from '@/utilities/ui'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -17,26 +18,7 @@ export default function QuickLinkButton({
   reference,
   url,
 }: QuickLinkButtonProps) {
-  const center: string | undefined =
-    type === 'internal' &&
-    typeof reference?.value === 'object' &&
-    reference.value.tenant &&
-    typeof reference.value.tenant === 'object'
-      ? reference.value.tenant.slug
-      : undefined
-
-  let href = url
-  if (center) {
-    href = `/${center}/`
-  } else if (type === 'internal' && typeof reference?.value === 'object') {
-    const { relationTo, value } = reference
-    const prefix = reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''
-    if ('slug' in value) {
-      href = `${prefix}/${value.slug}`
-    } else if (relationTo === 'builtInPages' && 'url' in value) {
-      href = `/${value.url}`
-    }
-  }
+  const href = handleUrl({ type, reference, url })
   if (!href) return null
 
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}

@@ -44,6 +44,9 @@ export const button: ButtonType = (appearances) => {
     type: 'group',
     admin: {
       hideGutter: true,
+      style: {
+        marginBottom: '0',
+      },
     },
     fields: [...linkToPageOrPostWithLabel],
   }
