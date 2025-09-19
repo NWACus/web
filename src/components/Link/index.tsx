@@ -4,6 +4,7 @@ import Link from 'next/link'
 import React from 'react'
 
 import type { BuiltInPage, Page, Post } from '@/payload-types'
+import { handleUrl } from '@/utilities/handleUrl'
 
 type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -33,26 +34,7 @@ export const CMSLink = (props: CMSLinkType) => {
     url,
   } = props
 
-  const center: string | undefined =
-    type === 'internal' &&
-    typeof reference?.value === 'object' &&
-    reference.value.tenant &&
-    typeof reference.value.tenant === 'object'
-      ? reference.value.tenant.slug
-      : undefined
-
-  let href = url
-  if (center) {
-    href = `/${center}/`
-  } else if (type === 'internal' && typeof reference?.value === 'object') {
-    const { relationTo, value } = reference
-    const prefix = reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''
-    if ('slug' in value) {
-      href = `${prefix}/${value.slug}`
-    } else if (relationTo === 'builtInPages' && 'url' in value) {
-      href = `/${value.url}`
-    }
-  }
+  const href = handleUrl({ url: url, type: type, reference: reference })
 
   if (!href) return null
 

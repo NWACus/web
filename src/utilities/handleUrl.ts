@@ -1,0 +1,30 @@
+import { BuiltInPage, Page, Post } from '@/payload-types'
+
+type Props = {
+  type?: ('internal' | 'external') | null
+  reference?: {
+    relationTo: 'builtInPages' | 'pages' | 'posts'
+    value: BuiltInPage | Page | Post | string | number
+  } | null
+  url?: string | null
+}
+
+export const handleUrl = ({ url, type, reference }: Props) => {
+  if (!reference?.value || typeof reference.value !== 'object') {
+    return url
+  }
+  if (type === 'internal') {
+    const { relationTo, value } = reference
+
+    if (relationTo === 'builtInPages' && 'url' in value) {
+      return `/${value.url}`
+    }
+
+    if ('slug' in value) {
+      const prefix = relationTo === 'pages' ? '' : `/${relationTo}`
+      return `${prefix}/${value.slug}`
+    }
+  }
+
+  return url
+}
