@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     homePages: HomePage;
+    builtInPages: BuiltInPage;
     pages: Page;
     posts: Post;
     media: Media;
@@ -99,6 +100,7 @@ export interface Config {
   };
   collectionsSelect: {
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
+    builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -1197,6 +1199,19 @@ export interface GenericEmbedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builtInPages".
+ */
+export interface BuiltInPage {
+  id: number;
+  title: string;
+  url: string;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
 export interface Navigation {
@@ -1768,6 +1783,10 @@ export interface PayloadLockedDocument {
         value: number | HomePage;
       } | null)
     | ({
+        relationTo: 'builtInPages';
+        value: number | BuiltInPage;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
@@ -2094,6 +2113,18 @@ export interface TeamBlockSelect<T extends boolean = true> {
   team?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builtInPages_select".
+ */
+export interface BuiltInPagesSelect<T extends boolean = true> {
+  title?: T;
+  url?: T;
+  tenant?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -6,9 +6,11 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
+import { BuiltInPages } from '@/collections/BuiltInPages'
 import { Documents } from '@/collections/Documents'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
+import { HomePages } from '@/collections/HomePages'
 import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
 import { Pages } from '@/collections/Pages'
@@ -16,22 +18,23 @@ import { Posts } from '@/collections/Posts'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
 import { Settings } from '@/collections/Settings'
+import { Sponsors } from '@/collections/Sponsors'
 import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
+
 import { getEmailAdapter } from '@/email-adapter'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { DiagnosticsConfig } from '@/globals/Diagnostics/config'
 import { NACWidgetsConfig } from '@/globals/NACWidgetsConfig/config'
 import { plugins } from '@/plugins'
+
 import { getURL } from '@/utilities/getURL'
 import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
 import pino from 'pino'
 import { build } from 'pino-pretty'
-import { HomePages } from './collections/HomePages'
-import { Sponsors } from './collections/Sponsors'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -147,6 +150,7 @@ export default buildConfig({
   collections: [
     // Content
     HomePages,
+    BuiltInPages,
     Pages,
     Posts,
     Media,
