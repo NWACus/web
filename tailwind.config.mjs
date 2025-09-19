@@ -140,11 +140,12 @@ const config = {
           to: { height: '0' },
         },
       },
-      typography: ({ _theme }) => ({
+      typography: () => ({
         DEFAULT: {
           css: [
             {
               '--tw-prose-body': 'var(--text)',
+              '--tw-prose-bold': 'var(--text)',
               '--tw-prose-headings': 'var(--text)',
               '--tw-prose-links': 'var(--secondary)',
               h1: {
@@ -160,6 +161,9 @@ const config = {
                 marginTop: '0.6em',
                 marginBottom: '0.6em',
               },
+              strong: {
+                fontWeight: 800,
+              },
             },
           ],
         },
@@ -169,7 +173,6 @@ const config = {
               h2: {
                 fontSize: '1.5rem',
                 fontWeight: 600,
-                marginTop: '1em',
               },
               h3: {
                 fontSize: '1.25rem',
@@ -188,7 +191,6 @@ const config = {
               h2: {
                 fontSize: '1.8rem',
                 fontWeight: 600,
-                marginTop: '1em',
               },
               h3: {
                 fontSize: '1.5rem',
