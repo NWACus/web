@@ -1,23 +1,29 @@
-import { accessByGlobalRole } from '@/access/byGlobalRole'
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
 import type { CollectionConfig } from 'payload'
 
-import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-
+import { accessByGlobalRoleWithAuthenticatedRead, byGlobalRole } from '@/access/byGlobalRole'
+import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 
 export const BuiltInPages: CollectionConfig<'pages'> = {
   slug: 'builtInPages',
-
   labels: {
     singular: 'Built-In Page',
     plural: 'Built-In Pages',
   },
-  access: accessByGlobalRole('builtInPages'),
+  access: {
+    ...accessByGlobalRoleWithAuthenticatedRead('builtInPages'),
+    create: ({ req }) => {
+      const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
+      return tenantFromCookie ? byGlobalRole('create', 'builtInPages')({ req }) : false
+    },
+  },
   admin: {
     group: 'Content',
-    defaultColumns: ['title', 'url', 'updatedAt'],
     useAsTitle: 'title',
+    baseListFilter: filterByTenant,
   },
   fields: [
     {
