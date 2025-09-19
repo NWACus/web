@@ -14,7 +14,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
         {
@@ -24,7 +23,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
         {
@@ -34,7 +32,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
 
@@ -45,7 +42,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
       ],
@@ -62,7 +58,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
         {
@@ -72,7 +67,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
         {
@@ -82,7 +76,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
       ],
@@ -99,7 +92,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
         {
@@ -109,7 +101,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
       ],
@@ -126,7 +117,6 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
             type: 'external',
             newTab: null,
             url: 'https://nwac.us',
-            label: 'Link',
           },
         },
       ],

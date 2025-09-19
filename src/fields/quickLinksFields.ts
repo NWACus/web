@@ -1,5 +1,5 @@
 import type { ArrayField } from 'payload'
-import { linkToPageOrPost } from './linkToPageOrPost'
+import { linkToPageOrPostWithLabel } from './linkToPageOrPost'
 
 export const quickLinksField = ({ description }: { description?: string }): ArrayField => ({
   name: 'quickLinks',
@@ -7,5 +7,5 @@ export const quickLinksField = ({ description }: { description?: string }): Arra
   admin: {
     description,
   },
-  fields: [...linkToPageOrPost],
+  fields: [...linkToPageOrPostWithLabel],
 })

@@ -970,7 +970,6 @@ export interface ImageLinkGrid {
                 value: number | Post;
               } | null);
           url?: string | null;
-          label?: string | null;
         };
         caption: string;
         id?: string | null;
@@ -2153,7 +2152,6 @@ export interface ImageLinkGridSelect<T extends boolean = true> {
               newTab?: T;
               reference?: T;
               url?: T;
-              label?: T;
             };
         caption?: T;
         id?: T;
