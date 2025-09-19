@@ -1,16 +1,14 @@
 import { getTenantFilter } from '@/utilities/collectionFilters'
-import { validateExternalUrl } from '@/utilities/validateUrl'
 import { Field, TextFieldSingleValidation } from 'payload'
 
 const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
   if (siblingData && typeof siblingData === 'object' && 'type' in siblingData) {
     if (siblingData.type === 'internal') return true
   }
-
   return Boolean(val) || 'You must define a label for an external link.'
 }
 
-export const linkToPageOrPost: Field[] = [
+export const linkChoiceRow: Field[] = [
   {
     type: 'row',
     fields: [
@@ -46,31 +44,44 @@ export const linkToPageOrPost: Field[] = [
       },
     ],
   },
+]
+export const linkDataRow: Field[] = [
+  {
+    name: 'reference',
+    type: 'relationship',
+    admin: {
+      condition: (_, siblingData) => siblingData?.type === 'internal',
+      width: '50%',
+    },
+    label: 'Select page or post',
+    relationTo: ['pages', 'builtInPages', 'posts'],
+    required: true,
+    filterOptions: getTenantFilter,
+  },
+  {
+    name: 'url',
+    type: 'text',
+    admin: {
+      condition: (_, siblingData) => siblingData?.type === 'external',
+    },
+    label: 'External URL',
+  },
+]
+
+export const linkToPageOrPost: Field[] = [
+  ...linkChoiceRow,
+  {
+    type: 'row',
+    fields: [...linkDataRow],
+  },
+]
+
+export const linkToPageOrPostWithLabel: Field[] = [
+  ...linkChoiceRow,
   {
     type: 'row',
     fields: [
-      {
-        name: 'reference',
-        type: 'relationship',
-        admin: {
-          condition: (_, siblingData) => siblingData?.type === 'internal',
-          width: '50%',
-        },
-        label: 'Select page or post',
-        relationTo: ['pages', 'builtInPages', 'posts'],
-        required: true,
-        filterOptions: getTenantFilter,
-      },
-      {
-        name: 'url',
-        type: 'text',
-        admin: {
-          condition: (_, siblingData) => siblingData?.type === 'external',
-          width: '50%',
-        },
-        label: 'External URL',
-        validate: validateExternalUrl,
-      },
+      ...linkDataRow,
       {
         name: 'label',
         type: 'text',

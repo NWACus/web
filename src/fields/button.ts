@@ -1,5 +1,5 @@
 import type { Field, GroupField } from 'payload'
-import { linkToPageOrPost } from './linkToPageOrPost'
+import { linkToPageOrPostWithLabel } from './linkToPageOrPost'
 
 export type ButtonAppearances =
   | 'default'
@@ -45,7 +45,7 @@ export const button: ButtonType = (appearances) => {
     admin: {
       hideGutter: true,
     },
-    fields: [...linkToPageOrPost],
+    fields: [...linkToPageOrPostWithLabel],
   }
   if (appearances.length > 1) {
     const appearanceOptionsToUse = appearances.map((appearance) => appearanceOptions[appearance])
