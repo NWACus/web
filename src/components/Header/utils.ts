@@ -1,4 +1,4 @@
-import { Navigation, Page, Post } from '@/payload-types'
+import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { AvalancheCenter, AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import configPromise from '@payload-config'
@@ -138,6 +138,10 @@ export function convertToNavLink(
     type?: ('internal' | 'external') | null
     reference?:
       | ({
+          relationTo: 'builtInPages'
+          value: number | BuiltInPage
+        } | null)
+      | ({
           relationTo: 'pages'
           value: number | Page
         } | null)
@@ -145,6 +149,7 @@ export function convertToNavLink(
           relationTo: 'posts'
           value: number | Post
         } | null)
+
     url?: string | null
     label?: string | null
     newTab?: boolean | null

@@ -17,6 +17,7 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
   admin: {
     group: 'Content',
     defaultColumns: ['title', 'url', 'updatedAt'],
+    useAsTitle: 'title',
   },
   fields: [
     {

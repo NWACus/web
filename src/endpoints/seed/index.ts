@@ -932,7 +932,7 @@ export const seed = async ({
         data: {
           quickLinks: [
             {
-              type: 'reference',
+              type: 'internal',
               label: 'Learn More',
               reference: {
                 relationTo: 'pages',
@@ -940,7 +940,7 @@ export const seed = async ({
               },
             },
             {
-              type: 'reference',
+              type: 'internal',
               label: 'Donate',
               reference: {
                 relationTo: 'pages',

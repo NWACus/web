@@ -174,7 +174,7 @@ export interface HomePage {
    */
   quickLinks?:
     | {
-        type?: ('reference' | 'custom') | null;
+        type?: ('internal' | 'external') | null;
         newTab?: boolean | null;
         reference?:
           | ({
@@ -182,11 +182,15 @@ export interface HomePage {
               value: number | Page;
             } | null)
           | ({
+              relationTo: 'builtInPages';
+              value: number | BuiltInPage;
+            } | null)
+          | ({
               relationTo: 'posts';
               value: number | Post;
             } | null);
         url?: string | null;
-        label: string;
+        label?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -950,7 +954,7 @@ export interface ImageLinkGrid {
     | {
         image: number | Media;
         link?: {
-          type?: ('reference' | 'custom') | null;
+          type?: ('internal' | 'external') | null;
           newTab?: boolean | null;
           reference?:
             | ({
@@ -958,10 +962,15 @@ export interface ImageLinkGrid {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'builtInPages';
+                value: number | BuiltInPage;
+              } | null)
+            | ({
                 relationTo: 'posts';
                 value: number | Post;
               } | null);
           url?: string | null;
+          label?: string | null;
         };
         caption: string;
         id?: string | null;
@@ -970,6 +979,19 @@ export interface ImageLinkGrid {
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageLinkGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builtInPages".
+ */
+export interface BuiltInPage {
+  id: number;
+  title: string;
+  url: string;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1073,8 +1095,8 @@ export interface LinkPreviewBlock {
         image: number | Media;
         title: string;
         text: string;
-        button: {
-          type?: ('reference' | 'custom') | null;
+        button?: {
+          type?: ('internal' | 'external') | null;
           newTab?: boolean | null;
           reference?:
             | ({
@@ -1082,11 +1104,15 @@ export interface LinkPreviewBlock {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'builtInPages';
+                value: number | BuiltInPage;
+              } | null)
+            | ({
                 relationTo: 'posts';
                 value: number | Post;
               } | null);
           url?: string | null;
-          label: string;
+          label?: string | null;
           /**
            * Choose how the link should be rendered.
            */
@@ -1204,19 +1230,6 @@ export interface GenericEmbedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "builtInPages".
- */
-export interface BuiltInPage {
-  id: number;
-  title: string;
-  url: string;
-  tenant: number | Tenant;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
 export interface Navigation {
@@ -1236,6 +1249,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1251,6 +1268,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1281,6 +1302,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1296,6 +1321,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1326,6 +1355,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1341,6 +1374,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1371,6 +1408,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1386,6 +1427,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1416,6 +1461,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1431,6 +1480,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1461,6 +1514,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1476,6 +1533,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1506,6 +1567,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1521,6 +1586,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1551,6 +1620,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1566,6 +1639,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1596,6 +1673,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1611,6 +1692,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1634,6 +1719,10 @@ export interface Navigation {
         | ({
             relationTo: 'pages';
             value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
           } | null)
         | ({
             relationTo: 'posts';
@@ -2064,6 +2153,7 @@ export interface ImageLinkGridSelect<T extends boolean = true> {
               newTab?: T;
               reference?: T;
               url?: T;
+              label?: T;
             };
         caption?: T;
         id?: T;
@@ -3156,8 +3246,8 @@ export interface DiagnosticsSelect<T extends boolean = true> {
  */
 export interface ButtonsBlock {
   buttons: {
-    button: {
-      type?: ('reference' | 'custom') | null;
+    button?: {
+      type?: ('internal' | 'external') | null;
       newTab?: boolean | null;
       reference?:
         | ({
@@ -3165,11 +3255,15 @@ export interface ButtonsBlock {
             value: number | Page;
           } | null)
         | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
             relationTo: 'posts';
             value: number | Post;
           } | null);
       url?: string | null;
-      label: string;
+      label?: string | null;
       /**
        * Choose how the link should be rendered.
        */
