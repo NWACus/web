@@ -38,8 +38,8 @@ export const navLink: GroupField = {
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'internal',
       },
-      label: 'Document to link to',
-      relationTo: ['pages', 'posts'],
+      label: 'Select page or post',
+      relationTo: ['pages', 'builtInPages', 'posts'],
       filterOptions: getTenantFilter,
     },
     {

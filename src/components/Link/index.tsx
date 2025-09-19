@@ -3,7 +3,7 @@ import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { Page, Post } from '@/payload-types'
+import type { BuiltInPage, Page, Post } from '@/payload-types'
 
 type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -12,11 +12,11 @@ type CMSLinkType = {
   label?: string | null
   newTab?: boolean | null
   reference?: {
-    relationTo: 'pages' | 'posts'
-    value: Page | Post | string | number
+    relationTo: 'builtInPages' | 'pages' | 'posts'
+    value: BuiltInPage | Page | Post | string | number
   } | null
   size?: ButtonProps['size'] | null
-  type?: 'custom' | 'reference' | null
+  type?: 'internal' | 'external' | null
   url?: string | null
 }
 
@@ -34,19 +34,25 @@ export const CMSLink = (props: CMSLinkType) => {
   } = props
 
   const center: string | undefined =
-    type === 'reference' &&
+    type === 'internal' &&
     typeof reference?.value === 'object' &&
     reference.value.tenant &&
     typeof reference.value.tenant === 'object'
       ? reference.value.tenant.slug
       : undefined
-  const href = center
-    ? `/${center}/`
-    : '' + type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
-          reference.value.slug
-        }`
-      : url
+
+  let href = url
+  if (center) {
+    href = `/${center}/`
+  } else if (type === 'internal' && typeof reference?.value === 'object') {
+    const { relationTo, value } = reference
+    const prefix = reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''
+    if ('slug' in value) {
+      href = `${prefix}/${value.slug}`
+    } else if (relationTo === 'builtInPages' && 'url' in value) {
+      href = `/${value.url}`
+    }
+  }
 
   if (!href) return null
 
