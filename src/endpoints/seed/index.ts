@@ -14,6 +14,7 @@ import type {
 
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
+import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
@@ -704,8 +705,6 @@ export const seed = async ({
     contactForms[tenant.name] = contactForm
   }
 
-  payload.logger.info(`— Seeding home pages...`)
-
   const homePages = await upsert(
     'homePages',
     payload,
@@ -716,6 +715,22 @@ export const seed = async ({
       (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
         homePage(tenant, images[tenant.slug]['imageMountain']),
     ),
+  )
+
+  await upsert(
+    'builtInPages',
+    payload,
+    incremental,
+    tenantsById,
+    () => 'builtInPages',
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
+        builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche#/all/'),
+        builtInPage(tenant, 'Weather Stations', '/weather/stations/map#/all/'),
+        builtInPage(tenant, 'Recent Observations', '/observations#/view/observations'),
+        builtInPage(tenant, 'Submit Observations', '/observations/submit#/view/observations'),
+      ])
+      .flat(),
   )
 
   const pages = await upsert(
