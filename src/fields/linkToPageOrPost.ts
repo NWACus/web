@@ -1,4 +1,5 @@
 import { getTenantFilter } from '@/utilities/collectionFilters'
+import { validateExternalUrl } from '@/utilities/validateUrl'
 import { Field, TextFieldSingleValidation } from 'payload'
 
 const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
@@ -68,6 +69,7 @@ export const linkDataRow: Field[] = [
       width: '100%',
     },
     label: 'External URL',
+    validate: validateExternalUrl,
   },
 ]
 
