@@ -93,9 +93,9 @@ export const importMap = {
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#AlignFeatureClient':
     AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@/components/ColumnLayoutPicker#default': default_923dc5ccc0b72de4298251644cbfe39e,
   '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent':
     QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e,
+  '@/components/ColumnLayoutPicker#default': default_923dc5ccc0b72de4298251644cbfe39e,
   '@payloadcms/plugin-seo/client#OverviewComponent':
     OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/plugin-seo/client#MetaTitleComponent':

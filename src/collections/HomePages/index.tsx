@@ -8,7 +8,7 @@ import { BiographyBlock } from '@/blocks/Biography/config'
 import { ButtonsBlock } from '@/blocks/Buttons/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { GenericEmbed, GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
@@ -16,10 +16,11 @@ import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
+import { SingleBlogPostBlock, SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlock, SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
+import { BlogListBlock } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
@@ -168,7 +169,9 @@ export const HomePages: CollectionConfig = {
       type: 'blocks',
       blocks: [
         BiographyBlock,
+        BlogListBlock,
         Content,
+        DocumentBlock,
         FormBlock,
         HeaderBlock,
         ImageLinkGrid,
@@ -177,7 +180,10 @@ export const HomePages: CollectionConfig = {
         ImageTextList,
         LinkPreviewBlock,
         MediaBlock,
+        SingleBlogPostBlock,
+        SponsorsBlock,
         TeamBlock,
+        GenericEmbed,
       ],
       required: true,
     },

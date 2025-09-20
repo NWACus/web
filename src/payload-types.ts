@@ -224,7 +224,9 @@ export interface HomePage {
    */
   layout: (
     | BiographyBlock
+    | BlogListBlock
     | ContentBlock
+    | DocumentBlock
     | FormBlock
     | HeaderBlock
     | ImageLinkGrid
@@ -233,7 +235,10 @@ export interface HomePage {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
+    | SingleBlogPostBlock
+    | SponsorsBlock
     | TeamBlock
+    | GenericEmbedBlock
   )[];
   publishedAt?: string | null;
   contentHash?: string | null;
@@ -1918,7 +1923,9 @@ export interface HomePagesSelect<T extends boolean = true> {
     | T
     | {
         biography?: T | BiographyBlockSelect<T>;
+        blogList?: T | BlogListBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        documentBlock?: T | DocumentBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
@@ -1927,7 +1934,10 @@ export interface HomePagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
+        genericEmbed?: T | GenericEmbedBlockSelect<T>;
       };
   publishedAt?: T;
   contentHash?: T;
@@ -1948,6 +1958,31 @@ export interface BiographyBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogListBlock_select".
+ */
+export interface BlogListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  backgroundColor?: T;
+  postOptions?: T;
+  dynamicOptions?:
+    | T
+    | {
+        sortBy?: T;
+        filterByTags?: T;
+        maxPosts?: T;
+        queriedPosts?: T;
+      };
+  staticOptions?:
+    | T
+    | {
+        staticPosts?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
@@ -1959,6 +1994,16 @@ export interface ContentBlockSelect<T extends boolean = true> {
         richText?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentBlock_select".
+ */
+export interface DocumentBlockSelect<T extends boolean = true> {
+  document?: T;
+  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }
@@ -2088,10 +2133,43 @@ export interface MediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock_select".
+ */
+export interface SingleBlogPostBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
+  post?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SponsorsBlock_select".
+ */
+export interface SponsorsBlockSelect<T extends boolean = true> {
+  title?: T;
+  backgroundColor?: T;
+  sponsors?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TeamBlock_select".
  */
 export interface TeamBlockSelect<T extends boolean = true> {
   team?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GenericEmbedBlock_select".
+ */
+export interface GenericEmbedBlockSelect<T extends boolean = true> {
+  html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
+  embedHeight?: T;
   id?: T;
   blockName?: T;
 }
@@ -2135,74 +2213,6 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BlogListBlock_select".
- */
-export interface BlogListBlockSelect<T extends boolean = true> {
-  heading?: T;
-  belowHeadingContent?: T;
-  backgroundColor?: T;
-  postOptions?: T;
-  dynamicOptions?:
-    | T
-    | {
-        sortBy?: T;
-        filterByTags?: T;
-        maxPosts?: T;
-        queriedPosts?: T;
-      };
-  staticOptions?:
-    | T
-    | {
-        staticPosts?: T;
-      };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "DocumentBlock_select".
- */
-export interface DocumentBlockSelect<T extends boolean = true> {
-  document?: T;
-  wrapInContainer?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock_select".
- */
-export interface SingleBlogPostBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  post?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SponsorsBlock_select".
- */
-export interface SponsorsBlockSelect<T extends boolean = true> {
-  title?: T;
-  backgroundColor?: T;
-  sponsors?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "GenericEmbedBlock_select".
- */
-export interface GenericEmbedBlockSelect<T extends boolean = true> {
-  html?: T;
-  backgroundColor?: T;
-  alignContent?: T;
-  embedHeight?: T;
-  id?: T;
-  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
