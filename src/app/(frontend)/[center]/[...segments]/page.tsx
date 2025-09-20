@@ -1,5 +1,6 @@
 import type { Metadata, ResolvedMetadata } from 'next'
 
+import { getCanonicalUrlForPath, getCanonicalUrlForSlug } from '@/components/Header/utils'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
@@ -9,10 +10,12 @@ import { cache } from 'react'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPage } from '@/utilities/generateMeta'
+import { normalizePath } from '@/utilities/path'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const pages = await payload.find({
+  const pagesRes = await payload.find({
     collection: 'pages',
     limit: 1000,
     pagination: false,
@@ -21,18 +24,24 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
+    // Need where clause to ignore autosave bug (https://github.com/NWACus/web/pull/204)
+    where: {
+      _status: {
+        equals: 'published',
+      },
+    },
   })
 
-  // TODO: use same logic as header to walk the tree and find all pages
-
   const params: PathArgs[] = []
-  for (const post of pages.docs) {
-    if (typeof post.tenant === 'number') {
-      payload.logger.error(`got number for page tenant: ${JSON.stringify(post.tenant)}`)
-      continue
-    }
-    if (post.tenant) {
-      params.push({ center: post.tenant.slug, segments: [post.slug] })
+
+  for (const page of pagesRes.docs) {
+    const pageTenant = await resolveTenant(page.tenant)
+
+    // Check if this slug exists in navigation
+    // Generate params if slug exists in navigation
+    const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
+    if (canonicalUrl) {
+      params.push({ center: pageTenant.slug, segments: normalizePath(canonicalUrl).split('/') })
     }
   }
 
@@ -53,6 +62,14 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { center, segments } = await paramsPromise
   const url = '/' + [center, ...segments].join('/')
   const payload = await getPayload({ config: configPromise })
+
+  // Check if this path exists in navigation and get canonical URL
+  const fullPath = `/${segments.join('/')}`
+  const canonicalUrl = await getCanonicalUrlForPath(center, fullPath)
+
+  if (!canonicalUrl) {
+    return <PayloadRedirects url={url} />
+  }
 
   const page = await queryPageBySlug({
     center: center,
@@ -92,6 +109,15 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const parentMeta = (await parent) as Metadata
   const { center, segments } = await paramsPromise
+
+  // Validate path exists in navigation before generating metadata
+  const fullPath = `/${segments.join('/')}`
+  const canonicalUrl = await getCanonicalUrlForPath(center, fullPath)
+
+  if (!canonicalUrl) {
+    return parentMeta
+  }
+
   const page = await queryPageBySlug({
     center: center,
     slug: segments[segments.length - 1],
