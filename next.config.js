@@ -26,6 +26,10 @@ const nextConfig = {
         hostname: '*.' + url.hostname,
         protocol: url.protocol.replace(':', ''),
       },
+      {
+        hostname: 'www.avy-fx-demo.org',
+        protocol: PROTOCOL,
+      },
     ],
   },
   reactStrictMode: true,

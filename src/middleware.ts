@@ -99,6 +99,54 @@ export default async function middleware(req: NextRequest) {
     `[Middleware] getTenants: ${getTenantsDuration.toFixed(2)}ms (${source}) - ${req.nextUrl.pathname}`,
   )
 
+  // If request is to a custom domain
+  if (host && requestedHost && requestedHost !== host && !requestedHost.includes(`.${host}`)) {
+    // Only handle tenants in PRODUCTION_TENANTS
+    const customDomainTenant = TENANTS.find(
+      (tenant) => PRODUCTION_TENANTS.includes(tenant.slug) && tenant.customDomain === requestedHost,
+    )
+
+    if (customDomainTenant && !hasNextInPath) {
+      const pathname = req.nextUrl.pathname
+
+      const existingPayloadTenantCookie = req.cookies.get('payload-tenant')
+      const shouldSetCookie =
+        existingPayloadTenantCookie?.value !== customDomainTenant.id.toString()
+
+      if (pathname.startsWith('/admin')) {
+        if (shouldSetCookie) {
+          const response = NextResponse.next()
+          response.cookies.set('payload-tenant', customDomainTenant.id.toString(), {
+            path: '/',
+            sameSite: 'lax',
+          })
+          logCompletion('custom-domain-admin-cookie-set')
+          return response
+        }
+
+        logCompletion('custom-domain-admin-passthrough')
+        return
+      }
+
+      const rewrite = req.nextUrl.clone()
+      rewrite.pathname = `/${customDomainTenant.slug}${rewrite.pathname}`
+      console.log(`rewrote custom domain ${req.nextUrl.toString()} to ${rewrite.toString()}`)
+
+      if (shouldSetCookie) {
+        const response = NextResponse.rewrite(rewrite)
+        response.cookies.set('payload-tenant', customDomainTenant.id.toString(), {
+          path: '/',
+          sameSite: 'lax',
+        })
+        logCompletion('custom-domain-rewrite-with-cookie')
+        return response
+      }
+
+      logCompletion('custom-domain-rewrite')
+      return NextResponse.rewrite(rewrite)
+    }
+  }
+
   // If request is to root domain with tenant in path
   if (host && requestedHost && requestedHost === host) {
     const pathSegments = req.nextUrl.pathname.split('/').filter(Boolean)
@@ -137,11 +185,23 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  // If request is not to root domain
+  // If request is to subdomain on root domain
   if (host && requestedHost && !isSeedEndpoint) {
     for (const { id, slug, customDomain } of TENANTS) {
-      const tenantDomain = customDomain ?? `${slug}.${host}`
-      if (requestedHost === tenantDomain || requestedHost === `${slug}.${host}`) {
+      if (requestedHost === `${slug}.${host}`) {
+        // Redirect to custom domain if tenant is in PRODUCTION_TENANTS and has a custom domain configured
+        if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
+          const redirectUrl = new URL(req.nextUrl.clone())
+          redirectUrl.host = customDomain
+
+          console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
+          logCompletion('custom-domain-redirect')
+          return NextResponse.redirect(
+            redirectUrl,
+            process.env.NODE_ENV === 'production' ? 308 : 302,
+          )
+        }
+
         const original = req.nextUrl.clone()
         original.host = requestedHost
         const rewrite = req.nextUrl.clone()
