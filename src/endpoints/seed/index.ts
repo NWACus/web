@@ -725,10 +725,10 @@ export const seed = async ({
     () => 'builtInPages',
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
-        builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche#/all/'),
-        builtInPage(tenant, 'Weather Stations', '/weather/stations/map#/all/'),
-        builtInPage(tenant, 'Recent Observations', '/observations#/view/observations'),
-        builtInPage(tenant, 'Submit Observations', '/observations/submit#/view/observations'),
+        builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
+        builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+        builtInPage(tenant, 'Recent Observations', '/observations'),
+        builtInPage(tenant, 'Submit Observations', '/observations/submit'),
       ])
       .flat(),
   )
