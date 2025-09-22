@@ -57,7 +57,7 @@ export default async function Page({ params, searchParams }: Args) {
   })
 
   return (
-    <div className="pt-4 pb-24">
+    <div className="pt-4">
       <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
         <div className="grow">
           <Suspense fallback={<div>Loading posts...</div>}>
