@@ -37,15 +37,18 @@ export const generateMetaForPage = async (args: {
     ? `${doc.meta?.title} | ${parentTitle ?? tenant?.name}`
     : doc.meta?.title
 
+  // Deep clone parent metadata to avoid mutation issues
+  const clonedParentMeta = parentMeta ? JSON.parse(JSON.stringify(parentMeta)) : {}
+
   return {
-    ...(parentMeta ? { ...parentMeta } : {}),
+    ...clonedParentMeta,
     title,
     description: doc?.meta?.description,
     alternates: {
       canonical: url,
     },
     openGraph: mergeOpenGraph({
-      ...(parentMeta ? { ...parentMeta.openGraph } : {}),
+      ...(clonedParentMeta.openGraph || {}),
       description: doc?.meta?.description || '',
       title: title || '',
       url,
@@ -79,15 +82,18 @@ export const generateMetaForPost = async (args: {
 
   const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
 
+  // Deep clone parent metadata to avoid mutation issues
+  const clonedParentMeta = parentMeta ? JSON.parse(JSON.stringify(parentMeta)) : {}
+
   return {
-    ...(parentMeta ? { ...parentMeta } : {}),
+    ...clonedParentMeta,
     title,
     description: doc.description,
     alternates: {
       canonical: url,
     },
     openGraph: mergeOpenGraph({
-      ...(parentMeta ? { ...parentMeta.openGraph } : {}),
+      ...(clonedParentMeta.openGraph || {}),
       description: doc.description || '',
       title: title || '',
       url,
