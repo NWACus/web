@@ -3243,9 +3243,9 @@ export interface DiagnosticsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ButtonsBlock".
+ * via the `definition` "ButtonBlock".
  */
-export interface ButtonsBlock {
+export interface ButtonBlock {
   button?: {
     type?: ('internal' | 'external') | null;
     newTab?: boolean | null;
@@ -3271,7 +3271,7 @@ export interface ButtonsBlock {
   };
   id?: string | null;
   blockName?: string | null;
-  blockType: 'buttonsBlock';
+  blockType: 'buttonBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

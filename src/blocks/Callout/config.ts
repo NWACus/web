@@ -3,7 +3,7 @@ import type { Block } from 'payload'
 import colorPickerField from '@/fields/color'
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlogListBlockLexical } from '../BlogList/config'
-import { ButtonsBlock } from '../Buttons/config'
+import { ButtonBlock } from '../Button/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { MediaBlock } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
@@ -25,7 +25,7 @@ export const CalloutBlock: Block = {
             BlocksFeature({
               blocks: [
                 BlogListBlockLexical,
-                ButtonsBlock,
+                ButtonBlock,
                 GenericEmbedLexical,
                 MediaBlock,
                 SingleBlogPostBlockLexical,
