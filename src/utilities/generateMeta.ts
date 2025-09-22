@@ -8,7 +8,7 @@ import { getHostnameFromTenant } from './tenancy/getHostnameFromTenant'
 import { resolveTenant } from './tenancy/resolveTenant'
 
 function cloneParentMeta(parentMeta?: Metadata) {
-  return parentMeta ? structuredClone(parentMeta) : {}
+  return parentMeta ? JSON.parse(JSON.stringify(parentMeta)) : {}
 }
 
 export const generateMetaForPage = async (args: {
