@@ -9,11 +9,11 @@
   --popover-foreground: hsl(240 10% 3.9%);
 
   --primary: hsl(240 5.9% 10%);
-  --primary-hover: rgba(24, 24, 27, 0.8);
+  --primary-hover: hsla(240 4% 11% / 0.8);
   --primary-foreground: hsl(0 0% 98%);
 
-  --secondary: rgb(100, 100, 190);
-  --secondary-hover: rgba(100, 100, 190, 0.8);
+  --secondary: hsl(240 30% 57%);
+  --secondary-hover: hsla(240 30% 57% / 0.8);
   --secondary-foreground: hsl(240 5.9% 10%);
 
   --muted: hsl(240 4.8% 95.9%);
@@ -22,7 +22,7 @@
   --accent: hsl(240 4.8% 95.9%);
   --accent-foreground: hsl(240 5.9% 10%);
   --destructive: hsl(0 84.2% 60.2%);
-  --destructive-hover: rgba(239, 68, 68, 0.8);
+  --destructive-hover: hsla(0 85% 60% / 0.8);
   --destructive-foreground: hsl(0 0% 98%);
   --border: hsl(240 5.9% 90%);
   --input: hsl(240 5.9% 90%);
@@ -71,13 +71,13 @@
 
 .dvac {
   --primary: hsl(240 67% 94%);
-  --primary-hover: rgba(229, 229, 250, 0.8);
+  --primary-hover: hsla(240 67% 94% / 0.8);
 
   --secondary: hsl(8 61% 45%);
-  --secondary-hover: rgba(185, 63, 45), 0.9;
+  --secondary-hover: hsla(8 61% 45% / 0.9);
 
   --callout: hsl(66 83% 35%);
-  --callout-hover: rgba(149, 163, 15, 0.8);
+  --callout-hover: hsla(66 83% 35% / 0.8);
   --callout-foreground: hsl(0 0% 100%);
 
   --header-foreground-highlight: hsl(240 3.8% 35.3%);
@@ -86,10 +86,10 @@
 /* Northwest Avalanche Center */
 .nwac {
   --primary: hsl(217 62% 21%);
-  --primary-hover: rgba(20, 46, 87, 0.8);
+  --primary-hover: hsla(217 62% 21% / 0.8);
 
   --secondary: hsl(193 42% 74%);
-  --secondary-hover: rgba(161, 204, 217, 0.8);
+  --secondary-hover: hsla(193 42% 74% / 0.8);
 
   --header: hsl(217 62% 21%);
   --header-foreground: hsl(193 42% 74%);
@@ -100,42 +100,41 @@
   --footer-foreground-highlight: hsl(0 0% 100%);
 
   --callout: hsl(69 94% 64%);
-  --callout-hover: rgba(224, 249, 77, 0.8);
+  --callout-hover: hsla(69 94% 64% / 0.8);
   --callout-foreground: hsl(240 6% 10%);
 }
 
 /* Sierra Avalanche Center */
 .sac {
   /* PRIMARY */
-  --deep-blue: #0e3051;
-  --sky-blue: #1480b8;
-  --ice-blue: #d6e8f2;
+  --deep-blue: hsl(208 69% 19%);
+  --sky-blue: hsl(201 78% 39%);
+  --ice-blue: hsl(206 44% 91%);
   /* SECONDARY */
-  --oxford: #0a2238;
-  --sapphire: #1254b5;
-  --moonstone: #1da9bf;
+  --oxford: hsl(209 67% 15%);
+  --sapphire: hsl(222 76% 38%);
+  --moonstone: hsl(185 73% 44%);
   /* ADDITIONAL */
-  --alice-blue: #e2ecf2;
-  --indigo: #15477a;
-
-  /*---------*/
+  --alice-blue: hsl(206 31% 92%);
+  --indigo: hsl(211 69% 29%);
+  /*--------------------------*/
   --primary: var(--deep-blue);
-  --primary-hover: rgb(14, 48, 81, 0.8);
+  --primary-hover: hsla(208 69% 19% / 0.8);
 
   --secondary: var(--moonstone);
-  --secondary-hover: rgb(29, 169, 191, 0.8);
+  --secondary-hover: hsla(185 73% 44% / 0.8);
 
   --header: var(--oxford);
   --header-foreground: var(--ice-blue);
-  --header-foreground-highlight: white;
+  --header-foreground-highlight: hsl(0 0% 100%);
 
   --footer: var(--oxford);
   --footer-foreground: var(--ice-blue);
-  --footer-foreground-highlight: white;
+  --footer-foreground-highlight: hsl(0 0% 100%);
 
   --callout: var(--sky-blue);
-  --callout-hover: rgb(20, 128, 184, 0.8);
-  --callout-foreground: white;
+  --callout-hover: hsla(201 78% 39% / 0.8);
+  --callout-foreground: hsl(0 0% 100%);
 
   --accent: hsl(27 92% 62%);
 
@@ -143,13 +142,13 @@
 
   --brand-50: var(--alice-blue);
   --brand-100: var(--ice-blue);
-  --brand-200: #7ac9d9;
+  --brand-200: hsl(186 53% 65%);
   --brand-300: var(--moonstone);
   --brand-400: var(--sky-blue);
   --brand-500: var(--indigo);
-  --brand-600: #144e98;
+  --brand-600: hsl(220 75% 33%);
   --brand-700: var(--sapphire);
-  --brand-800: #0e3c77;
+  --brand-800: hsl(212 78% 26%);
   --brand-900: var(--deep-blue);
   --brand-950: var(--oxford);
 }
@@ -157,11 +156,11 @@
 .snfac {
   /* TODO: update colors*/
   --secondary: hsl(178 83% 35%);
-  --secondary-hover: rgba(15, 163, 158, 0.8);
+  --secondary-hover: hsla(178 83% 35% / 0.8);
   --secondary-foreground: hsl(0 0% 100%);
 
   --callout: hsl(178 83% 35%);
-  --callout-hover: rgba(15, 163, 158, 0.8);
+  --callout-hover: hsla(178 83% 35% / 0.8);
   --callout-foreground: hsl(0 0% 100%);
 
   --header-foreground-highlight: hsl(240 3.8% 35.3%);
