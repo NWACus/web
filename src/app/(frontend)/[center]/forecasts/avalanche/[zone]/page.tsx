@@ -50,15 +50,13 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <WidgetHashHandler initialHash={`/${zone}/`} />
-      <div className="py-4">
-        <div className="container flex flex-col">
-          <NACWidget
-            center={center}
-            widget={'forecast'}
-            widgetsVersion={version}
-            widgetsBaseUrl={baseUrl}
-          />
-        </div>
+      <div className="container flex flex-col">
+        <NACWidget
+          center={center}
+          widget={'forecast'}
+          widgetsVersion={version}
+          widgetsBaseUrl={baseUrl}
+        />
       </div>
     </>
   )
