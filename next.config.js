@@ -19,8 +19,16 @@ const nextConfig = {
     unoptimized: false,
     remotePatterns: [
       {
-        hostname: '**',
+        hostname: url.hostname,
         protocol: url.protocol.replace(':', ''),
+      },
+      {
+        hostname: '*.' + url.hostname,
+        protocol: url.protocol.replace(':', ''),
+      },
+      {
+        hostname: 'www.avy-fx-demo.org',
+        protocol: PROTOCOL,
       },
     ],
   },

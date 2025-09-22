@@ -1,6 +1,5 @@
 import { createClient } from '@vercel/edge-config'
 import { NextRequest, NextResponse } from 'next/server'
-import { ROOT_DOMAIN } from './utilities/domain'
 import { getURL } from './utilities/getURL'
 import { PRODUCTION_TENANTS } from './utilities/tenancy/tenants'
 
@@ -9,14 +8,13 @@ export const config = {
     /*
      * Match all paths except for:
      * 1. /api routes
-     * 2. /_next (Next.js internals) except /_next/image for validation
+     * 2. /_next (Next.js internals)
      * 3. /_static (inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
      * 5. /media, /thumbnail, /assets (inside /public)
      * 6. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
      */
     '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
-    '/_next/image',
     '/sitemap.xml',
     '/robots.txt',
     '/pages-sitemap.xml',
@@ -100,49 +98,6 @@ export default async function middleware(req: NextRequest) {
   console.log(
     `[Middleware] getTenants: ${getTenantsDuration.toFixed(2)}ms (${source}) - ${req.nextUrl.pathname}`,
   )
-
-  // Validate if the request should be allowed for image optimization since we need to be permissive
-  // with our remotePatterns in next.config.mjs due to custom domains
-  if (req.nextUrl.pathname.startsWith('/_next/image')) {
-    const url = req.nextUrl.searchParams.get('url')
-
-    if (url) {
-      try {
-        if (url.startsWith('/_next/static')) return NextResponse.next()
-
-        const imageUrl = new URL(url)
-        const imageHost = imageUrl.host
-
-        // Build allowed hostnames using similar pattern as CSRF validation in payload.config.ts
-        const rootDomainUrl = new URL(getURL())
-        const allowedHosts = new Set([rootDomainUrl.hostname])
-
-        // Add all tenant subdomains
-        TENANTS.forEach(({ slug }) => {
-          allowedHosts.add(`${slug}.${ROOT_DOMAIN}`)
-        })
-
-        // Add production tenant custom domains
-        TENANTS.forEach(({ slug, customDomain }) => {
-          if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
-            allowedHosts.add(customDomain)
-          }
-        })
-
-        const isAllowed = allowedHosts.has(imageHost)
-
-        if (!isAllowed) {
-          console.warn(`[Middleware] Blocked image optimization for disallowed host: ${imageHost}`)
-          return new NextResponse('Forbidden', { status: 403 })
-        }
-
-        return NextResponse.next()
-      } catch (err) {
-        console.error(`Failed to determined if media url ${url} is allowed. Error: `, err)
-        return new NextResponse('Invalid media URL', { status: 400 })
-      }
-    }
-  }
 
   // If request is to a custom domain
   if (host && requestedHost && requestedHost !== host && !requestedHost.includes(`.${host}`)) {
