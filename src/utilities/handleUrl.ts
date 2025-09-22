@@ -1,4 +1,5 @@
 import { BuiltInPage, Page, Post } from '@/payload-types'
+import { normalizePath } from './path'
 
 type Props = {
   type?: ('internal' | 'external') | null
@@ -17,7 +18,7 @@ export const handleUrl = ({ url, type, reference }: Props) => {
     const { relationTo, value } = reference
 
     if (relationTo === 'builtInPages' && 'url' in value) {
-      return `/${value.url}`
+      return normalizePath(value.url)
     }
 
     if ('slug' in value) {
