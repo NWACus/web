@@ -1,7 +1,7 @@
-import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
 import type { CollectionConfig } from 'payload'
 
-import { accessByGlobalRoleWithAuthenticatedRead, byGlobalRole } from '@/access/byGlobalRole'
+import { byGlobalRole } from '@/access/byGlobalRole'
+import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
@@ -14,11 +14,10 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
     plural: 'Built-In Pages',
   },
   access: {
-    ...accessByGlobalRoleWithAuthenticatedRead('builtInPages'),
-    create: ({ req }) => {
-      const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
-      return tenantFromCookie ? byGlobalRole('create', 'builtInPages')({ req }) : false
-    },
+    create: accessByTenantRole('builtInPages')?.create,
+    read: byTenantRole('read', 'builtInPages'),
+    update: byGlobalRole('update', 'builtInPages'),
+    delete: byGlobalRole('delete', 'builtInPages'),
   },
   admin: {
     group: 'Content',
