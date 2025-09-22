@@ -7,6 +7,10 @@ import { mergeOpenGraph } from './mergeOpenGraph'
 import { getHostnameFromTenant } from './tenancy/getHostnameFromTenant'
 import { resolveTenant } from './tenancy/resolveTenant'
 
+function cloneParentMeta(parentMeta?: Metadata) {
+  return parentMeta ? structuredClone(parentMeta) : {}
+}
+
 export const generateMetaForPage = async (args: {
   customTitle?: string
   center: string
@@ -37,8 +41,7 @@ export const generateMetaForPage = async (args: {
     ? `${doc.meta?.title} | ${parentTitle ?? tenant?.name}`
     : doc.meta?.title
 
-  // Deep clone parent metadata to avoid mutation issues
-  const clonedParentMeta = parentMeta ? JSON.parse(JSON.stringify(parentMeta)) : {}
+  const clonedParentMeta = cloneParentMeta(parentMeta)
 
   return {
     ...clonedParentMeta,
@@ -83,7 +86,7 @@ export const generateMetaForPost = async (args: {
   const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
 
   // Deep clone parent metadata to avoid mutation issues
-  const clonedParentMeta = parentMeta ? JSON.parse(JSON.stringify(parentMeta)) : {}
+  const clonedParentMeta = cloneParentMeta(parentMeta)
 
   return {
     ...clonedParentMeta,
