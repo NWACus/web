@@ -1,4 +1,4 @@
-import { handleUrl } from '@/utilities/handleUrl'
+import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -18,7 +18,7 @@ export default function QuickLinkButton({
   reference,
   url,
 }: QuickLinkButtonProps) {
-  const href = handleUrl({ type, reference, url })
+  const href = handleReferenceURL({ type, reference, url })
   if (!href) return null
 
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}

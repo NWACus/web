@@ -3,7 +3,7 @@ import { cn } from '@/utilities/ui'
 import type { ImageLinkGrid as ImageLinkGridProps } from '@/payload-types'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
-import { handleUrl } from '@/utilities/handleUrl'
+import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import Link from 'next/link'
 
 type Props = ImageLinkGridProps & {
@@ -30,7 +30,7 @@ export const ImageLinkGrid = (props: Props) => {
           columns?.length > 0 &&
           columns.map((col, index) => {
             const { caption, image, link } = col
-            const href = handleUrl({ ...link })
+            const href = handleReferenceURL({ ...link })
             const newTabProps = link?.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
 
             return (

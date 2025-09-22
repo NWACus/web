@@ -10,7 +10,7 @@ type Props = {
   url?: string | null
 }
 
-export const handleUrl = ({ url, type, reference }: Props) => {
+export const handleReferenceURL = ({ url, type, reference }: Props) => {
   if (!reference?.value || typeof reference.value !== 'object') {
     return url
   }
@@ -18,7 +18,7 @@ export const handleUrl = ({ url, type, reference }: Props) => {
     const { relationTo, value } = reference
 
     if (relationTo === 'builtInPages' && 'url' in value) {
-      return normalizePath(value.url)
+      return normalizePath(value.url, { ensureLeadingSlash: true })
     }
 
     if ('slug' in value) {
