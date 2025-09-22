@@ -130,10 +130,10 @@ export async function getAllAvalancheCenterCapabilities() {
 
 export async function getAvalancheCenterPlatforms(centerSlug: string) {
   const allAvalancheCenterCapabilities = await getAllAvalancheCenterCapabilities()
-  const actualAvyCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const actualAvyCenterSlug = centerSlug === 'dvac' ? 'nwac' : centerSlug
 
   const foundAvalancheCenterBySlug = allAvalancheCenterCapabilities.centers.find(
-    (center) => center.id === actualAvyCenter.toUpperCase(),
+    (center) => center.id === actualAvyCenterSlug.toUpperCase(),
   )
 
   if (!foundAvalancheCenterBySlug)
@@ -149,8 +149,10 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
-  const actualAvyCenter = centerSlug === 'dvac' ? 'nwac' : centerSlug
-  const metadata = await nacFetch(`/v2/public/avalanche-center/${actualAvyCenter.toUpperCase()}`)
+  const actualAvyCenterSlug = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const metadata = await nacFetch(
+    `/v2/public/avalanche-center/${actualAvyCenterSlug.toUpperCase()}`,
+  )
 
   const parsed = avalancheCenterSchema.safeParse(metadata)
 
@@ -160,4 +162,58 @@ export async function getAvalancheCenterMetadata(centerSlug: string) {
   }
 
   return parsed.data
+}
+
+export type ActiveZone = Extract<
+  Awaited<ReturnType<typeof getAvalancheCenterMetadata>>['zones'][number],
+  { status: 'active' }
+>
+
+export type ActiveForecastZoneWithSlug = {
+  slug: string
+  zone: ActiveZone
+}
+
+export async function getActiveForecastZones(centerSlug: string) {
+  const actualAvyCenterSlug = centerSlug === 'dvac' ? 'nwac' : centerSlug
+
+  const avalancheCenterMetadata = await getAvalancheCenterMetadata(actualAvyCenterSlug)
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(actualAvyCenterSlug)
+
+  const forecastZones: ActiveForecastZoneWithSlug[] = []
+
+  if (avalancheCenterMetadata && avalancheCenterPlatforms.forecasts) {
+    const activeZones = avalancheCenterMetadata.zones.filter(
+      (zone): zone is Extract<typeof zone, { status: 'active' }> => zone.status === 'active',
+    )
+
+    if (activeZones.length > 0) {
+      if (activeZones.length === 1) {
+        const zoneSlug = activeZones[0].url.split('/').filter(Boolean).pop()
+
+        if (zoneSlug) {
+          forecastZones.push({
+            slug: zoneSlug,
+            zone: activeZones[0],
+          })
+        }
+      } else {
+        const zoneLinks = activeZones.sort(
+          (zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity),
+        )
+        zoneLinks.forEach((zone) => {
+          const zoneSlug = zone.url.split('/').filter(Boolean).pop()
+
+          if (zoneSlug) {
+            forecastZones.push({
+              slug: zoneSlug,
+              zone,
+            })
+          }
+        })
+      }
+    }
+  }
+
+  return forecastZones
 }
