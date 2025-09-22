@@ -16,4 +16,14 @@ We also need to get the new tenant into our Vercel Edge Config. Adding a new ten
 
 - [ ] Create the new tenant in the production admin panel
 - [ ] Fill out the new tenant's website settings
+- [ ] Create Built-In pages
+
+  | Title | URL |
+  |--------|--------|
+  | All Forecasts | /forecasts/avalanche|
+  | Zone > [ZONE NAME] | /forecasts/avalanche/[ZONE] |
+  | Weather Stations | /weather/stations/map|
+  | Recent Observations | /observations |
+  | Submit Observations | /observations/submit |
+
 - [ ] Copy pages from the template tenant to the new tenant using the "Duplicate to..." functionality (page document view -> three dot menu)
