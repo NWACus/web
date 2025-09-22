@@ -48,7 +48,7 @@ export default async function Page({ params }: Args) {
     <>
       <NACWidget
         center={center}
-        widget="warning"
+        widget="warnings"
         widgetsVersion={version}
         widgetsBaseUrl={baseUrl}
       />
