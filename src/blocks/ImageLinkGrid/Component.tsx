@@ -4,6 +4,7 @@ import type { ImageLinkGrid as ImageLinkGridProps } from '@/payload-types'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { handleUrl } from '@/utilities/handleUrl'
+import Link from 'next/link'
 
 type Props = ImageLinkGridProps & {
   className?: string
@@ -34,7 +35,7 @@ export const ImageLinkGrid = (props: Props) => {
 
             return (
               <div className={cn('group', colsSpanClass, className)} key={index}>
-                <a href={href || ''} {...newTabProps}>
+                <Link href={href || ''} {...newTabProps}>
                   <div className="w-full h-[280px] overflow-hidden">
                     {image && (
                       <ImageMedia
@@ -52,7 +53,7 @@ export const ImageLinkGrid = (props: Props) => {
                       {caption}
                     </div>
                   )}
-                </a>
+                </Link>
               </div>
             )
           })}
