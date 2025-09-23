@@ -1,11 +1,12 @@
 import type { CollectionConfig } from 'payload'
 
 import { byGlobalRole } from '@/access/byGlobalRole'
-import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
+import { byTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
 
 export const BuiltInPages: CollectionConfig<'pages'> = {
   slug: 'builtInPages',
@@ -14,7 +15,10 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
     plural: 'Built-In Pages',
   },
   access: {
-    create: accessByTenantRole('builtInPages')?.create,
+    create: ({ req }) => {
+      const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
+      return tenantFromCookie ? byGlobalRole('create', 'builtInPages')({ req }) : false
+    },
     read: byTenantRole('read', 'builtInPages'),
     update: byGlobalRole('update', 'builtInPages'),
     delete: byGlobalRole('delete', 'builtInPages'),
