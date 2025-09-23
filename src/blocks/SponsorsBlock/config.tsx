@@ -11,7 +11,7 @@ export const defaultFields: Field[] = [
   {
     type: 'radio',
     name: 'sponsorsLayout',
-    label: 'How do you want to display the sponsors?',
+    label: 'Choose a layout for the sponsors logos',
     defaultValue: 'dynamic',
     required: true,
     options: [
@@ -20,7 +20,7 @@ export const defaultFields: Field[] = [
         value: 'static',
       },
       {
-        label: 'Carousel',
+        label: 'Carousel (ideal for 6+ sponsors)',
         value: 'carousel',
       },
       {
@@ -33,7 +33,7 @@ export const defaultFields: Field[] = [
     name: 'sponsorsSingle',
     type: 'relationship',
     relationTo: 'sponsors',
-    label: 'Choose sponsors',
+    label: 'Choose a sponsor',
     hasMany: false,
     required: true,
     admin: {
