@@ -148,10 +148,10 @@ export const GenericEmbedBlock = ({
       <div
         className={cn(
           wrapInContainer && 'container py-10',
-          'flex',
-          alignContent === 'left' && 'justify-start',
-          alignContent === 'center' && 'justify-center',
-          alignContent === 'right' && 'justify-end',
+          'flex flex-col',
+          alignContent === 'left' && 'items-start',
+          alignContent === 'center' && 'items-center',
+          alignContent === 'right' && 'items-end',
           className,
         )}
         style={{ height: shouldBeIframe ? iframeHeight : undefined }}
@@ -170,7 +170,7 @@ export const GenericEmbedBlock = ({
             }}
           />
         ) : (
-          <div className="prose md:prose-md dark:prose-invert">
+          <div className="prose max-w-none md:prose-md dark:prose-invert w-full">
             <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
           </div>
         )}
