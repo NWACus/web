@@ -5,16 +5,17 @@ import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
+export const dynamicParams = false
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
+  const tenantsRes = await payload.find({
     collection: 'tenants',
     limit: 1000,
     select: {
@@ -22,9 +23,17 @@ export async function generateStaticParams() {
     },
   })
 
-  // TODO: hit the NAC API for forecast zones, translate active names to slugs
+  const params: PathArgs[] = []
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
+  for (const tenant of tenantsRes.docs) {
+    const activeForecastZones = await getActiveForecastZones(tenant.slug)
+
+    activeForecastZones.forEach(({ slug: zoneSlug }) =>
+      params.push({ center: tenant.slug, zone: zoneSlug }),
+    )
+  }
+
+  return params
 }
 
 type Args = {
@@ -50,15 +59,13 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <WidgetHashHandler initialHash={`/${zone}/`} />
-      <div className="pt-4 pb-24">
-        <div className="container flex flex-col">
-          <NACWidget
-            center={center}
-            widget={'forecast'}
-            widgetsVersion={version}
-            widgetsBaseUrl={baseUrl}
-          />
-        </div>
+      <div className="container flex flex-col">
+        <NACWidget
+          center={center}
+          widget={'forecast'}
+          widgetsVersion={version}
+          widgetsBaseUrl={baseUrl}
+        />
       </div>
     </>
   )

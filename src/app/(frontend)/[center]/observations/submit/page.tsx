@@ -49,18 +49,16 @@ export default async function Page({ params }: Args) {
     <>
       <NACContainerRemover containerElementId="nac-obs-form-widget" />
       <WidgetHashHandler initialHash="form" />
-      <div className="pt-4 pb-24">
-        <div className="container flex flex-col gap-4">
-          <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
-            <h1 className="font-bold">Submit Observation</h1>
-          </div>
-          <NACWidget
-            center={center}
-            widget={'observations'}
-            widgetsVersion={version}
-            widgetsBaseUrl={baseUrl}
-          />
+      <div className="container flex flex-col gap-4">
+        <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
+          <h1 className="font-bold">Submit Observation</h1>
         </div>
+        <NACWidget
+          center={center}
+          widget={'observations'}
+          widgetsVersion={version}
+          widgetsBaseUrl={baseUrl}
+        />
       </div>
     </>
   )

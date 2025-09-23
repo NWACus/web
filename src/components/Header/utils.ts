@@ -1,6 +1,10 @@
 import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
-import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { AvalancheCenter, AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
+import {
+  ActiveForecastZoneWithSlug,
+  getActiveForecastZones,
+  getAvalancheCenterPlatforms,
+} from '@/services/nac/nac'
+import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
@@ -237,11 +241,11 @@ export function convertToNavLink(
 
 export const getTopLevelNavItems = async ({
   navigation,
-  avalancheCenterMetadata,
+  activeForecastZones,
   avalancheCenterPlatforms,
 }: {
   navigation: Navigation
-  avalancheCenterMetadata?: AvalancheCenter
+  activeForecastZones?: ActiveForecastZoneWithSlug[]
   avalancheCenterPlatforms: AvalancheCenterPlatforms
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
   let forecastsNavItem: TopLevelNavItem = {
@@ -252,60 +256,50 @@ export const getTopLevelNavItems = async ({
     },
   }
 
-  if (avalancheCenterMetadata && avalancheCenterPlatforms.forecasts) {
-    const activeZones = avalancheCenterMetadata.zones.filter(
-      (zone): zone is Extract<typeof zone, { status: 'active' }> => zone.status === 'active',
-    )
+  if (activeForecastZones && activeForecastZones.length > 0 && avalancheCenterPlatforms.forecasts) {
+    if (activeForecastZones.length === 1) {
+      forecastsNavItem = {
+        link: {
+          label: 'Avalanche Forecast',
+          type: 'internal',
+          url: `/forecasts/avalanche/${activeForecastZones[0].slug}`,
+        },
+      }
+    } else {
+      const zoneLinks: NavItem[] = activeForecastZones
+        .sort((zoneA, zoneB) => (zoneA.zone.rank ?? Infinity) - (zoneB.zone.rank ?? Infinity))
+        .map(({ zone, slug }) => {
+          return {
+            id: slug || zone.name,
+            link: {
+              type: 'internal',
+              label: zone.name,
+              url: slug ? `/forecasts/avalanche/${slug}` : '/forecasts/avalanche',
+            },
+          }
+        })
 
-    if (activeZones.length > 0) {
-      if (activeZones.length === 1) {
-        const zoneSlug = activeZones[0].url.split('/').filter(Boolean).pop()
-
-        forecastsNavItem = {
-          link: {
-            label: 'Avalanche Forecast',
-            type: 'internal',
-            url: `/forecasts/avalanche/${zoneSlug}`,
+      forecastsNavItem = {
+        label: 'Forecasts',
+        items: [
+          {
+            id: 'all',
+            link: {
+              type: 'internal',
+              label: 'All Forecasts',
+              url: '/forecasts/avalanche',
+            },
           },
-        }
-      } else {
-        const zoneLinks: NavItem[] = activeZones
-          .sort((zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity))
-          .map(({ name, url }) => {
-            const zoneSlug = url.split('/').filter(Boolean).pop()
-
-            return {
-              id: zoneSlug || name,
-              link: {
-                type: 'internal',
-                label: name,
-                url: zoneSlug ? `/forecasts/avalanche/${zoneSlug}` : '/forecasts/avalanche',
-              },
-            }
-          })
-
-        forecastsNavItem = {
-          label: 'Forecasts',
-          items: [
-            {
-              id: 'all',
-              link: {
-                type: 'internal',
-                label: 'All Forecasts',
-                url: '/forecasts/avalanche',
-              },
+          {
+            id: 'zones',
+            items: zoneLinks,
+            link: {
+              type: 'internal',
+              label: 'Zones',
+              url: '/forecasts/avalanche',
             },
-            {
-              id: 'zones',
-              items: zoneLinks,
-              link: {
-                type: 'internal',
-                label: 'Zones',
-                url: '/forecasts/avalanche',
-              },
-            },
-          ],
-        }
+          },
+        ],
       }
     }
   }
@@ -429,12 +423,12 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         return { topLevelNavItems: [] }
       }
 
-      const avalancheCenterMetadata = await getAvalancheCenterMetadata(center)
+      const activeForecastZones = await getActiveForecastZones(center)
       const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
       return await getTopLevelNavItems({
         navigation,
-        avalancheCenterMetadata,
+        activeForecastZones,
         avalancheCenterPlatforms,
       })
     },

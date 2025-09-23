@@ -3,7 +3,7 @@
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
-export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
+export type Widget = 'map' | 'forecast' | 'warnings' | 'stations' | 'observations'
 
 export const loadersByWidget: Record<
   Widget,
@@ -18,7 +18,7 @@ export const loadersByWidget: Record<
     widgetControllerKey:
       | 'mapWidget'
       | 'forecastWidget'
-      | 'warningWidget'
+      | 'warningsWidget'
       | 'stationWidget'
       | 'obsWidget'
   }
@@ -33,10 +33,10 @@ export const loadersByWidget: Record<
     widgetDataKey: 'forecastWidgetData',
     widgetControllerKey: 'forecastWidget',
   },
-  warning: {
+  warnings: {
     scriptName: 'warnings',
     widgetDataKey: 'warningWidgetData',
-    widgetControllerKey: 'warningWidget',
+    widgetControllerKey: 'warningsWidget',
   },
   stations: {
     scriptName: 'stations',

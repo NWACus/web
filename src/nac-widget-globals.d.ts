@@ -17,7 +17,7 @@ interface Window {
     _mounted: boolean
   }
   forecastWidget?: (typeof Window)['mapWidget']
-  warningWidget?: (typeof Window)['mapWidget']
+  warningsWidget?: (typeof Window)['mapWidget']
   stationWidget?: (typeof Window)['mapWidget']
   obsWidget?: (typeof Window)['mapWidget']
 }
