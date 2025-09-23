@@ -130,10 +130,10 @@ export async function getAllAvalancheCenterCapabilities() {
 
 export async function getAvalancheCenterPlatforms(centerSlug: string) {
   const allAvalancheCenterCapabilities = await getAllAvalancheCenterCapabilities()
-  const actualAvyCenterSlug = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
 
   const foundAvalancheCenterBySlug = allAvalancheCenterCapabilities.centers.find(
-    (center) => center.id === actualAvyCenterSlug.toUpperCase(),
+    (center) => center.id === centerSlugToUse.toUpperCase(),
   )
 
   if (!foundAvalancheCenterBySlug)
@@ -149,10 +149,8 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
-  const actualAvyCenterSlug = centerSlug === 'dvac' ? 'nwac' : centerSlug
-  const metadata = await nacFetch(
-    `/v2/public/avalanche-center/${actualAvyCenterSlug.toUpperCase()}`,
-  )
+  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const metadata = await nacFetch(`/v2/public/avalanche-center/${centerSlugToUse.toUpperCase()}`)
 
   const parsed = avalancheCenterSchema.safeParse(metadata)
 
@@ -175,10 +173,10 @@ export type ActiveForecastZoneWithSlug = {
 }
 
 export async function getActiveForecastZones(centerSlug: string) {
-  const actualAvyCenterSlug = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
 
-  const avalancheCenterMetadata = await getAvalancheCenterMetadata(actualAvyCenterSlug)
-  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(actualAvyCenterSlug)
+  const avalancheCenterMetadata = await getAvalancheCenterMetadata(centerSlugToUse)
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(centerSlugToUse)
 
   const forecastZones: ActiveForecastZoneWithSlug[] = []
 
