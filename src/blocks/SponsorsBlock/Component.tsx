@@ -3,6 +3,7 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
 import { SponsorsBlockCarousel } from './components/Carousel'
+import { SponsorsBlockSingle } from './components/Single'
 import { SponsorsBlockStatic } from './components/Static'
 
 type SponsorsBlockComponentProps = SponsorsBlockProps & {
@@ -21,7 +22,7 @@ export const SponsorsBlockComponent = ({
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
   const now = new Date()
-  const sponsors = ((sponsorsLayout === 'single' ? sponsorsSingle : sponsorsMulti) ??
+  const sponsors = ((sponsorsLayout === 'single' ? [sponsorsSingle] : sponsorsMulti) ??
     []) as Sponsor[]
   const validSponsors = sponsors.filter(
     (sponsor): sponsor is Sponsor =>
@@ -45,7 +46,7 @@ export const SponsorsBlockComponent = ({
             case 'static':
               return <SponsorsBlockStatic sponsors={validSponsors} />
             case 'single':
-              return
+              return <SponsorsBlockSingle sponsor={validSponsors[0]} />
             default:
               return null
           }
