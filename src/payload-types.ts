@@ -1828,18 +1828,25 @@ export interface Setting {
  */
 export interface Redirect {
   id: number;
+  /**
+   * Relative url like /old-path
+   */
   from: string;
   to?: {
     type?: ('internal' | 'external') | null;
     newTab?: boolean | null;
     reference?:
       | ({
-          relationTo: 'posts';
-          value: number | Post;
+          relationTo: 'pages';
+          value: number | Page;
         } | null)
       | ({
           relationTo: 'builtInPages';
           value: number | BuiltInPage;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
         } | null);
     url?: string | null;
   };

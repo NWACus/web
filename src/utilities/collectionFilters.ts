@@ -1,20 +1,20 @@
 import { FilterOptionsProps } from 'payload'
+import { getTenantIdFromCookie } from './tenancy/getTenantIdFromCookie'
 
 export const getImageTypeFilter = () => ({
   mimeType: { contains: 'image' },
 })
 
-export const getTenantFilter = ({
-  data,
-  siblingData,
-  blockData,
-  relationTo,
-}: FilterOptionsProps) => {
-  console.log('data in getTenantFilter: ', JSON.stringify(data))
+export const getTenantFilter = ({ data, req }: FilterOptionsProps) => {
+  let tenantId = data.tenant
+
+  if (!tenantId) {
+    tenantId = getTenantIdFromCookie(req.headers)
+  }
 
   return {
     tenant: {
-      equals: data.tenant,
+      equals: tenantId,
     },
   }
 }
