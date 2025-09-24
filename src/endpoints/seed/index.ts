@@ -205,6 +205,7 @@ export const seed = async ({
             'users',
             'redirects',
             'sponsors',
+            'homePages',
           ],
           actions: ['*'],
         },
