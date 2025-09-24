@@ -81,6 +81,7 @@
     "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
     "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-fade": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "graphql": "^16.10.0",
     "import-in-the-middle": "^1.14.2",
