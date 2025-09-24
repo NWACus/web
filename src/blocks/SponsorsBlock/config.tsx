@@ -24,33 +24,18 @@ export const defaultFields: Field[] = [
         value: 'carousel',
       },
       {
-        label: 'Single',
-        value: 'single',
+        label: 'Individual',
+        value: 'individual',
       },
     ],
   },
   {
-    name: 'sponsorsSingle',
+    name: 'sponsors',
     type: 'relationship',
     relationTo: 'sponsors',
     label: 'Choose a sponsor',
-    hasMany: false,
-    required: true,
-    admin: {
-      condition: (_, siblingData) => siblingData?.sponsorsLayout === 'single',
-    },
-    filterOptions: getTenantFilter,
-  },
-  {
-    name: 'sponsorsMulti',
-    type: 'relationship',
-    relationTo: 'sponsors',
-    label: 'Choose sponsors',
     hasMany: true,
     required: true,
-    admin: {
-      condition: (_, siblingData) => siblingData?.sponsorsLayout !== 'single',
-    },
     filterOptions: getTenantFilter,
   },
 ]

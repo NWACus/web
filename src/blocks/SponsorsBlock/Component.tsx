@@ -3,7 +3,7 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
 import { SponsorsBlockCarousel } from './components/Carousel'
-import { SponsorsBlockSingle } from './components/Single'
+import { SponsorsBlockIndividual } from './components/Individual'
 import { SponsorsBlockStatic } from './components/Static'
 
 type SponsorsBlockComponentProps = SponsorsBlockProps & {
@@ -13,8 +13,7 @@ type SponsorsBlockComponentProps = SponsorsBlockProps & {
 
 export const SponsorsBlockComponent = ({
   backgroundColor,
-  sponsorsSingle,
-  sponsorsMulti,
+  sponsors,
   sponsorsLayout,
   title,
   wrapInContainer = true,
@@ -22,10 +21,10 @@ export const SponsorsBlockComponent = ({
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
   const now = new Date()
-  const sponsors = ((sponsorsLayout === 'single' ? [sponsorsSingle] : sponsorsMulti) ??
-    []) as Sponsor[]
   const validSponsors = sponsors.filter(
     (sponsor): sponsor is Sponsor =>
+      typeof sponsor === 'object' &&
+      sponsor !== null &&
       (!sponsor.startDate || startOfDay(new Date(sponsor.startDate)) <= now) &&
       (!sponsor.endDate || endOfDay(new Date(sponsor.endDate)) >= now),
   )
@@ -45,8 +44,8 @@ export const SponsorsBlockComponent = ({
               return <SponsorsBlockCarousel sponsors={validSponsors} />
             case 'static':
               return <SponsorsBlockStatic sponsors={validSponsors} />
-            case 'single':
-              return <SponsorsBlockSingle sponsor={validSponsors[0]} />
+            case 'individual':
+              return <SponsorsBlockIndividual sponsors={validSponsors} />
             default:
               return null
           }

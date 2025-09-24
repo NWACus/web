@@ -1195,9 +1195,8 @@ export interface SingleBlogPostBlock {
 export interface SponsorsBlock {
   title?: string | null;
   backgroundColor: string;
-  sponsorsLayout: 'static' | 'carousel' | 'single';
-  sponsorsSingle?: (number | null) | Sponsor;
-  sponsorsMulti?: (number | Sponsor)[] | null;
+  sponsorsLayout: 'static' | 'carousel' | 'individual';
+  sponsors: (number | Sponsor)[];
   /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.
    */
@@ -2299,8 +2298,7 @@ export interface SponsorsBlockSelect<T extends boolean = true> {
   title?: T;
   backgroundColor?: T;
   sponsorsLayout?: T;
-  sponsorsSingle?: T;
-  sponsorsMulti?: T;
+  sponsors?: T;
   id?: T;
   blockName?: T;
 }
