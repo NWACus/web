@@ -11,7 +11,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'This is Dawn',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -20,7 +20,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'This is Brooke',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -29,7 +29,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'this is scott',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -39,7 +39,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'this is louise',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -55,7 +55,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'This is Dawn',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -64,7 +64,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'This is Brooke',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -73,7 +73,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'this is scott',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -89,7 +89,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'This is Dawn',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -98,7 +98,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'This is Brooke',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },
@@ -114,7 +114,7 @@ export const imageLinkGrid = (image: Media): RequiredDataFromCollectionSlug<'pag
           image: image.id,
           caption: 'This is Dawn',
           link: {
-            type: 'custom',
+            type: 'external',
             newTab: null,
             url: 'https://nwac.us',
           },

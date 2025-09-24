@@ -3,7 +3,8 @@ import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { Page, Post } from '@/payload-types'
+import type { BuiltInPage, Page, Post } from '@/payload-types'
+import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 
 type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -12,11 +13,11 @@ type CMSLinkType = {
   label?: string | null
   newTab?: boolean | null
   reference?: {
-    relationTo: 'pages' | 'posts'
-    value: Page | Post | string | number
+    relationTo: 'builtInPages' | 'pages' | 'posts'
+    value: BuiltInPage | Page | Post | string | number
   } | null
   size?: ButtonProps['size'] | null
-  type?: 'custom' | 'reference' | null
+  type?: 'internal' | 'external' | null
   url?: string | null
 }
 
@@ -33,20 +34,7 @@ export const CMSLink = (props: CMSLinkType) => {
     url,
   } = props
 
-  const center: string | undefined =
-    type === 'reference' &&
-    typeof reference?.value === 'object' &&
-    reference.value.tenant &&
-    typeof reference.value.tenant === 'object'
-      ? reference.value.tenant.slug
-      : undefined
-  const href = center
-    ? `/${center}/`
-    : '' + type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
-          reference.value.slug
-        }`
-      : url
+  const href = handleReferenceURL({ url: url, type: type, reference: reference })
 
   if (!href) return null
 

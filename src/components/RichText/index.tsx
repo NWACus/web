@@ -13,7 +13,7 @@ import {
 
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
-import { ButtonsBlock } from '@/blocks/Buttons/Component'
+import { ButtonBlockComponent } from '@/blocks/Button/Component'
 import { CalloutBlock } from '@/blocks/Callout/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
@@ -23,7 +23,7 @@ import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import type {
   BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
-  ButtonsBlock as ButtonsBlockProps,
+  ButtonBlock as ButtonBlockProps,
   CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
@@ -39,7 +39,7 @@ type NodeTypes =
   | SerializedBlockNode<
       | BannerBlockProps
       | BlogListBlockProps
-      | ButtonsBlockProps
+      | ButtonBlockProps
       | CalloutBlockProps
       | DocumentBlockProps
       | GenericEmbedBlockProps
@@ -70,7 +70,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
-    buttonsBlock: ({ node }) => <ButtonsBlock {...node.fields} />,
+    buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
     calloutBlock: ({ node }) => <CalloutBlock {...node.fields} />,
     documentBlock: ({ node }) => (
       <DocumentBlock
