@@ -195,6 +195,7 @@ export const seed = async ({
           collections: [
             'pages',
             'posts',
+            'builtInPages',
             'tags',
             'roleAssignments',
             'settings',
@@ -222,6 +223,7 @@ export const seed = async ({
           collections: [
             'pages',
             'posts',
+            'builtInPages',
             'tags',
             'media',
             'biographies',
@@ -240,6 +242,7 @@ export const seed = async ({
           collections: [
             'pages',
             'posts',
+            'builtInPages',
             'tags',
             'media',
             'biographies',
