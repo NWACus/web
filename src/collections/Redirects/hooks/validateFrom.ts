@@ -1,5 +1,4 @@
 import { getCanonicalUrlForPath } from '@/components/Header/utils'
-import { getCachedRedirects } from '@/utilities/getRedirects'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { FieldHook } from 'payload'
 import invariant from 'tiny-invariant'
@@ -12,16 +11,22 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
   /** ensure from URL is unique across the same tenant */
 
-  const redirects = await getCachedRedirects()()
-  const redirectItem = redirects.find((redirect) => {
-    invariant(
-      typeof redirect.tenant === 'object',
-      `Depth not set correctly when querying redirects. Tenant for redirect id ${redirect.id} not an object.`,
-    )
-    return redirect.from === value && redirect.tenant.id === tenantId
+  const { docs: existingRedirects } = await payload.find({
+    collection: 'redirects',
+    depth: 0,
+    limit: 1,
+    pagination: false,
+    where: {
+      from: {
+        equals: value,
+      },
+      tenant: {
+        equals: tenantId,
+      },
+    },
   })
 
-  if (redirectItem) {
+  if (existingRedirects.length > 0) {
     throw new Error('From URL must be unique.')
   }
 

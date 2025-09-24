@@ -32,10 +32,10 @@ const collections: CollectionSlug[] = [
   'settings',
   'biographies',
   'homePages',
+  'sponsors',
   'media',
   'pages',
   'posts',
-  'sponsors',
   'forms',
   'form-submissions',
   'navigations',
@@ -45,6 +45,7 @@ const collections: CollectionSlug[] = [
   'redirects',
   'tags',
   'teams',
+  'builtInPages',
   'tenants',
 ]
 const defaultNacWidgetsConfig = {
