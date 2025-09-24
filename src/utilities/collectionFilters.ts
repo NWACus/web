@@ -4,11 +4,20 @@ export const getImageTypeFilter = () => ({
   mimeType: { contains: 'image' },
 })
 
-export const getTenantFilter = ({ data }: FilterOptionsProps) => ({
-  tenant: {
-    equals: data.tenant,
-  },
-})
+export const getTenantFilter = ({
+  data,
+  siblingData,
+  blockData,
+  relationTo,
+}: FilterOptionsProps) => {
+  console.log('data in getTenantFilter: ', JSON.stringify(data))
+
+  return {
+    tenant: {
+      equals: data.tenant,
+    },
+  }
+}
 
 export const getTenantAndIdFilter = ({ id, data }: FilterOptionsProps) => ({
   id: {
