@@ -1,4 +1,7 @@
+import { getURL } from '@/utilities/getURL'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { cn } from '@/utilities/ui'
+import { Metadata } from 'next'
 import localFont from 'next/font/local'
 import '../(frontend)/globals.css'
 
@@ -112,4 +115,24 @@ export default function FallbackRootLayout({ children }: { children: React.React
       </body>
     </html>
   )
+}
+
+export const metadata: Metadata = {
+  title: 'Not found | Avy',
+  description: "Not found. You've ventured into unknown terrain. Best to keep it under 30°.",
+  metadataBase: new URL(getURL()),
+  openGraph: mergeOpenGraph({
+    description: 'Avy avalanche center websites.',
+    images: [
+      {
+        url: `${getURL()}/assets/avy-web-og-image.webp`,
+      },
+    ],
+  }),
+  twitter: {
+    card: 'summary_large_image',
+  },
+  icons: {
+    icon: '/assets/favicon.ico',
+  },
 }
