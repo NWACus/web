@@ -274,7 +274,13 @@ export interface Tenant {
  */
 export interface Page {
   id: number;
+  /**
+   * The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.
+   */
   title: string;
+  /**
+   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.
+   */
   layout: (
     | BiographyBlock
     | BlogListBlock
@@ -301,6 +307,9 @@ export interface Page {
     image?: (number | null) | Media;
     description?: string | null;
   };
+  /**
+   * Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.
+   */
   publishedAt?: string | null;
   slug: string;
   tenant: number | Tenant;
@@ -330,8 +339,14 @@ export interface Biography {
   tenant: number | Tenant;
   user?: (number | null) | User;
   name?: string | null;
+  /**
+   * We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).
+   */
   photo: number | Media;
   title?: string | null;
+  /**
+   * Optional. We recommend either using them for everyone (on a specific team) or not at all.
+   */
   start_date?: string | null;
   biography?: string | null;
   contentHash?: string | null;
@@ -345,6 +360,9 @@ export interface Biography {
 export interface User {
   id: number;
   name: string;
+  /**
+   * This is where you assign the user's permissions to the site. See the documentation for more information on roles.
+   */
   roles?: {
     docs?: (number | RoleAssignment)[];
     hasNextPage?: boolean;
@@ -443,7 +461,13 @@ export interface GlobalRole {
 export interface Media {
   id: number;
   tenant: number | Tenant;
+  /**
+   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
+   */
   alt: string;
+  /**
+   * Optional text that appears below the image to provide additional context or information about the image content.
+   */
   caption?: {
     root: {
       type: string;
@@ -1204,7 +1228,13 @@ export interface TeamBlock {
 export interface Team {
   id: number;
   tenant: number | Tenant;
+  /**
+   * This will display anywhere you add the Team block (ie. on the Who We Are page).
+   */
   name: string;
+  /**
+   * Add members to the team and drag/drop to reorder how they display on the page.
+   */
   members: (number | Biography)[];
   contentHash?: string | null;
   updatedAt: string;
