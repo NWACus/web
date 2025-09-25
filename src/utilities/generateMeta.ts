@@ -37,9 +37,8 @@ export const generateMetaForPage = async (args: {
       ? parentMeta?.title.absolute
       : parentMeta?.title
 
-  const title = doc.meta?.title
-    ? `${doc.meta?.title} | ${parentTitle ?? tenant?.name}`
-    : doc.meta?.title
+  const title =
+    parentTitle || tenant?.name ? `${doc.title} | ${parentTitle ?? tenant?.name}` : doc.title
 
   const clonedParentMeta = cloneParentMeta(parentMeta)
 

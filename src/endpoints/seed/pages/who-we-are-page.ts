@@ -24,7 +24,6 @@ export const whoWeArePage: (
       blockType: 'team',
     })),
     meta: {
-      title: title,
       description: description,
       image: seoImage.id,
     },

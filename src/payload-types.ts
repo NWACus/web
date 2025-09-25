@@ -294,7 +294,6 @@ export interface Page {
     | GenericEmbedBlock
   )[];
   meta?: {
-    title?: string | null;
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
@@ -2324,7 +2323,6 @@ export interface PagesSelect<T extends boolean = true> {
   meta?:
     | T
     | {
-        title?: T;
         image?: T;
         description?: T;
       };
