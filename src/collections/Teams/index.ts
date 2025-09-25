@@ -20,6 +20,10 @@ export const Teams: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
+      admin: {
+        description:
+          'This will display anywhere you add the Team block (ie. on the Who We Are page).',
+      },
     },
     {
       name: 'members',
@@ -28,6 +32,10 @@ export const Teams: CollectionConfig = {
       hasMany: true,
       required: true,
       filterOptions: getTenantFilter,
+      admin: {
+        description:
+          'Add members to the team and drag/drop to reorder how they display on the page.',
+      },
     },
     contentHashField(),
   ],

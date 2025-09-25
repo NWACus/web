@@ -100,6 +100,10 @@ export const Pages: CollectionConfig<'pages'> = {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        description:
+          'The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.',
+      },
     },
     {
       type: 'tabs',
@@ -130,6 +134,8 @@ export const Pages: CollectionConfig<'pages'> = {
               required: true,
               admin: {
                 initCollapsed: false,
+                description:
+                  'This is where you design your page. Add and move blocks around to change the layout. Use the Live Preview to see changes in real time.',
               },
             },
           ],
@@ -169,6 +175,8 @@ export const Pages: CollectionConfig<'pages'> = {
       type: 'date',
       admin: {
         position: 'sidebar',
+        description:
+          "Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.",
       },
     },
     // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
