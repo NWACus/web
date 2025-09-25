@@ -279,7 +279,7 @@ export interface Page {
    */
   title: string;
   /**
-   * This is where you design your page. Add and move blocks around to change the layout. Use the Live Preview to see changes in real time.
+   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.
    */
   layout: (
     | BiographyBlock
@@ -361,7 +361,7 @@ export interface User {
   id: number;
   name: string;
   /**
-   * This is where you assign the user's permissions to the site. Check the wiki for more information on roles.
+   * This is where you assign the user's permissions to the site. See the documentation for more information on roles.
    */
   roles?: {
     docs?: (number | RoleAssignment)[];
