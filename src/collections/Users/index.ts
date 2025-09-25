@@ -53,7 +53,7 @@ export const Users: CollectionConfig = {
       admin: {
         defaultColumns: ['role'],
         description:
-          "This is where you assign the user's permissions to the site. Check the wiki for more information on roles.",
+          "This is where you assign the user's permissions to the site. See the documentation for more information on roles.",
       },
     },
     {
