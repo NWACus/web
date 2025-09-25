@@ -52,18 +52,19 @@ const processNestedSegments = (
 
 export function Breadcrumbs() {
   const segments = useSelectedLayoutSegments()
+  const decodedSegments = segments.map(decodeURIComponent)
   const { isNotFound } = useNotFound()
 
-  if (segments.length === 0 || isNotFound) return null
+  if (decodedSegments.length === 0 || isNotFound) return null
 
-  const breadcrumbItems: BreadcrumbType[] = segments.flatMap((segment, index) => {
+  const breadcrumbItems: BreadcrumbType[] = decodedSegments.flatMap((segment, index) => {
     const nestedSegments = segment.split('/').filter((seg) => seg !== '')
 
     if (nestedSegments.length > 1) {
-      return processNestedSegments(nestedSegments, index, segments.length)
+      return processNestedSegments(nestedSegments, index, decodedSegments.length)
     } else {
-      const href = '/' + segments.slice(0, index + 1).join('/')
-      const isLast = index === segments.length - 1
+      const href = '/' + decodedSegments.slice(0, index + 1).join('/')
+      const isLast = index === decodedSegments.length - 1
 
       return [createBreadcrumbItem(segment, href, isLast)]
     }
