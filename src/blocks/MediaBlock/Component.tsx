@@ -18,6 +18,7 @@ type Props = MediaBlockProps & {
 
 export const MediaBlock = (props: Props) => {
   const {
+    caption,
     captionClassName,
     className,
     wrapInContainer = true,
@@ -26,13 +27,27 @@ export const MediaBlock = (props: Props) => {
     staticImage,
     alignContent = 'left',
     backgroundColor,
+    imageSize = 'intrinsic',
   } = props
-
-  let caption
-  if (media && typeof media === 'object') caption = media.caption
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
+
+  const getImageSizeClasses = () => {
+    switch (imageSize) {
+      case 'small':
+        return 'max-w-xs md:max-w-sm lg:max-w-md'
+      case 'medium':
+        return 'max-w-sm md:max-w-md lg:max-w-lg'
+      case 'large':
+        return 'max-w-md md:max-w-lg lg:max-w-xl'
+      case 'full':
+        return 'max-w-full'
+      case 'intrinsic':
+      default:
+        return 'max-w-fit'
+    }
+  }
 
   return (
     <div className={cn(bgColorClass, textColor)}>
@@ -47,16 +62,28 @@ export const MediaBlock = (props: Props) => {
         )}
       >
         {(media || staticImage) && (
-          <Media
-            className="my-0"
-            imgClassName={cn('mx-auto', imgClassName)}
-            resource={media}
-            src={staticImage}
-          />
-        )}
-        {caption && (
-          <div className={cn('mt-4', captionClassName)}>
-            <RichText data={caption} enableGutter={false} className="text-xs" />
+          <div
+            className={cn(
+              getImageSizeClasses(),
+              imageSize !== 'intrinsic' && imageSize != null && 'w-full',
+              'flex flex-col gap-2',
+            )}
+          >
+            <Media
+              className="my-0"
+              imgClassName={cn(
+                'mx-auto',
+                imageSize !== 'intrinsic' && imageSize != null && 'w-full',
+                imgClassName,
+              )}
+              resource={media}
+              src={staticImage}
+            />
+            {caption && (
+              <div className={captionClassName}>
+                <RichText data={caption} enableGutter={false} className="text-xs" />
+              </div>
+            )}
           </div>
         )}
       </div>

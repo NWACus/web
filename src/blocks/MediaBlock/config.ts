@@ -1,5 +1,6 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
+import imageSizeField from '@/fields/imageSize'
 import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import type { Block, Field, RowField } from 'payload'
 
@@ -29,6 +30,7 @@ const defaultFields: Field[] = [
     },
   },
   colorAndAlignmentRow,
+  imageSizeField('Image size'),
 ]
 
 const mediaBlockWithFields = (fields?: Field[]): Block => ({

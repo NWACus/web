@@ -1177,6 +1177,10 @@ export interface MediaBlock {
   backgroundColor: string;
   alignContent?: ('left' | 'center' | 'right') | null;
   /**
+   * Controls the maximum width of the image with responsive behavior. Intrinsic uses the image's natural size with reasonable constraints. Sizes automatically adapt for mobile devices.
+   */
+  imageSize?: ('intrinsic' | 'small' | 'medium' | 'large' | 'full') | null;
+  /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.
    */
   wrapInContainer?: boolean | null;
@@ -2294,6 +2298,7 @@ export interface MediaBlockSelect<T extends boolean = true> {
   caption?: T;
   backgroundColor?: T;
   alignContent?: T;
+  imageSize?: T;
   id?: T;
   blockName?: T;
 }
