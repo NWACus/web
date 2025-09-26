@@ -106,10 +106,6 @@ const lato = localFont({
 export default function FallbackRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
-      <head>
-        <link href="/favicon.ico" rel="icon" sizes="96x96" />
-        <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
-      </head>
       <body className="w-screen h-screen overflow-x-hidden flex justify-center items-center">
         {children}
       </body>
