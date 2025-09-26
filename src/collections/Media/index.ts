@@ -28,6 +28,10 @@ export const Media: CollectionConfig = {
       name: 'alt',
       type: 'text',
       required: true,
+      admin: {
+        description:
+          'Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.',
+      },
     },
     {
       name: 'caption',
@@ -37,6 +41,10 @@ export const Media: CollectionConfig = {
           return [...rootFeatures, InlineToolbarFeature()]
         },
       }),
+      admin: {
+        description:
+          'Optional text that appears below the image to provide additional context or information about the image content.',
+      },
     },
     contentHashField(),
     {

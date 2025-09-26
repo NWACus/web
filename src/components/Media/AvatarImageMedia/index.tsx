@@ -2,7 +2,9 @@
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cssVariables } from '@/cssVariables'
+import { useTenant } from '@/providers/TenantProvider'
 import { getMediaURL } from '@/utilities/getURL'
+import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { cn } from '@/utilities/ui'
 import NextImage, { StaticImageData } from 'next/image'
 import { forwardRef, useState } from 'react'
@@ -31,6 +33,8 @@ export const MediaAvatarImage = forwardRef<HTMLImageElement, MediaAvatarImagePro
     },
     ref,
   ) => {
+    const { tenant } = useTenant()
+
     let alt = altFromProps || ''
     let src: StaticImageData | string = srcFromProps || ''
     let blurDataURL: string | null | undefined
@@ -42,7 +46,7 @@ export const MediaAvatarImage = forwardRef<HTMLImageElement, MediaAvatarImagePro
       blurDataURL = blurDataURLFromResource
 
       const cacheTag = resource.updatedAt
-      src = getMediaURL(url, cacheTag)
+      src = getMediaURL(url, cacheTag, getHostnameFromTenant(tenant))
     }
 
     const loading = loadingFromProps || (!priority ? 'lazy' : undefined)

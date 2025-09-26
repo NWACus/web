@@ -52,6 +52,8 @@ export const Users: CollectionConfig = {
       maxDepth: 4,
       admin: {
         defaultColumns: ['role'],
+        description:
+          "This is where you assign the user's permissions to the site. See the documentation for more information on roles.",
       },
     },
     {

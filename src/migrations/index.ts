@@ -22,6 +22,7 @@ import * as migration_20250909_033830_update_for_prod_content_bugs from './20250
 import * as migration_20250915_230438_update_blog_list from './20250915_230438_update_blog_list'
 import * as migration_20250920_185913_add_blocks_to_home_pages from './20250920_185913_add_blocks_to_home_pages'
 import * as migration_20250922_185258_add_built_in_pages from './20250922_185258_add_built_in_pages'
+import * as migration_20250925_144212_remove_meta_title from './20250925_144212_remove_meta_title'
 
 export const migrations = [
   {
@@ -143,5 +144,10 @@ export const migrations = [
     up: migration_20250922_185258_add_built_in_pages.up,
     down: migration_20250922_185258_add_built_in_pages.down,
     name: '20250922_185258_add_built_in_pages',
+  },
+  {
+    up: migration_20250925_144212_remove_meta_title.up,
+    down: migration_20250925_144212_remove_meta_title.down,
+    name: '20250925_144212_remove_meta_title',
   },
 ]

@@ -29,7 +29,6 @@ import { tenantField } from '@/fields/tenantField'
 import {
   MetaDescriptionField,
   MetaImageField,
-  MetaTitleField,
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
@@ -100,6 +99,10 @@ export const Pages: CollectionConfig<'pages'> = {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        description:
+          'The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.',
+      },
     },
     {
       type: 'tabs',
@@ -130,6 +133,8 @@ export const Pages: CollectionConfig<'pages'> = {
               required: true,
               admin: {
                 initCollapsed: false,
+                description:
+                  'This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.',
               },
             },
           ],
@@ -140,24 +145,20 @@ export const Pages: CollectionConfig<'pages'> = {
           label: 'SEO',
           fields: [
             OverviewField({
-              titlePath: 'meta.title',
+              titlePath: 'title',
               descriptionPath: 'meta.description',
               imagePath: 'meta.image',
-            }),
-            MetaTitleField({
-              hasGenerateFn: true,
             }),
             MetaImageField({
               relationTo: 'media',
             }),
-
             MetaDescriptionField({}),
             PreviewField({
               // if the `generateUrl` function is configured
               hasGenerateFn: true,
 
               // field paths to match the target field for data
-              titlePath: 'meta.title',
+              titlePath: 'title',
               descriptionPath: 'meta.description',
             }),
           ],
@@ -169,6 +170,8 @@ export const Pages: CollectionConfig<'pages'> = {
       type: 'date',
       admin: {
         position: 'sidebar',
+        description:
+          "Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.",
       },
     },
     // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
