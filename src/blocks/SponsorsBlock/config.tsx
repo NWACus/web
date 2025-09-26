@@ -12,7 +12,7 @@ export const defaultFields: Field[] = [
     type: 'radio',
     name: 'sponsorsLayout',
     label: 'Choose a layout for the sponsors logos',
-    defaultValue: 'dynamic',
+    defaultValue: 'static',
     required: true,
     options: [
       {
@@ -24,8 +24,8 @@ export const defaultFields: Field[] = [
         value: 'carousel',
       },
       {
-        label: 'Individual',
-        value: 'individual',
+        label: 'Banner',
+        value: 'banner',
       },
     ],
   },

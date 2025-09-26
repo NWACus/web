@@ -20,7 +20,8 @@ export const SponsorsBlockCarousel = ({ sponsors }: { sponsors: Sponsor[] }) => 
         }}
         plugins={[
           Autoplay({
-            delay: 2000,
+            delay: 3000,
+            stopOnMouseEnter: true,
           }),
         ]}
         className="w-full"
