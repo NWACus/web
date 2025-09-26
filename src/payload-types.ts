@@ -1244,6 +1244,9 @@ export interface Team {
  * via the `definition` "GenericEmbedBlock".
  */
 export interface GenericEmbedBlock {
+  /**
+   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
   html: string;
   /**
    * Checking this will render the embed with additional padding around it and using the background color you have selected.
