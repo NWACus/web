@@ -15,7 +15,7 @@ export const imageSizeField: (label: string) => Field = (label) => ({
   ],
   admin: {
     description:
-      "Controls the maximum width of the image with responsive behavior. Intrinsic uses the image's natural size with reasonable constraints. Sizes automatically adapt for mobile devices.",
+      "Controls the maximum width of the image with responsive behavior. Intrinsic uses the image's natural size. Sizes automatically adapt for different screen sizes.",
   },
 })
 
