@@ -8,14 +8,12 @@ import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-ty
 
 type Props = GenericEmbedBlockProps & {
   className?: string
-  embedHeight?: number | null
   wrapInContainer?: boolean
 }
 
 export const GenericEmbedBlock = ({
   id,
   html,
-  embedHeight,
   backgroundColor,
   alignContent = 'left',
   className,
@@ -23,7 +21,7 @@ export const GenericEmbedBlock = ({
 }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
   const [shouldBeIframe, setShouldBeIFrame] = useState(false)
-  const [iframeHeight, setIframeHeight] = useState<number | string>(embedHeight || 'auto')
+  const [iframeHeight, setIframeHeight] = useState<number | string>('auto')
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -154,7 +152,9 @@ export const GenericEmbedBlock = ({
           alignContent === 'right' && 'items-end',
           className,
         )}
-        style={{ height: shouldBeIframe ? iframeHeight : undefined }}
+        style={{
+          height: shouldBeIframe ? iframeHeight : undefined,
+        }}
       >
         {shouldBeIframe ? (
           <iframe
@@ -162,17 +162,23 @@ export const GenericEmbedBlock = ({
             title={`Embedded content ${id}`}
             srcDoc={sanitizedHtml}
             sandbox="allow-scripts allow-forms allow-same-origin"
+            className="w-full border-none m-0 overflow-x-hidden"
             style={{
-              width: '100%',
               height: iframeHeight,
-              border: 'none',
-              margin: 0,
             }}
           />
         ) : (
-          <div className="prose max-w-none md:prose-md dark:prose-invert w-full">
-            <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
-          </div>
+          <div
+            className={cn(
+              'prose max-w-none md:prose-md dark:prose-invert w-full',
+              'flex flex-col',
+              alignContent === 'left' && 'items-start',
+              alignContent === 'center' && 'items-center',
+              alignContent === 'right' && 'items-end',
+              'overflow-x-hidden',
+            )}
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          />
         )}
       </div>
     </div>

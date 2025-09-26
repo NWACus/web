@@ -1251,10 +1251,6 @@ export interface GenericEmbedBlock {
   wrapInContainer?: boolean | null;
   backgroundColor: string;
   alignContent?: ('left' | 'center' | 'right') | null;
-  /**
-   * Add optional height. If left blank, will default to 'auto'
-   */
-  embedHeight?: number | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'genericEmbed';
@@ -1786,10 +1782,6 @@ export interface Setting {
     type: 'none' | 'embedded' | 'form';
     html?: string | null;
     /**
-     * Add optional height. If left blank, will default to 'auto'
-     */
-    embedHeight?: number | null;
-    /**
      * Note: We suggest using Message as the Confirmation Type
      */
     form?: {
@@ -2308,7 +2300,6 @@ export interface GenericEmbedBlockSelect<T extends boolean = true> {
   html?: T;
   backgroundColor?: T;
   alignContent?: T;
-  embedHeight?: T;
   id?: T;
   blockName?: T;
 }
@@ -2996,7 +2987,6 @@ export interface SettingsSelect<T extends boolean = true> {
         subtitle?: T;
         type?: T;
         html?: T;
-        embedHeight?: T;
         form?: T;
       };
   address?: T;
