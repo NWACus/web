@@ -9,7 +9,7 @@ import {
 import type { Block, Field, FilterOptionsProps } from 'payload'
 import { ButtonBlock } from '../Button/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
-import { MediaBlock } from '../MediaBlock/config'
+import { MediaBlockLexical } from '../MediaBlock/config'
 import { validateMaxPosts } from './hooks/validateMaxPosts'
 
 const defaultStylingFields: Field[] = [
@@ -22,7 +22,7 @@ const defaultStylingFields: Field[] = [
         return [
           ...rootFeatures,
           BlocksFeature({
-            blocks: [ButtonBlock, MediaBlock, GenericEmbedLexical],
+            blocks: [ButtonBlock, MediaBlockLexical, GenericEmbedLexical],
           }),
           HorizontalRuleFeature(),
           InlineToolbarFeature(),

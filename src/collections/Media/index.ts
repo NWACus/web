@@ -5,7 +5,6 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
-import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { generateBlurDataUrl } from './hooks/generateBlurDataUrl'
@@ -31,19 +30,6 @@ export const Media: CollectionConfig = {
       admin: {
         description:
           'Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.',
-      },
-    },
-    {
-      name: 'caption',
-      type: 'richText',
-      editor: lexicalEditor({
-        features: ({ rootFeatures }) => {
-          return [...rootFeatures, InlineToolbarFeature()]
-        },
-      }),
-      admin: {
-        description:
-          'Optional text that appears below the image to provide additional context or information about the image content.',
       },
     },
     contentHashField(),
