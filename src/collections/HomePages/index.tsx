@@ -15,7 +15,7 @@ import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
-import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { MediaBlock, MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlock, SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock, SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
@@ -143,7 +143,7 @@ export const HomePages: CollectionConfig = {
                         ButtonBlock,
                         DocumentBlock,
                         GenericEmbedLexical,
-                        MediaBlock,
+                        MediaBlockLexical,
                         SingleBlogPostBlockLexical,
                         SponsorsBlockLexical,
                       ],

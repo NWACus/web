@@ -5,7 +5,7 @@ import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
-import { MediaBlock } from '../MediaBlock/config'
+import { MediaBlockLexical } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
 
 export const CalloutBlock: Block = {
@@ -27,7 +27,7 @@ export const CalloutBlock: Block = {
                 BlogListBlockLexical,
                 ButtonBlock,
                 GenericEmbedLexical,
-                MediaBlock,
+                MediaBlockLexical,
                 SingleBlogPostBlockLexical,
               ],
             }),
