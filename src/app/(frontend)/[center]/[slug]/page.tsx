@@ -1,7 +1,7 @@
 import type { Metadata, ResolvedMetadata } from 'next'
 
 import { getCanonicalUrlForSlug } from '@/components/Header/utils'
-import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { Redirects } from '@/components/Redirects'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -63,7 +63,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   const payload = await getPayload({ config: configPromise })
   const { isEnabled: draft } = await draftMode()
   const { center, slug } = await paramsPromise
-  const url = '/' + center + '/' + slug
+  const url = '/' + slug
 
   // Check if this slug exists in navigation and should redirect to canonical URL
   const canonicalUrl = await getCanonicalUrlForSlug(center, slug)
@@ -77,16 +77,13 @@ export default async function Page({ params: paramsPromise }: Args) {
   })
 
   if (!page) {
-    return <PayloadRedirects url={url} />
+    return <Redirects center={center} url={url} />
   }
 
   const { layout } = page
 
   return (
     <article className="pt-4">
-      {/* Allows redirects for valid pages too */}
-      <PayloadRedirects disableNotFound url={url} />
-
       {draft && <LivePreviewListener />}
 
       <div className="container mb-4">
