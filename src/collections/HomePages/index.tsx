@@ -5,7 +5,7 @@ import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
-import { ButtonsBlock } from '@/blocks/Buttons/config'
+import { ButtonBlock } from '@/blocks/Button/config'
 import { Content } from '@/blocks/Content/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbed, GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
@@ -140,7 +140,7 @@ export const HomePages: CollectionConfig = {
                     ...rootFeatures,
                     BlocksFeature({
                       blocks: [
-                        ButtonsBlock,
+                        ButtonBlock,
                         DocumentBlock,
                         GenericEmbedLexical,
                         MediaBlock,

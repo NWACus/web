@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     homePages: HomePage;
+    builtInPages: BuiltInPage;
     pages: Page;
     posts: Post;
     media: Media;
@@ -99,6 +100,7 @@ export interface Config {
   };
   collectionsSelect: {
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
+    builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -172,7 +174,7 @@ export interface HomePage {
    */
   quickLinks?:
     | {
-        type?: ('reference' | 'custom') | null;
+        type?: ('internal' | 'external') | null;
         newTab?: boolean | null;
         reference?:
           | ({
@@ -180,11 +182,15 @@ export interface HomePage {
               value: number | Page;
             } | null)
           | ({
+              relationTo: 'builtInPages';
+              value: number | BuiltInPage;
+            } | null)
+          | ({
               relationTo: 'posts';
               value: number | Post;
             } | null);
         url?: string | null;
-        label: string;
+        label?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -268,7 +274,13 @@ export interface Tenant {
  */
 export interface Page {
   id: number;
+  /**
+   * The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.
+   */
   title: string;
+  /**
+   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.
+   */
   layout: (
     | BiographyBlock
     | BlogListBlock
@@ -288,13 +300,15 @@ export interface Page {
     | GenericEmbedBlock
   )[];
   meta?: {
-    title?: string | null;
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
     image?: (number | null) | Media;
     description?: string | null;
   };
+  /**
+   * Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.
+   */
   publishedAt?: string | null;
   slug: string;
   tenant: number | Tenant;
@@ -324,8 +338,14 @@ export interface Biography {
   tenant: number | Tenant;
   user?: (number | null) | User;
   name?: string | null;
+  /**
+   * We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).
+   */
   photo: number | Media;
   title?: string | null;
+  /**
+   * Optional. We recommend either using them for everyone (on a specific team) or not at all.
+   */
   start_date?: string | null;
   biography?: string | null;
   contentHash?: string | null;
@@ -339,6 +359,9 @@ export interface Biography {
 export interface User {
   id: number;
   name: string;
+  /**
+   * This is where you assign the user's permissions to the site. See the documentation for more information on roles.
+   */
   roles?: {
     docs?: (number | RoleAssignment)[];
     hasNextPage?: boolean;
@@ -437,7 +460,13 @@ export interface GlobalRole {
 export interface Media {
   id: number;
   tenant: number | Tenant;
+  /**
+   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
+   */
   alt: string;
+  /**
+   * Optional text that appears below the image to provide additional context or information about the image content.
+   */
   caption?: {
     root: {
       type: string;
@@ -948,7 +977,7 @@ export interface ImageLinkGrid {
     | {
         image: number | Media;
         link?: {
-          type?: ('reference' | 'custom') | null;
+          type?: ('internal' | 'external') | null;
           newTab?: boolean | null;
           reference?:
             | ({
@@ -956,11 +985,18 @@ export interface ImageLinkGrid {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'builtInPages';
+                value: number | BuiltInPage;
+              } | null)
+            | ({
                 relationTo: 'posts';
                 value: number | Post;
               } | null);
           url?: string | null;
         };
+        /**
+         * Insert text that will overlay the image
+         */
         caption: string;
         id?: string | null;
       }[]
@@ -968,6 +1004,19 @@ export interface ImageLinkGrid {
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageLinkGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builtInPages".
+ */
+export interface BuiltInPage {
+  id: number;
+  title: string;
+  url: string;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1071,8 +1120,8 @@ export interface LinkPreviewBlock {
         image: number | Media;
         title: string;
         text: string;
-        button: {
-          type?: ('reference' | 'custom') | null;
+        button?: {
+          type?: ('internal' | 'external') | null;
           newTab?: boolean | null;
           reference?:
             | ({
@@ -1080,13 +1129,17 @@ export interface LinkPreviewBlock {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'builtInPages';
+                value: number | BuiltInPage;
+              } | null)
+            | ({
                 relationTo: 'posts';
                 value: number | Post;
               } | null);
           url?: string | null;
-          label: string;
+          label?: string | null;
           /**
-           * Choose how the link should be rendered.
+           * Choose the button style.
            */
           appearance?: ('default' | 'secondary' | 'outline') | null;
         };
@@ -1174,7 +1227,13 @@ export interface TeamBlock {
 export interface Team {
   id: number;
   tenant: number | Tenant;
+  /**
+   * This will display anywhere you add the Team block (ie. on the Who We Are page).
+   */
   name: string;
+  /**
+   * Add members to the team and drag/drop to reorder how they display on the page.
+   */
   members: (number | Biography)[];
   contentHash?: string | null;
   updatedAt: string;
@@ -1221,6 +1280,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1236,6 +1299,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1266,6 +1333,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1281,6 +1352,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1311,6 +1386,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1326,6 +1405,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1356,6 +1439,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1371,6 +1458,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1401,6 +1492,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1416,6 +1511,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1446,6 +1545,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1461,6 +1564,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1491,6 +1598,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1506,6 +1617,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1536,6 +1651,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1551,6 +1670,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1581,6 +1704,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -1596,6 +1723,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
                       } | null)
                     | ({
                         relationTo: 'posts';
@@ -1619,6 +1750,10 @@ export interface Navigation {
         | ({
             relationTo: 'pages';
             value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
           } | null)
         | ({
             relationTo: 'posts';
@@ -1771,6 +1906,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'homePages';
         value: number | HomePage;
+      } | null)
+    | ({
+        relationTo: 'builtInPages';
+        value: number | BuiltInPage;
       } | null)
     | ({
         relationTo: 'pages';
@@ -2175,6 +2314,18 @@ export interface GenericEmbedBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builtInPages_select".
+ */
+export interface BuiltInPagesSelect<T extends boolean = true> {
+  title?: T;
+  url?: T;
+  tenant?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
@@ -2202,7 +2353,6 @@ export interface PagesSelect<T extends boolean = true> {
   meta?:
     | T
     | {
-        title?: T;
         image?: T;
         description?: T;
       };
@@ -3121,34 +3271,35 @@ export interface DiagnosticsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ButtonsBlock".
+ * via the `definition` "ButtonBlock".
  */
-export interface ButtonsBlock {
-  buttons: {
-    button: {
-      type?: ('reference' | 'custom') | null;
-      newTab?: boolean | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label: string;
-      /**
-       * Choose how the link should be rendered.
-       */
-      appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
-    };
-    id?: string | null;
-  }[];
+export interface ButtonBlock {
+  button?: {
+    type?: ('internal' | 'external') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'builtInPages';
+          value: number | BuiltInPage;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null);
+    url?: string | null;
+    label?: string | null;
+    /**
+     * Choose the button style.
+     */
+    appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
+  };
   id?: string | null;
   blockName?: string | null;
-  blockType: 'buttonsBlock';
+  blockType: 'buttonBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

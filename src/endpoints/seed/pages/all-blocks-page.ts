@@ -50,7 +50,6 @@ export const allBlocksPage: (
       },
     ],
     meta: {
-      title: null,
       image: null,
       description: null,
     },
