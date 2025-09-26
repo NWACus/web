@@ -9,9 +9,31 @@ export const defaultFields: Field[] = [
   },
   colorPickerField('Title background color'),
   {
+    type: 'radio',
+    name: 'sponsorsLayout',
+    label: 'Choose a layout for the sponsors logos',
+    defaultValue: 'static',
+    required: true,
+    options: [
+      {
+        label: 'Static',
+        value: 'static',
+      },
+      {
+        label: 'Carousel (ideal for 6+ sponsors)',
+        value: 'carousel',
+      },
+      {
+        label: 'Banner',
+        value: 'banner',
+      },
+    ],
+  },
+  {
     name: 'sponsors',
     type: 'relationship',
     relationTo: 'sponsors',
+    label: 'Choose a sponsor',
     hasMany: true,
     required: true,
     filterOptions: getTenantFilter,
