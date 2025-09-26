@@ -2,8 +2,8 @@ import { Sponsor, SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
+import { SponsorsBlockBanner } from './components/Banner'
 import { SponsorsBlockCarousel } from './components/Carousel'
-import { SponsorsBlockIndividual } from './components/Individual'
 import { SponsorsBlockStatic } from './components/Static'
 
 type SponsorsBlockComponentProps = SponsorsBlockProps & {
@@ -40,12 +40,12 @@ export const SponsorsBlockComponent = ({
       <div className="flex flex-wrap justify-evenly items-center">
         {(() => {
           switch (sponsorsLayout) {
+            case 'banner':
+              return <SponsorsBlockBanner sponsors={validSponsors} />
             case 'carousel':
               return <SponsorsBlockCarousel sponsors={validSponsors} />
             case 'static':
               return <SponsorsBlockStatic sponsors={validSponsors} />
-            case 'individual':
-              return <SponsorsBlockIndividual sponsors={validSponsors} />
             default:
               return null
           }
