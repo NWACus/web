@@ -38,9 +38,9 @@ export const MediaBlock = (props: Props) => {
       case 'small':
         return 'max-w-xs md:max-w-sm lg:max-w-md'
       case 'medium':
-        return 'max-w-sm md:max-w-md lg:max-w-lg'
+        return 'max-w-sm md:max-w-lg lg:max-w-2xl'
       case 'large':
-        return 'max-w-md md:max-w-lg lg:max-w-xl'
+        return 'max-w-md md:max-w-2xl lg:max-w-4xl'
       case 'full':
         return 'max-w-full'
       case 'intrinsic':
