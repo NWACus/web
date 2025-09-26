@@ -46,6 +46,10 @@ export const Biographies: CollectionConfig = {
       relationTo: 'media',
       hasMany: false,
       required: true,
+      admin: {
+        description:
+          'We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).',
+      },
     },
     {
       name: 'title',
@@ -57,6 +61,10 @@ export const Biographies: CollectionConfig = {
       type: 'date',
       label: 'Start Date',
       required: false,
+      admin: {
+        description:
+          'Optional. We recommend either using them for everyone (on a specific team) or not at all.',
+      },
     },
     {
       name: 'biography',

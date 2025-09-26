@@ -6,16 +6,12 @@ import { getURL } from '@/utilities/getURL'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { sentryPlugin } from '@payloadcms/plugin-sentry'
 import { seoPlugin } from '@payloadcms/plugin-seo'
-import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
+import { GenerateURL } from '@payloadcms/plugin-seo/types'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import * as Sentry from '@sentry/nextjs'
 import { Plugin } from 'payload'
 import tenantFieldPlugin from './tenantFieldPlugin'
-
-const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | AvyFx` : 'AvyFx'
-}
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   const url = getURL()
@@ -25,7 +21,6 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 
 export const plugins: Plugin[] = [
   seoPlugin({
-    generateTitle,
     generateURL,
   }),
   formBuilderPlugin({

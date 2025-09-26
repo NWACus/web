@@ -64,7 +64,6 @@ export const page: (
     meta: {
       description: description,
       image: seoImage.id,
-      title: title,
     },
     title: title,
   }
