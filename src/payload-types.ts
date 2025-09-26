@@ -464,24 +464,6 @@ export interface Media {
    * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
    */
   alt: string;
-  /**
-   * Optional text that appears below the image to provide additional context or information about the image content.
-   */
-  caption?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
   contentHash?: string | null;
   blurDataUrl?: string | null;
   prefix?: string | null;
@@ -2437,7 +2419,6 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
-  caption?: T;
   contentHash?: T;
   blurDataUrl?: T;
   prefix?: T;
