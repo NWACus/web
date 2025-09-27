@@ -71,15 +71,6 @@ const footerForm: GroupField = {
       required: true,
     },
     {
-      type: 'number',
-      name: 'embedHeight',
-      label: 'Height of embed (in px)',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'embedded',
-        description: "Add optional height. If left blank, will default to 'auto' ",
-      },
-    },
-    {
       name: 'form',
       type: 'relationship',
       admin: {
