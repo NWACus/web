@@ -1834,19 +1834,6 @@ export interface Setting {
    * A short description of your avalanche center. This will be used in meta tags for search engine optimization and display in previews on social media and in messaging apps.
    */
   description?: string | null;
-  footerForm: {
-    title?: string | null;
-    subtitle?: string | null;
-    type: 'none' | 'embedded' | 'form';
-    html?: string | null;
-    /**
-     * Note: We suggest using Message as the Confirmation Type
-     */
-    form?: {
-      relationTo: 'forms';
-      value: number | Form;
-    } | null;
-  };
   /**
    * Appears in your website footer.
    */
@@ -1871,6 +1858,19 @@ export interface Setting {
    * Appears in your website footer.
    */
   email?: string | null;
+  footerForm: {
+    title?: string | null;
+    subtitle?: string | null;
+    type: 'none' | 'embedded' | 'form';
+    html?: string | null;
+    /**
+     * Note: We suggest using Message as the Confirmation Type
+     */
+    form?: {
+      relationTo: 'forms';
+      value: number | Form;
+    } | null;
+  };
   /**
    * Should be a square aspect ratio image.
    */
@@ -3088,6 +3088,12 @@ export interface NavigationsSelect<T extends boolean = true> {
 export interface SettingsSelect<T extends boolean = true> {
   tenant?: T;
   description?: T;
+  address?: T;
+  phoneLabel?: T;
+  phone?: T;
+  phoneSecondaryLabel?: T;
+  phoneSecondary?: T;
+  email?: T;
   footerForm?:
     | T
     | {
@@ -3097,12 +3103,6 @@ export interface SettingsSelect<T extends boolean = true> {
         html?: T;
         form?: T;
       };
-  address?: T;
-  phoneLabel?: T;
-  phone?: T;
-  phoneSecondaryLabel?: T;
-  phoneSecondary?: T;
-  email?: T;
   logo?: T;
   icon?: T;
   banner?: T;
