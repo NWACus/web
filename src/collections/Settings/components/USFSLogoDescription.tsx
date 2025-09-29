@@ -1,6 +1,6 @@
-import { UploadFieldDescriptionServerComponent } from 'payload'
+import { TextFieldDescriptionServerComponent } from 'payload'
 
-export const USFSLogoDescription: UploadFieldDescriptionServerComponent = () => {
+export const USFSLogoDescription: TextFieldDescriptionServerComponent = () => {
   return (
     <p className="field-description field-description-description">
       Upload your USFS logo if applicable. This will be displayed to the right of your banner logo.

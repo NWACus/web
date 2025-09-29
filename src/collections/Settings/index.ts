@@ -314,11 +314,16 @@ export const Settings: CollectionConfig = {
         {
           label: 'General',
           fields: [...generalFields],
+          description:
+            'Update your Avalanche Center details. This information is displayed across the website, including in the footer and meta data. Leave any field blank if you do not want it show.',
         },
         {
-          label: 'Footer',
+          label: 'Footer Form',
           fields: [footerForm],
+          description:
+            'Choose which form you would like to display in the footer or embed one. Leave the field blank if you do not want the form to show.',
         },
+
         {
           label: 'Brand Assets',
           description:
