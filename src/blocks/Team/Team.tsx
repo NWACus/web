@@ -31,8 +31,7 @@ export const TeamBlock = ({ team, payload }: Props) => {
       <hr className="mt-2 mb-6" />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {teamMembers.map((member) => {
-          const name: string =
-            member.name || (typeof member.user === 'object' && member.user?.name) || 'Unknown'
+          const name: string = member.name || 'Unknown'
           const initials = getAuthorInitials(name)
           return (
             <div className="w-full flex  justify-center" key={`bio__${member.id}`}>

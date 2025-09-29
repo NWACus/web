@@ -1,6 +1,6 @@
 import { upsert } from '@/endpoints/seed/upsert'
 import { getSeedImageByFilename } from '@/endpoints/seed/utilities'
-import type { Biography, Media, Team, Tenant, User } from '@/payload-types'
+import type { Biography, Media, Team, Tenant } from '@/payload-types'
 import { File, Payload, RequiredDataFromCollectionSlug } from 'payload'
 
 export const seedStaff = async (
@@ -8,7 +8,6 @@ export const seedStaff = async (
   incremental: boolean,
   tenants: Record<string, Tenant>, // by tenant slug
   tenantsById: Record<number, Tenant>, // by id
-  users: Record<string, User>, // by full name
 ): Promise<{ teams: Record<string, Team[]>; bios: Record<string, Record<string, Biography>> }> => {
   payload.logger.info(`— Seeding staff photos...`)
 
@@ -66,7 +65,7 @@ export const seedStaff = async (
     incremental,
     tenantsById,
     (obj) => obj.name || 'UNKNOWN',
-    biographies(tenants, tenantsById, photos, placeholders, users),
+    biographies(tenants, tenantsById, photos, placeholders),
   )
 
   const teamData = teams(tenants, bios)
@@ -95,13 +94,11 @@ export const biographies: (
   tenantsById: Record<number, Tenant>, // by tenant slug
   images: Record<string, Record<string, Media>>, // by full name (alt text)
   placeholders: Record<string, Record<string, Media>>, // by tenant
-  users: Record<string, User>, // by full name
 ) => RequiredDataFromCollectionSlug<'biographies'>[] = (
   tenants: Record<string, Tenant>, // by tenant slug
   tenantsById: Record<number, Tenant>, // by tenant slug
   images: Record<string, Record<string, Media>>, // by full name (alt text)
   placeholders: Record<string, Record<string, Media>>, // by tenant
-  users: Record<string, User>, // by full name
 ): RequiredDataFromCollectionSlug<'biographies'>[] => {
   const biographies: RequiredDataFromCollectionSlug<'biographies'>[] = [
     {
@@ -255,9 +252,6 @@ export const biographies: (
         biographies[i].photo = placeholders[tenantSlug]['placeholder'].id
       } else {
         throw new Error(`no photo or placeholder for biography['${tenantSlug}']['${name}']`)
-      }
-      if (name in users) {
-        biographies[i].user = users[name].id
       }
     }
   }

@@ -22,8 +22,7 @@ export const BiographyBlock = ({ backgroundColor, biography, imageLayout, payloa
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  const name: string =
-    biography.name || (typeof biography.user === 'object' && biography.user?.name) || 'Unknown'
+  const name: string = biography.name || 'Unknown'
   const initials = getAuthorInitials(name)
 
   return (

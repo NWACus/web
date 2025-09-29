@@ -336,8 +336,7 @@ export interface BiographyBlock {
 export interface Biography {
   id: number;
   tenant: number | Tenant;
-  user?: (number | null) | User;
-  name?: string | null;
+  name: string;
   /**
    * We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).
    */
@@ -348,107 +347,6 @@ export interface Biography {
    */
   start_date?: string | null;
   biography?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name: string;
-  /**
-   * This is where you assign the user's permissions to the site. See the documentation for more information on roles.
-   */
-  roles?: {
-    docs?: (number | RoleAssignment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  globalRoleAssignments?: {
-    docs?: (number | GlobalRoleAssignment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  inviteToken?: string | null;
-  inviteExpiration?: string | null;
-  lastLogin?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "roleAssignments".
- */
-export interface RoleAssignment {
-  id: number;
-  tenant: number | Tenant;
-  role?: (number | null) | Role;
-  roleName?: string | null;
-  user?: (number | null) | User;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "roles".
- */
-export interface Role {
-  id: number;
-  name: string;
-  rules: {
-    collections: string[];
-    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
-    id?: string | null;
-  }[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "globalRoleAssignments".
- */
-export interface GlobalRoleAssignment {
-  id: number;
-  globalRole?: (number | null) | GlobalRole;
-  globalRoleName?: string | null;
-  user?: (number | null) | User;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "globalRoles".
- */
-export interface GlobalRole {
-  id: number;
-  name: string;
-  rules: {
-    collections: string[];
-    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
-    id?: string | null;
-  }[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1267,6 +1165,107 @@ export interface GenericEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'genericEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name: string;
+  /**
+   * This is where you assign the user's permissions to the site. See the documentation for more information on roles.
+   */
+  roles?: {
+    docs?: (number | RoleAssignment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  globalRoleAssignments?: {
+    docs?: (number | GlobalRoleAssignment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  inviteToken?: string | null;
+  inviteExpiration?: string | null;
+  lastLogin?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roleAssignments".
+ */
+export interface RoleAssignment {
+  id: number;
+  tenant: number | Tenant;
+  role?: (number | null) | Role;
+  roleName?: string | null;
+  user?: (number | null) | User;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: number;
+  name: string;
+  rules: {
+    collections: string[];
+    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
+    id?: string | null;
+  }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoleAssignments".
+ */
+export interface GlobalRoleAssignment {
+  id: number;
+  globalRole?: (number | null) | GlobalRole;
+  globalRoleName?: string | null;
+  user?: (number | null) | User;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoles".
+ */
+export interface GlobalRole {
+  id: number;
+  name: string;
+  rules: {
+    collections: string[];
+    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
+    id?: string | null;
+  }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2607,7 +2606,6 @@ export interface TagsSelect<T extends boolean = true> {
  */
 export interface BiographiesSelect<T extends boolean = true> {
   tenant?: T;
-  user?: T;
   name?: T;
   photo?: T;
   title?: T;
