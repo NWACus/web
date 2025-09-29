@@ -10,7 +10,7 @@ export const SponsorsBlockStatic = ({ sponsors }: { sponsors: Sponsor[] }) => {
       case 3:
         return 'w-1/2 md:w-1/2 lg:w-1/4'
       default:
-        return 'w-1/3 md:w-1/3 lg:w-1/5'
+        return 'w-1/3 md:w-1/3 lg:w-1/6'
     }
   }
   const colSpanName = getColSpanName()
