@@ -2299,6 +2299,7 @@ export interface SponsorsBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   sponsorsLayout?: T;
   sponsors?: T;
+  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }

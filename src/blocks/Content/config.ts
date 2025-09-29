@@ -15,7 +15,7 @@ import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
 import { MediaBlockLexical } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
-import { SponsorsBlockLexical } from '../SponsorsBlock/config'
+import { SponsorsBlock } from '../SponsorsBlock/config'
 
 export const Content: Block = {
   slug: 'content',
@@ -76,7 +76,7 @@ export const Content: Block = {
                     HeaderBlock,
                     MediaBlockLexical,
                     SingleBlogPostBlockLexical,
-                    SponsorsBlockLexical,
+                    SponsorsBlock,
                   ],
                 }),
                 HorizontalRuleFeature(),

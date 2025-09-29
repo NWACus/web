@@ -6,18 +6,13 @@ import { SponsorsBlockBanner } from './components/Banner'
 import { SponsorsBlockCarousel } from './components/Carousel'
 import { SponsorsBlockStatic } from './components/Static'
 
-type SponsorsBlockComponentProps = SponsorsBlockProps & {
-  className?: string
-  wrapInContainer?: boolean
-}
-
 export const SponsorsBlockComponent = ({
   backgroundColor,
   sponsors,
   sponsorsLayout,
   title,
-  wrapInContainer = true,
-}: SponsorsBlockComponentProps) => {
+  wrapInContainer = false,
+}: SponsorsBlockProps) => {
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
   const now = new Date()
@@ -31,7 +26,7 @@ export const SponsorsBlockComponent = ({
   if (!validSponsors) return null
 
   return (
-    <div className={cn(wrapInContainer, 'py-10')}>
+    <div className={cn('py-10', { container: wrapInContainer })}>
       {title && (
         <div className={`${bgColorClass} prose md:prose-md py-2 text-center max-w-none`}>
           <h2 className={textColor}>{title}</h2>
