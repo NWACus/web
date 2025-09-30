@@ -2,12 +2,20 @@ import { getCanonicalUrlForPath } from '@/components/Header/utils'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { FieldHook } from 'payload'
 import invariant from 'tiny-invariant'
+import { z } from 'zod'
+
+const relativeUrlSchema = z
+  .string()
+  .min(1, 'From URL is required')
+  .regex(/^\/[^\s]*$/, 'From URL must be a relative URL starting with "/"')
+  .regex(/^\/.*[^/]$/, 'From URL must not have a trailing slash')
 
 export const validateFrom: FieldHook = async ({ value, data, req: { payload } }) => {
   const tenantId = data?.tenant
 
-  invariant(typeof value === 'string', 'From URL is invalid.')
   invariant(typeof tenantId === 'number', 'Tenant not selected.')
+
+  const validatedValue = relativeUrlSchema.parse(value)
 
   /** ensure from URL is unique across the same tenant */
 
@@ -18,7 +26,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     pagination: false,
     where: {
       from: {
-        equals: value,
+        equals: validatedValue,
       },
       tenant: {
         equals: tenantId,
@@ -32,7 +40,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
   /** ensure from URL does not match a published page or post path */
 
-  if (value.split('/').slice(1).length === 1) {
+  if (validatedValue.split('/').slice(1).length === 1) {
     // matches a published page slug
     const { docs: matchingPages } = await payload.find({
       collection: 'pages',
@@ -44,7 +52,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
           equals: tenantId,
         },
         slug: {
-          equals: value.split('/').pop(),
+          equals: validatedValue.split('/').pop(),
         },
       },
       select: {
@@ -71,7 +79,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
           equals: tenantId,
         },
         slug: {
-          equals: value.split('/').pop(),
+          equals: validatedValue.split('/').pop(),
         },
       },
       select: {
@@ -89,7 +97,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     // check canonical URLs
 
     const tenant = await resolveTenant(tenantId)
-    const canonicalUrl = await getCanonicalUrlForPath(tenant.slug, value)
+    const canonicalUrl = await getCanonicalUrlForPath(tenant.slug, validatedValue)
 
     if (canonicalUrl) {
       // published pages
@@ -147,7 +155,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     }
   }
 
-  if (value.startsWith('/blog/')) {
+  if (validatedValue.startsWith('/blog/')) {
     // check posts
 
     // published posts
@@ -161,7 +169,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
           equals: tenantId,
         },
         slug: {
-          equals: value.split('/blog/').pop(),
+          equals: validatedValue.split('/blog/').pop(),
         },
       },
       select: {
@@ -187,7 +195,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
           equals: tenantId,
         },
         slug: {
-          equals: value.split('/blog/').pop(),
+          equals: validatedValue.split('/blog/').pop(),
         },
       },
       select: {
@@ -203,5 +211,5 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     }
   }
 
-  return value
+  return validatedValue
 }
