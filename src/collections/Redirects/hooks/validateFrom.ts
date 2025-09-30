@@ -32,8 +32,6 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
   /** ensure from URL does not match a published page or post path */
 
-  console.log(value.split('/').pop())
-
   if (value.split('/').slice(1).length === 1) {
     // matches a published page slug
     const { docs: matchingPages } = await payload.find({
