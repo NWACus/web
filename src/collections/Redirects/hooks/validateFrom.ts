@@ -40,9 +40,6 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
       limit: 1,
       pagination: false,
       where: {
-        _status: {
-          equals: 'published',
-        },
         tenant: {
           equals: tenantId,
         },
@@ -57,7 +54,9 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     })
 
     if (matchingPages.length > 0) {
-      throw new Error(`This From URL matches a published page: ${matchingPages[0].title}`)
+      throw new Error(
+        `This From URL matches a page: ${matchingPages[0].title}. If you want to redirect this From URL, please change that page's slug.`,
+      )
     }
   } else {
     // check canonical URLs
@@ -72,9 +71,6 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
         limit: 1,
         pagination: false,
         where: {
-          _status: {
-            equals: 'published',
-          },
           tenant: {
             equals: tenantId,
           },
@@ -90,7 +86,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
       if (matchingPages.length > 0) {
         throw new Error(
-          `This From URL matches a published page nested in the navigation: ${matchingPages[0].title}`,
+          `This From URL matches a page nested in the navigation: ${matchingPages[0].title}. If you want to redirect this From URL, please change that page's slug or location in the navigation.`,
         )
       }
     }
@@ -105,9 +101,6 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
       limit: 1,
       pagination: false,
       where: {
-        _status: {
-          equals: 'published',
-        },
         tenant: {
           equals: tenantId,
         },
@@ -122,7 +115,9 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     })
 
     if (matchingPosts.length > 0) {
-      throw new Error(`This From URL matches a published post: ${matchingPosts[0].title}`)
+      throw new Error(
+        `This From URL matches a post: ${matchingPosts[0].title}. If you want to redirect this From URL, please change that post's slug.`,
+      )
     }
   }
 
