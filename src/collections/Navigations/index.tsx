@@ -55,11 +55,13 @@ export const Navigations: CollectionConfig = {
           name: 'forecasts',
           description: 'This nav dropdown is autofilled with your forecast zones.',
           isConfigurable: false,
+          hasEnabledToggle: false,
         }),
         topLevelNavTab({
           name: 'observations',
           description: 'This nav dropdown is autofilled with the default observations links.',
           isConfigurable: false,
+          hasEnabledToggle: false,
         }),
         topLevelNavTab({
           name: 'weather',
@@ -84,7 +86,20 @@ export const Navigations: CollectionConfig = {
         {
           name: 'donate',
           description: 'This nav item is styled as a button.',
-          fields: [navLink],
+          fields: [
+            {
+              type: 'group',
+              name: 'options',
+              fields: [
+                {
+                  type: 'checkbox',
+                  defaultValue: true,
+                  name: 'enabled',
+                },
+              ],
+            },
+            navLink,
+          ],
         },
       ],
     },

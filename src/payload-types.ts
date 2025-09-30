@@ -1372,6 +1372,9 @@ export interface Navigation {
       | null;
   };
   weather?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     /**
      * Dropdown items under Weather
      */
@@ -1425,6 +1428,9 @@ export interface Navigation {
       | null;
   };
   education?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     /**
      * Dropdown items under Education
      */
@@ -1478,6 +1484,9 @@ export interface Navigation {
       | null;
   };
   accidents?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     /**
      * Dropdown items under Accidents
      */
@@ -1531,6 +1540,9 @@ export interface Navigation {
       | null;
   };
   blog?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     /**
      * Dropdown items under Blog
      */
@@ -1584,6 +1596,9 @@ export interface Navigation {
       | null;
   };
   events?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     /**
      * Dropdown items under Events
      */
@@ -1637,6 +1652,9 @@ export interface Navigation {
       | null;
   };
   about?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     /**
      * Dropdown items under About
      */
@@ -1690,6 +1708,9 @@ export interface Navigation {
       | null;
   };
   support?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     /**
      * Dropdown items under Support
      */
@@ -1743,6 +1764,9 @@ export interface Navigation {
       | null;
   };
   donate?: {
+    options?: {
+      enabled?: boolean | null;
+    };
     link?: {
       type?: ('internal' | 'external') | null;
       reference?:
@@ -2725,6 +2749,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   weather?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         items?:
           | T
           | {
@@ -2757,6 +2786,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   education?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         items?:
           | T
           | {
@@ -2789,6 +2823,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   accidents?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         items?:
           | T
           | {
@@ -2821,6 +2860,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   blog?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         items?:
           | T
           | {
@@ -2853,6 +2897,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   events?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         items?:
           | T
           | {
@@ -2885,6 +2934,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   about?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         items?:
           | T
           | {
@@ -2917,6 +2971,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   support?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         items?:
           | T
           | {
@@ -2949,6 +3008,11 @@ export interface NavigationsSelect<T extends boolean = true> {
   donate?:
     | T
     | {
+        options?:
+          | T
+          | {
+              enabled?: T;
+            };
         link?:
           | T
           | {
