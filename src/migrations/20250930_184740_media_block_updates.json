@@ -1666,7 +1666,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'intrinsic'"
+          "default": "'original'"
         },
         "block_name": {
           "name": "block_name",
@@ -2053,13 +2053,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "block_name": {
           "name": "block_name",
@@ -4169,7 +4162,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'intrinsic'"
+          "default": "'original'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -4584,13 +4577,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "_uuid": {
           "name": "_uuid",
@@ -6604,7 +6590,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'intrinsic'"
+          "default": "'original'"
         },
         "block_name": {
           "name": "block_name",
@@ -6991,13 +6977,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "block_name": {
           "name": "block_name",
@@ -8977,7 +8956,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'intrinsic'"
+          "default": "'original'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -9392,13 +9371,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "_uuid": {
           "name": "_uuid",
@@ -15162,13 +15134,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "footer_form_embed_height": {
-          "name": "footer_form_embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "address": {
           "name": "address",
           "type": "text",
@@ -17908,6 +17873,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "276c5e20-153b-418e-84a0-d3dee09323a1",
+  "id": "67f560e9-e6e9-4f6e-a7cf-1860c440cfd9",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

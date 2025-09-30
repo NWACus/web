@@ -159,7 +159,7 @@ export const mediaBlocks = (image: Media): RequiredDataFromCollectionSlug<'pages
     caption: null,
     backgroundColor: 'brand-200',
     alignContent: 'center',
-    imageSize: 'intrinsic',
+    imageSize: 'original',
     blockType: 'mediaBlock',
   },
 ]

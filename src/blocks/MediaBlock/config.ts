@@ -1,7 +1,17 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
 import imageSizeField from '@/fields/imageSize'
-import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import {
+  AlignFeature,
+  BoldFeature,
+  FixedToolbarFeature,
+  InlineToolbarFeature,
+  ItalicFeature,
+  lexicalEditor,
+  LinkFeature,
+  ParagraphFeature,
+  UnderlineFeature,
+} from '@payloadcms/richtext-lexical'
 import type { Block, Field, RowField } from 'payload'
 
 const colorAndAlignmentRow: RowField = {
@@ -20,8 +30,17 @@ const defaultFields: Field[] = [
     name: 'caption',
     type: 'richText',
     editor: lexicalEditor({
-      features: ({ rootFeatures }) => {
-        return [...rootFeatures, InlineToolbarFeature()]
+      features: () => {
+        return [
+          ParagraphFeature(),
+          UnderlineFeature(),
+          BoldFeature(),
+          ItalicFeature(),
+          LinkFeature(),
+          FixedToolbarFeature(),
+          AlignFeature(),
+          InlineToolbarFeature(),
+        ]
       },
     }),
     admin: {

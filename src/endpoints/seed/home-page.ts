@@ -149,7 +149,7 @@ export const homePage: (
       {
         media: heroImage.id,
         blockType: 'mediaBlock',
-        backgroundColor: 'white',
+        backgroundColor: 'transparent',
         alignContent: 'center',
         imageSize: 'large',
       },

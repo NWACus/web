@@ -5,9 +5,9 @@ export const imageSizeField: (label: string) => Field = (label) => ({
   type: 'select',
   label,
   required: false,
-  defaultValue: 'intrinsic',
+  defaultValue: 'original',
   options: [
-    { label: 'Intrinsic (Natural size)', value: 'intrinsic' },
+    { label: 'Original (Natural size)', value: 'original' },
     { label: 'Small', value: 'small' },
     { label: 'Medium', value: 'medium' },
     { label: 'Large', value: 'large' },
@@ -15,7 +15,7 @@ export const imageSizeField: (label: string) => Field = (label) => ({
   ],
   admin: {
     description:
-      "Controls the maximum width of the image with responsive behavior. Intrinsic uses the image's natural size. Sizes automatically adapt for different screen sizes.",
+      "Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.",
   },
 })
 

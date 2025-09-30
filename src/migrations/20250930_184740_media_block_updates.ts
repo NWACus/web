@@ -9,7 +9,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`align_content\` text DEFAULT 'left';`,
   )
   await db.run(
-    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`image_size\` text DEFAULT 'intrinsic';`,
+    sql`ALTER TABLE \`home_pages_blocks_media_block\` ADD \`image_size\` text DEFAULT 'original';`,
   )
   await db.run(sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`caption\` text;`)
   await db.run(
@@ -19,7 +19,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`align_content\` text DEFAULT 'left';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`image_size\` text DEFAULT 'intrinsic';`,
+    sql`ALTER TABLE \`_home_pages_v_blocks_media_block\` ADD \`image_size\` text DEFAULT 'original';`,
   )
   await db.run(sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`caption\` text;`)
   await db.run(
@@ -29,7 +29,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`align_content\` text DEFAULT 'left';`,
   )
   await db.run(
-    sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`image_size\` text DEFAULT 'intrinsic';`,
+    sql`ALTER TABLE \`pages_blocks_media_block\` ADD \`image_size\` text DEFAULT 'original';`,
   )
   await db.run(sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`caption\` text;`)
   await db.run(
@@ -39,7 +39,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`align_content\` text DEFAULT 'left';`,
   )
   await db.run(
-    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`image_size\` text DEFAULT 'intrinsic';`,
+    sql`ALTER TABLE \`_pages_v_blocks_media_block\` ADD \`image_size\` text DEFAULT 'original';`,
   )
   await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`caption\`;`)
 }

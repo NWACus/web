@@ -27,7 +27,7 @@ export const MediaBlock = (props: Props) => {
     staticImage,
     alignContent = 'left',
     backgroundColor,
-    imageSize = 'intrinsic',
+    imageSize = 'original',
   } = props
 
   const bgColorClass = `bg-${backgroundColor}`
@@ -43,7 +43,7 @@ export const MediaBlock = (props: Props) => {
         return 'max-w-md md:max-w-2xl lg:max-w-4xl'
       case 'full':
         return 'max-w-full'
-      case 'intrinsic':
+      case 'original':
       default:
         return 'max-w-fit'
     }
@@ -65,7 +65,7 @@ export const MediaBlock = (props: Props) => {
           <div
             className={cn(
               getImageSizeClasses(),
-              imageSize !== 'intrinsic' && imageSize != null && 'w-full',
+              imageSize !== 'original' && imageSize != null && 'w-full',
               'flex flex-col gap-2',
             )}
           >
@@ -73,7 +73,7 @@ export const MediaBlock = (props: Props) => {
               className="my-0"
               imgClassName={cn(
                 'mx-auto',
-                imageSize !== 'intrinsic' && imageSize != null && 'w-full',
+                imageSize !== 'original' && imageSize != null && 'w-full',
                 imgClassName,
               )}
               resource={media}
