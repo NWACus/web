@@ -23,7 +23,9 @@ import * as migration_20250915_230438_update_blog_list from './20250915_230438_u
 import * as migration_20250920_185913_add_blocks_to_home_pages from './20250920_185913_add_blocks_to_home_pages'
 import * as migration_20250922_185258_add_built_in_pages from './20250922_185258_add_built_in_pages'
 import * as migration_20250925_144212_remove_meta_title from './20250925_144212_remove_meta_title'
+import * as migration_20250926_145234_remove_embed_block_height from './20250926_145234_remove_embed_block_height'
 import * as migration_20250926_172256_media_block_updates from './20250926_172256_media_block_updates'
+import * as migration_20250930_183723_media_block_updates from './20250930_183723_media_block_updates'
 
 export const migrations = [
   {
@@ -152,8 +154,18 @@ export const migrations = [
     name: '20250925_144212_remove_meta_title',
   },
   {
+    up: migration_20250926_145234_remove_embed_block_height.up,
+    down: migration_20250926_145234_remove_embed_block_height.down,
+    name: '20250926_145234_remove_embed_block_height',
+  },
+  {
     up: migration_20250926_172256_media_block_updates.up,
     down: migration_20250926_172256_media_block_updates.down,
     name: '20250926_172256_media_block_updates',
+  },
+  {
+    up: migration_20250930_183723_media_block_updates.up,
+    down: migration_20250930_183723_media_block_updates.down,
+    name: '20250930_183723_media_block_updates',
   },
 ]

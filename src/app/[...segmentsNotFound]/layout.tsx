@@ -1,4 +1,7 @@
+import { getURL } from '@/utilities/getURL'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { cn } from '@/utilities/ui'
+import { Metadata } from 'next'
 import localFont from 'next/font/local'
 import '../(frontend)/globals.css'
 
@@ -103,13 +106,29 @@ const lato = localFont({
 export default function FallbackRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
-      <head>
-        <link href="/favicon.ico" rel="icon" sizes="96x96" />
-        <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
-      </head>
       <body className="w-screen h-screen overflow-x-hidden flex justify-center items-center">
         {children}
       </body>
     </html>
   )
+}
+
+export const metadata: Metadata = {
+  title: 'Not found | Avy',
+  description: "Not found. You've ventured into unknown terrain. Best to keep it under 30°.",
+  metadataBase: new URL(getURL()),
+  openGraph: mergeOpenGraph({
+    description: 'Avy avalanche center websites.',
+    images: [
+      {
+        url: `${getURL()}/assets/avy-web-og-image.webp`,
+      },
+    ],
+  }),
+  twitter: {
+    card: 'summary_large_image',
+  },
+  icons: {
+    icon: '/assets/favicon.ico',
+  },
 }
