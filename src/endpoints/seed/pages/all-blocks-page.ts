@@ -8,6 +8,7 @@ import { imageQuote } from '../blocks/image-quote'
 import { imageText } from '../blocks/image-text'
 import { imageTextList } from '../blocks/image-text-list'
 import { linkPreview } from '../blocks/link-preview'
+import { mediaBlocks } from '../blocks/media-blocks'
 import { singleBlogPostBlock } from '../blocks/single-blog-post'
 
 export const allBlocksPage: (
@@ -31,6 +32,7 @@ export const allBlocksPage: (
       ...imageText(image1),
       ...imageTextList(image1),
       ...linkPreview(image1),
+      ...mediaBlocks(image1),
       ...contentWithCallout,
       ...genericEmbed,
       {

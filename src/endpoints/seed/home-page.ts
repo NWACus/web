@@ -149,6 +149,9 @@ export const homePage: (
       {
         media: heroImage.id,
         blockType: 'mediaBlock',
+        backgroundColor: 'transparent',
+        alignContent: 'center',
+        imageSize: 'large',
       },
     ],
     publishedAt: new Date().toISOString(),

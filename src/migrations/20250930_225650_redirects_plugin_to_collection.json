@@ -1637,6 +1637,37 @@
           "notNull": false,
           "autoincrement": false
         },
+        "caption": {
+          "name": "caption",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'transparent'"
+        },
+        "align_content": {
+          "name": "align_content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
+        },
+        "image_size": {
+          "name": "image_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'original'"
+        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -2022,13 +2053,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "block_name": {
           "name": "block_name",
@@ -4109,6 +4133,37 @@
           "notNull": false,
           "autoincrement": false
         },
+        "caption": {
+          "name": "caption",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'transparent'"
+        },
+        "align_content": {
+          "name": "align_content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
+        },
+        "image_size": {
+          "name": "image_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'original'"
+        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -4522,13 +4577,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "_uuid": {
           "name": "_uuid",
@@ -6513,6 +6561,37 @@
           "notNull": false,
           "autoincrement": false
         },
+        "caption": {
+          "name": "caption",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'transparent'"
+        },
+        "align_content": {
+          "name": "align_content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
+        },
+        "image_size": {
+          "name": "image_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'original'"
+        },
         "block_name": {
           "name": "block_name",
           "type": "text",
@@ -6898,13 +6977,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "block_name": {
           "name": "block_name",
@@ -8855,6 +8927,37 @@
           "notNull": false,
           "autoincrement": false
         },
+        "caption": {
+          "name": "caption",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "background_color": {
+          "name": "background_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'transparent'"
+        },
+        "align_content": {
+          "name": "align_content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'left'"
+        },
+        "image_size": {
+          "name": "image_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'original'"
+        },
         "_uuid": {
           "name": "_uuid",
           "type": "text",
@@ -9268,13 +9371,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'left'"
-        },
-        "embed_height": {
-          "name": "embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "_uuid": {
           "name": "_uuid",
@@ -10618,13 +10714,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "caption": {
-          "name": "caption",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "content_hash": {
@@ -15045,13 +15134,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "footer_form_embed_height": {
-          "name": "footer_form_embed_height",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "address": {
           "name": "address",
           "type": "text",
@@ -17826,6 +17908,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "c6866f0a-79c6-4adf-8f3c-bb67ece2f3e0",
+  "id": "d95b9d39-3e07-4387-b79d-40d041b08eae",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
