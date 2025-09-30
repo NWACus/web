@@ -123,7 +123,7 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
     const cacheTag = settings.icon.updatedAt
 
     iconImgSrc = getMediaURL(
-      settings.icon.sizes?.thumbnail?.url,
+      settings.icon.sizes?.thumbnail?.url || settings.icon.url,
       cacheTag,
       getHostnameFromTenant(tenant),
     )

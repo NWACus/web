@@ -1,6 +1,6 @@
 import alignContentField from '@/fields/alignContent'
 import colorPickerField from '@/fields/color'
-import type { Block, Field, RowField } from 'payload'
+import type { Block, Field, RowField, TextareaField } from 'payload'
 
 const genericEmbedWithFields = (fields: Field[]): Block => ({
   slug: 'genericEmbed',
@@ -14,33 +14,21 @@ const colorAndAlignmentRow: RowField = {
   fields: [colorPickerField('Background color'), alignContentField('Content alignment')],
 }
 
-const optionalHeight: Field = {
-  type: 'number',
-  name: 'embedHeight',
-  label: 'Height of embed (in px)',
+const htmlField: TextareaField = {
+  name: 'html',
+  label: 'HTML',
+  type: 'textarea',
+  required: true,
   admin: {
-    description: "Add optional height. If left blank, will default to 'auto' ",
+    description:
+      'Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.',
   },
 }
 
-export const GenericEmbed = genericEmbedWithFields([
-  {
-    name: 'html',
-    label: 'HTML',
-    type: 'textarea',
-    required: true,
-  },
-  colorAndAlignmentRow,
-  optionalHeight,
-])
+export const GenericEmbed = genericEmbedWithFields([htmlField, colorAndAlignmentRow])
 
 export const GenericEmbedLexical = genericEmbedWithFields([
-  {
-    name: 'html',
-    label: 'HTML',
-    type: 'textarea',
-    required: true,
-  },
+  htmlField,
   {
     name: 'wrapInContainer',
     admin: {
@@ -51,5 +39,4 @@ export const GenericEmbedLexical = genericEmbedWithFields([
     defaultValue: false,
   },
   colorAndAlignmentRow,
-  optionalHeight,
 ])
