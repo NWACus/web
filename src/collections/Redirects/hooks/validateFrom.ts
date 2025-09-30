@@ -9,6 +9,7 @@ const relativeUrlSchema = z
   .min(1, 'From URL is required')
   .regex(/^\/[^\s]*$/, 'From URL must be a relative URL starting with "/"')
   .regex(/^\/.*[^/]$/, 'From URL must not have a trailing slash')
+  .regex(/^[^?#]*$/, 'From URL must not contain query parameters or hashes')
 
 export const validateFrom: FieldHook = async ({ value, data, req: { payload } }) => {
   const tenantId = data?.tenant
