@@ -35,6 +35,8 @@ export const CMSLink = (props: CMSLinkType) => {
   } = props
 
   const href = handleReferenceURL({ url: url, type: type, reference: reference })
+  const referenceTitle = (reference?.value as BuiltInPage | Page | Post).title
+  const buttonLabel = label ? label : referenceTitle
 
   if (!href) return null
 
@@ -45,7 +47,7 @@ export const CMSLink = (props: CMSLinkType) => {
   if (appearance === 'inline') {
     return (
       <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
-        {label && label}
+        {buttonLabel}
         {children && children}
       </Link>
     )
@@ -54,7 +56,7 @@ export const CMSLink = (props: CMSLinkType) => {
   return (
     <Button asChild className={className} size={size} variant={appearance}>
       <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
-        {label && label}
+        {buttonLabel}
         {children && children}
       </Link>
     </Button>
