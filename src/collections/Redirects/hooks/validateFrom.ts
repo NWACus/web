@@ -211,5 +211,32 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     }
   }
 
+  /** ensure from URL does not match a built-in page path */
+
+  const { docs: matchingBuiltInPages } = await payload.find({
+    collection: 'builtInPages',
+    depth: 0,
+    limit: 1,
+    pagination: false,
+    where: {
+      tenant: {
+        equals: tenantId,
+      },
+      url: {
+        equals: validatedValue,
+      },
+    },
+    select: {
+      url: true,
+      title: true,
+    },
+  })
+
+  if (matchingBuiltInPages.length > 0) {
+    throw new Error(
+      `This From URL matches a built-in page "${matchingBuiltInPages[0].title}". You cannot set up redirects for built-in pages.`,
+    )
+  }
+
   return validatedValue
 }
