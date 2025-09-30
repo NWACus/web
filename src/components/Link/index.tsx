@@ -35,7 +35,7 @@ export const CMSLink = (props: CMSLinkType) => {
   } = props
 
   const href = handleReferenceURL({ url: url, type: type, reference: reference })
-  const referenceTitle = (reference?.value as BuiltInPage | Page | Post).title
+  const referenceTitle = (reference && (reference?.value as BuiltInPage | Page | Post).title) || ''
   const buttonLabel = label ? label : referenceTitle
 
   if (!href) return null
