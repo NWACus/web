@@ -464,24 +464,6 @@ export interface Media {
    * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
    */
   alt: string;
-  /**
-   * Optional text that appears below the image to provide additional context or information about the image content.
-   */
-  caption?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
   contentHash?: string | null;
   blurDataUrl?: string | null;
   prefix?: string | null;
@@ -1156,6 +1138,34 @@ export interface LinkPreviewBlock {
  */
 export interface MediaBlock {
   media: number | Media;
+  /**
+   * Optional text that appears below the image to provide additional context or information about the image content.
+   */
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  /**
+   * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
+   */
+  imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -2262,6 +2272,10 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
+  caption?: T;
+  backgroundColor?: T;
+  alignContent?: T;
+  imageSize?: T;
   id?: T;
   blockName?: T;
 }
@@ -2399,7 +2413,6 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
-  caption?: T;
   contentHash?: T;
   blurDataUrl?: T;
   prefix?: T;
