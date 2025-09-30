@@ -32,8 +32,10 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
   /** ensure from URL does not match a published page or post path */
 
+  console.log(value.split('/').pop())
+
   if (value.split('/').slice(1).length === 1) {
-    // matches a page slug
+    // matches a published page slug
     const { docs: matchingPages } = await payload.find({
       collection: 'pages',
       depth: 0,
@@ -55,7 +57,34 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
     if (matchingPages.length > 0) {
       throw new Error(
-        `This From URL matches a page: ${matchingPages[0].title}. If you want to redirect this From URL, please change that page's slug.`,
+        `This From URL matches a page "${matchingPages[0].title}". If you want to redirect this From URL please change that page's slug.`,
+      )
+    }
+
+    // matches a draft page slug
+    const { docs: matchingDraftPages } = await payload.find({
+      collection: 'pages',
+      depth: 0,
+      limit: 1,
+      pagination: false,
+      draft: true,
+      where: {
+        tenant: {
+          equals: tenantId,
+        },
+        slug: {
+          equals: value.split('/').pop(),
+        },
+      },
+      select: {
+        slug: true,
+        title: true,
+      },
+    })
+
+    if (matchingDraftPages.length > 0) {
+      throw new Error(
+        `This From URL matches a draft page "${matchingDraftPages[0].title}". If you want to redirect this From URL please change that page's slug.`,
       )
     }
   } else {
@@ -65,6 +94,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
     const canonicalUrl = await getCanonicalUrlForPath(tenant.slug, value)
 
     if (canonicalUrl) {
+      // published pages
       const { docs: matchingPages } = await payload.find({
         collection: 'pages',
         depth: 0,
@@ -86,7 +116,34 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
       if (matchingPages.length > 0) {
         throw new Error(
-          `This From URL matches a page nested in the navigation: ${matchingPages[0].title}. If you want to redirect this From URL, please change that page's slug or location in the navigation.`,
+          `This From URL matches a page nested in the navigation "${matchingPages[0].title}". If you want to redirect this From URL please change that page's slug or location in the navigation.`,
+        )
+      }
+
+      // draft pages
+      const { docs: matchingDraftPages } = await payload.find({
+        collection: 'pages',
+        depth: 0,
+        limit: 1,
+        pagination: false,
+        draft: true,
+        where: {
+          tenant: {
+            equals: tenantId,
+          },
+          slug: {
+            equals: value.split('/').pop(),
+          },
+        },
+        select: {
+          slug: true,
+          title: true,
+        },
+      })
+
+      if (matchingDraftPages.length > 0) {
+        throw new Error(
+          `This From URL matches a draft page nested in the navigation "${matchingDraftPages[0].title}". If you want to redirect this From URL please change that page's slug or location in the navigation.`,
         )
       }
     }
@@ -95,6 +152,7 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
   if (value.startsWith('/blog/')) {
     // check posts
 
+    // published posts
     const { docs: matchingPosts } = await payload.find({
       collection: 'posts',
       depth: 0,
@@ -116,7 +174,33 @@ export const validateFrom: FieldHook = async ({ value, data, req: { payload } })
 
     if (matchingPosts.length > 0) {
       throw new Error(
-        `This From URL matches a post: ${matchingPosts[0].title}. If you want to redirect this From URL, please change that post's slug.`,
+        `This From URL matches a post "${matchingPosts[0].title}". If you want to redirect this From URL please change that post's slug.`,
+      )
+    }
+
+    // draft posts
+    const { docs: matchingDraftPosts } = await payload.find({
+      collection: 'posts',
+      depth: 0,
+      limit: 1,
+      pagination: false,
+      where: {
+        tenant: {
+          equals: tenantId,
+        },
+        slug: {
+          equals: value.split('/blog/').pop(),
+        },
+      },
+      select: {
+        slug: true,
+        title: true,
+      },
+    })
+
+    if (matchingDraftPosts.length > 0) {
+      throw new Error(
+        `This From URL matches a draft post "${matchingDraftPosts[0].title}". If you want to redirect this From URL please change that post's slug.`,
       )
     }
   }
