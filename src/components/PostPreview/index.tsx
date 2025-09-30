@@ -33,7 +33,7 @@ export const PostPreview = (props: {
     <Link href={`/blog/${slug}`} className={cn('group no-underline flex flex-grow', className)}>
       <article
         className={cn(
-          'flex flex-col @md:flex-row bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden',
+          'flex flex-col @md:flex-row w-full bg-card text-card-foreground border rounded-lg  shadow-sm hover:shadow-md transition-shadow overflow-hidden',
           className,
         )}
       >
@@ -46,7 +46,7 @@ export const PostPreview = (props: {
             />
           )}
         </div>
-        <div className="flex flex-col justify-between px-6 py-4 flex-grow @md:border-y border-b border-x rounded-b-lg @md:rounded-b-none @md:border-r @md:rounded-tr-lg @md:rounded-br-lg">
+        <div className="flex flex-col justify-between px-6 py-4 flex-grow border-t md:border-t-0 md:border-l">
           <div>
             {titleToUse && (
               <div className="mb-3">

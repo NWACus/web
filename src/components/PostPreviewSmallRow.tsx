@@ -22,13 +22,13 @@ export const PostPreviewSmallRow = (props: { className?: string; doc?: Post }) =
         <div className="flex-shrink-0 overflow-hidden">
           {featuredImage && typeof featuredImage !== 'number' ? (
             <ImageMedia
-              imgClassName="w-20 h-20 object-cover scale-110 group-hover:scale-100 transition-all duration-200"
+              imgClassName="w-28 h-20 object-contain scale-100 group-hover:scale-110 transition-all duration-200"
               resource={featuredImage}
               size="72px"
-              pictureClassName="w-20 h-20 overflow-hidden rounded aspect-square"
+              pictureClassName="w-28 h-20 overflow-hidden rounded aspect-square"
             />
           ) : (
-            <div className="w-20 h-20 bg-muted text-muted-foreground flex justify-center items-center">
+            <div className="w-28 h-20 bg-muted text-muted-foreground flex justify-center items-center">
               <BookText />
             </div>
           )}
