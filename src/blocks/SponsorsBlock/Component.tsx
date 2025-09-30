@@ -10,7 +10,6 @@ export const SponsorsBlockComponent = ({
   backgroundColor,
   sponsors,
   sponsorsLayout,
-  title,
   wrapInContainer = false,
 }: SponsorsBlockProps) => {
   const bgColorClass = `bg-${backgroundColor}`
@@ -26,12 +25,7 @@ export const SponsorsBlockComponent = ({
   if (!validSponsors) return null
 
   return (
-    <div className={cn('py-10', { container: wrapInContainer })}>
-      {title && (
-        <div className={`${bgColorClass} prose md:prose-md py-2 text-center max-w-none`}>
-          <h2 className={textColor}>{title}</h2>
-        </div>
-      )}
+    <div className={cn('py-10', bgColorClass, textColor, { container: wrapInContainer })}>
       <div className="flex flex-wrap justify-evenly items-center">
         {(() => {
           switch (sponsorsLayout) {

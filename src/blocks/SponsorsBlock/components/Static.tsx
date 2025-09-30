@@ -19,12 +19,9 @@ export const SponsorsBlockStatic = ({ sponsors }: { sponsors: Sponsor[] }) => {
     <>
       {typeof sponsors === 'object' &&
         sponsors.map((sponsor, index: number) => (
-          <div className={`${colSpanName} p-4 md:p-10`} key={`${sponsor.id}_${index}`}>
+          <div className={`${colSpanName} p-4 md:px-8`} key={`${sponsor.id}_${index}`}>
             <a href={sponsor.link} target="_blank">
-              <ImageMedia
-                imgClassName="w-full h-auto group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden"
-                resource={sponsor.photo}
-              />
+              <ImageMedia imgClassName="w-full h-auto overflow-hidden" resource={sponsor.photo} />
             </a>
           </div>
         ))}

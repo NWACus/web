@@ -7,11 +7,7 @@ export const SponsorsBlock: Block = {
   interfaceName: 'SponsorsBlock',
   imageURL: '/thumbnail/SponsorsThumbnail.jpg',
   fields: [
-    {
-      name: 'title',
-      type: 'text',
-    },
-    colorPickerField('Title background color'),
+    colorPickerField('Background color'),
     {
       type: 'radio',
       name: 'sponsorsLayout',
@@ -24,7 +20,7 @@ export const SponsorsBlock: Block = {
           value: 'static',
         },
         {
-          label: 'Carousel (ideal for 6+ sponsors)',
+          label: 'Carousel (ideal for 4+ sponsors)',
           value: 'carousel',
         },
         {
