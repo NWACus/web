@@ -83,7 +83,7 @@ export default async function Page({ params, searchParams }: Args) {
         </div>
 
         {/* Sorting and filters */}
-        <div className="ms-16 flex flex-col gap-4 shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
+        <div className="flex flex-col gap-16 shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
           <Suspense fallback={<div>Loading filters...</div>}>
             <PostsSort initialSort={sort} />
             {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
