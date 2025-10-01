@@ -3,7 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
-import { CollectionConfig, Field, GroupField, TextFieldValidation } from 'payload'
+import { CollectionConfig, Field, TextFieldValidation } from 'payload'
 import { revalidateSettings } from './hooks/revalidateSettings'
 
 const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
@@ -99,68 +99,70 @@ const generalFields: Field[] = [
   },
 ]
 
-const footerForm: GroupField = {
-  name: 'footerForm',
-  type: 'group',
-  admin: {
-    hideGutter: true,
-  },
-  fields: [
-    { name: 'title', type: 'text' },
-    { name: 'subtitle', type: 'text' },
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'type',
-          required: true,
-          type: 'radio',
-          label: 'What type of subscribe form would you like in the footer?',
-          admin: {
-            layout: 'horizontal',
-            width: '50%',
+const footerForm: Field[] = [
+  {
+    name: 'footerForm',
+    type: 'group',
+    admin: {
+      hideGutter: true,
+    },
+    fields: [
+      { name: 'title', type: 'text' },
+      { name: 'subtitle', type: 'text' },
+      {
+        type: 'row',
+        fields: [
+          {
+            name: 'type',
+            required: true,
+            type: 'radio',
+            label: 'What type of subscribe form would you like in the footer?',
+            admin: {
+              layout: 'horizontal',
+              width: '50%',
+            },
+            defaultValue: 'none',
+            options: [
+              {
+                label: 'None',
+                value: 'none',
+              },
+              {
+                label: 'Embedded',
+                value: 'embedded',
+              },
+              {
+                label: 'Form',
+                value: 'form',
+              },
+            ],
           },
-          defaultValue: 'none',
-          options: [
-            {
-              label: 'None',
-              value: 'none',
-            },
-            {
-              label: 'Embedded',
-              value: 'embedded',
-            },
-            {
-              label: 'Form',
-              value: 'form',
-            },
-          ],
+        ],
+      },
+      {
+        name: 'html',
+        type: 'textarea',
+        admin: {
+          condition: (_, siblingData) => siblingData?.type === 'embedded',
         },
-      ],
-    },
-    {
-      name: 'html',
-      type: 'textarea',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'embedded',
+        label: 'Custom embed form',
+        required: true,
       },
-      label: 'Custom embed form',
-      required: true,
-    },
-    {
-      name: 'form',
-      type: 'relationship',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'form',
-        description: 'Note: We suggest using Message as the Confirmation Type',
+      {
+        name: 'form',
+        type: 'relationship',
+        admin: {
+          condition: (_, siblingData) => siblingData?.type === 'form',
+          description: 'Note: We suggest using Message as the Confirmation Type',
+        },
+        label: 'Choose form',
+        relationTo: ['forms'],
+        required: true,
+        filterOptions: getTenantFilter,
       },
-      label: 'Choose form',
-      relationTo: ['forms'],
-      required: true,
-      filterOptions: getTenantFilter,
-    },
-  ],
-}
+    ],
+  },
+]
 
 const brandAssetsFields: Field[] = [
   {
@@ -313,13 +315,13 @@ export const Settings: CollectionConfig = {
       tabs: [
         {
           label: 'General',
-          fields: [...generalFields],
+          fields: generalFields,
           description:
             'Update your Avalanche Center details. This information is displayed across the website, including in the footer and meta data. Leave any field blank if you do not want it show.',
         },
         {
           label: 'Footer Form',
-          fields: [footerForm],
+          fields: footerForm,
           description:
             'Choose which form you would like to display in the footer or embed one. Leave the field blank if you do not want the form to show.',
         },
@@ -328,13 +330,13 @@ export const Settings: CollectionConfig = {
           label: 'Brand Assets',
           description:
             'Images used throughout the website including in the header, footer, browser tabs, and link previews.',
-          fields: [...brandAssetsFields],
+          fields: brandAssetsFields,
         },
         {
           label: 'Social Media',
           description:
             'Add links to your social media accounts to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.',
-          fields: [...socialMediaFields],
+          fields: socialMediaFields,
         },
         {
           label: 'Legal Policies',
