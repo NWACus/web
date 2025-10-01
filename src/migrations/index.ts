@@ -27,6 +27,7 @@ import * as migration_20250926_145234_remove_embed_block_height from './20250926
 import * as migration_20250930_184740_media_block_updates from './20250930_184740_media_block_updates'
 import * as migration_20251001_012534_update_sponsors_block from './20251001_012534_update_sponsors_block'
 import * as migration_20251001_171654_redirects_plugin_to_collection from './20251001_171654_redirects_plugin_to_collection'
+import * as migration_20251001_180603_nav_items_with_enabled_toggle from './20251001_180603_nav_items_with_enabled_toggle'
 
 export const migrations = [
   {
@@ -173,5 +174,10 @@ export const migrations = [
     up: migration_20251001_171654_redirects_plugin_to_collection.up,
     down: migration_20251001_171654_redirects_plugin_to_collection.down,
     name: '20251001_171654_redirects_plugin_to_collection',
+  },
+  {
+    up: migration_20251001_180603_nav_items_with_enabled_toggle.up,
+    down: migration_20251001_180603_nav_items_with_enabled_toggle.down,
+    name: '20251001_180603_nav_items_with_enabled_toggle',
   },
 ]
