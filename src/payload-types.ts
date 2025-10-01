@@ -82,8 +82,8 @@ export interface Config {
     roleAssignments: RoleAssignment;
     globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
-    navigations: Navigation;
     tenants: Tenant;
+    navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
     forms: Form;
@@ -114,8 +114,8 @@ export interface Config {
     roleAssignments: RoleAssignmentsSelect<false> | RoleAssignmentsSelect<true>;
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
-    navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -1863,15 +1863,20 @@ export interface Setting {
 export interface Redirect {
   id: number;
   /**
-   * You will need to rebuild the website when changing this field.
+   * Relative url like /old-path
    */
   from: string;
   to?: {
-    type?: ('reference' | 'custom') | null;
+    type?: ('internal' | 'external') | null;
+    newTab?: boolean | null;
     reference?:
       | ({
           relationTo: 'pages';
           value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'builtInPages';
+          value: number | BuiltInPage;
         } | null)
       | ({
           relationTo: 'posts';
@@ -1880,6 +1885,7 @@ export interface Redirect {
     url?: string | null;
   };
   tenant: number | Tenant;
+  contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1969,12 +1975,12 @@ export interface PayloadLockedDocument {
         value: number | GlobalRoleAssignment;
       } | null)
     | ({
-        relationTo: 'navigations';
-        value: number | Navigation;
-      } | null)
-    | ({
         relationTo: 'tenants';
         value: number | Tenant;
+      } | null)
+    | ({
+        relationTo: 'navigations';
+        value: number | Navigation;
       } | null)
     | ({
         relationTo: 'settings';
@@ -2668,6 +2674,18 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants_select".
+ */
+export interface TenantsSelect<T extends boolean = true> {
+  name?: T;
+  customDomain?: T;
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations_select".
  */
 export interface NavigationsSelect<T extends boolean = true> {
@@ -2980,18 +2998,6 @@ export interface NavigationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants_select".
- */
-export interface TenantsSelect<T extends boolean = true> {
-  name?: T;
-  customDomain?: T;
-  slug?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "settings_select".
  */
 export interface SettingsSelect<T extends boolean = true> {
@@ -3042,10 +3048,12 @@ export interface RedirectsSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
+        newTab?: T;
         reference?: T;
         url?: T;
       };
   tenant?: T;
+  contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -32,18 +32,20 @@ const collections: CollectionSlug[] = [
   'settings',
   'biographies',
   'homePages',
+  'sponsors',
   'media',
   'pages',
   'posts',
-  'sponsors',
   'forms',
   'form-submissions',
   'navigations',
   'roles',
   'globalRoles',
   'roleAssignments',
+  'redirects',
   'tags',
   'teams',
+  'builtInPages',
   'tenants',
 ]
 const defaultNacWidgetsConfig = {
@@ -999,6 +1001,90 @@ export const seed = async ({
       disableRevalidate: true,
     },
   })
+
+  payload.logger.info(`— Seeding redirects...`)
+  for (const tenant of Object.values(tenants)) {
+    const aboutPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
+    const donatePage = Object.values(pages[tenant.slug]).find(
+      (page) => page.slug === 'donate-membership',
+    )
+    const firstPost = Object.values(posts[tenant.slug])[0]
+
+    if (aboutPage) {
+      await payload.create({
+        collection: 'redirects',
+        data: {
+          tenant: tenant.id,
+          from: '/redirect-to-about',
+          to: {
+            type: 'internal',
+            reference: {
+              relationTo: 'pages',
+              value: aboutPage.id,
+            },
+          },
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+
+    if (firstPost) {
+      await payload.create({
+        collection: 'redirects',
+        data: {
+          tenant: tenant.id,
+          from: '/redirect-to-post',
+          to: {
+            type: 'internal',
+            reference: {
+              relationTo: 'posts',
+              value: firstPost.id,
+            },
+          },
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+
+    if (donatePage) {
+      await payload.create({
+        collection: 'redirects',
+        data: {
+          tenant: tenant.id,
+          from: '/redirect/redirect-to-donate',
+          to: {
+            type: 'internal',
+            reference: {
+              relationTo: 'pages',
+              value: donatePage.id,
+            },
+          },
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+
+    await payload.create({
+      collection: 'redirects',
+      data: {
+        tenant: tenant.id,
+        from: '/redirect-to-external',
+        to: {
+          type: 'external',
+          url: 'https://avalanche.org',
+        },
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+  }
 
   payload.logger.info('Seeded database successfully!')
 }

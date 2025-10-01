@@ -1,7 +1,7 @@
 import type { Metadata, ResolvedMetadata } from 'next'
 
 import { getCanonicalUrlForPath, getCanonicalUrlForSlug } from '@/components/Header/utils'
-import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { Redirects } from '@/components/Redirects'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
@@ -60,7 +60,6 @@ type PathArgs = {
 export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center, segments } = await paramsPromise
-  const url = '/' + [center, ...segments].join('/')
   const payload = await getPayload({ config: configPromise })
 
   // Check if this path exists in navigation and get canonical URL
@@ -68,7 +67,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   const canonicalUrl = await getCanonicalUrlForPath(center, fullPath)
 
   if (!canonicalUrl) {
-    return <PayloadRedirects url={url} />
+    return <Redirects center={center} url={fullPath} />
   }
 
   const page = await queryPageBySlug({
@@ -77,16 +76,13 @@ export default async function Page({ params: paramsPromise }: Args) {
   })
 
   if (!page) {
-    return <PayloadRedirects url={url} />
+    return <Redirects center={center} url={fullPath} />
   }
 
   const { layout } = page
 
   return (
     <article className="pt-4">
-      {/* Allows redirects for valid pages too */}
-      <PayloadRedirects disableNotFound url={url} />
-
       {draft && <LivePreviewListener />}
 
       <div className="container mb-4">
