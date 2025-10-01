@@ -46,7 +46,7 @@ export const PostPreview = (props: {
             />
           )}
         </div>
-        <div className="flex flex-col justify-between px-6 py-4 flex-grow border-t md:border-t-0 md:border-l">
+        <div className="flex flex-col justify-between px-6 py-4 flex-grow border-t @md:border-t-0 @md:border-l">
           <div>
             {titleToUse && (
               <div className="mb-3">
