@@ -8,10 +8,17 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { Sponsor } from '@/payload-types'
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import Autoplay from 'embla-carousel-autoplay'
 
-export const SponsorsBlockCarousel = ({ sponsors }: { sponsors: Sponsor[] }) => {
+export const SponsorsBlockCarousel = ({
+  bgColorClass,
+  sponsors,
+}: {
+  bgColorClass: string
+  sponsors: Sponsor[]
+}) => {
   const carouselItemClasses: { [key: string]: string[] } = {
     1: [''],
     2: [''],
@@ -23,7 +30,7 @@ export const SponsorsBlockCarousel = ({ sponsors }: { sponsors: Sponsor[] }) => 
   }
 
   const carouselItemClass = carouselItemClasses[sponsors.length] || carouselItemClasses['default']
-
+  const borderColor = getTextColorFromBgColor(bgColorClass).replace('text-bg', 'border')
   return (
     <div
       className={cn({
@@ -47,17 +54,20 @@ export const SponsorsBlockCarousel = ({ sponsors }: { sponsors: Sponsor[] }) => 
         <CarouselContent className="-ml-6">
           {sponsors?.map((sponsor, index) => (
             <CarouselItem
-              className={`${carouselItemClass} flex aspect-square items-center justify-center p-6`}
+              className={`${carouselItemClass} flex aspect-square items-center justify-center p-6 max-h-[200px]`}
               key={`${sponsor.id}_${index}`}
             >
               <a href={sponsor.link} target="_blank" rel="noopener noreferrer">
-                <ImageMedia imgClassName="w-full h-auto overflow-hidden" resource={sponsor.photo} />
+                <ImageMedia
+                  imgClassName="w-full h-auto  max-h-[200px] overflow-hidden"
+                  resource={sponsor.photo}
+                />
               </a>
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className={`${bgColorClass} ${borderColor}`} />
+        <CarouselNext className={`${bgColorClass} ${borderColor}`} />
       </Carousel>
     </div>
   )

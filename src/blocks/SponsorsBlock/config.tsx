@@ -45,7 +45,7 @@ export const SponsorsBlock: Block = {
           'Checking this will render the block with additional padding around it and using the background color you have selected.',
       },
       type: 'checkbox',
-      defaultValue: false,
+      defaultValue: true,
     },
   ],
 }

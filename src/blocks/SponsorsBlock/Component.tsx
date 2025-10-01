@@ -32,7 +32,7 @@ export const SponsorsBlockComponent = ({
             case 'banner':
               return <SponsorsBlockBanner sponsors={validSponsors} />
             case 'carousel':
-              return <SponsorsBlockCarousel sponsors={validSponsors} />
+              return <SponsorsBlockCarousel bgColorClass={bgColorClass} sponsors={validSponsors} />
             case 'static':
               return <SponsorsBlockStatic sponsors={validSponsors} />
             default:
