@@ -42,6 +42,7 @@ export const topLevelNavTab = ({
   return {
     name,
     description,
+    virtual: !hasConfigurableNavItems && !hasEnabledToggle,
     fields,
   }
 }
