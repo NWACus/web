@@ -493,7 +493,7 @@ export const seed = async ({
     },
   ])
 
-  const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById, users)
+  const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
 
   // Assign global roles directly to users
   await payload.create({

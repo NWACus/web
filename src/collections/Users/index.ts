@@ -94,6 +94,7 @@ export const Users: CollectionConfig = {
       type: 'date',
       admin: {
         readOnly: true,
+        position: 'sidebar',
         date: {
           displayFormat: 'LLLL do yyyy, hh:mm a',
         },
