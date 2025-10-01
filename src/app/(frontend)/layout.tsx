@@ -6,6 +6,7 @@ import { cn } from '@/utilities/ui'
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { draftMode } from 'next/headers'
+import NextTopLoader from 'nextjs-toploader'
 import React from 'react'
 import './globals.css'
 
@@ -118,6 +119,7 @@ export default async function RootLayout({ children }: Args) {
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
       <body>
         <PostHogProvider>
+          <NextTopLoader color="#3982e8" showSpinner={false} />
           <AdminBar
             adminBarProps={{
               preview: isEnabled,

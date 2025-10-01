@@ -16,7 +16,7 @@ import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
@@ -120,7 +120,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 HeaderBlock,
                 MediaBlockLexical,
                 SingleBlogPostBlockLexical,
-                SponsorsBlockLexical,
+                SponsorsBlock,
               ],
             }),
             HorizontalRuleFeature(),

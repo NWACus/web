@@ -104,13 +104,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
-    sponsorsBlock: ({ node }) => (
-      <SponsorsBlockComponent
-        {...node.fields}
-        // src/blocks/SponsorsBlock/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlockLexical variant
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
+    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} />,
   },
 })
 

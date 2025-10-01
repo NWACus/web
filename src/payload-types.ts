@@ -1193,8 +1193,8 @@ export interface SingleBlogPostBlock {
  * via the `definition` "SponsorsBlock".
  */
 export interface SponsorsBlock {
-  title?: string | null;
   backgroundColor: string;
+  sponsorsLayout: 'static' | 'carousel' | 'banner';
   sponsors: (number | Sponsor)[];
   /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.
@@ -2300,9 +2300,10 @@ export interface SingleBlogPostBlockSelect<T extends boolean = true> {
  * via the `definition` "SponsorsBlock_select".
  */
 export interface SponsorsBlockSelect<T extends boolean = true> {
-  title?: T;
   backgroundColor?: T;
+  sponsorsLayout?: T;
   sponsors?: T;
+  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }

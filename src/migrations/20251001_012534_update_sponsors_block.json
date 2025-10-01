@@ -1853,13 +1853,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -1867,6 +1860,22 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
+        },
+        "sponsors_layout": {
+          "name": "sponsors_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'static'"
+        },
+        "wrap_in_container": {
+          "name": "wrap_in_container",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
         },
         "block_name": {
           "name": "block_name",
@@ -4363,13 +4372,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -4377,6 +4379,22 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
+        },
+        "sponsors_layout": {
+          "name": "sponsors_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'static'"
+        },
+        "wrap_in_container": {
+          "name": "wrap_in_container",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
         },
         "_uuid": {
           "name": "_uuid",
@@ -6777,13 +6795,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -6791,6 +6802,22 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
+        },
+        "sponsors_layout": {
+          "name": "sponsors_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'static'"
+        },
+        "wrap_in_container": {
+          "name": "wrap_in_container",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
         },
         "block_name": {
           "name": "block_name",
@@ -9157,13 +9184,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -9171,6 +9191,22 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
+        },
+        "sponsors_layout": {
+          "name": "sponsors_layout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'static'"
+        },
+        "wrap_in_container": {
+          "name": "wrap_in_container",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": true
         },
         "_uuid": {
           "name": "_uuid",
@@ -12739,83 +12775,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "tenants": {
-      "name": "tenants",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "custom_domain": {
-          "name": "custom_domain",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "content_hash": {
-          "name": "content_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
-        }
-      },
-      "indexes": {
-        "tenants_slug_idx": {
-          "name": "tenants_slug_idx",
-          "columns": ["slug"],
-          "isUnique": true
-        },
-        "tenants_updated_at_idx": {
-          "name": "tenants_updated_at_idx",
-          "columns": ["updated_at"],
-          "isUnique": false
-        },
-        "tenants_created_at_idx": {
-          "name": "tenants_created_at_idx",
-          "columns": ["created_at"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "navigations_weather_items_items": {
       "name": "navigations_weather_items_items",
       "columns": {
@@ -15081,6 +15040,83 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "tenants": {
+      "name": "tenants",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "custom_domain": {
+          "name": "custom_domain",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content_hash": {
+          "name": "content_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        }
+      },
+      "indexes": {
+        "tenants_slug_idx": {
+          "name": "tenants_slug_idx",
+          "columns": ["slug"],
+          "isUnique": true
+        },
+        "tenants_updated_at_idx": {
+          "name": "tenants_updated_at_idx",
+          "columns": ["updated_at"],
+          "isUnique": false
+        },
+        "tenants_created_at_idx": {
+          "name": "tenants_created_at_idx",
+          "columns": ["created_at"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "settings": {
       "name": "settings",
       "columns": {
@@ -15508,14 +15544,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'internal'"
-        },
-        "to_new_tab": {
-          "name": "to_new_tab",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "default": "'reference'"
         },
         "to_url": {
           "name": "to_url",
@@ -15529,13 +15558,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "content_hash": {
-          "name": "content_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "updated_at": {
@@ -15559,7 +15581,7 @@
         "redirects_from_idx": {
           "name": "redirects_from_idx",
           "columns": ["from"],
-          "isUnique": false
+          "isUnique": true
         },
         "redirects_tenant_idx": {
           "name": "redirects_tenant_idx",
@@ -15630,13 +15652,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "built_in_pages_id": {
-          "name": "built_in_pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "posts_id": {
           "name": "posts_id",
           "type": "integer",
@@ -15666,11 +15681,6 @@
           "columns": ["pages_id"],
           "isUnique": false
         },
-        "redirects_rels_built_in_pages_id_idx": {
-          "name": "redirects_rels_built_in_pages_id_idx",
-          "columns": ["built_in_pages_id"],
-          "isUnique": false
-        },
         "redirects_rels_posts_id_idx": {
           "name": "redirects_rels_posts_id_idx",
           "columns": ["posts_id"],
@@ -15692,15 +15702,6 @@
           "tableFrom": "redirects_rels",
           "tableTo": "pages",
           "columnsFrom": ["pages_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "redirects_rels_built_in_pages_fk": {
-          "name": "redirects_rels_built_in_pages_fk",
-          "tableFrom": "redirects_rels",
-          "tableTo": "built_in_pages",
-          "columnsFrom": ["built_in_pages_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -17246,15 +17247,15 @@
           "notNull": false,
           "autoincrement": false
         },
-        "tenants_id": {
-          "name": "tenants_id",
+        "navigations_id": {
+          "name": "navigations_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "navigations_id": {
-          "name": "navigations_id",
+        "tenants_id": {
+          "name": "tenants_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -17380,14 +17381,14 @@
           "columns": ["global_role_assignments_id"],
           "isUnique": false
         },
-        "payload_locked_documents_rels_tenants_id_idx": {
-          "name": "payload_locked_documents_rels_tenants_id_idx",
-          "columns": ["tenants_id"],
-          "isUnique": false
-        },
         "payload_locked_documents_rels_navigations_id_idx": {
           "name": "payload_locked_documents_rels_navigations_id_idx",
           "columns": ["navigations_id"],
+          "isUnique": false
+        },
+        "payload_locked_documents_rels_tenants_id_idx": {
+          "name": "payload_locked_documents_rels_tenants_id_idx",
+          "columns": ["tenants_id"],
           "isUnique": false
         },
         "payload_locked_documents_rels_settings_id_idx": {
@@ -17556,20 +17557,20 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "payload_locked_documents_rels_tenants_fk": {
-          "name": "payload_locked_documents_rels_tenants_fk",
-          "tableFrom": "payload_locked_documents_rels",
-          "tableTo": "tenants",
-          "columnsFrom": ["tenants_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "payload_locked_documents_rels_navigations_fk": {
           "name": "payload_locked_documents_rels_navigations_fk",
           "tableFrom": "payload_locked_documents_rels",
           "tableTo": "navigations",
           "columnsFrom": ["navigations_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payload_locked_documents_rels_tenants_fk": {
+          "name": "payload_locked_documents_rels_tenants_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "tenants",
+          "columnsFrom": ["tenants_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -17908,6 +17909,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "d95b9d39-3e07-4387-b79d-40d041b08eae",
+  "id": "80beb2fd-47f6-4b93-a2be-818d12657e7b",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

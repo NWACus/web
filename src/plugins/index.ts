@@ -76,6 +76,7 @@ export const plugins: Plugin[] = [
         prefix: getEnvironmentFriendlyName(),
       },
     },
+    clientUploads: true,
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
   }),
   sentryPlugin({ Sentry }),

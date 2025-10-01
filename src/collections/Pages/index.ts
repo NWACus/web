@@ -13,7 +13,6 @@ import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -34,6 +33,7 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
