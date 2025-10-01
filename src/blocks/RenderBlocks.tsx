@@ -81,8 +81,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
         <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
       )
     case 'sponsorsBlock':
-      // src/blocks/SponsorsBlock/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlock variant
-      return <SponsorsBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <SponsorsBlockComponent {...block} />
     case 'team':
       return <TeamBlock {...block} payload={payload} />
   }

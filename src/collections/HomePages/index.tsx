@@ -17,7 +17,7 @@ import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock, MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlock, SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SponsorsBlock, SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
 import { BlogListBlock } from '@/blocks/BlogList/config'
@@ -145,7 +145,7 @@ export const HomePages: CollectionConfig = {
                         GenericEmbedLexical,
                         MediaBlockLexical,
                         SingleBlogPostBlockLexical,
-                        SponsorsBlockLexical,
+                        SponsorsBlock,
                       ],
                     }),
                     HorizontalRuleFeature(),
