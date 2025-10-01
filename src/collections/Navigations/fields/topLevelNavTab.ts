@@ -4,12 +4,12 @@ import { itemsField } from './itemsField'
 export const topLevelNavTab = ({
   name,
   description,
-  isConfigurable = true,
+  hasConfigurableNavItems = true,
   hasEnabledToggle = true,
 }: {
   name: string
   description?: string
-  isConfigurable?: boolean
+  hasConfigurableNavItems?: boolean
   hasEnabledToggle?: boolean
 }): Tab => {
   let fields: Field[] = [
@@ -18,7 +18,7 @@ export const topLevelNavTab = ({
       description: `Dropdown items under ${toWords(name)}`,
       overrides: {
         admin: {
-          hidden: !isConfigurable,
+          hidden: !hasConfigurableNavItems,
         },
       },
     }),
@@ -42,7 +42,6 @@ export const topLevelNavTab = ({
   return {
     name,
     description,
-    virtual: !isConfigurable,
     fields,
   }
 }

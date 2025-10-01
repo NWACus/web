@@ -54,13 +54,13 @@ export const Navigations: CollectionConfig = {
         topLevelNavTab({
           name: 'forecasts',
           description: 'This nav dropdown is autofilled with your forecast zones.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
           hasEnabledToggle: false,
         }),
         topLevelNavTab({
           name: 'observations',
           description: 'This nav dropdown is autofilled with the default observations links.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
           hasEnabledToggle: false,
         }),
         topLevelNavTab({
@@ -73,13 +73,13 @@ export const Navigations: CollectionConfig = {
           name: 'blog',
           description:
             'This nav item navigates to your blog landing page and does not have any dropdown items.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
         }),
         topLevelNavTab({
           name: 'events',
           description:
             'This nav item navigates to your events landing page and does not have any dropdown items.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
         }),
         topLevelNavTab({ name: 'about' }),
         topLevelNavTab({ name: 'support' }),
