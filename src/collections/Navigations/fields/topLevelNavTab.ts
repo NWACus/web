@@ -6,11 +6,13 @@ export const topLevelNavTab = ({
   description,
   hasConfigurableNavItems = true,
   hasEnabledToggle = true,
+  enabledToggleDescription = 'If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.',
 }: {
   name: string
   description?: string
   hasConfigurableNavItems?: boolean
   hasEnabledToggle?: boolean
+  enabledToggleDescription?: string
 }): Tab => {
   let fields: Field[] = [
     itemsField({
@@ -28,11 +30,16 @@ export const topLevelNavTab = ({
     const enabledToggleField: Field = {
       type: 'group',
       name: 'options',
+      label: '',
       fields: [
         {
           type: 'checkbox',
           defaultValue: true,
           name: 'enabled',
+          label: 'Show Item in Navigation',
+          admin: {
+            description: enabledToggleDescription,
+          },
         },
       ],
     }

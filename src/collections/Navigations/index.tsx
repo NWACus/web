@@ -74,12 +74,16 @@ export const Navigations: CollectionConfig = {
           description:
             'This nav item navigates to your blog landing page and does not have any dropdown items.',
           hasConfigurableNavItems: false,
+          enabledToggleDescription:
+            'If hidden, the blog landing page will not be accessible to visitors.',
         }),
         topLevelNavTab({
           name: 'events',
           description:
             'This nav item navigates to your events landing page and does not have any dropdown items.',
           hasConfigurableNavItems: false,
+          enabledToggleDescription:
+            'If hidden, the events landing page will not be accessible to visitors.',
         }),
         topLevelNavTab({ name: 'about' }),
         topLevelNavTab({ name: 'support' }),

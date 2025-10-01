@@ -1383,6 +1383,9 @@ export interface Navigation {
   };
   weather?: {
     options?: {
+      /**
+       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
+       */
       enabled?: boolean | null;
     };
     /**
@@ -1439,6 +1442,9 @@ export interface Navigation {
   };
   education?: {
     options?: {
+      /**
+       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
+       */
       enabled?: boolean | null;
     };
     /**
@@ -1495,6 +1501,9 @@ export interface Navigation {
   };
   accidents?: {
     options?: {
+      /**
+       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
+       */
       enabled?: boolean | null;
     };
     /**
@@ -1551,6 +1560,9 @@ export interface Navigation {
   };
   blog?: {
     options?: {
+      /**
+       * If hidden, the blog landing page will not be accessible to visitors.
+       */
       enabled?: boolean | null;
     };
     /**
@@ -1607,6 +1619,9 @@ export interface Navigation {
   };
   events?: {
     options?: {
+      /**
+       * If hidden, the events landing page will not be accessible to visitors.
+       */
       enabled?: boolean | null;
     };
     /**
@@ -1663,6 +1678,9 @@ export interface Navigation {
   };
   about?: {
     options?: {
+      /**
+       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
+       */
       enabled?: boolean | null;
     };
     /**
@@ -1719,6 +1737,9 @@ export interface Navigation {
   };
   support?: {
     options?: {
+      /**
+       * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
+       */
       enabled?: boolean | null;
     };
     /**

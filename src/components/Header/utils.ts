@@ -57,13 +57,11 @@ export type TopLevelNavItem =
 function topLevelNavItem({
   tab,
   label,
-  enabled = true,
 }: {
   tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
   label: string
-  enabled?: boolean
 }): TopLevelNavItem[] {
-  if (!tab || !enabled || tab.options?.enabled === false) {
+  if (!tab || tab.options?.enabled === false) {
     return []
   }
 
