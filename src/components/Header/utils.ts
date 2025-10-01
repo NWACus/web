@@ -57,13 +57,11 @@ export type TopLevelNavItem =
 function topLevelNavItem({
   tab,
   label,
-  enabled = true,
 }: {
   tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
   label: string
-  enabled?: boolean
 }): TopLevelNavItem[] {
-  if (!tab || !enabled) {
+  if (!tab || tab.options?.enabled === false) {
     return []
   }
 
@@ -326,36 +324,6 @@ export const getTopLevelNavItems = async ({
     ],
   }
 
-  const weatherNavItem = topLevelNavItem({
-    tab: navigation.weather,
-    label: 'Weather',
-  })[0]
-
-  const weatherStationsNavItemIndex = weatherNavItem.items?.findIndex(
-    ({ link }) => link?.url === '/weather/stations/map',
-  )
-
-  if (
-    typeof weatherStationsNavItemIndex === 'number' &&
-    weatherStationsNavItemIndex > -1 &&
-    !avalancheCenterPlatforms.stations &&
-    weatherNavItem.items
-  ) {
-    weatherNavItem.items.splice(weatherStationsNavItemIndex, 1)
-  }
-
-  const payload = await getPayload({ config: configPromise })
-  const publishedPosts = await payload.count({
-    collection: 'posts',
-    where: {
-      'tenant.slug': {
-        equals: typeof navigation.tenant === 'number' ? navigation.tenant : navigation.tenant.slug,
-      },
-      _status: {
-        equals: 'published',
-      },
-    },
-  })
   const blogNavItem: TopLevelNavItem = {
     label: 'Blog',
     link: {
@@ -365,28 +333,33 @@ export const getTopLevelNavItems = async ({
     },
   }
 
+  const eventsNavItem: TopLevelNavItem = {
+    label: 'Events',
+    link: {
+      label: 'Events',
+      type: 'internal',
+      url: '/events',
+    },
+  }
+
   const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
-    weatherNavItem,
+    ...topLevelNavItem({
+      tab: navigation.weather,
+      label: 'Weather',
+    }),
     ...(avalancheCenterPlatforms.obs ? [observationsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
-    ...(publishedPosts.totalDocs > 0 ? [blogNavItem] : []),
-    {
-      label: 'Events',
-      link: {
-        label: 'Events',
-        type: 'internal',
-        url: '/events',
-      },
-    },
+    ...(navigation.blog?.options?.enabled ? [blogNavItem] : []),
+    ...(navigation.events?.options?.enabled ? [eventsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
   ]
 
   let donateNavItem: TopLevelNavItem | undefined = undefined
 
-  if (navigation.donate?.link) {
+  if (navigation.donate?.link && navigation.donate.options?.enabled) {
     const link = convertToNavLink(navigation.donate.link)
 
     if (link) {
