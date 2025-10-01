@@ -92,9 +92,9 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         className="col-start-1 col-span-3"
         imgClassName="m-0"
         {...node.fields}
+        // src/blocks/MediaBlock/config.ts has two variants - to make TS happy we fallback to the default for the MediaBlockLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
         captionClassName="mx-auto max-w-[48rem]"
-        enableGutter={false}
-        disableInnerContainer={true}
       />
     ),
     singleBlogPost: ({ node }) => (
@@ -104,13 +104,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
-    sponsorsBlock: ({ node }) => (
-      <SponsorsBlockComponent
-        {...node.fields}
-        // src/blocks/SponsorsBlock/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlockLexical variant
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
+    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} />,
   },
 })
 

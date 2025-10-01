@@ -13,9 +13,9 @@ import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../DocumentBlock/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
-import { MediaBlock } from '../MediaBlock/config'
+import { MediaBlockLexical } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
-import { SponsorsBlockLexical } from '../SponsorsBlock/config'
+import { SponsorsBlock } from '../SponsorsBlock/config'
 
 export const Content: Block = {
   slug: 'content',
@@ -74,9 +74,9 @@ export const Content: Block = {
                     DocumentBlock,
                     GenericEmbedLexical,
                     HeaderBlock,
-                    MediaBlock,
+                    MediaBlockLexical,
                     SingleBlogPostBlockLexical,
-                    SponsorsBlockLexical,
+                    SponsorsBlock,
                   ],
                 }),
                 HorizontalRuleFeature(),

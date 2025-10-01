@@ -14,9 +14,9 @@ import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
-import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SponsorsBlockLexical } from '@/blocks/SponsorsBlock/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
@@ -118,9 +118,9 @@ export const Posts: CollectionConfig<'posts'> = {
                 DocumentBlock,
                 GenericEmbedLexical,
                 HeaderBlock,
-                MediaBlock,
+                MediaBlockLexical,
                 SingleBlogPostBlockLexical,
-                SponsorsBlockLexical,
+                SponsorsBlock,
               ],
             }),
             HorizontalRuleFeature(),

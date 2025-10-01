@@ -73,15 +73,15 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'linkPreview':
       return <LinkPreviewBlock {...block} />
     case 'mediaBlock':
-      return <MediaBlock {...block} />
+      // src/blocks/MediaBlock/config.ts has two variants - to make TS happy we fallback to the default for the MediaBlock variant
+      return <MediaBlock {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'singleBlogPost':
       // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlock variant
       return (
         <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
       )
     case 'sponsorsBlock':
-      // src/blocks/SponsorsBlock/config.ts has two variants - to make TS happy we fallback to the default for the SponsorsBlock variant
-      return <SponsorsBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <SponsorsBlockComponent {...block} />
     case 'team':
       return <TeamBlock {...block} payload={payload} />
   }
