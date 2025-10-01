@@ -1,4 +1,4 @@
-import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-sqlite'
+import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(sql`PRAGMA foreign_keys=OFF;`)
@@ -17,14 +17,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	FOREIGN KEY (\`photo_id\`) REFERENCES \`media\`(\`id\`) ON UPDATE no action ON DELETE set null
   );
   `)
-  await db.run(sql`INSERT INTO \`__new_biographies\`("id", "tenant_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at") SELECT "id", "tenant_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at" FROM \`biographies\`;`)
+  await db.run(
+    sql`INSERT INTO \`__new_biographies\`("id", "tenant_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at") SELECT "id", "tenant_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at" FROM \`biographies\`;`,
+  )
   await db.run(sql`DROP TABLE \`biographies\`;`)
   await db.run(sql`ALTER TABLE \`__new_biographies\` RENAME TO \`biographies\`;`)
   await db.run(sql`PRAGMA foreign_keys=ON;`)
   await db.run(sql`CREATE INDEX \`biographies_tenant_idx\` ON \`biographies\` (\`tenant_id\`);`)
   await db.run(sql`CREATE INDEX \`biographies_photo_idx\` ON \`biographies\` (\`photo_id\`);`)
-  await db.run(sql`CREATE INDEX \`biographies_updated_at_idx\` ON \`biographies\` (\`updated_at\`);`)
-  await db.run(sql`CREATE INDEX \`biographies_created_at_idx\` ON \`biographies\` (\`created_at\`);`)
+  await db.run(
+    sql`CREATE INDEX \`biographies_updated_at_idx\` ON \`biographies\` (\`updated_at\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`biographies_created_at_idx\` ON \`biographies\` (\`created_at\`);`,
+  )
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
@@ -46,13 +52,19 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   	FOREIGN KEY (\`photo_id\`) REFERENCES \`media\`(\`id\`) ON UPDATE no action ON DELETE set null
   );
   `)
-  await db.run(sql`INSERT INTO \`__new_biographies\`("id", "tenant_id", "user_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at") SELECT "id", "tenant_id", "user_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at" FROM \`biographies\`;`)
+  await db.run(
+    sql`INSERT INTO \`__new_biographies\`("id", "tenant_id", "user_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at") SELECT "id", "tenant_id", "user_id", "name", "photo_id", "title", "start_date", "biography", "content_hash", "updated_at", "created_at" FROM \`biographies\`;`,
+  )
   await db.run(sql`DROP TABLE \`biographies\`;`)
   await db.run(sql`ALTER TABLE \`__new_biographies\` RENAME TO \`biographies\`;`)
   await db.run(sql`PRAGMA foreign_keys=ON;`)
   await db.run(sql`CREATE INDEX \`biographies_tenant_idx\` ON \`biographies\` (\`tenant_id\`);`)
   await db.run(sql`CREATE INDEX \`biographies_user_idx\` ON \`biographies\` (\`user_id\`);`)
   await db.run(sql`CREATE INDEX \`biographies_photo_idx\` ON \`biographies\` (\`photo_id\`);`)
-  await db.run(sql`CREATE INDEX \`biographies_updated_at_idx\` ON \`biographies\` (\`updated_at\`);`)
-  await db.run(sql`CREATE INDEX \`biographies_created_at_idx\` ON \`biographies\` (\`created_at\`);`)
+  await db.run(
+    sql`CREATE INDEX \`biographies_updated_at_idx\` ON \`biographies\` (\`updated_at\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`biographies_created_at_idx\` ON \`biographies\` (\`created_at\`);`,
+  )
 }
