@@ -28,12 +28,12 @@ export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['upda
 
   return (
     <>
-      <div className="flex items-center mb-6">
-        <div className={cn(`${combinedAuthorsPhotos.length > 1 && 'flex -space-x-2'}`, 'me-4')}>
+      <div className="flex items-center mb-6 gap-3">
+        <div className={cn(`${combinedAuthorsPhotos.length > 1 && 'flex -space-x-2'}`)}>
           {combinedAuthorsPhotos.map((authorPhoto, index) => (
             <MediaAvatar
               resource={authorPhoto}
-              className="xl:size-[60px] shadow-md"
+              className="shadow-md"
               key={index}
               fallback={combinedAuthorsInitials[index]}
               isCircle

@@ -75,7 +75,7 @@ export default async function Page({ params, searchParams }: Args) {
 
   return (
     <div className="pt-4">
-      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-6">
+      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
         <div className="grow">
           <Suspense fallback={<div>Loading posts...</div>}>
             <PostCollection posts={posts.docs} />
@@ -83,7 +83,7 @@ export default async function Page({ params, searchParams }: Args) {
         </div>
 
         {/* Sorting and filters */}
-        <div className="flex flex-col gap-4 shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
+        <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
           <Suspense fallback={<div>Loading filters...</div>}>
             <PostsSort initialSort={sort} />
             {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}

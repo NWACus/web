@@ -33,20 +33,20 @@ export const PostPreview = (props: {
     <Link href={`/blog/${slug}`} className={cn('group no-underline flex flex-grow', className)}>
       <article
         className={cn(
-          'flex flex-col @md:flex-row bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden',
+          'flex flex-col @md:flex-row w-full bg-card text-card-foreground border rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden',
           className,
         )}
       >
-        <div className="w-full @md:w-56 @xl:w-72 @2xl:w-80 @md:flex-shrink-0 h-48 @md:h-auto overflow-hidden">
+        <div className="w-full @md:w-56 @xl:w-72 @2xl:w-80 @md:flex-shrink-0 h-48 @md:h-auto overflow-hidden flex items-center">
           {featuredImage && typeof featuredImage !== 'number' && (
             <ImageMedia
-              imgClassName="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              imgClassName="w-full object-cover transition-transform duration-300"
               resource={featuredImage}
-              pictureClassName="w-full h-full"
+              pictureClassName="w-full"
             />
           )}
         </div>
-        <div className="flex flex-col justify-between px-6 py-4 flex-grow @md:border-y border-b border-x rounded-b-lg @md:rounded-b-none @md:border-r @md:rounded-tr-lg @md:rounded-br-lg">
+        <div className="flex flex-col justify-between px-6 py-4 flex-grow border-t @md:border-t-0 @md:border-l">
           <div>
             {titleToUse && (
               <div className="mb-3">

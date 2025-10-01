@@ -14,7 +14,7 @@ type CMSLinkType = {
   newTab?: boolean | null
   reference?: {
     relationTo: 'builtInPages' | 'pages' | 'posts'
-    value: BuiltInPage | Page | Post | string | number
+    value: BuiltInPage | Page | Post | number
   } | null
   size?: ButtonProps['size'] | null
   type?: 'internal' | 'external' | null
@@ -35,6 +35,13 @@ export const CMSLink = (props: CMSLinkType) => {
   } = props
 
   const href = handleReferenceURL({ url: url, type: type, reference: reference })
+  const referenceTitle =
+    (reference &&
+      reference.value &&
+      typeof reference.value !== 'number' &&
+      reference?.value.title) ||
+    ''
+  const buttonLabel = label ? label : referenceTitle
 
   if (!href) return null
 
@@ -45,7 +52,7 @@ export const CMSLink = (props: CMSLinkType) => {
   if (appearance === 'inline') {
     return (
       <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
-        {label && label}
+        {buttonLabel}
         {children && children}
       </Link>
     )
@@ -54,7 +61,7 @@ export const CMSLink = (props: CMSLinkType) => {
   return (
     <Button asChild className={className} size={size} variant={appearance}>
       <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
-        {label && label}
+        {buttonLabel}
         {children && children}
       </Link>
     </Button>
