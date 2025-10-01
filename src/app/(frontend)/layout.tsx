@@ -119,7 +119,7 @@ export default async function RootLayout({ children }: Args) {
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
       <body>
         <PostHogProvider>
-          <NextTopLoader showSpinner={false} />
+          <NextTopLoader color="#3982e8" showSpinner={false} />
           <AdminBar
             adminBarProps={{
               preview: isEnabled,

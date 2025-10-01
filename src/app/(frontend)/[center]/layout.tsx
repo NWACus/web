@@ -70,7 +70,7 @@ export default async function RootLayout({ children, params }: Args) {
   return (
     <NotFoundProvider>
       <TenantProvider tenant={tenant}>
-        <NextTopLoader showSpinner={false} />
+        <NextTopLoader color="#3982e8" showSpinner={false} />
         <PostHogTenantRegister />
         <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
           <div className={cn('flex flex-col min-h-screen', center)}>
