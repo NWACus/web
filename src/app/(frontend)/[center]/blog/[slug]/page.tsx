@@ -2,7 +2,7 @@ import type { Metadata, ResolvedMetadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { AuthorAvatar } from '@/components/AuthorAvatar'
-import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { Redirects } from '@/components/Redirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
@@ -61,13 +61,10 @@ export default async function Post({ params: paramsPromise }: Args) {
   const url = '/blog/' + slug
   const post = await queryPostBySlug({ center: center, slug: slug })
 
-  if (!post) return <PayloadRedirects url={url} />
+  if (!post) return <Redirects center={center} url={url} />
 
   return (
     <article className="pt-4">
-      {/* Allows redirects for valid pages too */}
-      <PayloadRedirects disableNotFound url={url} />
-
       {draft && <LivePreviewListener />}
 
       <div className="flex flex-col items-center gap-4 pt-8">
