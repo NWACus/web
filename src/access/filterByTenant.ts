@@ -1,4 +1,4 @@
-import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
+import { getTenantFromCookie } from '@/plugins/multiTenant/getTenantFromCookie'
 import { BaseListFilter } from 'payload'
 
 // filterByTenant implements per-tenant data filtering from the 'payload-tenant' cookie

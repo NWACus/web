@@ -58,13 +58,13 @@ export default buildConfig({
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'name',
           },
-          path: '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider',
+          path: '@/plugins/multiTenant/TenantSelectionProvider#TenantSelectionProvider',
         },
         '@/providers/ViewTypeProvider#ViewTypeProvider',
       ],
       actions: [
         {
-          path: '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect',
+          path: '@/plugins/multiTenant/GlobalViewRedirect#GlobalViewRedirect',
           serverProps: {
             globalSlugs: ['settings', 'navigations', 'homePages'],
             tenantFieldName: 'tenant',

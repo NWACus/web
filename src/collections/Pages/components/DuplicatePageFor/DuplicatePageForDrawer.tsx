@@ -1,6 +1,6 @@
 'use client'
 
-import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
+import { useTenantSelection } from '@/plugins/multiTenant/TenantSelectionProvider/index.client'
 import {
   Banner,
   Button,

@@ -4,8 +4,8 @@ import type { ReactSelectOption } from '@payloadcms/ui'
 import { SelectInput, useConfig } from '@payloadcms/ui'
 import React from 'react'
 
+import { useTenantSelection } from '@/plugins/multiTenant/TenantSelectionProvider/index.client'
 import { useViewType } from '@/providers/ViewTypeProvider'
-import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
 import { useParams } from 'next/navigation'
 import './index.scss'
 
