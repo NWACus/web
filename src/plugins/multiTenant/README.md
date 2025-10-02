@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > We decided to move away from Payloads multi-tenancy plugin and move the components we use locally. We did this because:
 >
-> - we are not using the way payload intended users to (see [RBAC decision doc](docs/decisions/004-rbac.md))
+> - we are not using the way payload intended users to (see [RBAC decision doc](../../../docs/decisions/004-rbac.md))
 > - we want to be able to update Payload whenever we want
 >
 > We also wrote our own custom `TenantSelector` rather than importing it directly from the source code
