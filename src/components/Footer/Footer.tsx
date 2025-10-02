@@ -60,7 +60,7 @@ export async function Footer({ center }: { center?: string }) {
 
   const currentYear = new Date().getFullYear()
   return (
-    <footer className="mt-auto border-t border-border bg-footer text-footer-foreground">
+    <footer className="mt-auto bg-footer text-footer-foreground">
       <div className="container py-8 gap-8 grid md:grid-cols-3">
         <div>
           {footerForm?.title && <h4 className="font-medium text-xl mb-2">{footerForm.title}</h4>}
