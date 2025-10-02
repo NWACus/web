@@ -51,7 +51,7 @@ export default buildConfig({
           path: '@/components/BeforeDashboard',
         },
       ],
-      beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
+      beforeNavLinks: ['@/plugins/multiTenant/TenantSelector/TenantSelector'],
       providers: [
         {
           clientProps: {

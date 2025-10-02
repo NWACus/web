@@ -14,7 +14,6 @@ import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/component
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
-import { default as default_2aead22399b7847b21b134dc4a7931e0 } from '@/components/TenantSelector/TenantSelector'
 import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/components/ViewTypeAction'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
@@ -22,6 +21,7 @@ import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1
 import { GlobalViewRedirect as GlobalViewRedirect_7ed6089ee3d833ad87463af73c6354b1 } from '@/plugins/multiTenant/GlobalViewRedirect'
 import { TenantField as TenantField_2bb8a975589b734af403aacc866da1b0 } from '@/plugins/multiTenant/TenantField'
 import { TenantSelectionProvider as TenantSelectionProvider_b96aca9d71e638fafdc078536e9d0d3c } from '@/plugins/multiTenant/TenantSelectionProvider'
+import { default as default_c5dc35e4122cccb34c452a610c3314bd } from '@/plugins/multiTenant/TenantSelector/TenantSelector'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
@@ -127,7 +127,8 @@ export const importMap = {
     GlobalViewRedirect_7ed6089ee3d833ad87463af73c6354b1,
   '@/components/ViewTypeAction#default': default_cb0ad5752e1389a2a940bb73c2c0e7d2,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,
-  '@/components/TenantSelector/TenantSelector#default': default_2aead22399b7847b21b134dc4a7931e0,
+  '@/plugins/multiTenant/TenantSelector/TenantSelector#default':
+    default_c5dc35e4122cccb34c452a610c3314bd,
   '@/plugins/multiTenant/TenantSelectionProvider#TenantSelectionProvider':
     TenantSelectionProvider_b96aca9d71e638fafdc078536e9d0d3c,
   '@/providers/ViewTypeProvider#ViewTypeProvider':
