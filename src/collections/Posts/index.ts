@@ -47,6 +47,11 @@ export const Posts: CollectionConfig<'posts'> = {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
+    components: {
+      edit: {
+        beforeDocumentControls: ['@/collections/Posts/components/ViewPostButton#ViewPostButton'],
+      },
+    },
     livePreview: {
       url: async ({ data, req }) => {
         let tenant = data.tenant
