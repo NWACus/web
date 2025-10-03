@@ -84,22 +84,26 @@ export function Breadcrumbs() {
     <Breadcrumb className="container py-4 md:py-6">
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink asChild>
+          <BreadcrumbLink
+            asChild
+            onClick={() => onClick({ name: 'Home', href: '/', isLast: false }, '0')}
+          >
             <Link href="/">Home</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {breadcrumbItems.length > 0 && <BreadcrumbSeparator />}
         {breadcrumbItems.map((item, index) => (
           <React.Fragment key={`${item.name}__${item.href}__${index}`}>
-            <BreadcrumbItem onClick={() => onClick(item, index.toString())}>
+            <BreadcrumbItem>
               {item.isLast || !item.href ? (
                 <BreadcrumbPage
                   className={cn('capitalize', !item.isLast && 'text-muted-foreground')}
+                  onClick={() => onClick(item, index.toString())}
                 >
                   {item.name}
                 </BreadcrumbPage>
               ) : (
-                <BreadcrumbLink asChild>
+                <BreadcrumbLink asChild onClick={() => onClick(item, (index++).toString())}>
                   <Link href={item.href} className="capitalize">
                     {item.name}
                   </Link>
