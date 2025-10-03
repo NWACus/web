@@ -74,8 +74,9 @@ export function Breadcrumbs() {
 
   const onClick = (item: BreadcrumbType, depth: string) => {
     captureWithTenant('breadcrumb_click', {
+      breadcrumb_name: item.name,
       from_page: window.location.pathname,
-      to_page: item.href ?? item.name,
+      to_page: item.href ?? '',
       breadcrumb_level: depth,
     })
   }
