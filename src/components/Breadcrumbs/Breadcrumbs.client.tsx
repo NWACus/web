@@ -1,6 +1,7 @@
 'use client'
 
 import { useNotFound } from '@/providers/NotFoundProvider'
+import { useAnalytics } from '@/utilities/analytics'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import { useSelectedLayoutSegments } from 'next/navigation'
@@ -54,6 +55,7 @@ export function Breadcrumbs() {
   const segments = useSelectedLayoutSegments()
   const decodedSegments = segments.map(decodeURIComponent)
   const { isNotFound } = useNotFound()
+  const { captureWithTenant } = useAnalytics()
 
   if (decodedSegments.length === 0 || isNotFound) return null
 
@@ -70,6 +72,14 @@ export function Breadcrumbs() {
     }
   })
 
+  const onClick = (item: BreadcrumbType, depth: string) => {
+    captureWithTenant('breadcrumb_click', {
+      from_page: window.location.pathname,
+      to_page: item.href ?? item.name,
+      breadcrumb_level: depth,
+    })
+  }
+
   return (
     <Breadcrumb className="container py-4 md:py-6">
       <BreadcrumbList>
@@ -81,7 +91,7 @@ export function Breadcrumbs() {
         {breadcrumbItems.length > 0 && <BreadcrumbSeparator />}
         {breadcrumbItems.map((item, index) => (
           <React.Fragment key={`${item.name}__${item.href}__${index}`}>
-            <BreadcrumbItem>
+            <BreadcrumbItem onClick={() => onClick(item, index.toString())}>
               {item.isLast || !item.href ? (
                 <BreadcrumbPage
                   className={cn('capitalize', !item.isLast && 'text-muted-foreground')}
