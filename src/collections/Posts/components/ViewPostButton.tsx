@@ -18,6 +18,7 @@ export const ViewPostButton = async (props: BeforeDocumentControlsServerProps) =
   })
   const page = pageRes.docs[0]
   const pageTenant = await resolveTenant(page.tenant)
-  const canonicalUrl = (await getCanonicalUrlForSlug(pageTenant.slug, page.slug)) || ''
+  const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
+  if (!canonicalUrl) return null
   return <ViewDocumentButton url={`/${pageTenant.slug}/${canonicalUrl}`} />
 }
