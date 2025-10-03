@@ -1,3 +1,4 @@
+import { useAnalytics } from '@/utilities/analytics'
 import { cn } from '@/utilities/ui'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
@@ -7,13 +8,23 @@ import { NavLink } from './utils'
 export interface RenderNavLinkProps {
   link?: NavLink | null
   className?: string
-  onClick?: () => void
+  onClick?: (e?: React.MouseEvent<HTMLAnchorElement>) => void
   children?: ReactNode
 }
 
 export const RenderNavLink = ({ link, className = '', onClick, children }: RenderNavLinkProps) => {
+  const { captureWithTenant } = useAnalytics()
+
   if (!link) {
     return null
+  }
+
+  const onClickWrapper = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    captureWithTenant('navigation_click', {
+      menu_item: link.label,
+      destination: link.url,
+    })
+    if (onClick) onClick(e)
   }
 
   if (link.type === 'external') {
@@ -22,7 +33,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
         href={link.url}
         target={link.newTab ? '_blank' : undefined}
         className={cn(link.newTab && 'flex items-center', className)}
-        onClick={onClick}
+        onClick={onClickWrapper}
       >
         {children || link.label}
         {link.newTab && (
@@ -34,7 +45,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
 
   if (link.type === 'internal') {
     return (
-      <Link href={link.url} className={className} onClick={onClick}>
+      <Link href={link.url} className={className} onClick={onClickWrapper}>
         {children || link.label}
       </Link>
     )
