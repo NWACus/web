@@ -1,4 +1,4 @@
-import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
+import { getTenantFromCookie } from '@/plugins/multiTenant/getTenantFromCookie'
 
 // Light wrapper around the multi tenant plugin's getTenantFromCookie that enforces the id type as number
 // which is how we store our tenant identifier in the payload-tenant cookie

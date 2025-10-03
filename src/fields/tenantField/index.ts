@@ -1,4 +1,4 @@
-import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
+import { getTenantFromCookie } from '@/plugins/multiTenant/getTenantFromCookie'
 import { APIError, RelationshipField } from 'payload'
 
 export const tenantField = ({
@@ -22,7 +22,7 @@ export const tenantField = ({
           debug,
           unique,
         },
-        path: '@payloadcms/plugin-multi-tenant/client#TenantField',
+        path: '@/plugins/multiTenant/TenantField#TenantField',
       },
     },
   },

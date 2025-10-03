@@ -11,7 +11,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import * as Sentry from '@sentry/nextjs'
 import { Plugin } from 'payload'
-import tenantFieldPlugin from './tenantFieldPlugin'
+import tenantFieldPlugin from './multiTenant'
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   const url = getURL()

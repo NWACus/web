@@ -49,7 +49,6 @@
     "@payloadcms/live-preview-react": "3.48.0",
     "@payloadcms/next": "3.48.0",
     "@payloadcms/plugin-form-builder": "3.48.0",
-    "@payloadcms/plugin-multi-tenant": "3.48.0",
     "@payloadcms/plugin-sentry": "3.48.0",
     "@payloadcms/plugin-seo": "3.48.0",
     "@payloadcms/richtext-lexical": "3.48.0",
