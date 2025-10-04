@@ -41,7 +41,6 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
