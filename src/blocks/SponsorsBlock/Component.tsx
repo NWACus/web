@@ -1,10 +1,14 @@
-import { Sponsor, SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
+import { Sponsor, type SponsorsBlock } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
 import { SponsorsBlockBanner } from './components/Banner'
 import { SponsorsBlockCarousel } from './components/Carousel'
 import { SponsorsBlockStatic } from './components/Static'
+
+type SponsorsBlockProps = Omit<SponsorsBlock, 'sponsorsLayout'> & {
+  sponsorsLayout: SponsorsBlock['sponsorsLayout'] | 'banner'
+}
 
 export const SponsorsBlockComponent = ({
   backgroundColor,
@@ -23,6 +27,23 @@ export const SponsorsBlockComponent = ({
       (!sponsor.endDate || endOfDay(new Date(sponsor.endDate)) >= now),
   )
   if (!validSponsors) return null
+
+  if (validSponsors.length === 1) {
+    const validSponsor = validSponsors[0]
+    if (
+      validSponsor.photo &&
+      typeof validSponsor.photo === 'object' &&
+      validSponsor.photo.width &&
+      validSponsor.photo.height
+    ) {
+      const ratio = validSponsor.photo.width / validSponsor.photo.height
+      const minWidthRatio = 6
+
+      if (ratio >= minWidthRatio) {
+        sponsorsLayout = 'banner'
+      }
+    }
+  }
 
   return (
     <div className={cn('py-10', bgColorClass, textColor, { container: wrapInContainer })}>
