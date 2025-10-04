@@ -11,7 +11,6 @@ import { notFound } from 'next/navigation'
 import { NACContainerRemover } from './NACContainerRemover.client'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
