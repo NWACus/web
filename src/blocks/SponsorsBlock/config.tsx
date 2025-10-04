@@ -23,10 +23,10 @@ export const SponsorsBlock: Block = {
           label: 'Carousel (ideal for 4+ sponsors)',
           value: 'carousel',
         },
-        {
-          label: 'Banner',
-          value: 'banner',
-        },
+        // {
+        //   label: 'Banner',
+        //   value: 'banner',
+        // },
       ],
     },
     {
