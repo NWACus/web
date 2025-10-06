@@ -164,7 +164,7 @@ export const TenantSelectionProviderClient = ({
         }
       }
     } catch (e) {
-      toast.error(`Error fetching tenants`)
+      toast.error((e as Error).message || `Error fetching tenants`)
     }
   }, [config.serverURL, config.routes.api, tenantsCollectionSlug, useAsTitle, setCookie, userID])
 
