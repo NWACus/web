@@ -2,7 +2,7 @@ import type { CollectionSlug, OptionObject, Payload, TypedUser } from 'payload'
 
 import { cookies as getCookies } from 'next/headers.js'
 
-import { findTenantOptions } from '@/plugins/multiTenant/findTenantOptions'
+import { findTenantOptions } from '@/utilities/tenancy/findTenantOptions'
 import { TenantSelectionProviderClient } from './index.client'
 
 type Args = {

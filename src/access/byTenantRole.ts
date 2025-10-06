@@ -1,7 +1,7 @@
-import { getTenantFromCookie } from '@/plugins/multiTenant/getTenantFromCookie'
 import { globalRoleAssignmentsForUser } from '@/utilities/rbac/globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import { Access, CollectionConfig } from 'payload'
 
 // byTenantRole walks the roles bound to the user to determine if they have permissions

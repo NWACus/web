@@ -3,7 +3,7 @@ import type { CollectionSlug, ServerProps, ViewTypes } from 'payload'
 import { headers as getHeaders } from 'next/headers.js'
 import { redirect } from 'next/navigation.js'
 
-import { getGlobalViewRedirect } from '../../plugins/multiTenant/getGlobalViewRedirect'
+import { getGlobalViewRedirect } from '@/utilities/tenancy/getGlobalViewRedirect'
 
 type Args = {
   basePath?: string

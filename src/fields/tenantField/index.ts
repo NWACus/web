@@ -1,4 +1,4 @@
-import { getTenantFromCookie } from '@/plugins/multiTenant/getTenantFromCookie'
+import { getTenantFromCookie } from '@//utilities/tenancy/getTenantFromCookie'
 import { APIError, RelationshipField } from 'payload'
 
 export const tenantField = ({
