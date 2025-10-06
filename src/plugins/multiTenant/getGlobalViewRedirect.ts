@@ -3,9 +3,9 @@ import type { CollectionSlug, Payload, TypedUser, ViewTypes } from 'payload'
 
 import { formatAdminURL } from 'payload/shared'
 
+import { findTenantOptions } from './findTenantOptions'
 import { getCollectionIDType } from './getCollectionIDType'
 import { getTenantFromCookie } from './getTenantFromCookie'
-import { findTenantOptions } from './queries/findTenantOptions'
 
 type Args = {
   basePath?: string

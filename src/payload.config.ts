@@ -51,20 +51,20 @@ export default buildConfig({
           path: '@/components/BeforeDashboard',
         },
       ],
-      beforeNavLinks: ['@/plugins/multiTenant/TenantSelector/TenantSelector'],
+      beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
           clientProps: {
             tenantsCollectionSlug: 'tenants',
             useAsTitle: 'name',
           },
-          path: '@/plugins/multiTenant/TenantSelectionProvider#TenantSelectionProvider',
+          path: '@/providers/TenantSelectionProvider#TenantSelectionProvider',
         },
         '@/providers/ViewTypeProvider#ViewTypeProvider',
       ],
       actions: [
         {
-          path: '@/plugins/multiTenant/GlobalViewRedirect#GlobalViewRedirect',
+          path: '@/components/GlobalViewRedirect#GlobalViewRedirect',
           serverProps: {
             globalSlugs: ['settings', 'navigations', 'homePages'],
             tenantFieldName: 'tenant',

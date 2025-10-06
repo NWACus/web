@@ -5,7 +5,7 @@ import type { RelationshipFieldClientProps } from 'payload'
 import { RelationshipField, useField, useFormModified } from '@payloadcms/ui'
 import React from 'react'
 
-import { useTenantSelection } from '@/plugins/multiTenant/TenantSelectionProvider/index.client'
+import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import './index.scss'
 
 const baseClass = 'tenantField'
@@ -15,7 +15,7 @@ type Props = {
   unique?: boolean
 } & RelationshipFieldClientProps
 
-export const TenantField = (args: Props) => {
+export const TenantFieldComponent = (args: Props) => {
   const { debug, unique } = args
   const { setValue, value } = useField<number | string>()
   const modified = useFormModified()

@@ -1,6 +1,6 @@
 'use client'
 
-import { useTenantSelection } from '@/plugins/multiTenant/TenantSelectionProvider/index.client'
+import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import {
   Banner,
   Button,

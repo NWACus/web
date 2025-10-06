@@ -22,7 +22,7 @@ export const tenantField = ({
           debug,
           unique,
         },
-        path: '@/plugins/multiTenant/TenantField#TenantField',
+        path: '@/fields/tenantField/TenantFieldComponent#TenantFieldComponent',
       },
     },
   },

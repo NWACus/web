@@ -1,6 +1,6 @@
 'use client'
 
-import { useTenantSelection } from '@/plugins/multiTenant/TenantSelectionProvider/index.client'
+import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { cn } from '@/utilities/ui'
 import { FieldLabel, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
