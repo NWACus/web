@@ -63,7 +63,6 @@ export const TenantSelectionProvider = async ({
   return (
     <TenantSelectionProviderClient
       initialValue={initialValue}
-      tenantCookie={tenantCookie}
       tenantOptions={tenantOptions}
       tenantsCollectionSlug={tenantsCollectionSlug}
       useAsTitle={useAsTitle}

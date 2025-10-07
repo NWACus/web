@@ -66,14 +66,12 @@ const Context = createContext<ContextType>({
 export const TenantSelectionProviderClient = ({
   children,
   initialValue,
-  tenantCookie,
   tenantOptions: tenantOptionsFromProps,
   tenantsCollectionSlug,
   useAsTitle,
 }: {
   children: React.ReactNode
   initialValue?: number | string
-  tenantCookie?: string
   tenantOptions: OptionObject[]
   tenantsCollectionSlug: string
   useAsTitle: string
