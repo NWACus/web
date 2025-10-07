@@ -11,6 +11,7 @@ import { default as default_ef94af202ba9f4dd0fd10062e0964050 } from '@/component
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_55a7d1ebef7afeed563b856ae2e2cbf4 } from '@/components/ColorPicker'
 import { default as default_923dc5ccc0b72de4298251644cbfe39e } from '@/components/ColumnLayoutPicker'
+import { GlobalViewRedirect as GlobalViewRedirect_951bb27256a1a1ac886a8bd1c394c17e } from '@/components/GlobalViewRedirect'
 import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/components/Icon/AvyFxIcon'
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
@@ -18,14 +19,11 @@ import { default as default_2aead22399b7847b21b134dc4a7931e0 } from '@/component
 import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/components/ViewTypeAction'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
+import { TenantFieldComponent as TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6 } from '@/fields/tenantField/TenantFieldComponent'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
+import { TenantSelectionProvider as TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d } from '@/providers/TenantSelectionProvider'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
-import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
-import {
-  GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
-  TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
-} from '@payloadcms/plugin-multi-tenant/rsc'
 import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
 import {
   MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -56,8 +54,8 @@ import {
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 
 export const importMap = {
-  '@payloadcms/plugin-multi-tenant/client#TenantField':
-    TenantField_1d0591e3cf4f332c83a86da13a0de59a,
+  '@/fields/tenantField/TenantFieldComponent#TenantFieldComponent':
+    TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6,
   '@/components/ColorPicker#default': default_55a7d1ebef7afeed563b856ae2e2cbf4,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell':
     RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -126,13 +124,13 @@ export const importMap = {
   '@/components/LogoutButton#LogoutButton': LogoutButton_db9ac62598c46d0f1db201f6af05442e,
   '@/components/Icon/AvyFxIcon#AvyFxIcon': AvyFxIcon_5698f736c9797d81d0dacf1b1321e327,
   '@/components/Logo/AvyFxLogo#AvyFxLogo': AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
-  '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
-    GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
+  '@/components/GlobalViewRedirect#GlobalViewRedirect':
+    GlobalViewRedirect_951bb27256a1a1ac886a8bd1c394c17e,
   '@/components/ViewTypeAction#default': default_cb0ad5752e1389a2a940bb73c2c0e7d2,
   '@/components/BeforeDashboard#default': default_1a7510af427896d367a49dbf838d2de6,
   '@/components/TenantSelector/TenantSelector#default': default_2aead22399b7847b21b134dc4a7931e0,
-  '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider':
-    TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
+  '@/providers/TenantSelectionProvider#TenantSelectionProvider':
+    TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d,
   '@/providers/ViewTypeProvider#ViewTypeProvider':
     ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0,
   '@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler':

@@ -1,12 +1,12 @@
 import type { CollectionConfig } from 'payload'
 
+import { getTenantFromCookie } from '@//utilities/tenancy/getTenantFromCookie'
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { byTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
 
 export const BuiltInPages: CollectionConfig<'pages'> = {
   slug: 'builtInPages',
