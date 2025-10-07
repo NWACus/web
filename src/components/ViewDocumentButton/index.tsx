@@ -4,9 +4,16 @@ import './index.scss'
 
 export const ViewDocumentButton = (props: { url: string }) => {
   const { url } = props
-  const openNewTab = () => {
-    window.open(url, '_blank', 'noopener,noreferrer')
+
+  const openNewTab = async () => {
+    try {
+      await fetch('/next/exit-preview')
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      console.error('Error exiting preview:', error)
+    }
   }
+
   return (
     <button
       aria-label="View published"
