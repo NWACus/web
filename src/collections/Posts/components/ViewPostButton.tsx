@@ -5,7 +5,7 @@ import type { BeforeDocumentControlsServerProps } from 'payload'
 
 export const ViewPostButton = async (props: BeforeDocumentControlsServerProps) => {
   const { id, payload } = props
-  const pageRes = await payload.find({
+  const postRes = await payload.find({
     collection: 'posts',
     limit: 1,
     pagination: false,
@@ -16,9 +16,9 @@ export const ViewPostButton = async (props: BeforeDocumentControlsServerProps) =
       },
     },
   })
-  const page = pageRes.docs[0]
-  const pageTenant = await resolveTenant(page.tenant)
-  const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
-  if (!canonicalUrl) return null
-  return <ViewDocumentButton url={`/${pageTenant.slug}/${canonicalUrl}`} />
+  const post = postRes.docs[0]
+  const postTenant = await resolveTenant(post.tenant)
+  const canonicalUrl = await getCanonicalUrlForSlug(postTenant.slug, post.slug)
+  if (!canonicalUrl || post._status !== 'published') return null
+  return <ViewDocumentButton url={`/${postTenant.slug}/${canonicalUrl}`} />
 }
