@@ -19,7 +19,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
     return null
   }
 
-  const onClickWrapper = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const onClickWithCapture = (e: React.MouseEvent<HTMLAnchorElement>) => {
     captureWithTenant('navigation_click', {
       menu_item: link.label,
       destination: link.url,
@@ -33,7 +33,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
         href={link.url}
         target={link.newTab ? '_blank' : undefined}
         className={cn(link.newTab && 'flex items-center', className)}
-        onClick={onClickWrapper}
+        onClick={onClickWithCapture}
       >
         {children || link.label}
         {link.newTab && (
@@ -45,7 +45,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
 
   if (link.type === 'internal') {
     return (
-      <Link href={link.url} className={className} onClick={onClickWrapper}>
+      <Link href={link.url} className={className} onClick={onClickWithCapture}>
         {children || link.label}
       </Link>
     )
