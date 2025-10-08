@@ -16,7 +16,7 @@ export const SponsorsLayoutDescription: FieldDescriptionClientComponent = ({ pat
       description = <>Creates a slideshow effect for logos (ideal for 4+ sponsors)</>
       break
     case 'banner':
-      description = <>Uses full width display of single sponsor (ideal size 1280x180)</>
+      description = <>Uses full width display of single sponsor (ideal size 1280x200)</>
       break
     default:
       description = <>Select a layout to learn more</>

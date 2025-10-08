@@ -1,6 +1,52 @@
 import colorPickerField from '@/fields/color'
 import { getTenantFilter } from '@/utilities/collectionFilters'
-import { Block } from 'payload'
+import { Block, RadioFieldValidation } from 'payload'
+const validateSponsorsLayout: RadioFieldValidation = async (val, { req, siblingData }) => {
+  if (
+    val === 'banner' &&
+    siblingData &&
+    typeof siblingData === 'object' &&
+    'sponsors' in siblingData
+  ) {
+    const sponsorIds = siblingData.sponsors
+    const sponsors = await req.payload
+      .find({
+        collection: 'sponsors',
+        where: {
+          id: {
+            in: sponsorIds,
+          },
+        },
+        select: {
+          id: true,
+          photo: true,
+        },
+      })
+      .then((res) => res.docs)
+
+    if (sponsors.length === 1) {
+      const validSponsor = sponsors[0]
+      if (
+        validSponsor.photo &&
+        typeof validSponsor.photo === 'object' &&
+        validSponsor.photo.width &&
+        validSponsor.photo.height
+      ) {
+        const ratio = validSponsor.photo.width / validSponsor.photo.height
+        const minWidthRatio = 6
+
+        if (ratio >= minWidthRatio) {
+          return true
+        } else {
+          return 'Sponsor photo ratio is incorrect. Ideal size 1280x200'
+        }
+      }
+    } else {
+      return 'Only one sponsor with photo must be selected'
+    }
+  }
+  return true
+}
 
 export const SponsorsBlock: Block = {
   slug: 'sponsorsBlock',
@@ -34,6 +80,7 @@ export const SponsorsBlock: Block = {
           value: 'banner',
         },
       ],
+      validate: validateSponsorsLayout,
     },
     {
       name: 'sponsors',

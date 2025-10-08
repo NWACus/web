@@ -24,23 +24,6 @@ export const SponsorsBlockComponent = ({
   )
   if (!validSponsors) return null
 
-  if (validSponsors.length === 1) {
-    const validSponsor = validSponsors[0]
-    if (
-      validSponsor.photo &&
-      typeof validSponsor.photo === 'object' &&
-      validSponsor.photo.width &&
-      validSponsor.photo.height
-    ) {
-      const ratio = validSponsor.photo.width / validSponsor.photo.height
-      const minWidthRatio = 6
-
-      if (ratio >= minWidthRatio) {
-        sponsorsLayout = 'banner'
-      }
-    }
-  }
-
   return (
     <div className={cn('py-10', bgColorClass, textColor, { container: wrapInContainer })}>
       <div className="flex flex-wrap justify-evenly items-center">
