@@ -1,14 +1,10 @@
-import { Sponsor, type SponsorsBlock } from '@/payload-types'
+import { Sponsor, SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
 import { SponsorsBlockBanner } from './components/Banner'
 import { SponsorsBlockCarousel } from './components/Carousel'
 import { SponsorsBlockStatic } from './components/Static'
-
-type SponsorsBlockProps = Omit<SponsorsBlock, 'sponsorsLayout'> & {
-  sponsorsLayout: SponsorsBlock['sponsorsLayout'] | 'banner'
-}
 
 export const SponsorsBlockComponent = ({
   backgroundColor,

@@ -1092,7 +1092,7 @@ export interface SingleBlogPostBlock {
  */
 export interface SponsorsBlock {
   backgroundColor: string;
-  sponsorsLayout: 'static' | 'carousel';
+  sponsorsLayout: 'static' | 'carousel' | 'banner';
   sponsors: (number | Sponsor)[];
   /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.

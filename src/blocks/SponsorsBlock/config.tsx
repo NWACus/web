@@ -14,19 +14,25 @@ export const SponsorsBlock: Block = {
       label: 'Choose a layout for the sponsors logos',
       defaultValue: 'static',
       required: true,
+      admin: {
+        components: {
+          Description:
+            '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription#SponsorsLayoutDescription',
+        },
+      },
       options: [
         {
           label: 'Static',
           value: 'static',
         },
         {
-          label: 'Carousel (ideal for 4+ sponsors)',
+          label: 'Carousel',
           value: 'carousel',
         },
-        // {
-        //   label: 'Banner',
-        //   value: 'banner',
-        // },
+        {
+          label: 'Banner',
+          value: 'banner',
+        },
       ],
     },
     {
