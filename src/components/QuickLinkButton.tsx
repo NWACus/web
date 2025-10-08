@@ -1,3 +1,4 @@
+'use client'
 import { useAnalytics } from '@/utilities/analytics'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
