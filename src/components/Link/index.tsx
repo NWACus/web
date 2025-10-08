@@ -4,6 +4,7 @@ import Link from 'next/link'
 import React from 'react'
 
 import type { BuiltInPage, Page, Post } from '@/payload-types'
+import { useAnalytics } from '@/utilities/analytics'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 
 type CMSLinkType = {
@@ -33,6 +34,7 @@ export const CMSLink = (props: CMSLinkType) => {
     size: sizeFromProps,
     url,
   } = props
+  const { captureWithTenant } = useAnalytics()
 
   const href = handleReferenceURL({ url: url, type: type, reference: reference })
   const referenceTitle =
@@ -47,11 +49,25 @@ export const CMSLink = (props: CMSLinkType) => {
 
   const size = appearance === 'link' ? 'clear' : sizeFromProps
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
+  const linkDestination = href || url || ''
+
+  const onClickWithCapture = () => {
+    captureWithTenant('button_click', {
+      button_label: buttonLabel,
+      destination: linkDestination,
+      appearance: appearance ?? '',
+    })
+  }
 
   /* Ensure we don't break any styles set by richText */
   if (appearance === 'inline') {
     return (
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
+      <Link
+        className={cn(className)}
+        href={linkDestination}
+        onClick={onClickWithCapture}
+        {...newTabProps}
+      >
         {buttonLabel}
         {children && children}
       </Link>
@@ -60,7 +76,12 @@ export const CMSLink = (props: CMSLinkType) => {
 
   return (
     <Button asChild className={className} size={size} variant={appearance}>
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
+      <Link
+        className={cn(className)}
+        href={linkDestination}
+        onClick={onClickWithCapture}
+        {...newTabProps}
+      >
         {buttonLabel}
         {children && children}
       </Link>
