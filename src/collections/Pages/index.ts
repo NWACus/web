@@ -90,6 +90,7 @@ export const Pages: CollectionConfig<'pages'> = {
     useAsTitle: 'title',
     components: {
       edit: {
+        beforeDocumentControls: ['@/collections/Pages/components/ViewPageButton#ViewPageButton'],
         editMenuItems: ['@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor'],
       },
     },
