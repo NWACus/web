@@ -5,4 +5,4 @@ import { seed } from '../endpoints/seed'
 const payload = await getPayload({ config: configPromise })
 const payloadReq = await createLocalReq({}, payload)
 
-seed({ payload, req: payloadReq, incremental: false })
+await seed({ payload, req: payloadReq, incremental: false })
