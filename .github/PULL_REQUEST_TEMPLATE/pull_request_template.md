@@ -1,7 +1,12 @@
 ## Description
 
-## Issue
+## Related Issues
 
-## Type of change
+## Key Changes
 
-- [ ] Includes migration
+## Screenshots / Demo
+
+## Migration Explanation
+
+## Future enhancements / Questions
+
