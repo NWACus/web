@@ -241,20 +241,11 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: '## ⚠️ Migration Safety Check'
-      - name: Read comment content
-        if: steps.check-migrations.outputs.has_issues == 'true' && github.event_name == 'pull_request'
-        id: read-comment
-        run: |
-          COMMENT=$(cat $GITHUB_OUTPUT | sed -n '/comment<<EOF/,/^EOF/p' | sed '1d;$d')
-          echo "$COMMENT"
-          echo "comment<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMENT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
       - name: Create or update PR comment
         if: steps.check-migrations.outputs.has_issues == 'true' && github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v3
         with:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.read-comment.outputs.comment }}
+          body: ${{ steps.check-migrations.outputs.comment }}
           edit-mode: replace
