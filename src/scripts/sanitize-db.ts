@@ -67,4 +67,4 @@ async function sanitizeDatabase() {
   process.exit(0)
 }
 
-sanitizeDatabase()
+await sanitizeDatabase()
