@@ -86,7 +86,7 @@ function analyzeMigrationFile(filePath: string): Finding[] {
         message:
           '🚨 KNOWN ISSUE: Table recreation with foreign_keys=OFF causes data loss in Turso production. ' +
           'Turso does not respect PRAGMA FOREIGN_KEYS=off in transactions, causing cascade deletes in _rels tables. ' +
-          'This migration WILL cause data loss in production.',
+          'This migration WILL cause data loss in production if this table has foreign key relationships.',
         code: lines[pragmaLineIndex].trim(),
         isKnownIssue: true,
       })
@@ -164,32 +164,30 @@ function generateGitHubComment(fileFindings: { file: string; findings: Finding[]
   const hasKnownIssues = knownIssues.length > 0
 
   let comment = hasKnownIssues
-    ? '## 🚨 Migration Safety Check - KNOWN ISSUE DETECTED\n\n'
-    : '## ⚠️ Migration Safety Check\n\n'
+    ? '### Migration Safety Check - Known Issue Detected\n\n'
+    : '### Migration Safety Check\n\n'
 
   if (hasKnownIssues) {
     comment +=
-      '> **WARNING**: This migration contains a known issue that WILL cause data loss in production.\n\n'
+      '> This migration contains a known issue that will cause data loss in production.\n\n'
   }
 
-  comment += `Found ${totalIssues} potential issue${totalIssues === 1 ? '' : 's'} in migration files:\n\n`
+  comment += `Found ${totalIssues} potential issue${totalIssues === 1 ? '' : 's'}:\n\n`
 
   for (const { file, findings } of fileFindings) {
-    comment += `### 📄 \`${file}\`\n\n`
+    comment += `**${file}**\n\n`
     for (const finding of findings) {
-      const prefix = finding.isKnownIssue ? '🚨 **KNOWN ISSUE**' : '⚠️'
-      comment += `${prefix} **Line ${finding.line}**: ${finding.message}\n`
-      comment += `  \`\`\`sql\n  ${finding.code}\n  \`\`\`\n`
+      const label = finding.isKnownIssue ? 'Known issue' : 'Warning'
+      comment += `${label} (line ${finding.line}): ${finding.message}\n`
+      comment += `\`\`\`sql\n${finding.code}\n\`\`\`\n\n`
     }
-    comment += '\n'
   }
 
   comment += '---\n\n'
   if (hasKnownIssues) {
-    comment +=
-      '🚨 **CRITICAL**: Known issues require manual migration modification to prevent data loss. '
+    comment += 'Known issues require manual migration modification to prevent data loss. '
   } else {
-    comment += '💡 **Next Steps**: Review these patterns and add backup/restore logic if needed. '
+    comment += 'Review these patterns and add backup/restore logic if needed. '
   }
   comment += 'See `docs/migration-safety.md` for guidance.\n'
 
