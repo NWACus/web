@@ -10,6 +10,7 @@ Payload's `migrate:create` command generates migrations based on schema changes,
 There is also a difference in behavior between Turso's libSQL servers and our local SQLite databases: Turso does not respect `PRAGMA FOREIGN_KEYS=off` statements inside of transactions. Payload/Drizzle uses this strategy to temporarily disable cascade deletes of foreign key relationships. Because this doesn't work on Turso servers (a libSQL behavior), this can result in data losss in `_rels` tables.
 
 Background reading:
+- [SQLite docs highlighting foreign_keys behavior in transactions](https://www.sqlite.org/foreignkeys.html#fk_enable:~:text=It%20is%20not%20possible%20to%20enable%20or%20disable%20foreign%20key%20constraints%20in%20the%20middle%20of%20a%20multi%2Dstatement%20transaction)
 - https://github.com/tursodatabase/libsql-client-ts/issues/173
 - https://github.com/ariga/atlas/issues/3317
 - https://github.com/launchbadge/sqlx/issues/2085#issuecomment-1237474188
@@ -90,6 +91,21 @@ git commit --no-verify
 ```
 
 **⚠️ Use with caution & make sure other checks have passed**
+
+## Fixing migrations with PRAGMA foreign_keys=OFF
+
+When Payload/Drizzle generates migrations that recreate tables (the `__new_*` pattern), they use `PRAGMA foreign_keys=OFF` to prevent cascade deletes. However, **Turso does not respect this pragma inside transactions**, which means relationship tables (like `*_rels`) will still have their data cascade-deleted when the original table is dropped.
+
+### The fix: keep old attributes + mark as disabled/hidden and make a note in the code
+
+Unfortunately, several solutions we tried still result in data loss due to the foreign key behavior in libSQL. We tried:
+- Using `defer_foreign_keys` instead of `foreign_keys` to temporarily disable the cascade delete behavior
+- Using backup tables (same foreign key cascade delete issue)
+- Temporarily disabling the cascade delete behavior (complex and still resulted in data loss when using a backup table strategy)
+
+The simplest solution here is to keep fields that we want to remove and avoid migrations that use the create new, drop, rename strategy that causes data loss in foreign key relations due to libSQL's inability to disable foreign key constraints inside of a transaction. We can mark these fields as `hidden: true` in our Payload collection configs and leave a code comment explaining that they are deprecated.
+
+This avoids needing the migration at all. It would be ideal to remove the data since we would be making the decision that we don't need it anymore but it is an acceptable trade off.
 
 ## Known issues
 
