@@ -559,26 +559,24 @@ export interface Post {
 export interface ContentBlock {
   backgroundColor: string;
   layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
-  columns?:
-    | {
-        richText?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
+  columns: {
+    richText?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
           [k: string]: unknown;
-        } | null;
-        id?: string | null;
-      }[]
-    | null;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    id?: string | null;
+  }[];
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';

@@ -1,4 +1,4 @@
-import type { Block } from 'payload'
+import type { Block, SelectFieldValidation } from 'payload'
 
 import colorPickerField from '@/fields/color'
 import {
@@ -17,6 +17,26 @@ import { MediaBlockLexical } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
 import { SponsorsBlock } from '../SponsorsBlock/config'
 
+const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => {
+  if (!value || typeof value !== 'string') return true
+  if (
+    siblingData &&
+    typeof siblingData === 'object' &&
+    'columns' in siblingData &&
+    Array.isArray(siblingData.columns)
+  ) {
+    const numOfCols = siblingData.columns?.length ?? 0
+    const selectedColCount = parseInt(value.split('_')[0])
+
+    if (selectedColCount !== numOfCols) {
+      // TODO - figure out why error is not showing with custom field
+      return `Selected layout requires ${selectedColCount} column${selectedColCount !== 1 ? 's' : ''}, but ${numOfCols} column${numOfCols !== 1 ? 's' : ''} exist${numOfCols === 1 ? 's' : ''}`
+    }
+  }
+
+  return true
+}
+
 export const Content: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
@@ -26,6 +46,7 @@ export const Content: Block = {
     colorPickerField('Background color'),
     {
       name: 'layout',
+      label: 'Column layout',
       type: 'select',
       required: true,
       defaultValue: '1_1',
@@ -45,6 +66,7 @@ export const Content: Block = {
           Field: '@/components/ColumnLayoutPicker',
         },
       },
+      validate: validateColumnLayout,
     },
     {
       name: 'columns',
@@ -53,6 +75,8 @@ export const Content: Block = {
         plural: 'Columns',
         singular: 'Column',
       },
+      required: true,
+      defaultValue: [{}],
       type: 'array',
       admin: {
         initCollapsed: false,
