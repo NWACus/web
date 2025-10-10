@@ -1,7 +1,7 @@
 'use client'
 
 import { Post, Tag } from '@/payload-types'
-import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client'
+import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { FieldDescription, SelectInput, useField, useForm, useFormFields } from '@payloadcms/ui'
 import { OptionObject } from 'payload'
 import { useEffect, useState } from 'react'
