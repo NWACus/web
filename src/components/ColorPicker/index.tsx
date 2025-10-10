@@ -36,7 +36,7 @@ const ColorPicker = (props: TextFieldClientProps) => {
                 className={cn(
                   `relative w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor}`,
                   {
-                    'bg-white bg-[repeating-linear-gradient(45deg,#aaa_25%,transparent_25%,transparent_75%,#aaa_75%,#aaa),repeating-linear-gradient(45deg,#aaa_25%,#e5e5f7_25%,#e5e5f7_75%,#aaa_75%,#aaa)] bg-[position:0_0,10px_10px] bg-[size:20px_20px] bg-repeat':
+                    'bg-center bg-[length:20px_20px] bg-[image:repeating-conic-gradient(#ddd_0%_25%,white_0%_50%)]':
                       color === 'transparent',
                   },
                 )}
