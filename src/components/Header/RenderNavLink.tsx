@@ -1,5 +1,5 @@
-import { useAnalytics } from '@/utilities/analytics'
 import { cn } from '@/utilities/ui'
+import { useAnalytics } from '@/utilities/useAnalytics'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { ReactNode } from 'react'

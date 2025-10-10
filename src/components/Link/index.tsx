@@ -5,8 +5,8 @@ import Link from 'next/link'
 import React from 'react'
 
 import type { BuiltInPage, Page, Post } from '@/payload-types'
-import { useAnalytics } from '@/utilities/analytics'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { useAnalytics } from '@/utilities/useAnalytics'
 
 type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -55,7 +55,8 @@ export const CMSLink = (props: CMSLinkType) => {
   const onClickWithCapture = () => {
     captureWithTenant('button_click', {
       button_label: buttonLabel,
-      destination: linkDestination,
+      from_page: window.location.pathname,
+      to_page: linkDestination,
       appearance: appearance ?? '',
     })
   }

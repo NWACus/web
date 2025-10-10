@@ -1,8 +1,8 @@
 'use client'
 
 import { useNotFound } from '@/providers/NotFoundProvider'
-import { useAnalytics } from '@/utilities/analytics'
 import { cn } from '@/utilities/ui'
+import { useAnalytics } from '@/utilities/useAnalytics'
 import Link from 'next/link'
 import { useSelectedLayoutSegments } from 'next/navigation'
 import React from 'react'

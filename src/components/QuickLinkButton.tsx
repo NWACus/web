@@ -1,7 +1,7 @@
 'use client'
-import { useAnalytics } from '@/utilities/analytics'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
+import { useAnalytics } from '@/utilities/useAnalytics'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { DataFromCollectionSlug } from 'payload'
@@ -29,7 +29,8 @@ export default function QuickLinkButton({
   const onClickWithCapture = () => {
     captureWithTenant('home_page_quick_links', {
       name: label ?? '',
-      destination: linkDestination,
+      from_page: window.location.pathname,
+      to_page: linkDestination,
     })
   }
 
