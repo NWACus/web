@@ -51,7 +51,7 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
               key={option.value}
               value={option.value}
               aria-label={option.label}
-              className={`pointer-events-auto ${isDisabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
+              className={`${isDisabled ? 'pointer-events-auto cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
               disabled={isDisabled}
             >
               <Icon style={{ width: '20px', height: '20px' }} />

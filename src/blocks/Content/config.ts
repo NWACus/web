@@ -29,6 +29,7 @@ const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => 
     const selectedColCount = parseInt(value.split('_')[0])
 
     if (selectedColCount !== numOfCols) {
+      // TODO - figure out why error is not showing with custom field
       return `Selected layout requires ${selectedColCount} column${selectedColCount !== 1 ? 's' : ''}, but ${numOfCols} column${numOfCols !== 1 ? 's' : ''} exist${numOfCols === 1 ? 's' : ''}`
     }
   }
@@ -75,7 +76,7 @@ export const Content: Block = {
         singular: 'Column',
       },
       required: true,
-      defaultValue: [],
+      defaultValue: [{}],
       type: 'array',
       admin: {
         initCollapsed: false,
