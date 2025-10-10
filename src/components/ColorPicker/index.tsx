@@ -1,9 +1,10 @@
 'use client'
 
-import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
+import { getSlugFromTenantId } from '@/utilities/getSlugFromTenantId'
 import { cn } from '@/utilities/ui'
-import { FieldLabel, useField } from '@payloadcms/ui'
+import { FieldLabel, useDocumentInfo, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
+import { useEffect, useState } from 'react'
 
 const ColorPicker = (props: TextFieldClientProps) => {
   const colorOptions = [
@@ -22,20 +23,20 @@ const ColorPicker = (props: TextFieldClientProps) => {
   ]
 
   const { path, field } = props
-
+  const { data } = useDocumentInfo()
   const { value, setValue } = useField({ path })
-  const { selectedTenantID: tenant } = useTenantSelection() as { selectedTenantID: number }
+  const [tenantSlug, setTenantSlug] = useState<string | null>(null)
 
-  // TODO map to slug directly
-  const tenantColorClass: Record<number, string> = {
-    1: 'dvac',
-    2: 'nwac',
-    3: 'sac',
-    4: 'snfac',
-  }
+  useEffect(() => {
+    async function fetchUser() {
+      const userData = await getSlugFromTenantId(data?.tenant)
+      setTenantSlug(userData)
+    }
+    fetchUser()
+  }, [data?.tenant])
 
   return (
-    <div className={cn(`flex flex-col mb-6 ${tenantColorClass[tenant]}`)}>
+    <div className={cn(`flex flex-col mb-6 ${tenantSlug}`)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ul className="flex flex-wrap max-w-[260px] list-none pl-0">
         {colorOptions.map((color, i) => {
