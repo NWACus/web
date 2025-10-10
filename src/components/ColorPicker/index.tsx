@@ -7,21 +7,8 @@ import { TextFieldClientProps } from 'payload'
 import { useEffect, useState } from 'react'
 
 const ColorPicker = (props: TextFieldClientProps) => {
-  const colorOptions = [
-    'white',
-    'brand-100',
-    'brand-200',
-    'brand-300',
-    'brand-400',
-    'brand-500',
-    'brand-600',
-    'brand-700',
-    'brand-800',
-    'brand-900',
-    'brand-950',
-    'transparent',
-  ]
-
+  const brandShades = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+  const colorOptions = ['white', ...brandShades.map((n) => `brand-${n}`), 'transparent']
   const { path, field } = props
   const { data } = useDocumentInfo()
   const { value, setValue } = useField({ path })
@@ -34,6 +21,8 @@ const ColorPicker = (props: TextFieldClientProps) => {
     }
     fetchUser()
   }, [data?.tenant])
+
+  if (!tenantSlug) return null
 
   return (
     <div className={cn(`flex flex-col mb-6 ${tenantSlug}`)}>
