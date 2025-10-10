@@ -1,5 +1,7 @@
+'use client'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
+import { useAnalytics } from '@/utilities/useAnalytics'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { DataFromCollectionSlug } from 'payload'
@@ -18,10 +20,21 @@ export default function QuickLinkButton({
   reference,
   url,
 }: QuickLinkButtonProps) {
+  const { captureWithTenant } = useAnalytics()
+
   const href = handleReferenceURL({ type, reference, url })
   if (!href) return null
 
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
+  const onClickWithCapture = () => {
+    captureWithTenant('home_page_quick_links', {
+      name: label ?? '',
+      from_page: window.location.pathname,
+      to_page: linkDestination,
+    })
+  }
+
+  const linkDestination = href || url || ''
 
   return (
     <Link
@@ -29,7 +42,8 @@ export default function QuickLinkButton({
         'group flex items-center justify-between gap-8 rounded-lg border border-border bg-card px-6 py-3 text-card-foreground shadow-sm transition-all duration-200 hover:bg-muted hover:shadow-md flex-grow',
         className,
       )}
-      href={href || url || ''}
+      href={linkDestination}
+      onClick={onClickWithCapture}
       {...newTabProps}
     >
       <span className="font-medium whitespace-nowrap text-lg">{label}</span>

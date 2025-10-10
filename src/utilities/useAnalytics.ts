@@ -1,3 +1,4 @@
+'use client'
 import { useTenant } from '@/providers/TenantProvider'
 import posthog from 'posthog-js'
 import { getEnvironmentFriendlyName } from './getEnvironmentFriendlyName'

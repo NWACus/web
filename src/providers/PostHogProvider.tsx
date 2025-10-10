@@ -1,7 +1,7 @@
 'use client'
 
-import { defaultPostHogProperties } from '@/utilities/analytics'
 import { getRootDomainURL } from '@/utilities/getURL'
+import { defaultPostHogProperties } from '@/utilities/useAnalytics'
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
 import React, { useEffect } from 'react'
