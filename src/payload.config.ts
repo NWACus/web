@@ -147,6 +147,9 @@ export default buildConfig({
       url: process.env.DATABASE_URI || '',
       authToken: process.env.DATABASE_AUTH_TOKEN || '',
     },
+    // Normal dev: push=true for quick schema iteration
+    // Migration testing: push=false to force migrations to run
+    push: process.env.ENABLE_LOCAL_MIGRATIONS !== 'true',
   }),
   collections: [
     // Content

@@ -68,1023 +68,1035 @@ export const seed = async ({
   req: PayloadRequest
   incremental: boolean
 }): Promise<void> => {
-  payload.logger.info('Seeding database...')
-  if (!incremental) {
-    payload.logger.info(`— Clearing collections and globals...`)
-
-    // reset the nacWidgetsConfig global
-    await payload.updateGlobal({
-      slug: 'nacWidgetsConfig',
-      data: defaultNacWidgetsConfig.requiredFields,
-      depth: 0,
-      context: {
-        disableRevalidate: true,
-      },
-    })
-
-    await Promise.all(
-      collections.map((collection) => {
-        payload.logger.info(`Deleting collection: ${collection}`)
-        return payload.db.deleteMany({ collection, req, where: {} })
-      }),
-    )
-
-    await Promise.all(
-      collections
-        .filter((collection) => Boolean(payload.collections[collection].config.versions))
-        .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
-    )
-
-    payload.logger.info(`— Clearing users...`)
-
-    await payload.delete({
-      collection: 'users',
-      depth: 0,
-      where: {
-        or: [
-          {
-            email: {
-              contains: 'avy.com',
-            },
-          },
-          {
-            email: {
-              contains: 'dvac.us',
-            },
-          },
-          {
-            email: {
-              contains: 'nwac.us',
-            },
-          },
-          {
-            email: {
-              contains: 'sierraavalanchecenter.org',
-            },
-          },
-          {
-            email: {
-              contains: 'sawtoothavalanche.com',
-            },
-          },
-        ],
-      },
-      context: {
-        disableRevalidate: true,
-      },
-    })
-
-    payload.logger.info('- Deleting existing /public/media folder...')
-
-    try {
-      const path = getPath('public/media')
-      fs.rmSync(path, { recursive: true, force: true })
-    } catch (err) {
-      payload.logger.error(
-        `Failed to delete /public/media folder: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      )
-    }
-  } else {
-    payload.logger.info(`— Skipping database cleanup for incremental seed...`)
-  }
-
-  // Create global roles first
-  const globalRoles = await upsertGlobals('globalRoles', payload, incremental, (obj) => obj.name, [
-    {
-      name: 'Super Admin',
-      rules: [
-        {
-          collections: ['*'],
-          actions: ['*'],
-        },
-      ],
-    },
-  ])
-
-  const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
-    {
-      name: 'Death Valley Avalanche Center',
-      slug: 'dvac',
-      customDomain: 'dvac.us',
-    },
-    {
-      name: 'Northwest Avalanche Center',
-      slug: 'nwac',
-      customDomain: 'nwac.us',
-    },
-    {
-      name: 'Sierra Avalanche Center',
-      slug: 'sac',
-      customDomain: 'sierraavalanchecenter.org',
-    },
-    {
-      name: 'Sawtooth Avalanche Center',
-      slug: 'snfac',
-      customDomain: 'sawtoothavalanche.com',
-    },
-  ])
-  const tenantsById: Record<number, Tenant> = {}
-  for (const tenant in tenants) {
-    tenantsById[tenants[tenant].id] = tenants[tenant]
-  }
-
-  // Create global roles
-  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
-    {
-      name: 'Admin',
-      rules: [
-        {
-          collections: [
-            'pages',
-            'posts',
-            'builtInPages',
-            'tags',
-            'roleAssignments',
-            'settings',
-            'media',
-            'biographies',
-            'teams',
-            'forms',
-            'formSubmissions',
-            'users',
-            'redirects',
-            'sponsors',
-            'homePages',
-          ],
-          actions: ['*'],
-        },
-        {
-          collections: ['navigations', 'tenants'],
-          actions: ['read'],
-        },
-      ],
-    },
-    {
-      name: 'Forecaster',
-      rules: [
-        {
-          collections: [
-            'pages',
-            'posts',
-            'builtInPages',
-            'tags',
-            'media',
-            'biographies',
-            'teams',
-            'forms',
-            'formSubmissions',
-          ],
-          actions: ['*'],
-        },
-      ],
-    },
-    {
-      name: 'Non-Profit Staff',
-      rules: [
-        {
-          collections: [
-            'pages',
-            'posts',
-            'builtInPages',
-            'tags',
-            'media',
-            'biographies',
-            'teams',
-            'forms',
-            'formSubmissions',
-            'sponsors',
-          ],
-          actions: ['*'],
-        },
-      ],
-    },
-  ])
-
-  payload.logger.info(`— Seeding brand media...`)
-
-  const logoFiles: Record<string, string> = {
-    bac: 'BAC.webp',
-    btac: 'BTAC.webp',
-    caic: 'CAIC.webp',
-    cbac: 'CBAC.webp',
-    cnfaic: 'CNFAIC.webp',
-    coaa: 'COAA.webp',
-    dvac: 'DVAC.webp',
-    esac: 'ESAC.webp',
-    fac: 'FAC.webp',
-    gnfac: 'GNFAC.webp',
-    hpac: 'HPAC.webp',
-    ipac: 'IPAC.webp',
-    kpac: 'KPAC.webp',
-    msac: 'MSAC.webp',
-    mwac: 'MWAC.webp',
-    nwac: 'NWAC.webp',
-    pac: 'PAC.webp',
-    sac: 'SAC.webp',
-    snfac: 'SNFAC.webp',
-    tac: 'TAC.webp',
-    wac: 'WAC.webp',
-    wcmac: 'WCMAC.webp',
-  }
-  const iconFiles: Record<string, string> = {
-    dvac: 'dvac-icon.png',
-    nwac: 'nwac-icon.png',
-    sac: 'sac-icon.png',
-    snfac: 'snfac-icon.png',
-  }
-  const bannerFiles: Record<string, string> = {
-    dvac: 'dvac-icon.png',
-    nwac: 'nwac-banner.webp',
-    sac: 'sac-banner.webp',
-    snfac: 'sac-usfs-logo.webp',
-  }
-  const usfsLogoFiles: Record<string, string> = {
-    nwac: 'usfs-logo.webp',
-    sac: 'usfs-logo.webp',
-  }
-
-  const logos: Record<string, File> = {}
-  const icons: Record<string, File> = {}
-  const banners: Record<string, File> = {}
-  const usfsLogos: Record<string, File> = {}
-
-  for (const tenantSlug in tenants) {
-    if (tenantSlug in logoFiles) {
-      const logo = await getSeedImageByFilename(logoFiles[tenantSlug], payload.logger)
-      if (!logo) {
-        throw new Error(`Getting logo for tenant ${tenantSlug} returned null...`)
-      }
-      logos[tenantSlug] = logo
-    }
-    if (tenantSlug in iconFiles) {
-      const icon = await getSeedImageByFilename(iconFiles[tenantSlug], payload.logger)
-      if (!icon) {
-        throw new Error(`Getting icon for tenant ${tenantSlug} returned null...`)
-      }
-      icons[tenantSlug] = icon
-    }
-    if (tenantSlug in bannerFiles) {
-      const banner = await getSeedImageByFilename(bannerFiles[tenantSlug], payload.logger)
-      if (!banner) {
-        throw new Error(`Getting banner for tenant ${tenantSlug} returned null...`)
-      }
-      banners[tenantSlug] = banner
-    }
-    if (tenantSlug in usfsLogoFiles) {
-      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug], payload.logger)
-      if (!usfsLogo) {
-        throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
-      }
-      usfsLogos[tenantSlug] = usfsLogo
-    }
-  }
-
-  const brandImages = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
-    ...Object.values(tenants)
-      .map((tenant): { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] => [
-        {
-          data: {
-            tenant: tenant.id,
-            alt: 'logo',
-          },
-          file: logos[tenant.slug],
-        },
-        {
-          data: {
-            tenant: tenant.id,
-            alt: 'icon',
-          },
-          file: icons[tenant.slug],
-        },
-        {
-          data: {
-            tenant: tenant.id,
-            alt: 'banner',
-          },
-          file: banners[tenant.slug],
-        },
-        ...(usfsLogos[tenant.slug]
-          ? [
-              {
-                data: {
-                  tenant: tenant.id,
-                  alt: 'usfs logo',
-                },
-                file: usfsLogos[tenant.slug],
-              },
-            ]
-          : []),
-      ])
-      .flat(),
-  ])
-
-  // Settings
-  const settingsData: Record<
-    Tenant['slug'],
-    Partial<RequiredDataFromCollectionSlug<'settings'>>
-  > = {
-    dvac: {
-      description:
-        'Death Valley Avalanche Center is our templated tenant where we can see and copy data from.',
-      address: '123 Made Up Ave. S\nNowhere, WA 98045',
-      phone: '(111)867-5309',
-      email: 'info@dvac.us',
-      socialMedia: {},
-    },
-    nwac: {
-      description:
-        'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
-
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/nwacus',
-        facebook: 'https://www.facebook.com/NWACUS/',
-        twitter: 'https://x.com/nwacus',
-        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
-        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
-      },
-    },
-    sac: {
-      description:
-        'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
-
-      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
-      phone: '(530)563-2257',
-      email: 'info@sierraavalanchecenter.org',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/savycenter/',
-        facebook: 'https://www.facebook.com/sacnonprofit',
-        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
-      },
-    },
-    snfac: {
-      description: 'Avalanche Safety Information for South Central Idaho',
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {},
-    },
-  }
-
-  await upsert(
-    'settings',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
-    Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
-        tenant: tenant.id,
-        description: settingsData[tenant.slug].description,
-        footerForm: {
-          type: 'none',
-        },
-        address: settingsData[tenant.slug].address,
-        phone: settingsData[tenant.slug].phone,
-        email: settingsData[tenant.slug].email,
-        socialMedia: settingsData[tenant.slug].socialMedia,
-        logo: brandImages[tenant.slug]['logo'].id,
-        icon: brandImages[tenant.slug]['icon'].id,
-        banner: brandImages[tenant.slug]['banner'].id,
-        usfsLogo: brandImages[tenant.slug]['usfs logo']?.id,
-      }),
-    ),
-  )
-
-  if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {
-    payload.logger.fatal(
-      "$PAYLOAD_SEED_PASSWORD missing and ALLOW_SIMPLE_PASSWORDS not set to 'true' - either opt into simple passwords or provide a seed password.",
-    )
-    throw new Error('Invalid request.')
-  }
-  const password = process.env.PAYLOAD_SEED_PASSWORD || 'localpass'
-  payload.logger.info(`— Using password '${password}'...`)
-  const users = await upsertGlobals('users', payload, incremental, (obj) => obj.name, [
-    {
-      name: 'Super Admin',
-      email: 'admin@avy.com',
-      password: password,
-    },
-    ...Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
-        {
-          name: tenant.slug.toUpperCase() + ' Admin',
-          email: 'admin@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
-          password: password,
-        },
-        {
-          name: tenant.slug.toUpperCase() + ' Forecaster',
-          email: 'forecaster@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
-          password: password,
-        },
-        {
-          name: tenant.slug.toUpperCase() + ' Non-Profit Staff',
-          email: 'staff@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
-          password: password,
-        },
-      ])
-      .flat(),
-    {
-      name: 'Multi-center Admin',
-      email: 'multicenter@avy.com',
-      password: password,
-    },
-  ])
-
-  const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
-
-  // Assign global roles directly to users
-  await payload.create({
-    collection: 'globalRoleAssignments',
-    data: {
-      user: users['Super Admin'].id,
-      globalRole: globalRoles['Super Admin'].id,
-    },
-    context: {
-      disableRevalidate: true,
-    },
-  })
-
   try {
-    const requestHeaders = await headers()
-    const { user } = await payload.auth({ headers: requestHeaders })
+    payload.logger.info('Seeding database...')
+    if (!incremental) {
+      payload.logger.info(`— Clearing collections and globals...`)
 
-    if (user && user.email !== users['Super Admin'].email) {
-      await payload.create({
-        collection: 'globalRoleAssignments',
-        data: {
-          user: user.id,
-          globalRole: globalRoles['Super Admin'].id,
+      // reset the nacWidgetsConfig global
+      await payload.updateGlobal({
+        slug: 'nacWidgetsConfig',
+        data: defaultNacWidgetsConfig.requiredFields,
+        depth: 0,
+        context: {
+          disableRevalidate: true,
+        },
+      })
+
+      await Promise.all(
+        collections.map((collection) => {
+          payload.logger.info(`Deleting collection: ${collection}`)
+          return payload.db.deleteMany({ collection, req, where: {} })
+        }),
+      )
+
+      await Promise.all(
+        collections
+          .filter((collection) => Boolean(payload.collections[collection].config.versions))
+          .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
+      )
+
+      payload.logger.info(`— Clearing users...`)
+
+      await payload.delete({
+        collection: 'users',
+        depth: 0,
+        where: {
+          or: [
+            {
+              email: {
+                contains: 'avy.com',
+              },
+            },
+            {
+              email: {
+                contains: 'dvac.us',
+              },
+            },
+            {
+              email: {
+                contains: 'nwac.us',
+              },
+            },
+            {
+              email: {
+                contains: 'sierraavalanchecenter.org',
+              },
+            },
+            {
+              email: {
+                contains: 'sawtoothavalanche.com',
+              },
+            },
+          ],
         },
         context: {
           disableRevalidate: true,
         },
       })
+
+      payload.logger.info('- Deleting existing /public/media folder...')
+
+      try {
+        const path = getPath('public/media')
+        fs.rmSync(path, { recursive: true, force: true })
+      } catch (err) {
+        payload.logger.error(
+          `Failed to delete /public/media folder: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        )
+      }
+    } else {
+      payload.logger.info(`— Skipping database cleanup for incremental seed...`)
     }
-  } catch (err) {
-    payload.logger.error(
-      `Error authenticating current user. We may be running in standalone mode. Error: ${err instanceof Error ? err.message : err}`,
+
+    // Create global roles first
+    const globalRoles = await upsertGlobals(
+      'globalRoles',
+      payload,
+      incremental,
+      (obj) => obj.name,
+      [
+        {
+          name: 'Super Admin',
+          rules: [
+            {
+              collections: ['*'],
+              actions: ['*'],
+            },
+          ],
+        },
+      ],
     )
-  }
 
-  // Roles
-  await upsert(
-    'roleAssignments',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => `${obj.user} ${obj.role}`,
-    [
+    const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
+      {
+        name: 'Death Valley Avalanche Center',
+        slug: 'dvac',
+        customDomain: 'dvac.us',
+      },
+      {
+        name: 'Northwest Avalanche Center',
+        slug: 'nwac',
+        customDomain: 'nwac.us',
+      },
+      {
+        name: 'Sierra Avalanche Center',
+        slug: 'sac',
+        customDomain: 'sierraavalanchecenter.org',
+      },
+      {
+        name: 'Sawtooth Avalanche Center',
+        slug: 'snfac',
+        customDomain: 'sawtoothavalanche.com',
+      },
+    ])
+    const tenantsById: Record<number, Tenant> = {}
+    for (const tenant in tenants) {
+      tenantsById[tenants[tenant].id] = tenants[tenant]
+    }
+
+    // Create global roles
+    const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
+      {
+        name: 'Admin',
+        rules: [
+          {
+            collections: [
+              'pages',
+              'posts',
+              'builtInPages',
+              'tags',
+              'roleAssignments',
+              'settings',
+              'media',
+              'biographies',
+              'teams',
+              'forms',
+              'formSubmissions',
+              'users',
+              'redirects',
+              'sponsors',
+              'homePages',
+            ],
+            actions: ['*'],
+          },
+          {
+            collections: ['navigations', 'tenants'],
+            actions: ['read'],
+          },
+        ],
+      },
+      {
+        name: 'Forecaster',
+        rules: [
+          {
+            collections: [
+              'pages',
+              'posts',
+              'builtInPages',
+              'tags',
+              'media',
+              'biographies',
+              'teams',
+              'forms',
+              'formSubmissions',
+            ],
+            actions: ['*'],
+          },
+        ],
+      },
+      {
+        name: 'Non-Profit Staff',
+        rules: [
+          {
+            collections: [
+              'pages',
+              'posts',
+              'builtInPages',
+              'tags',
+              'media',
+              'biographies',
+              'teams',
+              'forms',
+              'formSubmissions',
+              'sponsors',
+            ],
+            actions: ['*'],
+          },
+        ],
+      },
+    ])
+
+    payload.logger.info(`— Seeding brand media...`)
+
+    const logoFiles: Record<string, string> = {
+      bac: 'BAC.webp',
+      btac: 'BTAC.webp',
+      caic: 'CAIC.webp',
+      cbac: 'CBAC.webp',
+      cnfaic: 'CNFAIC.webp',
+      coaa: 'COAA.webp',
+      dvac: 'DVAC.webp',
+      esac: 'ESAC.webp',
+      fac: 'FAC.webp',
+      gnfac: 'GNFAC.webp',
+      hpac: 'HPAC.webp',
+      ipac: 'IPAC.webp',
+      kpac: 'KPAC.webp',
+      msac: 'MSAC.webp',
+      mwac: 'MWAC.webp',
+      nwac: 'NWAC.webp',
+      pac: 'PAC.webp',
+      sac: 'SAC.webp',
+      snfac: 'SNFAC.webp',
+      tac: 'TAC.webp',
+      wac: 'WAC.webp',
+      wcmac: 'WCMAC.webp',
+    }
+    const iconFiles: Record<string, string> = {
+      dvac: 'dvac-icon.png',
+      nwac: 'nwac-icon.png',
+      sac: 'sac-icon.png',
+      snfac: 'snfac-icon.png',
+    }
+    const bannerFiles: Record<string, string> = {
+      dvac: 'dvac-icon.png',
+      nwac: 'nwac-banner.webp',
+      sac: 'sac-banner.webp',
+      snfac: 'sac-usfs-logo.webp',
+    }
+    const usfsLogoFiles: Record<string, string> = {
+      nwac: 'usfs-logo.webp',
+      sac: 'usfs-logo.webp',
+    }
+
+    const logos: Record<string, File> = {}
+    const icons: Record<string, File> = {}
+    const banners: Record<string, File> = {}
+    const usfsLogos: Record<string, File> = {}
+
+    for (const tenantSlug in tenants) {
+      if (tenantSlug in logoFiles) {
+        const logo = await getSeedImageByFilename(logoFiles[tenantSlug], payload.logger)
+        if (!logo) {
+          throw new Error(`Getting logo for tenant ${tenantSlug} returned null...`)
+        }
+        logos[tenantSlug] = logo
+      }
+      if (tenantSlug in iconFiles) {
+        const icon = await getSeedImageByFilename(iconFiles[tenantSlug], payload.logger)
+        if (!icon) {
+          throw new Error(`Getting icon for tenant ${tenantSlug} returned null...`)
+        }
+        icons[tenantSlug] = icon
+      }
+      if (tenantSlug in bannerFiles) {
+        const banner = await getSeedImageByFilename(bannerFiles[tenantSlug], payload.logger)
+        if (!banner) {
+          throw new Error(`Getting banner for tenant ${tenantSlug} returned null...`)
+        }
+        banners[tenantSlug] = banner
+      }
+      if (tenantSlug in usfsLogoFiles) {
+        const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug], payload.logger)
+        if (!usfsLogo) {
+          throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
+        }
+        usfsLogos[tenantSlug] = usfsLogo
+      }
+    }
+
+    const brandImages = await upsert('media', payload, incremental, tenantsById, (obj) => obj.alt, [
       ...Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
+        .map((tenant): { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] => [
           {
-            tenant: tenant.id,
-            role: roles['Admin'].id,
-            user: users[tenant.slug.toUpperCase() + ' Admin'].id,
+            data: {
+              tenant: tenant.id,
+              alt: 'logo',
+            },
+            file: logos[tenant.slug],
           },
           {
-            tenant: tenant.id,
-            role: roles['Forecaster'].id,
-            user: users[tenant.slug.toUpperCase() + ' Forecaster'].id,
+            data: {
+              tenant: tenant.id,
+              alt: 'icon',
+            },
+            file: icons[tenant.slug],
           },
+          {
+            data: {
+              tenant: tenant.id,
+              alt: 'banner',
+            },
+            file: banners[tenant.slug],
+          },
+          ...(usfsLogos[tenant.slug]
+            ? [
+                {
+                  data: {
+                    tenant: tenant.id,
+                    alt: 'usfs logo',
+                  },
+                  file: usfsLogos[tenant.slug],
+                },
+              ]
+            : []),
+        ])
+        .flat(),
+    ])
 
+    // Settings
+    const settingsData: Record<
+      Tenant['slug'],
+      Partial<RequiredDataFromCollectionSlug<'settings'>>
+    > = {
+      dvac: {
+        description:
+          'Death Valley Avalanche Center is our templated tenant where we can see and copy data from.',
+        address: '123 Made Up Ave. S\nNowhere, WA 98045',
+        phone: '(111)867-5309',
+        email: 'info@dvac.us',
+        socialMedia: {},
+      },
+      nwac: {
+        description:
+          'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
+
+        address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+        phone: '(206)909-0203',
+        email: 'info@nwac.us',
+        socialMedia: {
+          instagram: 'https://www.instagram.com/nwacus',
+          facebook: 'https://www.facebook.com/NWACUS/',
+          twitter: 'https://x.com/nwacus',
+          linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
+          youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
+        },
+      },
+      sac: {
+        description:
+          'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
+
+        address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
+        phone: '(530)563-2257',
+        email: 'info@sierraavalanchecenter.org',
+        socialMedia: {
+          instagram: 'https://www.instagram.com/savycenter/',
+          facebook: 'https://www.facebook.com/sacnonprofit',
+          youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
+        },
+      },
+      snfac: {
+        description: 'Avalanche Safety Information for South Central Idaho',
+        address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+        phone: '(206)909-0203',
+        email: 'info@nwac.us',
+        socialMedia: {},
+      },
+    }
+
+    await upsert(
+      'settings',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
+      Object.values(tenants).map(
+        (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
+          tenant: tenant.id,
+          description: settingsData[tenant.slug].description,
+          footerForm: {
+            type: 'none',
+          },
+          address: settingsData[tenant.slug].address,
+          phone: settingsData[tenant.slug].phone,
+          email: settingsData[tenant.slug].email,
+          socialMedia: settingsData[tenant.slug].socialMedia,
+          logo: brandImages[tenant.slug]['logo'].id,
+          icon: brandImages[tenant.slug]['icon'].id,
+          banner: brandImages[tenant.slug]['banner'].id,
+          usfsLogo: brandImages[tenant.slug]['usfs logo']?.id,
+        }),
+      ),
+    )
+
+    if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {
+      payload.logger.fatal(
+        "$PAYLOAD_SEED_PASSWORD missing and ALLOW_SIMPLE_PASSWORDS not set to 'true' - either opt into simple passwords or provide a seed password.",
+      )
+      throw new Error('Invalid request.')
+    }
+    const password = process.env.PAYLOAD_SEED_PASSWORD || 'localpass'
+    payload.logger.info(`— Using password '${password}'...`)
+    const users = await upsertGlobals('users', payload, incremental, (obj) => obj.name, [
+      {
+        name: 'Super Admin',
+        email: 'admin@avy.com',
+        password: password,
+      },
+      ...Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
           {
-            tenant: tenant.id,
-            role: roles['Non-Profit Staff'].id,
-            user: users[tenant.slug.toUpperCase() + ' Non-Profit Staff'].id,
+            name: tenant.slug.toUpperCase() + ' Admin',
+            email: 'admin@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
+            password: password,
+          },
+          {
+            name: tenant.slug.toUpperCase() + ' Forecaster',
+            email: 'forecaster@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
+            password: password,
+          },
+          {
+            name: tenant.slug.toUpperCase() + ' Non-Profit Staff',
+            email: 'staff@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
+            password: password,
           },
         ])
         .flat(),
       {
-        tenant: tenants['snfac'].id,
-        role: roles['Admin'].id,
-        user: users['Multi-center Admin'].id,
+        name: 'Multi-center Admin',
+        email: 'multicenter@avy.com',
+        password: password,
       },
-      {
-        tenant: tenants['nwac'].id,
-        role: roles['Admin'].id,
-        user: users['Multi-center Admin'].id,
-      },
-    ],
-  )
-
-  payload.logger.info(`— Getting images...`)
-
-  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, imageAcmeBuffer] =
-    await Promise.all([
-      getSeedImageByFilename('image-post1.webp', payload.logger),
-      getSeedImageByFilename('image-post2.webp', payload.logger),
-      getSeedImageByFilename('image-post3.webp', payload.logger),
-      getSeedImageByFilename('image-mountain.webp', payload.logger),
-      getSeedImageByFilename('acme-corp.webp', payload.logger),
     ])
 
-  const images = await upsert(
-    'media',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => obj.alt,
-    Object.values(tenants)
-      .map((tenant): { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] => [
-        {
-          data: image1(tenant),
-          file: image1Buffer,
-        },
-        {
-          data: image2(tenant),
-          file: image2Buffer,
-        },
-        {
-          data: (() => {
-            const i = image2(tenant)
-            i.alt = 'image3'
-            return i
-          })(),
-          file: image3Buffer,
-        },
-        {
-          data: imageMountain(tenant),
-          file: imageMountainBuffer,
-        },
-        {
-          data: {
-            tenant: tenant.id,
-            alt: 'acmeCorp',
-          },
-          file: imageAcmeBuffer,
-        },
-      ])
-      .flat(),
-  )
-  // Tags
-  const tags = await upsert(
-    'tags',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => obj.title,
-    Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'tags'>[] => [
-        {
-          title: 'Education',
-          slug: 'education',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Gear',
-          slug: 'gear',
-          tenant: tenant.id,
-        },
-        {
-          title: 'Volunteers',
-          slug: 'volunteers',
-          tenant: tenant.id,
-        },
-      ])
-      .flat(),
-  )
-  const posts = await upsert(
-    'posts',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => obj.slug,
-    Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => {
-        const authors = Object.values(bios[tenant.slug])
-        return [
-          post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
-            authors[0],
-            authors[1],
-          ]),
-          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[2]),
-          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[3]),
-        ]
-      })
-      .flat(),
-  )
+    const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
 
-  payload.logger.info(`— Updating post relationships...`)
-  for (const tenant in posts) {
-    Object.values(posts[tenant]).forEach(async (post, index) => {
-      payload.logger.info(
-        `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
-      )
-      const randomTagId = Object.values(tags[tenant]).map((tag) => tag.id)[index]
-
-      await payload.update({
-        id: post.id,
-        collection: 'posts',
-        data: {
-          relatedPosts: Object.values(posts[tenant])
-            .filter((p) => p.id !== post.id)
-            .map((p) => p.id),
-          tags: [randomTagId],
-        },
-        context: {
-          disableRevalidate: true,
-        },
-      })
-    })
-  }
-
-  payload.logger.info(`— Seeding contact forms...`)
-
-  const contactForms: Record<string, Form> = {}
-  for (const tenant of Object.values(tenants)) {
-    payload.logger.info(`Creating contact form for tenant ${tenant.name}...`)
-    const contactForm = await payload.create({
-      collection: 'forms',
-      depth: 0,
-      data: { ...contactFormData, tenant: tenant.id },
+    // Assign global roles directly to users
+    await payload.create({
+      collection: 'globalRoleAssignments',
+      data: {
+        user: users['Super Admin'].id,
+        globalRole: globalRoles['Super Admin'].id,
+      },
       context: {
         disableRevalidate: true,
       },
     })
 
-    if (!contactForm) {
-      throw new Error(`Creating contact form for tenant ${tenant.name} returned null...`)
+    try {
+      const requestHeaders = await headers()
+      const { user } = await payload.auth({ headers: requestHeaders })
+
+      if (user && user.email !== users['Super Admin'].email) {
+        await payload.create({
+          collection: 'globalRoleAssignments',
+          data: {
+            user: user.id,
+            globalRole: globalRoles['Super Admin'].id,
+          },
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      }
+    } catch (err) {
+      payload.logger.error(
+        `Error authenticating current user. We may be running in standalone mode. Error: ${err instanceof Error ? err.message : err}`,
+      )
     }
-    contactForms[tenant.name] = contactForm
-  }
 
-  const homePages = await upsert(
-    'homePages',
-    payload,
-    incremental,
-    tenantsById,
-    () => 'homepage',
-    Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
-        homePage(tenant, images[tenant.slug]['imageMountain']),
-    ),
-  )
-
-  await upsert(
-    'builtInPages',
-    payload,
-    incremental,
-    tenantsById,
-    () => 'builtInPages',
-    Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
-        builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
-        builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
-        builtInPage(tenant, 'Recent Observations', '/observations'),
-        builtInPage(tenant, 'Submit Observations', '/observations/submit'),
-      ])
-      .flat(),
-  )
-
-  const pages = await upsert(
-    'pages',
-    payload,
-    incremental,
-    tenantsById,
-    (obj) => obj.slug,
-    Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
-        contactPageData(tenant, contactForms[tenant.name]),
-        allBlocksPage(
-          tenant,
-          images[tenant.slug]['imageMountain'],
-          Object.values(posts[tenant.slug]),
-        ),
-        whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Donate & Membership',
-          'Support avalanche safety by becoming a member or donating to the avalanche center.',
-          'donate-membership',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Workplace Giving',
-          'Have you thought about donating to the center through work? Your employer may be able to help you support avalanche safety.',
-          'workplace-giving',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Other Ways to Give',
-          'Learn about alternative methods to support the avalanche center and its mission.',
-          'other-ways-to-give',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Corporate Sponsorship',
-          "The avalanche center's work is supported by the generosity of our industry partners.",
-          'corporate-sponsorship',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Volunteer',
-          'Interested in volunteering your time for the center? We are always looking for help at events and with various projects.',
-          'volunteer',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'About Us',
-          'The avalanche center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
-          'about-us',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Agency Partners',
-          'The avalanche center collaborates with various agencies to enhance avalanche safety and awareness.',
-          'agency-partners',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Annual Report/Minutes',
-          "Access the avalanche center's annual reports and meeting minutes.",
-          'annual-report-minutes',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Employment',
-          'Explore career opportunities with the avalanche center.',
-          'employment',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Learn',
-          'Discover resources and opportunities to learn about avalanche safety and awareness.',
-          'learn',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Field Classes',
-          'Participate in field-based avalanche education classes offered by the center.',
-          'field-classes',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Avalanche Awareness Classes',
-          'The avalanche center offers free avalanche classes to the public throughout our forecast area.',
-          'avalanche-awareness-classes',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Courses by External Providers',
-          'Find avalanche education courses offered by external providers in your area.',
-          'courses-by-external-providers',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Workshops',
-          'Join specialized avalanche safety workshops for skill development and knowledge enhancement.',
-          'workshops',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Request a Class',
-          'Request an avalanche awareness or safety class for your group or organization.',
-          'request-a-class',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Scholarships',
-          'Learn about scholarships available for avalanche education and training.',
-          'scholarships',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Mentorship',
-          'Connect with experienced backcountry travelers through our mentorship program.',
-          'mentorship',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Beacon Parks',
-          'Locate and use avalanche beacon practice parks in your area.',
-          'beacon-parks',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Local Accident Reports',
-          'Access reports of avalanche accidents in your local area.',
-          'local-accident-reports',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Avalanche Accident Statistics',
-          'Review statistical data on avalanche accidents and incidents.',
-          'avalanche-accident-statistics',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'US Avalanche Accidents',
-          'Information about avalanche accidents across the United States.',
-          'us-avalanche-accidents',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Grief and Loss Resources',
-          'Support resources for those affected by avalanche tragedies.',
-          'grief-and-loss-resources',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Avalanche Accident Map',
-          'Interactive map showing locations of avalanche accidents and incidents.',
-          'avalanche-accident-map',
-        ),
-        page(
-          tenant,
-          images[tenant.slug]['image2'],
-          'Weather Tools',
-          'A list of weather links.',
-          'weather-tools',
-        ),
-      ])
-      .flat(),
-  )
-
-  payload.logger.info(`— Seeding sponsors...`)
-  await upsert(
-    'sponsors',
-    payload,
-    incremental,
-    tenantsById,
-    () => 'sponsors',
-    Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'sponsors'> =>
-        sponsors(tenant, images[tenant.slug]['acmeCorp']),
-    ),
-  )
-
-  payload.logger.info(`— Updating home page quick links...`)
-  for (const tenant of Object.values(tenants)) {
-    const aboutUsPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
-    const donatePage = Object.values(pages[tenant.slug]).find(
-      (page) => page.slug === 'donate-membership',
-    )
-
-    if (aboutUsPage && donatePage) {
-      await payload.update({
-        id: homePages[tenant.slug]['homepage'].id,
-        collection: 'homePages',
-        data: {
-          quickLinks: [
+    // Roles
+    await upsert(
+      'roleAssignments',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => `${obj.user} ${obj.role}`,
+      [
+        ...Object.values(tenants)
+          .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
             {
-              type: 'internal',
-              label: 'Learn More',
-              reference: {
-                relationTo: 'pages',
-                value: aboutUsPage.id,
-              },
+              tenant: tenant.id,
+              role: roles['Admin'].id,
+              user: users[tenant.slug.toUpperCase() + ' Admin'].id,
             },
             {
+              tenant: tenant.id,
+              role: roles['Forecaster'].id,
+              user: users[tenant.slug.toUpperCase() + ' Forecaster'].id,
+            },
+
+            {
+              tenant: tenant.id,
+              role: roles['Non-Profit Staff'].id,
+              user: users[tenant.slug.toUpperCase() + ' Non-Profit Staff'].id,
+            },
+          ])
+          .flat(),
+        {
+          tenant: tenants['snfac'].id,
+          role: roles['Admin'].id,
+          user: users['Multi-center Admin'].id,
+        },
+        {
+          tenant: tenants['nwac'].id,
+          role: roles['Admin'].id,
+          user: users['Multi-center Admin'].id,
+        },
+      ],
+    )
+
+    payload.logger.info(`— Getting images...`)
+
+    const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, imageAcmeBuffer] =
+      await Promise.all([
+        getSeedImageByFilename('image-post1.webp', payload.logger),
+        getSeedImageByFilename('image-post2.webp', payload.logger),
+        getSeedImageByFilename('image-post3.webp', payload.logger),
+        getSeedImageByFilename('image-mountain.webp', payload.logger),
+        getSeedImageByFilename('acme-corp.webp', payload.logger),
+      ])
+
+    const images = await upsert(
+      'media',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.alt,
+      Object.values(tenants)
+        .map((tenant): { data: RequiredDataFromCollectionSlug<'media'>; file: File }[] => [
+          {
+            data: image1(tenant),
+            file: image1Buffer,
+          },
+          {
+            data: image2(tenant),
+            file: image2Buffer,
+          },
+          {
+            data: (() => {
+              const i = image2(tenant)
+              i.alt = 'image3'
+              return i
+            })(),
+            file: image3Buffer,
+          },
+          {
+            data: imageMountain(tenant),
+            file: imageMountainBuffer,
+          },
+          {
+            data: {
+              tenant: tenant.id,
+              alt: 'acmeCorp',
+            },
+            file: imageAcmeBuffer,
+          },
+        ])
+        .flat(),
+    )
+    // Tags
+    const tags = await upsert(
+      'tags',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.title,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'tags'>[] => [
+          {
+            title: 'Education',
+            slug: 'education',
+            tenant: tenant.id,
+          },
+          {
+            title: 'Gear',
+            slug: 'gear',
+            tenant: tenant.id,
+          },
+          {
+            title: 'Volunteers',
+            slug: 'volunteers',
+            tenant: tenant.id,
+          },
+        ])
+        .flat(),
+    )
+    const posts = await upsert(
+      'posts',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => {
+          const authors = Object.values(bios[tenant.slug])
+          return [
+            post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
+              authors[0],
+              authors[1],
+            ]),
+            post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[2]),
+            post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[3]),
+          ]
+        })
+        .flat(),
+    )
+
+    payload.logger.info(`— Updating post relationships...`)
+    for (const tenant in posts) {
+      Object.values(posts[tenant]).forEach(async (post, index) => {
+        payload.logger.info(
+          `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
+        )
+        const randomTagId = Object.values(tags[tenant]).map((tag) => tag.id)[index]
+
+        await payload.update({
+          id: post.id,
+          collection: 'posts',
+          data: {
+            relatedPosts: Object.values(posts[tenant])
+              .filter((p) => p.id !== post.id)
+              .map((p) => p.id),
+            tags: [randomTagId],
+          },
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      })
+    }
+
+    payload.logger.info(`— Seeding contact forms...`)
+
+    const contactForms: Record<string, Form> = {}
+    for (const tenant of Object.values(tenants)) {
+      payload.logger.info(`Creating contact form for tenant ${tenant.name}...`)
+      const contactForm = await payload.create({
+        collection: 'forms',
+        depth: 0,
+        data: { ...contactFormData, tenant: tenant.id },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+
+      if (!contactForm) {
+        throw new Error(`Creating contact form for tenant ${tenant.name} returned null...`)
+      }
+      contactForms[tenant.name] = contactForm
+    }
+
+    const homePages = await upsert(
+      'homePages',
+      payload,
+      incremental,
+      tenantsById,
+      () => 'homepage',
+      Object.values(tenants).map(
+        (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
+          homePage(tenant, images[tenant.slug]['imageMountain']),
+      ),
+    )
+
+    await upsert(
+      'builtInPages',
+      payload,
+      incremental,
+      tenantsById,
+      () => 'builtInPages',
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
+          builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
+          builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+          builtInPage(tenant, 'Recent Observations', '/observations'),
+          builtInPage(tenant, 'Submit Observations', '/observations/submit'),
+        ])
+        .flat(),
+    )
+
+    const pages = await upsert(
+      'pages',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
+          contactPageData(tenant, contactForms[tenant.name]),
+          allBlocksPage(
+            tenant,
+            images[tenant.slug]['imageMountain'],
+            Object.values(posts[tenant.slug]),
+          ),
+          whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Donate & Membership',
+            'Support avalanche safety by becoming a member or donating to the avalanche center.',
+            'donate-membership',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Workplace Giving',
+            'Have you thought about donating to the center through work? Your employer may be able to help you support avalanche safety.',
+            'workplace-giving',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Other Ways to Give',
+            'Learn about alternative methods to support the avalanche center and its mission.',
+            'other-ways-to-give',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Corporate Sponsorship',
+            "The avalanche center's work is supported by the generosity of our industry partners.",
+            'corporate-sponsorship',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Volunteer',
+            'Interested in volunteering your time for the center? We are always looking for help at events and with various projects.',
+            'volunteer',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'About Us',
+            'The avalanche center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
+            'about-us',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Agency Partners',
+            'The avalanche center collaborates with various agencies to enhance avalanche safety and awareness.',
+            'agency-partners',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Annual Report/Minutes',
+            "Access the avalanche center's annual reports and meeting minutes.",
+            'annual-report-minutes',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Employment',
+            'Explore career opportunities with the avalanche center.',
+            'employment',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Learn',
+            'Discover resources and opportunities to learn about avalanche safety and awareness.',
+            'learn',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Field Classes',
+            'Participate in field-based avalanche education classes offered by the center.',
+            'field-classes',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Avalanche Awareness Classes',
+            'The avalanche center offers free avalanche classes to the public throughout our forecast area.',
+            'avalanche-awareness-classes',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Courses by External Providers',
+            'Find avalanche education courses offered by external providers in your area.',
+            'courses-by-external-providers',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Workshops',
+            'Join specialized avalanche safety workshops for skill development and knowledge enhancement.',
+            'workshops',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Request a Class',
+            'Request an avalanche awareness or safety class for your group or organization.',
+            'request-a-class',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Scholarships',
+            'Learn about scholarships available for avalanche education and training.',
+            'scholarships',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Mentorship',
+            'Connect with experienced backcountry travelers through our mentorship program.',
+            'mentorship',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Beacon Parks',
+            'Locate and use avalanche beacon practice parks in your area.',
+            'beacon-parks',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Local Accident Reports',
+            'Access reports of avalanche accidents in your local area.',
+            'local-accident-reports',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Avalanche Accident Statistics',
+            'Review statistical data on avalanche accidents and incidents.',
+            'avalanche-accident-statistics',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'US Avalanche Accidents',
+            'Information about avalanche accidents across the United States.',
+            'us-avalanche-accidents',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Grief and Loss Resources',
+            'Support resources for those affected by avalanche tragedies.',
+            'grief-and-loss-resources',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Avalanche Accident Map',
+            'Interactive map showing locations of avalanche accidents and incidents.',
+            'avalanche-accident-map',
+          ),
+          page(
+            tenant,
+            images[tenant.slug]['image2'],
+            'Weather Tools',
+            'A list of weather links.',
+            'weather-tools',
+          ),
+        ])
+        .flat(),
+    )
+
+    payload.logger.info(`— Seeding sponsors...`)
+    await upsert(
+      'sponsors',
+      payload,
+      incremental,
+      tenantsById,
+      () => 'sponsors',
+      Object.values(tenants).map(
+        (tenant): RequiredDataFromCollectionSlug<'sponsors'> =>
+          sponsors(tenant, images[tenant.slug]['acmeCorp']),
+      ),
+    )
+
+    payload.logger.info(`— Updating home page quick links...`)
+    for (const tenant of Object.values(tenants)) {
+      const aboutUsPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
+      const donatePage = Object.values(pages[tenant.slug]).find(
+        (page) => page.slug === 'donate-membership',
+      )
+
+      if (aboutUsPage && donatePage) {
+        await payload.update({
+          id: homePages[tenant.slug]['homepage'].id,
+          collection: 'homePages',
+          data: {
+            quickLinks: [
+              {
+                type: 'internal',
+                label: 'Learn More',
+                reference: {
+                  relationTo: 'pages',
+                  value: aboutUsPage.id,
+                },
+              },
+              {
+                type: 'internal',
+                label: 'Donate',
+                reference: {
+                  relationTo: 'pages',
+                  value: donatePage.id,
+                },
+              },
+            ],
+          },
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      }
+    }
+
+    // Navigations
+    await upsert(
+      'navigations',
+      payload,
+      incremental,
+      tenantsById,
+      (_obj) => 'nav',
+      Object.values(tenants).map(
+        (tenant): RequiredDataFromCollectionSlug<'navigations'> =>
+          navigationSeed(payload, pages, tenant),
+      ),
+    )
+
+    payload.logger.info(`Remove custom domain from dvac...`)
+    await payload.update({
+      id: tenants['dvac'].id,
+      collection: 'tenants',
+      data: {
+        customDomain: '',
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    payload.logger.info(`— Seeding redirects...`)
+    for (const tenant of Object.values(tenants)) {
+      const aboutPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
+      const donatePage = Object.values(pages[tenant.slug]).find(
+        (page) => page.slug === 'donate-membership',
+      )
+      const firstPost = Object.values(posts[tenant.slug])[0]
+
+      if (aboutPage) {
+        await payload.create({
+          collection: 'redirects',
+          data: {
+            tenant: tenant.id,
+            from: '/redirect-to-about',
+            to: {
               type: 'internal',
-              label: 'Donate',
+              reference: {
+                relationTo: 'pages',
+                value: aboutPage.id,
+              },
+            },
+          },
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      }
+
+      if (firstPost) {
+        await payload.create({
+          collection: 'redirects',
+          data: {
+            tenant: tenant.id,
+            from: '/redirect-to-post',
+            to: {
+              type: 'internal',
+              reference: {
+                relationTo: 'posts',
+                value: firstPost.id,
+              },
+            },
+          },
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      }
+
+      if (donatePage) {
+        await payload.create({
+          collection: 'redirects',
+          data: {
+            tenant: tenant.id,
+            from: '/redirect/redirect-to-donate',
+            to: {
+              type: 'internal',
               reference: {
                 relationTo: 'pages',
                 value: donatePage.id,
               },
             },
-          ],
+          },
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      }
+
+      await payload.create({
+        collection: 'redirects',
+        data: {
+          tenant: tenant.id,
+          from: '/redirect-to-external',
+          to: {
+            type: 'external',
+            url: 'https://avalanche.org',
+          },
         },
         context: {
           disableRevalidate: true,
         },
       })
     }
-  }
 
-  // Navigations
-  await upsert(
-    'navigations',
-    payload,
-    incremental,
-    tenantsById,
-    (_obj) => 'nav',
-    Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'navigations'> =>
-        navigationSeed(payload, pages, tenant),
-    ),
-  )
-
-  payload.logger.info(`Remove custom domain from dvac...`)
-  await payload.update({
-    id: tenants['dvac'].id,
-    collection: 'tenants',
-    data: {
-      customDomain: '',
-    },
-    context: {
-      disableRevalidate: true,
-    },
-  })
-
-  payload.logger.info(`— Seeding redirects...`)
-  for (const tenant of Object.values(tenants)) {
-    const aboutPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
-    const donatePage = Object.values(pages[tenant.slug]).find(
-      (page) => page.slug === 'donate-membership',
+    payload.logger.info('Seeded database successfully!')
+  } catch (err) {
+    payload.logger.error(
+      `Error occurred during seed: ${err instanceof Error ? err.message : 'Unknown error'}`,
     )
-    const firstPost = Object.values(posts[tenant.slug])[0]
-
-    if (aboutPage) {
-      await payload.create({
-        collection: 'redirects',
-        data: {
-          tenant: tenant.id,
-          from: '/redirect-to-about',
-          to: {
-            type: 'internal',
-            reference: {
-              relationTo: 'pages',
-              value: aboutPage.id,
-            },
-          },
-        },
-        context: {
-          disableRevalidate: true,
-        },
-      })
-    }
-
-    if (firstPost) {
-      await payload.create({
-        collection: 'redirects',
-        data: {
-          tenant: tenant.id,
-          from: '/redirect-to-post',
-          to: {
-            type: 'internal',
-            reference: {
-              relationTo: 'posts',
-              value: firstPost.id,
-            },
-          },
-        },
-        context: {
-          disableRevalidate: true,
-        },
-      })
-    }
-
-    if (donatePage) {
-      await payload.create({
-        collection: 'redirects',
-        data: {
-          tenant: tenant.id,
-          from: '/redirect/redirect-to-donate',
-          to: {
-            type: 'internal',
-            reference: {
-              relationTo: 'pages',
-              value: donatePage.id,
-            },
-          },
-        },
-        context: {
-          disableRevalidate: true,
-        },
-      })
-    }
-
-    await payload.create({
-      collection: 'redirects',
-      data: {
-        tenant: tenant.id,
-        from: '/redirect-to-external',
-        to: {
-          type: 'external',
-          url: 'https://avalanche.org',
-        },
-      },
-      context: {
-        disableRevalidate: true,
-      },
-    })
   }
-
-  payload.logger.info('Seeded database successfully!')
 }

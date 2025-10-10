@@ -725,7 +725,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`INSERT INTO \`__new_pages_blocks_generic_embed\`("_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "embed_height", "block_name") SELECT "_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "embed_height", "block_name" FROM \`pages_blocks_generic_embed\`;`,
+    sql`INSERT INTO \`__new_pages_blocks_generic_embed\`("_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "block_name") SELECT "_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "block_name" FROM \`pages_blocks_generic_embed\`;`,
   )
   await db.run(sql`DROP TABLE \`pages_blocks_generic_embed\`;`)
   await db.run(
@@ -1033,7 +1033,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`INSERT INTO \`__new__pages_v_blocks_generic_embed\`("_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "embed_height", "_uuid", "block_name") SELECT "_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "embed_height", "_uuid", "block_name" FROM \`_pages_v_blocks_generic_embed\`;`,
+    sql`INSERT INTO \`__new__pages_v_blocks_generic_embed\`("_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "_uuid", "block_name") SELECT "_order", "_parent_id", "_path", "id", "html", "background_color", "align_content", "_uuid", "block_name" FROM \`_pages_v_blocks_generic_embed\`;`,
   )
   await db.run(sql`DROP TABLE \`_pages_v_blocks_generic_embed\`;`)
   await db.run(

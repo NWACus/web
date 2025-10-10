@@ -16,6 +16,7 @@ public/sitemap*.xml
 dev.db
 dev.db-shm
 dev.db-wal
+*.db
 .env.production
 .env.development
 tsconfig.tsbuildinfo

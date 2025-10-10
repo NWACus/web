@@ -16,7 +16,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`INSERT INTO \`__new_redirects\`("id", "from", "to_type", "to_new_tab", "to_url", "tenant_id", "content_hash", "updated_at", "created_at") SELECT "id", "from", "to_type", "to_new_tab", "to_url", "tenant_id", "content_hash", "updated_at", "created_at" FROM \`redirects\`;`,
+    sql`INSERT INTO \`__new_redirects\`("id", "from", "to_type", "to_url", "tenant_id", "updated_at", "created_at") SELECT "id", "from", "to_type", "to_url", "tenant_id", "updated_at", "created_at" FROM \`redirects\`;`,
   )
   await db.run(sql`DROP TABLE \`redirects\`;`)
   await db.run(sql`ALTER TABLE \`__new_redirects\` RENAME TO \`redirects\`;`)
