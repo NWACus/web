@@ -19,12 +19,13 @@ We also need to get the new tenant into our Vercel Edge Config. Adding a new ten
 - [ ] Create Built-In pages
   | Title | URL | for AC w/single or multi zone*  |
   |--------|--------|--------|
-  | All Forecasts | /forecasts/avalanche| mutli |
-  | _ZONE NAME_ | /forecasts/avalanche/_ZONE_ | multi |
-  | Avalanche Forecast | /forecasts/avalanche/_ZONE_ | single |
-  | Weather Stations | /weather/stations/map| both |
-  | Recent Observations | /observations | both |
-  | Submit Observations | /observations/submit | both |
+  | All Forecasts | `/forecasts/avalanche`| mutli |
+  | _ZONE NAME_ | `/forecasts/avalanche/_ZONE_` | multi |
+  | Avalanche Forecast | `/forecasts/avalanche/_ZONE_` | single |
+  | Weather Stations | `/weather/stations/map`| both |
+  | Recent Observations | `/observations` | both |
+  | Submit Observations | `/observations/submit` | both |
+  | Local Accidents | `/accidents?impacts=["Humans Caught"]` | both |
 
 - [ ] Copy pages from the template tenant to the new tenant using the "Duplicate to..." functionality (page document view -> three dot menu)
 

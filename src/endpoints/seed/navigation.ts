@@ -1,9 +1,9 @@
-import { Navigation, Page, Tenant } from '@/payload-types'
+import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
 
 export const navigationSeed = (
   payload: Payload,
-  pages: Record<string, Record<string, Page>>,
+  pages: Record<string, Record<string, Page | BuiltInPage>>,
   tenant: Tenant,
 ): RequiredDataFromCollectionSlug<'navigations'> => {
   const pageLink = ({
@@ -57,6 +57,7 @@ export const navigationSeed = (
     weather: {
       items: [
         {
+          // Built-in page
           link: {
             type: 'internal',
             label: 'Weather Stations',
@@ -168,7 +169,12 @@ export const navigationSeed = (
     accidents: {
       items: [
         {
-          link: pageLink({ slug: 'local-accident-reports' }),
+          // Built-in page
+          link: {
+            type: 'internal',
+            label: 'Local Accidents',
+            url: '?impacts=["Humans Caught"]',
+          },
         },
         {
           link: pageLink({ slug: 'avalanche-accident-statistics' }),
