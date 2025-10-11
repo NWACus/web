@@ -9,13 +9,12 @@ import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
     collection: 'tenants',
-    limit: 1000,
     select: {
       slug: true,
     },
@@ -26,14 +25,16 @@ export async function generateStaticParams() {
 
 type Args = {
   params: Promise<PathArgs>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 type PathArgs = {
   center: string
 }
 
-export default async function Page({ params }: Args) {
+export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
+  const search = await searchParams
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
@@ -43,9 +44,23 @@ export default async function Page({ params }: Args) {
 
   const { version, baseUrl } = await getNACWidgetsConfig()
 
+  const queryParams = new URLSearchParams()
+
+  Object.entries(search).forEach(([key, value]) => {
+    if (value !== undefined) {
+      const stringValue = Array.isArray(value) ? value[0] : value
+      const decodedValue = decodeURIComponent(stringValue)
+      queryParams.set(key, decodedValue)
+    }
+  })
+
+  const queryString = queryParams.toString()
+  const initialHash = `/view/avalanches${queryString ? `?${queryString}` : ''}`
+  const cleanUrl = queryString ? `/accidents` : undefined
+
   return (
     <>
-      <WidgetHashHandler initialHash="/view/avalanches?impacts=%5B%22Humans+Caught%22%5D" />
+      <WidgetHashHandler initialHash={initialHash} cleanUrl={cleanUrl} />
       <div className="flex flex-col gap-4">
         <div className="container">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">

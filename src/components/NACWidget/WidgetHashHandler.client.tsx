@@ -2,19 +2,35 @@
 import { useHash } from '@/utilities/useHash'
 import { useEffect, useRef } from 'react'
 
-export function WidgetHashHandler({ initialHash }: { initialHash: string }) {
+export function WidgetHashHandler({
+  initialHash,
+  cleanUrl,
+}: {
+  initialHash: string
+  cleanUrl?: string
+}) {
   const hash = useHash()
-  const hasSetInitialHash = useRef(false)
+  const hasInitialized = useRef(false)
 
   useEffect(() => {
-    if (!hasSetInitialHash.current || !hash) {
-      window.location.hash = initialHash
-      hasSetInitialHash.current = true
+    if (hasInitialized.current) return
+
+    const existingHash = window.location.hash
+    const hasExistingHash = existingHash && existingHash !== '#'
+
+    if (!hasExistingHash) {
+      if (cleanUrl) {
+        window.history.replaceState({}, '', `${cleanUrl}#${initialHash}`)
+      } else {
+        window.location.hash = initialHash
+      }
     }
-  }, [hash, initialHash])
+
+    hasInitialized.current = true
+  }, [hash, initialHash, cleanUrl])
 
   useEffect(() => {
-    hasSetInitialHash.current = false
+    hasInitialized.current = false
   }, [initialHash])
 
   return null
