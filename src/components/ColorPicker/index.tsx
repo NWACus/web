@@ -22,30 +22,29 @@ const ColorPicker = (props: TextFieldClientProps) => {
     fetchUser()
   }, [data?.tenant])
 
-  if (!tenantSlug) return null
-
   return (
     <div className={cn(`flex flex-col mb-6 ${tenantSlug}`)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ul className="flex flex-wrap list-none pl-0">
-        {colorOptions.map((color, i) => {
-          const bgColor = `bg-${color}`
-          return (
-            <li key={i} className={cn('border', { 'border-solid': color === value })}>
-              <div
-                className={cn(
-                  `relative w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor} border border-solid border-gray-600`,
-                  {
-                    'bg-center bg-[length:20px_20px] bg-[image:repeating-conic-gradient(#ddd_0%_25%,white_0%_50%)]':
-                      color === 'transparent',
-                  },
-                )}
-                aria-label={color}
-                onClick={() => setValue(color)}
-              />
-            </li>
-          )
-        })}
+        {tenantSlug &&
+          colorOptions.map((color, i) => {
+            const bgColor = `bg-${color}`
+            return (
+              <li key={i} className={cn('border', { 'border-solid': color === value })}>
+                <div
+                  className={cn(
+                    `relative w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor} border border-solid border-gray-600`,
+                    {
+                      'bg-center bg-[length:20px_20px] bg-[image:repeating-conic-gradient(#ddd_0%_25%,white_0%_50%)]':
+                        color === 'transparent',
+                    },
+                  )}
+                  aria-label={color}
+                  onClick={() => setValue(color)}
+                />
+              </li>
+            )
+          })}
       </ul>
     </div>
   )
