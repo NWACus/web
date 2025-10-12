@@ -175,7 +175,6 @@ export const Pages: CollectionConfig<'pages'> = {
           "Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.",
       },
     },
-    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
     slugField(),
     tenantField(),
     contentHashField(),

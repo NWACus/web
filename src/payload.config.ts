@@ -35,6 +35,9 @@ import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenant
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
 import pino from 'pino'
 import { build } from 'pino-pretty'
+import { Events } from './collections/Events'
+import { EventSubTypes } from './collections/EventSubTypes'
+import { EventTypes } from './collections/EventTypes'
 import { Redirects } from './collections/Redirects'
 
 const filename = fileURLToPath(import.meta.url)
@@ -164,6 +167,9 @@ export default buildConfig({
     Documents,
     Sponsors,
     Tags,
+    Events,
+    EventTypes,
+    EventSubTypes,
     // Staff
     Biographies,
     Teams,

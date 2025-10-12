@@ -16,6 +16,9 @@ import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
+import { getEventsData } from './events'
+import { getEventSubTypesData } from './eventSubTypes'
+import { eventTypesData } from './eventTypes'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
@@ -47,6 +50,9 @@ const collections: CollectionSlug[] = [
   'teams',
   'builtInPages',
   'tenants',
+  'eventTypes',
+  'eventSubTypes',
+  'events',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -217,11 +223,12 @@ export const seed = async ({
               'redirects',
               'sponsors',
               'homePages',
+              'events',
             ],
             actions: ['*'],
           },
           {
-            collections: ['navigations', 'tenants'],
+            collections: ['navigations', 'tenants', 'eventTypes', 'eventSubTypes'],
             actions: ['read'],
           },
         ],
@@ -240,8 +247,13 @@ export const seed = async ({
               'teams',
               'forms',
               'formSubmissions',
+              'events',
             ],
             actions: ['*'],
+          },
+          {
+            collections: ['eventTypes', 'eventSubTypes'],
+            actions: ['read'],
           },
         ],
       },
@@ -260,12 +272,32 @@ export const seed = async ({
               'forms',
               'formSubmissions',
               'sponsors',
+              'events',
             ],
             actions: ['*'],
+          },
+          {
+            collections: ['eventTypes', 'eventSubTypes'],
+            actions: ['read'],
           },
         ],
       },
     ])
+
+    // Event Types
+    const eventTypes = await upsertGlobals('eventTypes', payload, incremental, (obj) => obj.slug, [
+      ...eventTypesData,
+    ])
+
+    // Event Sub Types (requires eventTypes to be created first)
+    const eventSubTypesData = getEventSubTypesData(eventTypes)
+    const eventSubTypes = await upsertGlobals(
+      'eventSubTypes',
+      payload,
+      incremental,
+      (obj) => obj.slug,
+      [...eventSubTypesData],
+    )
 
     payload.logger.info(`— Seeding brand media...`)
 
@@ -501,6 +533,25 @@ export const seed = async ({
     ])
 
     const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
+
+    // Events
+    await upsert(
+      'events',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
+          return getEventsData(
+            tenant,
+            eventTypes,
+            eventSubTypes,
+            images[tenant.slug]['imageMountain'],
+          )
+        })
+        .flat(),
+    )
 
     // Assign global roles directly to users
     await payload.create({
