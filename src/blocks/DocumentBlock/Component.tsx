@@ -2,6 +2,7 @@
 import { type DocumentBlock as DocumentBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { getMediaURL } from '@/utilities/getURL'
+import { isValidRelationship } from '@/utilities/relationships'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { cn } from '@/utilities/ui'
 
@@ -13,11 +14,11 @@ export const DocumentBlock = (props: Props) => {
   const { document, wrapInContainer = true } = props
   const { tenant } = useTenant()
 
-  if (!document) return null
-  const src =
-    typeof document !== 'number'
-      ? getMediaURL(document.url, null, getHostnameFromTenant(tenant))
-      : ''
+  if (!isValidRelationship(document) || !document.url) {
+    return null
+  }
+
+  const src = getMediaURL(document.url, null, getHostnameFromTenant(tenant))
 
   return (
     <div className={cn('my-4', { container: wrapInContainer })}>
