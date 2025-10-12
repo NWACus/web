@@ -12,6 +12,7 @@ A few notable behaviors:
 - You can use on-demand revalidation using `revalidatePath`, `revalidateTag` and time-based revalidation using `export const revalidate = {seconds}`. These can and should be used together.
 - Time-based revalidation uses the SWR (stale-while-revalidate) pattern. The next request after the timeout will serve the cached, stale/outdated page and generate a fresh server side rendered version of the page in the background and store this in the cache. The next request will serve the cached, fresh page.
 - `revalidateTag` will only revalidate the data cache layer. If a page was statically generated based on data from the data cache that is then invalidated by `revalidateTag`, that page will be regenerated on the next visit. The granularity of this means that other data fetched by a given page might still use the cached version of it and using `revalidatePath` is easier to reason about from a high level.
+- I questioned the use of `export const dynamic = 'force-static'` since static rendering is the default in Next.js when using `generateStaticParams`. But using `draftMode()` in the `src/app/(frontend)/layout.tsx` opts all pages under that into dynamic rendering. So we need to explicitly set `force-static` on these pages to tell Next.js to use static rendering.
 
 ### Deeply nested relationships
 
