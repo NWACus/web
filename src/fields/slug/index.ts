@@ -1,6 +1,7 @@
 import { ensureUniqueSlug } from '@/fields/slug/ensureUniqueSlug'
+import { TextField } from 'payload'
 
-export const slugField = (fieldToUse: string = 'title') => ({
+export const slugField = (fieldToUse: string = 'title'): TextField => ({
   name: 'slug',
   type: 'text',
   index: true,
