@@ -246,6 +246,17 @@ export interface HomePage {
     | TeamBlock
     | GenericEmbedBlock
   )[];
+  /**
+   * Automatically populated field tracking block references in highlightedContent for revalidation purposes.
+   */
+  blocksInHighlightedContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        docId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   publishedAt?: string | null;
   contentHash?: string | null;
   updatedAt: string;
@@ -2132,6 +2143,14 @@ export interface HomePagesSelect<T extends boolean = true> {
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
+      };
+  blocksInHighlightedContent?:
+    | T
+    | {
+        blockType?: T;
+        collection?: T;
+        docId?: T;
+        id?: T;
       };
   publishedAt?: T;
   contentHash?: T;
