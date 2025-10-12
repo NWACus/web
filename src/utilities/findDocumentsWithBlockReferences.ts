@@ -101,12 +101,6 @@ export async function findDocumentsWithBlockReferences(
                 },
               ],
             },
-            select: {
-              id: true,
-              slug: true,
-              tenant: true,
-              layout: true,
-            },
             depth: 1,
           })
 
@@ -141,11 +135,6 @@ export async function findDocumentsWithBlockReferences(
                   [`layout.${mapping.fieldName}`]: { equals: reference.id },
                 },
               ],
-            },
-            select: {
-              id: true,
-              slug: true,
-              tenant: true,
             },
             depth: 1,
           })
@@ -186,11 +175,6 @@ export async function findDocumentsWithBlockReferences(
             },
           ],
         },
-        select: {
-          id: true,
-          slug: true,
-          tenant: true,
-        },
         depth: 1,
       })
 
@@ -229,12 +213,6 @@ export async function findDocumentsWithBlockReferences(
                 },
               ],
             },
-            select: {
-              id: true,
-              slug: true,
-              tenant: true,
-              layout: true,
-            },
             depth: 1,
           })
 
@@ -262,10 +240,6 @@ export async function findDocumentsWithBlockReferences(
             collection: 'homePages',
             where: {
               [`layout.${mapping.fieldName}`]: { equals: reference.id },
-            },
-            select: {
-              id: true,
-              tenant: true,
             },
             depth: 1,
           })
