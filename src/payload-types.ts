@@ -75,6 +75,9 @@ export interface Config {
     documents: Document;
     sponsors: Sponsor;
     tags: Tag;
+    events: Event;
+    eventTypes: EventType;
+    eventSubTypes: EventSubType;
     biographies: Biography;
     teams: Team;
     users: User;
@@ -107,6 +110,9 @@ export interface Config {
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    eventTypes: EventTypesSelect<false> | EventTypesSelect<true>;
+    eventSubTypes: EventSubTypesSelect<false> | EventSubTypesSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -1168,6 +1174,163 @@ export interface GenericEmbedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  /**
+   * Optional subtitle/tagline for the event
+   */
+  subtitle?: string | null;
+  /**
+   * Short description/summary for event previews
+   */
+  description?: string | null;
+  startDate: string;
+  /**
+   * Optional end date for multi-day events
+   */
+  endDate?: string | null;
+  /**
+   * Event timezone (e.g., "America/Los_Angeles")
+   */
+  timezone?: string | null;
+  location?: {
+    /**
+     * Check if this is an online/virtual event
+     */
+    isVirtual?: boolean | null;
+    /**
+     * Meeting link for virtual events
+     */
+    virtualUrl?: string | null;
+    /**
+     * Venue name
+     */
+    venue?: string | null;
+    /**
+     * Street address
+     */
+    address?: string | null;
+    /**
+     * City
+     */
+    city?: string | null;
+    /**
+     * State
+     */
+    state?: string | null;
+    /**
+     * ZIP code
+     */
+    zip?: string | null;
+    /**
+     * Extra location info (e.g., "Meet in lot 4")
+     */
+    extraInfo?: string | null;
+  };
+  featuredImage?: (number | null) | Media;
+  /**
+   * External registration link
+   */
+  registrationUrl?: string | null;
+  /**
+   * Optional external landing page (takes precedence over event page)
+   */
+  externalEventUrl?: string | null;
+  /**
+   * Registration cutoff
+   */
+  registrationDeadline?: string | null;
+  /**
+   * Maximum attendees
+   */
+  capacity?: number | null;
+  /**
+   * Event cost in dollars
+   */
+  cost?: number | null;
+  /**
+   * Skill level required for this event
+   */
+  skillRating?: ('0' | '1' | '2' | '3') | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  blocksInContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        docId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  slug: string;
+  eventType: number | EventType;
+  /**
+   * Optional event sub type
+   */
+  eventSubType?: (number | null) | EventSubType;
+  tenant?: (number | null) | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTypes".
+ */
+export interface EventType {
+  id: number;
+  title: string;
+  description?: string | null;
+  /**
+   * Maps this type to it's associated representation in the CRM Integration
+   */
+  crmId?: string | null;
+  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventSubTypes".
+ */
+export interface EventSubType {
+  id: number;
+  title: string;
+  description?: string | null;
+  /**
+   * The parent event type for this sub type
+   */
+  eventType: number | EventType;
+  /**
+   * Maps this type to it's associated representation in the CRM Integration
+   */
+  crmId?: string | null;
+  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -1991,6 +2154,18 @@ export interface PayloadLockedDocument {
         value: number | Tag;
       } | null)
     | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'eventTypes';
+        value: number | EventType;
+      } | null)
+    | ({
+        relationTo: 'eventSubTypes';
+        value: number | EventSubType;
+      } | null)
+    | ({
         relationTo: 'biographies';
         value: number | Biography;
       } | null)
@@ -2597,6 +2772,82 @@ export interface SponsorsSelect<T extends boolean = true> {
 export interface TagsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  subtitle?: T;
+  description?: T;
+  startDate?: T;
+  endDate?: T;
+  timezone?: T;
+  location?:
+    | T
+    | {
+        isVirtual?: T;
+        virtualUrl?: T;
+        venue?: T;
+        address?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        extraInfo?: T;
+      };
+  featuredImage?: T;
+  registrationUrl?: T;
+  externalEventUrl?: T;
+  registrationDeadline?: T;
+  capacity?: T;
+  cost?: T;
+  skillRating?: T;
+  content?: T;
+  blocksInContent?:
+    | T
+    | {
+        blockType?: T;
+        collection?: T;
+        docId?: T;
+        id?: T;
+      };
+  slug?: T;
+  eventType?: T;
+  eventSubType?: T;
+  tenant?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTypes_select".
+ */
+export interface EventTypesSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  crmId?: T;
+  crmIntegration?: T;
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventSubTypes_select".
+ */
+export interface EventSubTypesSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  eventType?: T;
+  crmId?: T;
+  crmIntegration?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;

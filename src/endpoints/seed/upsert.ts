@@ -15,7 +15,7 @@ import type {
 
 type GlobalCollectionWithHash = Extract<
   CollectionSlug,
-  'users' | 'tenants' | 'roles' | 'globalRoles'
+  'users' | 'tenants' | 'roles' | 'globalRoles' | 'eventTypes' | 'eventSubTypes'
 >
 
 export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
@@ -131,7 +131,13 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
     for (const item of data.docs) {
       const key = keyFunc(item)
       const tenant = item.tenant
-      const tenantSlug = typeof tenant == 'object' ? tenant.slug : tenantsById[tenant].slug
+      // Handle optional tenant - use '__global__' for items without tenant
+      const tenantSlug =
+        tenant === null || tenant === undefined
+          ? '__global__'
+          : typeof tenant == 'object'
+            ? tenant.slug
+            : (tenantsById[tenant]?.slug ?? '__global__')
       if (!(tenantSlug in existing)) {
         existing[tenantSlug] = {}
       }
@@ -142,9 +148,12 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
     const item: RequiredDataFromCollectionSlug<TSlug> = 'file' in data ? data.data : data
     const file: File | undefined = 'file' in data ? data.file : undefined
     const key = keyFunc(item)
-    let tenant: string = ''
-    if (typeof item.tenant === 'number') {
-      tenant = tenantsById[item.tenant].slug
+    // Handle optional tenant - use '__global__' for items without tenant
+    let tenant: string = '__global__'
+    if (item.tenant === null || item.tenant === undefined) {
+      tenant = '__global__'
+    } else if (typeof item.tenant === 'number') {
+      tenant = tenantsById[item.tenant]?.slug ?? '__global__'
     } else {
       tenant = item.tenant.slug
     }

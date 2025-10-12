@@ -248,7 +248,6 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
     slugField(),
     contentHashField(),
   ],

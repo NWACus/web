@@ -21,7 +21,6 @@ export const Tags: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
     slugField(),
     contentHashField(),
   ],
