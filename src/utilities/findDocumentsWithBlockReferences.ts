@@ -281,10 +281,6 @@ export async function findDocumentsWithBlockReferences(
             },
           ],
         },
-        select: {
-          id: true,
-          tenant: true,
-        },
         depth: 1,
       })
 
