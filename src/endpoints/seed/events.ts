@@ -1,4 +1,5 @@
 import { EventSubType, EventType, Media, Tenant } from '@/payload-types'
+import { US_TIMEZONES } from '@/utilities/timezones'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const getEventsData = (
@@ -7,8 +8,6 @@ export const getEventsData = (
   eventSubTypes: Record<string, EventSubType>,
   featuredImage?: Media,
 ): RequiredDataFromCollectionSlug<'events'>[] => {
-  const timezone = 'America/Los_Angeles'
-
   // Helper to create dates in the future
   const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
     const date = new Date()
@@ -61,7 +60,7 @@ export const getEventsData = (
         'Join us for a free avalanche awareness presentation covering the basics of avalanche safety, terrain recognition, and rescue fundamentals. Perfect for anyone new to winter backcountry recreation.',
       startDate: futureDate(1, 15, 19),
       endDate: futureDate(1, 15, 21),
-      timezone,
+      timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
         venue: 'Mountain Community Center',
@@ -93,7 +92,7 @@ export const getEventsData = (
         'A technical workshop focused on advanced snowpack assessment techniques, including extended column tests, profile interpretation, and weak layer identification.',
       startDate: futureDate(2, 8, 9),
       endDate: futureDate(2, 8, 16),
-      timezone,
+      timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
         venue: 'Backcountry Lodge',
@@ -127,7 +126,7 @@ export const getEventsData = (
         'A comprehensive field course designed specifically for snowmobile riders. Learn avalanche safety, rescue techniques, and safe riding practices in avalanche terrain.',
       startDate: futureDate(1, 22, 8),
       endDate: futureDate(1, 22, 17),
-      timezone,
+      timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
         venue: 'Mountain View Snowpark',
@@ -162,7 +161,7 @@ export const getEventsData = (
         'Join us online for an interactive webinar introducing avalanche safety fundamentals. Perfect for those planning their first backcountry trips or wanting a refresher.',
       startDate: futureDate(0, 20, 18),
       endDate: futureDate(0, 20, 20),
-      timezone,
+      timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: true,
         virtualUrl: 'https://zoom.us/j/example-meeting-id',
@@ -191,7 +190,7 @@ export const getEventsData = (
         'Come meet the forecasters who keep you safe in the backcountry. Learn about the forecasting process, ask questions, and connect with your local avalanche center.',
       startDate: futureDate(0, 28, 18),
       endDate: futureDate(0, 28, 20),
-      timezone,
+      timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
         venue: 'Local Brewery Taproom',

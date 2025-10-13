@@ -251,6 +251,8 @@ export interface HomePage {
     | SponsorsBlock
     | TeamBlock
     | GenericEmbedBlock
+    | EventListBlock
+    | SingleEventBlock
   )[];
   /**
    * Automatically populated field tracking block references in highlightedContent for revalidation purposes.
@@ -315,6 +317,8 @@ export interface Page {
     | SponsorsBlock
     | TeamBlock
     | GenericEmbedBlock
+    | EventListBlock
+    | SingleEventBlock
   )[];
   meta?: {
     /**
@@ -1185,6 +1189,105 @@ export interface GenericEmbedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventListBlock".
+ */
+export interface EventListBlock {
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the event list.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  backgroundColor: string;
+  eventOptions: 'dynamic' | 'static';
+  dynamicOptions?: {
+    /**
+     * Select how the list of events will be sorted.
+     */
+    sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
+    /**
+     * Optionally select event types to filter events in this list by.
+     */
+    filterByEventTypes?: (number | EventType)[] | null;
+    /**
+     * Optionally select event sub types to filter events in this list by.
+     */
+    filterByEventSubTypes?: (number | EventSubType)[] | null;
+    /**
+     * Only display events that have not yet occurred.
+     */
+    showUpcomingOnly?: boolean | null;
+    /**
+     * Maximum number of events that will be displayed. Must be an integer.
+     */
+    maxEvents?: number | null;
+    queriedEvents?: (number | Event)[] | null;
+  };
+  staticOptions?: {
+    /**
+     * Choose new event from dropdown and/or drag and drop to change order
+     */
+    staticEvents?: (number | Event)[] | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTypes".
+ */
+export interface EventType {
+  id: number;
+  title: string;
+  description?: string | null;
+  /**
+   * Maps this type to it's associated representation in the CRM Integration
+   */
+  crmId?: string | null;
+  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventSubTypes".
+ */
+export interface EventSubType {
+  id: number;
+  title: string;
+  description?: string | null;
+  /**
+   * The parent event type for this sub type
+   */
+  eventType: number | EventType;
+  /**
+   * Maps this type to it's associated representation in the CRM Integration
+   */
+  crmId?: string | null;
+  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events".
  */
 export interface Event {
@@ -1204,9 +1307,18 @@ export interface Event {
    */
   endDate?: string | null;
   /**
-   * Event timezone (e.g., "America/Los_Angeles")
+   * Event timezone
    */
-  timezone?: string | null;
+  timezone?:
+    | (
+        | 'America/New_York'
+        | 'America/Chicago'
+        | 'America/Denver'
+        | 'America/Los_Angeles'
+        | 'America/Anchorage'
+        | 'America/Honolulu'
+      )
+    | null;
   location?: {
     /**
      * Check if this is an online/virtual event
@@ -1302,43 +1414,17 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTypes".
+ * via the `definition` "SingleEventBlock".
  */
-export interface EventType {
-  id: number;
-  title: string;
-  description?: string | null;
+export interface SingleEventBlock {
+  backgroundColor: string;
   /**
-   * Maps this type to it's associated representation in the CRM Integration
+   * Select an event to display
    */
-  crmId?: string | null;
-  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventSubTypes".
- */
-export interface EventSubType {
-  id: number;
-  title: string;
-  description?: string | null;
-  /**
-   * The parent event type for this sub type
-   */
-  eventType: number | EventType;
-  /**
-   * Maps this type to it's associated representation in the CRM Integration
-   */
-  crmId?: string | null;
-  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  event: number | Event;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleEvent';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2318,6 +2404,8 @@ export interface HomePagesSelect<T extends boolean = true> {
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
+        eventList?: T | EventListBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
       };
   blocksInHighlightedContent?:
     | T
@@ -2567,6 +2655,43 @@ export interface GenericEmbedBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventListBlock_select".
+ */
+export interface EventListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  backgroundColor?: T;
+  eventOptions?: T;
+  dynamicOptions?:
+    | T
+    | {
+        sortBy?: T;
+        filterByEventTypes?: T;
+        filterByEventSubTypes?: T;
+        showUpcomingOnly?: T;
+        maxEvents?: T;
+        queriedEvents?: T;
+      };
+  staticOptions?:
+    | T
+    | {
+        staticEvents?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleEventBlock_select".
+ */
+export interface SingleEventBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
+  event?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "builtInPages_select".
  */
 export interface BuiltInPagesSelect<T extends boolean = true> {
@@ -2602,6 +2727,8 @@ export interface PagesSelect<T extends boolean = true> {
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
+        eventList?: T | EventListBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
       };
   meta?:
     | T
