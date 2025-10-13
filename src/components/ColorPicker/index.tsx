@@ -1,61 +1,50 @@
 'use client'
 
-import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
+import { getSlugFromTenantId } from '@/utilities/getSlugFromTenantId'
 import { cn } from '@/utilities/ui'
-import { FieldLabel, useField } from '@payloadcms/ui'
+import { FieldLabel, useDocumentInfo, useField } from '@payloadcms/ui'
 import { TextFieldClientProps } from 'payload'
+import { useEffect, useState } from 'react'
 
 const ColorPicker = (props: TextFieldClientProps) => {
-  const colorOptions = [
-    'white',
-    'brand-100',
-    'brand-200',
-    'brand-300',
-    'brand-400',
-    'brand-500',
-    'brand-600',
-    'brand-700',
-    'brand-800',
-    'brand-900',
-    'brand-950',
-    'transparent',
-  ]
-
+  const brandShades = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+  const colorOptions = ['white', ...brandShades.map((n) => `brand-${n}`), 'transparent']
   const { path, field } = props
-
+  const { data } = useDocumentInfo()
   const { value, setValue } = useField({ path })
-  const { selectedTenantID: tenant } = useTenantSelection() as { selectedTenantID: number }
+  const [tenantSlug, setTenantSlug] = useState<string | null>(null)
 
-  // TODO map to slug directly
-  const tenantColorClass: Record<number, string> = {
-    1: 'dvac',
-    2: 'nwac',
-    3: 'sac',
-    4: 'snfac',
-  }
+  useEffect(() => {
+    async function fetchUser() {
+      const userData = await getSlugFromTenantId(data?.tenant)
+      setTenantSlug(userData)
+    }
+    fetchUser()
+  }, [data?.tenant])
 
   return (
-    <div className={cn(`flex flex-col mb-6 ${tenantColorClass[tenant]}`)}>
+    <div className={cn(`flex flex-col mb-6 ${tenantSlug}`)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
-      <ul className="flex flex-wrap max-w-[260px] list-none pl-0">
-        {colorOptions.map((color, i) => {
-          const bgColor = `bg-${color}`
-          return (
-            <li key={i} className={cn('border', { 'border-solid': color === value })}>
-              <div
-                className={cn(
-                  `relative w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor}`,
-                  {
-                    'bg-white bg-[repeating-linear-gradient(45deg,#aaa_25%,transparent_25%,transparent_75%,#aaa_75%,#aaa),repeating-linear-gradient(45deg,#aaa_25%,#e5e5f7_25%,#e5e5f7_75%,#aaa_75%,#aaa)] bg-[position:0_0,10px_10px] bg-[size:20px_20px] bg-repeat':
-                      color === 'transparent',
-                  },
-                )}
-                aria-label={color}
-                onClick={() => setValue(color)}
-              />
-            </li>
-          )
-        })}
+      <ul className="flex flex-wrap list-none pl-0">
+        {tenantSlug &&
+          colorOptions.map((color, i) => {
+            const bgColor = `bg-${color}`
+            return (
+              <li key={i} className={cn('border', { 'border-solid': color === value })}>
+                <div
+                  className={cn(
+                    `relative w-[2em] h-[2em] m-2 p-2 rounded-full cursor-pointer ${bgColor} border border-solid border-gray-600`,
+                    {
+                      'bg-center bg-[length:20px_20px] bg-[image:repeating-conic-gradient(#ddd_0%_25%,white_0%_50%)]':
+                        color === 'transparent',
+                    },
+                  )}
+                  aria-label={color}
+                  onClick={() => setValue(color)}
+                />
+              </li>
+            )
+          })}
       </ul>
     </div>
   )
