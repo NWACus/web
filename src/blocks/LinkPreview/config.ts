@@ -1,6 +1,14 @@
 import type { Block, Field } from 'payload'
 
 import { button } from '@/fields/button'
+import colorPickerField from '@/fields/color'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
+import {
+  AlignFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
+  lexicalEditor,
+} from '@payloadcms/richtext-lexical'
 
 const cardFields: Field[] = [
   {
@@ -8,9 +16,7 @@ const cardFields: Field[] = [
     type: 'upload',
     relationTo: 'media',
     required: true,
-    filterOptions: {
-      mimeType: { contains: 'image' },
-    },
+    filterOptions: getImageTypeFilter,
   },
   {
     name: 'title',
@@ -32,11 +38,30 @@ export const LinkPreviewBlock: Block = {
   imageURL: '/thumbnail/LinkPreviewThumbnail.jpg',
   fields: [
     {
+      name: 'header',
+      type: 'richText',
+      admin: {
+        description: 'Leave blank if you do not want a title',
+      },
+      editor: lexicalEditor({
+        features: () => {
+          return [
+            FixedToolbarFeature(),
+            HeadingFeature({
+              enabledHeadingSizes: ['h2', 'h3', 'h4'],
+            }),
+            AlignFeature(),
+          ]
+        },
+      }),
+    },
+    colorPickerField('Background color'),
+    {
       name: 'cards',
-      label: 'Link preview',
+      label: '',
       labels: {
-        plural: 'Link previews',
-        singular: 'Link preview',
+        plural: 'Link preview cards',
+        singular: 'Link preview card',
       },
       type: 'array',
       fields: cardFields,

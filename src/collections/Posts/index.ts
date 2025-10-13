@@ -1,49 +1,57 @@
+import { Tenant } from '@/payload-types'
+import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 import type { CollectionConfig } from 'payload'
 
 import {
   BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
 import { Banner } from '@/blocks/Banner/config'
-import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { HeaderBlock } from '@/blocks/Header/config'
+import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
+import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
-import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
+import { populateBlocksInContent } from './hooks/populateBlocksInContent'
+import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
+import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
-import { Tenant } from '@/payload-types'
-import {
-  MetaDescriptionField,
-  MetaImageField,
-  MetaTitleField,
-  OverviewField,
-  PreviewField,
-} from '@payloadcms/plugin-seo/fields'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
-  access: accessByTenantOrReadPublished('posts'),
+  access: accessByTenantRoleOrReadPublished('posts'),
   defaultPopulate: {
-    title: true,
+    description: true,
+    featuredImage: true,
     slug: true,
-    meta: {
-      image: true,
-      description: true,
-    },
+    title: true,
+    _status: true,
+    publishedAt: true,
+    authors: true,
   },
   admin: {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
+    components: {
+      edit: {
+        beforeDocumentControls: ['@/collections/Posts/components/ViewPostButton#ViewPostButton'],
+      },
+    },
     livePreview: {
       url: async ({ data, req }) => {
         let tenant = data.tenant
@@ -90,102 +98,45 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'text',
       required: true,
     },
-    {
-      type: 'tabs',
-      tabs: [
-        {
-          fields: [
-            {
-              name: 'content',
-              type: 'richText',
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, MediaBlock] }),
-                    FixedToolbarFeature(),
-                    InlineToolbarFeature(),
-                    HorizontalRuleFeature(),
-                  ]
-                },
-              }),
-              label: false,
-              required: true,
-            },
-          ],
-          label: 'Content',
+    MetaImageField({
+      relationTo: 'media',
+      overrides: {
+        admin: {
+          allowCreate: true,
         },
-        {
-          fields: [
-            {
-              name: 'relatedPosts',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              filterOptions: ({ id }) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
-              },
-              hasMany: true,
-              relationTo: 'posts',
-            },
-          ],
-          label: 'Meta',
-        },
-        {
-          name: 'meta',
-          label: 'SEO',
-          fields: [
-            OverviewField({
-              titlePath: 'meta.title',
-              descriptionPath: 'meta.description',
-              imagePath: 'meta.image',
-            }),
-            MetaTitleField({
-              hasGenerateFn: true,
-            }),
-            MetaImageField({
-              relationTo: 'media',
-            }),
-
-            MetaDescriptionField({}),
-            PreviewField({
-              // if the `generateUrl` function is configured
-              hasGenerateFn: true,
-
-              // field paths to match the target field for data
-              titlePath: 'meta.title',
-              descriptionPath: 'meta.description',
-            }),
-          ],
-        },
-      ],
-    },
-    {
-      name: 'publishedAt',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
-        },
-        position: 'sidebar',
+        name: 'featuredImage',
+        label: 'Featured image',
       },
-      hooks: {
-        beforeChange: [
-          ({ siblingData, value }) => {
-            if (siblingData._status === 'published' && !value) {
-              return new Date()
-            }
-            return value
-          },
-        ],
-      },
+    }),
+    MetaDescriptionField({}),
+    {
+      name: 'content',
+      type: 'richText',
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            BlocksFeature({
+              blocks: [
+                Banner,
+                BlogListBlockLexical,
+                DocumentBlock,
+                GenericEmbedLexical,
+                HeaderBlock,
+                MediaBlockLexical,
+                SingleBlogPostBlockLexical,
+                SponsorsBlock,
+              ],
+            }),
+            HorizontalRuleFeature(),
+            InlineToolbarFeature(),
+          ]
+        },
+      }),
+      required: true,
     },
+
+    // Sidebar
     {
       name: 'authors',
       type: 'relationship',
@@ -193,7 +144,9 @@ export const Posts: CollectionConfig<'posts'> = {
         position: 'sidebar',
       },
       hasMany: true,
-      relationTo: 'users',
+      relationTo: 'biographies',
+      required: true,
+      filterOptions: getTenantFilter,
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -219,13 +172,72 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-    ...slugField(),
+    {
+      name: 'publishedAt',
+      type: 'date',
+      admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'tags',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+        sortOptions: 'slug',
+      },
+      hasMany: true,
+      relationTo: 'tags',
+      filterOptions: getTenantFilter,
+    },
+    {
+      name: 'relatedPosts',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      filterOptions: getTenantAndIdFilter,
+      hasMany: true,
+      relationTo: 'posts',
+    },
+    // Hidden field to track blocks embedded in content for revalidation purposes
+    {
+      name: 'blocksInContent',
+      type: 'array',
+      access: {
+        update: () => false,
+      },
+      admin: {
+        disabled: true,
+        readOnly: true,
+      },
+      fields: [
+        {
+          name: 'blockType',
+          type: 'text',
+        },
+        {
+          name: 'collection',
+          type: 'text',
+        },
+        {
+          name: 'docId',
+          type: 'number',
+        },
+      ],
+    },
+    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
+    slugField(),
     contentHashField(),
   ],
   hooks: {
+    beforeChange: [populatePublishedAt, populateBlocksInContent],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
-    afterDelete: [revalidateDelete],
+    afterDelete: [revalidatePostDelete],
   },
   versions: {
     drafts: {

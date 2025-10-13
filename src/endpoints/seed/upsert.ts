@@ -1,7 +1,8 @@
 import { Tenant } from '@/payload-types'
+import { removeNonDeterministicKeys } from '@/utilities/removeNonDeterministicKeys'
 import crypto from 'crypto'
 import stringify from 'json-stable-stringify'
-import merge from 'lodash.merge'
+import { merge } from 'lodash-es'
 import { SelectFromCollectionSlug } from 'node_modules/payload/dist/collections/config/types'
 import { ByIDOptions } from 'node_modules/payload/dist/collections/operations/local/update'
 import type {
@@ -14,25 +15,8 @@ import type {
 
 type GlobalCollectionWithHash = Extract<
   CollectionSlug,
-  'users' | 'tenants' | 'roles' | 'globalRoleAssignments' | 'themes' | 'palettes'
+  'users' | 'tenants' | 'roles' | 'globalRoles'
 >
-
-const removeNonDeterministicKeys = (obj: object): object => {
-  if (obj !== Object(obj)) {
-    return obj
-  }
-  if (Array.isArray(obj)) {
-    return obj.map((item: object): object => removeNonDeterministicKeys(item))
-  }
-
-  return Object.keys(obj as object)
-    .filter((k) => !['loginAt', 'createdAt', 'updatedAt', 'publishedAt', 'contentHash'].includes(k))
-    .reduce(
-      // @ts-expect-error this is so nasty anyway, yuck
-      (acc: object, x): object => Object.assign(acc, { [x]: removeNonDeterministicKeys(obj[x]) }),
-      {} as object,
-    )
-}
 
 export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
   collection: TSlug,
@@ -79,6 +63,9 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
             TSlug,
             SelectFromCollectionSlug<TSlug>
           >['data'],
+          context: {
+            disableRevalidate: true,
+          },
         })
 
         if (!updated) {
@@ -96,6 +83,9 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
     const created = await payload.create({
       collection: collection,
       data: item,
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!created) {
@@ -115,6 +105,7 @@ type TenantScopedCollectionWithHash = Exclude<
   | 'payload-locked-documents'
   | 'payload-preferences'
   | 'payload-migrations'
+  | 'globalRoleAssignments'
 >
 
 export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
@@ -193,6 +184,9 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
             TSlug,
             SelectFromCollectionSlug<TSlug>
           >['data'],
+          context: {
+            disableRevalidate: true,
+          },
         })
 
         if (!updated) {
@@ -214,6 +208,9 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
       collection: collection,
       data: item,
       file: file,
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!created) {

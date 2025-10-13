@@ -36,6 +36,7 @@ export const Checkbox = ({
         <CheckboxUi
           defaultChecked={defaultValue}
           id={name}
+          className="text-black"
           {...props}
           onCheckedChange={(checked) => {
             setValue(props.name, checked)

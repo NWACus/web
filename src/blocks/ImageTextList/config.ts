@@ -1,10 +1,7 @@
 import type { Block, Field } from 'payload'
 
-import {
-  FixedToolbarFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
+import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 const columnFields: Field[] = [
   {
@@ -12,9 +9,7 @@ const columnFields: Field[] = [
     type: 'upload',
     relationTo: 'media',
     required: true,
-    filterOptions: {
-      mimeType: { contains: 'image' },
-    },
+    filterOptions: getImageTypeFilter,
   },
   {
     name: 'title',
@@ -26,7 +21,7 @@ const columnFields: Field[] = [
     type: 'richText',
     editor: lexicalEditor({
       features: ({ rootFeatures }) => {
-        return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
+        return [...rootFeatures, InlineToolbarFeature()]
       },
     }),
     label: false,
@@ -62,7 +57,11 @@ export const ImageTextList: Block = {
     },
     {
       name: 'columns',
-      label: 'Image with text columns',
+      label: '',
+      labels: {
+        singular: 'Column',
+        plural: 'Columns',
+      },
       type: 'array',
       admin: {
         initCollapsed: true,

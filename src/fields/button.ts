@@ -1,4 +1,5 @@
 import type { Field, GroupField } from 'payload'
+import { linkToPageOrPostWithLabel } from './linkToPageOrPost'
 
 export type ButtonAppearances =
   | 'default'
@@ -43,79 +44,11 @@ export const button: ButtonType = (appearances) => {
     type: 'group',
     admin: {
       hideGutter: true,
+      style: {
+        marginBottom: '0',
+      },
     },
-    fields: [
-      {
-        type: 'row',
-        fields: [
-          {
-            name: 'type',
-            type: 'radio',
-            admin: {
-              layout: 'horizontal',
-              width: '50%',
-            },
-            defaultValue: 'reference',
-            options: [
-              {
-                label: 'Internal button',
-                value: 'reference',
-              },
-              {
-                label: 'Custom URL',
-                value: 'custom',
-              },
-            ],
-          },
-          {
-            name: 'newTab',
-            type: 'checkbox',
-            admin: {
-              style: {
-                alignSelf: 'flex-end',
-              },
-              width: '50%',
-            },
-            label: 'Open in new tab',
-          },
-        ],
-      },
-      {
-        type: 'row',
-        fields: [
-          {
-            name: 'reference',
-            type: 'relationship',
-            admin: {
-              condition: (_, siblingData) => siblingData?.type === 'reference',
-              width: '50%',
-            },
-            label: 'Document to button to',
-            relationTo: ['pages', 'posts'],
-            required: true,
-          },
-          {
-            name: 'url',
-            type: 'text',
-            admin: {
-              condition: (_, siblingData) => siblingData?.type === 'custom',
-              width: '50%',
-            },
-            label: 'Custom URL',
-            required: true,
-          },
-          {
-            name: 'label',
-            type: 'text',
-            admin: {
-              width: '50%',
-            },
-            label: 'Label',
-            required: true,
-          },
-        ],
-      },
-    ],
+    fields: [...linkToPageOrPostWithLabel],
   }
   if (appearances.length > 1) {
     const appearanceOptionsToUse = appearances.map((appearance) => appearanceOptions[appearance])
@@ -124,7 +57,7 @@ export const button: ButtonType = (appearances) => {
       name: 'appearance',
       type: 'select',
       admin: {
-        description: 'Choose how the link should be rendered.',
+        description: 'Choose the button style.',
       },
       defaultValue: appearanceOptionsToUse[0].value,
       options: appearanceOptionsToUse,

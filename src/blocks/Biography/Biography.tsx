@@ -1,13 +1,17 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent } from '@/components/ui/card'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { format, parseISO } from 'date-fns'
 import { Payload } from 'payload'
 import type { BiographyBlock as BiographyBlockProps } from 'src/payload-types'
 
+import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
+import { getAuthorInitials } from '@/utilities/getAuthorInitials'
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+
 type Props = BiographyBlockProps & { payload: Payload }
 
-export const BiographyBlock = ({ biography, payload }: Props) => {
+export const BiographyBlock = ({ backgroundColor, biography, imageLayout, payload }: Props) => {
+  // For live preview when bio not selected
+  if (!biography) return null
+
   if (typeof biography !== 'object' || typeof biography.photo !== 'object') {
     payload.logger.error(
       `BiographyBlock got an unresolved biography reference: ${JSON.stringify(biography)}`,
@@ -15,59 +19,39 @@ export const BiographyBlock = ({ biography, payload }: Props) => {
     return <></>
   }
 
-  const name: string =
-    biography.name || (typeof biography.user === 'object' && biography.user?.name) || 'Unknown'
-  const initials = name
-    .split(' ')
-    .map((part) => part.substring(0, 1))
-    .join(' ')
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
 
-  // TODO: support image sizes correctly: https://github.com/NWACus/web/issues/144
+  const name: string = biography.name || 'Unknown'
+  const initials = getAuthorInitials(name)
+
   return (
-    <Card className="w-full">
-      <CardContent className="p-6">
-        <div className="flex flex-col items-center space-y-4">
-          {biography.biography ? (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full">
-                  <Avatar className="h-24 w-24 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer">
-                    <AvatarImage src={biography.photo.url || '/placeholder.svg'} alt={name} />
-                    <AvatarFallback>{initials}</AvatarFallback>
-                  </Avatar>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 p-4">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-lg">{name}</h4>
-                  <p className="text-sm font-medium text-muted-foreground">{biography.title}</p>
-                  <div className="border-t pt-2 mt-2">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {biography.biography}
-                    </p>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          ) : (
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={biography.photo.url || '/placeholder.svg'} alt={name} />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-          )}
-          <div className="space-y-1 text-center">
-            <h3 className="text-xl font-semibold">{name}</h3>
-            {biography.title && (
-              <h2 className="text-sm text-muted-foreground">{biography.title}</h2>
-            )}
-            {biography.start_date && (
-              <p className="text-sm italic text-muted-foreground">
-                Since {format(parseISO(biography.start_date), 'MMMM yyyy')}
-              </p>
-            )}
+    <div className={`${bgColorClass}`}>
+      <div className="container py-16">
+        <div className="grid md:grid-cols-12 gap-x-6 gap-y-6">
+          <div
+            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' ? 'order-last ms-6' : 'me-6 '}`}
+          >
+            <MediaAvatar
+              resource={biography.photo}
+              fallback={initials}
+              className="h-auto w-full max-w-xs aspect-square object-cover"
+            />
+          </div>
+          <div className={`md:col-span-8 self-center ${textColor}`}>
+            <div className="prose mb-4">
+              <h2 className="mb-0 font-normal leading-none">{name}</h2>
+              {biography.title && <h3 className="italic font-normal mb-0">{biography.title}</h3>}
+              {biography.start_date && (
+                <p className="text-sm">
+                  Since {format(parseISO(biography.start_date), 'MMMM yyyy')}
+                </p>
+              )}
+            </div>
+            {biography.biography && <p>{biography.biography}</p>}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

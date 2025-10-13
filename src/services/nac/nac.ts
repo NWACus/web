@@ -1,3 +1,4 @@
+import { normalizePath } from '@/utilities/path'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
@@ -20,11 +21,6 @@ export class NACError extends Error {
 type Options = {
   tags?: string[]
   cachedTime?: number | false
-}
-
-// normalize paths by removing leading/trailing slashes
-function normalizePath(path: string): string {
-  return path.replace(/^\/+|\/+$/g, '')
 }
 
 export async function nacFetch(path: string, options: Options = {}) {
@@ -85,7 +81,7 @@ export async function afpFetch(path: string, options: Options = {}) {
       let errorData
       try {
         errorData = await res.json()
-      } catch (e) {
+      } catch (_e) {
         // If we can't parse the error response as JSON, continue with the original error
         errorData = null
       }
@@ -134,9 +130,10 @@ export async function getAllAvalancheCenterCapabilities() {
 
 export async function getAvalancheCenterPlatforms(centerSlug: string) {
   const allAvalancheCenterCapabilities = await getAllAvalancheCenterCapabilities()
+  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
 
   const foundAvalancheCenterBySlug = allAvalancheCenterCapabilities.centers.find(
-    (center) => center.id === centerSlug.toUpperCase(),
+    (center) => center.id === centerSlugToUse.toUpperCase(),
   )
 
   if (!foundAvalancheCenterBySlug)
@@ -152,7 +149,8 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
-  const metadata = await nacFetch(`/v2/public/avalanche-center/${centerSlug.toUpperCase()}`)
+  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const metadata = await nacFetch(`/v2/public/avalanche-center/${centerSlugToUse.toUpperCase()}`)
 
   const parsed = avalancheCenterSchema.safeParse(metadata)
 
@@ -162,4 +160,58 @@ export async function getAvalancheCenterMetadata(centerSlug: string) {
   }
 
   return parsed.data
+}
+
+export type ActiveZone = Extract<
+  Awaited<ReturnType<typeof getAvalancheCenterMetadata>>['zones'][number],
+  { status: 'active' }
+>
+
+export type ActiveForecastZoneWithSlug = {
+  slug: string
+  zone: ActiveZone
+}
+
+export async function getActiveForecastZones(centerSlug: string) {
+  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
+
+  const avalancheCenterMetadata = await getAvalancheCenterMetadata(centerSlugToUse)
+  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(centerSlugToUse)
+
+  const forecastZones: ActiveForecastZoneWithSlug[] = []
+
+  if (avalancheCenterMetadata && avalancheCenterPlatforms.forecasts) {
+    const activeZones = avalancheCenterMetadata.zones.filter(
+      (zone): zone is Extract<typeof zone, { status: 'active' }> => zone.status === 'active',
+    )
+
+    if (activeZones.length > 0) {
+      if (activeZones.length === 1) {
+        const zoneSlug = activeZones[0].url.split('/').filter(Boolean).pop()
+
+        if (zoneSlug) {
+          forecastZones.push({
+            slug: zoneSlug,
+            zone: activeZones[0],
+          })
+        }
+      } else {
+        const zoneLinks = activeZones.sort(
+          (zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity),
+        )
+        zoneLinks.forEach((zone) => {
+          const zoneSlug = zone.url.split('/').filter(Boolean).pop()
+
+          if (zoneSlug) {
+            forecastZones.push({
+              slug: zoneSlug,
+              zone,
+            })
+          }
+        })
+      }
+    }
+  }
+
+  return forecastZones
 }

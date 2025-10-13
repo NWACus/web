@@ -26,7 +26,7 @@ export const DesktopNav = ({
   donateNavItem?: TopLevelNavItem
 }) => {
   return (
-    <NavigationMenu>
+    <NavigationMenu delayDuration={100}>
       <NavigationMenuList>
         {topLevelNavItems.map((navItem) => {
           const label = navItem.label || navItem.link?.label
@@ -46,9 +46,22 @@ export const DesktopNav = ({
             )
           }
 
+          const firstNavItemWithSubItems = navItem.items.find(
+            (item) => item.items && item.items.length > 0,
+          )
+
           return (
             <NavigationMenuItem key={label} value={label}>
-              <NavigationMenuTrigger className="data-[state=open]:text-header-foreground-highlight font-medium">
+              <NavigationMenuTrigger
+                onClick={(e) => {
+                  // maintains accessibility via clicking space bar or enter with this trigger focused
+                  // but disables mouse clicks or touch events
+                  if ('pointerType' in e.nativeEvent && e.nativeEvent.pointerType !== '') {
+                    e.preventDefault()
+                  }
+                }}
+                className="data-[state=open]:text-header-foreground-highlight font-medium"
+              >
                 {label}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -56,6 +69,7 @@ export const DesktopNav = ({
                   type="single"
                   collapsible
                   className="grid min-w-max px-4 pt-2 pb-5 gap-2"
+                  defaultValue={firstNavItemWithSubItems?.id}
                 >
                   {navItem.items.map((item) => {
                     const hasSubItems = item.items && item.items.length > 0

@@ -9,29 +9,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Dev
+    env:
+      NODE_ENV: production
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
         env:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
-      - name: Delete existing preview database
+      - name: Clone production database to dev
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           /home/runner/.turso/turso org switch nwac
           if /home/runner/.turso/turso db show payloadcms-dev; then
             /home/runner/.turso/turso db destroy payloadcms-dev --yes
           fi
-        env:
-          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
-      - name: Create a new database for the preview
-        id: database
-        run: |
-          /home/runner/.turso/turso db create payloadcms-dev --wait
-          /home/runner/.turso/turso db shell payloadcms-dev .tables
+          /home/runner/.turso/turso db create payloadcms-dev --from-db payloadcms-prod --wait
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Record database connection URI and token
         id: connection
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           echo "uri=$(/home/runner/.turso/turso db show payloadcms-dev --url )" >> "${GITHUB_OUTPUT}"
           echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-dev )" >> "${GITHUB_OUTPUT}"
         env:
@@ -56,28 +61,51 @@ jobs:
         run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Update bootstrap password in Vercel
         run: echo -n "${{ secrets.PAYLOAD_SEED_PASSWORD }}" | vercel env add PAYLOAD_SEED_PASSWORD preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Seed the database
-        run: pnpm seed
+      - name: Generate random non-prod sync password
+        id: generate-sync-password
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          generated_password=$(openssl rand -base64 32)
+          echo "::add-mask::$generated_password"
+          echo "password=$generated_password" >> "$GITHUB_OUTPUT"
+      - name: Update non-prod sync password in Vercel
+        run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Variables into .env file
+        run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
+      - name: Run database migrations
+        run: pnpm migrate
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          SERVER_DOMAIN: 'dev.avy-fx.org'
+      - name: Sanitize database
+        id: sanitize
+        run: pnpm sanitize
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Sync blobs from prod to dev
+        id: sync-files
+        run: pnpm sync-blobs prod dev
+      - name: Update media prefix in database
+        id: update-media-prefix
+        run: pnpm update-media-prefix dev
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}'
-          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
-          SERVER_DOMAIN: 'dev.avy-fx.org'
       - name: Deploy Project Artifacts to Vercel
         id: deployment
         run: |

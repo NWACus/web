@@ -1,0 +1,32 @@
+import { accessByTenantRole } from '@/access/byTenantRole'
+import { filterByTenant } from '@/access/filterByTenant'
+import { contentHashField } from '@/fields/contentHashField'
+import { slugField } from '@/fields/slug'
+import { tenantField } from '@/fields/tenantField'
+import type { CollectionConfig } from 'payload'
+import { revalidateDelete, revalidateTag } from './hooks/revalidateTag'
+
+export const Tags: CollectionConfig = {
+  slug: 'tags',
+  access: accessByTenantRole('tags'),
+  admin: {
+    useAsTitle: 'title',
+    group: 'Content',
+    baseListFilter: filterByTenant,
+  },
+  fields: [
+    tenantField(),
+    {
+      name: 'title',
+      type: 'text',
+      required: true,
+    },
+    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
+    slugField(),
+    contentHashField(),
+  ],
+  hooks: {
+    afterChange: [revalidateTag],
+    afterDelete: [revalidateDelete],
+  },
+}

@@ -1,11 +1,11 @@
 import { Field } from 'payload'
 
 export const colorPickerField: (label: string) => Field = (label) => ({
-  name: 'color',
+  name: 'backgroundColor',
   type: 'text',
   label,
   required: true,
-  defaultValue: '#fffff',
+  defaultValue: 'transparent',
   admin: {
     components: {
       Field: '@/components/ColorPicker',

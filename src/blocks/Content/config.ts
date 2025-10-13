@@ -3,20 +3,49 @@ import type { Block } from 'payload'
 import colorPickerField from '@/fields/color'
 import {
   BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { ButtonsBlock } from '../Buttons/config'
+import { BlogListBlockLexical } from '../BlogList/config'
+import { ButtonBlock } from '../Button/config'
+import { CalloutBlock } from '../Callout/config'
+import { DocumentBlock } from '../DocumentBlock/config'
+import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { HeaderBlock } from '../Header/config'
+import { MediaBlockLexical } from '../MediaBlock/config'
+import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
+import { SponsorsBlock } from '../SponsorsBlock/config'
 
 export const Content: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
+  imageURL: '/thumbnail/ContentThumbnail.jpg',
   fields: [
     // Background color
     colorPickerField('Background color'),
+    {
+      name: 'layout',
+      type: 'select',
+      required: true,
+      defaultValue: '1_1',
+      options: [
+        { label: 'full', value: '1_1' },
+        { label: '1:1', value: '2_11' },
+        { label: '1:1:1', value: '3_111' },
+        { label: '1:2', value: '2_12' },
+        { label: '2:1', value: '2_21' },
+        { label: '1:1:1:1', value: '4_1111' },
+        { label: '1:1:2', value: '3_112' },
+        { label: '1:2:1', value: '3_121' },
+        { label: '2:1:1', value: '3_211' },
+      ],
+      admin: {
+        components: {
+          Field: '@/components/ColumnLayoutPicker',
+        },
+      },
+    },
     {
       name: 'columns',
       label: false,
@@ -28,11 +57,6 @@ export const Content: Block = {
       admin: {
         initCollapsed: false,
       },
-      defaultValue: [
-        {
-          columns: [],
-        },
-      ],
       maxRows: 4,
       fields: [
         {
@@ -43,11 +67,19 @@ export const Content: Block = {
               return [
                 ...rootFeatures,
                 BlocksFeature({
-                  blocks: [ButtonsBlock],
+                  blocks: [
+                    BlogListBlockLexical,
+                    ButtonBlock,
+                    CalloutBlock,
+                    DocumentBlock,
+                    GenericEmbedLexical,
+                    HeaderBlock,
+                    MediaBlockLexical,
+                    SingleBlogPostBlockLexical,
+                    SponsorsBlock,
+                  ],
                 }),
                 HorizontalRuleFeature(),
-                HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-                FixedToolbarFeature(),
                 InlineToolbarFeature(),
               ]
             },

@@ -1,9 +1,12 @@
+'use client'
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { Page, Post } from '@/payload-types'
+import type { BuiltInPage, Page, Post } from '@/payload-types'
+import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { useAnalytics } from '@/utilities/useAnalytics'
 
 type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -12,11 +15,11 @@ type CMSLinkType = {
   label?: string | null
   newTab?: boolean | null
   reference?: {
-    relationTo: 'pages' | 'posts'
-    value: Page | Post | string | number
+    relationTo: 'builtInPages' | 'pages' | 'posts'
+    value: BuiltInPage | Page | Post | number
   } | null
   size?: ButtonProps['size'] | null
-  type?: 'custom' | 'reference' | null
+  type?: 'internal' | 'external' | null
   url?: string | null
 }
 
@@ -32,32 +35,42 @@ export const CMSLink = (props: CMSLinkType) => {
     size: sizeFromProps,
     url,
   } = props
+  const { captureWithTenant } = useAnalytics()
 
-  const center: string | undefined =
-    type === 'reference' &&
-    typeof reference?.value === 'object' &&
-    reference.value.tenant &&
-    typeof reference.value.tenant === 'object'
-      ? reference.value.tenant.slug
-      : undefined
-  const href = center
-    ? `/${center}/`
-    : '' + type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
-          reference.value.slug
-        }`
-      : url
+  const href = handleReferenceURL({ url: url, type: type, reference: reference })
+  const referenceTitle =
+    (reference &&
+      reference.value &&
+      typeof reference.value !== 'number' &&
+      reference?.value.title) ||
+    ''
+  const buttonLabel = label ? label : referenceTitle
 
   if (!href) return null
 
   const size = appearance === 'link' ? 'clear' : sizeFromProps
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
+  const linkDestination = href || url || ''
+
+  const onClickWithCapture = () => {
+    captureWithTenant('button_click', {
+      button_label: buttonLabel,
+      from_page: window.location.pathname,
+      to_page: linkDestination,
+      appearance: appearance ?? '',
+    })
+  }
 
   /* Ensure we don't break any styles set by richText */
   if (appearance === 'inline') {
     return (
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
-        {label && label}
+      <Link
+        className={cn(className)}
+        href={linkDestination}
+        onClick={onClickWithCapture}
+        {...newTabProps}
+      >
+        {buttonLabel}
         {children && children}
       </Link>
     )
@@ -65,8 +78,13 @@ export const CMSLink = (props: CMSLinkType) => {
 
   return (
     <Button asChild className={className} size={size} variant={appearance}>
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
-        {label && label}
+      <Link
+        className={cn(className)}
+        href={linkDestination}
+        onClick={onClickWithCapture}
+        {...newTabProps}
+      >
+        {buttonLabel}
         {children && children}
       </Link>
     </Button>

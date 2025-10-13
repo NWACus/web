@@ -22,6 +22,8 @@ Run `pnpm bootstrap`, which will create a new database file for you, add a `boos
 
 Run `pnpm seed`, which will create a new database file for you and add all the seed data. Then, run `pnpm dev` and start work straight away by logging in as any of the users defined in the seed corpus. If you've changed how the seed is done or the contents of some record, run `pnpm reseed` to incrementally update just the values that were changed.
 
+You can also run the seed in standalone mode which doesn't spin up a Next.js dev server: `pnpm seed:standalone`. This should run a little faster than `pnpm seed`.
+
 ### Creating a new database
 
 Start a new database with:
@@ -55,6 +57,7 @@ You will need to add two keys to your `.env` file. Reach out to someone on the d
 In order to use tenant scoped subdomains on localhost you'll need to add the following to your `/etc/hosts` on macOS or `C:\Windows\System32\drivers\etc\hosts` on Windows:
 
 ```
+127.0.0.1       dvac.localhost
 127.0.0.1       nwac.localhost
 127.0.0.1       sac.localhost
 127.0.0.1       snfac.localhost
@@ -79,6 +82,23 @@ Running the seed script may take a while - when reviewing a pull request, you ca
 branch="skuznets/some-feature-thing"; turso db shell "payloadcms-preview-${branch//[^a-z0-9\-]/x}" .dump | sqlite3 dev.db
 ```
 
+### Setting up local email sending
+
+The email adapter for Payload is set up to use nodemailer locally and Resend in production.
+
+For local development it is recommended to use a free mailtrap.io account and their email sandbox. Using this sandbox SMTP server will capture all emails sent from your local environment regardless of email address.
+
+#### Set up mailtrap.io sandbox
+
+1. Create a free account at https://mailtrap.io/register/signup
+2. Select email testing / sandbox during onboarding (not critical)
+3. After onboarding navigate to the "Sandbox" page in the left-hand nav
+4. Copy the SMTP credentials to their respective SMTP\_ environment variables in your `.env` file. See `.env.example`.
+
+#### Customized sendEmail function
+
+You should use the customized `./src/utilities/email/sendEmail#sendEmail` function because it adds our default `replyTo` address which we use for email receiving.
+
 ## Git
 
 ### Signing commits
@@ -92,3 +112,47 @@ To avoid an error when attempting to merge a PR on a feature branch into main, y
 3. Configure git to use your GPG key: [GitHub guide](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-gpg-key)
 
 Note: When configuring git to automatically sign commits you could leave out the `--global` flag if you only want to automatically sign commits in this repo, not all repos.
+
+## Tenant Lookup System
+
+The application uses **Vercel Edge Config** for fast, globally distributed tenant lookups in middleware, with a cached API route as fallback.
+
+### How It Works
+
+The system operates with these priorities:
+
+1. **Edge Config Lookup** (primary) - Fast tenants lookup (~10ms globally)
+2. **Cached API Route** (fallback) - Database query with 5-minute cache when Edge Config fails
+
+### Infra
+
+We have two edge config stores in Vercel:
+
+1. For prod environment `avy-edge-config-prod`
+1. For preview environments `avy-edge-config-preview`
+
+   NOTE: This should also be used for local dev. Our preview environments still use our seed script so these values _should_ be in sync with our local environments. The preview edge config can updated manually in Vercel if you need additional tenants in your local env.
+
+## Developing Emails
+
+This repo is setup to use [React Email](https://react.email/) for custom email development.
+
+react-email allows us to use React components to develop emails. The `./src/emails` directory stores our React emails and can be previewed using the react-email preview server.
+
+Run `pnpm email:dev` to run the email server on `http://localhost:3001`.
+
+Any file inside `./src/emails` (except for inside the `./src/emails/_components` dir) will be interpreted as an email. Passing `PreviewProps` to the default export will render the email on the preview server with those props.
+
+You likely won't use `pnpm email:build` or `pnpm email:export`. The primary method of using these emails is through the [render](https://react.email/docs/utilities/render) utility. See `./src/utilities/email/generateInviteUserEmail.tsx` for an example.
+
+## Testing ISR / Caching & Production Builds in Local Environment
+
+In order to effectively test ISR and Next.js caching locally, you need to run a production build. [See the docs for info](https://nextjs.org/docs/app/guides/incremental-static-regeneration#troubleshooting).
+
+There is [a bug](https://github.com/WiseLibs/better-sqlite3/issues/1155) in `better-sqlite3` that causes local Next.js builds to fail. Setting `LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS` to `true` will resolve this and allow for local production builds.
+
+Make sure to set an appropriate `NEXT_PUBLIC_ROOT_DOMAIN` value when running a production build locally (i.e. `localhost:3000`).
+
+Run `pnpm build` and then `pnpm start` to run a production build locally to test ISR.
+
+See `.env.example` for a list of all "Local flags" you can set to enable better debugging and allow you to run production builds locally.

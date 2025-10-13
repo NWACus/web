@@ -1,22 +1,23 @@
-import type { Media, Tenant, User } from '@/payload-types'
+import type { Biography, Media, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const post3: (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ) => RequiredDataFromCollectionSlug<'posts'> = (
   tenant: Tenant,
   image1: Media,
   image2: Media,
-  author: User,
+  author: Biography,
 ): RequiredDataFromCollectionSlug<'posts'> => {
   return {
     slug: 'dollar-and-sense-the-financial-forecast',
     _status: 'published',
     authors: [author.id],
     tenant: tenant.id,
+    publishedAt: new Date().toISOString(),
     content: {
       root: {
         type: 'root',
@@ -263,12 +264,10 @@ export const post3: (
         version: 1,
       },
     },
-    meta: {
-      description: `Money isn't just currency; it's a language. Dive deep into its nuances, where strategy meets intuition in the vast sea of finance.`,
-      image: image1.id,
-      title: 'Dollar and Sense: The Financial Forecast',
-    },
+    description: `Money isn't just currency; it's a language. Dive deep into its nuances, where strategy meets intuition in the vast sea of finance.`,
+    featuredImage: image1.id,
     relatedPosts: [], // this is populated by the seed script
     title: 'Dollar and Sense: The Financial Forecast',
+    tags: [], // this is populated by the seed script
   }
 }

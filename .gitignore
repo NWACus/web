@@ -18,6 +18,15 @@ dev.db-shm
 dev.db-wal
 .env.production
 .env.development
-.env.test
 tsconfig.tsbuildinfo
-.env*.local
+.env.*
+!.env.example
+!.env.test
+
+# Sentry Config File
+.env.sentry-build-plugin
+
+# AI
+.cursor
+.claude
+CLAUDE.md

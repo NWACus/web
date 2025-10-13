@@ -1,49 +1,104 @@
 import type { Metadata } from 'next'
 
-import type { Config, Media, Page, Post } from '@/payload-types'
+import type { Page, Post, Tenant } from '@/payload-types'
 
-import { getServerSideURL } from './getURL'
+import { getURL } from './getURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
+import { getHostnameFromTenant } from './tenancy/getHostnameFromTenant'
+import { resolveTenant } from './tenancy/resolveTenant'
 
-const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
-  const serverUrl = getServerSideURL()
-
-  let url = serverUrl + '/website-template-OG.webp'
-
-  if (image && typeof image === 'object' && 'url' in image) {
-    const ogUrl = image.sizes?.og?.url
-
-    url = ogUrl ? serverUrl + ogUrl : serverUrl + image.url
-  }
-
-  return url
+function cloneParentMeta(parentMeta?: Metadata) {
+  return parentMeta ? JSON.parse(JSON.stringify(parentMeta)) : {}
 }
 
-export const generateMeta = async (args: {
-  doc: Partial<Page> | Partial<Post>
+export const generateMetaForPage = async (args: {
+  customTitle?: string
+  center: string
+  doc: Partial<Page>
+  slugs?: string[]
+  parentMeta?: Metadata
 }): Promise<Metadata> => {
-  const { doc } = args || {}
+  const { doc, slugs, parentMeta } = args
 
-  const ogImage = getImageURL(doc?.meta?.image)
+  let tenant: Tenant | undefined
+  let hostname
 
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
-    : 'Payload Website Template'
+  if (doc.tenant) {
+    tenant = await resolveTenant(doc.tenant)
+    hostname = getHostnameFromTenant(tenant)
+  }
+
+  const serverUrl = getURL(hostname)
+  const pageSlugs = slugs ? slugs : doc?.slug
+  const url = serverUrl + '/' + (Array.isArray(pageSlugs) ? pageSlugs.join('/') : `${pageSlugs}/`)
+
+  const parentTitle =
+    parentMeta?.title && typeof parentMeta?.title !== 'string' && 'absolute' in parentMeta?.title
+      ? parentMeta?.title.absolute
+      : parentMeta?.title
+
+  const title =
+    parentTitle || tenant?.name ? `${doc.title} | ${parentTitle ?? tenant?.name}` : doc.title
+
+  const clonedParentMeta = cloneParentMeta(parentMeta)
 
   return {
-    description: doc?.meta?.description,
-    openGraph: mergeOpenGraph({
-      description: doc?.meta?.description || '',
-      images: ogImage
-        ? [
-            {
-              url: ogImage,
-            },
-          ]
-        : undefined,
-      title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
-    }),
+    ...clonedParentMeta,
     title,
+    description: doc?.meta?.description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: mergeOpenGraph({
+      ...(clonedParentMeta.openGraph || {}),
+      description: doc?.meta?.description || '',
+      title: title || '',
+      url,
+    }),
+  }
+}
+
+export const generateMetaForPost = async (args: {
+  customTitle?: string
+  center: string
+  doc: Partial<Post>
+  parentMeta?: Metadata
+}): Promise<Metadata> => {
+  const { customTitle, doc, parentMeta } = args
+
+  let tenant: Tenant | undefined
+  let hostname
+
+  if (doc.tenant) {
+    tenant = await resolveTenant(doc.tenant)
+    hostname = getHostnameFromTenant(tenant)
+  }
+
+  const serverUrl = getURL(hostname)
+  const url = `${serverUrl}/blog/${doc?.slug}/`
+
+  const parentTitle =
+    parentMeta?.title && typeof parentMeta?.title !== 'string' && 'absolute' in parentMeta?.title
+      ? parentMeta?.title.absolute
+      : parentMeta?.title
+
+  const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
+
+  // Deep clone parent metadata to avoid mutation issues
+  const clonedParentMeta = cloneParentMeta(parentMeta)
+
+  return {
+    ...clonedParentMeta,
+    title,
+    description: doc.description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: mergeOpenGraph({
+      ...(clonedParentMeta.openGraph || {}),
+      description: doc.description || '',
+      title: title || '',
+      url,
+    }),
   }
 }

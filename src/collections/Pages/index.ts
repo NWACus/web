@@ -1,43 +1,50 @@
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
+import { BlogListBlock } from '@/blocks/BlogList/config'
 import { Content } from '@/blocks/Content/config'
-import { ContentWithCallout } from '@/blocks/ContentWithCallout/config'
 import { FormBlock } from '@/blocks/Form/config'
+import { GenericEmbed } from '@/blocks/GenericEmbed/config'
+import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
-import { slugField } from '@/fields/slug'
-import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
-
-import { accessByTenantOrReadPublished } from '@/access/byTenantOrReadPublished'
-import { filterByTenant } from '@/access/filterByTenant'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { generatePreviewPath } from '@/utilities/generatePreviewPath'
+import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
+
+import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
+import { filterByTenant } from '@/access/filterByTenant'
+
 import { contentHashField } from '@/fields/contentHashField'
+import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import {
   MetaDescriptionField,
   MetaImageField,
-  MetaTitleField,
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
-  access: accessByTenantOrReadPublished('pages'),
+  access: accessByTenantRoleOrReadPublished('pages'),
   defaultPopulate: {
     title: true,
     slug: true,
     meta: true,
+    _status: true,
   },
   admin: {
     group: 'Content',
@@ -65,7 +72,6 @@ export const Pages: CollectionConfig<'pages'> = {
         return path
       },
     },
-    // TODO: keep rendering for some preview endpoint with slug or you won't see a preview until this is in a section
     preview: (data, { req }) => {
       const tenant =
         data.tenant &&
@@ -82,12 +88,22 @@ export const Pages: CollectionConfig<'pages'> = {
       })
     },
     useAsTitle: 'title',
+    components: {
+      edit: {
+        beforeDocumentControls: ['@/collections/Pages/components/ViewPageButton#ViewPageButton'],
+        editMenuItems: ['@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor'],
+      },
+    },
   },
   fields: [
     {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        description:
+          'The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.',
+      },
     },
     {
       type: 'tabs',
@@ -99,20 +115,27 @@ export const Pages: CollectionConfig<'pages'> = {
               type: 'blocks',
               blocks: [
                 BiographyBlock,
+                BlogListBlock,
                 Content,
-                ContentWithCallout,
+                DocumentBlock,
                 FormBlock,
+                HeaderBlock,
                 ImageLinkGrid,
                 ImageQuote,
                 ImageText,
                 ImageTextList,
                 LinkPreviewBlock,
                 MediaBlock,
+                SingleBlogPostBlock,
+                SponsorsBlock,
                 TeamBlock,
+                GenericEmbed,
               ],
               required: true,
               admin: {
-                initCollapsed: true,
+                initCollapsed: false,
+                description:
+                  'This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.',
               },
             },
           ],
@@ -123,24 +146,20 @@ export const Pages: CollectionConfig<'pages'> = {
           label: 'SEO',
           fields: [
             OverviewField({
-              titlePath: 'meta.title',
+              titlePath: 'title',
               descriptionPath: 'meta.description',
               imagePath: 'meta.image',
-            }),
-            MetaTitleField({
-              hasGenerateFn: true,
             }),
             MetaImageField({
               relationTo: 'media',
             }),
-
             MetaDescriptionField({}),
             PreviewField({
               // if the `generateUrl` function is configured
               hasGenerateFn: true,
 
               // field paths to match the target field for data
-              titlePath: 'meta.title',
+              titlePath: 'title',
               descriptionPath: 'meta.description',
             }),
           ],
@@ -152,16 +171,32 @@ export const Pages: CollectionConfig<'pages'> = {
       type: 'date',
       admin: {
         position: 'sidebar',
+        description:
+          "Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.",
       },
     },
-    ...slugField(),
+    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
+    slugField(),
     tenantField(),
     contentHashField(),
+  ],
+  endpoints: [
+    {
+      path: '/duplicate-to-tenant/:selectedTenantId',
+      method: 'post',
+
+      handler: async (req) => {
+        const res = await duplicatePageToTenant(req)
+        return Response.json({
+          res,
+        })
+      },
+    },
   ],
   hooks: {
     afterChange: [revalidatePage],
     beforeChange: [populatePublishedAt],
-    afterDelete: [revalidateDelete],
+    afterDelete: [revalidatePageDelete],
   },
   versions: {
     drafts: {

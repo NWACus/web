@@ -1,12 +1,8 @@
 import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
-import {
-  FixedToolbarFeature,
-  HeadingFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
+import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export const ImageText: Block = {
   slug: 'imageText',
@@ -36,21 +32,14 @@ export const ImageText: Block = {
       type: 'upload',
       relationTo: 'media',
       required: true,
-      filterOptions: {
-        mimeType: { contains: 'image' },
-      },
+      filterOptions: getImageTypeFilter,
     },
     {
       name: 'richText',
       type: 'richText',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
-          return [
-            ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
-            FixedToolbarFeature(),
-            InlineToolbarFeature(),
-          ]
+          return [...rootFeatures, InlineToolbarFeature()]
         },
       }),
       label: false,

@@ -1,20 +1,21 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
+import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
-import { ZoneHashHandler } from './ZoneHashHandler.client'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
+export const dynamicParams = false
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
+  const tenantsRes = await payload.find({
     collection: 'tenants',
     limit: 1000,
     select: {
@@ -22,9 +23,17 @@ export async function generateStaticParams() {
     },
   })
 
-  // TODO: hit the NAC API for forecast zones, translate active names to slugs
+  const params: PathArgs[] = []
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug, zone: '' }))
+  for (const tenant of tenantsRes.docs) {
+    const activeForecastZones = await getActiveForecastZones(tenant.slug)
+
+    activeForecastZones.forEach(({ slug: zoneSlug }) =>
+      params.push({ center: tenant.slug, zone: zoneSlug }),
+    )
+  }
+
+  return params
 }
 
 type Args = {
@@ -49,42 +58,47 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <ZoneHashHandler zone={zone} />
-      <div className="py-6 md:py-8 lg:py-12">
-        <div className="container flex flex-col">
-          <NACWidget
-            center={center}
-            widget={'forecast'}
-            widgetsVersion={version}
-            widgetsBaseUrl={baseUrl}
-          />
-        </div>
+      <WidgetHashHandler initialHash={`/${zone}/`} />
+      <div className="container flex flex-col">
+        <NACWidget
+          center={center}
+          widget={'forecast'}
+          widgetsVersion={version}
+          widgetsBaseUrl={baseUrl}
+        />
       </div>
     </>
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center, zone } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Forecasts`,
-    }
-  }
-  // TODO: translate zone slug to zone name
+export async function generateMetadata(
+  { params }: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
+  const { zone } = await params
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
+  const zoneName = zone
+    .split('-')
+    .map((word) => `${word.substring(0, 1).toUpperCase()}${word.substring(1)}`)
+    .join(' ')
+
   return {
-    title: `${tenant.docs[0].name} - ${zone} Avalanche Forecast`,
+    title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
+    alternates: {
+      canonical: `/forecasts/avalanche/${zone}`,
+    },
+    openGraph: {
+      ...parentOg,
+      title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
+      url: `/forecasts/avalanche/${zone}`,
+    },
   }
 }

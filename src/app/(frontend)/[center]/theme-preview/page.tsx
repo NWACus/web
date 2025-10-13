@@ -39,12 +39,22 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
+import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
+
+const disallowedEnvironments = ['prod', 'unknown']
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
+
+  const environment = getEnvironmentFriendlyName()
+
+  if (disallowedEnvironments.includes(environment)) {
+    return []
+  }
+
   const tenants = await payload.find({
     collection: 'tenants',
     limit: 1000,
@@ -65,10 +75,16 @@ type PathArgs = {
 }
 
 export default async function Page({ params }: Args) {
+  const environment = getEnvironmentFriendlyName()
+
+  if (disallowedEnvironments.includes(environment)) {
+    notFound()
+  }
+
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
-    <div className="pt-24 pb-24">
+    <div className="pt-4">
       {draft && <LivePreviewListener />}
       <div className="container mb-16 grid gap-14">
         <h1 className="text-3xl font-bold mb-6">Theme Preview for {center.toUpperCase()}</h1>
@@ -387,12 +403,12 @@ export default async function Page({ params }: Args) {
           <section className="space-y-2">
             <h3 className="text-lg font-semibold">Avatar</h3>
             <div className="flex space-x-4">
-              <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
+              <Avatar isCircle>
+                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp" alt="User Avatar" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
-              <Avatar>
-                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp " alt="User Avatar" />
+              <Avatar isCircle>
+                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp" alt="User Avatar" />
                 <AvatarFallback>AN</AvatarFallback>
               </Avatar>
             </div>
@@ -560,12 +576,11 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       },
     },
   })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Center Theme Preview`,
-    }
-  }
+
   return {
-    title: `${tenant.docs[0].name} - Theme Preview`,
+    title:
+      tenant.docs.length < 1
+        ? 'Avalanche Center Theme Preview'
+        : `${tenant.docs[0].name} - Theme Preview`,
   }
 }

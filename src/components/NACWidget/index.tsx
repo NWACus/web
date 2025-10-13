@@ -3,7 +3,7 @@
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
-export type Widget = 'map' | 'forecast' | 'warning' | 'stations' | 'observations'
+export type Widget = 'map' | 'forecast' | 'warnings' | 'stations' | 'observations'
 
 export const loadersByWidget: Record<
   Widget,
@@ -18,7 +18,7 @@ export const loadersByWidget: Record<
     widgetControllerKey:
       | 'mapWidget'
       | 'forecastWidget'
-      | 'warningWidget'
+      | 'warningsWidget'
       | 'stationWidget'
       | 'obsWidget'
   }
@@ -33,10 +33,10 @@ export const loadersByWidget: Record<
     widgetDataKey: 'forecastWidgetData',
     widgetControllerKey: 'forecastWidget',
   },
-  warning: {
+  warnings: {
     scriptName: 'warnings',
     widgetDataKey: 'warningWidgetData',
-    widgetControllerKey: 'warningWidget',
+    widgetControllerKey: 'warningsWidget',
   },
   stations: {
     scriptName: 'stations',
@@ -95,18 +95,22 @@ export function NACWidget({
 
   const { scriptName, widgetDataKey, widgetControllerKey } = loadersByWidget[widget]
 
-  useEffect(function loadWidgetCss() {
-    loadCSS(`${scriptUrl}/${scriptName}.css`).catch((err) =>
-      console.error(`Failed to load style for ${widget} widget:`, err),
-    )
-  }, [])
+  useEffect(
+    function loadWidgetCss() {
+      loadCSS(`${scriptUrl}/${scriptName}.css`).catch((err) =>
+        console.error(`Failed to load style for ${widget} widget:`, err),
+      )
+    },
+    [scriptName, scriptUrl, widget],
+  )
 
   useEffect(function initializeWidgetData() {
     // Base URL (used for Google Analytics)
     const baseUrl = window.location.pathname
+    const fallbackCenter = center === 'dvac' ? 'nwac' : center
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-      centerId: center.toUpperCase(),
+      centerId: fallbackCenter.toUpperCase(),
       devMode: false,
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
@@ -134,7 +138,7 @@ export function NACWidget({
         }
       }
     },
-    [widgetScriptReady],
+    [widgetControllerKey, widgetScriptReady],
   )
 
   return (
@@ -146,6 +150,7 @@ export function NACWidget({
       <Script
         src={`${scriptUrl}/${scriptName}.js`}
         strategy="afterInteractive"
+        crossOrigin="anonymous"
         type="module"
         onReady={() => {
           setWidgetScriptReady(true)

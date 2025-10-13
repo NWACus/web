@@ -25,8 +25,8 @@ export const ImageTextList = (props: Props) => {
   const isSideLayout = layout === 'side'
 
   return (
-    <div className="container my-16">
-      <div className={`grid grid-cols-4 lg:grid-cols-12 ${!isFullLayout && 'gap-x-4'}`}>
+    <div className="container py-10">
+      <div className="grid grid-cols-4 lg:grid-cols-12 gap-4">
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
@@ -34,30 +34,30 @@ export const ImageTextList = (props: Props) => {
             const lastOddElement = numOfCols % 2 && index === numOfCols - 1
             return (
               <div
-                className={cn(`my-6
+                className={cn(`
                   ${
                     isFullLayout
                       ? 'col-span-full'
                       : `col-span-4 md:col-span-2  ${colsSpanClass} ${lastOddElement && 'md:col-span-full'} `
                   }`)}
-                key={index}
+                key={`img-text-list__${index}`}
               >
                 <div
-                  className={cn(`${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`, className)}
+                  className={cn({ 'grid grid-cols-4 gap-x-4 ms-auto': isSideLayout }, className)}
                 >
                   {image && (
                     <ImageMedia
                       imgClassName={cn(
-                        'h-[108px] max-w-fit',
+                        'h-auto max-h-[300px] max-w-full object-contain',
                         `${isSideLayout && 'grid grid-cols-4 gap-x-4 ms-auto'}`,
                         imgClassName,
                       )}
+                      pictureClassName="overflow-hidden"
                       resource={image}
                     />
                   )}
                   <div className={`${isSideLayout ? 'col-span-3' : 'mt-4'}`}>
                     <h3 className="text-lg font-bold">{title}</h3>
-
                     <div className="mt-2">
                       <RichText data={richText} enableGutter={false} enableProse={false} />
                     </div>

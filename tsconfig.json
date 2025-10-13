@@ -45,9 +45,10 @@
     ".next/types/**/*.ts",
     "redirects.js",
     "next.config.js",
-    "next-sitemap.config.cjs"
+    "next-sitemap.config.cjs",
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/migrations"
   ]
 }

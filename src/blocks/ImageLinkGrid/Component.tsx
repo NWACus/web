@@ -3,6 +3,8 @@ import { cn } from '@/utilities/ui'
 import type { ImageLinkGrid as ImageLinkGridProps } from '@/payload-types'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
+import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import Link from 'next/link'
 
 type Props = ImageLinkGridProps & {
   className?: string
@@ -22,29 +24,36 @@ export const ImageLinkGrid = (props: Props) => {
   const colsSpanClass = colsClasses[numOfCols]
 
   return (
-    <div className="container">
+    <div className="container py-10">
       <div className="grid sm:grid-cols-12 gap-3">
         {columns &&
           columns?.length > 0 &&
           columns.map((col, index) => {
             const { caption, image, link } = col
+            const href = handleReferenceURL({ ...link })
+            const newTabProps = link?.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
 
             return (
               <div className={cn('group', colsSpanClass, className)} key={index}>
-                <a href={`${link?.url}`}>
+                <Link href={href || ''} {...newTabProps}>
                   <div className="w-full h-[280px] overflow-hidden">
-                    <ImageMedia
-                      imgClassName={cn(
-                        'object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden',
-                        imgClassName,
-                      )}
-                      resource={image}
-                    />
+                    {image && (
+                      <ImageMedia
+                        pictureClassName="h-full"
+                        imgClassName={cn(
+                          'object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 ease-in-out overflow-hidden',
+                          imgClassName,
+                        )}
+                        resource={image}
+                      />
+                    )}
                   </div>
-                  <div className="w-full bg-accent p-2 text-small text-center group-hover:bg-accent/90">
-                    {caption}
-                  </div>
-                </a>
+                  {caption && (
+                    <div className="w-full bg-accent p-2 text-small text-center group-hover:bg-accent/90">
+                      {caption}
+                    </div>
+                  )}
+                </Link>
               </div>
             )
           })}

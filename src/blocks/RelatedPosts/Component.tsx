@@ -1,9 +1,9 @@
 import RichText from '@/components/RichText'
-import clsx from 'clsx'
 
 import type { Post } from '@/payload-types'
 
-import { Card } from '@/components/Card'
+import { PostPreview } from '@/components/PostPreview'
+import { cn } from '@/utilities/ui'
 import { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 
 export type RelatedPostsProps = {
@@ -16,14 +16,12 @@ export const RelatedPosts = (props: RelatedPostsProps) => {
   const { className, docs, introContent } = props
 
   return (
-    <div className={clsx('lg:container', className)}>
+    <div className={cn('container', className)}>
       {introContent && <RichText data={introContent} enableGutter={false} />}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 items-stretch">
-        {docs?.map((doc, index) => {
-          return <Card key={index} doc={doc} relationTo="posts" />
-        })}
-      </div>
+      {docs?.map((doc, index) => (
+        <PostPreview key={`${doc.id}__${index}`} doc={doc} className="max-w-md" />
+      ))}
     </div>
   )
 }

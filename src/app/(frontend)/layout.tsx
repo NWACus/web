@@ -1,11 +1,12 @@
 import { AdminBar } from '@/components/AdminBar'
-import { Providers } from '@/providers'
-import { getServerSideURL } from '@/utilities/getURL'
+import { PostHogProvider } from '@/providers/PostHogProvider'
+import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { cn } from '@/utilities/ui'
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { draftMode } from 'next/headers'
+import NextTopLoader from 'nextjs-toploader'
 import React from 'react'
 import './globals.css'
 
@@ -116,29 +117,37 @@ export default async function RootLayout({ children }: Args) {
 
   return (
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
-      <head>
-        <link href="/favicon.ico" rel="icon" sizes="32x32" />
-        <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
-      </head>
       <body>
-        <Providers>
+        <PostHogProvider>
+          <NextTopLoader color="#3982e8" showSpinner={false} />
           <AdminBar
             adminBarProps={{
               preview: isEnabled,
             }}
           />
           {children}
-        </Providers>
+        </PostHogProvider>
       </body>
     </html>
   )
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getServerSideURL()),
-  openGraph: mergeOpenGraph(),
+  title: 'Avy',
+  description: 'The homepage for Avy avalanche center websites.',
+  metadataBase: new URL(getURL()),
+  openGraph: mergeOpenGraph({
+    description: 'Avy avalanche center websites.',
+    images: [
+      {
+        url: `${getURL()}/assets/avy-web-og-image.webp`,
+      },
+    ],
+  }),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
+  },
+  icons: {
+    icon: '/assets/favicon.ico',
   },
 }

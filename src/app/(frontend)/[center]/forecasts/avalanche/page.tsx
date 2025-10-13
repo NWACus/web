@@ -1,9 +1,10 @@
-import type { Metadata } from 'next/types'
+import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
+import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
@@ -46,41 +47,42 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
+      <WidgetHashHandler initialHash="/all/" />
       <ZoneLinkHijacker />
-      <div className="py-6 md:py-8 lg:py-12">
-        <div className="container flex flex-col">
-          <NACWidget
-            center={center}
-            widget={'forecast'}
-            widgetsVersion={version}
-            widgetsBaseUrl={baseUrl}
-          />
-        </div>
+      <div className="container flex flex-col">
+        <NACWidget
+          center={center}
+          widget="forecast"
+          widgetsVersion={version}
+          widgetsBaseUrl={baseUrl}
+        />
       </div>
     </>
   )
 }
 
-export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const payload = await getPayload({ config: configPromise })
-  const { center } = await params
-  const tenant = await payload.find({
-    collection: 'tenants',
-    select: {
-      name: true,
-    },
-    where: {
-      slug: {
-        equals: center,
-      },
-    },
-  })
-  if (tenant.docs.length < 1) {
-    return {
-      title: `Avalanche Forecasts`,
-    }
-  }
+export async function generateMetadata(
+  _props: Args,
+  parent: Promise<ResolvedMetadata>,
+): Promise<Metadata> {
+  const parentMeta = (await parent) as Metadata
+
+  const parentTitle =
+    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
+      ? parentMeta.title.absolute
+      : parentMeta.title
+
+  const parentOg = parentMeta.openGraph
+
   return {
-    title: `${tenant.docs[0].name} - Avalanche Forecasts`,
+    title: `Forecasts | ${parentTitle}`,
+    alternates: {
+      canonical: '/forecasts/avalanche',
+    },
+    openGraph: {
+      ...parentOg,
+      title: `Forecasts | ${parentTitle}`,
+      url: '/forecasts/avalanche',
+    },
   }
 }

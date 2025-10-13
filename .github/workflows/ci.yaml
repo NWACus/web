@@ -9,6 +9,10 @@ defaults:
   run:
     shell: bash
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: lint
@@ -28,9 +32,12 @@ jobs:
         shell: bash
       - name: 🧹 Run lint
         run: pnpm lint
+      - name: 🧹 Run eslint
+        run: pnpm eslint
 
   build:
     name: build
+    environment: Preview
     runs-on: ubuntu-latest
     steps:
       - name: 🏗 Setup repo
@@ -49,12 +56,11 @@ jobs:
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
       - name: 🧹 Run seed
-        run: pnpm seed
+        run: pnpm seed:standalone
         shell: bash
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
           ALLOW_SIMPLE_PASSWORDS: 'true'
       - name: 🧹 Run build
         run: pnpm build
@@ -62,7 +68,6 @@ jobs:
         env:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
 
   prettier:
     name: prettier
@@ -82,6 +87,10 @@ jobs:
         shell: bash
       - name: 🧹 Run pnpm generate:type
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           pnpm generate:types
           if [[ ! -z "$(git status --short)" ]]
           then
@@ -91,6 +100,10 @@ jobs:
           fi
       - name: 🧹 Run pnpm generate:importmap
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           pnpm generate:importmap
           if [[ ! -z "$(git status --short)" ]]
           then
@@ -100,3 +113,57 @@ jobs:
           fi
       - name: 🧹 Run prettier
         run: if ! pnpm prettier --check .; then echo "⚠️  Run 'pnpm prettify' to fix prettier errors & commit the result"; exit 1; fi
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 🧪 Run tests
+        run: pnpm test
+
+  migrations-check:
+    name: migrations-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: Check if a migration is needed
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          output=$(pnpm payload migrate:create --skip-empty 2>&1)
+          echo "$output"
+          if echo "$output" | grep -q "Migration created at"; then
+            echo "❌ A migration was created, which means the schema is out of sync"
+            echo "Please run 'pnpm payload migrate:create' locally and commit the migration"
+            exit 1
+          else
+            echo "✅ No migration needed - schema is up to date"
+          fi
+        env:
+          DATABASE_URI: 'file:./dev.db'
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}

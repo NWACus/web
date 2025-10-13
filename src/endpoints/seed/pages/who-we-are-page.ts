@@ -18,12 +18,12 @@ export const whoWeArePage: (
     tenant: tenant.id,
     title: title,
     _status: 'published',
+    publishedAt: new Date().toISOString(),
     layout: teams[tenant.slug].map((team) => ({
       team: team.id,
       blockType: 'team',
     })),
     meta: {
-      title: title,
       description: description,
       image: seoImage.id,
     },

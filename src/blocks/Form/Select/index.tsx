@@ -22,6 +22,7 @@ export const Select = ({
   options,
   required,
   width,
+  defaultValue,
 }: SelectField & {
   control: Control<FieldValues, unknown>
   errors: Partial<
@@ -35,17 +36,17 @@ export const Select = ({
       <Label htmlFor={name}>{label}</Label>
       <Controller
         control={control}
-        defaultValue=""
+        defaultValue={defaultValue}
         name={name}
         render={({ field: { onChange, value } }) => {
           const controlledValue = options.find((t) => t.value === value)
 
           return (
             <SelectComponent onValueChange={(val) => onChange(val)} value={controlledValue?.value}>
-              <SelectTrigger className="w-full" id={name}>
+              <SelectTrigger className="w-full text-black" id={name}>
                 <SelectValue placeholder={label} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="text-black">
                 {options.map(({ label, value }) => {
                   return (
                     <SelectItem key={value} value={value}>

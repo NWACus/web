@@ -18,9 +18,11 @@ export const page: (
     slug: slug,
     tenant: tenant.id,
     _status: 'published',
+    publishedAt: new Date().toISOString(),
     layout: [
       {
-        color: 'white',
+        backgroundColor: 'white',
+        layout: '1_1',
         columns: [
           {
             richText: {
@@ -62,7 +64,6 @@ export const page: (
     meta: {
       description: description,
       image: seoImage.id,
-      title: title,
     },
     title: title,
   }

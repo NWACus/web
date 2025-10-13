@@ -1,4 +1,4 @@
-import { accessByTenant } from '@/access/byTenant'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { navLink } from '@/fields/navLink'
@@ -6,10 +6,15 @@ import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
 import { topLevelNavTab } from './fields/topLevelNavTab'
+import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
-  access: accessByTenant('navigations'),
+  access: accessByTenantRole('navigations'),
+  hooks: {
+    afterChange: [revalidateNavigation],
+    afterDelete: [revalidateNavigationDelete],
+  },
   labels: {
     singular: 'Navigation',
     plural: 'Navigation',
@@ -17,7 +22,7 @@ export const Navigations: CollectionConfig = {
   admin: {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
-    group: 'Globals',
+    group: 'Settings',
     livePreview: {
       url: async ({ data, req }) => {
         let tenant = data.tenant
@@ -49,12 +54,14 @@ export const Navigations: CollectionConfig = {
         topLevelNavTab({
           name: 'forecasts',
           description: 'This nav dropdown is autofilled with your forecast zones.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
+          hasEnabledToggle: false,
         }),
         topLevelNavTab({
           name: 'observations',
           description: 'This nav dropdown is autofilled with the default observations links.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
+          hasEnabledToggle: false,
         }),
         topLevelNavTab({
           name: 'weather',
@@ -66,20 +73,37 @@ export const Navigations: CollectionConfig = {
           name: 'blog',
           description:
             'This nav item navigates to your blog landing page and does not have any dropdown items.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
+          enabledToggleDescription:
+            'If hidden, the blog landing page will not be accessible to visitors.',
         }),
         topLevelNavTab({
           name: 'events',
           description:
             'This nav item navigates to your events landing page and does not have any dropdown items.',
-          isConfigurable: false,
+          hasConfigurableNavItems: false,
+          enabledToggleDescription:
+            'If hidden, the events landing page will not be accessible to visitors.',
         }),
         topLevelNavTab({ name: 'about' }),
         topLevelNavTab({ name: 'support' }),
         {
           name: 'donate',
           description: 'This nav item is styled as a button.',
-          fields: [navLink],
+          fields: [
+            {
+              type: 'group',
+              name: 'options',
+              fields: [
+                {
+                  type: 'checkbox',
+                  defaultValue: true,
+                  name: 'enabled',
+                },
+              ],
+            },
+            navLink,
+          ],
         },
       ],
     },
@@ -87,9 +111,7 @@ export const Navigations: CollectionConfig = {
   ],
   versions: {
     drafts: {
-      autosave: {
-        interval: 100,
-      },
+      autosave: true,
     },
     maxPerDoc: 10,
   },

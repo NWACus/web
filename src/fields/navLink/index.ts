@@ -1,9 +1,6 @@
-import isAbsoluteUrl from '@/utilities/isAbsoluteUrl'
+import { getTenantFilter } from '@/utilities/collectionFilters'
+import { validateExternalUrl } from '@/utilities/validateUrl'
 import { GroupField, TextFieldSingleValidation } from 'payload'
-
-const validateExternalUrl: TextFieldSingleValidation = (val) =>
-  isAbsoluteUrl(val) ||
-  'External URL must be an absolute url with a protocol. I.e. https://www.example.com.'
 
 const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
   if (siblingData && typeof siblingData === 'object' && 'type' in siblingData) {
@@ -41,8 +38,9 @@ export const navLink: GroupField = {
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'internal',
       },
-      label: 'Document to link to',
-      relationTo: ['pages', 'posts'],
+      label: 'Select page or post',
+      relationTo: ['pages', 'builtInPages', 'posts'],
+      filterOptions: getTenantFilter,
     },
     {
       name: 'url',

@@ -1,0 +1,130 @@
+name: Sync Production to Dev
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+on:
+  # Every day at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+  # Allow manual triggering
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment: Dev
+    env:
+      NODE_ENV: production
+    steps:
+      - name: Install Turso CLI
+        run: curl -sSfL https://get.tur.so/install.sh | bash
+        env:
+          TURSO_INSTALL_SKIP_SIGNUP: 'true'
+      - name: Delete dev db and create a new db from prod
+        id: database
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          /home/runner/.turso/turso org switch nwac
+          if /home/runner/.turso/turso db show payloadcms-dev; then
+            /home/runner/.turso/turso db destroy payloadcms-dev --yes
+          fi
+          /home/runner/.turso/turso db create payloadcms-dev --from-db payloadcms-prod --wait
+          /home/runner/.turso/turso db shell payloadcms-dev .tables
+        env:
+          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      - name: Record database connection URI and token
+        id: connection
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          echo "uri=$(/home/runner/.turso/turso db show payloadcms-dev --url)" >> "${GITHUB_OUTPUT}"
+          echo "token=$(/home/runner/.turso/turso db tokens create payloadcms-dev)" >> "${GITHUB_OUTPUT}"
+        env:
+          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Update database URI in Vercel
+        run: echo -n "${{ steps.connection.outputs.uri }}" | vercel env add DATABASE_URI preview main --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Update database token in Vercel
+        run: echo -n "${{ steps.connection.outputs.token }}" | vercel env add DATABASE_AUTH_TOKEN preview main --sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Generate random non-prod sync password
+        id: generate-sync-password
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          generated_password=$(openssl rand -base64 32)
+          echo "::add-mask::$generated_password"
+          echo "password=$generated_password" >> "$GITHUB_OUTPUT"
+      - name: Update non-prod sync password in Vercel
+        run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --force --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel Environment Variables into .env file
+        run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
+      - name: Run database migrations
+        run: pnpm migrate
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Sanitize database
+        id: sanitize
+        run: pnpm sanitize
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+          NON_PROD_SYNC_PASSWORD: '${{ steps.generate-sync-password.outputs.password }}'
+      - name: Sync blobs from prod to dev
+        id: sync-files
+        run: pnpm sync-blobs prod dev
+      - name: Update media prefix in database
+        id: update-media-prefix
+        run: pnpm update-media-prefix dev
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Project Artifacts
+        run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      - name: Deploy Project Artifacts to Vercel
+        id: deployment
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          fullName="${{ github.repository }}"
+          vercel deploy --yes --prebuilt --target=preview \
+            --meta='githubCommitAuthorName=${{ github.workflow }}' \
+            --meta='githubCommitOrg=${{ github.repository_owner }}' \
+            --meta='githubCommitRef=main' \
+            --meta="githubCommitRepo=${fullName##*/}" \
+            --meta='githubCommitSha=${{ github.sha }}' \
+            --meta='githubDeployment=1' \
+            --meta='githubOrg=${{ github.repository_owner }}' \
+            --meta="githubRepo=${fullName##*/}" \
+            --meta='githubCommitAuthorLogin=${{ github.workflow }}' \
+            --token=${{ secrets.VERCEL_TOKEN }}

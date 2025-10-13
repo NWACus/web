@@ -33,6 +33,7 @@ export const Textarea = ({
         defaultValue={defaultValue}
         id={name}
         rows={rows}
+        className="text-black"
         {...register(name, { required: requiredFromProps })}
       />
 

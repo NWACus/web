@@ -53,7 +53,6 @@ export async function GET(
 
     const draft = await draftMode()
 
-    // You can add additional checks here to see if the user is allowed to preview this page
     if (!user) {
       draft.disable()
       return new Response('You are not allowed to preview this page', { status: 403 })
@@ -72,7 +71,9 @@ export async function GET(
           select: {},
           where: {
             slug: {
-              equals: slug,
+              // Exception for pages collection which has a concept of canonical urls based on their nesting in the navigation
+              // Uses the last path part as the slug
+              equals: collection === 'pages' ? slug.split('/').filter(Boolean).pop() : slug,
             },
           },
         })

@@ -1,12 +1,12 @@
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
-import { fetchFileByURL } from '@/endpoints/seed/utilities'
-import { Form, Media, Tenant } from '@/payload-types'
+import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
+import { Form, Tenant } from '@/payload-types'
+import fs from 'fs'
 import { headers } from 'next/headers'
 import type {
   CollectionSlug,
   File,
-  GlobalSlug,
   Payload,
   PayloadRequest,
   RequiredDataFromCollectionSlug,
@@ -14,7 +14,9 @@ import type {
 
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
+import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
+import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageMountain } from './image-mountain'
@@ -24,34 +26,34 @@ import { contact as contactPageData } from './pages/contact-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
+import { sponsors } from './sponsors'
 
 const collections: CollectionSlug[] = [
-  'brands',
-  'themes',
-  'palettes',
+  'settings',
   'biographies',
+  'homePages',
+  'sponsors',
   'media',
   'pages',
   'posts',
   'forms',
   'form-submissions',
   'navigations',
-  'footer',
   'roles',
-  'globalRoleAssignments',
+  'globalRoles',
   'roleAssignments',
+  'redirects',
+  'tags',
   'teams',
+  'builtInPages',
   'tenants',
 ]
-const globalsMap: Record<GlobalSlug, { requiredFields: any }> = {
-  nacWidgetsConfig: {
-    requiredFields: {
-      version: 'latest',
-      baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
-    },
+const defaultNacWidgetsConfig = {
+  requiredFields: {
+    version: 'latest',
+    baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
   },
 }
-const globals: GlobalSlug[] = ['nacWidgetsConfig']
 
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
@@ -70,19 +72,15 @@ export const seed = async ({
   if (!incremental) {
     payload.logger.info(`— Clearing collections and globals...`)
 
-    // clear the database
-    await Promise.all(
-      globals.map((global) =>
-        payload.updateGlobal({
-          slug: global,
-          data: globalsMap[global].requiredFields,
-          depth: 0,
-          context: {
-            disableRevalidate: true,
-          },
-        }),
-      ),
-    )
+    // reset the nacWidgetsConfig global
+    await payload.updateGlobal({
+      slug: 'nacWidgetsConfig',
+      data: defaultNacWidgetsConfig.requiredFields,
+      depth: 0,
+      context: {
+        disableRevalidate: true,
+      },
+    })
 
     await Promise.all(
       collections.map((collection) => {
@@ -111,6 +109,11 @@ export const seed = async ({
           },
           {
             email: {
+              contains: 'dvac.us',
+            },
+          },
+          {
+            email: {
               contains: 'nwac.us',
             },
           },
@@ -126,189 +129,33 @@ export const seed = async ({
           },
         ],
       },
+      context: {
+        disableRevalidate: true,
+      },
     })
+
+    payload.logger.info('- Deleting existing /public/media folder...')
+
+    try {
+      const path = getPath('public/media')
+      fs.rmSync(path, { recursive: true, force: true })
+    } catch (err) {
+      payload.logger.error(
+        `Failed to delete /public/media folder: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      )
+    }
   } else {
     payload.logger.info(`— Skipping database cleanup for incremental seed...`)
   }
 
-  const palettes = await upsertGlobals('palettes', payload, incremental, (obj) => obj.name, [
+  // Create global roles first
+  const globalRoles = await upsertGlobals('globalRoles', payload, incremental, (obj) => obj.name, [
     {
-      name: 'Zinc Light',
-      background: '0 0% 100%',
-      foreground: '240 10% 3.9%',
-      card: '0 0% 100%',
-      'card-foreground': '240 10% 3.9%',
-      popover: '0 0% 100%',
-      'popover-foreground': '240 10% 3.9%',
-      primary: '240 5.9% 10%',
-      'primary-foreground': '0 0% 98%',
-      secondary: '240 4.8% 95.9%',
-      'secondary-foreground': '240 5.9% 10%',
-      muted: '240 4.8% 95.9%',
-      'muted-foreground': '240 3.8% 46.1%',
-      accent: '240 4.8% 95.9%',
-      'accent-foreground': '240 5.9% 10%',
-      destructive: '0 84.2% 60.2%',
-      'destructive-foreground': '0 0% 98%',
-      border: '240 5.9% 90%',
-      input: '240 5.9% 90%',
-      ring: '240 5.9% 10%',
-      radius: '0.5rem',
-      'chart-1': '12 76% 61%',
-      'chart-2': '173 58% 39%',
-      'chart-3': '197 37% 24%',
-      'chart-4': '43 74% 66%',
-      'chart-5': '27 87% 67%',
-    },
-    {
-      name: 'Zinc Dark',
-      radius: '0.5rem',
-      background: '240 10% 3.9%',
-      foreground: '0 0% 98%',
-      card: '240 10% 3.9%',
-      'card-foreground': '0 0% 98%',
-      popover: '240 10% 3.9%',
-      'popover-foreground': '0 0% 98%',
-      primary: '0 0% 98%',
-      'primary-foreground': '240 5.9% 10%',
-      secondary: '240 3.7% 15.9%',
-      'secondary-foreground': '0 0% 98%',
-      muted: '240 3.7% 15.9%',
-      'muted-foreground': '240 5% 64.9%',
-      accent: '240 3.7% 15.9%',
-      'accent-foreground': '0 0% 98%',
-      destructive: '0 62.8% 30.6%',
-      'destructive-foreground': '0 0% 98%',
-      border: '240 3.7% 15.9%',
-      input: '240 3.7% 15.9%',
-      ring: '240 4.9% 83.9%',
-      'chart-1': '220 70% 50%',
-      'chart-2': '160 60% 45%',
-      'chart-3': '30 80% 55%',
-      'chart-4': '280 65% 60%',
-      'chart-5': '340 75% 55%',
-    },
-    {
-      name: 'Blue Light',
-      radius: '0.5rem',
-      background: '0 0% 100%',
-      foreground: '222.2 84% 4.9%',
-      card: '0 0% 100%',
-      'card-foreground': '222.2 84% 4.9%',
-      popover: '0 0% 100%',
-      'popover-foreground': '222.2 84% 4.9%',
-      primary: '221.2 83.2% 53.3%',
-      'primary-foreground': '210 40% 98%',
-      secondary: '210 40% 96.1%',
-      'secondary-foreground': '222.2 47.4% 11.2%',
-      muted: '210 40% 96.1%',
-      'muted-foreground': '215.4 16.3% 46.9%',
-      accent: '210 40% 96.1%',
-      'accent-foreground': '222.2 47.4% 11.2%',
-      destructive: '0 84.2% 60.2%',
-      'destructive-foreground': '210 40% 98%',
-      border: '214.3 31.8% 91.4%',
-      input: '214.3 31.8% 91.4%',
-      ring: '221.2 83.2% 53.3%',
-      'chart-1': '12 76% 61%',
-      'chart-2': '173 58% 39%',
-      'chart-3': '197 37% 24%',
-      'chart-4': '43 74% 66%',
-      'chart-5': '27 87% 67%',
-    },
-    {
-      name: 'Blue Dark',
-      radius: '0.5rem',
-      background: '222.2 84% 4.9%',
-      foreground: '210 40% 98%',
-      card: '222.2 84% 4.9%',
-      'card-foreground': '210 40% 98%',
-      popover: '222.2 84% 4.9%',
-      'popover-foreground': '210 40% 98%',
-      primary: '217.2 91.2% 59.8%',
-      'primary-foreground': '222.2 47.4% 11.2%',
-      secondary: '217.2 32.6% 17.5%',
-      'secondary-foreground': '210 40% 98%',
-      muted: '217.2 32.6% 17.5%',
-      'muted-foreground': '215 20.2% 65.1%',
-      accent: '217.2 32.6% 17.5%',
-      'accent-foreground': '210 40% 98%',
-      destructive: '0 62.8% 30.6%',
-      'destructive-foreground': '210 40% 98%',
-      border: '217.2 32.6% 17.5%',
-      input: '217.2 32.6% 17.5%',
-      ring: '224.3 76.3% 48%',
-      'chart-1': '220 70% 50%',
-      'chart-2': '160 60% 45%',
-      'chart-3': '30 80% 55%',
-      'chart-4': '280 65% 60%',
-      'chart-5': '340 75% 55%',
-    },
-  ])
-
-  const themes = await upsertGlobals('themes', payload, incremental, (obj) => obj.name, [
-    {
-      name: 'Zinc',
-      activeColors: {
-        light: '240 5.9% 10%',
-        dark: '240 5.2% 33.9%',
-      },
-      palettes: {
-        light: palettes['Zinc Light'].id,
-        dark: palettes['Zinc Dark'].id,
-      },
-    },
-    {
-      name: 'Blue',
-      activeColors: {
-        light: '221.2 83.2% 53.3%',
-        dark: '217.2 91.2% 59.8%',
-      },
-      palettes: {
-        light: palettes['Blue Light'].id,
-        dark: palettes['Blue Dark'].id,
-      },
-    },
-  ])
-
-  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
-    {
-      name: 'Admin',
+      name: 'Super Admin',
       rules: [
         {
           collections: ['*'],
           actions: ['*'],
-        },
-      ],
-    },
-    {
-      name: 'User Administrator',
-      rules: [
-        {
-          collections: ['roleAssignments'],
-          actions: ['create', 'read', 'update'],
-        },
-      ],
-    },
-    {
-      name: 'Contributor',
-      rules: [
-        {
-          collections: ['posts', 'pages', 'media'],
-          actions: ['*'],
-        },
-        {
-          collections: ['tenants'],
-          actions: ['read'],
-        },
-      ],
-    },
-    {
-      name: 'Viewer',
-      rules: [
-        {
-          collections: ['*'],
-          actions: ['read'],
         },
       ],
     },
@@ -316,19 +163,24 @@ export const seed = async ({
 
   const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
     {
+      name: 'Death Valley Avalanche Center',
+      slug: 'dvac',
+      customDomain: 'dvac.us',
+    },
+    {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
-      domains: [{ domain: 'nwac.us' }],
+      customDomain: 'nwac.us',
     },
     {
       name: 'Sierra Avalanche Center',
       slug: 'sac',
-      domains: [{ domain: 'sierraavalanchecenter.org' }],
+      customDomain: 'sierraavalanchecenter.org',
     },
     {
       name: 'Sawtooth Avalanche Center',
       slug: 'snfac',
-      domains: [{ domain: 'sawtoothavalanche.com' }],
+      customDomain: 'sawtoothavalanche.com',
     },
   ])
   const tenantsById: Record<number, Tenant> = {}
@@ -336,55 +188,154 @@ export const seed = async ({
     tenantsById[tenants[tenant].id] = tenants[tenant]
   }
 
+  // Create global roles
+  const roles = await upsertGlobals('roles', payload, incremental, (obj) => obj.name, [
+    {
+      name: 'Admin',
+      rules: [
+        {
+          collections: [
+            'pages',
+            'posts',
+            'builtInPages',
+            'tags',
+            'roleAssignments',
+            'settings',
+            'media',
+            'biographies',
+            'teams',
+            'forms',
+            'formSubmissions',
+            'users',
+            'redirects',
+            'sponsors',
+            'homePages',
+          ],
+          actions: ['*'],
+        },
+        {
+          collections: ['navigations', 'tenants'],
+          actions: ['read'],
+        },
+      ],
+    },
+    {
+      name: 'Forecaster',
+      rules: [
+        {
+          collections: [
+            'pages',
+            'posts',
+            'builtInPages',
+            'tags',
+            'media',
+            'biographies',
+            'teams',
+            'forms',
+            'formSubmissions',
+          ],
+          actions: ['*'],
+        },
+      ],
+    },
+    {
+      name: 'Non-Profit Staff',
+      rules: [
+        {
+          collections: [
+            'pages',
+            'posts',
+            'builtInPages',
+            'tags',
+            'media',
+            'biographies',
+            'teams',
+            'forms',
+            'formSubmissions',
+            'sponsors',
+          ],
+          actions: ['*'],
+        },
+      ],
+    },
+  ])
+
   payload.logger.info(`— Seeding brand media...`)
 
   const logoFiles: Record<string, string> = {
-    bac: 'BAC.png',
-    btac: 'BTAC.png',
-    caic: 'CAIC.jpg',
-    cbac: 'CBAC.png',
-    cnfaic: 'CNFAIC.png',
-    coaa: 'COAA.png',
-    esac: 'ESAC.png',
-    fac: 'FAC.png',
-    gnfac: 'GNFAC.png',
-    hpac: 'HPAC.png',
-    ipac: 'IPAC.png',
-    kpac: 'KPAC.png',
-    msac: 'MSAC.png',
-    mwac: 'MWAC.png',
-    nwac: 'NWAC.png',
-    pac: 'PAC.png',
-    sac: 'SAC.png',
-    snfac: 'SNFAC.png',
-    tac: 'TAC.png',
-    wac: 'WAC.png',
-    wcmac: 'WCMAC.png',
+    bac: 'BAC.webp',
+    btac: 'BTAC.webp',
+    caic: 'CAIC.webp',
+    cbac: 'CBAC.webp',
+    cnfaic: 'CNFAIC.webp',
+    coaa: 'COAA.webp',
+    dvac: 'DVAC.webp',
+    esac: 'ESAC.webp',
+    fac: 'FAC.webp',
+    gnfac: 'GNFAC.webp',
+    hpac: 'HPAC.webp',
+    ipac: 'IPAC.webp',
+    kpac: 'KPAC.webp',
+    msac: 'MSAC.webp',
+    mwac: 'MWAC.webp',
+    nwac: 'NWAC.webp',
+    pac: 'PAC.webp',
+    sac: 'SAC.webp',
+    snfac: 'SNFAC.webp',
+    tac: 'TAC.webp',
+    wac: 'WAC.webp',
+    wcmac: 'WCMAC.webp',
+  }
+  const iconFiles: Record<string, string> = {
+    dvac: 'dvac-icon.png',
+    nwac: 'nwac-icon.png',
+    sac: 'sac-icon.png',
+    snfac: 'snfac-icon.png',
   }
   const bannerFiles: Record<string, string> = {
-    nwac: 'https://files.nwac.us/wp-content/uploads/2020/10/08140810/nwac-logo-usfs.png',
-    sac: 'https://tahoe.com/sites/default/files/styles/medium/public/business/1900/logo/sac-png-logo.png',
-    snfac: 'https://www.sawtoothavalanche.com/wp-content/uploads/2019/01/sac-usfs-logo.png',
+    dvac: 'dvac-icon.png',
+    nwac: 'nwac-banner.webp',
+    sac: 'sac-banner.webp',
+    snfac: 'sac-usfs-logo.webp',
   }
+  const usfsLogoFiles: Record<string, string> = {
+    nwac: 'usfs-logo.webp',
+    sac: 'usfs-logo.webp',
+  }
+
   const logos: Record<string, File> = {}
+  const icons: Record<string, File> = {}
   const banners: Record<string, File> = {}
+  const usfsLogos: Record<string, File> = {}
+
   for (const tenantSlug in tenants) {
     if (tenantSlug in logoFiles) {
-      const logo = await fetchFileByURL(
-        'https://raw.githubusercontent.com/NWACus/avy/refs/heads/main/assets/logos/' +
-          logoFiles[tenantSlug],
-      )
+      const logo = await getSeedImageByFilename(logoFiles[tenantSlug], payload.logger)
       if (!logo) {
-        throw new Error(`Downloading logo for tenant ${tenantSlug} returned null...`)
+        throw new Error(`Getting logo for tenant ${tenantSlug} returned null...`)
       }
       logos[tenantSlug] = logo
     }
+    if (tenantSlug in iconFiles) {
+      const icon = await getSeedImageByFilename(iconFiles[tenantSlug], payload.logger)
+      if (!icon) {
+        throw new Error(`Getting icon for tenant ${tenantSlug} returned null...`)
+      }
+      icons[tenantSlug] = icon
+    }
     if (tenantSlug in bannerFiles) {
-      const banner = await fetchFileByURL(bannerFiles[tenantSlug])
+      const banner = await getSeedImageByFilename(bannerFiles[tenantSlug], payload.logger)
       if (!banner) {
-        throw new Error(`Downloading banner for tenant ${tenantSlug} returned null...`)
+        throw new Error(`Getting banner for tenant ${tenantSlug} returned null...`)
       }
       banners[tenantSlug] = banner
+    }
+    if (tenantSlug in usfsLogoFiles) {
+      const usfsLogo = await getSeedImageByFilename(usfsLogoFiles[tenantSlug], payload.logger)
+      if (!usfsLogo) {
+        throw new Error(`Getting usfsLogo for tenant ${tenantSlug} returned null...`)
+      }
+      usfsLogos[tenantSlug] = usfsLogo
     }
   }
 
@@ -401,32 +352,103 @@ export const seed = async ({
         {
           data: {
             tenant: tenant.id,
+            alt: 'icon',
+          },
+          file: icons[tenant.slug],
+        },
+        {
+          data: {
+            tenant: tenant.id,
             alt: 'banner',
           },
           file: banners[tenant.slug],
         },
+        ...(usfsLogos[tenant.slug]
+          ? [
+              {
+                data: {
+                  tenant: tenant.id,
+                  alt: 'usfs logo',
+                },
+                file: usfsLogos[tenant.slug],
+              },
+            ]
+          : []),
       ])
       .flat(),
   ])
 
-  const themesByTenant: Record<string, string> = {
-    nwac: 'Zinc',
-    sac: 'Blue',
-    snfac: 'Zinc',
+  // Settings
+  const settingsData: Record<
+    Tenant['slug'],
+    Partial<RequiredDataFromCollectionSlug<'settings'>>
+  > = {
+    dvac: {
+      description:
+        'Death Valley Avalanche Center is our templated tenant where we can see and copy data from.',
+      address: '123 Made Up Ave. S\nNowhere, WA 98045',
+      phone: '(111)867-5309',
+      email: 'info@dvac.us',
+      socialMedia: {},
+    },
+    nwac: {
+      description:
+        'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
+
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/nwacus',
+        facebook: 'https://www.facebook.com/NWACUS/',
+        twitter: 'https://x.com/nwacus',
+        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
+        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
+      },
+    },
+    sac: {
+      description:
+        'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
+
+      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
+      phone: '(530)563-2257',
+      email: 'info@sierraavalanchecenter.org',
+      socialMedia: {
+        instagram: 'https://www.instagram.com/savycenter/',
+        facebook: 'https://www.facebook.com/sacnonprofit',
+        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
+      },
+    },
+    snfac: {
+      description: 'Avalanche Safety Information for South Central Idaho',
+      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
+      phone: '(206)909-0203',
+      email: 'info@nwac.us',
+      socialMedia: {},
+    },
   }
-  // Brands
+
   await upsert(
-    'brands',
+    'settings',
     payload,
     incremental,
     tenantsById,
     (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
     Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'brands'> => ({
+      (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
         tenant: tenant.id,
+        description: settingsData[tenant.slug].description,
+        footerForm: {
+          type: 'none',
+        },
+        address: settingsData[tenant.slug].address,
+        phone: settingsData[tenant.slug].phone,
+        email: settingsData[tenant.slug].email,
+        socialMedia: settingsData[tenant.slug].socialMedia,
         logo: brandImages[tenant.slug]['logo'].id,
+        icon: brandImages[tenant.slug]['icon'].id,
         banner: brandImages[tenant.slug]['banner'].id,
-        theme: themes[themesByTenant[tenant.slug]].id,
+        usfsLogo: brandImages[tenant.slug]['usfs logo']?.id,
       }),
     ),
   )
@@ -449,17 +471,17 @@ export const seed = async ({
       .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
         {
           name: tenant.slug.toUpperCase() + ' Admin',
-          email: 'admin@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
+          email: 'admin@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
         {
-          name: tenant.slug.toUpperCase() + ' Contributor',
-          email: 'contributor@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
+          name: tenant.slug.toUpperCase() + ' Forecaster',
+          email: 'forecaster@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
         {
-          name: tenant.slug.toUpperCase() + ' Viewer',
-          email: 'viewer@' + (tenant.domains as NonNullable<Tenant['domains']>)[0].domain,
+          name: tenant.slug.toUpperCase() + ' Non-Profit Staff',
+          email: 'staff@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
           password: password,
         },
       ])
@@ -471,30 +493,41 @@ export const seed = async ({
     },
   ])
 
-  const teams = await seedStaff(payload, incremental, tenants, tenantsById, users)
+  const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
 
-  const requestHeaders = await headers()
-  const { user } = await payload.auth({ headers: requestHeaders })
-  const globalRoleAssignments: RequiredDataFromCollectionSlug<'globalRoleAssignments'>[] = [
-    {
-      roles: [roles['Admin'].id],
+  // Assign global roles directly to users
+  await payload.create({
+    collection: 'globalRoleAssignments',
+    data: {
       user: users['Super Admin'].id,
+      globalRole: globalRoles['Super Admin'].id,
     },
-  ]
-  if (user && user.email !== users['Super Admin'].email) {
-    globalRoleAssignments.push({
-      roles: [roles['Admin'].id],
-      user: user.id,
-    })
+    context: {
+      disableRevalidate: true,
+    },
+  })
+
+  try {
+    const requestHeaders = await headers()
+    const { user } = await payload.auth({ headers: requestHeaders })
+
+    if (user && user.email !== users['Super Admin'].email) {
+      await payload.create({
+        collection: 'globalRoleAssignments',
+        data: {
+          user: user.id,
+          globalRole: globalRoles['Super Admin'].id,
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+  } catch (err) {
+    payload.logger.error(
+      `Error authenticating current user. We may be running in standalone mode. Error: ${err instanceof Error ? err.message : err}`,
+    )
   }
-  // SuperAdminRoleAssignment
-  await upsertGlobals(
-    'globalRoleAssignments',
-    payload,
-    incremental,
-    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
-    globalRoleAssignments,
-  )
 
   // Roles
   await upsert(
@@ -502,57 +535,51 @@ export const seed = async ({
     payload,
     incremental,
     tenantsById,
-    (obj) => `${obj.user} ${JSON.stringify(obj.roles)}`,
+    (obj) => `${obj.user} ${obj.role}`,
     [
       ...Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'roleAssignments'>[] => [
           {
             tenant: tenant.id,
-            roles: [roles['Admin'].id],
+            role: roles['Admin'].id,
             user: users[tenant.slug.toUpperCase() + ' Admin'].id,
           },
           {
             tenant: tenant.id,
-            roles: [roles['Contributor'].id],
-            user: users[tenant.slug.toUpperCase() + ' Contributor'].id,
+            role: roles['Forecaster'].id,
+            user: users[tenant.slug.toUpperCase() + ' Forecaster'].id,
           },
 
           {
             tenant: tenant.id,
-            roles: [roles['Viewer'].id],
-            user: users[tenant.slug.toUpperCase() + ' Viewer'].id,
+            role: roles['Non-Profit Staff'].id,
+            user: users[tenant.slug.toUpperCase() + ' Non-Profit Staff'].id,
           },
         ])
         .flat(),
       {
         tenant: tenants['snfac'].id,
-        roles: [roles['Admin'].id],
+        role: roles['Admin'].id,
         user: users['Multi-center Admin'].id,
       },
       {
         tenant: tenants['nwac'].id,
-        roles: [roles['Admin'].id],
+        role: roles['Admin'].id,
         user: users['Multi-center Admin'].id,
       },
     ],
   )
 
-  payload.logger.info(`— Fetching images...`)
+  payload.logger.info(`— Getting images...`)
 
-  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer] = await Promise.all([
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post1.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post2.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-    ),
-    fetchFileByURL(
-      'https://raw.githubusercontent.com/payloadcms/payload/refs/heads/main/templates/website/src/endpoints/seed/image-post3.webp',
-    ),
-  ])
+  const [image1Buffer, image2Buffer, image3Buffer, imageMountainBuffer, imageAcmeBuffer] =
+    await Promise.all([
+      getSeedImageByFilename('image-post1.webp', payload.logger),
+      getSeedImageByFilename('image-post2.webp', payload.logger),
+      getSeedImageByFilename('image-post3.webp', payload.logger),
+      getSeedImageByFilename('image-mountain.webp', payload.logger),
+      getSeedImageByFilename('acme-corp.webp', payload.logger),
+    ])
 
   const images = await upsert(
     'media',
@@ -582,10 +609,43 @@ export const seed = async ({
           data: imageMountain(tenant),
           file: imageMountainBuffer,
         },
+        {
+          data: {
+            tenant: tenant.id,
+            alt: 'acmeCorp',
+          },
+          file: imageAcmeBuffer,
+        },
       ])
       .flat(),
   )
-
+  // Tags
+  const tags = await upsert(
+    'tags',
+    payload,
+    incremental,
+    tenantsById,
+    (obj) => obj.title,
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'tags'>[] => [
+        {
+          title: 'Education',
+          slug: 'education',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Gear',
+          slug: 'gear',
+          tenant: tenant.id,
+        },
+        {
+          title: 'Volunteers',
+          slug: 'volunteers',
+          tenant: tenant.id,
+        },
+      ])
+      .flat(),
+  )
   const posts = await upsert(
     'posts',
     payload,
@@ -593,36 +653,28 @@ export const seed = async ({
     tenantsById,
     (obj) => obj.slug,
     Object.values(tenants)
-      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => [
-        post1(
-          tenant,
-          images[tenant.slug]['image1'],
-          images[tenant.slug]['image2'],
-          users[tenant.slug.toUpperCase() + ' Contributor'],
-        ),
-        post2(
-          tenant,
-          images[tenant.slug]['image2'],
-          images[tenant.slug]['image3'],
-          users[tenant.slug.toUpperCase() + ' Admin'],
-        ),
-        post3(
-          tenant,
-          images[tenant.slug]['image3'],
-          images[tenant.slug]['image1'],
-          users[tenant.slug.toUpperCase() + ' Contributor'],
-        ),
-      ])
+      .map((tenant): RequiredDataFromCollectionSlug<'posts'>[] => {
+        const authors = Object.values(bios[tenant.slug])
+        return [
+          post1(tenant, images[tenant.slug]['image1'], images[tenant.slug]['image2'], [
+            authors[0],
+            authors[1],
+          ]),
+          post2(tenant, images[tenant.slug]['image2'], images[tenant.slug]['image3'], authors[2]),
+          post3(tenant, images[tenant.slug]['image3'], images[tenant.slug]['image1'], authors[3]),
+        ]
+      })
       .flat(),
   )
 
   payload.logger.info(`— Updating post relationships...`)
   for (const tenant in posts) {
-    for (const title in posts[tenant]) {
-      const post = posts[tenant][title]
+    Object.values(posts[tenant]).forEach(async (post, index) => {
       payload.logger.info(
         `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
       )
+      const randomTagId = Object.values(tags[tenant]).map((tag) => tag.id)[index]
+
       await payload.update({
         id: post.id,
         collection: 'posts',
@@ -630,9 +682,13 @@ export const seed = async ({
           relatedPosts: Object.values(posts[tenant])
             .filter((p) => p.id !== post.id)
             .map((p) => p.id),
+          tags: [randomTagId],
+        },
+        context: {
+          disableRevalidate: true,
         },
       })
-    }
+    })
   }
 
   payload.logger.info(`— Seeding contact forms...`)
@@ -644,6 +700,9 @@ export const seed = async ({
       collection: 'forms',
       depth: 0,
       data: { ...contactFormData, tenant: tenant.id },
+      context: {
+        disableRevalidate: true,
+      },
     })
 
     if (!contactForm) {
@@ -651,6 +710,34 @@ export const seed = async ({
     }
     contactForms[tenant.name] = contactForm
   }
+
+  const homePages = await upsert(
+    'homePages',
+    payload,
+    incremental,
+    tenantsById,
+    () => 'homepage',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
+        homePage(tenant, images[tenant.slug]['imageMountain']),
+    ),
+  )
+
+  await upsert(
+    'builtInPages',
+    payload,
+    incremental,
+    tenantsById,
+    () => 'builtInPages',
+    Object.values(tenants)
+      .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
+        builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
+        builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+        builtInPage(tenant, 'Recent Observations', '/observations'),
+        builtInPage(tenant, 'Submit Observations', '/observations/submit'),
+      ])
+      .flat(),
+  )
 
   const pages = await upsert(
     'pages',
@@ -661,7 +748,11 @@ export const seed = async ({
     Object.values(tenants)
       .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
         contactPageData(tenant, contactForms[tenant.name]),
-        allBlocksPage(tenant, images[tenant.slug]['imageMountain']),
+        allBlocksPage(
+          tenant,
+          images[tenant.slug]['imageMountain'],
+          Object.values(posts[tenant.slug]),
+        ),
         whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
         page(
           tenant,
@@ -835,6 +926,57 @@ export const seed = async ({
       .flat(),
   )
 
+  payload.logger.info(`— Seeding sponsors...`)
+  await upsert(
+    'sponsors',
+    payload,
+    incremental,
+    tenantsById,
+    () => 'sponsors',
+    Object.values(tenants).map(
+      (tenant): RequiredDataFromCollectionSlug<'sponsors'> =>
+        sponsors(tenant, images[tenant.slug]['acmeCorp']),
+    ),
+  )
+
+  payload.logger.info(`— Updating home page quick links...`)
+  for (const tenant of Object.values(tenants)) {
+    const aboutUsPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
+    const donatePage = Object.values(pages[tenant.slug]).find(
+      (page) => page.slug === 'donate-membership',
+    )
+
+    if (aboutUsPage && donatePage) {
+      await payload.update({
+        id: homePages[tenant.slug]['homepage'].id,
+        collection: 'homePages',
+        data: {
+          quickLinks: [
+            {
+              type: 'internal',
+              label: 'Learn More',
+              reference: {
+                relationTo: 'pages',
+                value: aboutUsPage.id,
+              },
+            },
+            {
+              type: 'internal',
+              label: 'Donate',
+              reference: {
+                relationTo: 'pages',
+                value: donatePage.id,
+              },
+            },
+          ],
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+  }
+
   // Navigations
   await upsert(
     'navigations',
@@ -848,59 +990,101 @@ export const seed = async ({
     ),
   )
 
-  payload.logger.info(`— Seeding footers...`)
-  const footerData: Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'footer'>>> = {
-    nwac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/nwacus',
-        facebook: 'https://www.facebook.com/NWACUS/',
-        twitter: 'https://x.com/nwacus',
-        linkedin: 'https://www.linkedin.com/company/nw-avalanche-center',
-        youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
-      },
+  payload.logger.info(`Remove custom domain from dvac...`)
+  await payload.update({
+    id: tenants['dvac'].id,
+    collection: 'tenants',
+    data: {
+      customDomain: '',
     },
-    sac: {
-      address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
-      phone: '(530)563-2257',
-      email: 'info@sierraavalanchecenter.org',
-      socialMedia: {
-        instagram: 'https://www.instagram.com/savycenter/',
-        facebook: 'https://www.facebook.com/sacnonprofit',
-        youtube: 'https://www.youtube.com/channel/UCHdjQ0tSzYzzN0k29NaZJbQ',
-      },
+    context: {
+      disableRevalidate: true,
     },
-    snfac: {
-      address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
-      phone: '(206)909-0203',
-      email: 'info@nwac.us',
-      socialMedia: {},
-    },
-  }
+  })
 
-  const footer = (
-    tenant: Tenant,
-    brandImages: Record<Tenant['slug'], Record<string, Media>>,
-  ): RequiredDataFromCollectionSlug<'footer'> => {
-    return {
-      tenant: tenant.id,
-      footerLogo: brandImages[tenant.slug]['logo'].id,
-      name: tenant.name,
-      ...footerData[tenant.slug],
+  payload.logger.info(`— Seeding redirects...`)
+  for (const tenant of Object.values(tenants)) {
+    const aboutPage = Object.values(pages[tenant.slug]).find((page) => page.slug === 'about-us')
+    const donatePage = Object.values(pages[tenant.slug]).find(
+      (page) => page.slug === 'donate-membership',
+    )
+    const firstPost = Object.values(posts[tenant.slug])[0]
+
+    if (aboutPage) {
+      await payload.create({
+        collection: 'redirects',
+        data: {
+          tenant: tenant.id,
+          from: '/redirect-to-about',
+          to: {
+            type: 'internal',
+            reference: {
+              relationTo: 'pages',
+              value: aboutPage.id,
+            },
+          },
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
     }
+
+    if (firstPost) {
+      await payload.create({
+        collection: 'redirects',
+        data: {
+          tenant: tenant.id,
+          from: '/redirect-to-post',
+          to: {
+            type: 'internal',
+            reference: {
+              relationTo: 'posts',
+              value: firstPost.id,
+            },
+          },
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+
+    if (donatePage) {
+      await payload.create({
+        collection: 'redirects',
+        data: {
+          tenant: tenant.id,
+          from: '/redirect/redirect-to-donate',
+          to: {
+            type: 'internal',
+            reference: {
+              relationTo: 'pages',
+              value: donatePage.id,
+            },
+          },
+        },
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    }
+
+    await payload.create({
+      collection: 'redirects',
+      data: {
+        tenant: tenant.id,
+        from: '/redirect-to-external',
+        to: {
+          type: 'external',
+          url: 'https://avalanche.org',
+        },
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
   }
 
-  await upsert(
-    'footer',
-    payload,
-    incremental,
-    tenantsById,
-    (_obj) => 'footer',
-    Object.values(tenants).map(
-      (tenant): RequiredDataFromCollectionSlug<'footer'> => footer(tenant, brandImages),
-    ),
-  )
   payload.logger.info('Seeded database successfully!')
 }

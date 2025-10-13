@@ -6,6 +6,7 @@ on:
       - 'release'
 jobs:
   cleanup:
+    if: ${{ github.event_name != 'merge_group' }}
     runs-on: ubuntu-latest
     steps:
       - name: Install Turso CLI
@@ -14,10 +15,37 @@ jobs:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
       - name: Delete preview database
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           ref="${{ github.event.ref }}"
           branch="${ref##refs/heads/}"
-          name="payloadcms-preview-${branch//[^a-z0-9\-]/x}"
-          echo "[INFO] Deleting databse ${name}"
-          /home/runner/.turso/turso db destroy --yes "${name}"
+          clean_branch="${branch//[^a-z0-9\-]/x}"
+
+          # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
+          # and ensuring total database name stays within 58 character limit
+          # "payloadcms-preview-" is 19 characters, leaving 39 for the branch
+          if [ ${#clean_branch} -gt 39 ]; then
+            prefix="${clean_branch:0:31}"
+            hash=$(echo -n "${clean_branch}" | sha256sum | cut -c1-7)
+            clean_branch="${prefix}-${hash}"
+          fi
+
+          name="payloadcms-preview-${clean_branch}"
+          echo "[INFO] Attempting to delete database ${name}"
+
+          # Switch to the correct organization
+          /home/runner/.turso/turso org switch nwac
+
+          # Check if database exists before attempting to delete
+          if /home/runner/.turso/turso db show "${name}" >/dev/null 2>&1; then
+            echo "[INFO] Database ${name} exists, deleting..."
+            /home/runner/.turso/turso db destroy --yes "${name}"
+            echo "[INFO] Successfully deleted database ${name}"
+          else
+            echo "[ERROR] Database ${name} does not exist, expected it to be there for cleanup"
+            exit 1
+          fi
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
