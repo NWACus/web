@@ -1560,7 +1560,7 @@ export interface Navigation {
   blog?: {
     options?: {
       /**
-       * If hidden, the blog landing page will not be accessible to visitors.
+       * If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.
        */
       enabled?: boolean | null;
     };
@@ -1619,7 +1619,7 @@ export interface Navigation {
   events?: {
     options?: {
       /**
-       * If hidden, the events landing page will not be accessible to visitors.
+       * If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.
        */
       enabled?: boolean | null;
     };
