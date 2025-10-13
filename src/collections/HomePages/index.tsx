@@ -22,6 +22,8 @@ import { TeamBlock } from '@/blocks/Team/config'
 
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { EventListBlock } from '@/blocks/EventList/config'
+import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -184,6 +186,8 @@ export const HomePages: CollectionConfig = {
         SponsorsBlock,
         TeamBlock,
         GenericEmbed,
+        EventListBlock,
+        SingleEventBlock,
       ],
       required: true,
     },

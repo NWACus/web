@@ -33,6 +33,8 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { EventListBlock } from '@/blocks/EventList/config'
+import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
@@ -130,6 +132,8 @@ export const Pages: CollectionConfig<'pages'> = {
                 SponsorsBlock,
                 TeamBlock,
                 GenericEmbed,
+                EventListBlock,
+                SingleEventBlock,
               ],
               required: true,
               admin: {
