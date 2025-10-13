@@ -1,4 +1,5 @@
 import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e } from '@/blocks/BlogList/fields/QueriedPostsComponent'
+import { QueriedEventsComponent as QueriedEventsComponent_65bd30cc675f775ebce6af07a79e525c } from '@/blocks/EventList/fields/QueriedEventsComponent'
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de } from '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
@@ -98,6 +99,8 @@ export const importMap = {
   '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent':
     QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e,
   '@/components/ColumnLayoutPicker#default': default_923dc5ccc0b72de4298251644cbfe39e,
+  '@/blocks/EventList/fields/QueriedEventsComponent#QueriedEventsComponent':
+    QueriedEventsComponent_65bd30cc675f775ebce6af07a79e525c,
   '@payloadcms/plugin-seo/client#OverviewComponent':
     OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/plugin-seo/client#MetaImageComponent':

@@ -11,6 +11,7 @@ import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
 import {
   BlocksFeature,
@@ -28,6 +29,7 @@ export const Events: CollectionConfig = {
     baseListFilter: filterByTenant,
     group: 'Content',
     defaultColumns: ['title', 'subtitle', 'featuredImage', 'startDate', 'updatedAt'],
+    useAsTitle: 'title',
   },
   fields: [
     {
@@ -71,9 +73,10 @@ export const Events: CollectionConfig = {
     },
     {
       name: 'timezone',
-      type: 'text',
+      type: 'select',
+      options: TIMEZONE_OPTIONS,
       admin: {
-        description: 'Event timezone (e.g., "America/Los_Angeles")',
+        description: 'Event timezone',
       },
     },
     {
