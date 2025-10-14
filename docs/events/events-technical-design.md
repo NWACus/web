@@ -99,6 +99,11 @@
 - Event listings can be embedded on third-party sites
 - A dedicated non-tenant-scoped course listing page
 - External course providers can submit courses for approval by A3 manager
+  - External course providers need to be able to login and create and edit events (not be able to publish though)
+  - An MVP solution could be unique links that allow submitters to edit their event submissions
+  - Providers editing their already approved events might not need to go through the approval process again
+
+  special link per provider with token, that page allows anyone with that link to read all events, edit, create, etc.
 
 ### AC Things
 
@@ -125,7 +130,7 @@
     - Integration with the approval workflow
     - Can only create events for external providers but shouldn’t be able to create events for ACs. Maybe tricky since we plan to use the same collection
 - How do ACs include external provider courses on their site? Might be as simple as a `tenants` array on external type events. Or could use a global to store specific external events or event providers…
-- Embeds
+- Embeds (lower priority - let's just make it so that the events listing page on avy-fx.org looks good in an iframe -- probably without a header?)
     - Listings
     - Single events?
     - Embed code retrieval - just logged in users?
@@ -138,12 +143,15 @@
     - We know each avalanche center’s timezone but we don’t know external providers or A3 users’ timezones. Should probably accept as a dropdown.
     - Should make sure we save the event to the db with the correct timezone and then just depend on the ISO string to render correctly on the client. Although hmm static rendering… maybe it just makes sense to render dates using the event’s timezone then. Could use client components to render the user’s local timezone after hydration I suppose. Flash of different content though.
 - Can we use masks for Payload fields for formatting (i.e. formatting as currency)
+- Webhook design for CRM pushing events to us -- what's the deal with API keys in Payload and in custom endpoints (assuming we'd need a custom endpoint)
+  - Probably a two-way data flow though so we'd need to be able to push changes back potentially
 
 ## Ideas
 
 - A calendar feed users can add to their personal calendars
 - Add to calendar button for individual events (maybe only after signup)
 - Map-based events view
+- A "quick-filters" concept for the EventsCollection page where you'd have filters like upcoming, next week, next month, January, February. Each filter would be a small card and would have a little badge showing how many events are in those filters' results
 
 ## TODOs
 
