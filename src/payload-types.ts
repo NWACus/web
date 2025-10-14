@@ -559,26 +559,24 @@ export interface Post {
 export interface ContentBlock {
   backgroundColor: string;
   layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
-  columns?:
-    | {
-        richText?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
+  columns: {
+    richText?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
           [k: string]: unknown;
-        } | null;
-        id?: string | null;
-      }[]
-    | null;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    id?: string | null;
+  }[];
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
@@ -1560,7 +1558,7 @@ export interface Navigation {
   blog?: {
     options?: {
       /**
-       * If hidden, the blog landing page will not be accessible to visitors.
+       * If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.
        */
       enabled?: boolean | null;
     };
@@ -1619,7 +1617,7 @@ export interface Navigation {
   events?: {
     options?: {
       /**
-       * If hidden, the events landing page will not be accessible to visitors.
+       * If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.
        */
       enabled?: boolean | null;
     };
