@@ -128,5 +128,51 @@ You typically don't need error boundaries for missing data - returning `null` is
 
 We have `ErrorBoundary` components available at `/src/components/ErrorBoundary/` for these cases. Next.js also provides `error.tsx` and `global-error.tsx` for route-level error handling.
 
+## Styling
 
+Prefer using Tailwind utility classes over adding `.(s)css` files.
+
+Use the `cn()` utility for conditional class names.
+
+## Naming and Folder Structure
+
+## Blocks
+
+Follow this example when creating new blocks:
+
+`SingleButtonBlock` - block config name
+`singleButton` - block slug
+`SingleButtonComponent` - associated UI component(s) for the block
+`SingleBlogPostBlockLexical` - config with `wrapInContainer`
+
+If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____BlockLexical` naming. This is to allow having slightly different configs where the Lexical variation will allow the user to change the `wrapInContainer` field on the block whereas the `blocks` type field variation will default to true since it should always be wrapped in a container as a full page width section.
+
+See `src/blocks/GenericEmbed/config.ts` for a simple example of this.
+
+Don't forget to add new blocks to:
+- `src/blocks/RenderBlocks.tsx`
+- `src/components/RichText/index.tsx` (if there is a Lexical variation of the block)
+- At least one `blocks` type field or `richText` `BlocksFeature` so Payload will generate types for the block
+
+Simple
+```md
+blocks
+├── SingleButton
+│   ├── Component.ts
+    └── config.ts
+```
+
+Complex
+  i.e. has multiple components, has hooks, or has custom access functions, fields that make sense to be in their own file, etc.
+```md
+blocks
+├── SingleButton
+│   ├── access
+│   │   └── ...
+│   ├── components
+│   │   └── ...
+│   └── hooks
+│   │   └── ...
+    └── config.ts
+```
 
