@@ -8,36 +8,28 @@ import path from 'path'
 
 const DANGEROUS_PATTERNS = [
   {
-    pattern: /DROP TABLE/i,
-    message: 'DROP TABLE detected - may cause cascade deletes in relationship tables',
+    pattern: /\bDROP\b/i,
+    message: 'DROP keyword detected - review for data loss',
+  },
+  {
+    pattern: /\bDELETE\b/i,
+    message: 'DELETE keyword detected - review for data loss',
+  },
+  {
+    pattern: /\bTRUNCATE\b/i,
+    message: 'TRUNCATE keyword detected - review for data loss',
+  },
+  {
+    pattern: /\bALTER\b/i,
+    message: 'ALTER keyword detected - review for data loss',
+  },
+  {
+    pattern: /\bRENAME\b/i,
+    message: 'RENAME keyword detected - review for data loss',
   },
   {
     pattern: /PRAGMA foreign_keys\s*=\s*OFF/i,
     message: 'Foreign keys disabled - cascade behavior may be unpredictable',
-  },
-  {
-    pattern: /ALTER TABLE.*RENAME TO/i,
-    message: 'Table rename detected - check if relationship tables reference this',
-  },
-  {
-    pattern: /DROP COLUMN/i,
-    message: 'DROP COLUMN detected - permanent data loss for this column',
-  },
-  {
-    pattern: /DELETE FROM(?!.*WHERE)/i,
-    message: 'DELETE without WHERE clause - will delete all rows in table',
-  },
-  {
-    pattern: /TRUNCATE TABLE/i,
-    message: 'TRUNCATE TABLE detected - will delete all data in table',
-  },
-  {
-    pattern: /ALTER TABLE.*DROP CONSTRAINT/i,
-    message: 'Dropping constraint - may affect data integrity',
-  },
-  {
-    pattern: /ALTER COLUMN.*TYPE/i,
-    message: 'Column type change detected - may cause data loss or conversion issues',
   },
 ] as const
 
