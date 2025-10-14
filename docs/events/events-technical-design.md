@@ -156,15 +156,17 @@
 ## TODOs
 
 - [x] Initial, simple implementation
-- [ ] Add modeOfTravel field to events
+- [x] Add modeOfTravel field to events. Options: ski, splitboard, motorized, snowshoe, any
+- [ ] Update look and feel of EventsCollection to match initial designs and only include basic filters for now
+- [ ] Ensure revalidation is implemented for all new collections. See `/docs/revalidation.md`
+- [ ] Ensure migrations have been created
 - [ ] Add Event Groups or Event Tags i.e. another thing to group events by (this would represent an event series like multiple meet your forecasters or an attribute of an event like it being 21+ or Women Only/Women Taught or some other generic grouping like that)
+- [ ] Enhance EventsCollection UI filtering
 - [ ] Handle internal vs. external events (i.e. external events have a relationship to a Course Provider / External Course Provider / Provider). Will need to decide on name for collection representing Providers.
 - [ ] Handle global role setup for A3 event manager type users who can perform all actions on external events but they shouldn't be able to manage internal events associated with an avalanche center.
 - [ ] POC for a publishing workflow for providers to submit events and then have them approved (and the providers still need to be able to manage them after the fact -- potentially a v2 but good to consider now)
 - [ ] POC for event instances / events with multiple dates
 - [ ] POC for location data that can be displayed on a map and used to filter results
 - [ ] Simple embed of EventCollection with specific filters for third-parties to use on their websites
-- [ ] Ensure revalidation is implemented for all new collections. See `/docs/revalidation.md`
-- [ ] Ensure migrations have been created
 - [ ] POC for allowing ACs to control which events appear on their website. Probably a global collection that allows them to specify other avalanche centers and external courses (filtered by provider and/or location) that should show up on their website.
 

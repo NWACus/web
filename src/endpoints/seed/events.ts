@@ -76,6 +76,7 @@ export const getEventsData = (
       cost: 0,
       skillRating: '0',
       eventType: eventTypes['awareness'].id,
+      modeOfTravel: 'any',
       tenant: tenant.id,
       slug: 'introduction-to-avalanche-safety',
       content: simpleContent(
@@ -109,6 +110,7 @@ export const getEventsData = (
       cost: 150,
       skillRating: '2',
       eventType: eventTypes['workshop'].id,
+      modeOfTravel: 'ski',
       tenant: tenant.id,
       slug: 'advanced-snowpack-analysis-workshop',
       content: simpleContent(
@@ -144,6 +146,7 @@ export const getEventsData = (
       skillRating: '1',
       eventType: eventTypes['field-class-by-ac'].id,
       eventSubType: eventSubTypes['snowmobile-classes'].id,
+      modeOfTravel: 'motorized',
       tenant: tenant.id,
       slug: 'avalanche-safety-for-snowmobilers',
       content: simpleContent(
@@ -173,6 +176,7 @@ export const getEventsData = (
       cost: 0,
       skillRating: '0',
       eventType: eventTypes['awareness'].id,
+      modeOfTravel: 'any',
       tenant: tenant.id,
       slug: 'virtual-avalanche-awareness-webinar',
       content: simpleContent(
@@ -206,6 +210,7 @@ export const getEventsData = (
       cost: 0,
       skillRating: '0',
       eventType: eventTypes['events-by-ac'].id,
+      modeOfTravel: 'any',
       tenant: tenant.id,
       slug: 'meet-your-forecasters',
       content: simpleContent(
