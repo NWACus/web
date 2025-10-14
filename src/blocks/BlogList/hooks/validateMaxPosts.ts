@@ -1,6 +1,6 @@
 import { NumberFieldValidation } from 'payload'
 
-export const validateMaxPosts: NumberFieldValidation = async (value) => {
+export const validateMaxPosts: NumberFieldValidation = (value) => {
   if (value === undefined || value === null) {
     return true // Allow empty values since field is optional
   }
