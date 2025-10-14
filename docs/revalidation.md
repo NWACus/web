@@ -302,8 +302,7 @@ While our revalidation system handles most content changes automatically, there 
 
 Because of these limitations, we cannot set very long time-based revalidation periods. Current settings:
 
-- **Individual pages/posts**: 600 seconds (10 minutes) - Conservative safety net for deeply nested blocks
-- **Home pages**: 900 seconds (15 minutes) - Longer interval after implementing `highlightedContent` tracking
+- **Individual pages/posts/homePages**: 600 seconds (10 minutes) - Conservative safety net for deeply nested blocks
 - **Blog list pages**: 600 seconds (10 minutes) - Not explicitly revalidated when posts change
 
 These shorter intervals ensure that even deeply nested changes appear within a reasonable timeframe, at the cost of more serverless function invocations and CDN cache misses.
