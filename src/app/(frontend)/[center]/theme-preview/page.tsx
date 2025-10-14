@@ -6,7 +6,7 @@ import { getPayload } from 'payload'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { draftMode } from 'next/headers'
 
-import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -39,12 +39,22 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
+import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
+
+const disallowedEnvironments = ['prod', 'unknown']
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
+
+  const environment = getEnvironmentFriendlyName()
+
+  if (disallowedEnvironments.includes(environment)) {
+    return []
+  }
+
   const tenants = await payload.find({
     collection: 'tenants',
     limit: 1000,
@@ -65,6 +75,12 @@ type PathArgs = {
 }
 
 export default async function Page({ params }: Args) {
+  const environment = getEnvironmentFriendlyName()
+
+  if (disallowedEnvironments.includes(environment)) {
+    notFound()
+  }
+
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
@@ -387,16 +403,14 @@ export default async function Page({ params }: Args) {
           <section className="space-y-2">
             <h3 className="text-lg font-semibold">Avatar</h3>
             <div className="flex space-x-4">
-              <MediaAvatar
-                src="http://www.gravatar.com/avatar/?d=mp"
-                alt="User Avatar"
-                fallback="CN"
-              />
-              <MediaAvatar
-                src="http://www.gravatar.com/avatar/?d=mp"
-                alt="User Avatar"
-                fallback="AN"
-              />
+              <Avatar isCircle>
+                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp" alt="User Avatar" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <Avatar isCircle>
+                <AvatarImage src="http://www.gravatar.com/avatar/?d=mp" alt="User Avatar" />
+                <AvatarFallback>AN</AvatarFallback>
+              </Avatar>
             </div>
           </section>
 

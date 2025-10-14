@@ -30,6 +30,10 @@ const nextConfig = {
         hostname: 'www.avy-fx-demo.org',
         protocol: PROTOCOL,
       },
+      {
+        hostname: 'www.sierraavalanchecenter.org',
+        protocol: PROTOCOL,
+      },
     ],
   },
   reactStrictMode: true,

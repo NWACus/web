@@ -75,7 +75,7 @@ export const Navigations: CollectionConfig = {
             'This nav item navigates to your blog landing page and does not have any dropdown items.',
           hasConfigurableNavItems: false,
           enabledToggleDescription:
-            'If hidden, the blog landing page will not be accessible to visitors.',
+            'If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.',
         }),
         topLevelNavTab({
           name: 'events',
@@ -83,7 +83,7 @@ export const Navigations: CollectionConfig = {
             'This nav item navigates to your events landing page and does not have any dropdown items.',
           hasConfigurableNavItems: false,
           enabledToggleDescription:
-            'If hidden, the events landing page will not be accessible to visitors.',
+            'If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.',
         }),
         topLevelNavTab({ name: 'about' }),
         topLevelNavTab({ name: 'support' }),
