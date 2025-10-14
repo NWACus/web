@@ -29,14 +29,16 @@ export async function generateStaticParams() {
 
 type Args = {
   params: Promise<PathArgs>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 type PathArgs = {
   center: string
 }
 
-export default async function Page({ params }: Args) {
+export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
+  const search = await searchParams
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
@@ -46,9 +48,22 @@ export default async function Page({ params }: Args) {
 
   const { version, baseUrl } = await getNACWidgetsConfig()
 
+  const queryParams = new URLSearchParams()
+
+  Object.entries(search).forEach(([key, value]) => {
+    if (value !== undefined) {
+      const stringValue = Array.isArray(value) ? value[0] : value
+      const decodedValue = decodeURIComponent(stringValue)
+      queryParams.set(key, decodedValue)
+    }
+  })
+
+  const queryString = queryParams.toString()
+  const initialHash = `/view/observations${queryString ? `?${queryString}` : ''}`
+  const cleanUrl = queryString ? `/observations` : undefined
   return (
     <>
-      <WidgetHashHandler initialHash="/view/observations" />
+      <WidgetHashHandler initialHash={initialHash} cleanUrl={cleanUrl} />
       <div className="flex flex-col gap-4">
         <div className="container">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
