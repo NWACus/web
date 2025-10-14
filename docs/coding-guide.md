@@ -115,5 +115,18 @@ if (!document || !isValidRelationship(document)) {
 }
 ```
 
+**What happens when a component returns `null`?**
+
+React natively handles `null` returns - the component simply renders nothing in the DOM without throwing an error. This allows the rest of the page to render normally even when individual components encounter missing data.
+
+**When to use error boundaries instead:**
+
+You typically don't need error boundaries for missing data - returning `null` is sufficient. However, you could add error boundaries when:
+- You have complex nested component trees where you want to isolate failures
+- You need to show a fallback UI instead of nothing (e.g., "Content unavailable") -- although you can usually just use conditionals for this instead of an error boundary.
+- You want to capture unexpected runtime errors (not just missing data)
+
+We have `ErrorBoundary` components available at `/src/components/ErrorBoundary/` for these cases. Next.js also provides `error.tsx` and `global-error.tsx` for route-level error handling.
+
 
 
