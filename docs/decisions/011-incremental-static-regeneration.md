@@ -48,8 +48,8 @@ Challenges:
 
 ## Decision
 
-- [x] Add special handling for home page richText field (highlightedContent)
-- [x] Document how to handle specific richText fields like posts and home page
+- [x] Add special handling for home page `richText` field (highlightedContent)
+- [x] Document how to handle specific `richText` fields like posts and home page
 - [x] Document limitations of revalidations - in public docs too
 - [x] Keep our time-based revalidations relatively low
 
