@@ -304,6 +304,21 @@ export const Events: CollectionConfig = {
       },
     },
     {
+      name: 'modeOfTravel',
+      type: 'select',
+      options: [
+        { label: 'Ski', value: 'ski' },
+        { label: 'Splitboard', value: 'splitboard' },
+        { label: 'Motorized', value: 'motorized' },
+        { label: 'Snowshoe', value: 'snowshoe' },
+        { label: 'Any', value: 'any' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Mode of travel for this event',
+      },
+    },
+    {
       name: 'tenant',
       type: 'relationship',
       admin: {

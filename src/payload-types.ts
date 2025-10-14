@@ -1396,6 +1396,10 @@ export interface Event {
    * Optional event sub type
    */
   eventSubType?: (number | null) | EventSubType;
+  /**
+   * Mode of travel for this event
+   */
+  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe' | 'any') | null;
   tenant?: (number | null) | Tenant;
   contentHash?: string | null;
   updatedAt: string;
@@ -2946,6 +2950,7 @@ export interface EventsSelect<T extends boolean = true> {
   slug?: T;
   eventType?: T;
   eventSubType?: T;
+  modeOfTravel?: T;
   tenant?: T;
   contentHash?: T;
   updatedAt?: T;
