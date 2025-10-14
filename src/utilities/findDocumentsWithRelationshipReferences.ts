@@ -33,11 +33,6 @@ export async function findDocumentsWithRelationshipReferences(
               },
             ],
           },
-          select: {
-            id: true,
-            slug: true,
-            tenant: true,
-          },
           depth: 1,
         })
 
@@ -76,11 +71,6 @@ export async function findDocumentsWithRelationshipReferences(
               },
             ],
           },
-          select: {
-            id: true,
-            slug: true,
-            tenant: true,
-          },
           depth: 1,
         })
 
@@ -111,10 +101,6 @@ export async function findDocumentsWithRelationshipReferences(
           collection: 'homePages',
           where: {
             [mapping.fieldPath]: { equals: reference.id },
-          },
-          select: {
-            id: true,
-            tenant: true,
           },
           depth: 1,
         })

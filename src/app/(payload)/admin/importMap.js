@@ -1,5 +1,8 @@
 import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e } from '@/blocks/BlogList/fields/QueriedPostsComponent'
+import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de } from '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
+import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
+import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
@@ -84,6 +87,8 @@ export const importMap = {
     UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#ParagraphFeatureClient':
     ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription#SponsorsLayoutDescription':
+    SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de,
   '@payloadcms/richtext-lexical/client#HeadingFeatureClient':
     HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#OrderedListFeatureClient':
@@ -102,8 +107,12 @@ export const importMap = {
   '@payloadcms/plugin-seo/client#PreviewComponent':
     PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@/fields/slug/SlugComponent#SlugComponent': SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
+  '@/collections/Pages/components/ViewPageButton#ViewPageButton':
+    ViewPageButton_5587abba969d5f30cb1f479b0a70bb80,
   '@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor':
     DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
+  '@/collections/Posts/components/ViewPostButton#ViewPostButton':
+    ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
   '@/collections/Users/components/UserStatusCell#UserStatusCell':
     UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
   '@/collections/Users/components/InviteUser#InviteUser':
