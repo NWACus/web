@@ -11,8 +11,7 @@ import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -49,17 +48,21 @@ export default async function Page({ params, searchParams }: Args) {
   const { version, baseUrl } = await getNACWidgetsConfig()
 
   const queryParams = new URLSearchParams()
-
+  let tabView = 'observations'
   Object.entries(search).forEach(([key, value]) => {
     if (value !== undefined) {
       const stringValue = Array.isArray(value) ? value[0] : value
+      if (key === 'tabView') {
+        tabView = stringValue
+        return
+      }
       const decodedValue = decodeURIComponent(stringValue)
       queryParams.set(key, decodedValue)
     }
   })
 
   const queryString = queryParams.toString()
-  const initialHash = `/view/observations${queryString ? `?${queryString}` : ''}`
+  const initialHash = `/view/${tabView}${queryString ? `?${queryString}` : ''}`
   const cleanUrl = queryString ? `/observations` : undefined
   return (
     <>
