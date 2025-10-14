@@ -11,10 +11,24 @@ export const navigationSeed = (
     url,
     label,
     newTab,
-  }: { slug?: string; url?: string; label?: string; newTab?: boolean } & (
+    isBuiltIn,
+  }: { slug?: string; url?: string; label?: string; newTab?: boolean; isBuiltIn?: boolean } & (
     | { slug: string }
     | { url: string }
+    | { label: string; isBuiltIn: boolean }
   )): NonNullable<NonNullable<Navigation['donate']>['link']> => {
+    if (isBuiltIn && label) {
+      return {
+        type: 'internal',
+        reference: {
+          value: pages[tenant.slug][label].id,
+          relationTo: 'builtInPages',
+        },
+        label: label,
+        newTab,
+      }
+    }
+
     if (url) {
       return {
         type: 'external',
@@ -57,12 +71,10 @@ export const navigationSeed = (
     weather: {
       items: [
         {
-          // Built-in page
-          link: {
-            type: 'internal',
+          link: pageLink({
             label: 'Weather Stations',
-            url: '/stations/map',
-          },
+            isBuiltIn: true,
+          }),
         },
         {
           link: pageLink({
@@ -170,11 +182,10 @@ export const navigationSeed = (
       items: [
         {
           // Built-in page
-          link: {
-            type: 'internal',
+          link: pageLink({
             label: 'Local Accidents',
-            url: '?impacts=["Humans Caught"]',
-          },
+            isBuiltIn: true,
+          }),
         },
         {
           link: pageLink({ slug: 'avalanche-accident-statistics' }),

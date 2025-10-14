@@ -171,6 +171,35 @@ export function convertToNavLink(
     }
   }
 
+  if (link.reference && link.reference.relationTo === 'builtInPages') {
+    const reference = link.reference
+
+    invariant(
+      typeof reference.value !== 'number',
+      `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
+    )
+
+    if (
+      !linkLabel &&
+      typeof reference.value === 'object' &&
+      reference.value &&
+      'title' in reference.value
+    ) {
+      linkLabel = reference.value.title
+    }
+
+    invariant(
+      linkLabel,
+      `Could not determine label for link with reference ${JSON.stringify(reference)}`,
+    )
+
+    return {
+      type: 'internal',
+      label: linkLabel,
+      url: reference.value.url,
+    }
+  }
+
   if (
     link.type === 'internal' &&
     link.reference &&
