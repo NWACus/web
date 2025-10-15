@@ -1,19 +1,15 @@
 'use client'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { EventSubType, EventType } from '@/payload-types'
-import { cn } from '@/utilities/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 type Props = {
   eventTypes: EventType[]
   eventSubTypes: EventSubType[]
-  showUpcomingOnly: boolean
 }
 
-export const EventsFilters = ({ eventTypes, eventSubTypes, showUpcomingOnly }: Props) => {
+export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const hasUserInteracted = useRef(false)
@@ -28,8 +24,6 @@ export const EventsFilters = ({ eventTypes, eventSubTypes, showUpcomingOnly }: P
     return subTypesParam ? subTypesParam.split(',').filter(Boolean) : []
   })
 
-  const [upcomingOnly, setUpcomingOnly] = useState(showUpcomingOnly)
-
   const toggleType = (id: string) => {
     hasUserInteracted.current = true
     setSelectedTypes((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]))
@@ -40,11 +34,6 @@ export const EventsFilters = ({ eventTypes, eventSubTypes, showUpcomingOnly }: P
     setSelectedSubTypes((prev) =>
       prev.includes(id) ? prev.filter((st) => st !== id) : [...prev, id],
     )
-  }
-
-  const toggleUpcomingOnly = (checked: boolean) => {
-    hasUserInteracted.current = true
-    setUpcomingOnly(checked)
   }
 
   useEffect(() => {
@@ -64,37 +53,23 @@ export const EventsFilters = ({ eventTypes, eventSubTypes, showUpcomingOnly }: P
       params.delete('subtypes')
     }
 
-    params.set('upcoming', String(upcomingOnly))
-
     router.push(`/events?${params.toString()}`)
-  }, [router, searchParams, selectedTypes, selectedSubTypes, upcomingOnly])
+  }, [router, searchParams, selectedTypes, selectedSubTypes])
 
   return (
     <div className="space-y-6">
-      {/* Upcoming Only Toggle */}
-      <div>
-        <div className="flex items-center space-x-2 mb-4">
-          <Switch id="upcoming-only" checked={upcomingOnly} onCheckedChange={toggleUpcomingOnly} />
-          <Label htmlFor="upcoming-only">Show Upcoming Events Only</Label>
-        </div>
-      </div>
-
-      {/* Event Types Filter */}
       {eventTypes.length > 0 && (
         <div className="mb-4">
           <h4 className="w-full">Filter by Event Type</h4>
           <hr className="p-2" />
-          <ul className="flex flex-col gap-3 p-0 list-none">
+          <ul className="flex flex-col gap-1.5 p-0 list-none">
             {eventTypes.map((type) => {
               const typeId = String(type.id)
               const isChecked = selectedTypes.includes(typeId)
               return (
                 <li key={type.id}>
                   <div
-                    className={cn(
-                      'p-2 rounded-md cursor-pointer flex items-center border border-brand-200 text-primary bg-white',
-                      { 'bg-brand-200': isChecked },
-                    )}
+                    className="cursor-pointer flex items-center"
                     onClick={() => toggleType(typeId)}
                     aria-pressed={isChecked}
                   >
@@ -108,22 +83,18 @@ export const EventsFilters = ({ eventTypes, eventSubTypes, showUpcomingOnly }: P
         </div>
       )}
 
-      {/* Event SubTypes Filter */}
       {eventSubTypes.length > 0 && (
         <div className="mb-4">
           <h4 className="w-full">Filter by Event Category</h4>
           <hr className="p-2" />
-          <ul className="flex flex-col gap-3 p-0 list-none">
+          <ul className="flex flex-col gap-1.5 p-0 list-none">
             {eventSubTypes.map((subType) => {
               const subTypeId = String(subType.id)
               const isChecked = selectedSubTypes.includes(subTypeId)
               return (
                 <li key={subType.id}>
                   <div
-                    className={cn(
-                      'p-2 rounded-md cursor-pointer flex items-center border border-brand-200 text-primary bg-white',
-                      { 'bg-brand-200': isChecked },
-                    )}
+                    className="cursor-pointer flex items-center"
                     onClick={() => toggleSubType(subTypeId)}
                     aria-pressed={isChecked}
                   >

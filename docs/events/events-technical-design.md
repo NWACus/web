@@ -111,6 +111,7 @@
 - Can create custom event groups for their center
 - Each event has at least one event instance but could have many
 - If you’re only a tenant-scoped role you would not see the internal/external field - it would default to internal. If you have a global role too you would see this field and could change to external. If internal, validation will require a tenant to be selected.
+- Do we want to allow centers to make events "private" (i.e. cannot be embedded on other centers' sites and on the root site)
 
 ### Notes from Events discussion with team + Duncan
 
@@ -142,13 +143,14 @@
 - Timezones
     - We know each avalanche center’s timezone but we don’t know external providers or A3 users’ timezones. Should probably accept as a dropdown.
     - Should make sure we save the event to the db with the correct timezone and then just depend on the ISO string to render correctly on the client. Although hmm static rendering… maybe it just makes sense to render dates using the event’s timezone then. Could use client components to render the user’s local timezone after hydration I suppose. Flash of different content though.
+    - client only component that renders the browser's timezone if different from the event's
 - Can we use masks for Payload fields for formatting (i.e. formatting as currency)
 - Webhook design for CRM pushing events to us -- what's the deal with API keys in Payload and in custom endpoints (assuming we'd need a custom endpoint)
   - Probably a two-way data flow though so we'd need to be able to push changes back potentially
 
 ## Ideas
 
-- A calendar feed users can add to their personal calendars
+- A calendar feed users can add to their personal calendars -- oo RSS feed yea
 - Add to calendar button for individual events (maybe only after signup)
 - Map-based events view
 - A "quick-filters" concept for the EventsCollection page where you'd have filters like upcoming, next week, next month, January, February. Each filter would be a small card and would have a little badge showing how many events are in those filters' results
