@@ -47,20 +47,20 @@ export default async function Page({ params, searchParams }: Args) {
 
   const { version, baseUrl } = await getNACWidgetsConfig()
 
+  // Build query params, preserving array values
   const queryParams = new URLSearchParams()
-  let tabView = 'observations'
   Object.entries(search).forEach(([key, value]) => {
-    if (value !== undefined) {
-      const stringValue = Array.isArray(value) ? value[0] : value
-      if (key === 'tabView') {
-        tabView = stringValue
-        return
-      }
-      const decodedValue = decodeURIComponent(stringValue)
-      queryParams.set(key, decodedValue)
+    if (value === undefined) return
+    // Need to decode for NAC widget
+    if (Array.isArray(value)) {
+      value.forEach((v) => queryParams.append(key, decodeURIComponent(v)))
+    } else {
+      queryParams.set(key, decodeURIComponent(value))
     }
   })
 
+  const tabView = queryParams.get('tabView') || 'observations'
+  queryParams.delete('tabView')
   const queryString = queryParams.toString()
   const initialHash = `/view/${tabView}${queryString ? `?${queryString}` : ''}`
   const cleanUrl = queryString ? `/observations` : undefined

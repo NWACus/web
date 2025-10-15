@@ -25,9 +25,9 @@ We also need to get the new tenant into our Vercel Edge Config. Adding a new ten
   | Weather Stations | `/weather/stations/map`| both |
   | Recent Observations | `/observations` | both |
   | Submit Observations | `/observations/submit` | both |
-  | Local Accidents | `/accidents?impacts=["Humans Caught"]` | both |
 
 - [ ] Copy pages from the template tenant to the new tenant using the "Duplicate to..." functionality (page document view -> three dot menu)
+- [ ] Add any one off pages such as an accidents page (`/observations?tabView=avalanches&impacts=["Humans Caught","Humans Buried"]`)
 
 ## Configuring a custom domain in production
 
