@@ -7,6 +7,7 @@ import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
+import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
@@ -17,6 +18,7 @@ import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
+import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import { TeamBlock } from '@/blocks/Team/Team'
 
@@ -55,6 +57,9 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'documentBlock':
       // src/blocks/DocumentBlock/config.ts has two variants - to make TS happy we fallback to the default for the DocumentBlock variant
       return <DocumentBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+    case 'eventList':
+      // src/blocks/EventListBlock/config.ts has two variants - to make TS happy we fallback to the default for the EventListBlock variant
+      return <EventListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'formBlock':
       return <FormBlock {...block} />
     case 'genericEmbed':
@@ -79,6 +84,11 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlock variant
       return (
         <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      )
+    case 'singleEvent':
+      // src/blocks/SingleEvent/config.ts has two variants - to make TS happy we fallback to the default for the SingleEventBlock variant
+      return (
+        <SingleEventBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
       )
     case 'sponsorsBlock':
       return <SponsorsBlockComponent {...block} />

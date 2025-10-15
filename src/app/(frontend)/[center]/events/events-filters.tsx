@@ -65,42 +65,46 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
           <ul className="flex flex-col gap-1.5 p-0 list-none">
             {eventTypes.map((type) => {
               const typeId = String(type.id)
-              const isChecked = selectedTypes.includes(typeId)
+              const isTypeChecked = selectedTypes.includes(typeId)
+              const childSubTypes = eventSubTypes.filter((subType) => {
+                const parentTypeId =
+                  typeof subType.eventType === 'object' && subType.eventType
+                    ? String(subType.eventType.id)
+                    : String(subType.eventType)
+                return parentTypeId === typeId
+              })
+
               return (
                 <li key={type.id}>
                   <div
                     className="cursor-pointer flex items-center"
                     onClick={() => toggleType(typeId)}
-                    aria-pressed={isChecked}
+                    aria-pressed={isTypeChecked}
                   >
-                    <Checkbox className="mr-2" checked={isChecked} />
+                    <Checkbox className="mr-2" checked={isTypeChecked} />
                     {type.title}
                   </div>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      )}
 
-      {eventSubTypes.length > 0 && (
-        <div className="mb-4">
-          <h4 className="w-full">Filter by Event Category</h4>
-          <hr className="p-2" />
-          <ul className="flex flex-col gap-1.5 p-0 list-none">
-            {eventSubTypes.map((subType) => {
-              const subTypeId = String(subType.id)
-              const isChecked = selectedSubTypes.includes(subTypeId)
-              return (
-                <li key={subType.id}>
-                  <div
-                    className="cursor-pointer flex items-center"
-                    onClick={() => toggleSubType(subTypeId)}
-                    aria-pressed={isChecked}
-                  >
-                    <Checkbox className="mr-2" checked={isChecked} />
-                    {subType.title}
-                  </div>
+                  {childSubTypes.length > 0 && (
+                    <ul className="flex flex-col gap-1.5 p-0 list-none ml-6 mt-1.5">
+                      {childSubTypes.map((subType) => {
+                        const subTypeId = String(subType.id)
+                        const isSubTypeChecked = selectedSubTypes.includes(subTypeId)
+                        return (
+                          <li key={subType.id}>
+                            <div
+                              className="cursor-pointer flex items-center"
+                              onClick={() => toggleSubType(subTypeId)}
+                              aria-pressed={isSubTypeChecked}
+                            >
+                              <Checkbox className="mr-2" checked={isSubTypeChecked} />
+                              {subType.title}
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
                 </li>
               )
             })}

@@ -1202,6 +1202,10 @@ export interface EventListBlock {
   } | null;
   backgroundColor: string;
   eventOptions: 'dynamic' | 'static';
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
   dynamicOptions?: {
     /**
      * Select how the list of events will be sorted.
@@ -1415,6 +1419,10 @@ export interface SingleEventBlock {
    * Select an event to display
    */
   event: number | Event;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleEvent';

@@ -12,7 +12,16 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
 
   if (!doc) return null
 
-  const { featuredImage, startDate, slug, title, location, externalEventUrl } = doc
+  const {
+    featuredImage,
+    startDate,
+    slug,
+    title,
+    location,
+    externalEventUrl,
+    eventType,
+    eventSubType,
+  } = doc
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -28,6 +37,15 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
   const isPastEvent = startDate && new Date(startDate) < new Date()
   const eventUrl = externalEventUrl || `/events/${slug}`
   const isExternal = !!externalEventUrl
+
+  const eventTypeName = eventType && typeof eventType !== 'number' ? eventType.title : null
+  const eventSubTypeName =
+    eventSubType && typeof eventSubType !== 'number' ? eventSubType.title : null
+
+  const typeDisplayText =
+    eventTypeName && eventSubTypeName
+      ? `${eventTypeName} > ${eventSubTypeName}`
+      : eventSubTypeName || eventTypeName
 
   return (
     <Link
@@ -51,6 +69,9 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
           )}
         </div>
         <div className="flex flex-col gap-1 flex-1">
+          {typeDisplayText && (
+            <div className="text-xs text-muted-foreground">{typeDisplayText}</div>
+          )}
           <h3 className="text-lg leading-tight group-hover:underline">{title}</h3>
           <div className="flex flex-wrap items-center gap-2">
             {eventDate && <p className="text-sm text-muted-foreground">{eventDate}</p>}

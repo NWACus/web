@@ -64,6 +64,11 @@ export const EventPreview = (props: {
   const eventSubTypeName =
     eventSubType && typeof eventSubType !== 'number' ? eventSubType.title : null
 
+  const typeDisplayText =
+    eventTypeName && eventSubTypeName
+      ? `${eventTypeName} > ${eventSubTypeName}`
+      : eventSubTypeName || eventTypeName
+
   const parsedStartDate = new Date(startDate)
   const month = parsedStartDate.toLocaleDateString('en-US', { month: 'short' })
   const day = parsedStartDate.getDate()
@@ -88,10 +93,8 @@ export const EventPreview = (props: {
 
       <div className="flex flex-col justify-between flex-grow min-w-0">
         <div>
-          {(eventTypeName || eventSubTypeName) && (
-            <div className="text-xs text-muted-foreground mb-2">
-              {eventSubTypeName || eventTypeName}
-            </div>
+          {typeDisplayText && (
+            <div className="text-xs text-muted-foreground mb-2">{typeDisplayText}</div>
           )}
 
           {title && (
