@@ -1,3 +1,4 @@
 pnpm run lint-staged
 pnpm run tsc
 pnpm test
+.husky/check-migrations
