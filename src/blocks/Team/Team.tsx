@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns'
 import { Payload } from 'payload'
-import type { Biography, TeamBlock as TeamBlockProps } from 'src/payload-types'
+import type { TeamBlock as TeamBlockProps } from 'src/payload-types'
 
 import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
 import {
@@ -12,18 +12,16 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
+import { filterValidRelationships, isValidRelationship } from '@/utilities/relationships'
 
 type Props = TeamBlockProps & { payload: Payload }
 
-export const TeamBlock = ({ team, payload }: Props) => {
-  // For live preview when team not selected
-  if (!team) return null
-  if (typeof team !== 'object') {
-    payload.logger.error(`TeamBlock got an unresolved biography reference: ${JSON.stringify(team)}`)
-    return <></>
+export const TeamBlock = ({ team }: Props) => {
+  if (!isValidRelationship(team)) {
+    return null
   }
 
-  const teamMembers: Biography[] = team.members.filter((member) => typeof member === 'object')
+  const teamMembers = filterValidRelationships(team.members)
 
   return (
     <div className="container mx-auto mb-12">

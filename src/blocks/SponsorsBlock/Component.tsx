@@ -1,5 +1,6 @@
-import { Sponsor, SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
+import { SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { filterValidRelationships } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
 import { SponsorsBlockBanner } from './components/Banner'
@@ -15,14 +16,14 @@ export const SponsorsBlockComponent = ({
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
   const now = new Date()
-  const validSponsors = sponsors.filter(
-    (sponsor): sponsor is Sponsor =>
-      typeof sponsor === 'object' &&
-      sponsor !== null &&
+
+  const validSponsors = filterValidRelationships(sponsors).filter(
+    (sponsor) =>
       (!sponsor.startDate || startOfDay(new Date(sponsor.startDate)) <= now) &&
       (!sponsor.endDate || endOfDay(new Date(sponsor.endDate)) >= now),
   )
-  if (!validSponsors) return null
+
+  if (validSponsors.length === 0) return null
 
   return (
     <div className={cn('py-10', bgColorClass, textColor, { container: wrapInContainer })}>

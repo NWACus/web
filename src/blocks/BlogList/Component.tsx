@@ -1,7 +1,11 @@
 import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
-import type { BlogListBlock as BlogListBlockProps, Post, Tag } from '@/payload-types'
+import type { BlogListBlock as BlogListBlockProps, Post } from '@/payload-types'
+import {
+  filterValidPublishedRelationships,
+  filterValidRelationships,
+} from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 
@@ -16,23 +20,15 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
   const { filterByTags, sortBy, queriedPosts } = args.dynamicOptions || {}
   const { staticPosts } = args.staticOptions || {}
 
-  let posts = staticPosts?.filter(
-    (post): post is Post =>
-      typeof post === 'object' && post !== null && post._status === 'published',
-  )
+  let posts: Post[] = filterValidPublishedRelationships(staticPosts)
 
   const hasStaticPosts = staticPosts && staticPosts.length > 0
 
   if (!staticPosts || (staticPosts.length === 0 && queriedPosts && queriedPosts.length > 0)) {
-    posts = queriedPosts?.filter(
-      (post): post is Post =>
-        typeof post === 'object' && post !== null && post._status === 'published',
-    )
+    posts = filterValidPublishedRelationships(queriedPosts)
   }
 
-  const filterByTagsSlugs = filterByTags
-    ?.filter((tag): tag is Tag => typeof tag === 'object' && tag !== null)
-    .map(({ slug }) => slug)
+  const filterByTagsSlugs = filterValidRelationships(filterByTags).map(({ slug }) => slug)
 
   const blogLinkQueryParams = new URLSearchParams()
   if (sortBy !== undefined) {
