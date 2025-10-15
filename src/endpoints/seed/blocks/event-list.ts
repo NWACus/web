@@ -1,8 +1,8 @@
-import type { BlogListBlock } from '@/payload-types'
+import type { EventListBlock } from '@/payload-types'
 
-export const blogListBlock: BlogListBlock = {
-  blockType: 'blogList',
-  heading: 'Recent Blogs',
+export const eventListBlock: EventListBlock = {
+  blockType: 'eventList',
+  heading: 'Upcoming Events',
   backgroundColor: 'transparent',
   belowHeadingContent: {
     root: {
@@ -18,7 +18,7 @@ export const blogListBlock: BlogListBlock = {
               format: 0,
               mode: 'normal',
               style: '',
-              text: 'Stay up to date with the latest news and insights from our avalanche forecasting team.',
+              text: 'Join us for upcoming avalanche education courses, field trips, and community events.',
               type: 'text',
               version: 1,
             },
@@ -33,13 +33,14 @@ export const blogListBlock: BlogListBlock = {
       direction: 'ltr',
     },
   },
-  postOptions: 'dynamic',
+  eventOptions: 'dynamic',
   dynamicOptions: {
-    filterByTags: null,
-    sortBy: '-publishedAt',
-    queriedPosts: [], // Will be populated during seeding
+    sortBy: 'startDate',
+    showUpcomingOnly: true,
+    maxEvents: 4,
+    queriedEvents: [], // Will be populated during seeding
   },
   staticOptions: {
-    staticPosts: [], // Will be populated with actual post references during seeding
+    staticEvents: [], // Will be populated with actual event references during seeding
   },
 }

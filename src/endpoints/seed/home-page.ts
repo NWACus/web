@@ -1,12 +1,14 @@
-import type { Media, Tenant } from '@/payload-types'
+import type { Event, Media, Tenant } from '@/payload-types'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 
 export const homePage: (
   tenant: Tenant,
   heroImage: Media,
+  events: Event[],
 ) => RequiredDataFromCollectionSlug<'homePages'> = (
   tenant: Tenant,
   heroImage: Media,
+  events: Event[],
 ): RequiredDataFromCollectionSlug<'homePages'> => {
   return {
     tenant: tenant.id,
@@ -152,6 +154,18 @@ export const homePage: (
         backgroundColor: 'transparent',
         alignContent: 'center',
         imageSize: 'large',
+      },
+      {
+        blockType: 'eventList',
+        heading: 'Upcoming Events',
+        backgroundColor: 'transparent',
+        eventOptions: 'dynamic',
+        dynamicOptions: {
+          sortBy: 'startDate',
+          showUpcomingOnly: true,
+          maxEvents: 4,
+          queriedEvents: events.slice(0, 4).map((event) => event.id), // Use first 4 events for preview
+        },
       },
     ],
     publishedAt: new Date().toISOString(),

@@ -3,10 +3,12 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { EventListBlockLexical } from '@/blocks/EventList/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
@@ -230,10 +232,12 @@ export const Events: CollectionConfig = {
                     Banner,
                     BlogListBlockLexical,
                     DocumentBlock,
+                    EventListBlockLexical,
                     GenericEmbedLexical,
                     HeaderBlock,
                     MediaBlockLexical,
                     SingleBlogPostBlockLexical,
+                    SingleEventBlockLexical,
                     SponsorsBlock,
                   ],
                 }),
