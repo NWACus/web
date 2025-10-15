@@ -535,7 +535,7 @@ export const seed = async ({
     const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
 
     // Events
-    await upsert(
+    const events = await upsert(
       'events',
       payload,
       incremental,
@@ -777,7 +777,11 @@ export const seed = async ({
       () => 'homepage',
       Object.values(tenants).map(
         (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
-          homePage(tenant, images[tenant.slug]['imageMountain']),
+          homePage(
+            tenant,
+            images[tenant.slug]['imageMountain'],
+            Object.values(events[tenant.slug]),
+          ),
       ),
     )
 

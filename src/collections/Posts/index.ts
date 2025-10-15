@@ -12,10 +12,12 @@ import {
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { EventListBlockLexical } from '@/blocks/EventList/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -123,10 +125,12 @@ export const Posts: CollectionConfig<'posts'> = {
                 Banner,
                 BlogListBlockLexical,
                 DocumentBlock,
+                EventListBlockLexical,
                 GenericEmbedLexical,
                 HeaderBlock,
                 MediaBlockLexical,
                 SingleBlogPostBlockLexical,
+                SingleEventBlockLexical,
                 SponsorsBlock,
               ],
             }),
