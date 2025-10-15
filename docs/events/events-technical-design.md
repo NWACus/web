@@ -160,8 +160,6 @@
 - [x] Initial, simple implementation
 - [x] Add modeOfTravel field to events. Options: ski, splitboard, motorized, snowshoe, any
 - [x] Update look and feel of EventsCollection to match initial designs and only include basic filters for now
-- [ ] Ensure revalidation is implemented for all new collections. See `/docs/revalidation.md`
-- [ ] Ensure migrations have been created
 - [ ] Add Event Groups or Event Tags i.e. another thing to group events by (this would represent an event series like multiple meet your forecasters or an attribute of an event like it being 21+ or Women Only/Women Taught or some other generic grouping like that)
 - [ ] Enhance EventsCollection UI filtering
   - [ ] "Quick filters" for dates: this week, next week, this month, next month, January, February, etc.
@@ -176,5 +174,7 @@
 - [ ] Simple embed of EventCollection with specific filters for third-parties to use on their websites
 - [ ] POC for allowing ACs to control which events appear on their website. Probably a global collection that allows them to specify other avalanche centers and external courses (filtered by provider and/or location) that should show up on their website.
 - [ ] POC for event instances / events with multiple dates
+- [ ] Ensure revalidation is implemented for all new collections. See `/docs/revalidation.md`
+- [ ] Ensure migrations have been created
 - [ ] Mess around with Next.js scroll restoration behavior to ensure that navigating back to the /events page after "learning more" about an event lands you at the same scroll position so you don't lose your place in the list.
 
