@@ -1,4 +1,5 @@
 import { ensureUniqueSlug } from '@/fields/slug/ensureUniqueSlug'
+import { validateSlug } from '@/utilities/validateSlug'
 
 export const slugField = (fieldToUse: string = 'title') => ({
   name: 'slug',
@@ -9,6 +10,7 @@ export const slugField = (fieldToUse: string = 'title') => ({
   hooks: {
     beforeValidate: [ensureUniqueSlug],
   },
+  validate: validateSlug,
   admin: {
     position: 'sidebar',
     components: {
