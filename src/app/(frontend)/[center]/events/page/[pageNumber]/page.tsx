@@ -1,6 +1,6 @@
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 import { Suspense } from 'react'
 
 import { EventCollection } from '@/components/EventCollection'
@@ -9,7 +9,6 @@ import { Pagination } from '@/components/Pagination'
 import { EVENTS_LIMIT } from '@/utilities/constants'
 import { notFound } from 'next/navigation'
 import { EventsFilters } from '../../events-filters'
-import { EventsSort } from '../../events-sort'
 
 export const dynamicParams = true
 
@@ -28,10 +27,8 @@ type Args = {
 export default async function Page({ params, searchParams }: Args) {
   const { center, pageNumber } = await params
   const resolvedSearchParams = await searchParams
-  const sort = resolvedSearchParams?.sort || 'startDate'
   const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
   const selectedSubTypes = resolvedSearchParams?.subtypes?.split(',').filter(Boolean)
-  const showUpcomingOnly = resolvedSearchParams?.upcoming !== 'false'
 
   const payload = await getPayload({ config: configPromise })
 
@@ -51,7 +48,7 @@ export default async function Page({ params, searchParams }: Args) {
     return notFound()
   }
 
-  const whereConditions: any = {
+  const whereConditions: Where = {
     'tenant.slug': {
       equals: center,
     },
@@ -69,19 +66,12 @@ export default async function Page({ params, searchParams }: Args) {
     }
   }
 
-  if (showUpcomingOnly) {
-    whereConditions.startDate = {
-      greater_than: new Date().toISOString(),
-    }
-  }
-
   const events = await payload.find({
     collection: 'events',
     depth: 2,
     limit: EVENTS_LIMIT,
     page: parseInt(pageNumber),
     where: whereConditions,
-    sort,
   })
 
   const eventTypes = await payload.find({
@@ -109,23 +99,20 @@ export default async function Page({ params, searchParams }: Args) {
           </Suspense>
         </div>
 
-        {/* Sorting and filters */}
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
           <Suspense fallback={<div>Loading filters...</div>}>
-            <EventsSort initialSort={sort} />
-            <EventsFilters
-              eventTypes={eventTypes.docs}
-              eventSubTypes={eventSubTypes.docs}
-              showUpcomingOnly={showUpcomingOnly}
-            />
+            <EventsFilters eventTypes={eventTypes.docs} eventSubTypes={eventSubTypes.docs} />
           </Suspense>
         </div>
       </div>
 
-      {/* Pagination */}
       {events.totalPages > 1 && events.page && (
         <div className="container mb-4">
-          <Pagination page={events.page} totalPages={events.totalPages} />
+          <Pagination
+            page={events.page}
+            totalPages={events.totalPages}
+            relativePath="/events/page"
+          />
           <PageRange
             collectionLabels={{
               plural: 'Events',

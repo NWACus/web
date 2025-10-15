@@ -8,10 +8,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import { normalizePath } from '@/utilities/path'
 import { cn } from '@/utilities/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export const Pagination = (props: { className?: string; page: number; totalPages: number }) => {
+export const Pagination = (props: {
+  className?: string
+  page: number
+  totalPages: number
+  relativePath: string
+}) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const params = searchParams ? '?' + new URLSearchParams(searchParams.toString()) : null
@@ -24,7 +30,9 @@ export const Pagination = (props: { className?: string; page: number; totalPages
   const hasExtraNextPages = page + 1 < totalPages
 
   const goToPage = (pageNumber: number) => {
-    router.push(`/blog/page/${pageNumber}${params}`)
+    router.push(
+      `${normalizePath(props.relativePath, { ensureLeadingSlash: true })}/${pageNumber}${params}`,
+    )
   }
 
   return (
