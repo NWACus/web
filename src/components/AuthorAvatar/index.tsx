@@ -10,8 +10,8 @@ import { MediaAvatar } from '../Media/AvatarImageMedia'
 export const AuthorAvatar = (props: {
   authors: Post['authors']
   date: Post['updatedAt']
-  showAuthors?: boolean
-  showDate?: boolean
+  showAuthors?: boolean | null
+  showDate?: boolean | null
 }) => {
   const { authors, date, showAuthors, showDate } = props
   const combinedAuthorsNames: string[] = [],
