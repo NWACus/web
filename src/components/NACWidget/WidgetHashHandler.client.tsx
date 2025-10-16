@@ -44,9 +44,9 @@ export function WidgetHashHandler({
 
     if (!hasExistingHash) {
       if (redirectUrl) {
-        window.history.replaceState({}, '', `${redirectUrl}#${initialHash}`)
+        window.location.href = `${redirectUrl}#${initialHash}`
       } else {
-        window.history.replaceState(null, '', initialHash)
+        window.location.hash = initialHash
       }
     }
 
