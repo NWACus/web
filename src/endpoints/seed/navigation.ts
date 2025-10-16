@@ -180,13 +180,16 @@ export const navigationSeed = (
     },
     accidents: {
       items: [
-        {
-          // Built-in page
-          link: pageLink({
-            label: 'Local Accidents',
-            isBuiltIn: true,
-          }),
-        },
+        ...(tenant.slug === 'sac'
+          ? [
+              {
+                link: pageLink({
+                  label: 'Local Accidents',
+                  isBuiltIn: true,
+                }),
+              },
+            ]
+          : []),
         {
           link: pageLink({ slug: 'avalanche-accident-statistics' }),
         },
