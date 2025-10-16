@@ -50,7 +50,14 @@ export const PostPreview = (props: {
           <div>
             {titleToUse && (
               <div className="mb-3">
-                {authors && <AuthorAvatar authors={authors ?? []} date={publishedAt ?? ''} />}
+                {authors && (
+                  <AuthorAvatar
+                    authors={authors ?? []}
+                    date={publishedAt ?? ''}
+                    showAuthors={true}
+                    showDate={true}
+                  />
+                )}
                 <h3 className="text-lg @lg:text-xl font-semibold mt-2 mb-2 leading-tight group-hover:underline">
                   {titleToUse}
                 </h3>
