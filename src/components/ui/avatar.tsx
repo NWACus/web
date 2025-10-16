@@ -10,11 +10,11 @@ const Avatar = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & {
     isCircle?: boolean
   }
->(({ className, ...props }, ref) => (
+>(({ className, isCircle, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}
     className={cn('relative flex h-10 w-10 shrink-0 overflow-hidden', className, {
-      'rounded-full': props.isCircle,
+      'rounded-full': isCircle,
     })}
     {...props}
   />
@@ -40,11 +40,11 @@ const AvatarFallback = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback> & {
     isCircle?: boolean
   }
->(({ className, ...props }, ref) => (
+>(({ className, isCircle, ...props }, ref) => (
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn('flex h-full w-full items-center justify-center bg-muted', className, {
-      'rounded-full': props.isCircle,
+      'rounded-full': isCircle,
     })}
     {...props}
   />
