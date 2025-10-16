@@ -534,25 +534,6 @@ export const seed = async ({
 
     const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
 
-    // Events
-    const events = await upsert(
-      'events',
-      payload,
-      incremental,
-      tenantsById,
-      (obj) => obj.slug,
-      Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
-          return getEventsData(
-            tenant,
-            eventTypes,
-            eventSubTypes,
-            images[tenant.slug]['imageMountain'],
-          )
-        })
-        .flat(),
-    )
-
     // Assign global roles directly to users
     await payload.create({
       collection: 'globalRoleAssignments',
@@ -748,6 +729,25 @@ export const seed = async ({
         })
       })
     }
+
+    // Events
+    const events = await upsert(
+      'events',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
+          return getEventsData(
+            tenant,
+            eventTypes,
+            eventSubTypes,
+            images[tenant.slug]['imageMountain'],
+          )
+        })
+        .flat(),
+    )
 
     payload.logger.info(`— Seeding contact forms...`)
 
