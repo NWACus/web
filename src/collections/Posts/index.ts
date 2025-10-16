@@ -152,6 +152,9 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'checkbox',
       label: 'Show authors on post?',
       defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -192,6 +195,9 @@ export const Posts: CollectionConfig<'posts'> = {
       type: 'checkbox',
       label: 'Show published date on post?',
       defaultValue: true,
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'tags',

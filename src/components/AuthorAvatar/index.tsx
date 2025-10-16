@@ -13,8 +13,7 @@ export const AuthorAvatar = (props: {
   showAuthors?: boolean
   showDate?: boolean
 }) => {
-  const { authors, date, showAuthors = false, showDate = true } = props
-
+  const { authors, date, showAuthors, showDate } = props
   const combinedAuthorsNames: string[] = [],
     combinedAuthorsInitials: string[] = [],
     combinedAuthorsPhotos: Media[] = []

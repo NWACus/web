@@ -77,8 +77,8 @@ export default async function Post({ params: paramsPromise }: Args) {
               <AuthorAvatar
                 authors={post.authors}
                 date={post.publishedAt ?? ''}
-                showAuthors
-                showDate
+                showAuthors={post.showAuthors ?? undefined}
+                showDate={post.showDate ?? undefined}
               />
             </div>
           )}
