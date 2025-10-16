@@ -166,7 +166,7 @@
   - [ ] Custom dates filtering
   - [ ] Indeterminate logic for event type -> sub type filters (i.e. you select the parent event type and all sub types are checked but then deselecting a sub type makes the parent type render as indeterminate and clicking it would set all as checked again, then all unchecked if clicked again)
 - [ ] Add a cover image and a thumbnail image to events collection instead of single featured image. Cover gets used on single event page at the top of the page - full width. Thumbnail gets used for EventPreview components.
-- [ ] Add a table of events component that can be used on landing pages for Event Types, Event SubTypes,sngle Event pages, Event Groups, etc. Just use on single Event page for now.
+- [ ] Add a table of events component that can be used on landing pages for Event Types, Event SubTypes,single Event pages, Event Groups, etc. Just use on single Event page for now.
 - [ ] POC for location data that can be displayed on a map and used to filter results
 - [ ] POC for allowing ACs to control which events appear on their website. Probably a global collection that allows them to specify other avalanche centers and external courses (filtered by provider and/or location) that should show up on their website.
 
