@@ -106,6 +106,111 @@ Similar pattern to Media - only reference-based revalidation since they're refer
 - **Path revalidation**: Specific widget-using pages with Next.js page-level revalidation
 - **Tag revalidation**: `global_nacWidgetsConfig` for cached global data
 
+## Tracking Blocks in Rich Text Fields
+
+Some collections use Lexical rich text editors that support inline blocks. When blocks in rich text fields reference other collections, those references must be tracked to enable proper revalidation.
+
+### Implementation Pattern
+
+The tracking system consists of three components:
+
+1. **Tracking Field**: A hidden array field that stores block references
+2. **Population Hook**: A `beforeChange` hook that extracts block references from the Lexical AST
+3. **Query Support**: Updated finder utilities that query the tracking field
+
+### Current Implementations
+
+#### Posts Collection
+
+**Field**: `content` (Lexical richText)
+**Tracking Field**: `blocksInContent`
+
+The Posts collection tracks blocks embedded in its main `content` field:
+
+```typescript
+{
+  name: 'blocksInContent',
+  type: 'array',
+  admin: {
+    readOnly: true,
+  },
+  fields: [
+    { name: 'blockType', type: 'text' },
+    { name: 'collection', type: 'text' },
+    { name: 'docId', type: 'number' },
+  ],
+}
+```
+
+The `populateBlocksInContent` hook (in `src/collections/Posts/hooks/populateBlocksInContent.ts`) walks the Lexical AST to extract block references and stores them in `blocksInContent` before the document is saved.
+
+#### HomePages Collection
+
+**Field**: `highlightedContent.columns[].richText` (nested Lexical richText)
+**Tracking Field**: `blocksInHighlightedContent`
+
+The HomePages collection tracks blocks embedded in the `highlightedContent.columns[].richText` fields:
+
+```typescript
+{
+  name: 'blocksInHighlightedContent',
+  type: 'array',
+  admin: {
+    readOnly: true,
+    description: 'Automatically populated field tracking block references in highlightedContent for revalidation purposes.',
+  },
+  fields: [
+    { name: 'blockType', type: 'text' },
+    { name: 'collection', type: 'text' },
+    { name: 'docId', type: 'number' },
+  ],
+}
+```
+
+The `populateBlocksInHighlightedContent` hook (in `src/collections/HomePages/hooks/populateBlocksInHighlightedContent.ts`) iterates through all columns and extracts block references from each richText field.
+
+### Adding Block Tracking to New Collections
+
+When adding a new collection with richText fields that support blocks:
+
+1. **Add a tracking field** to the collection schema (similar to `blocksInContent`)
+2. **Create a population hook** that:
+   - Extracts block references from the Lexical AST
+   - Uses `getBlocksFromConfig()` to get block mappings
+   - Returns the document with populated tracking field
+3. **Update `getBlocksFromConfig.ts`**:
+   - Add logic to extract blocks from the new richText field(s)
+   - Return new block mappings in the return object
+4. **Update `findDocumentsWithBlockReferences.ts`**:
+   - Add query logic to search the new tracking field
+   - Follow the pattern used for Posts (efficient direct query)
+
+### Example Hook Structure
+
+```typescript
+export const populateBlocksInField: CollectionBeforeChangeHook<YourCollection> = async ({
+  data,
+  req,
+}) => {
+  let blocksInField: BlockReference[] = []
+
+  if (data.yourRichTextField) {
+    try {
+      const blockReferences = await extractBlockReferencesFromLexical(data.yourRichTextField)
+      blocksInField = blockReferences
+    } catch (error) {
+      req.payload.logger.warn(`Error extracting block references: ${error}`)
+      blocksInField = []
+    }
+  }
+
+  return {
+    ...data,
+    blocksInField,
+  }
+}
+```
+
 ## Caching Integration
 
 ### `unstable_cache` Usage
@@ -170,6 +275,57 @@ When adding a new collection that will have frontend routes:
 - Include both global (`/slug`) and tenant-scoped (`/tenant/slug`) paths. We've experienced bugs related to the path rewriting that happens in `./middleware.ts` if the global path is not also revalidated even if is is not technically a valid path.
 - Use tenant-specific cache tags where applicable
 - **HomePages example**: Revalidates both `/` (global) and `/{center}/` (tenant-scoped) for home page routes
+
+## Known Limitations
+
+While our revalidation system handles most content changes automatically, there are some scenarios where on-demand revalidation cannot detect all references:
+
+### Deeply Nested RichText Fields in Blocks
+
+**Problem**: Blocks that contain richText fields (richText nested within blocks) are not automatically tracked by the revalidation system.
+
+**Example Scenario**:
+- A Page has a `ContentBlock` in its `layout`
+- That `ContentBlock` contains a richText field
+- The richText field contains a `MediaBlock` that references a media document
+- When the media document is updated, the Page won't be automatically revalidated
+
+**Why This Happens**: PayloadCMS field hooks don't fire for blocks within Lexical's BlocksFeature. See: https://github.com/payloadcms/payload/issues/14156
+
+**Workaround**: Time-based revalidation serves as a safety net. Pages are revalidated periodically (every 10-15 minutes) regardless of content changes.
+
+**Possible Solutions** (not currently implemented):
+1. Implement async background jobs that scan all routable collection documents for deeply nested relationships
+2. Wait for PayloadCMS to add field hook support for Lexical block features
+
+### Impact on Time-Based Revalidation Settings
+
+Because of these limitations, we cannot set very long time-based revalidation periods. Current settings:
+
+- **Individual pages/posts/homePages**: 600 seconds (10 minutes) - Conservative safety net for deeply nested blocks
+- **Blog list pages**: 600 seconds (10 minutes) - Not explicitly revalidated when posts change
+
+These shorter intervals ensure that even deeply nested changes appear within a reasonable timeframe, at the cost of more serverless function invocations and CDN cache misses.
+
+### Best Practices
+
+1. **Avoid deeply nesting richText fields** - Keep richText fields at the top level of collections when possible
+2. **Implement explicit tracking** - For critical richText fields, follow the pattern in "Tracking Blocks in Rich Text Fields"
+3. **Test revalidation behavior** - After adding new blocks or collections, verify that changes trigger proper revalidation
+4. **Monitor cache behavior** - Use production builds locally (see README.md) to test ISR behavior
+
+### Testing ISR Locally
+
+To test ISR and caching behavior locally, you need to run a production build:
+
+1. Set `LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS=true` in `.env` to work around a [better-sqlite3 bug](https://github.com/WiseLibs/better-sqlite3/issues/1155)
+2. Set an appropriate `NEXT_PUBLIC_ROOT_DOMAIN` value (e.g., `localhost:3000`)
+3. Run `pnpm build` then `pnpm start`
+4. Test content changes and verify revalidation behavior
+
+**Note**: Local production builds may show inconsistent caching behavior (like 404s on `/`) that doesn't occur in actual production environments.
+
+See `.env.example` for all "Local flags" available for debugging and local production builds.
 
 ## Misc. notes
 

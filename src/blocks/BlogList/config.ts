@@ -96,9 +96,7 @@ const dynamicPostRelatedFields: Field[] = [
           description: 'Maximum number of posts that will be displayed. Must be an integer.',
           step: 1,
         },
-        hooks: {
-          beforeValidate: [validateMaxPosts],
-        },
+        validate: validateMaxPosts,
       },
       {
         name: 'queriedPosts',

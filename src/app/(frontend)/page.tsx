@@ -8,7 +8,6 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
 
 export default async function LandingPage() {
   const payload = await getPayload({ config: configPromise })

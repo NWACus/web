@@ -145,14 +145,6 @@ Any file inside `./src/emails` (except for inside the `./src/emails/_components`
 
 You likely won't use `pnpm email:build` or `pnpm email:export`. The primary method of using these emails is through the [render](https://react.email/docs/utilities/render) utility. See `./src/utilities/email/generateInviteUserEmail.tsx` for an example.
 
-## Testing ISR / Caching & Production Builds in Local Environment
+## Incremental Static Regeneration (ISR)
 
-In order to effectively test ISR and Next.js caching locally, you need to run a production build. [See the docs for info](https://nextjs.org/docs/app/guides/incremental-static-regeneration#troubleshooting).
-
-There is [a bug](https://github.com/WiseLibs/better-sqlite3/issues/1155) in `better-sqlite3` that causes local Next.js builds to fail. Setting `LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS` to `true` will resolve this and allow for local production builds.
-
-Make sure to set an appropriate `NEXT_PUBLIC_ROOT_DOMAIN` value when running a production build locally (i.e. `localhost:3000`).
-
-Run `pnpm build` and then `pnpm start` to run a production build locally to test ISR.
-
-See `.env.example` for a list of all "Local flags" you can set to enable better debugging and allow you to run production builds locally.
+See our [revalidation docs](/docs/revalidation.md).

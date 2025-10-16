@@ -11,7 +11,6 @@ import { notFound } from 'next/navigation'
 import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })

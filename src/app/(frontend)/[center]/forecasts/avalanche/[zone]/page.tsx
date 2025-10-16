@@ -10,7 +10,6 @@ import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
 export const dynamicParams = false
 
 export async function generateStaticParams() {
