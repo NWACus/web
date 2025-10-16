@@ -1,16 +1,40 @@
 'use client'
 import { useHash } from '@/utilities/useHash'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
 export function WidgetHashHandler({
   initialHash,
-  cleanUrl,
+  searchParams,
 }: {
   initialHash: string
-  cleanUrl?: string
+  searchParams?: { [key: string]: string | string[] | undefined }
 }) {
   const hash = useHash()
   const hasInitialized = useRef(false)
+  const pathname = usePathname()
+
+  let redirectUrl = undefined
+
+  if (searchParams) {
+    // Build query params, preserving array values
+    const queryParams = new URLSearchParams()
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (value === undefined) return
+      // Need to decode for NAC widget
+      if (Array.isArray(value)) {
+        value.forEach((v) => queryParams.append(key, decodeURIComponent(v)))
+      } else {
+        queryParams.set(key, decodeURIComponent(value))
+      }
+    })
+
+    const tabView = queryParams.get('tabView') || 'observations'
+    queryParams.delete('tabView')
+    const queryString = queryParams.toString()
+    initialHash = `/view/${tabView}${queryString ? `?${queryString}` : ''}`
+    redirectUrl = queryString ? pathname : undefined
+  }
 
   useEffect(() => {
     if (hasInitialized.current) return
@@ -19,15 +43,15 @@ export function WidgetHashHandler({
     const hasExistingHash = existingHash && existingHash !== '#'
 
     if (!hasExistingHash) {
-      if (cleanUrl) {
-        window.history.replaceState({}, '', `${cleanUrl}#${initialHash}`)
+      if (redirectUrl) {
+        window.history.replaceState({}, '', `${redirectUrl}#${initialHash}`)
       } else {
         window.history.replaceState(null, '', initialHash)
       }
     }
 
     hasInitialized.current = true
-  }, [hash, initialHash, cleanUrl])
+  }, [hash, initialHash, redirectUrl])
 
   useEffect(() => {
     hasInitialized.current = false

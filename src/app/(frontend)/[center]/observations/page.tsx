@@ -47,26 +47,9 @@ export default async function Page({ params, searchParams }: Args) {
 
   const { version, baseUrl } = await getNACWidgetsConfig()
 
-  // Build query params, preserving array values
-  const queryParams = new URLSearchParams()
-  Object.entries(search).forEach(([key, value]) => {
-    if (value === undefined) return
-    // Need to decode for NAC widget
-    if (Array.isArray(value)) {
-      value.forEach((v) => queryParams.append(key, decodeURIComponent(v)))
-    } else {
-      queryParams.set(key, decodeURIComponent(value))
-    }
-  })
-
-  const tabView = queryParams.get('tabView') || 'observations'
-  queryParams.delete('tabView')
-  const queryString = queryParams.toString()
-  const initialHash = `/view/${tabView}${queryString ? `?${queryString}` : ''}`
-  const cleanUrl = queryString ? `/observations` : undefined
   return (
     <>
-      <WidgetHashHandler initialHash={initialHash} cleanUrl={cleanUrl} />
+      <WidgetHashHandler initialHash="view/observations" searchParams={search} />
       <div className="flex flex-col gap-4">
         <div className="container">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
