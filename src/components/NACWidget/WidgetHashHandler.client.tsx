@@ -22,7 +22,7 @@ export function WidgetHashHandler({
       if (cleanUrl) {
         window.history.replaceState({}, '', `${cleanUrl}#${initialHash}`)
       } else {
-        window.location.hash = initialHash
+        window.history.replaceState(null, '', initialHash)
       }
     }
 
