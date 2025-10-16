@@ -1,9 +1,9 @@
-import { Navigation, Page, Tenant } from '@/payload-types'
+import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
 
 export const navigationSeed = (
   payload: Payload,
-  pages: Record<string, Record<string, Page>>,
+  pages: Record<string, Record<string, Page | BuiltInPage>>,
   tenant: Tenant,
 ): RequiredDataFromCollectionSlug<'navigations'> => {
   const pageLink = ({
@@ -11,10 +11,24 @@ export const navigationSeed = (
     url,
     label,
     newTab,
-  }: { slug?: string; url?: string; label?: string; newTab?: boolean } & (
+    isBuiltIn,
+  }: { slug?: string; url?: string; label?: string; newTab?: boolean; isBuiltIn?: boolean } & (
     | { slug: string }
     | { url: string }
+    | { label: string; isBuiltIn: boolean }
   )): NonNullable<NonNullable<Navigation['donate']>['link']> => {
+    if (isBuiltIn && label) {
+      return {
+        type: 'internal',
+        reference: {
+          value: pages[tenant.slug][label].id,
+          relationTo: 'builtInPages',
+        },
+        label: label,
+        newTab,
+      }
+    }
+
     if (url) {
       return {
         type: 'external',
@@ -57,11 +71,10 @@ export const navigationSeed = (
     weather: {
       items: [
         {
-          link: {
-            type: 'internal',
+          link: pageLink({
             label: 'Weather Stations',
-            url: '/stations/map',
-          },
+            isBuiltIn: true,
+          }),
         },
         {
           link: pageLink({
@@ -167,9 +180,16 @@ export const navigationSeed = (
     },
     accidents: {
       items: [
-        {
-          link: pageLink({ slug: 'local-accident-reports' }),
-        },
+        ...(tenant.slug === 'sac'
+          ? [
+              {
+                link: pageLink({
+                  label: 'Local Accidents',
+                  isBuiltIn: true,
+                }),
+              },
+            ]
+          : []),
         {
           link: pageLink({ slug: 'avalanche-accident-statistics' }),
         },

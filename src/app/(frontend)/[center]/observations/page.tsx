@@ -11,8 +11,7 @@ import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -29,14 +28,16 @@ export async function generateStaticParams() {
 
 type Args = {
   params: Promise<PathArgs>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 type PathArgs = {
   center: string
 }
 
-export default async function Page({ params }: Args) {
+export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
+  const search = await searchParams
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
@@ -48,7 +49,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetHashHandler initialHash="/view/observations" />
+      <WidgetHashHandler initialHash="view/observations" searchParams={search} />
       <div className="flex flex-col gap-4">
         <div className="container">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">

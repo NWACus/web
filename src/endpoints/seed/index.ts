@@ -4,12 +4,13 @@ import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import { Form, Tenant } from '@/payload-types'
 import fs from 'fs'
 import { headers } from 'next/headers'
-import type {
-  CollectionSlug,
-  File,
-  Payload,
-  PayloadRequest,
-  RequiredDataFromCollectionSlug,
+import {
+  deepMerge,
+  type CollectionSlug,
+  type File,
+  type Payload,
+  type PayloadRequest,
+  type RequiredDataFromCollectionSlug,
 } from 'payload'
 
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
@@ -730,18 +731,27 @@ export const seed = async ({
       ),
     )
 
-    await upsert(
+    const builtInPages = await upsert(
       'builtInPages',
       payload,
       incremental,
       tenantsById,
-      () => 'builtInPages',
+      (obj) => obj.title,
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
           builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
           builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
           builtInPage(tenant, 'Recent Observations', '/observations'),
           builtInPage(tenant, 'Submit Observations', '/observations/submit'),
+          ...(tenant.slug === 'sac'
+            ? [
+                builtInPage(
+                  tenant,
+                  'Local Accidents',
+                  '/observations?tabView=avalanches&impacts=["Humans Caught"]',
+                ),
+              ]
+            : []),
         ])
         .flat(),
     )
@@ -890,13 +900,6 @@ export const seed = async ({
           page(
             tenant,
             images[tenant.slug]['image2'],
-            'Local Accident Reports',
-            'Access reports of avalanche accidents in your local area.',
-            'local-accident-reports',
-          ),
-          page(
-            tenant,
-            images[tenant.slug]['image2'],
             'Avalanche Accident Statistics',
             'Review statistical data on avalanche accidents and incidents.',
             'avalanche-accident-statistics',
@@ -932,6 +935,8 @@ export const seed = async ({
         ])
         .flat(),
     )
+
+    const allPages = deepMerge(pages, builtInPages)
 
     payload.logger.info(`— Seeding sponsors...`)
     await upsert(
@@ -993,7 +998,7 @@ export const seed = async ({
       (_obj) => 'nav',
       Object.values(tenants).map(
         (tenant): RequiredDataFromCollectionSlug<'navigations'> =>
-          navigationSeed(payload, pages, tenant),
+          navigationSeed(payload, allPages, tenant),
       ),
     )
 
