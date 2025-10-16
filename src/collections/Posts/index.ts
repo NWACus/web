@@ -147,8 +147,16 @@ export const Posts: CollectionConfig<'posts'> = {
       },
       hasMany: true,
       relationTo: 'biographies',
-      required: true,
       filterOptions: getTenantFilter,
+    },
+    {
+      name: 'showAuthors',
+      type: 'checkbox',
+      label: 'Show authors on post?',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -181,6 +189,15 @@ export const Posts: CollectionConfig<'posts'> = {
         date: {
           pickerAppearance: 'dayAndTime',
         },
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'showDate',
+      type: 'checkbox',
+      label: 'Show published date on post?',
+      defaultValue: true,
+      admin: {
         position: 'sidebar',
       },
     },

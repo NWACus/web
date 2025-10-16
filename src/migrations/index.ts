@@ -29,6 +29,7 @@ import * as migration_20251001_012534_update_sponsors_block from './20251001_012
 import * as migration_20251001_171654_redirects_plugin_to_collection from './20251001_171654_redirects_plugin_to_collection'
 import * as migration_20251001_180603_nav_items_with_enabled_toggle from './20251001_180603_nav_items_with_enabled_toggle'
 import * as migration_20251001_221006_update_bios from './20251001_221006_update_bios'
+import * as migration_20251016_001620_update_post_authors_date from './20251016_001620_update_post_authors_date'
 
 export const migrations = [
   {
@@ -185,5 +186,10 @@ export const migrations = [
     up: migration_20251001_221006_update_bios.up,
     down: migration_20251001_221006_update_bios.down,
     name: '20251001_221006_update_bios',
+  },
+  {
+    up: migration_20251016_001620_update_post_authors_date.up,
+    down: migration_20251016_001620_update_post_authors_date.down,
+    name: '20251016_001620_update_post_authors_date',
   },
 ]
