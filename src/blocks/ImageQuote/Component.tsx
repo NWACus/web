@@ -17,9 +17,9 @@ export const ImageQuote = (props: Props) => {
   return (
     <div className={`${bgColorClass}`}>
       <div className="container py-10">
-        <div className="grid md:grid-cols-12 gap-x-6 gap-y-6">
+        <div className="grid md:grid-cols-12 gap-6">
           <div
-            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' ? 'order-last ms-6' : 'me-6 '}`}
+            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' ? 'order-last md:ms-6' : 'md:me-6'}`}
           >
             {image && <ImageMedia imgClassName={cn(imgClassName)} resource={image} />}
           </div>
