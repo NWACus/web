@@ -149,7 +149,7 @@ export function NACWidget({
       </div>
       <Script
         src={`${scriptUrl}/${scriptName}.js`}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         crossOrigin="anonymous"
         type="module"
         onReady={() => {

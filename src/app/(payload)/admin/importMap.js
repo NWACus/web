@@ -24,6 +24,7 @@ import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb6
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { TenantFieldComponent as TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6 } from '@/fields/tenantField/TenantFieldComponent'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
+import { Description as Description_dec1f3f80f9e0d72e62ee0edc85ffb4e } from '@/globals/NACWidgetsConfig/components/Description'
 import { TenantSelectionProvider as TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d } from '@/providers/TenantSelectionProvider'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
@@ -128,6 +129,8 @@ export const importMap = {
     AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   '@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription':
     USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
+  '@/globals/NACWidgetsConfig/components/Description#Description':
+    Description_dec1f3f80f9e0d72e62ee0edc85ffb4e,
   '@/globals/Diagnostics/components/DiagnosticsDisplay#DiagnosticsDisplay':
     DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6,
   '@/components/LogoutButton#LogoutButton': LogoutButton_db9ac62598c46d0f1db201f6af05442e,
