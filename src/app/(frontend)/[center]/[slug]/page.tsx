@@ -15,6 +15,7 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPage } from '@/utilities/generateMeta'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
+export const dynamic = 'force-static'
 export const revalidate = 600
 
 export async function generateStaticParams() {
