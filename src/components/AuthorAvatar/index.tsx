@@ -7,13 +7,17 @@ import { cn } from '@/utilities/ui'
 import { format, parseISO } from 'date-fns'
 import { MediaAvatar } from '../Media/AvatarImageMedia'
 
-export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['updatedAt'] }) => {
-  const { authors, date } = props
-
+export const AuthorAvatar = (props: {
+  authors: Post['authors']
+  date: Post['updatedAt']
+  showAuthors?: boolean | null
+  showDate?: boolean | null
+}) => {
+  const { authors, date, showAuthors, showDate } = props
   const combinedAuthorsNames: string[] = [],
     combinedAuthorsInitials: string[] = [],
     combinedAuthorsPhotos: Media[] = []
-  authors.forEach((author) => {
+  authors?.forEach((author) => {
     if (
       author &&
       typeof author !== 'number' &&
@@ -29,25 +33,28 @@ export const AuthorAvatar = (props: { authors: Post['authors']; date: Post['upda
   return (
     <>
       <div className="flex items-center mb-6 gap-3">
-        <div className={cn(`${combinedAuthorsPhotos.length > 1 && 'flex -space-x-2'}`)}>
-          {combinedAuthorsPhotos.map((authorPhoto, index) => (
-            <MediaAvatar
-              resource={authorPhoto}
-              className="shadow-md"
-              key={index}
-              fallback={combinedAuthorsInitials[index]}
-              isCircle
-            />
-          ))}
-        </div>
+        {showAuthors && (
+          <div className={cn(`${combinedAuthorsPhotos.length > 1 && 'flex -space-x-2'}`)}>
+            {combinedAuthorsPhotos.map((authorPhoto, index) => (
+              <MediaAvatar
+                resource={authorPhoto}
+                className="shadow-md"
+                key={index}
+                fallback={combinedAuthorsInitials[index]}
+                isCircle
+              />
+            ))}
+          </div>
+        )}
         <div className="flex flex-col">
-          <p className="text-sm text-brand-600">
-            {combinedAuthorsNames.length > 1
-              ? combinedAuthorsNames.join(', ')
-              : combinedAuthorsNames[0]}
-          </p>
-
-          {date && (
+          {showAuthors && (
+            <p className="text-sm text-brand-600">
+              {combinedAuthorsNames.length > 1
+                ? combinedAuthorsNames.join(', ')
+                : combinedAuthorsNames[0]}
+            </p>
+          )}
+          {showDate && date && (
             <p className="text-xs text-brand-400">{format(parseISO(date), 'MMMM d, yyyy')}</p>
           )}
         </div>

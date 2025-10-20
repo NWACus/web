@@ -59,7 +59,7 @@ export const ImageTextList = (props: Props) => {
                   <div className={`${isSideLayout ? 'col-span-3' : 'mt-4'}`}>
                     <h3 className="text-lg font-bold">{title}</h3>
                     <div className="mt-2">
-                      <RichText data={richText} enableGutter={false} enableProse={false} />
+                      <RichText data={richText} enableGutter={false} />
                     </div>
                   </div>
                 </div>

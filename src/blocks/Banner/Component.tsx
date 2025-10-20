@@ -18,7 +18,7 @@ export const BannerBlock = ({ className, content, style }: Props) => {
           'border-warning bg-warning/30': style === 'warning',
         })}
       >
-        <RichText data={content} enableGutter={false} enableProse={false} />
+        <RichText data={content} enableGutter={false} />
       </div>
     </div>
   )

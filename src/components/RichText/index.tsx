@@ -111,19 +111,18 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
 type Props = {
   data: SerializedEditorState
   enableGutter?: boolean
-  enableProse?: boolean
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableProse = true, enableGutter = true, ...rest } = props
+  const { className, enableGutter = true, ...rest } = props
   return (
     <RichTextLexical
       converters={jsxConverters}
       className={cn(
+        'mx-auto prose md:prose-md dark:prose-invert',
         {
           'container ': enableGutter,
           'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md dark:prose-invert': enableProse,
         },
         className,
       )}
