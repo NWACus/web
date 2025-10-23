@@ -78,7 +78,7 @@ export async function generateOGImage({
           },
         })
       } catch (fallbackErr) {
-        payload.logger.error('Failed to load fallback OG image:', fallbackErr)
+        payload.logger.error({ err: fallbackErr }, 'Failed to load fallback OG image')
         return new Response('Failed to generate OG image', { status: 500 })
       }
     }
@@ -216,7 +216,7 @@ export async function generateOGImage({
       },
     )
   } catch (err) {
-    payload.logger.error(err)
+    payload.logger.error({ err }, 'Failed to generate OG image')
     Sentry.captureException(err)
     return new Response('Failed to generate OG image', {
       status: 500,

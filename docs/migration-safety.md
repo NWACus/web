@@ -107,6 +107,80 @@ The simplest solution here is to keep fields that we want to remove and avoid mi
 
 This avoids needing the migration at all. It would be ideal to remove the data since we would be making the decision that we don't need it anymore but it is an acceptable trade off.
 
+## Writing Custom Migrations to Replace Unsafe Auto-Generated Ones
+
+Sometimes Payload/Drizzle generates migrations that would cause data loss in production due to the `PRAGMA foreign_keys=OFF` issue. In these cases, you need to:
+1. Manually simplify the migration to avoid the unsafe patterns
+2. Preserve the JSON schema snapshot so Payload's diffing logic recognizes the schema is in sync
+
+### Understanding Payload's Migration System
+
+Payload uses Drizzle under the hood, which tracks the database schema state using JSON snapshot files:
+- Each migration has **two files**: `{timestamp}_{name}.ts` and `{timestamp}_{name}.json`
+- The **TypeScript file** contains the migration SQL commands
+- The **JSON file** is a snapshot of the **expected schema state after the migration runs**
+- When you run `pnpm payload migrate:create`, Drizzle compares your Payload config against the **latest JSON snapshot** to detect changes
+
+### Write your own, simplified migration
+
+#### Step 1: Analyze what actually needs to change
+
+Look at the auto-generated migration and identify the **actual schema change**. Often, a massive migration is just Drizzle's way of making a small change.
+
+One liner (compares the two most recent migrations): `diff -u --color=always $(ls -t src/migrations/*.json | sed -n '2p') $(ls -t src/migrations/*.json | sed -n '1p')`
+
+#### Step 2: Write a minimal, safe migration
+
+Replace the auto-generated migration using `await db.run()` sql statements or using the Payload Local API.
+
+**Key principles:**
+- Avoid `PRAGMA foreign_keys=OFF` completely
+- Avoid table recreation (`CREATE TABLE __new_*`, `DROP TABLE`, `ALTER TABLE RENAME`)
+- Add clear comments explaining why you simplified it
+
+#### Step 3: Preserve the JSON schema snapshot
+
+**Critical:** Don't delete the JSON file! You need to keep it so Payload knows what the schema should look like after the migration.
+
+If you already deleted it or want to regenerate it:
+
+```bash
+# Generate a new migration to get the correct JSON snapshot
+pnpm payload migrate:create temp_for_json
+
+# Move the JSON file to your migration and delete the temp TS file
+mv src/migrations/{temp_timestamp}_temp_for_json.json src/migrations/{your_migration_timestamp}.json
+rm src/migrations/{temp_timestamp}_temp_for_json.ts
+```
+
+The JSON file represents the **target schema state** that Payload expects after running your migration.
+
+#### Step 4: Verify the schema is in sync
+
+Test that Payload's diffing logic recognizes your custom migration as correct:
+
+```bash
+pnpm payload migrate:create test_check
+```
+
+You should see: **"No schema changes detected. Would you like to create a blank migration file?"**
+
+If Payload tries to generate another migration, it means your JSON snapshot doesn't match what Payload expects. You may need to regenerate the JSON file (Step 3).
+
+#### Step 5: Test the migration
+
+Follow the "Testing a migration locally" workflow above using a local Turso server to ensure:
+- The migration runs without errors
+- No data is lost
+- The schema state matches expectations
+
+### When you can't write your own migration avoiding the table recreation pattern
+
+If the migration genuinely needs to modify table structures in ways that require `PRAGMA foreign_keys=OFF`:
+
+Keep the old schema and mark fields as `hidden: true` (see "The fix: keep old attributes" above)
+
+
 ## Known issues
 
 ## Implementation Details
