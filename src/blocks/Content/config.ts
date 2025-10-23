@@ -76,7 +76,23 @@ export const Content: Block = {
         singular: 'Column',
       },
       required: true,
-      defaultValue: [{}],
+      defaultValue: [
+        {
+          root: {
+            type: 'root',
+            children: [
+              {
+                type: 'paragraph',
+                children: [],
+              },
+            ],
+            direction: null,
+            format: '',
+            indent: 0,
+            version: 1,
+          },
+        },
+      ],
       type: 'array',
       admin: {
         initCollapsed: false,
