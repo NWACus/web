@@ -5,18 +5,21 @@ import type { BiographyBlock as BiographyBlockProps } from 'src/payload-types'
 import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { isValidRelationship } from '@/utilities/relationships'
 
 type Props = BiographyBlockProps & { payload: Payload }
 
 export const BiographyBlock = ({ backgroundColor, biography, imageLayout, payload }: Props) => {
   // For live preview when bio not selected
-  if (!biography) return null
+  if (!isValidRelationship(biography)) {
+    return null
+  }
 
-  if (typeof biography !== 'object' || typeof biography.photo !== 'object') {
+  if (!isValidRelationship(biography.photo)) {
     payload.logger.error(
-      `BiographyBlock got an unresolved biography reference: ${JSON.stringify(biography)}`,
+      `BiographyBlock got an unresolved photo reference for biography: ${biography.id}`,
     )
-    return <></>
+    return null
   }
 
   const bgColorClass = `bg-${backgroundColor}`
