@@ -15,15 +15,15 @@ const ColorPicker = (props: TextFieldClientProps) => {
   const [tenantSlug, setTenantSlug] = useState<string | null>(null)
 
   useEffect(() => {
-    async function fetchUser() {
-      const userData = await getSlugFromTenantId(data?.tenant)
-      setTenantSlug(userData)
+    async function fetchTenantSlug() {
+      const slug = await getSlugFromTenantId(data?.tenant)
+      setTenantSlug(slug)
     }
-    fetchUser()
+    fetchTenantSlug()
   }, [data?.tenant])
 
   return (
-    <div className={cn(`flex flex-col mb-6 ${tenantSlug}`)}>
+    <div className={cn('flex flex-col mb-6', tenantSlug)}>
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ul className="flex flex-wrap list-none pl-0">
         {tenantSlug &&
