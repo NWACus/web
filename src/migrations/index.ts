@@ -31,6 +31,7 @@ import * as migration_20251001_180603_nav_items_with_enabled_toggle from './2025
 import * as migration_20251001_221006_update_bios from './20251001_221006_update_bios'
 import * as migration_20251016_001620_update_post_authors_date from './20251016_001620_update_post_authors_date'
 import * as migration_20251020_222917_blocks_in_highlighted_content from './20251020_222917_blocks_in_highlighted_content'
+import * as migration_20251023_195638_rename_indexes from './20251023_195638_rename_indexes'
 
 export const migrations = [
   {
@@ -197,5 +198,10 @@ export const migrations = [
     up: migration_20251020_222917_blocks_in_highlighted_content.up,
     down: migration_20251020_222917_blocks_in_highlighted_content.down,
     name: '20251020_222917_blocks_in_highlighted_content',
+  },
+  {
+    up: migration_20251023_195638_rename_indexes.up,
+    down: migration_20251023_195638_rename_indexes.down,
+    name: '20251023_195638_rename_indexes',
   },
 ]
