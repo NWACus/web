@@ -74,8 +74,12 @@ export async function findDocumentsWithBlockReferences(
   const payload = await getPayload({ config: configPromise })
   const results: DocumentForRevalidation[] = []
 
-  const { pagesBlockMappings, postsBlockMappings, homePagesBlockMappings } =
-    await getBlocksFromConfig()
+  const {
+    pagesBlockMappings,
+    postsBlockMappings,
+    homePagesBlockMappings,
+    homePagesHighlightedContentBlockMappings,
+  } = await getBlocksFromConfig()
 
   const pagesMappings = pagesBlockMappings[reference.collection]
 
@@ -256,6 +260,44 @@ export async function findDocumentsWithBlockReferences(
           `Error querying homePages for ${reference.collection} reference ${reference.id}: ${error}`,
         )
       }
+    }
+  }
+
+  // Query homePages.blocksInHighlightedContent for references in highlightedContent richText fields
+  const homePagesHighlightedContentMappings =
+    homePagesHighlightedContentBlockMappings[reference.collection]
+
+  if (homePagesHighlightedContentMappings) {
+    try {
+      const homePagesWithBlocksRes = await payload.find({
+        collection: 'homePages',
+        where: {
+          and: [
+            {
+              'blocksInHighlightedContent.collection': { equals: reference.collection },
+            },
+            {
+              'blocksInHighlightedContent.docId': { equals: reference.id },
+            },
+          ],
+        },
+        depth: 1,
+      })
+
+      const homePagesWithBlocks: DocumentForRevalidation[] = homePagesWithBlocksRes.docs.map(
+        (doc) => ({
+          collection: 'homePages',
+          id: doc.id,
+          slug: '',
+          tenant: doc.tenant,
+        }),
+      )
+
+      results.push(...homePagesWithBlocks)
+    } catch (error) {
+      payload.logger.warn(
+        `Error querying homePages.blocksInHighlightedContent for ${reference.collection} reference ${reference.id}: ${error}`,
+      )
     }
   }
 
