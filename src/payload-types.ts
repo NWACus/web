@@ -246,6 +246,17 @@ export interface HomePage {
     | TeamBlock
     | GenericEmbedBlock
   )[];
+  /**
+   * Automatically populated field tracking block references in highlightedContent for revalidation purposes.
+   */
+  blocksInHighlightedContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        docId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   publishedAt?: string | null;
   contentHash?: string | null;
   updatedAt: string;
@@ -528,7 +539,8 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  authors: (number | Biography)[];
+  authors?: (number | Biography)[] | null;
+  showAuthors?: boolean | null;
   populatedAuthors?:
     | {
         id?: string | null;
@@ -536,6 +548,7 @@ export interface Post {
       }[]
     | null;
   publishedAt?: string | null;
+  showDate?: boolean | null;
   tags?: (number | Tag)[] | null;
   relatedPosts?: (number | Post)[] | null;
   blocksInContent?:
@@ -2131,6 +2144,14 @@ export interface HomePagesSelect<T extends boolean = true> {
         team?: T | TeamBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
       };
+  blocksInHighlightedContent?:
+    | T
+    | {
+        blockType?: T;
+        collection?: T;
+        docId?: T;
+        id?: T;
+      };
   publishedAt?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -2432,6 +2453,7 @@ export interface PostsSelect<T extends boolean = true> {
   description?: T;
   content?: T;
   authors?: T;
+  showAuthors?: T;
   populatedAuthors?:
     | T
     | {
@@ -2439,6 +2461,7 @@ export interface PostsSelect<T extends boolean = true> {
         name?: T;
       };
   publishedAt?: T;
+  showDate?: T;
   tags?: T;
   relatedPosts?: T;
   blocksInContent?:

@@ -24,6 +24,14 @@ export async function getBlocksFromConfig() {
   const homePagesBlocks = extractBlocksFromFields(homePagesCollection?.fields || [])
   const homePagesBlockMappings = extractBlockMappings(homePagesBlocks)
 
+  // Find blocks used in HomePages highlightedContent richText fields
+  const homePagesHighlightedContentBlocks = extractBlocksFromRichTextBlocksFeature(
+    homePagesCollection?.fields || [],
+  )
+  const homePagesHighlightedContentBlockMappings = extractBlockMappings(
+    homePagesHighlightedContentBlocks,
+  )
+
   return {
     pagesBlocks,
     pagesBlockMappings,
@@ -31,6 +39,8 @@ export async function getBlocksFromConfig() {
     postsBlockMappings,
     homePagesBlocks,
     homePagesBlockMappings,
+    homePagesHighlightedContentBlocks,
+    homePagesHighlightedContentBlockMappings,
   }
 }
 

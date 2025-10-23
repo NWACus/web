@@ -11,7 +11,9 @@ import { getPayload, Where } from 'payload'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPost } from '@/utilities/generateMeta'
 
+export const dynamic = 'force-static'
 export const dynamicParams = true
+export const revalidate = 600
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -72,9 +74,16 @@ export default async function Post({ params: paramsPromise }: Args) {
           <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
             <h1 className="font-bold">{post.title}</h1>
           </div>
-          <div className="max-w-[48rem] mx-auto">
-            <AuthorAvatar authors={post.authors} date={post.publishedAt ?? ''} />
-          </div>
+          {(post.showAuthors || post.showDate) && (
+            <div className="max-w-[48rem] mx-auto">
+              <AuthorAvatar
+                authors={post.authors}
+                date={post.publishedAt ?? ''}
+                showAuthors={post.showAuthors}
+                showDate={post.showDate}
+              />
+            </div>
+          )}
           <RichText
             className="prose max-w-[48rem] mx-auto"
             data={post.content}

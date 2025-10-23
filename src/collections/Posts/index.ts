@@ -27,6 +27,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
+import { ButtonBlock } from '@/blocks/Button/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -118,6 +119,7 @@ export const Posts: CollectionConfig<'posts'> = {
             ...rootFeatures,
             BlocksFeature({
               blocks: [
+                ButtonBlock,
                 Banner,
                 BlogListBlockLexical,
                 DocumentBlock,
@@ -145,8 +147,16 @@ export const Posts: CollectionConfig<'posts'> = {
       },
       hasMany: true,
       relationTo: 'biographies',
-      required: true,
       filterOptions: getTenantFilter,
+    },
+    {
+      name: 'showAuthors',
+      type: 'checkbox',
+      label: 'Show authors on post?',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy
@@ -179,6 +189,15 @@ export const Posts: CollectionConfig<'posts'> = {
         date: {
           pickerAppearance: 'dayAndTime',
         },
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'showDate',
+      type: 'checkbox',
+      label: 'Show published date on post?',
+      defaultValue: true,
+      admin: {
         position: 'sidebar',
       },
     },
