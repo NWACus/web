@@ -76,23 +76,7 @@ export const Content: Block = {
         singular: 'Column',
       },
       required: true,
-      defaultValue: [
-        {
-          root: {
-            type: 'root',
-            children: [
-              {
-                type: 'paragraph',
-                children: [],
-              },
-            ],
-            direction: null,
-            format: '',
-            indent: 0,
-            version: 1,
-          },
-        },
-      ],
+      defaultValue: [{}],
       type: 'array',
       admin: {
         initCollapsed: false,
@@ -102,6 +86,25 @@ export const Content: Block = {
         {
           name: 'richText',
           type: 'richText',
+          defaultValue: {
+            root: {
+              children: [
+                {
+                  children: [],
+                  direction: null,
+                  format: '',
+                  indent: 0,
+                  type: 'paragraph',
+                  version: 1,
+                },
+              ],
+              direction: null,
+              format: '',
+              indent: 0,
+              type: 'root',
+              version: 1,
+            },
+          },
           editor: lexicalEditor({
             features: ({ rootFeatures }) => {
               return [
