@@ -1,5 +1,6 @@
 import { PostPreview } from '@/components/PostPreview'
 import type { SingleBlogPostBlock as SingleBlogPostBlockProps } from '@/payload-types'
+import { isValidPublishedRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 
 type SingleBlogPostComponentProps = SingleBlogPostBlockProps & {
@@ -13,7 +14,7 @@ export const SingleBlogPostBlockComponent = ({
   className,
   wrapInContainer = true,
 }: SingleBlogPostComponentProps) => {
-  if (!post || typeof post !== 'object' || post._status !== 'published') {
+  if (!isValidPublishedRelationship(post)) {
     return null
   }
 
