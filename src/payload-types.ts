@@ -1312,37 +1312,64 @@ export interface Event {
         | 'America/Honolulu'
       )
     | null;
+  /**
+   * Search for a location using Mapbox or enter manually
+   */
   location?: {
+    inputMode?: ('geocoded' | 'manual') | null;
     /**
-     * Check if this is an online/virtual event
+     * Geographic coordinates (longitude, latitude)
+     *
+     * @minItems 2
+     * @maxItems 2
      */
-    isVirtual?: boolean | null;
-    /**
-     * Meeting link for virtual events
-     */
-    virtualUrl?: string | null;
-    /**
-     * Venue name
-     */
-    venue?: string | null;
+    coordinates?: [number, number] | null;
     /**
      * Street address
      */
     address?: string | null;
     /**
-     * City
+     * City name
      */
     city?: string | null;
     /**
-     * State
+     * State or province code (e.g., WA, OR)
      */
     state?: string | null;
     /**
-     * ZIP code
+     * ZIP or postal code
      */
-    zip?: string | null;
+    postalCode?: string | null;
     /**
-     * Extra location info (e.g., "Meet in lot 4")
+     * Country code
+     */
+    country?: string | null;
+    /**
+     * Permanent Mapbox place identifier
+     */
+    mapboxId?: string | null;
+    /**
+     * Name of the venue or place
+     */
+    placeName?: string | null;
+    /**
+     * Mapbox place type (e.g., poi, address)
+     */
+    placeType?: string | null;
+    /**
+     * Complete formatted address from Mapbox
+     */
+    fullAddress?: string | null;
+    /**
+     * Check if this is a virtual event
+     */
+    isVirtual?: boolean | null;
+    /**
+     * URL for virtual event (Zoom, Teams, etc.)
+     */
+    virtualUrl?: string | null;
+    /**
+     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
      */
     extraInfo?: string | null;
   };
@@ -2930,13 +2957,19 @@ export interface EventsSelect<T extends boolean = true> {
   location?:
     | T
     | {
-        isVirtual?: T;
-        virtualUrl?: T;
-        venue?: T;
+        inputMode?: T;
+        coordinates?: T;
         address?: T;
         city?: T;
         state?: T;
-        zip?: T;
+        postalCode?: T;
+        country?: T;
+        mapboxId?: T;
+        placeName?: T;
+        placeType?: T;
+        fullAddress?: T;
+        isVirtual?: T;
+        virtualUrl?: T;
         extraInfo?: T;
       };
   featuredImage?: T;
