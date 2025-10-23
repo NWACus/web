@@ -10,6 +10,7 @@ import { FormBlock as FormBlockType } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { generateInstanceId } from '@/utilities/generateInstanceId'
 import { getURL } from '@/utilities/getURL'
+import { isValidRelationship } from '@/utilities/relationships'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { cn } from '@/utilities/ui'
 import { buildInitialFormState } from './buildInitialFormState'
@@ -32,9 +33,12 @@ export const FormBlock = (props: FormBlockTypeProps) => {
 
   const uniqueFormId = generateInstanceId()
 
+  // Validate form has fields before initializing, use empty array as fallback for hooks
+  const formFields = isValidRelationship(props.form) && props.form.fields ? props.form.fields : []
+
   const formMethods = useForm({
     /* @ts-expect-error this code is inherited from Payload and is full of type errors, we should fix it later */
-    defaultValues: buildInitialFormState(props.form.fields),
+    defaultValues: buildInitialFormState(formFields),
   })
   const {
     control,
@@ -121,7 +125,7 @@ export const FormBlock = (props: FormBlockTypeProps) => {
     [props.form, hostname, router],
   )
 
-  if (typeof props.form === 'number') {
+  if (!isValidRelationship(props.form) || !props.form.fields) {
     return null
   }
 

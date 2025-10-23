@@ -27,10 +27,11 @@ export const TenantFieldComponent = (args: Props) => {
     setTenant,
   } = useTenantSelection()
 
+  const isGlobalCollection = !!unique
   const hasSetValueRef = React.useRef(false)
 
   React.useEffect(() => {
-    if (!hasSetValueRef.current) {
+    if (!hasSetValueRef.current && !isGlobalCollection) {
       // set value on load
       if (value && value !== selectedTenantID) {
         setTenant({ id: value, refresh: unique })
@@ -44,7 +45,7 @@ export const TenantFieldComponent = (args: Props) => {
       // Update the field on the document value when the tenant is changed
       setValue(selectedTenantID, !value || value === selectedTenantID)
     }
-  }, [value, selectedTenantID, setTenant, setValue, options, unique])
+  }, [value, selectedTenantID, setTenant, setValue, options, unique, isGlobalCollection])
 
   React.useEffect(() => {
     setEntityType(unique ? 'global' : 'document')
