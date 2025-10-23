@@ -47,7 +47,7 @@ describe('handleReferenceURL', () => {
         },
       })
 
-      expect(result).toBe('/posts/my-blog-post')
+      expect(result).toBe('/blog/my-blog-post')
     })
   })
 
