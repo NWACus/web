@@ -20,7 +20,7 @@ const revalidate = async (doc: HomePage, payload: BasePayload) => {
 
     payload.logger.info(`Successfully revalidated home page for tenant: ${tenant.slug}`)
   } catch (error) {
-    payload.logger.error('Error revalidating home page:', error)
+    payload.logger.error({ err: error }, 'Error revalidating home page')
   }
 }
 
