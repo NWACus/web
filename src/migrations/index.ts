@@ -32,6 +32,7 @@ import * as migration_20251001_221006_update_bios from './20251001_221006_update
 import * as migration_20251016_001620_update_post_authors_date from './20251016_001620_update_post_authors_date'
 import * as migration_20251020_222917_blocks_in_highlighted_content from './20251020_222917_blocks_in_highlighted_content'
 import * as migration_20251023_195638_rename_indexes from './20251023_195638_rename_indexes'
+import * as migration_20251024_203935_content_block_default_value from './20251024_203935_content_block_default_value'
 
 export const migrations = [
   {
@@ -203,5 +204,10 @@ export const migrations = [
     up: migration_20251023_195638_rename_indexes.up,
     down: migration_20251023_195638_rename_indexes.down,
     name: '20251023_195638_rename_indexes',
+  },
+  {
+    up: migration_20251024_203935_content_block_default_value.up,
+    down: migration_20251024_203935_content_block_default_value.down,
+    name: '20251024_203935_content_block_default_value',
   },
 ]
