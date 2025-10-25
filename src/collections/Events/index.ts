@@ -308,6 +308,24 @@ export const Events: CollectionConfig = {
       },
     },
     {
+      name: 'eventSeries',
+      type: 'relationship',
+      relationTo: 'eventSeries',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'eventTags',
+      type: 'relationship',
+      relationTo: 'eventTags',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'modeOfTravel',
       type: 'select',
       options: [

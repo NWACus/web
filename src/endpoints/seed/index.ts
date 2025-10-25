@@ -53,6 +53,8 @@ const collections: CollectionSlug[] = [
   'eventTypes',
   'eventSubTypes',
   'events',
+  'eventSeries',
+  'eventTags',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -228,7 +230,14 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['navigations', 'tenants', 'eventTypes', 'eventSubTypes'],
+            collections: [
+              'navigations',
+              'tenants',
+              'eventSeries',
+              'eventTags',
+              'eventTypes',
+              'eventSubTypes',
+            ],
             actions: ['read'],
           },
         ],
@@ -252,7 +261,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventTypes', 'eventSubTypes'],
+            collections: ['eventSeries', 'eventTags', 'eventTypes', 'eventSubTypes'],
             actions: ['read'],
           },
         ],
@@ -277,7 +286,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventTypes', 'eventSubTypes'],
+            collections: ['eventSeries', 'eventTags', 'eventTypes', 'eventSubTypes'],
             actions: ['read'],
           },
         ],
@@ -298,6 +307,28 @@ export const seed = async ({
       (obj) => obj.slug,
       [...eventSubTypesData],
     )
+
+    // Event series and tags
+    await upsertGlobals('eventSeries', payload, incremental, (obj) => obj.slug, [
+      {
+        title: 'Meet your forecaster',
+        description: 'Meet your local avalanche forecasters & learn more about your avy center',
+        slug: 'meet-your-forecaster',
+      },
+    ])
+
+    await upsertGlobals('eventSeries', payload, incremental, (obj) => obj.slug, [
+      {
+        title: '21+',
+        description: 'Alcohol served at event. No kiddos allowed.',
+        slug: 'meet-your-forecaster',
+      },
+      {
+        title: 'Women only',
+        description: 'Female focused event.',
+        slug: 'women-only',
+      },
+    ])
 
     payload.logger.info(`— Seeding brand media...`)
 

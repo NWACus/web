@@ -2,12 +2,19 @@ import { sqliteAdapter } from '@payloadcms/db-sqlite'
 
 import path from 'path'
 import { buildConfig } from 'payload'
+import pino from 'pino'
+import { build } from 'pino-pretty'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Biographies } from '@/collections/Biographies'
 import { BuiltInPages } from '@/collections/BuiltInPages'
 import { Documents } from '@/collections/Documents'
+import { Events } from '@/collections/Events'
+import { EventSeries } from '@/collections/EventSeries'
+import { EventSubTypes } from '@/collections/EventSubTypes'
+import { EventTags } from '@/collections/EventTags'
+import { EventTypes } from '@/collections/EventTypes'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { HomePages } from '@/collections/HomePages'
@@ -15,6 +22,7 @@ import { Media } from '@/collections/Media'
 import { Navigations } from '@/collections/Navigations'
 import { Pages } from '@/collections/Pages'
 import { Posts } from '@/collections/Posts'
+import { Redirects } from '@/collections/Redirects'
 import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
 import { Settings } from '@/collections/Settings'
@@ -33,12 +41,6 @@ import { plugins } from '@/plugins'
 import { getURL } from '@/utilities/getURL'
 import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
-import pino from 'pino'
-import { build } from 'pino-pretty'
-import { Events } from './collections/Events'
-import { EventSubTypes } from './collections/EventSubTypes'
-import { EventTypes } from './collections/EventTypes'
-import { Redirects } from './collections/Redirects'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -170,6 +172,8 @@ export default buildConfig({
     Events,
     EventTypes,
     EventSubTypes,
+    EventSeries,
+    EventTags,
     // Staff
     Biographies,
     Teams,
