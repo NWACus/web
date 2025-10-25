@@ -311,21 +311,17 @@ export const seed = async ({
     // Event series and tags
     await upsertGlobals('eventSeries', payload, incremental, (obj) => obj.slug, [
       {
-        title: 'Meet your forecaster',
+        title: 'Meet Your Forecaster',
         description: 'Meet your local avalanche forecasters & learn more about your avy center',
         slug: 'meet-your-forecaster',
       },
     ])
 
-    await upsertGlobals('eventSeries', payload, incremental, (obj) => obj.slug, [
-      {
-        title: '21+',
-        description: 'Alcohol served at event. No kiddos allowed.',
-        slug: 'meet-your-forecaster',
-      },
+    await upsertGlobals('eventTags', payload, incremental, (obj) => obj.slug, [
       {
         title: 'Women only',
-        description: 'Female focused event.',
+        description:
+          'Women-only events are gatherings designed to create a safe, supportive, and empowering space for women to connect, share experiences, and grow',
         slug: 'women-only',
       },
     ])
