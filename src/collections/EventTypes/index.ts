@@ -1,5 +1,6 @@
 import { accessByGlobalRoleWithAuthenticatedRead } from '@/access/byGlobalRole'
 import { contentHashField } from '@/fields/contentHashField'
+import { crmFields } from '@/fields/crmFields'
 import { slugField } from '@/fields/slug'
 import { CollectionConfig } from 'payload'
 
@@ -7,7 +8,7 @@ export const EventTypes: CollectionConfig = {
   slug: 'eventTypes',
   access: accessByGlobalRoleWithAuthenticatedRead('eventTypes'),
   admin: {
-    group: 'Content',
+    group: 'Events',
     useAsTitle: 'title',
   },
   fields: [
@@ -20,28 +21,7 @@ export const EventTypes: CollectionConfig = {
       name: 'description',
       type: 'textarea',
     },
-    {
-      type: 'group',
-      fields: [
-        {
-          name: 'crmId',
-          label: 'CRM ID',
-          type: 'text',
-          admin: {
-            description: "Maps this type to it's associated representation in the CRM Integration",
-          },
-        },
-        {
-          name: 'crmIntegration',
-          label: 'CRM Integration',
-          type: 'select',
-          options: [
-            { label: 'AC Salesforce', value: 'ac-salesforce' },
-            { label: 'A3 CRM', value: 'a3-crm' },
-          ],
-        },
-      ],
-    },
+    crmFields(),
     slugField(),
     contentHashField(),
   ],

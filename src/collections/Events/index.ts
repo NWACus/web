@@ -29,7 +29,7 @@ export const Events: CollectionConfig = {
   access: accessByTenantRoleWithPermissiveRead('events'),
   admin: {
     baseListFilter: filterByTenant,
-    group: 'Content',
+    group: 'Events',
     defaultColumns: ['title', 'subtitle', 'featuredImage', 'startDate', 'updatedAt'],
     useAsTitle: 'title',
   },
