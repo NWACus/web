@@ -8,7 +8,8 @@
 
 - Event Types
 - Event Sub Types
-- Event Groups (tenant-scoped)
+- Event Series (tenant-scoped)
+- Event Tags (tenant-scoped)
 - Events (optional tenant since could be A3)
 - External Providers (should this be broader to include other external users)
 

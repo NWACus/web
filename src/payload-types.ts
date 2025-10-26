@@ -1432,6 +1432,7 @@ export interface Event {
  */
 export interface EventSery {
   id: number;
+  tenant: number | Tenant;
   title: string;
   description?: string | null;
   slug: string;
@@ -1445,6 +1446,7 @@ export interface EventSery {
  */
 export interface EventTag {
   id: number;
+  tenant: number | Tenant;
   title: string;
   description?: string | null;
   slug: string;
@@ -3059,6 +3061,7 @@ export interface EventSubTypesSelect<T extends boolean = true> {
  * via the `definition` "eventSeries_select".
  */
 export interface EventSeriesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   description?: T;
   slug?: T;
@@ -3071,6 +3074,7 @@ export interface EventSeriesSelect<T extends boolean = true> {
  * via the `definition` "eventTags_select".
  */
 export interface EventTagsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   description?: T;
   slug?: T;

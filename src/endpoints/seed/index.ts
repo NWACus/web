@@ -309,22 +309,42 @@ export const seed = async ({
     )
 
     // Event series and tags
-    await upsertGlobals('eventSeries', payload, incremental, (obj) => obj.slug, [
-      {
-        title: 'Meet Your Forecaster',
-        description: 'Meet your local avalanche forecasters & learn more about your avy center',
-        slug: 'meet-your-forecaster',
-      },
-    ])
+    await upsert(
+      'eventSeries',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'eventSeries'>[] => [
+          {
+            title: 'Meet Your Forecaster',
+            description: 'Meet your local avalanche forecasters & learn more about your avy center',
+            slug: 'meet-your-forecaster',
+            tenant: tenant.id,
+          },
+        ])
+        .flat(),
+    )
 
-    await upsertGlobals('eventTags', payload, incremental, (obj) => obj.slug, [
-      {
-        title: 'Women only',
-        description:
-          'Women-only events are gatherings designed to create a safe, supportive, and empowering space for women to connect, share experiences, and grow',
-        slug: 'women-only',
-      },
-    ])
+    await upsert(
+      'eventTags',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'eventTags'>[] => [
+          {
+            title: 'Women only',
+            description:
+              'Women-only events are gatherings designed to create a safe, supportive, and empowering space for women to connect, share experiences, and grow',
+            slug: 'women-only',
+            tenant: tenant.id,
+          },
+        ])
+        .flat(),
+    )
 
     payload.logger.info(`— Seeding brand media...`)
 
