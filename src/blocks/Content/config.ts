@@ -37,6 +37,28 @@ const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => 
   return true
 }
 
+const DEFAULT_LEXICAL_NODE = {
+  root: {
+    type: 'root',
+    format: '',
+    indent: 0,
+    version: 1,
+    children: [
+      {
+        type: 'paragraph',
+        format: '',
+        indent: 0,
+        version: 1,
+        children: [],
+        direction: 'ltr',
+        textStyle: '',
+        textFormat: 0,
+      },
+    ],
+    direction: 'ltr',
+  },
+}
+
 export const Content: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
@@ -69,6 +91,15 @@ export const Content: Block = {
       validate: validateColumnLayout,
     },
     {
+      type: 'ui',
+      name: 'defaultColumnAdder',
+      admin: {
+        components: {
+          Field: '@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder',
+        },
+      },
+    },
+    {
       name: 'columns',
       label: false,
       labels: {
@@ -76,16 +107,17 @@ export const Content: Block = {
         singular: 'Column',
       },
       required: true,
-      defaultValue: [{}],
       type: 'array',
       admin: {
         initCollapsed: false,
       },
       maxRows: 4,
+      minRows: 1,
       fields: [
         {
           name: 'richText',
           type: 'richText',
+          defaultValue: DEFAULT_LEXICAL_NODE,
           editor: lexicalEditor({
             features: ({ rootFeatures }) => {
               return [
