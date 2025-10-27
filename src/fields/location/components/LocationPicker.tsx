@@ -25,7 +25,6 @@ export function LocationPicker() {
   const stateField = useField<string>({ path: `${path}.state` })
   const zipField = useField<string>({ path: `${path}.zip` })
   const countryField = useField<string>({ path: `${path}.country` })
-  const fullAddressField = useField<string>({ path: `${path}.fullAddress` })
 
   const coordinatesField = useField<[number, number]>({
     path: `${path}.coordinates`,
@@ -48,7 +47,6 @@ export function LocationPicker() {
       zip?: string
       country?: string
       coordinates: [number, number]
-      fullAddress?: string
       mapboxId?: string
       placeType?: string
     }) => {
@@ -59,7 +57,6 @@ export function LocationPicker() {
       zipField.setValue(data.zip || '')
       countryField.setValue(data.country || 'US')
       coordinatesField.setValue(data.coordinates)
-      fullAddressField.setValue(data.fullAddress || '')
       mapboxIdField.setValue(data.mapboxId || '')
       placeTypeField.setValue(data.placeType || '')
     },
@@ -71,7 +68,6 @@ export function LocationPicker() {
       zipField,
       countryField,
       coordinatesField,
-      fullAddressField,
       mapboxIdField,
       placeTypeField,
     ],
@@ -94,7 +90,6 @@ export function LocationPicker() {
       zip: properties.context.postcode?.name,
       country: properties.context.country?.country_code,
       coordinates: [properties.coordinates.longitude, properties.coordinates.latitude],
-      fullAddress: properties.full_address,
       mapboxId: properties.mapbox_id,
       placeType: properties.feature_type,
     })
@@ -136,31 +131,33 @@ export function LocationPicker() {
   return (
     <div className="field-type">
       <FieldLabel htmlFor={path} label="Search for a location" />
-      <div className="flex flex-col gap-2">
-        {mapInstanceRef.current && (
-          <SearchBox
-            accessToken={accessToken}
-            map={mapInstanceRef.current}
-            mapboxgl={mapboxgl}
-            value={inputValue}
-            onChange={(d) => {
-              setInputValue(d)
-            }}
-            options={{
-              types: 'address,poi,place',
-            }}
-            onRetrieve={handleRetrieve}
-            theme={{
-              variables: {
-                unit: '13px',
-              },
-            }}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col">
+          {mapInstanceRef.current && (
+            <SearchBox
+              accessToken={accessToken}
+              map={mapInstanceRef.current}
+              mapboxgl={mapboxgl}
+              value={inputValue}
+              onChange={(d) => {
+                setInputValue(d)
+              }}
+              options={{
+                types: 'address,poi,place',
+              }}
+              onRetrieve={handleRetrieve}
+              theme={{
+                variables: {
+                  unit: '13px',
+                },
+              }}
+            />
+          )}
+          <FieldDescription
+            description="Selecting a location in the search results will populate all of the associated fields below. Be careful, this will override any existing values."
+            path={path}
           />
-        )}
-        <FieldDescription
-          description="Selecting a location in the search results will populate all of the associated fields below. Be careful, this will override any existing values."
-          path={path}
-        />
+        </div>
         <div className="rounded overflow-hidden">
           <div
             id="map-container"

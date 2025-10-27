@@ -65,14 +65,6 @@ const coreLocationFields: Field[] = [
       condition: (_data, siblingData) => !siblingData?.isVirtual,
     },
   },
-  {
-    name: 'fullAddress',
-    type: 'text',
-    admin: {
-      description: 'Full, formatted address',
-      condition: (_data, siblingData) => !siblingData?.isVirtual,
-    },
-  },
 ]
 
 const mapboxFields: Field[] = [

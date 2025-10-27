@@ -1335,10 +1335,6 @@ export interface Event {
      */
     coordinates?: [number, number] | null;
     /**
-     * Full, formatted address
-     */
-    fullAddress?: string | null;
-    /**
      * URL for virtual event (Zoom, Teams, etc.)
      */
     virtualUrl?: string | null;
@@ -2947,7 +2943,6 @@ export interface EventsSelect<T extends boolean = true> {
         zip?: T;
         country?: T;
         coordinates?: T;
-        fullAddress?: T;
         virtualUrl?: T;
         extraInfo?: T;
         mapboxId?: T;

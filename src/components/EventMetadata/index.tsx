@@ -90,23 +90,15 @@ export const EventMetadata = ({
               <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <div>
                 {showLabels && <span className="font-medium">Location: </span>}
-                {/* Display full formatted address if available from geocoding */}
-                {(location as any).fullAddress ? (
-                  <div>{(location as any).fullAddress}</div>
-                ) : (
-                  <>
-                    {/* Display place name (new) or venue (old) */}
-                    {((location as any).placeName || (location as any).venue) && (
-                      <div>{(location as any).placeName || (location as any).venue}</div>
-                    )}
-                    {(location.address || location.city || location.state) && (
-                      <div>
-                        {location.address && <span>{location.address}, </span>}
-                        {location.city && <span>{location.city}, </span>}
-                        {location.state} {(location as any).postalCode || (location as any).zip}
-                      </div>
-                    )}
-                  </>
+                {(location.placeName || location.placeName) && (
+                  <div>{location.placeName || location.placeName}</div>
+                )}
+                {(location.address || location.city || location.state) && (
+                  <div>
+                    {location.address && <span>{location.address}, </span>}
+                    {location.city && <span>{location.city}, </span>}
+                    {location.state} {location.zip || location.zip}
+                  </div>
                 )}
               </div>
             </>
