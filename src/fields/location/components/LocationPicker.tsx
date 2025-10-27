@@ -1,12 +1,16 @@
 'use client'
 
-import { SearchBox } from '@mapbox/search-js-react'
-import { SearchBoxProps } from '@mapbox/search-js-react/dist/components/SearchBox'
+import type { SearchBoxProps } from '@mapbox/search-js-react/dist/components/SearchBox'
 import { FieldDescription, FieldLabel, useField } from '@payloadcms/ui'
 import mapboxgl, { LngLatLike, Marker as MarkerType } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import dynamic from 'next/dynamic'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Marker from './Marker'
+
+const SearchBox = dynamic(() => import('@mapbox/search-js-react').then((mod) => mod.SearchBox), {
+  ssr: false,
+})
 
 const accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -84,7 +88,10 @@ export function LocationPicker() {
 
     handleLocationSelect({
       placeName: properties.name,
-      address: properties.address,
+      address:
+        properties.feature_type === 'address' || properties.feature_type === 'poi'
+          ? properties.address
+          : undefined,
       city: properties.context.place?.name,
       state: properties.context.region?.region_code,
       zip: properties.context.postcode?.name,
