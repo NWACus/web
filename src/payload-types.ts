@@ -1312,58 +1312,32 @@ export interface Event {
         | 'America/Honolulu'
       )
     | null;
-  /**
-   * Search for a location using Mapbox or enter manually
-   */
   location?: {
-    inputMode?: ('geocoded' | 'manual') | null;
     /**
-     * Geographic coordinates (longitude, latitude)
-     *
-     * @minItems 2
-     * @maxItems 2
+     * Check if this is a virtual event
      */
-    coordinates?: [number, number] | null;
+    isVirtual?: boolean | null;
     /**
-     * Street address
+     * Name of the venue or place
      */
+    placeName?: string | null;
     address?: string | null;
-    /**
-     * City name
-     */
     city?: string | null;
-    /**
-     * State or province code (e.g., WA, OR)
-     */
     state?: string | null;
-    /**
-     * ZIP or postal code
-     */
-    postalCode?: string | null;
+    zip?: string | null;
     /**
      * Country code
      */
     country?: string | null;
     /**
-     * Permanent Mapbox place identifier
+     * @minItems 2
+     * @maxItems 2
      */
-    mapboxId?: string | null;
+    coordinates?: [number, number] | null;
     /**
-     * Name of the venue or place
-     */
-    placeName?: string | null;
-    /**
-     * Mapbox place type (e.g., poi, address)
-     */
-    placeType?: string | null;
-    /**
-     * Complete formatted address from Mapbox
+     * Full, formatted address
      */
     fullAddress?: string | null;
-    /**
-     * Check if this is a virtual event
-     */
-    isVirtual?: boolean | null;
     /**
      * URL for virtual event (Zoom, Teams, etc.)
      */
@@ -1372,6 +1346,14 @@ export interface Event {
      * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
      */
     extraInfo?: string | null;
+    /**
+     * Permanent Mapbox place identifier
+     */
+    mapboxId?: string | null;
+    /**
+     * Mapbox place type (e.g., poi, address)
+     */
+    placeType?: string | null;
   };
   featuredImage?: (number | null) | Media;
   /**
@@ -2957,20 +2939,19 @@ export interface EventsSelect<T extends boolean = true> {
   location?:
     | T
     | {
-        inputMode?: T;
-        coordinates?: T;
+        isVirtual?: T;
+        placeName?: T;
         address?: T;
         city?: T;
         state?: T;
-        postalCode?: T;
+        zip?: T;
         country?: T;
-        mapboxId?: T;
-        placeName?: T;
-        placeType?: T;
+        coordinates?: T;
         fullAddress?: T;
-        isVirtual?: T;
         virtualUrl?: T;
         extraInfo?: T;
+        mapboxId?: T;
+        placeType?: T;
       };
   featuredImage?: T;
   registrationUrl?: T;

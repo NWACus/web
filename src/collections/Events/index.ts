@@ -11,7 +11,7 @@ import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
-import { locationField } from '@/fields/LocationField'
+import { locationField } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
@@ -82,14 +82,7 @@ export const Events: CollectionConfig = {
         description: 'Event timezone',
       },
     },
-    locationField({
-      name: 'location',
-      label: 'Event Location',
-      required: false,
-      admin: {
-        description: 'Search for a location using Mapbox or enter manually',
-      },
-    }),
+    locationField(),
     MetaImageField({
       hasGenerateFn: true,
       relationTo: 'media',
