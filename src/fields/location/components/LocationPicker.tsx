@@ -144,6 +144,7 @@ export function LocationPicker() {
               }}
               options={{
                 types: 'address,poi,place',
+                country: 'US',
               }}
               onRetrieve={handleRetrieve}
               theme={{
