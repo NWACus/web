@@ -102,7 +102,7 @@ export function LocationPicker() {
     if (mapContainerRef.current && !mapLoaded) {
       mapInstanceRef.current = new mapboxgl.Map({
         container: mapContainerRef.current,
-        center: coordinates ? coordinates : [-74.5, 40],
+        center: coordinates ? coordinates : [-113, 42.4],
         zoom: 14,
         interactive: false,
       })
