@@ -308,7 +308,7 @@ export const seed = async ({
       [...eventSubTypesData],
     )
 
-    // Event series and tags
+    // Event group and tags
     await upsert(
       'eventGroups',
       payload,

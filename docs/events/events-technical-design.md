@@ -8,7 +8,7 @@
 
 - Event Types
 - Event Sub Types
-- Event Series (tenant-scoped)
+- Event Groups (tenant-scoped)
 - Event Tags (tenant-scoped)
 - Events (optional tenant since could be A3)
 - External Providers (should this be broader to include other external users)
@@ -121,7 +121,7 @@
     - Salesforce hierarchy will be represented by Event Type and Event Sub Type collections + internal/external attribute on Event collection
     - (future) If there is a salesforceId on an Event, only AvyWeb-specific fields will be editable (i.e. content fields, external provider potentially if that’s not included in Salesforce, other fields not managed by Salesforce)
 - Events will have a relationship to an external provider (if they are external)
-- Event Groups will be used to represent a flexible next level of hierarchy for centers. This could be used for things like event series’ like a “Meet your forecaster” event type/style. This should be able to be represented in Salesforce using the campaigns hierarchy.
+- Event Groups will be used to represent a flexible next level of hierarchy for centers. This could be used for things like event groups like a “Meet your forecaster” event type/style. This should be able to be represented in Salesforce using the campaigns hierarchy.
 
 ## Questions / technical things to figure out
 
@@ -161,7 +161,7 @@
 - [x] Initial, simple implementation
 - [x] Add modeOfTravel field to events. Options: ski, splitboard, motorized, snowshoe, any
 - [x] Update look and feel of EventsCollection to match initial designs and only include basic filters for now
-- [ ] Add Event Groups and Event Tags i.e. another thing to group events by (this would represent an event series like multiple meet your forecasters or an attribute of an event like it being 21+ or Women Only/Women Taught or some other generic grouping like that)
+- [x] Add Event Groups and Event Tags i.e. another thing to group events by (this would represent an event group like multiple meet your forecasters or an attribute of an event like it being 21+ or Women Only/Women Taught or some other generic grouping like that)
 - [ ] Enhance EventsCollection UI filtering
   - [ ] "Quick filters" for dates: this week, next week, this month, next month, January, February, etc.
   - [ ] Custom dates filtering
