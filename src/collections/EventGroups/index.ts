@@ -5,9 +5,9 @@ import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { CollectionConfig } from 'payload'
 
-export const EventSeries: CollectionConfig = {
-  slug: 'eventSeries',
-  access: accessByGlobalRoleWithAuthenticatedRead('eventSeries'),
+export const EventGroups: CollectionConfig = {
+  slug: 'eventGroups',
+  access: accessByGlobalRoleWithAuthenticatedRead('eventGroups'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Events',

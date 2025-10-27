@@ -308,9 +308,9 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'eventSeries',
+      name: 'eventGroups',
       type: 'relationship',
-      relationTo: 'eventSeries',
+      relationTo: 'eventGroups',
       hasMany: true,
       admin: {
         position: 'sidebar',

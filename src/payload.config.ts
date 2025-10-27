@@ -10,8 +10,8 @@ import { fileURLToPath } from 'url'
 import { Biographies } from '@/collections/Biographies'
 import { BuiltInPages } from '@/collections/BuiltInPages'
 import { Documents } from '@/collections/Documents'
+import { EventGroups } from '@/collections/EventGroups'
 import { Events } from '@/collections/Events'
-import { EventSeries } from '@/collections/EventSeries'
 import { EventSubTypes } from '@/collections/EventSubTypes'
 import { EventTags } from '@/collections/EventTags'
 import { EventTypes } from '@/collections/EventTypes'
@@ -172,7 +172,7 @@ export default buildConfig({
     Events,
     EventTypes,
     EventSubTypes,
-    EventSeries,
+    EventGroups,
     EventTags,
     // Staff
     Biographies,

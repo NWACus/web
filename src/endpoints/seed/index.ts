@@ -53,7 +53,7 @@ const collections: CollectionSlug[] = [
   'eventTypes',
   'eventSubTypes',
   'events',
-  'eventSeries',
+  'eventGroups',
   'eventTags',
 ]
 const defaultNacWidgetsConfig = {
@@ -233,7 +233,7 @@ export const seed = async ({
             collections: [
               'navigations',
               'tenants',
-              'eventSeries',
+              'eventGroups',
               'eventTags',
               'eventTypes',
               'eventSubTypes',
@@ -261,7 +261,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventSeries', 'eventTags', 'eventTypes', 'eventSubTypes'],
+            collections: ['eventGroups', 'eventTags', 'eventTypes', 'eventSubTypes'],
             actions: ['read'],
           },
         ],
@@ -286,7 +286,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventSeries', 'eventTags', 'eventTypes', 'eventSubTypes'],
+            collections: ['eventGroups', 'eventTags', 'eventTypes', 'eventSubTypes'],
             actions: ['read'],
           },
         ],
@@ -310,13 +310,13 @@ export const seed = async ({
 
     // Event series and tags
     await upsert(
-      'eventSeries',
+      'eventGroups',
       payload,
       incremental,
       tenantsById,
       (obj) => obj.slug,
       Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'eventSeries'>[] => [
+        .map((tenant): RequiredDataFromCollectionSlug<'eventGroups'>[] => [
           {
             title: 'Meet Your Forecaster',
             description: 'Meet your local avalanche forecasters & learn more about your avy center',

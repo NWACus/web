@@ -78,7 +78,7 @@ export interface Config {
     events: Event;
     eventTypes: EventType;
     eventSubTypes: EventSubType;
-    eventSeries: EventSery;
+    eventGroups: EventGroup;
     eventTags: EventTag;
     biographies: Biography;
     teams: Team;
@@ -115,7 +115,7 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     eventTypes: EventTypesSelect<false> | EventTypesSelect<true>;
     eventSubTypes: EventSubTypesSelect<false> | EventSubTypesSelect<true>;
-    eventSeries: EventSeriesSelect<false> | EventSeriesSelect<true>;
+    eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
     eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
@@ -1415,7 +1415,7 @@ export interface Event {
    * Optional event sub type
    */
   eventSubType?: (number | null) | EventSubType;
-  eventSeries?: (number | EventSery)[] | null;
+  eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
   /**
    * Mode of travel for this event
@@ -1428,9 +1428,9 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventSeries".
+ * via the `definition` "eventGroups".
  */
-export interface EventSery {
+export interface EventGroup {
   id: number;
   tenant: number | Tenant;
   title: string;
@@ -2309,8 +2309,8 @@ export interface PayloadLockedDocument {
         value: number | EventSubType;
       } | null)
     | ({
-        relationTo: 'eventSeries';
-        value: number | EventSery;
+        relationTo: 'eventGroups';
+        value: number | EventGroup;
       } | null)
     | ({
         relationTo: 'eventTags';
@@ -3019,7 +3019,7 @@ export interface EventsSelect<T extends boolean = true> {
   slug?: T;
   eventType?: T;
   eventSubType?: T;
-  eventSeries?: T;
+  eventGroups?: T;
   eventTags?: T;
   modeOfTravel?: T;
   tenant?: T;
@@ -3058,9 +3058,9 @@ export interface EventSubTypesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventSeries_select".
+ * via the `definition` "eventGroups_select".
  */
-export interface EventSeriesSelect<T extends boolean = true> {
+export interface EventGroupsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   description?: T;
