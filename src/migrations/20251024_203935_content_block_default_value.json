@@ -397,7 +397,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}'"
+          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[],\"direction\":\"ltr\",\"textStyle\":\"\",\"textFormat\":0}],\"direction\":\"ltr\"}}'"
         }
       },
       "indexes": {
@@ -2885,7 +2885,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}'"
+          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[],\"direction\":\"ltr\",\"textStyle\":\"\",\"textFormat\":0}],\"direction\":\"ltr\"}}'"
         },
         "_uuid": {
           "name": "_uuid",
@@ -5494,7 +5494,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}'"
+          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[],\"direction\":\"ltr\",\"textStyle\":\"\",\"textFormat\":0}],\"direction\":\"ltr\"}}'"
         }
       },
       "indexes": {
@@ -7779,7 +7779,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}'"
+          "default": "'{\"root\":{\"type\":\"root\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[{\"type\":\"paragraph\",\"format\":\"\",\"indent\":0,\"version\":1,\"children\":[],\"direction\":\"ltr\",\"textStyle\":\"\",\"textFormat\":0}],\"direction\":\"ltr\"}}'"
         },
         "_uuid": {
           "name": "_uuid",
