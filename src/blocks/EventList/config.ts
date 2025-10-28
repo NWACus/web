@@ -1,5 +1,4 @@
-import { eventSubTypesData } from '@/collections/Events/components/eventSubTypes'
-import { eventTypesData } from '@/collections/Events/components/eventTypes'
+import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import colorPickerField from '@/fields/color'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {

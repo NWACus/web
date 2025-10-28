@@ -23,8 +23,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
-import { eventSubTypesData } from './components/eventSubTypes'
-import { eventTypesData } from './components/eventTypes'
+import { eventSubTypesData, eventTypesData } from './constants'
 
 export const Events: CollectionConfig = {
   slug: 'events',

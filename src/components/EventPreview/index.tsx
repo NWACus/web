@@ -2,8 +2,7 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
-import { eventSubTypesData } from '@/collections/Events/components/eventSubTypes'
-import { eventTypesData } from '@/collections/Events/components/eventTypes'
+import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { EventMetadata } from '../EventMetadata'

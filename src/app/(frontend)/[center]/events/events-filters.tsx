@@ -1,6 +1,5 @@
 'use client'
-import { EventSubType } from '@/collections/Events/components/eventSubTypes'
-import { EventType } from '@/collections/Events/components/eventTypes'
+import { EventSubType, EventType } from '@/collections/Events/constants'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
