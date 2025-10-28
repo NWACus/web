@@ -75,7 +75,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const typeIds = filterByEventTypes.filter(Boolean)
 
           if (typeIds.length > 0) {
-            params.append('where[eventType][in]', typeIds.join(','))
+            params.append('where[or][0][eventType][in]', typeIds.join(','))
           }
         }
 
@@ -87,7 +87,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const subTypeIds = filterByEventSubTypes.filter(Boolean)
 
           if (subTypeIds.length > 0) {
-            params.append('where[eventSubType][in]', subTypeIds.join(','))
+            params.append('where[or][1][eventSubType][in]', subTypeIds.join(','))
           }
         }
 

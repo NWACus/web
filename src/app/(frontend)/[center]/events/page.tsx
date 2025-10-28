@@ -41,22 +41,24 @@ export default async function Page({ params, searchParams }: Args) {
     return notFound()
   }
 
+  const orConditions: Where[] = []
+
+  if (selectedTypes?.length) {
+    orConditions.push({ eventType: { in: selectedTypes } })
+  }
+
+  if (selectedSubTypes?.length) {
+    orConditions.push({ eventSubType: { in: selectedSubTypes } })
+  }
+
   const whereConditions: Where = {
     'tenant.slug': {
       equals: center,
     },
   }
 
-  if (selectedTypes && selectedTypes.length > 0) {
-    whereConditions['eventType'] = {
-      in: selectedTypes,
-    }
-  }
-
-  if (selectedSubTypes && selectedSubTypes.length > 0) {
-    whereConditions['eventSubType'] = {
-      in: selectedSubTypes,
-    }
+  if (orConditions.length > 0) {
+    whereConditions.or = orConditions
   }
 
   const events = await payload.find({
