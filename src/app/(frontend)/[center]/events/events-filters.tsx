@@ -67,10 +67,7 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
               const typeId = type.value
               const isTypeChecked = selectedTypes.includes(typeId)
               const childSubTypes = eventSubTypes.filter((subType) => {
-                const parentTypeId =
-                  typeof subType.eventType === 'object' && subType.eventType
-                    ? String(subType.eventType)
-                    : String(subType.eventType)
+                const parentTypeId = subType.eventType
                 return parentTypeId === typeId
               })
 
