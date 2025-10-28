@@ -23,6 +23,8 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
+import { eventSubTypesData } from './components/eventSubTypes'
+import { eventTypesData } from './components/eventTypes'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -286,77 +288,47 @@ export const Events: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
-      options: [
-        {
-          label: 'Events By AC',
-          value: 'events-by-ac',
-        },
-        {
-          label: 'Awareness',
-          value: 'awareness',
-        },
-        {
-          label: 'Workshop',
-          value: 'workshop',
-        },
-        {
-          label: 'Field Class by AC',
-          value: 'field-class-by-ac',
-        },
-        {
-          label: 'Course by External Provider',
-          value: 'course-by-external-provider',
-        },
-        {
-          label: 'Volunteer',
-          value: 'volunteer',
-        },
-      ],
+      hooks: {
+        beforeChange: [
+          ({ value, siblingData }) => {
+            if (value !== 'field-class-by-ac' && value !== 'course-by-external-provider') {
+              siblingData.eventSubType = undefined
+            }
+            return value
+          },
+        ],
+      },
+      options: eventTypesData.map((eventType) => ({
+        label: eventType.label,
+        value: eventType.value,
+      })),
     },
     {
       name: 'eventSubType',
       type: 'select',
       admin: {
         position: 'sidebar',
+        condition: (_, siblingData) =>
+          siblingData?.eventType === 'field-class-by-ac' ||
+          siblingData?.eventType === 'course-by-external-provider',
       },
-      options: [
-        // eventType: 'field-class-by-ac',
-        {
-          label: 'Snowmobile Classes',
-          value: 'snowmobile-classes',
-        },
-        // Sub-types for Course by External Provider (A3 courses)
-        //eventType: 'course-by-external-provider',
-        {
-          label: 'Rec 1',
-          value: 'rec-1',
-        },
-        //eventType: 'course-by-external-provider',
-        {
-          label: 'Rec 2',
-          value: 'rec-2',
-        },
-        //eventType: 'course-by-external-provider',
-        {
-          label: 'Pro 1',
-          value: 'pro-1',
-        },
-        //eventType: 'course-by-external-provider',
-        {
-          label: 'Pro 2',
-          value: 'pro-2',
-        },
-        //eventType: 'course-by-external-provider',
-        {
-          label: 'Rescue',
-          value: 'rescue',
-        },
-        //eventType: 'course-by-external-provider',
-        {
-          label: 'Awareness',
-          value: 'awareness-external',
-        },
-      ],
+      options: eventSubTypesData.map((eventSubType) => ({
+        label: eventSubType.label,
+        value: eventSubType.value,
+      })),
+      filterOptions: ({ data, options }) => {
+        if (!data.eventType) return options
+
+        // Get all allowed values for the selected eventType from the data
+        const allowedValues = eventSubTypesData
+          .filter((subType) => subType.eventType === data.eventType)
+          .map((subType) => subType.value)
+
+        return options.filter((option) => {
+          const optionValue = typeof option === 'string' ? option : option.value
+          return allowedValues.includes(optionValue)
+        })
+      },
     },
     {
       name: 'eventGroups',

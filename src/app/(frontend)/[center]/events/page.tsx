@@ -3,7 +3,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
 import { Suspense } from 'react'
 
-import { getEventSubTypesData } from '@/collections/Events/components/eventSubTypes'
+import { eventSubTypesData } from '@/collections/Events/components/eventSubTypes'
 import { eventTypesData } from '@/collections/Events/components/eventTypes'
 import { EventCollection } from '@/components/EventCollection'
 import { PageRange } from '@/components/PageRange'
@@ -79,7 +79,7 @@ export default async function Page({ params, searchParams }: Args) {
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
           <Suspense fallback={<div>Loading filters...</div>}>
-            <EventsFilters eventTypes={eventTypesData} eventSubTypes={getEventSubTypesData()} />
+            <EventsFilters eventTypes={eventTypesData} eventSubTypes={eventSubTypesData} />
           </Suspense>
         </div>
       </div>
