@@ -1,7 +1,6 @@
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
-import { Suspense } from 'react'
 
 import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import { EventCollection } from '@/components/EventCollection'
@@ -79,15 +78,11 @@ export default async function Page({ params, searchParams }: Args) {
     <div className="pt-4">
       <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
         <div className="grow">
-          <Suspense fallback={<div>Loading events...</div>}>
-            <EventCollection events={events.docs} />
-          </Suspense>
+          <EventCollection events={events.docs} />
         </div>
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <Suspense fallback={<div>Loading filters...</div>}>
-            <EventsFilters eventTypes={eventTypesData} eventSubTypes={eventSubTypesData} />
-          </Suspense>
+          <EventsFilters eventTypes={eventTypesData} eventSubTypes={eventSubTypesData} />
         </div>
       </div>
 
