@@ -1,6 +1,7 @@
 'use client'
+import { EventSubType } from '@/collections/Events/components/eventSubTypes'
+import { EventType } from '@/collections/Events/components/eventTypes'
 import { Checkbox } from '@/components/ui/checkbox'
-import { EventSubType, EventType } from '@/payload-types'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -64,18 +65,18 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
           <hr className="p-2" />
           <ul className="flex flex-col gap-1.5 p-0 list-none">
             {eventTypes.map((type) => {
-              const typeId = String(type.id)
+              const typeId = String(type.slug)
               const isTypeChecked = selectedTypes.includes(typeId)
               const childSubTypes = eventSubTypes.filter((subType) => {
                 const parentTypeId =
                   typeof subType.eventType === 'object' && subType.eventType
-                    ? String(subType.eventType.id)
+                    ? String(subType.eventType)
                     : String(subType.eventType)
                 return parentTypeId === typeId
               })
 
               return (
-                <li key={type.id}>
+                <li key={type.slug}>
                   <div
                     className="cursor-pointer flex items-center"
                     onClick={() => toggleType(typeId)}
@@ -88,10 +89,10 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
                   {childSubTypes.length > 0 && (
                     <ul className="flex flex-col gap-1.5 p-0 list-none ml-6 mt-1.5">
                       {childSubTypes.map((subType) => {
-                        const subTypeId = String(subType.id)
+                        const subTypeId = String(subType.slug)
                         const isSubTypeChecked = selectedSubTypes.includes(subTypeId)
                         return (
-                          <li key={subType.id}>
+                          <li key={subType.slug}>
                             <div
                               className="cursor-pointer flex items-center"
                               onClick={() => toggleSubType(subTypeId)}

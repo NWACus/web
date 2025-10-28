@@ -1,6 +1,11 @@
-import { RequiredDataFromCollectionSlug } from 'payload'
-
-export const eventTypesData: RequiredDataFromCollectionSlug<'eventTypes'>[] = [
+export type EventType = {
+  title: string
+  description?: string | null
+  crmId?: string | null
+  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null
+  slug: string
+}
+export const eventTypesData: EventType[] = [
   {
     title: 'Events By AC',
     description:

@@ -1,19 +1,19 @@
-import { EventType } from '@/payload-types'
-import { RequiredDataFromCollectionSlug } from 'payload'
-
-export const getEventSubTypesData = (
-  eventTypes: Record<string, EventType>,
-): RequiredDataFromCollectionSlug<'eventSubTypes'>[] => {
-  const fieldClassByAC = eventTypes['field-class-by-ac']
-  const courseByExternalProvider = eventTypes['course-by-external-provider']
-
+export type EventSubType = {
+  title: string
+  description?: string | null
+  eventType: string
+  crmId?: string | null
+  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null
+  slug: string
+}
+export const getEventSubTypesData = (): EventSubType[] => {
   return [
     // Sub-types for Field Class by AC
     {
       title: 'Snowmobile Classes',
       description:
         'Avalanche safety and rescue training specifically designed for snowmobile users and backcountry riders.',
-      eventType: fieldClassByAC.id,
+      eventType: 'field-class-by-ac',
       slug: 'snowmobile-classes',
       crmId: 'snowmobile_classes',
       crmIntegration: 'ac-salesforce',
@@ -24,7 +24,7 @@ export const getEventSubTypesData = (
       title: 'Rec 1',
       description:
         'Recreational Level 1: Introduction to avalanche safety for recreational backcountry travelers. Covers avalanche basics, rescue, and decision-making.',
-      eventType: courseByExternalProvider.id,
+      eventType: 'course-by-external-provider',
       slug: 'rec-1',
       crmId: 'rec_1',
       crmIntegration: 'a3-crm',
@@ -33,7 +33,7 @@ export const getEventSubTypesData = (
       title: 'Rec 2',
       description:
         'Recreational Level 2: Advanced avalanche course building on Rec 1. Emphasizes weather, snowpack analysis, and complex terrain travel.',
-      eventType: courseByExternalProvider.id,
+      eventType: 'course-by-external-provider',
       slug: 'rec-2',
       crmId: 'rec_2',
       crmIntegration: 'a3-crm',
@@ -42,7 +42,7 @@ export const getEventSubTypesData = (
       title: 'Pro 1',
       description:
         'Professional Level 1: Entry-level professional avalanche training for ski patrollers, guides, and others working in avalanche terrain.',
-      eventType: courseByExternalProvider.id,
+      eventType: 'course-by-external-provider',
       slug: 'pro-1',
       crmId: 'pro_1',
       crmIntegration: 'a3-crm',
@@ -51,7 +51,7 @@ export const getEventSubTypesData = (
       title: 'Pro 2',
       description:
         'Professional Level 2: Advanced professional avalanche course covering forecasting, explosives, and avalanche program management.',
-      eventType: courseByExternalProvider.id,
+      eventType: 'course-by-external-provider',
       slug: 'pro-2',
       crmId: 'pro_2',
       crmIntegration: 'a3-crm',
@@ -60,7 +60,7 @@ export const getEventSubTypesData = (
       title: 'Rescue',
       description:
         'Avalanche rescue courses focusing on companion rescue, search techniques, and emergency response in avalanche terrain.',
-      eventType: courseByExternalProvider.id,
+      eventType: 'course-by-external-provider',
       slug: 'rescue',
       crmId: 'rescue',
       crmIntegration: 'a3-crm',
@@ -69,7 +69,7 @@ export const getEventSubTypesData = (
       title: 'Awareness',
       description:
         'Introductory avalanche awareness sessions offered by external providers, covering basic avalanche safety concepts.',
-      eventType: courseByExternalProvider.id,
+      eventType: 'course-by-external-provider',
       slug: 'awareness-external',
       crmId: 'awareness_external',
       crmIntegration: 'a3-crm',

@@ -3,6 +3,8 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
 import { Suspense } from 'react'
 
+import { getEventSubTypesData } from '@/collections/Events/components/eventSubTypes'
+import { eventTypesData } from '@/collections/Events/components/eventTypes'
 import { EventCollection } from '@/components/EventCollection'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
@@ -66,22 +68,6 @@ export default async function Page({ params, searchParams }: Args) {
     where: whereConditions,
   })
 
-  const eventTypes = await payload.find({
-    collection: 'eventTypes',
-    depth: 1,
-    limit: 99,
-    pagination: false,
-    sort: 'name',
-  })
-
-  const eventSubTypes = await payload.find({
-    collection: 'eventSubTypes',
-    depth: 1,
-    limit: 99,
-    pagination: false,
-    sort: 'name',
-  })
-
   return (
     <div className="pt-4">
       <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
@@ -93,7 +79,7 @@ export default async function Page({ params, searchParams }: Args) {
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
           <Suspense fallback={<div>Loading filters...</div>}>
-            <EventsFilters eventTypes={eventTypes.docs} eventSubTypes={eventSubTypes.docs} />
+            <EventsFilters eventTypes={eventTypesData} eventSubTypes={getEventSubTypesData()} />
           </Suspense>
         </div>
       </div>

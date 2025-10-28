@@ -17,8 +17,6 @@ import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { getEventsData } from './events'
-import { getEventSubTypesData } from './eventSubTypes'
-import { eventTypesData } from './eventTypes'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
@@ -50,8 +48,6 @@ const collections: CollectionSlug[] = [
   'teams',
   'builtInPages',
   'tenants',
-  'eventTypes',
-  'eventSubTypes',
   'events',
   'eventGroups',
   'eventTags',
@@ -232,7 +228,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['navigations', 'tenants', 'eventTypes', 'eventSubTypes'],
+            collections: ['navigations', 'tenants'],
             actions: ['read'],
           },
         ],
@@ -256,7 +252,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventGroups', 'eventTags', 'eventTypes', 'eventSubTypes'],
+            collections: ['eventGroups', 'eventTags'],
             actions: ['read'],
           },
         ],
@@ -281,29 +277,14 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventGroups', 'eventTags', 'eventTypes', 'eventSubTypes'],
+            collections: ['eventGroups', 'eventTags'],
             actions: ['read'],
           },
         ],
       },
     ])
 
-    // Event Types
-    const eventTypes = await upsertGlobals('eventTypes', payload, incremental, (obj) => obj.slug, [
-      ...eventTypesData,
-    ])
-
-    // Event Sub Types (requires eventTypes to be created first)
-    const eventSubTypesData = getEventSubTypesData(eventTypes)
-    const eventSubTypes = await upsertGlobals(
-      'eventSubTypes',
-      payload,
-      incremental,
-      (obj) => obj.slug,
-      [...eventSubTypesData],
-    )
-
-    // Event group and tags
+    // Event groups
     await upsert(
       'eventGroups',
       payload,
@@ -322,6 +303,7 @@ export const seed = async ({
         .flat(),
     )
 
+    // Event tags
     await upsert(
       'eventTags',
       payload,
@@ -781,12 +763,7 @@ export const seed = async ({
       (obj) => obj.slug,
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
-          return getEventsData(
-            tenant,
-            eventTypes,
-            eventSubTypes,
-            images[tenant.slug]['imageMountain'],
-          )
+          return getEventsData(tenant, images[tenant.slug]['imageMountain'])
         })
         .flat(),
     )

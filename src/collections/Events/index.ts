@@ -281,31 +281,82 @@ export const Events: CollectionConfig = {
     slugField(),
     {
       name: 'eventType',
-      type: 'relationship',
-      relationTo: 'eventTypes',
+      type: 'select',
       required: true,
       admin: {
         position: 'sidebar',
       },
+      options: [
+        {
+          label: 'Events By AC',
+          value: 'events-by-ac',
+        },
+        {
+          label: 'Awareness',
+          value: 'awareness',
+        },
+        {
+          label: 'Workshop',
+          value: 'workshop',
+        },
+        {
+          label: 'Field Class by AC',
+          value: 'field-class-by-ac',
+        },
+        {
+          label: 'Course by External Provider',
+          value: 'course-by-external-provider',
+        },
+        {
+          label: 'Volunteer',
+          value: 'volunteer',
+        },
+      ],
     },
     {
       name: 'eventSubType',
-      type: 'relationship',
-      relationTo: 'eventSubTypes',
-      filterOptions: ({ data }) => {
-        // Only show subtypes for the selected type
-        if (data?.eventType) {
-          return {
-            eventType: { equals: data.eventType },
-          }
-        }
-        return false
-      },
+      type: 'select',
       admin: {
-        condition: (_data, siblingData) => siblingData?.eventType,
         position: 'sidebar',
-        description: 'Optional event sub type',
       },
+      options: [
+        // eventType: 'field-class-by-ac',
+        {
+          label: 'Snowmobile Classes',
+          value: 'snowmobile-classes',
+        },
+        // Sub-types for Course by External Provider (A3 courses)
+        //eventType: 'course-by-external-provider',
+        {
+          label: 'Rec 1',
+          value: 'rec-1',
+        },
+        //eventType: 'course-by-external-provider',
+        {
+          label: 'Rec 2',
+          value: 'rec-2',
+        },
+        //eventType: 'course-by-external-provider',
+        {
+          label: 'Pro 1',
+          value: 'pro-1',
+        },
+        //eventType: 'course-by-external-provider',
+        {
+          label: 'Pro 2',
+          value: 'pro-2',
+        },
+        //eventType: 'course-by-external-provider',
+        {
+          label: 'Rescue',
+          value: 'rescue',
+        },
+        //eventType: 'course-by-external-provider',
+        {
+          label: 'Awareness',
+          value: 'awareness-external',
+        },
+      ],
     },
     {
       name: 'eventGroups',
