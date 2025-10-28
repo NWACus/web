@@ -50,13 +50,13 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   if (selectedTypes && selectedTypes.length > 0) {
-    whereConditions['eventType.id'] = {
+    whereConditions['eventType'] = {
       in: selectedTypes,
     }
   }
 
   if (selectedSubTypes && selectedSubTypes.length > 0) {
-    whereConditions['eventSubType.id'] = {
+    whereConditions['eventSubType'] = {
       in: selectedSubTypes,
     }
   }

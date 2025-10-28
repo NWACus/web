@@ -2,6 +2,8 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
+import { eventSubTypesData } from '@/collections/Events/components/eventSubTypes'
+import { eventTypesData } from '@/collections/Events/components/eventTypes'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { EventMetadata } from '../EventMetadata'
@@ -60,8 +62,12 @@ export const EventPreview = (props: {
 
   const eventUrl = `/events/${slug}`
 
-  const eventTypeName = eventType ? eventType : null
-  const eventSubTypeName = eventSubType ? eventSubType : null
+  const eventTypeName = eventType
+    ? eventTypesData.find((et) => et.value === eventType)?.label
+    : null
+  const eventSubTypeName = eventSubType
+    ? eventSubTypesData.find((et) => et.value === eventSubType)?.label
+    : null
 
   const typeDisplayText =
     eventTypeName && eventSubTypeName
@@ -81,10 +87,10 @@ export const EventPreview = (props: {
       )}
     >
       {startDate && (
-        <div className="hidden @md:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0">
+        <div className="hidden @md:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0 p-4">
           <div className="flex flex-col">
-            <div className="text-3xl font-bold">{month}</div>
-            <div className="text-3xl font-bold leading-none">{day}</div>
+            <div className="text-2xl font-bold">{month}</div>
+            <div className="text-2xl font-bold leading-none">{day}</div>
           </div>
           <div className="text-sm">{year}</div>
         </div>
