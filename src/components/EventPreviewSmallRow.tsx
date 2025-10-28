@@ -38,9 +38,8 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
   const eventUrl = externalEventUrl || `/events/${slug}`
   const isExternal = !!externalEventUrl
 
-  const eventTypeName = eventType && typeof eventType !== 'number' ? eventType.title : null
-  const eventSubTypeName =
-    eventSubType && typeof eventSubType !== 'number' ? eventSubType.title : null
+  const eventTypeName = eventType ? eventType : null
+  const eventSubTypeName = eventSubType ? eventSubType : null
 
   const typeDisplayText =
     eventTypeName && eventSubTypeName

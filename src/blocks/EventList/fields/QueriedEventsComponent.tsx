@@ -1,6 +1,6 @@
 'use client'
 
-import { Event, EventSubType, EventType } from '@/payload-types'
+import { Event } from '@/payload-types'
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { FieldDescription, SelectInput, useField, useForm, useFormFields } from '@payloadcms/ui'
 import { OptionObject } from 'payload'
@@ -72,9 +72,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           Array.isArray(filterByEventTypes) &&
           filterByEventTypes.length > 0
         ) {
-          const typeIds = filterByEventTypes
-            .map((type: number | EventType) => (typeof type === 'number' ? type : type.id))
-            .filter(Boolean)
+          const typeIds = filterByEventTypes.filter(Boolean)
 
           if (typeIds.length > 0) {
             params.append('where[eventType][in]', typeIds.join(','))
@@ -86,11 +84,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           Array.isArray(filterByEventSubTypes) &&
           filterByEventSubTypes.length > 0
         ) {
-          const subTypeIds = filterByEventSubTypes
-            .map((subType: number | EventSubType) =>
-              typeof subType === 'number' ? subType : subType.id,
-            )
-            .filter(Boolean)
+          const subTypeIds = filterByEventSubTypes.filter(Boolean)
 
           if (subTypeIds.length > 0) {
             params.append('where[eventSubType][in]', subTypeIds.join(','))

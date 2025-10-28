@@ -65,7 +65,7 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
           <hr className="p-2" />
           <ul className="flex flex-col gap-1.5 p-0 list-none">
             {eventTypes.map((type) => {
-              const typeId = String(type.slug)
+              const typeId = type.value
               const isTypeChecked = selectedTypes.includes(typeId)
               const childSubTypes = eventSubTypes.filter((subType) => {
                 const parentTypeId =
@@ -76,30 +76,30 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
               })
 
               return (
-                <li key={type.slug}>
+                <li key={type.value}>
                   <div
                     className="cursor-pointer flex items-center"
                     onClick={() => toggleType(typeId)}
                     aria-pressed={isTypeChecked}
                   >
                     <Checkbox className="mr-2" checked={isTypeChecked} />
-                    {type.title}
+                    {type.label}
                   </div>
 
                   {childSubTypes.length > 0 && (
                     <ul className="flex flex-col gap-1.5 p-0 list-none ml-6 mt-1.5">
                       {childSubTypes.map((subType) => {
-                        const subTypeId = String(subType.slug)
+                        const subTypeId = subType.value
                         const isSubTypeChecked = selectedSubTypes.includes(subTypeId)
                         return (
-                          <li key={subType.slug}>
+                          <li key={subType.value}>
                             <div
                               className="cursor-pointer flex items-center"
                               onClick={() => toggleSubType(subTypeId)}
                               aria-pressed={isSubTypeChecked}
                             >
                               <Checkbox className="mr-2" checked={isSubTypeChecked} />
-                              {subType.title}
+                              {subType.label}
                             </div>
                           </li>
                         )

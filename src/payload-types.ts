@@ -76,8 +76,6 @@ export interface Config {
     sponsors: Sponsor;
     tags: Tag;
     events: Event;
-    eventTypes: EventType;
-    eventSubTypes: EventSubType;
     eventGroups: EventGroup;
     eventTags: EventTag;
     biographies: Biography;
@@ -113,8 +111,6 @@ export interface Config {
     sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
-    eventTypes: EventTypesSelect<false> | EventTypesSelect<true>;
-    eventSubTypes: EventSubTypesSelect<false> | EventSubTypesSelect<true>;
     eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
     eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
@@ -1229,11 +1225,22 @@ export interface EventListBlock {
     /**
      * Optionally select event types to filter events in this list by.
      */
-    filterByEventTypes?: (number | EventType)[] | null;
+    filterByEventTypes?:
+      | (
+          | 'events-by-ac'
+          | 'awareness'
+          | 'workshop'
+          | 'field-class-by-ac'
+          | 'course-by-external-provider'
+          | 'volunteer'
+        )[]
+      | null;
     /**
      * Optionally select event sub types to filter events in this list by.
      */
-    filterByEventSubTypes?: (number | EventSubType)[] | null;
+    filterByEventSubTypes?:
+      | ('snowmobile-classes' | 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[]
+      | null;
     /**
      * Only display events that have not yet occurred.
      */
@@ -1253,46 +1260,6 @@ export interface EventListBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'eventList';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTypes".
- */
-export interface EventType {
-  id: number;
-  title: string;
-  description?: string | null;
-  /**
-   * Maps this type to it's associated representation in the CRM Integration
-   */
-  crmId?: string | null;
-  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventSubTypes".
- */
-export interface EventSubType {
-  id: number;
-  title: string;
-  description?: string | null;
-  /**
-   * The parent event type for this sub type
-   */
-  eventType: number | EventType;
-  /**
-   * Maps this type to it's associated representation in the CRM Integration
-   */
-  crmId?: string | null;
-  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1410,11 +1377,16 @@ export interface Event {
       }[]
     | null;
   slug: string;
-  eventType: number | EventType;
-  /**
-   * Optional event sub type
-   */
-  eventSubType?: (number | null) | EventSubType;
+  eventType:
+    | 'events-by-ac'
+    | 'awareness'
+    | 'workshop'
+    | 'field-class-by-ac'
+    | 'course-by-external-provider'
+    | 'volunteer';
+  eventSubType?:
+    | ('snowmobile-classes' | 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')
+    | null;
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
   /**
@@ -2301,14 +2273,6 @@ export interface PayloadLockedDocument {
         value: number | Event;
       } | null)
     | ({
-        relationTo: 'eventTypes';
-        value: number | EventType;
-      } | null)
-    | ({
-        relationTo: 'eventSubTypes';
-        value: number | EventSubType;
-      } | null)
-    | ({
         relationTo: 'eventGroups';
         value: number | EventGroup;
       } | null)
@@ -3023,35 +2987,6 @@ export interface EventsSelect<T extends boolean = true> {
   eventTags?: T;
   modeOfTravel?: T;
   tenant?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTypes_select".
- */
-export interface EventTypesSelect<T extends boolean = true> {
-  title?: T;
-  description?: T;
-  crmId?: T;
-  crmIntegration?: T;
-  slug?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventSubTypes_select".
- */
-export interface EventSubTypesSelect<T extends boolean = true> {
-  title?: T;
-  description?: T;
-  eventType?: T;
-  crmId?: T;
-  crmIntegration?: T;
-  slug?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

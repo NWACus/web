@@ -60,9 +60,8 @@ export const EventPreview = (props: {
 
   const eventUrl = `/events/${slug}`
 
-  const eventTypeName = eventType && typeof eventType !== 'number' ? eventType.title : null
-  const eventSubTypeName =
-    eventSubType && typeof eventSubType !== 'number' ? eventSubType.title : null
+  const eventTypeName = eventType ? eventType : null
+  const eventSubTypeName = eventSubType ? eventSubType : null
 
   const typeDisplayText =
     eventTypeName && eventSubTypeName
