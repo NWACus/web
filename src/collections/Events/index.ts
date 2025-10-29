@@ -281,7 +281,7 @@ export const Events: CollectionConfig = {
     // Sidebar
     slugField(),
     {
-      name: 'eventType',
+      name: 'type',
       type: 'select',
       required: true,
       admin: {
@@ -303,7 +303,7 @@ export const Events: CollectionConfig = {
       })),
     },
     {
-      name: 'eventSubType',
+      name: 'subType',
       type: 'select',
       admin: {
         position: 'sidebar',

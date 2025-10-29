@@ -12,16 +12,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
 
   if (!doc) return null
 
-  const {
-    featuredImage,
-    startDate,
-    slug,
-    title,
-    location,
-    externalEventUrl,
-    eventType,
-    eventSubType,
-  } = doc
+  const { featuredImage, startDate, slug, title, location, externalEventUrl, type, subType } = doc
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -38,8 +29,8 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
   const eventUrl = externalEventUrl || `/events/${slug}`
   const isExternal = !!externalEventUrl
 
-  const eventTypeName = eventType ? eventType : null
-  const eventSubTypeName = eventSubType ? eventSubType : null
+  const eventTypeName = type ? type : null
+  const eventSubTypeName = subType ? subType : null
 
   const typeDisplayText =
     eventTypeName && eventSubTypeName

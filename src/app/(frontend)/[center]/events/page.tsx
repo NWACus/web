@@ -44,11 +44,11 @@ export default async function Page({ params, searchParams }: Args) {
   const orConditions: Where[] = []
 
   if (selectedTypes?.length) {
-    orConditions.push({ eventType: { in: selectedTypes } })
+    orConditions.push({ type: { in: selectedTypes } })
   }
 
   if (selectedSubTypes?.length) {
-    orConditions.push({ eventSubType: { in: selectedSubTypes } })
+    orConditions.push({ subType: { in: selectedSubTypes } })
   }
 
   const whereConditions: Where = {
@@ -76,7 +76,7 @@ export default async function Page({ params, searchParams }: Args) {
         </div>
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <EventsFilters eventTypes={eventTypesData} eventSubTypes={eventSubTypesData} />
+          <EventsFilters types={eventTypesData} subTypes={eventSubTypesData} />
         </div>
       </div>
 

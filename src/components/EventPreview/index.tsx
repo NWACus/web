@@ -27,8 +27,8 @@ export type EventPreviewData = Pick<
   | 'registrationDeadline'
   | 'registrationUrl'
   | 'externalEventUrl'
-  | 'eventType'
-  | 'eventSubType'
+  | 'type'
+  | 'subType'
 >
 
 export const EventPreview = (props: {
@@ -52,8 +52,8 @@ export const EventPreview = (props: {
     skillRating,
     registrationDeadline,
     registrationUrl,
-    eventType,
-    eventSubType,
+    type,
+    subType,
   } = doc
 
   const isPastEvent = startDate && new Date(startDate) < new Date()
@@ -61,11 +61,9 @@ export const EventPreview = (props: {
 
   const eventUrl = `/events/${slug}`
 
-  const eventTypeName = eventType
-    ? eventTypesData.find((et) => et.value === eventType)?.label
-    : null
-  const eventSubTypeName = eventSubType
-    ? eventSubTypesData.find((et) => et.value === eventSubType)?.label
+  const eventTypeName = type ? eventTypesData.find((et) => et.value === type)?.label : null
+  const eventSubTypeName = subType
+    ? eventSubTypesData.find((et) => et.value === subType)?.label
     : null
 
   const typeDisplayText =

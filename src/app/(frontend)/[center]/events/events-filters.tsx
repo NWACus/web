@@ -5,11 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 type Props = {
-  eventTypes: EventType[]
-  eventSubTypes: EventSubType[]
+  types: EventType[]
+  subTypes: EventSubType[]
 }
 
-export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
+export const EventsFilters = ({ types, subTypes }: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const hasUserInteracted = useRef(false)
@@ -58,15 +58,15 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
 
   return (
     <div className="space-y-6">
-      {eventTypes.length > 0 && (
+      {types.length > 0 && (
         <div className="mb-4">
           <h4 className="w-full">Filter by Event Type</h4>
           <hr className="p-2" />
           <ul className="flex flex-col gap-1.5 p-0 list-none">
-            {eventTypes.map((type) => {
+            {types.map((type) => {
               const typeId = type.value
               const isTypeChecked = selectedTypes.includes(typeId)
-              const childSubTypes = eventSubTypes.filter((subType) => {
+              const childSubTypes = subTypes.filter((subType) => {
                 const parentTypeId = subType.eventType
                 return parentTypeId === typeId
               })

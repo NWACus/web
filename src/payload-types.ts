@@ -708,9 +708,7 @@ export interface EventListBlock {
     /**
      * Optionally select event sub types to filter events in this list by.
      */
-    filterByEventSubTypes?:
-      | ('snowmobile-classes' | 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[]
-      | null;
+    filterByEventSubTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
     /**
      * Only display events that have not yet occurred.
      */
@@ -847,16 +845,8 @@ export interface Event {
       }[]
     | null;
   slug: string;
-  eventType:
-    | 'events-by-ac'
-    | 'awareness'
-    | 'workshop'
-    | 'field-class-by-ac'
-    | 'course-by-external-provider'
-    | 'volunteer';
-  eventSubType?:
-    | ('snowmobile-classes' | 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')
-    | null;
+  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'course-by-external-provider' | 'volunteer';
+  subType?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external') | null;
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
   /**
@@ -2981,8 +2971,8 @@ export interface EventsSelect<T extends boolean = true> {
         id?: T;
       };
   slug?: T;
-  eventType?: T;
-  eventSubType?: T;
+  type?: T;
+  subType?: T;
   eventGroups?: T;
   eventTags?: T;
   modeOfTravel?: T;
