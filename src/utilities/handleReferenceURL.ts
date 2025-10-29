@@ -22,7 +22,9 @@ export const handleReferenceURL = ({ url, type, reference }: Props) => {
     }
 
     if ('slug' in value) {
-      const prefix = relationTo === 'pages' ? '' : `/${relationTo}`
+      let prefix = `/${relationTo}`
+      if (relationTo === 'pages') prefix = ''
+      if (relationTo === 'posts') prefix = '/blog'
       return `${prefix}/${value.slug}`
     }
   }

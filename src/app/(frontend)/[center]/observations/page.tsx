@@ -12,7 +12,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -51,7 +50,7 @@ export default async function Page({ params }: Args) {
       <WidgetHashHandler initialHash="/view/observations" />
       <div className="flex flex-col gap-4">
         <div className="container">
-          <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-4 prose dark:prose-invert max-w-none">
             <h1 className="font-bold">Observations</h1>
             <Button asChild variant="secondary" className="no-underline">
               <Link href="/observations/submit">Submit Observation</Link>

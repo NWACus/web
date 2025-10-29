@@ -161,10 +161,12 @@
 - [x] Add modeOfTravel field to events. Options: ski, splitboard, motorized, snowshoe, any
 - [x] Update look and feel of EventsCollection to match initial designs and only include basic filters for now
 - [ ] Add Event Groups and Event Tags i.e. another thing to group events by (this would represent an event series like multiple meet your forecasters or an attribute of an event like it being 21+ or Women Only/Women Taught or some other generic grouping like that)
+- [ ] Refactor EventTypes and EventSubTypes into hardcoded values + custom field for selecting these
 - [ ] Enhance EventsCollection UI filtering
   - [ ] "Quick filters" for dates: this week, next week, this month, next month, January, February, etc.
   - [ ] Custom dates filtering
   - [ ] Indeterminate logic for event type -> sub type filters (i.e. you select the parent event type and all sub types are checked but then deselecting a sub type makes the parent type render as indeterminate and clicking it would set all as checked again, then all unchecked if clicked again)
+- [ ] Add draft and publish, autosave, preview to Events, Event Groups
 - [ ] Add a cover image and a thumbnail image to events collection instead of single featured image. Cover gets used on single event page at the top of the page - full width. Thumbnail gets used for EventPreview components.
 - [ ] Add a table of events component that can be used on landing pages for Event Types, Event SubTypes,single Event pages, Event Groups, etc. Just use on single Event page for now.
 - [ ] POC for location data that can be displayed on a map and used to filter results

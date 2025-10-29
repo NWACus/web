@@ -17,7 +17,6 @@ import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
-import NextTopLoader from 'nextjs-toploader'
 import { getPayload } from 'payload'
 import invariant from 'tiny-invariant'
 import './nac-widgets.css'
@@ -70,10 +69,9 @@ export default async function RootLayout({ children, params }: Args) {
   return (
     <NotFoundProvider>
       <TenantProvider tenant={tenant}>
-        <NextTopLoader color="#3982e8" showSpinner={false} />
         <PostHogTenantRegister />
         <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
-          <div className={cn('flex flex-col min-h-screen', center)}>
+          <div className={cn('flex flex-col min-h-screen max-w-screen overflow-x-hidden', center)}>
             <ThemeSetter theme={center} />
             <Header center={center} />
             <main className="flex-grow">

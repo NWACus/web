@@ -17,7 +17,7 @@ export const revalidateTenantsAfterChange: CollectionAfterChangeHook = async ({
       }`,
     )
   } catch (error) {
-    payload.logger.error('Error revalidating tenant cache:', error)
+    payload.logger.error({ err: error }, 'Error revalidating tenant cache')
   }
 
   const nameChange = doc.name !== previousDoc.name
@@ -53,6 +53,6 @@ export const revalidateTenantsAfterDelete: CollectionAfterDeleteHook = async ({
       `Successfully revalidated tenants cache after delete on tenant: ${doc?.slug || doc?.id}`,
     )
   } catch (error) {
-    req.payload.logger.error('Error revalidating tenant cache:', error)
+    req.payload.logger.error({ err: error }, 'Error revalidating tenant cache')
   }
 }

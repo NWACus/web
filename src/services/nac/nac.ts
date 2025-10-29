@@ -47,7 +47,7 @@ export async function nacFetch(path: string, options: Options = {}) {
     return data
   } catch (error) {
     const payload = await getPayload({ config })
-    payload.logger.debug('nacFetch error: ', error)
+    payload.logger.debug({ err: error }, 'nacFetch error')
 
     if (error instanceof NACError) {
       throw error
@@ -101,7 +101,7 @@ export async function afpFetch(path: string, options: Options = {}) {
     return data
   } catch (error) {
     const payload = await getPayload({ config })
-    payload.logger.debug('afpFetch error: ', error)
+    payload.logger.debug({ err: error }, 'afpFetch error')
 
     if (error instanceof NACError) {
       throw error

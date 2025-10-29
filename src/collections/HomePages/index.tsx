@@ -35,6 +35,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { populateBlocksInHighlightedContent } from './hooks/populateBlocksInHighlightedContent'
 import { revalidateHomePage, revalidateHomePageDelete } from './hooks/revalidateHomePage'
 
 export const HomePages: CollectionConfig = {
@@ -192,6 +193,29 @@ export const HomePages: CollectionConfig = {
       required: true,
     },
     {
+      name: 'blocksInHighlightedContent',
+      type: 'array',
+      admin: {
+        readOnly: true,
+        description:
+          'Automatically populated field tracking block references in highlightedContent for revalidation purposes.',
+      },
+      fields: [
+        {
+          name: 'blockType',
+          type: 'text',
+        },
+        {
+          name: 'collection',
+          type: 'text',
+        },
+        {
+          name: 'docId',
+          type: 'number',
+        },
+      ],
+    },
+    {
       name: 'publishedAt',
       type: 'date',
       admin: {
@@ -202,7 +226,7 @@ export const HomePages: CollectionConfig = {
   ],
   hooks: {
     afterChange: [revalidateHomePage],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populateBlocksInHighlightedContent, populatePublishedAt],
     afterDelete: [revalidateHomePageDelete],
   },
   versions: {

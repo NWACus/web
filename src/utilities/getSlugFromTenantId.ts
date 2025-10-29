@@ -2,7 +2,11 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-export async function getSlugFromTenantId(id: number) {
+export async function getSlugFromTenantId(id: number | undefined) {
+  if (!id) {
+    return null
+  }
+
   const payload = await getPayload({ config })
   const tenant = await payload.findByID({
     collection: 'tenants',

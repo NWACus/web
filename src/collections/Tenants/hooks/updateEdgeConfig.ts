@@ -61,7 +61,7 @@ export const updateEdgeConfigAfterChange: CollectionAfterChangeHook = async ({
       req.payload.logger.info(`No Edge Config updates needed for tenant: ${doc.slug}`)
     }
   } catch (error) {
-    req.payload.logger.error(`Error updating Edge Config for tenant ${doc.slug}:`, error)
+    req.payload.logger.error({ err: error }, `Error updating Edge Config for tenant ${doc.slug}`)
   }
 }
 
@@ -88,6 +88,6 @@ export const updateEdgeConfigAfterDelete: CollectionAfterDeleteHook = async ({ r
       )
     }
   } catch (error) {
-    req.payload.logger.error(`Error removing tenant ${doc.slug} from Edge Config:`, error)
+    req.payload.logger.error({ err: error }, `Error removing tenant ${doc.slug} from Edge Config`)
   }
 }
