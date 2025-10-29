@@ -25,6 +25,8 @@ import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
 import { eventSubTypesData, eventTypesData } from './constants'
 
+const typesWithSubTypes = [...new Set(eventSubTypesData.map((item) => item.eventType))]
+
 export const Events: CollectionConfig = {
   slug: 'events',
   access: accessByTenantRoleWithPermissiveRead('events'),
@@ -290,7 +292,7 @@ export const Events: CollectionConfig = {
       hooks: {
         beforeChange: [
           ({ value, siblingData }) => {
-            if (value !== 'field-class-by-ac' && value !== 'course-by-external-provider') {
+            if (typesWithSubTypes.includes(value)) {
               siblingData.eventSubType = undefined
             }
             return value
@@ -307,10 +309,7 @@ export const Events: CollectionConfig = {
       type: 'select',
       admin: {
         position: 'sidebar',
-        condition: (_, siblingData) => {
-          const uniqueEventTypes = [...new Set(eventSubTypesData.map((item) => item.eventType))]
-          return uniqueEventTypes.includes(siblingData?.eventType)
-        },
+        condition: (_, siblingData) => typesWithSubTypes.includes(siblingData?.type),
       },
       options: eventSubTypesData.map((eventSubType) => ({
         label: eventSubType.label,
@@ -321,7 +320,7 @@ export const Events: CollectionConfig = {
 
         // Get all allowed values for the selected eventType from the data
         const allowedValues = eventSubTypesData
-          .filter((subType) => subType.eventType === data.eventType)
+          .filter((subType) => subType.eventType === data.type)
           .map((subType) => subType.value)
 
         return options.filter((option) => {
