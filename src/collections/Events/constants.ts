@@ -66,17 +66,6 @@ export type EventSubType = {
 }
 
 export const eventSubTypesData: EventSubType[] = [
-  // Sub-types for Field Class by AC
-  {
-    label: 'Snowmobile Classes',
-    description:
-      'Avalanche safety and rescue training specifically designed for snowmobile users and backcountry riders.',
-    eventType: 'field-class-by-ac',
-    value: 'snowmobile-classes',
-    crmId: 'snowmobile_classes',
-    crmIntegration: 'ac-salesforce',
-  },
-
   // Sub-types for Course by External Provider (A3 courses)
   {
     label: 'Rec 1',
