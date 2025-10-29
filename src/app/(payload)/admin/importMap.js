@@ -1,4 +1,5 @@
 import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e } from '@/blocks/BlogList/fields/QueriedPostsComponent'
+import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
 import { QueriedEventsComponent as QueriedEventsComponent_65bd30cc675f775ebce6af07a79e525c } from '@/blocks/EventList/fields/QueriedEventsComponent'
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de } from '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
@@ -99,6 +100,8 @@ export const importMap = {
   '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent':
     QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e,
   '@/components/ColumnLayoutPicker#default': default_923dc5ccc0b72de4298251644cbfe39e,
+  '@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder':
+    DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
   '@/blocks/EventList/fields/QueriedEventsComponent#QueriedEventsComponent':
     QueriedEventsComponent_65bd30cc675f775ebce6af07a79e525c,
   '@payloadcms/plugin-seo/client#OverviewComponent':
