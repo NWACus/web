@@ -307,9 +307,10 @@ export const Events: CollectionConfig = {
       type: 'select',
       admin: {
         position: 'sidebar',
-        condition: (_, siblingData) =>
-          siblingData?.eventType === 'field-class-by-ac' ||
-          siblingData?.eventType === 'course-by-external-provider',
+        condition: (_, siblingData) => {
+          const uniqueEventTypes = [...new Set(eventSubTypesData.map((item) => item.eventType))]
+          return uniqueEventTypes.includes(siblingData?.eventType)
+        },
       },
       options: eventSubTypesData.map((eventSubType) => ({
         label: eventSubType.label,
