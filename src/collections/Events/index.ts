@@ -29,7 +29,7 @@ export const Events: CollectionConfig = {
   access: accessByTenantRoleWithPermissiveRead('events'),
   admin: {
     baseListFilter: filterByTenant,
-    group: 'Content',
+    group: 'Events',
     defaultColumns: ['title', 'subtitle', 'featuredImage', 'startDate', 'updatedAt'],
     useAsTitle: 'title',
   },
@@ -305,6 +305,24 @@ export const Events: CollectionConfig = {
         condition: (_data, siblingData) => siblingData?.eventType,
         position: 'sidebar',
         description: 'Optional event sub type',
+      },
+    },
+    {
+      name: 'eventGroups',
+      type: 'relationship',
+      relationTo: 'eventGroups',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'eventTags',
+      type: 'relationship',
+      relationTo: 'eventTags',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
       },
     },
     {

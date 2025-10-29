@@ -78,6 +78,8 @@ export interface Config {
     events: Event;
     eventTypes: EventType;
     eventSubTypes: EventSubType;
+    eventGroups: EventGroup;
+    eventTags: EventTag;
     biographies: Biography;
     teams: Team;
     users: User;
@@ -113,6 +115,8 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     eventTypes: EventTypesSelect<false> | EventTypesSelect<true>;
     eventSubTypes: EventSubTypesSelect<false> | EventSubTypesSelect<true>;
+    eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
+    eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -1411,11 +1415,41 @@ export interface Event {
    * Optional event sub type
    */
   eventSubType?: (number | null) | EventSubType;
+  eventGroups?: (number | EventGroup)[] | null;
+  eventTags?: (number | EventTag)[] | null;
   /**
    * Mode of travel for this event
    */
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe' | 'any') | null;
   tenant?: (number | null) | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventGroups".
+ */
+export interface EventGroup {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTags".
+ */
+export interface EventTag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2275,6 +2309,14 @@ export interface PayloadLockedDocument {
         value: number | EventSubType;
       } | null)
     | ({
+        relationTo: 'eventGroups';
+        value: number | EventGroup;
+      } | null)
+    | ({
+        relationTo: 'eventTags';
+        value: number | EventTag;
+      } | null)
+    | ({
         relationTo: 'biographies';
         value: number | Biography;
       } | null)
@@ -2977,6 +3019,8 @@ export interface EventsSelect<T extends boolean = true> {
   slug?: T;
   eventType?: T;
   eventSubType?: T;
+  eventGroups?: T;
+  eventTags?: T;
   modeOfTravel?: T;
   tenant?: T;
   contentHash?: T;
@@ -3007,6 +3051,32 @@ export interface EventSubTypesSelect<T extends boolean = true> {
   eventType?: T;
   crmId?: T;
   crmIntegration?: T;
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventGroups_select".
+ */
+export interface EventGroupsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  description?: T;
+  slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTags_select".
+ */
+export interface EventTagsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  description?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;

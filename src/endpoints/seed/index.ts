@@ -53,6 +53,8 @@ const collections: CollectionSlug[] = [
   'eventTypes',
   'eventSubTypes',
   'events',
+  'eventGroups',
+  'eventTags',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -224,6 +226,8 @@ export const seed = async ({
               'sponsors',
               'homePages',
               'events',
+              'eventGroups',
+              'eventTags',
             ],
             actions: ['*'],
           },
@@ -252,7 +256,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventTypes', 'eventSubTypes'],
+            collections: ['eventGroups', 'eventTags', 'eventTypes', 'eventSubTypes'],
             actions: ['read'],
           },
         ],
@@ -277,7 +281,7 @@ export const seed = async ({
             actions: ['*'],
           },
           {
-            collections: ['eventTypes', 'eventSubTypes'],
+            collections: ['eventGroups', 'eventTags', 'eventTypes', 'eventSubTypes'],
             actions: ['read'],
           },
         ],
@@ -297,6 +301,44 @@ export const seed = async ({
       incremental,
       (obj) => obj.slug,
       [...eventSubTypesData],
+    )
+
+    // Event group and tags
+    await upsert(
+      'eventGroups',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'eventGroups'>[] => [
+          {
+            title: 'Meet Your Forecaster',
+            description: 'Meet your local avalanche forecasters & learn more about your avy center',
+            slug: 'meet-your-forecaster',
+            tenant: tenant.id,
+          },
+        ])
+        .flat(),
+    )
+
+    await upsert(
+      'eventTags',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'eventTags'>[] => [
+          {
+            title: 'Women only',
+            description:
+              'Women-only events are gatherings designed to create a safe, supportive, and empowering space for women to connect, share experiences, and grow',
+            slug: 'women-only',
+            tenant: tenant.id,
+          },
+        ])
+        .flat(),
     )
 
     payload.logger.info(`— Seeding brand media...`)
