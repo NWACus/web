@@ -1329,7 +1329,7 @@ export interface Event {
      */
     isVirtual?: boolean | null;
     /**
-     * Name of the venue or place
+     * Name of the place or venue
      */
     placeName?: string | null;
     address?: string | null;
@@ -1404,14 +1404,6 @@ export interface Event {
      * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
      */
     extraInfo?: string | null;
-    /**
-     * Permanent Mapbox place identifier
-     */
-    mapboxId?: string | null;
-    /**
-     * Mapbox place type (e.g., poi, address)
-     */
-    placeType?: string | null;
   };
   featuredImage?: (number | null) | Media;
   /**
@@ -3015,8 +3007,6 @@ export interface EventsSelect<T extends boolean = true> {
         coordinates?: T;
         virtualUrl?: T;
         extraInfo?: T;
-        mapboxId?: T;
-        placeType?: T;
       };
   featuredImage?: T;
   registrationUrl?: T;

@@ -7,9 +7,10 @@ const coreLocationFields: Field[] = [
     type: 'text',
     label: 'Place Name',
     admin: {
-      description: 'Name of the venue or place',
+      description: 'Name of the place or venue',
       condition: (_data, siblingData) => !siblingData?.isVirtual,
     },
+    required: true,
   },
   {
     name: 'address',
@@ -121,23 +122,16 @@ const coreLocationFields: Field[] = [
       condition: (_data, siblingData) => !siblingData?.isVirtual,
     },
   },
-]
-
-const mapboxFields: Field[] = [
   {
-    name: 'mapboxId',
-    type: 'text',
+    type: 'ui',
+    name: 'locationMap',
     admin: {
-      description: 'Permanent Mapbox place identifier',
-      hidden: true,
-    },
-  },
-  {
-    name: 'placeType',
-    type: 'text',
-    admin: {
-      description: 'Mapbox place type (e.g., poi, address)',
-      hidden: true,
+      components: {
+        Field: {
+          path: '@/fields/location/components/LocationMap#LocationMap',
+        },
+      },
+      condition: (_data, siblingData) => !siblingData?.isVirtual,
     },
   },
 ]
@@ -153,18 +147,6 @@ export const locationField = (): GroupField => ({
       defaultValue: false,
       admin: {
         description: 'Check if this is a virtual event',
-      },
-    },
-    {
-      type: 'ui',
-      name: 'locationPicker',
-      admin: {
-        components: {
-          Field: {
-            path: '@/fields/location/components/LocationPicker#LocationPicker',
-          },
-        },
-        condition: (_data, siblingData) => !siblingData?.isVirtual,
       },
     },
     ...coreLocationFields,
@@ -185,6 +167,5 @@ export const locationField = (): GroupField => ({
         description: 'Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")',
       },
     },
-    ...mapboxFields,
   ],
 })
