@@ -36,7 +36,8 @@
     "migrate:check": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-migrations.ts",
     "email:build": "email build",
     "email:dev": "email dev --dir ./src/emails --port 3001",
-    "email:export": "email export"
+    "email:export": "email export",
+    "unreleased": "./unreleased-prs.sh"
   },
   "lint-staged": {
     "**/*": "pnpm run prettify"
