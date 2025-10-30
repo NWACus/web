@@ -1,7 +1,6 @@
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
-import { Suspense } from 'react'
 
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
@@ -60,17 +59,13 @@ export default async function Page({ params, searchParams }: Args) {
     <div className="pt-4">
       <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
         <div className="grow">
-          <Suspense fallback={<div>Loading posts...</div>}>
-            <PostCollection posts={posts.docs} />
-          </Suspense>
+          <PostCollection posts={posts.docs} />
         </div>
 
         {/* Sorting and filters */}
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <Suspense fallback={<div>Loading filters...</div>}>
-            <PostsSort initialSort={sort} />
-            {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
-          </Suspense>
+          <PostsSort initialSort={sort} />
+          {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
+import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { EventMetadata } from '../EventMetadata'
@@ -27,8 +28,8 @@ export type EventPreviewData = Pick<
   | 'registrationDeadline'
   | 'registrationUrl'
   | 'externalEventUrl'
-  | 'eventType'
-  | 'eventSubType'
+  | 'type'
+  | 'subType'
 >
 
 export const EventPreview = (props: {
@@ -52,8 +53,8 @@ export const EventPreview = (props: {
     skillRating,
     registrationDeadline,
     registrationUrl,
-    eventType,
-    eventSubType,
+    type,
+    subType,
     location,
   } = doc
 
@@ -62,9 +63,10 @@ export const EventPreview = (props: {
 
   const eventUrl = `/events/${slug}`
 
-  const eventTypeName = eventType && typeof eventType !== 'number' ? eventType.title : null
-  const eventSubTypeName =
-    eventSubType && typeof eventSubType !== 'number' ? eventSubType.title : null
+  const eventTypeName = type ? eventTypesData.find((et) => et.value === type)?.label : null
+  const eventSubTypeName = subType
+    ? eventSubTypesData.find((et) => et.value === subType)?.label
+    : null
 
   const typeDisplayText =
     eventTypeName && eventSubTypeName
@@ -84,10 +86,10 @@ export const EventPreview = (props: {
       )}
     >
       {startDate && (
-        <div className="hidden @lg:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0">
+        <div className="hidden @lg:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0 p-4">
           <div className="flex flex-col">
-            <div className="text-3xl font-bold">{month}</div>
-            <div className="text-3xl font-bold leading-none">{day}</div>
+            <div className="text-2xl font-bold">{month}</div>
+            <div className="text-2xl font-bold leading-none">{day}</div>
           </div>
           <div className="text-sm">{year}</div>
         </div>

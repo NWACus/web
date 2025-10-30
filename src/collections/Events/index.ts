@@ -24,13 +24,16 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
+import { eventSubTypesData, eventTypesData } from './constants'
+
+const typesWithSubTypes = [...new Set(eventSubTypesData.map((item) => item.eventType))]
 
 export const Events: CollectionConfig = {
   slug: 'events',
   access: accessByTenantRoleWithPermissiveRead('events'),
   admin: {
     baseListFilter: filterByTenant,
-    group: 'Content',
+    group: 'Events',
     defaultColumns: ['title', 'subtitle', 'featuredImage', 'startDate', 'updatedAt'],
     useAsTitle: 'title',
   },
@@ -214,31 +217,69 @@ export const Events: CollectionConfig = {
     // Sidebar
     slugField(),
     {
-      name: 'eventType',
-      type: 'relationship',
-      relationTo: 'eventTypes',
+      name: 'type',
+      type: 'select',
       required: true,
+      admin: {
+        position: 'sidebar',
+      },
+      hooks: {
+        beforeChange: [
+          ({ value, siblingData }) => {
+            if (typesWithSubTypes.includes(value)) {
+              siblingData.eventSubType = undefined
+            }
+            return value
+          },
+        ],
+      },
+      options: eventTypesData.map((eventType) => ({
+        label: eventType.label,
+        value: eventType.value,
+      })),
+    },
+    {
+      name: 'subType',
+      type: 'select',
+      required: true,
+      admin: {
+        position: 'sidebar',
+        condition: (_, siblingData) => typesWithSubTypes.includes(siblingData?.type),
+      },
+      options: eventSubTypesData.map((eventSubType) => ({
+        label: eventSubType.label,
+        value: eventSubType.value,
+      })),
+      filterOptions: ({ data, options }) => {
+        if (!data.eventType) return options
+
+        // Get all allowed values for the selected eventType from the data
+        const allowedValues = eventSubTypesData
+          .filter((subType) => subType.eventType === data.type)
+          .map((subType) => subType.value)
+
+        return options.filter((option) => {
+          const optionValue = typeof option === 'string' ? option : option.value
+          return allowedValues.includes(optionValue)
+        })
+      },
+    },
+    {
+      name: 'eventGroups',
+      type: 'relationship',
+      relationTo: 'eventGroups',
+      hasMany: true,
       admin: {
         position: 'sidebar',
       },
     },
     {
-      name: 'eventSubType',
+      name: 'eventTags',
       type: 'relationship',
-      relationTo: 'eventSubTypes',
-      filterOptions: ({ data }) => {
-        // Only show subtypes for the selected type
-        if (data?.eventType) {
-          return {
-            eventType: { equals: data.eventType },
-          }
-        }
-        return false
-      },
+      relationTo: 'eventTags',
+      hasMany: true,
       admin: {
-        condition: (_data, siblingData) => siblingData?.eventType,
         position: 'sidebar',
-        description: 'Optional event sub type',
       },
     },
     {

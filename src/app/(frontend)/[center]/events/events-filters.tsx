@@ -1,15 +1,15 @@
 'use client'
+import { EventSubType, EventType } from '@/collections/Events/constants'
 import { Checkbox } from '@/components/ui/checkbox'
-import { EventSubType, EventType } from '@/payload-types'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 type Props = {
-  eventTypes: EventType[]
-  eventSubTypes: EventSubType[]
+  types: EventType[]
+  subTypes: EventSubType[]
 }
 
-export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
+export const EventsFilters = ({ types, subTypes }: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const hasUserInteracted = useRef(false)
@@ -58,47 +58,44 @@ export const EventsFilters = ({ eventTypes, eventSubTypes }: Props) => {
 
   return (
     <div className="space-y-6">
-      {eventTypes.length > 0 && (
+      {types.length > 0 && (
         <div className="mb-4">
           <h4 className="w-full">Filter by Event Type</h4>
           <hr className="p-2" />
           <ul className="flex flex-col gap-1.5 p-0 list-none">
-            {eventTypes.map((type) => {
-              const typeId = String(type.id)
+            {types.map((type) => {
+              const typeId = type.value
               const isTypeChecked = selectedTypes.includes(typeId)
-              const childSubTypes = eventSubTypes.filter((subType) => {
-                const parentTypeId =
-                  typeof subType.eventType === 'object' && subType.eventType
-                    ? String(subType.eventType.id)
-                    : String(subType.eventType)
+              const childSubTypes = subTypes.filter((subType) => {
+                const parentTypeId = subType.eventType
                 return parentTypeId === typeId
               })
 
               return (
-                <li key={type.id}>
+                <li key={type.value}>
                   <div
                     className="cursor-pointer flex items-center"
                     onClick={() => toggleType(typeId)}
                     aria-pressed={isTypeChecked}
                   >
                     <Checkbox className="mr-2" checked={isTypeChecked} />
-                    {type.title}
+                    {type.label}
                   </div>
 
                   {childSubTypes.length > 0 && (
                     <ul className="flex flex-col gap-1.5 p-0 list-none ml-6 mt-1.5">
                       {childSubTypes.map((subType) => {
-                        const subTypeId = String(subType.id)
+                        const subTypeId = subType.value
                         const isSubTypeChecked = selectedSubTypes.includes(subTypeId)
                         return (
-                          <li key={subType.id}>
+                          <li key={subType.value}>
                             <div
                               className="cursor-pointer flex items-center"
                               onClick={() => toggleSubType(subTypeId)}
                               aria-pressed={isSubTypeChecked}
                             >
                               <Checkbox className="mr-2" checked={isSubTypeChecked} />
-                              {subType.title}
+                              {subType.label}
                             </div>
                           </li>
                         )
