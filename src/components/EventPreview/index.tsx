@@ -1,18 +1,14 @@
-'use client'
-
 import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
-import { ChevronDown, ExternalLink, MapPin } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
-import { CopyButton } from '../CopyButton'
 import { EventMetadata } from '../EventMetadata'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { LocationPopover } from './LocationPopover'
 
 export type EventPreviewData = Pick<
   Event,
@@ -41,7 +37,6 @@ export const EventPreview = (props: {
   doc?: EventPreviewData
 }) => {
   const { className, doc } = props
-  const [isLocationOpen, setIsLocationOpen] = useState(false)
 
   if (!doc) return null
 
@@ -168,65 +163,7 @@ export const EventPreview = (props: {
         </div>
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
-        {location && (
-          <Popover open={isLocationOpen} onOpenChange={setIsLocationOpen}>
-            <PopoverTrigger className="min-w-0 max-w-full">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
-                <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
-                  {location.placeName}
-                </p>
-                <ChevronDown
-                  className={cn(
-                    'h-5 w-5 flex-shrink-0 transition-transform duration-200',
-                    isLocationOpen && 'rotate-180',
-                  )}
-                />
-              </div>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="p-3 text-sm w-auto min-w-[200px]">
-              <div className="select-text mb-2">
-                {location.address && <div>{location.address}</div>}
-                <div>
-                  {location.city && `${location.city}, `}
-                  {location.state && `${location.state} `}
-                  {location.zip}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <CopyButton
-                  text={[
-                    location.placeName,
-                    location.address,
-                    [location.city, location.state, location.zip].filter(Boolean).join(' '),
-                  ]
-                    .filter(Boolean)
-                    .join(', ')}
-                  className="flex items-center gap-1 text-xs hover:text-foreground transition-colors"
-                />
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    [
-                      location.placeName,
-                      location.address,
-                      location.city,
-                      location.state,
-                      location.zip,
-                    ]
-                      .filter(Boolean)
-                      .join(', '),
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-xs hover:text-foreground transition-colors"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Open in Maps
-                </a>
-              </div>
-            </PopoverContent>
-          </Popover>
-        )}
+        {location && <LocationPopover location={location} />}
         <Link
           href={eventUrl}
           className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-40 @lg:h-auto"
