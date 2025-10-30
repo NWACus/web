@@ -1,12 +1,7 @@
 import { EventPreviewSmallRow } from '@/components/EventPreviewSmallRow'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
-import type {
-  Event,
-  EventListBlock as EventListBlockProps,
-  EventSubType,
-  EventType,
-} from '@/payload-types'
+import type { Event, EventListBlock as EventListBlockProps } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 
@@ -34,25 +29,17 @@ export const EventListBlockComponent = async (args: EventListComponentProps) => 
     )
   }
 
-  const filterByEventTypesSlugs = filterByEventTypes
-    ?.filter((type): type is EventType => typeof type === 'object' && type !== null)
-    .map((type) => (typeof type.id === 'string' ? type.id : String(type.id)))
-
-  const filterByEventSubTypesSlugs = filterByEventSubTypes
-    ?.filter((subType): subType is EventSubType => typeof subType === 'object' && subType !== null)
-    .map((subType) => (typeof subType.id === 'string' ? subType.id : String(subType.id)))
-
   const eventsLinkQueryParams = new URLSearchParams()
   if (sortBy !== undefined) {
     eventsLinkQueryParams.set('sort', sortBy)
   }
 
-  if (filterByEventTypesSlugs && filterByEventTypesSlugs.length > 0) {
-    eventsLinkQueryParams.set('types', filterByEventTypesSlugs.join(','))
+  if (filterByEventTypes && filterByEventTypes.length > 0) {
+    eventsLinkQueryParams.set('types', filterByEventTypes.join(','))
   }
 
-  if (filterByEventSubTypesSlugs && filterByEventSubTypesSlugs.length > 0) {
-    eventsLinkQueryParams.set('subtypes', filterByEventSubTypesSlugs.join(','))
+  if (filterByEventSubTypes && filterByEventSubTypes.length > 0) {
+    eventsLinkQueryParams.set('subtypes', filterByEventSubTypes.join(','))
   }
 
   if (!events) {

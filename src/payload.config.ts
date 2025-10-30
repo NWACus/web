@@ -12,9 +12,7 @@ import { BuiltInPages } from '@/collections/BuiltInPages'
 import { Documents } from '@/collections/Documents'
 import { EventGroups } from '@/collections/EventGroups'
 import { Events } from '@/collections/Events'
-import { EventSubTypes } from '@/collections/EventSubTypes'
 import { EventTags } from '@/collections/EventTags'
-import { EventTypes } from '@/collections/EventTypes'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { HomePages } from '@/collections/HomePages'
@@ -169,9 +167,8 @@ export default buildConfig({
     Documents,
     Sponsors,
     Tags,
+    // Events
     Events,
-    EventTypes,
-    EventSubTypes,
     EventGroups,
     EventTags,
     // Staff
