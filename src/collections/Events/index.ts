@@ -307,6 +307,7 @@ export const Events: CollectionConfig = {
     {
       name: 'subType',
       type: 'select',
+      required: true,
       admin: {
         position: 'sidebar',
         condition: (_, siblingData) => typesWithSubTypes.includes(siblingData?.type),
