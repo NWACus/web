@@ -8,6 +8,7 @@ import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { EVENTS_LIMIT } from '@/utilities/constants'
 import { notFound } from 'next/navigation'
+import EventDatePicker from './events-date-filter'
 import { EventsFilters } from './events-filters'
 
 type Args = {
@@ -22,6 +23,8 @@ export default async function Page({ params, searchParams }: Args) {
   const resolvedSearchParams = await searchParams
   const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
   const selectedSubTypes = resolvedSearchParams?.subtypes?.split(',').filter(Boolean)
+  const selectedStartDate = resolvedSearchParams?.startDate
+  const selectedEndDate = resolvedSearchParams?.endDate
 
   const payload = await getPayload({ config: configPromise })
 
@@ -51,6 +54,15 @@ export default async function Page({ params, searchParams }: Args) {
     orConditions.push({ subType: { in: selectedSubTypes } })
   }
 
+  if (selectedStartDate && selectedEndDate) {
+    orConditions.push({
+      startDate: {
+        greater_than_equal: selectedStartDate,
+        less_than_equal: selectedEndDate,
+      },
+    })
+  }
+
   const whereConditions: Where = {
     'tenant.slug': {
       equals: center,
@@ -77,6 +89,7 @@ export default async function Page({ params, searchParams }: Args) {
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
           <EventsFilters types={eventTypesData} subTypes={eventSubTypesData} />
+          <EventDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
         </div>
       </div>
 

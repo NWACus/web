@@ -141,7 +141,7 @@ export const EventsFilters = ({ types, subTypes }: Props) => {
     <div className="space-y-6">
       {types.length > 0 && (
         <div className="mb-4">
-          <h4 className="w-full">Filter by Event Type</h4>
+          <h4 className="w-full">Filter by type</h4>
           <hr className="p-2" />
           <ul className="flex flex-col gap-1.5 p-0 list-none">
             {types.map((type) => {
