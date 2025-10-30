@@ -90,14 +90,28 @@ export const EventMetadata = ({
               <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <div>
                 {showLabels && <span className="font-medium">Location: </span>}
-                {(location.placeName || location.placeName) && (
-                  <div>{location.placeName || location.placeName}</div>
-                )}
+                {location.placeName && <div>{location.placeName}</div>}
                 {(location.address || location.city || location.state) && (
                   <div>
-                    {location.address && <span>{location.address}, </span>}
-                    {location.city && <span>{location.city}, </span>}
-                    {location.state} {location.zip || location.zip}
+                    {location.address && (
+                      <span>
+                        {location.address}
+                        {(location.city || location.state || location.zip) && <>,</>}{' '}
+                      </span>
+                    )}
+                    {location.city && (
+                      <span>
+                        {location.city}
+                        {(location.state || location.zip) && <>,</>}{' '}
+                      </span>
+                    )}
+                    {location.state && (
+                      <span>
+                        {location.state}
+                        {location.zip && <>,</>}{' '}
+                      </span>
+                    )}
+                    {location.zip && <span>{location.zip} </span>}
                   </div>
                 )}
               </div>
