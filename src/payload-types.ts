@@ -78,6 +78,7 @@ export interface Config {
     events: Event;
     eventTypes: EventType;
     eventSubTypes: EventSubType;
+    providers: Provider;
     biographies: Biography;
     teams: Team;
     users: User;
@@ -96,6 +97,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    providers: {
+      events: 'events';
+    };
     users: {
       roles: 'roleAssignments';
       globalRoleAssignments: 'globalRoleAssignments';
@@ -113,6 +117,7 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     eventTypes: EventTypesSelect<false> | EventTypesSelect<true>;
     eventSubTypes: EventSubTypesSelect<false> | EventSubTypesSelect<true>;
+    providers: ProvidersSelect<false> | ProvidersSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -1464,6 +1469,91 @@ export interface Event {
    */
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe' | 'any') | null;
   tenant?: (number | null) | Tenant;
+  provider?: (number | null) | Provider;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "providers".
+ */
+export interface Provider {
+  id: number;
+  name: string;
+  location?: {
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    coordinates?: [number, number] | null;
+  };
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  slug: string;
+  token?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2323,6 +2413,10 @@ export interface PayloadLockedDocument {
         value: number | EventSubType;
       } | null)
     | ({
+        relationTo: 'providers';
+        value: number | Provider;
+      } | null)
+    | ({
         relationTo: 'biographies';
         value: number | Biography;
       } | null)
@@ -3029,6 +3123,7 @@ export interface EventsSelect<T extends boolean = true> {
   eventSubType?: T;
   modeOfTravel?: T;
   tenant?: T;
+  provider?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3058,6 +3153,29 @@ export interface EventSubTypesSelect<T extends boolean = true> {
   crmId?: T;
   crmIntegration?: T;
   slug?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "providers_select".
+ */
+export interface ProvidersSelect<T extends boolean = true> {
+  name?: T;
+  location?:
+    | T
+    | {
+        address?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+        coordinates?: T;
+      };
+  events?: T;
+  slug?: T;
+  token?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

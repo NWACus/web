@@ -280,6 +280,18 @@ export const Events: CollectionConfig = {
       label: 'Avalanche Center',
       relationTo: 'tenants',
     },
+    {
+      name: 'provider',
+      type: 'relationship',
+      admin: {
+        allowCreate: false,
+        allowEdit: false,
+        position: 'sidebar',
+      },
+      hasMany: false,
+      index: true,
+      relationTo: 'providers',
+    },
     contentHashField(),
   ],
   hooks: {

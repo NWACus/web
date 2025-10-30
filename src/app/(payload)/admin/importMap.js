@@ -5,6 +5,7 @@ import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b099
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
+import { ManagementLink as ManagementLink_27181c63dc92c980a3bc41f68f72a3e0 } from '@/collections/Providers/components/ManagementLink'
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
@@ -122,6 +123,8 @@ export const importMap = {
     ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
   '@/fields/location/components/LocationMap#LocationMap':
     LocationMap_4b1c9ff6af70dfec8b61ae82b54165d8,
+  '@/collections/Providers/components/ManagementLink#ManagementLink':
+    ManagementLink_27181c63dc92c980a3bc41f68f72a3e0,
   '@/collections/Users/components/UserStatusCell#UserStatusCell':
     UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
   '@/collections/Users/components/InviteUser#InviteUser':

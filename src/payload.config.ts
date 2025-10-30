@@ -38,6 +38,7 @@ import { build } from 'pino-pretty'
 import { Events } from './collections/Events'
 import { EventSubTypes } from './collections/EventSubTypes'
 import { EventTypes } from './collections/EventTypes'
+import { Providers } from './collections/Providers'
 import { Redirects } from './collections/Redirects'
 
 const filename = fileURLToPath(import.meta.url)
@@ -170,6 +171,7 @@ export default buildConfig({
     Events,
     EventTypes,
     EventSubTypes,
+    Providers,
     // Staff
     Biographies,
     Teams,

@@ -1,17 +1,7 @@
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { Field, GroupField } from 'payload'
 
-const coreLocationFields: Field[] = [
-  {
-    name: 'placeName',
-    type: 'text',
-    label: 'Place Name',
-    admin: {
-      description: 'Name of the place or venue',
-      condition: (_data, siblingData) => !siblingData?.isVirtual,
-    },
-    required: true,
-  },
+export const coreLocationFields: Field[] = [
   {
     name: 'address',
     type: 'text',
@@ -148,6 +138,16 @@ export const locationField = (): GroupField => ({
       admin: {
         description: 'Check if this is a virtual event',
       },
+    },
+    {
+      name: 'placeName',
+      type: 'text',
+      label: 'Place Name',
+      admin: {
+        description: 'Name of the place or venue',
+        condition: (_data, siblingData) => !siblingData?.isVirtual,
+      },
+      required: true,
     },
     ...coreLocationFields,
     {
