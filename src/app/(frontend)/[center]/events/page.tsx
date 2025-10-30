@@ -8,8 +8,8 @@ import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { EVENTS_LIMIT } from '@/utilities/constants'
 import { notFound } from 'next/navigation'
-import EventDatePicker from './events-date-filter'
-import { EventsFilters } from './events-filters'
+import { EventsDatePicker } from './events-date-filter'
+import { EventsTypeFilter } from './events-type-filter'
 
 type Args = {
   params: Promise<{
@@ -88,8 +88,8 @@ export default async function Page({ params, searchParams }: Args) {
         </div>
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <EventsFilters types={eventTypesData} subTypes={eventSubTypesData} />
-          <EventDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
+          <EventsTypeFilter types={eventTypesData} subTypes={eventSubTypesData} />
+          <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
         </div>
       </div>
 

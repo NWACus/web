@@ -18,7 +18,7 @@ type Props = {
   endDate: string
 }
 
-export default function EventDatePicker({ startDate, endDate }: Props) {
+export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   const [filterType, setFilterType] = useState('')
   const [customStart, setCustomStart] = useState(startDate || '')
   const [customEnd, setCustomEnd] = useState(endDate || '')

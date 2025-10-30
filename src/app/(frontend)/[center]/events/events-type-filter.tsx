@@ -13,7 +13,7 @@ type Props = {
 
 type ParentState = 'unchecked' | 'checked' | 'indeterminate'
 
-export const EventsFilters = ({ types, subTypes }: Props) => {
+export const EventsTypeFilter = ({ types, subTypes }: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const hasUserInteracted = useRef(false)
