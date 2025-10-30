@@ -76,8 +76,8 @@ export interface Config {
     sponsors: Sponsor;
     tags: Tag;
     events: Event;
-    eventTypes: EventType;
-    eventSubTypes: EventSubType;
+    eventGroups: EventGroup;
+    eventTags: EventTag;
     providers: Provider;
     biographies: Biography;
     teams: Team;
@@ -115,8 +115,8 @@ export interface Config {
     sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
-    eventTypes: EventTypesSelect<false> | EventTypesSelect<true>;
-    eventSubTypes: EventSubTypesSelect<false> | EventSubTypesSelect<true>;
+    eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
+    eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
     providers: ProvidersSelect<false> | ProvidersSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
@@ -242,9 +242,13 @@ export interface HomePage {
   layout: (
     | BiographyBlock
     | BlogListBlock
+    | SingleBlogPostBlock
     | ContentBlock
     | DocumentBlock
+    | EventListBlock
+    | SingleEventBlock
     | FormBlock
+    | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGrid
     | ImageQuote
@@ -252,12 +256,8 @@ export interface HomePage {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
-    | SingleBlogPostBlock
     | SponsorsBlock
     | TeamBlock
-    | GenericEmbedBlock
-    | EventListBlock
-    | SingleEventBlock
   )[];
   /**
    * Automatically populated field tracking block references in highlightedContent for revalidation purposes.
@@ -308,22 +308,22 @@ export interface Page {
   layout: (
     | BiographyBlock
     | BlogListBlock
+    | SingleBlogPostBlock
     | ContentBlock
     | DocumentBlock
+    | EventListBlock
+    | SingleEventBlock
     | FormBlock
     | HeaderBlock
+    | GenericEmbedBlock
     | ImageLinkGrid
     | ImageQuote
     | ImageText
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
-    | SingleBlogPostBlock
     | SponsorsBlock
     | TeamBlock
-    | GenericEmbedBlock
-    | EventListBlock
-    | SingleEventBlock
   )[];
   meta?: {
     /**
@@ -582,6 +582,24 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock".
+ */
+export interface SingleBlogPostBlock {
+  backgroundColor: string;
+  /**
+   * Select a blog post to display
+   */
+  post: number | Post;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleBlogPost';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
@@ -643,6 +661,386 @@ export interface Document {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventListBlock".
+ */
+export interface EventListBlock {
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the event list.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  backgroundColor: string;
+  eventOptions: 'dynamic' | 'static';
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  dynamicOptions?: {
+    /**
+     * Select how the list of events will be sorted.
+     */
+    sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
+    /**
+     * Optionally select event types to filter events in this list by.
+     */
+    filterByEventTypes?:
+      | (
+          | 'events-by-ac'
+          | 'awareness'
+          | 'workshop'
+          | 'field-class-by-ac'
+          | 'course-by-external-provider'
+          | 'volunteer'
+        )[]
+      | null;
+    /**
+     * Optionally select event sub types to filter events in this list by.
+     */
+    filterByEventSubTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
+    /**
+     * Only display events that have not yet occurred.
+     */
+    showUpcomingOnly?: boolean | null;
+    /**
+     * Maximum number of events that will be displayed. Must be an integer.
+     */
+    maxEvents?: number | null;
+    queriedEvents?: (number | Event)[] | null;
+  };
+  staticOptions?: {
+    /**
+     * Choose new event from dropdown and/or drag and drop to change order
+     */
+    staticEvents?: (number | Event)[] | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  /**
+   * Optional subtitle/tagline for the event
+   */
+  subtitle?: string | null;
+  /**
+   * Short description/summary for event previews
+   */
+  description?: string | null;
+  startDate: string;
+  /**
+   * Optional end date for multi-day events
+   */
+  endDate?: string | null;
+  /**
+   * Event timezone
+   */
+  timezone?:
+    | (
+        | 'America/New_York'
+        | 'America/Chicago'
+        | 'America/Denver'
+        | 'America/Los_Angeles'
+        | 'America/Anchorage'
+        | 'America/Honolulu'
+      )
+    | null;
+  location?: {
+    /**
+     * Check if this is a virtual event
+     */
+    isVirtual?: boolean | null;
+    /**
+     * Name of the place or venue
+     */
+    placeName?: string | null;
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    coordinates?: [number, number] | null;
+    /**
+     * URL for virtual event (Zoom, Teams, etc.)
+     */
+    virtualUrl?: string | null;
+    /**
+     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
+     */
+    extraInfo?: string | null;
+  };
+  featuredImage?: (number | null) | Media;
+  /**
+   * External registration link
+   */
+  registrationUrl?: string | null;
+  /**
+   * Optional external landing page (takes precedence over event page)
+   */
+  externalEventUrl?: string | null;
+  /**
+   * Registration cutoff
+   */
+  registrationDeadline?: string | null;
+  /**
+   * Maximum attendees
+   */
+  capacity?: number | null;
+  /**
+   * Event cost in dollars
+   */
+  cost?: number | null;
+  /**
+   * Skill level required for this event
+   */
+  skillRating?: ('0' | '1' | '2' | '3') | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  blocksInContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        docId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  slug: string;
+  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'course-by-external-provider' | 'volunteer';
+  subType?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external') | null;
+  eventGroups?: (number | EventGroup)[] | null;
+  eventTags?: (number | EventTag)[] | null;
+  /**
+   * Mode of travel for this event
+   */
+  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe' | 'any') | null;
+  tenant?: (number | null) | Tenant;
+  provider?: (number | null) | Provider;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventGroups".
+ */
+export interface EventGroup {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTags".
+ */
+export interface EventTag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "providers".
+ */
+export interface Provider {
+  id: number;
+  name: string;
+  location?: {
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    coordinates?: [number, number] | null;
+  };
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  slug: string;
+  token?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleEventBlock".
+ */
+export interface SingleEventBlock {
+  backgroundColor: string;
+  /**
+   * Select an event to display
+   */
+  event: number | Event;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleEvent';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -876,6 +1274,25 @@ export interface HeaderBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GenericEmbedBlock".
+ */
+export interface GenericEmbedBlock {
+  /**
+   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
+  html: string;
+  /**
+   * Checking this will render the embed with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'genericEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ImageLinkGrid".
  */
 export interface ImageLinkGrid {
@@ -1096,24 +1513,6 @@ export interface MediaBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock".
- */
-export interface SingleBlogPostBlock {
-  backgroundColor: string;
-  /**
-   * Select a blog post to display
-   */
-  post: number | Post;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleBlogPost';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SponsorsBlock".
  */
 export interface SponsorsBlock {
@@ -1172,409 +1571,6 @@ export interface Team {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "GenericEmbedBlock".
- */
-export interface GenericEmbedBlock {
-  /**
-   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
-   */
-  html: string;
-  /**
-   * Checking this will render the embed with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  backgroundColor: string;
-  alignContent?: ('left' | 'center' | 'right') | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'genericEmbed';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EventListBlock".
- */
-export interface EventListBlock {
-  heading?: string | null;
-  /**
-   * Optional content to display below the heading and above the event list.
-   */
-  belowHeadingContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  backgroundColor: string;
-  eventOptions: 'dynamic' | 'static';
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  dynamicOptions?: {
-    /**
-     * Select how the list of events will be sorted.
-     */
-    sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
-    /**
-     * Optionally select event types to filter events in this list by.
-     */
-    filterByEventTypes?: (number | EventType)[] | null;
-    /**
-     * Optionally select event sub types to filter events in this list by.
-     */
-    filterByEventSubTypes?: (number | EventSubType)[] | null;
-    /**
-     * Only display events that have not yet occurred.
-     */
-    showUpcomingOnly?: boolean | null;
-    /**
-     * Maximum number of events that will be displayed. Must be an integer.
-     */
-    maxEvents?: number | null;
-    queriedEvents?: (number | Event)[] | null;
-  };
-  staticOptions?: {
-    /**
-     * Choose new event from dropdown and/or drag and drop to change order
-     */
-    staticEvents?: (number | Event)[] | null;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'eventList';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTypes".
- */
-export interface EventType {
-  id: number;
-  title: string;
-  description?: string | null;
-  /**
-   * Maps this type to it's associated representation in the CRM Integration
-   */
-  crmId?: string | null;
-  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventSubTypes".
- */
-export interface EventSubType {
-  id: number;
-  title: string;
-  description?: string | null;
-  /**
-   * The parent event type for this sub type
-   */
-  eventType: number | EventType;
-  /**
-   * Maps this type to it's associated representation in the CRM Integration
-   */
-  crmId?: string | null;
-  crmIntegration?: ('ac-salesforce' | 'a3-crm') | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events".
- */
-export interface Event {
-  id: number;
-  title: string;
-  /**
-   * Optional subtitle/tagline for the event
-   */
-  subtitle?: string | null;
-  /**
-   * Short description/summary for event previews
-   */
-  description?: string | null;
-  startDate: string;
-  /**
-   * Optional end date for multi-day events
-   */
-  endDate?: string | null;
-  /**
-   * Event timezone
-   */
-  timezone?:
-    | (
-        | 'America/New_York'
-        | 'America/Chicago'
-        | 'America/Denver'
-        | 'America/Los_Angeles'
-        | 'America/Anchorage'
-        | 'America/Honolulu'
-      )
-    | null;
-  location?: {
-    /**
-     * Check if this is a virtual event
-     */
-    isVirtual?: boolean | null;
-    /**
-     * Name of the place or venue
-     */
-    placeName?: string | null;
-    address?: string | null;
-    city?: string | null;
-    state?:
-      | (
-          | 'AL'
-          | 'AK'
-          | 'AZ'
-          | 'AR'
-          | 'CA'
-          | 'CO'
-          | 'CT'
-          | 'DE'
-          | 'FL'
-          | 'GA'
-          | 'HI'
-          | 'ID'
-          | 'IL'
-          | 'IN'
-          | 'IA'
-          | 'KS'
-          | 'KY'
-          | 'LA'
-          | 'ME'
-          | 'MD'
-          | 'MA'
-          | 'MI'
-          | 'MN'
-          | 'MS'
-          | 'MO'
-          | 'MT'
-          | 'NE'
-          | 'NV'
-          | 'NH'
-          | 'NJ'
-          | 'NM'
-          | 'NY'
-          | 'NC'
-          | 'ND'
-          | 'OH'
-          | 'OK'
-          | 'OR'
-          | 'PA'
-          | 'RI'
-          | 'SC'
-          | 'SD'
-          | 'TN'
-          | 'TX'
-          | 'UT'
-          | 'VT'
-          | 'VA'
-          | 'WA'
-          | 'WV'
-          | 'WI'
-          | 'WY'
-          | 'DC'
-        )
-      | null;
-    zip?: string | null;
-    country?: 'US' | null;
-    /**
-     * @minItems 2
-     * @maxItems 2
-     */
-    coordinates?: [number, number] | null;
-    /**
-     * URL for virtual event (Zoom, Teams, etc.)
-     */
-    virtualUrl?: string | null;
-    /**
-     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
-     */
-    extraInfo?: string | null;
-  };
-  featuredImage?: (number | null) | Media;
-  /**
-   * External registration link
-   */
-  registrationUrl?: string | null;
-  /**
-   * Optional external landing page (takes precedence over event page)
-   */
-  externalEventUrl?: string | null;
-  /**
-   * Registration cutoff
-   */
-  registrationDeadline?: string | null;
-  /**
-   * Maximum attendees
-   */
-  capacity?: number | null;
-  /**
-   * Event cost in dollars
-   */
-  cost?: number | null;
-  /**
-   * Skill level required for this event
-   */
-  skillRating?: ('0' | '1' | '2' | '3') | null;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  blocksInContent?:
-    | {
-        blockType?: string | null;
-        collection?: string | null;
-        docId?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  slug: string;
-  eventType: number | EventType;
-  /**
-   * Optional event sub type
-   */
-  eventSubType?: (number | null) | EventSubType;
-  /**
-   * Mode of travel for this event
-   */
-  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe' | 'any') | null;
-  tenant?: (number | null) | Tenant;
-  provider?: (number | null) | Provider;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "providers".
- */
-export interface Provider {
-  id: number;
-  name: string;
-  location?: {
-    address?: string | null;
-    city?: string | null;
-    state?:
-      | (
-          | 'AL'
-          | 'AK'
-          | 'AZ'
-          | 'AR'
-          | 'CA'
-          | 'CO'
-          | 'CT'
-          | 'DE'
-          | 'FL'
-          | 'GA'
-          | 'HI'
-          | 'ID'
-          | 'IL'
-          | 'IN'
-          | 'IA'
-          | 'KS'
-          | 'KY'
-          | 'LA'
-          | 'ME'
-          | 'MD'
-          | 'MA'
-          | 'MI'
-          | 'MN'
-          | 'MS'
-          | 'MO'
-          | 'MT'
-          | 'NE'
-          | 'NV'
-          | 'NH'
-          | 'NJ'
-          | 'NM'
-          | 'NY'
-          | 'NC'
-          | 'ND'
-          | 'OH'
-          | 'OK'
-          | 'OR'
-          | 'PA'
-          | 'RI'
-          | 'SC'
-          | 'SD'
-          | 'TN'
-          | 'TX'
-          | 'UT'
-          | 'VT'
-          | 'VA'
-          | 'WA'
-          | 'WV'
-          | 'WI'
-          | 'WY'
-          | 'DC'
-        )
-      | null;
-    zip?: string | null;
-    country?: 'US' | null;
-    /**
-     * @minItems 2
-     * @maxItems 2
-     */
-    coordinates?: [number, number] | null;
-  };
-  events?: {
-    docs?: (number | Event)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  slug: string;
-  token?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleEventBlock".
- */
-export interface SingleEventBlock {
-  backgroundColor: string;
-  /**
-   * Select an event to display
-   */
-  event: number | Event;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleEvent';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2405,12 +2401,12 @@ export interface PayloadLockedDocument {
         value: number | Event;
       } | null)
     | ({
-        relationTo: 'eventTypes';
-        value: number | EventType;
+        relationTo: 'eventGroups';
+        value: number | EventGroup;
       } | null)
     | ({
-        relationTo: 'eventSubTypes';
-        value: number | EventSubType;
+        relationTo: 'eventTags';
+        value: number | EventTag;
       } | null)
     | ({
         relationTo: 'providers';
@@ -2544,9 +2540,13 @@ export interface HomePagesSelect<T extends boolean = true> {
     | {
         biography?: T | BiographyBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
+        eventList?: T | EventListBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
@@ -2554,12 +2554,8 @@ export interface HomePagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
-        genericEmbed?: T | GenericEmbedBlockSelect<T>;
-        eventList?: T | EventListBlockSelect<T>;
-        singleEvent?: T | SingleEventBlockSelect<T>;
       };
   blocksInHighlightedContent?:
     | T
@@ -2613,6 +2609,16 @@ export interface BlogListBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock_select".
+ */
+export interface SingleBlogPostBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
+  post?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
@@ -2639,12 +2645,60 @@ export interface DocumentBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventListBlock_select".
+ */
+export interface EventListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  backgroundColor?: T;
+  eventOptions?: T;
+  dynamicOptions?:
+    | T
+    | {
+        sortBy?: T;
+        filterByEventTypes?: T;
+        filterByEventSubTypes?: T;
+        showUpcomingOnly?: T;
+        maxEvents?: T;
+        queriedEvents?: T;
+      };
+  staticOptions?:
+    | T
+    | {
+        staticEvents?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleEventBlock_select".
+ */
+export interface SingleEventBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
+  event?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock_select".
  */
 export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GenericEmbedBlock_select".
+ */
+export interface GenericEmbedBlockSelect<T extends boolean = true> {
+  html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
   id?: T;
   blockName?: T;
 }
@@ -2767,16 +2821,6 @@ export interface MediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock_select".
- */
-export interface SingleBlogPostBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  post?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SponsorsBlock_select".
  */
 export interface SponsorsBlockSelect<T extends boolean = true> {
@@ -2793,54 +2837,6 @@ export interface SponsorsBlockSelect<T extends boolean = true> {
  */
 export interface TeamBlockSelect<T extends boolean = true> {
   team?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "GenericEmbedBlock_select".
- */
-export interface GenericEmbedBlockSelect<T extends boolean = true> {
-  html?: T;
-  backgroundColor?: T;
-  alignContent?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EventListBlock_select".
- */
-export interface EventListBlockSelect<T extends boolean = true> {
-  heading?: T;
-  belowHeadingContent?: T;
-  backgroundColor?: T;
-  eventOptions?: T;
-  dynamicOptions?:
-    | T
-    | {
-        sortBy?: T;
-        filterByEventTypes?: T;
-        filterByEventSubTypes?: T;
-        showUpcomingOnly?: T;
-        maxEvents?: T;
-        queriedEvents?: T;
-      };
-  staticOptions?:
-    | T
-    | {
-        staticEvents?: T;
-      };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleEventBlock_select".
- */
-export interface SingleEventBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  event?: T;
   id?: T;
   blockName?: T;
 }
@@ -2867,22 +2863,22 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         biography?: T | BiographyBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
+        eventList?: T | EventListBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
+        genericEmbed?: T | GenericEmbedBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
-        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
-        genericEmbed?: T | GenericEmbedBlockSelect<T>;
-        eventList?: T | EventListBlockSelect<T>;
-        singleEvent?: T | SingleEventBlockSelect<T>;
       };
   meta?:
     | T
@@ -3119,8 +3115,10 @@ export interface EventsSelect<T extends boolean = true> {
         id?: T;
       };
   slug?: T;
-  eventType?: T;
-  eventSubType?: T;
+  type?: T;
+  subType?: T;
+  eventGroups?: T;
+  eventTags?: T;
   modeOfTravel?: T;
   tenant?: T;
   provider?: T;
@@ -3130,13 +3128,12 @@ export interface EventsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTypes_select".
+ * via the `definition` "eventGroups_select".
  */
-export interface EventTypesSelect<T extends boolean = true> {
+export interface EventGroupsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   description?: T;
-  crmId?: T;
-  crmIntegration?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -3144,14 +3141,12 @@ export interface EventTypesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventSubTypes_select".
+ * via the `definition` "eventTags_select".
  */
-export interface EventSubTypesSelect<T extends boolean = true> {
+export interface EventTagsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   description?: T;
-  eventType?: T;
-  crmId?: T;
-  crmIntegration?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;

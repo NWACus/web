@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import type { Event } from '@/payload-types'
 
+import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import { Button } from './ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 
@@ -66,14 +67,13 @@ export const EventsTable = ({ events }: EventsTableProps) => {
           ) : (
             events.map((event) => {
               const locationText = getLocationText(event.location)
-              const eventTypeName =
-                event.eventType && typeof event.eventType !== 'number'
-                  ? event.eventType.title
-                  : null
-              const eventSubTypeName =
-                event.eventSubType && typeof event.eventSubType !== 'number'
-                  ? event.eventSubType.title
-                  : null
+
+              const eventTypeName = event.type
+                ? eventTypesData.find((et) => et.value === event.type)?.label
+                : null
+              const eventSubTypeName = event.subType
+                ? eventSubTypesData.find((et) => et.value === event.subType)?.label
+                : null
 
               const typeDisplayText =
                 eventTypeName && eventSubTypeName

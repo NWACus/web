@@ -1,8 +1,8 @@
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
-import { Suspense } from 'react'
 
+import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import { EventCollection } from '@/components/EventCollection'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
@@ -41,22 +41,24 @@ export default async function Page({ params, searchParams }: Args) {
     return notFound()
   }
 
+  const orConditions: Where[] = []
+
+  if (selectedTypes?.length) {
+    orConditions.push({ type: { in: selectedTypes } })
+  }
+
+  if (selectedSubTypes?.length) {
+    orConditions.push({ subType: { in: selectedSubTypes } })
+  }
+
   const whereConditions: Where = {
     'tenant.slug': {
       equals: center,
     },
   }
 
-  if (selectedTypes && selectedTypes.length > 0) {
-    whereConditions['eventType.id'] = {
-      in: selectedTypes,
-    }
-  }
-
-  if (selectedSubTypes && selectedSubTypes.length > 0) {
-    whereConditions['eventSubType.id'] = {
-      in: selectedSubTypes,
-    }
+  if (orConditions.length > 0) {
+    whereConditions.or = orConditions
   }
 
   const events = await payload.find({
@@ -66,35 +68,15 @@ export default async function Page({ params, searchParams }: Args) {
     where: whereConditions,
   })
 
-  const eventTypes = await payload.find({
-    collection: 'eventTypes',
-    depth: 1,
-    limit: 99,
-    pagination: false,
-    sort: 'name',
-  })
-
-  const eventSubTypes = await payload.find({
-    collection: 'eventSubTypes',
-    depth: 1,
-    limit: 99,
-    pagination: false,
-    sort: 'name',
-  })
-
   return (
     <div className="pt-4">
       <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
         <div className="grow">
-          <Suspense fallback={<div>Loading events...</div>}>
-            <EventCollection events={events.docs} />
-          </Suspense>
+          <EventCollection events={events.docs} />
         </div>
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <Suspense fallback={<div>Loading filters...</div>}>
-            <EventsFilters eventTypes={eventTypes.docs} eventSubTypes={eventSubTypes.docs} />
-          </Suspense>
+          <EventsFilters types={eventTypesData} subTypes={eventSubTypesData} />
         </div>
       </div>
 
