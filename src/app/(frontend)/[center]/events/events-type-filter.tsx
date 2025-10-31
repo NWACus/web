@@ -4,7 +4,7 @@ import { EventSubType, EventType } from '@/collections/Events/constants'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Minus } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 type Props = {
   types: EventType[]
@@ -16,132 +16,128 @@ type ParentState = 'unchecked' | 'checked' | 'indeterminate'
 export const EventsTypeFilter = ({ types, subTypes }: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const hasUserInteracted = useRef(false)
 
-  // Initialize from URL params
-  const [selectedSubTypes, setSelectedSubTypes] = useState(
-    () => new Set(searchParams.get('subtypes')?.split(',').filter(Boolean) || []),
-  )
-
-  const [selectedTypesWithoutSubTypes, setSelectedTypesWithoutSubTypes] = useState(() => {
-    const typesFromUrl = searchParams.get('types')?.split(',').filter(Boolean) || []
-    return new Set(typesFromUrl.filter((typeId) => !subTypes.some((st) => st.eventType === typeId)))
+  const [selectedSubTypes, setSelectedSubTypes] = useState<string[]>(() => {
+    const subTypesParam = searchParams.get('subtypes')
+    return subTypesParam ? subTypesParam.split(',').filter(Boolean) : []
   })
 
-  // Create lookup map: typeId -> [subTypeId, subTypeId, ...]
-  const subTypesByParent = useMemo(
-    () =>
-      subTypes.reduce(
-        (acc, subType) => {
-          const parentId = subType.eventType
-          if (!acc[parentId]) acc[parentId] = []
-          acc[parentId].push(subType.value)
-          return acc
-        },
-        {} as Record<string, string[]>,
-      ),
-    [subTypes],
+  const [selectedTypesWithoutSubTypes, setSelectedTypesWithoutSubTypes] = useState<string[]>(() => {
+    const typesParam = searchParams.get('types')
+    const typesFromUrl = typesParam ? typesParam.split(',').filter(Boolean) : []
+    return typesFromUrl.filter((typeId) => !subTypes.some((st) => st.eventType === typeId))
+  })
+
+  const subTypesByType = subTypes.reduce(
+    (acc, subType) => {
+      const parentId = subType.eventType
+      if (!acc[parentId]) acc[parentId] = []
+      acc[parentId].push(subType.value)
+      return acc
+    },
+    {} as Record<string, string[]>,
   )
 
   // Determine state of parent checkbox
   const getParentState = useCallback(
     (typeId: string): ParentState => {
-      const childIds = subTypesByParent[typeId] || []
+      const childIds = subTypesByType[typeId] || []
 
       if (childIds.length === 0) {
-        return selectedTypesWithoutSubTypes.has(typeId) ? 'checked' : 'unchecked'
+        return selectedTypesWithoutSubTypes.includes(typeId) ? 'checked' : 'unchecked'
       }
 
-      const selectedCount = childIds.filter((id) => selectedSubTypes.has(id)).length
+      const selectedCount = childIds.filter((id) => selectedSubTypes.includes(id)).length
       if (selectedCount === 0) return 'unchecked'
       if (selectedCount === childIds.length) return 'checked'
       return 'indeterminate'
     },
-    [selectedSubTypes, selectedTypesWithoutSubTypes, subTypesByParent],
+    [selectedSubTypes, selectedTypesWithoutSubTypes, subTypesByType],
+  )
+
+  const pushUpdatedParams = useCallback(
+    (newSubTypes: string[], newTypesWithoutSubTypes: string[]) => {
+      const params = new URLSearchParams(searchParams.toString())
+
+      const typesWithSubTypesSelected = types
+        .filter((type) => {
+          const childIds = subTypesByType[type.value]
+          if (!childIds?.length) return false
+          return (
+            newTypesWithoutSubTypes.includes(type.value) ||
+            childIds.some((id) => newSubTypes.includes(id))
+          )
+        })
+        .map((type) => type.value)
+
+      const allSelectedTypes = [...typesWithSubTypesSelected, ...newTypesWithoutSubTypes]
+
+      if (allSelectedTypes.length > 0) {
+        params.set('types', allSelectedTypes.join(','))
+      } else {
+        params.delete('types')
+      }
+
+      if (newSubTypes.length > 0) {
+        params.set('subtypes', newSubTypes.join(','))
+      } else {
+        params.delete('subtypes')
+      }
+
+      router.push(`/events?${params.toString()}`, { scroll: false })
+    },
+    [searchParams, types, subTypesByType, router],
   )
 
   // Toggle parent type
   const toggleType = useCallback(
     (typeId: string) => {
-      hasUserInteracted.current = true
-      const childIds = subTypesByParent[typeId] || []
+      const childIds = subTypesByType[typeId] || []
 
+      // Type has no subtypes - toggle it directly
       if (childIds.length === 0) {
-        // Type has no subtypes - toggle it directly
-        setSelectedTypesWithoutSubTypes((prev) => {
-          const selectedTypes = new Set(prev)
-          if (selectedTypes.has(typeId)) selectedTypes.delete(typeId)
-          else selectedTypes.add(typeId)
-          return selectedTypes
-        })
+        const newTypes = selectedTypesWithoutSubTypes.includes(typeId)
+          ? selectedTypesWithoutSubTypes.filter((t) => t !== typeId)
+          : [...selectedTypesWithoutSubTypes, typeId]
+        setSelectedTypesWithoutSubTypes(newTypes)
+        pushUpdatedParams(selectedSubTypes, newTypes)
       } else {
         // Type has subtypes - toggle all children
         const state = getParentState(typeId)
-        setSelectedSubTypes((prev) => {
-          const selectedSubTypes = new Set(prev)
-          const shouldCheck = state === 'indeterminate' || state === 'unchecked'
-          childIds.forEach((id) =>
-            shouldCheck ? selectedSubTypes.add(id) : selectedSubTypes.delete(id),
-          )
-          return selectedSubTypes
-        })
+        const shouldCheck = state === 'indeterminate' || state === 'unchecked'
+        const newSubTypes = shouldCheck
+          ? Array.from(new Set([...selectedSubTypes, ...childIds]))
+          : selectedSubTypes.filter((id) => !childIds.includes(id))
+        setSelectedSubTypes(newSubTypes)
+        pushUpdatedParams(newSubTypes, selectedTypesWithoutSubTypes)
       }
     },
-    [getParentState, subTypesByParent],
+    [
+      getParentState,
+      subTypesByType,
+      selectedTypesWithoutSubTypes,
+      selectedSubTypes,
+      pushUpdatedParams,
+    ],
   )
 
   // Toggle individual subtype
-  const toggleSubType = useCallback((subTypeId: string) => {
-    hasUserInteracted.current = true
-    setSelectedSubTypes((prev) => {
-      const selectedSubTypes = new Set(prev)
-      if (selectedSubTypes.has(subTypeId)) selectedSubTypes.delete(subTypeId)
-      else selectedSubTypes.add(subTypeId)
-      return selectedSubTypes
-    })
-  }, [])
-
-  // Update URL params when selections change
-  useEffect(() => {
-    if (!hasUserInteracted.current) return
-
-    const params = new URLSearchParams(searchParams.toString())
-
-    // Types with subtypes that have selections
-    const typesWithSubTypesSelected = types
-      .filter((type) => {
-        const childIds = subTypesByParent[type.value]
-        if (!childIds?.length) return false
-        const state = getParentState(type.value)
-        return state === 'checked' || state === 'indeterminate'
-      })
-      .map((type) => type.value)
-
-    // Combine with standalone types
-    const allSelectedTypes = [...typesWithSubTypesSelected, ...selectedTypesWithoutSubTypes]
-
-    if (allSelectedTypes.length > 0) params.set('types', allSelectedTypes.join(','))
-    else params.delete('types')
-
-    if (selectedSubTypes.size > 0) params.set('subtypes', Array.from(selectedSubTypes).join(','))
-    else params.delete('subtypes')
-
-    router.push(`/events?${params.toString()}`, { scroll: false })
-  }, [
-    router,
-    searchParams,
-    selectedSubTypes,
-    selectedTypesWithoutSubTypes,
-    types,
-    getParentState,
-    subTypesByParent,
-  ])
+  const toggleSubType = useCallback(
+    (subTypeId: string) => {
+      const newSubTypes = selectedSubTypes.includes(subTypeId)
+        ? selectedSubTypes.filter((s) => s !== subTypeId)
+        : [...selectedSubTypes, subTypeId]
+      setSelectedSubTypes(newSubTypes)
+      pushUpdatedParams(newSubTypes, selectedTypesWithoutSubTypes)
+    },
+    [selectedSubTypes, selectedTypesWithoutSubTypes, pushUpdatedParams],
+  )
 
   return (
     <div className="space-y-6">
       {types.length > 0 && (
         <div className="mb-4">
-          <h4 className="w-full">Filter by type</h4>
+          <h3 className="font-semibold">Filter by type</h3>
           <hr className="p-2" />
           <ul className="flex flex-col gap-1.5 p-0 list-none">
             {types.map((type) => {
@@ -173,11 +169,11 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
                           <div
                             className="cursor-pointer flex items-center"
                             onClick={() => toggleSubType(subType.value)}
-                            aria-pressed={selectedSubTypes.has(subType.value)}
+                            aria-pressed={selectedSubTypes.includes(subType.value)}
                           >
                             <Checkbox
                               className="mr-2"
-                              checked={selectedSubTypes.has(subType.value)}
+                              checked={selectedSubTypes.includes(subType.value)}
                             />
                             {subType.label}
                           </div>

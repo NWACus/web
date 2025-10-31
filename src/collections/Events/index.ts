@@ -317,7 +317,7 @@ export const Events: CollectionConfig = {
         value: eventSubType.value,
       })),
       filterOptions: ({ data, options }) => {
-        if (!data.eventType) return options
+        if (!data.type) return options
 
         // Get all allowed values for the selected eventType from the data
         const allowedValues = eventSubTypesData

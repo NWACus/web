@@ -23,8 +23,8 @@ export default async function Page({ params, searchParams }: Args) {
   const resolvedSearchParams = await searchParams
   const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
   const selectedSubTypes = resolvedSearchParams?.subtypes?.split(',').filter(Boolean)
-  const selectedStartDate = resolvedSearchParams?.startDate
-  const selectedEndDate = resolvedSearchParams?.endDate
+  const selectedStartDate = resolvedSearchParams?.startDate || ''
+  const selectedEndDate = resolvedSearchParams?.endDate || ''
 
   const payload = await getPayload({ config: configPromise })
 

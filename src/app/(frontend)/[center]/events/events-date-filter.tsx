@@ -10,9 +10,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { X } from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+
 type Props = {
   startDate: string
   endDate: string
@@ -29,6 +30,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   const currentYear = today.getFullYear()
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const getDateRange = (type: string) => {
     const now = new Date()
@@ -92,32 +94,36 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     setCustomEnd(end)
   }
 
-  const handleCustomDateChange = () => {
+  const handleCustomDateChange = (start: string, end: string) => {
     setFilterType('custom')
+    setCustomStart(start)
+    setCustomEnd(end)
   }
 
   const clearFilter = () => {
     setFilterType('')
     setCustomStart('')
     setCustomEnd('')
-    router.push(pathname)
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('startDate')
+    params.delete('endDate')
+    router.push(`${pathname}?${params.toString()}`)
   }
 
-  const updateQueryParams = useCallback(
-    (start: string, end: string) => {
-      const params = new URLSearchParams()
-      params.append('startDate', start)
-      params.append('endDate', end)
-      router.push(`${pathname}?${params.toString()}`)
-    },
-    [pathname, router],
-  )
-
   useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+
     if (customStart && customEnd) {
-      updateQueryParams(customStart, customEnd)
+      params.set('startDate', customStart)
+      params.set('endDate', customEnd)
+    } else {
+      params.delete('startDate')
+      params.delete('endDate')
     }
-  }, [customStart, customEnd, updateQueryParams])
+
+    router.push(`${pathname}?${params.toString()}`)
+  }, [customStart, customEnd, pathname, router, searchParams])
 
   const months = [
     'January',
@@ -139,7 +145,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   return (
     <div className="w-full">
       <div className="flex justify-between items-center">
-        <h3>Filter by date</h3>
+        <h3 className="font-semibold">Filter by date</h3>
         {filterType && (
           <Button onClick={clearFilter} variant="ghost">
             <X width={16} />
@@ -230,10 +236,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
             <Input
               type="date"
               value={customStart}
-              onChange={(e) => {
-                setCustomStart(e.target.value)
-                handleCustomDateChange()
-              }}
+              onChange={(e) => handleCustomDateChange(e.target.value, customEnd)}
             />
           </div>
           <div>
@@ -241,10 +244,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
             <Input
               type="date"
               value={customEnd}
-              onChange={(e) => {
-                setCustomEnd(e.target.value)
-                handleCustomDateChange()
-              }}
+              onChange={(e) => handleCustomDateChange(customStart, e.target.value)}
             />
           </div>
         </div>
