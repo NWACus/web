@@ -157,10 +157,6 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
   useEffect(() => {
     const todayStr = new Date().toISOString().split('T')[0]
-    // Only set to upcoming if we have a start date passed as prop (meaning it came from page default)
-    if (startDate && !endDate && startDate === todayStr) {
-      setFilterType('upcoming')
-    }
     // On initial load with no params, set upcoming filter
     if (isInitialMount.current && !startDate && !endDate) {
       setFilterType('upcoming')
