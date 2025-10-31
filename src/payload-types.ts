@@ -141,10 +141,12 @@ export interface Config {
   globals: {
     nacWidgetsConfig: NacWidgetsConfig;
     diagnostics: Diagnostic;
+    aaaManagement: AaaManagement;
   };
   globalsSelect: {
     nacWidgetsConfig: NacWidgetsConfigSelect<false> | NacWidgetsConfigSelect<true>;
     diagnostics: DiagnosticsSelect<false> | DiagnosticsSelect<true>;
+    aaaManagement: AaaManagementSelect<false> | AaaManagementSelect<true>;
   };
   locale: null;
   user: User & {
@@ -947,6 +949,7 @@ export interface EventTag {
 export interface Provider {
   id: number;
   name: string;
+  details?: string | null;
   location?: {
     address?: string | null;
     city?: string | null;
@@ -1013,6 +1016,10 @@ export interface Provider {
      */
     coordinates?: [number, number] | null;
   };
+  /**
+   * These are the course types this provider is approved to create.
+   */
+  courseTypes: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   events?: {
     docs?: (number | Event)[];
     hasNextPage?: boolean;
@@ -1592,6 +1599,7 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  providers?: (number | null) | Provider;
   inviteToken?: string | null;
   inviteExpiration?: string | null;
   lastLogin?: string | null;
@@ -3158,6 +3166,7 @@ export interface EventTagsSelect<T extends boolean = true> {
  */
 export interface ProvidersSelect<T extends boolean = true> {
   name?: T;
+  details?: T;
   location?:
     | T
     | {
@@ -3168,6 +3177,7 @@ export interface ProvidersSelect<T extends boolean = true> {
         country?: T;
         coordinates?: T;
       };
+  courseTypes?: T;
   events?: T;
   slug?: T;
   token?: T;
@@ -3210,6 +3220,7 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
   globalRoleAssignments?: T;
+  providers?: T;
   inviteToken?: T;
   inviteExpiration?: T;
   lastLogin?: T;
@@ -3923,6 +3934,22 @@ export interface Diagnostic {
   createdAt?: string | null;
 }
 /**
+ * Manage settings for American Avalanche Association features like external event management.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "aaaManagement".
+ */
+export interface AaaManagement {
+  id: number;
+  /**
+   * These users will receive notifications when new provider applications are submitted.
+   */
+  notificationReceivers?: (number | User)[] | null;
+  providerManagerRole?: (number | null) | GlobalRole;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "nacWidgetsConfig_select".
  */
@@ -3938,6 +3965,17 @@ export interface NacWidgetsConfigSelect<T extends boolean = true> {
  * via the `definition` "diagnostics_select".
  */
 export interface DiagnosticsSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "aaaManagement_select".
+ */
+export interface AaaManagementSelect<T extends boolean = true> {
+  notificationReceivers?: T;
+  providerManagerRole?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -169,8 +169,29 @@ export const seed = async ({
             },
           ],
         },
+        {
+          name: 'Provider Manager',
+          rules: [
+            {
+              collections: ['providers', 'aaaManagement', 'events'],
+              actions: ['*'],
+            },
+          ],
+        },
       ],
     )
+
+    // Set up AAA Management global with Provider Manager role
+    await payload.updateGlobal({
+      slug: 'aaaManagement',
+      data: {
+        providerManagerRole: globalRoles['Provider Manager'].id,
+      },
+      depth: 0,
+      context: {
+        disableRevalidate: true,
+      },
+    })
 
     const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
       {
@@ -554,6 +575,11 @@ export const seed = async ({
         email: 'multicenter@avy.com',
         password: password,
       },
+      {
+        name: 'Provider Manager',
+        email: 'provider-manager@avy.com',
+        password: password,
+      },
     ])
 
     const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
@@ -564,6 +590,17 @@ export const seed = async ({
       data: {
         user: users['Super Admin'].id,
         globalRole: globalRoles['Super Admin'].id,
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    await payload.create({
+      collection: 'globalRoleAssignments',
+      data: {
+        user: users['Provider Manager'].id,
+        globalRole: globalRoles['Provider Manager'].id,
       },
       context: {
         disableRevalidate: true,

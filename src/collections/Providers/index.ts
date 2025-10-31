@@ -3,6 +3,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { coreLocationFields } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { CollectionConfig } from 'payload'
+import { eventSubTypesData } from '../Events/constants'
 import { setToken } from './hooks/SetToken'
 
 export const Providers: CollectionConfig = {
@@ -19,9 +20,34 @@ export const Providers: CollectionConfig = {
       required: true,
     },
     {
+      name: 'details',
+      type: 'textarea',
+    },
+    {
       name: 'location',
       type: 'group',
       fields: coreLocationFields,
+    },
+    {
+      type: 'group',
+      label: 'accreditations',
+      fields: [
+        {
+          name: 'courseTypes',
+          label: 'Approved Course Types',
+          type: 'select',
+          required: true,
+          admin: {
+            description: 'These are the course types this provider is approved to create.',
+          },
+          options: eventSubTypesData
+            .filter((subType) => subType.eventType === 'course-by-external-provider')
+            .map((eventSubType) => ({
+              label: eventSubType.label,
+              value: eventSubType.value,
+            })),
+        },
+      ],
     },
     {
       name: 'events',
@@ -53,4 +79,5 @@ export const Providers: CollectionConfig = {
   hooks: {
     beforeChange: [setToken],
   },
+  versions: true,
 }
