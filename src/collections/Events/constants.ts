@@ -47,7 +47,7 @@ export type EventSubType = {
   label: string
   value: string
   description?: string | null
-  eventType: string
+  eventType: 'course-by-external-provider' // this type could be expanded to include other eventTypes in the future
 }
 export const eventSubTypesData: EventSubType[] = [
   // Sub-types for Course by External Provider (A3 courses)

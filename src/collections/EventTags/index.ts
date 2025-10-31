@@ -1,4 +1,4 @@
-import { accessByGlobalRoleWithAuthenticatedRead } from '@/access/byGlobalRole'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
@@ -7,7 +7,7 @@ import { CollectionConfig } from 'payload'
 
 export const EventTags: CollectionConfig = {
   slug: 'eventTags',
-  access: accessByGlobalRoleWithAuthenticatedRead('eventTags'),
+  access: accessByTenantRole('eventTags'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Events',
