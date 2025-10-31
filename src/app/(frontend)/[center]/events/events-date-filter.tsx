@@ -75,7 +75,8 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
         end.setDate(start.getDate() + 6)
         break
       }
-      case 'thisMonth': {
+      case 'thisMonth':
+      case 'custom': {
         start = new Date(today.getFullYear(), today.getMonth(), 1)
         end = new Date(today.getFullYear(), today.getMonth() + 1, 0)
         break
@@ -221,69 +222,80 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
           >
             Next Month
           </Button>
+          <Button
+            onClick={() => handleQuickFilter('custom')}
+            variant={filterType === 'custom' ? 'callout' : 'outline'}
+            className="w-1/3"
+          >
+            Custom
+          </Button>
         </ButtonGroup>
       </div>
 
-      {/* Month/Year Selection */}
-      <div className="mb-4">
-        <h4>Select Month & Year</h4>
-        <div className="flex gap-3">
-          <Select
-            value={selectedMonth}
-            onValueChange={(month) => handleMonthYearChange(month, selectedYear)}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month, idx) => (
-                <SelectItem key={month} value={idx.toString()}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {filterType === 'custom' && (
+        <>
+          {/* Month/Year Selection */}
+          <div className="mb-4">
+            <h4>Select Month & Year</h4>
+            <div className="flex gap-3">
+              <Select
+                value={selectedMonth}
+                onValueChange={(month) => handleMonthYearChange(month, selectedYear)}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((month, idx) => (
+                    <SelectItem key={month} value={idx.toString()}>
+                      {month}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-          <Select
-            value={selectedYear}
-            onValueChange={(year) => handleMonthYearChange(selectedMonth, year)}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+              <Select
+                value={selectedYear}
+                onValueChange={(year) => handleMonthYearChange(selectedMonth, year)}
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-      {/* Custom Date Range */}
-      <div>
-        <h4>Custom Date Range</h4>
-        <div className="flex gap-4">
+          {/* Custom Date Range */}
           <div>
-            <label className="block text-sm font-medium text-gray-400">Start Date</label>
-            <Input
-              type="date"
-              value={customStart}
-              onChange={(e) => handleCustomDateChange(e.target.value, customEnd)}
-            />
+            <h4>Custom Date Range</h4>
+            <div className="flex gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400">Start Date</label>
+                <Input
+                  type="date"
+                  value={customStart}
+                  onChange={(e) => handleCustomDateChange(e.target.value, customEnd)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400">End Date</label>
+                <Input
+                  type="date"
+                  value={customEnd}
+                  onChange={(e) => handleCustomDateChange(customStart, e.target.value)}
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-400">End Date</label>
-            <Input
-              type="date"
-              value={customEnd}
-              onChange={(e) => handleCustomDateChange(customStart, e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
