@@ -20,47 +20,63 @@ type Props = {
 }
 
 export const EventsDatePicker = ({ startDate, endDate }: Props) => {
-  const [filterType, setFilterType] = useState('')
-  const [customStart, setCustomStart] = useState(startDate || '')
-  const [customEnd, setCustomEnd] = useState(endDate || '')
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth().toString())
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString())
-
   const today = new Date()
+  const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ]
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i)
+
+  const [filterType, setFilterType] = useState('')
+  const [customStart, setCustomStart] = useState(startDate)
+  const [customEnd, setCustomEnd] = useState(endDate || '')
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString())
+  const [selectedYear, setSelectedYear] = useState(currentYear.toString())
+
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const getDateRange = (type: string) => {
-    const now = new Date()
     let start, end
 
     switch (type) {
       case 'thisWeek': {
-        const dayOfWeek = now.getDay()
-        start = new Date(now)
-        start.setDate(now.getDate() - dayOfWeek)
+        const dayOfWeek = today.getDay()
+        start = new Date(today)
+        start.setDate(today.getDate() - dayOfWeek)
         end = new Date(start)
         end.setDate(start.getDate() + 6)
         break
       }
       case 'nextWeek': {
-        const dayOfWeek = now.getDay()
-        start = new Date(now)
-        start.setDate(now.getDate() + (7 - dayOfWeek))
+        const dayOfWeek = today.getDay()
+        start = new Date(today)
+        start.setDate(today.getDate() + (7 - dayOfWeek))
         end = new Date(start)
         end.setDate(start.getDate() + 6)
         break
       }
       case 'thisMonth': {
-        start = new Date(now.getFullYear(), now.getMonth(), 1)
-        end = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+        start = new Date(today.getFullYear(), today.getMonth(), 1)
+        end = new Date(today.getFullYear(), today.getMonth() + 1, 0)
         break
       }
       case 'nextMonth': {
-        start = new Date(now.getFullYear(), now.getMonth() + 1, 1)
-        end = new Date(now.getFullYear(), now.getMonth() + 2, 0)
+        start = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+        end = new Date(today.getFullYear(), today.getMonth() + 2, 0)
         break
       }
       default:
@@ -124,23 +140,6 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
     router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }, [customStart, customEnd, pathname, router, searchParams])
-
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ]
-
-  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i)
 
   return (
     <div className="w-full">
