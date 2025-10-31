@@ -1,7 +1,11 @@
 import { RoleAssignment, User } from '@/payload-types'
+import { ClientUser } from 'payload'
 import { Logger } from 'pino'
 
-export const roleAssignmentsForUser = (logger: Logger, user: User): RoleAssignment[] => {
+export const roleAssignmentsForUser = (
+  logger: Logger,
+  user: User | ClientUser,
+): RoleAssignment[] => {
   const roleAssignments: RoleAssignment[] = []
   if (user.roles && user.roles.docs && user.roles.docs.length > 0) {
     for (const roleAssignment of user.roles.docs) {
