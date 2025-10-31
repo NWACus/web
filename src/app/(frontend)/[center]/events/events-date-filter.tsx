@@ -154,9 +154,13 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
   useEffect(() => {
     const todayStr = new Date().toISOString().split('T')[0]
-    // On initial load with no params, set upcoming filter
+    // On initial load with no params, set filter to 'Upcoming'
     if (isInitialMount.current && !startDate && !endDate) {
       updateDateSelection('upcoming', todayStr, '')
+    }
+    // On initial load with params, set filter to 'Custom'
+    if (isInitialMount.current && startDate && endDate) {
+      updateDateSelection('custom', startDate, endDate)
     }
     isInitialMount.current = false
   }, [endDate, startDate, updateDateSelection])
