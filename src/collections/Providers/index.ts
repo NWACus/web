@@ -36,7 +36,6 @@ export const Providers: CollectionConfig = {
           name: 'courseTypes',
           label: 'Approved Course Types',
           type: 'select',
-          required: true,
           admin: {
             description: 'These are the course types this provider is approved to create.',
           },

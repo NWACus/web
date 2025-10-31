@@ -1,4 +1,5 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
+import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
@@ -9,7 +10,7 @@ import { Access, CollectionConfig } from 'payload'
 // 2. Have a matching email domain to the tenant's customDomain
 export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) => Access =
   (method: ruleMethod): Access =>
-  (args) => {
+  async (args) => {
     if (!args.req.user) {
       return false
     }
@@ -62,6 +63,18 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
           },
         })),
       )
+    }
+
+    // Provider managers can see all users with provider relationship(s)
+    if (method === 'read') {
+      const isManager = await isProviderManager(args.req.payload, args.req.user)
+      if (isManager) {
+        conditions.push({
+          providers: {
+            exists: true,
+          },
+        })
+      }
     }
 
     if (conditions.length > 0) {

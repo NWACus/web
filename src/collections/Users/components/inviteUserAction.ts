@@ -5,7 +5,9 @@ import { User } from '@/payload-types'
 import { generateInviteUserEmail } from '@/utilities/email/generateInviteUserEmail'
 import { sendEmail } from '@/utilities/email/sendEmail'
 import { getURL } from '@/utilities/getURL'
+import { canManageProviders } from '@/utilities/rbac/canManageProviders'
 import { canAssignGlobalRole, canAssignRole } from '@/utilities/rbac/escalationCheck'
+import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import config from '@payload-config'
 import crypto from 'crypto'
 import { headers } from 'next/headers'
@@ -61,6 +63,7 @@ export async function inviteUserAction({
   name,
   roleAssignments,
   globalRoleAssignments,
+  providers = [],
 }: {
   email: string
   name: string
@@ -69,6 +72,7 @@ export async function inviteUserAction({
     tenantId: number
   }[]
   globalRoleAssignments: number[]
+  providers?: number[]
 }) {
   try {
     const payload = await getPayload({ config })
@@ -93,6 +97,73 @@ export async function inviteUserAction({
       throw new Error('You are not allowed to perform that action.')
     }
 
+    // Check if user is a provider manager and validate accordingly
+    const isManager = await isProviderManager(payload, loggedInUser)
+
+    if (isManager) {
+      // Provider managers can only assign providers, not roles or global roles
+      if (roleAssignments.length > 0 || globalRoleAssignments.length > 0) {
+        throw new ValidationError({
+          errors: [
+            {
+              message:
+                'Provider managers are only allowed to assign providers, not roles or global roles.',
+              path: 'roles',
+            },
+          ],
+        })
+      }
+
+      // Validate that the manager is only assigning providers they have access to
+      const userProviderIds = Array.isArray(loggedInUser.providers)
+        ? loggedInUser.providers
+            .map((p) => (typeof p === 'number' ? p : p?.id))
+            .filter((id): id is number => id !== undefined)
+        : []
+
+      const invalidProviders = providers.filter(
+        (providerId) => !userProviderIds.includes(providerId),
+      )
+
+      if (invalidProviders.length > 0) {
+        throw new ValidationError({
+          errors: [
+            {
+              message: 'You are not allowed to assign providers you do not have access to.',
+              path: 'providers',
+            },
+          ],
+        })
+      }
+
+      // Require at least one provider for provider managers
+      if (providers.length === 0) {
+        throw new ValidationError({
+          errors: [
+            {
+              message: 'At least one provider is required.',
+              path: 'providers',
+            },
+          ],
+        })
+      }
+    }
+
+    // Validate provider assignments for users with global provider permissions (not provider managers)
+    if (!isManager && providers.length > 0) {
+      const canAssign = await canManageProviders(payload, loggedInUser)
+      if (!canAssign) {
+        throw new ValidationError({
+          errors: [
+            {
+              message: 'You are not allowed to assign providers.',
+              path: 'providers',
+            },
+          ],
+        })
+      }
+    }
+
     const inviteExpiration = new Date(Date.now() + inviteTokenExpirationMs).toISOString()
 
     let user: User | undefined
@@ -108,6 +179,7 @@ export async function inviteUserAction({
           password: uuid(),
           inviteToken: crypto.randomBytes(20).toString('hex'),
           inviteExpiration,
+          providers: providers.length > 0 ? providers : undefined,
         },
         showHiddenFields: true,
       })

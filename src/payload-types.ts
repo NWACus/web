@@ -1019,7 +1019,7 @@ export interface Provider {
   /**
    * These are the course types this provider is approved to create.
    */
-  courseTypes: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
+  courseTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external') | null;
   events?: {
     docs?: (number | Event)[];
     hasNextPage?: boolean;
@@ -1599,7 +1599,7 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  providers?: (number | null) | Provider;
+  providers?: (number | Provider)[] | null;
   inviteToken?: string | null;
   inviteExpiration?: string | null;
   lastLogin?: string | null;

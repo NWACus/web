@@ -4,11 +4,26 @@ import { globalRoleAssignmentsForUser } from './globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from './roleAssignmentsForUser'
 import { ruleCollection, ruleMatches, ruleMethod } from './ruleMatches'
 
-// hasTenantRolePermission checks to see if the passed in user has a global or tenant role that grants them
+// hasGlobalOrTenantRolePermission checks to see if the passed in user has a global or tenant role that grants them
 // the passed in method + collection permission. This ignores which tenant they have that permission on.
 // This function is primarily used for sync `admin.hidden` functions on collections that have public read
 // but should not be visible in the admin panel for users without explicit read permission.
 export const hasGlobalOrTenantRolePermission = ({
+  method,
+  collection,
+  user,
+}: {
+  method: ruleMethod
+  collection: ruleCollection
+  user: User | ClientUser | null
+}): boolean => {
+  return (
+    hasGlobalRolePermission({ method, collection, user }) ||
+    hasTenantRolePermission({ method, collection, user })
+  )
+}
+
+export const hasGlobalRolePermission = ({
   method,
   collection,
   user,
@@ -31,9 +46,21 @@ export const hasGlobalOrTenantRolePermission = ({
     })
     .flat()
     .some(ruleMatches(method, collection))
-  if (globalRolesMatch) {
-    // user has access globally, access everything
-    return true
+
+  return globalRolesMatch
+}
+
+export const hasTenantRolePermission = ({
+  method,
+  collection,
+  user,
+}: {
+  method: ruleMethod
+  collection: ruleCollection
+  user: User | ClientUser | null
+}): boolean => {
+  if (!user) {
+    return false
   }
 
   const roleAssignments = roleAssignmentsForUser(payload.logger, user)
@@ -48,10 +75,5 @@ export const hasGlobalOrTenantRolePermission = ({
     .filter((tenant) => typeof tenant !== 'number') // captured in the getter
     .map((tenant) => tenant.id)
 
-  if (matchingTenantIds.length > 0) {
-    // if they have a matching rule for any tenant we return true
-    return true
-  }
-
-  return false
+  return matchingTenantIds.length > 0
 }
