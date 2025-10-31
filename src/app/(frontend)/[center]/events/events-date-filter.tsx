@@ -108,7 +108,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('startDate')
     params.delete('endDate')
-    router.push(`${pathname}?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
       params.delete('endDate')
     }
 
-    router.push(`${pathname}?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }, [customStart, customEnd, pathname, router, searchParams])
 
   const months = [

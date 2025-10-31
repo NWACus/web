@@ -50,6 +50,7 @@ export default async function Page({ params, searchParams }: Args) {
     return notFound()
   }
 
+  const conditions: Where[] = [{ 'tenant.slug': { equals: center } }]
   const orConditions: Where[] = []
 
   if (selectedTypes?.length) {
@@ -61,7 +62,7 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   if (selectedStartDate && selectedEndDate) {
-    orConditions.push({
+    conditions.push({
       startDate: {
         greater_than_equal: selectedStartDate,
         less_than_equal: selectedEndDate,
@@ -69,22 +70,18 @@ export default async function Page({ params, searchParams }: Args) {
     })
   }
 
-  const whereConditions: Where = {
-    'tenant.slug': {
-      equals: center,
-    },
-  }
-
   if (orConditions.length > 0) {
-    whereConditions.or = orConditions
+    conditions.push({ or: orConditions })
   }
 
+  const whereConditions: Where = { and: conditions }
   const events = await payload.find({
     collection: 'events',
     depth: 2,
     limit: EVENTS_LIMIT,
     page: parseInt(pageNumber),
     where: whereConditions,
+    sort: 'startDate',
   })
 
   return (
