@@ -68,6 +68,18 @@ export default async function Page({ params, searchParams }: Args) {
         less_than_equal: selectedEndDate,
       },
     })
+  } else if (selectedStartDate) {
+    conditions.push({
+      startDate: {
+        greater_than_equal: selectedStartDate,
+      },
+    })
+  } else if (selectedEndDate) {
+    conditions.push({
+      startDate: {
+        less_than_equal: selectedEndDate,
+      },
+    })
   }
 
   if (orConditions.length > 0) {

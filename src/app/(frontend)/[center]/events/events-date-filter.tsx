@@ -12,7 +12,7 @@ import {
 import { X } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 type Props = {
   startDate: string
@@ -44,6 +44,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   const [customEnd, setCustomEnd] = useState(endDate || '')
   const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString())
   const [selectedYear, setSelectedYear] = useState(currentYear.toString())
+  const isInitialMount = useRef(true)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -53,6 +54,11 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     let start, end
 
     switch (type) {
+      case 'upcoming': {
+        start = today
+        end = null
+        break
+      }
       case 'thisWeek': {
         const dayOfWeek = today.getDay()
         start = new Date(today)
@@ -85,7 +91,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
     return {
       start: start.toISOString().split('T')[0],
-      end: end.toISOString().split('T')[0],
+      end: end ? end.toISOString().split('T')[0] : null,
     }
   }
 
@@ -94,7 +100,8 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     if (range) {
       setFilterType(type)
       setCustomStart(range.start)
-      setCustomEnd(range.end)
+      setCustomEnd(range.end || '')
+      updateParams(range.start, range.end || '')
     }
   }
 
@@ -108,13 +115,33 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     setSelectedYear(year)
     setCustomStart(start)
     setCustomEnd(end)
+    updateParams(start, end)
   }
 
   const handleCustomDateChange = (start: string, end: string) => {
     setFilterType('custom')
     setCustomStart(start)
     setCustomEnd(end)
+    updateParams(start, end)
   }
+
+  const updateParams = useCallback(
+    (start: string, end: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (start) {
+        params.set('startDate', start)
+      } else {
+        params.delete('startDate')
+      }
+      if (end) {
+        params.set('endDate', end)
+      } else {
+        params.delete('endDate')
+      }
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    },
+    [pathname, router, searchParams],
+  )
 
   const clearFilter = () => {
     setFilterType('')
@@ -128,18 +155,20 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   }
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString())
-
-    if (customStart && customEnd) {
-      params.set('startDate', customStart)
-      params.set('endDate', customEnd)
-    } else {
-      params.delete('startDate')
-      params.delete('endDate')
+    const todayStr = new Date().toISOString().split('T')[0]
+    // Only set to upcoming if we have a start date passed as prop (meaning it came from page default)
+    if (startDate && !endDate && startDate === todayStr) {
+      setFilterType('upcoming')
     }
-
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
-  }, [customStart, customEnd, pathname, router, searchParams])
+    // On initial load with no params, set upcoming filter
+    if (isInitialMount.current && !startDate && !endDate) {
+      setFilterType('upcoming')
+      setCustomStart(todayStr)
+      setCustomEnd('')
+      updateParams(todayStr, '')
+    }
+    isInitialMount.current = false
+  }, [endDate, startDate, updateParams])
 
   return (
     <div className="w-full">
@@ -156,16 +185,23 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
       <div className="mb-4">
         <ButtonGroup className="w-full">
           <Button
+            onClick={() => handleQuickFilter('upcoming')}
+            variant={filterType === 'upcoming' ? 'callout' : 'outline'}
+            className="w-1/3"
+          >
+            Upcoming
+          </Button>
+          <Button
             onClick={() => handleQuickFilter('thisWeek')}
             variant={filterType === 'thisWeek' ? 'callout' : 'outline'}
-            className="w-1/2"
+            className="w-1/3"
           >
             This Week
           </Button>
           <Button
             onClick={() => handleQuickFilter('nextWeek')}
             variant={filterType === 'nextWeek' ? 'callout' : 'outline'}
-            className="w-1/2"
+            className="w-1/3"
           >
             Next Week
           </Button>
@@ -174,14 +210,14 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
           <Button
             onClick={() => handleQuickFilter('thisMonth')}
             variant={filterType === 'thisMonth' ? 'callout' : 'outline'}
-            className="w-1/2"
+            className="w-1/3"
           >
             This Month
           </Button>
           <Button
             onClick={() => handleQuickFilter('nextMonth')}
             variant={filterType === 'nextMonth' ? 'callout' : 'outline'}
-            className="w-1/2"
+            className="w-1/3"
           >
             Next Month
           </Button>
