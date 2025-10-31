@@ -96,36 +96,6 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     }
   }
 
-  const handleQuickFilter = (type: string) => {
-    const range = getDateRange(type)
-    if (range) {
-      setFilterType(type)
-      setCustomStart(range.start)
-      setCustomEnd(range.end || '')
-      updateParams(range.start, range.end || '')
-    }
-  }
-
-  const handleMonthYearChange = (month: string, year: string) => {
-    const monthNum = parseInt(month)
-    const yearNum = parseInt(year)
-    const start = new Date(yearNum, monthNum, 1).toISOString().split('T')[0]
-    const end = new Date(yearNum, monthNum + 1, 0).toISOString().split('T')[0]
-    setFilterType('monthSelect')
-    setSelectedMonth(month)
-    setSelectedYear(year)
-    setCustomStart(start)
-    setCustomEnd(end)
-    updateParams(start, end)
-  }
-
-  const handleCustomDateChange = (start: string, end: string) => {
-    setFilterType('custom')
-    setCustomStart(start)
-    setCustomEnd(end)
-    updateParams(start, end)
-  }
-
   const updateParams = useCallback(
     (start: string, end: string) => {
       const params = new URLSearchParams(searchParams.toString())
@@ -144,6 +114,33 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     [pathname, router, searchParams],
   )
 
+  const updateDateSelection = useCallback(
+    (filter: string, start: string, end: string) => {
+      setFilterType(filter)
+      setCustomStart(start)
+      setCustomEnd(end)
+      updateParams(start, end)
+    },
+    [updateParams],
+  )
+
+  const handleQuickFilter = (type: string) => {
+    const range = getDateRange(type)
+    if (range) {
+      updateDateSelection(type, range.start, range.end || '')
+    }
+  }
+
+  const handleMonthYearChange = (month: string, year: string) => {
+    const monthNum = parseInt(month)
+    const yearNum = parseInt(year)
+    const start = new Date(yearNum, monthNum, 1).toISOString().split('T')[0]
+    const end = new Date(yearNum, monthNum + 1, 0).toISOString().split('T')[0]
+    setSelectedMonth(month)
+    setSelectedYear(year)
+    updateDateSelection('monthSelect', start, end)
+  }
+
   const clearFilter = () => {
     setFilterType('')
     setCustomStart('')
@@ -159,13 +156,10 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     const todayStr = new Date().toISOString().split('T')[0]
     // On initial load with no params, set upcoming filter
     if (isInitialMount.current && !startDate && !endDate) {
-      setFilterType('upcoming')
-      setCustomStart(todayStr)
-      setCustomEnd('')
-      updateParams(todayStr, '')
+      updateDateSelection('upcoming', todayStr, '')
     }
     isInitialMount.current = false
-  }, [endDate, startDate, updateParams])
+  }, [endDate, startDate, updateDateSelection])
 
   return (
     <div className="w-full">
@@ -277,7 +271,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
                 <Input
                   type="date"
                   value={customStart}
-                  onChange={(e) => handleCustomDateChange(e.target.value, customEnd)}
+                  onChange={(e) => updateDateSelection('custom', e.target.value, customEnd)}
                 />
               </div>
               <div>
@@ -285,7 +279,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
                 <Input
                   type="date"
                   value={customEnd}
-                  onChange={(e) => handleCustomDateChange(customStart, e.target.value)}
+                  onChange={(e) => updateDateSelection('custom', customStart, e.target.value)}
                 />
               </div>
             </div>
