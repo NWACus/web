@@ -1,16 +1,16 @@
-import { byGlobalRole } from '@/access/byGlobalRole'
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { User } from '@/payload-types'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches } from '@/utilities/rbac/ruleMatches'
 import { EditMenuItemsServerProps, PayloadRequest } from 'payload'
 import { DuplicatePageForDrawer } from './DuplicatePageForDrawer'
 
-export const DuplicatePageFor = ({ user, payload }: EditMenuItemsServerProps) => {
+export const DuplicatePageFor = async ({ user, payload }: EditMenuItemsServerProps) => {
   const mockedPayloadReq = {
     user,
     payload,
   } as PayloadRequest
-  const isSuperAdmin = byGlobalRole('*', '*')({ req: mockedPayloadReq })
+  const isSuperAdmin = await hasSuperAdminPermissions({ req: mockedPayloadReq })
 
   const roleAssignments = roleAssignmentsForUser(payload.logger, user as User)
   const matchingTenantIds = roleAssignments
