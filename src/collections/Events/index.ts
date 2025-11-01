@@ -1,4 +1,4 @@
-import { accessByTenantRole } from '@/access/byTenantRole'
+import { accessByProviderOrTenantRole } from '@/access/byProviderOrTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
@@ -14,6 +14,8 @@ import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { hasTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
+import { hasProviderAccess } from '@/utilities/rbac/hasProviderAccess'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
 import {
@@ -30,7 +32,7 @@ const typesWithSubTypes = [...new Set(eventSubTypesData.map((item) => item.event
 
 export const Events: CollectionConfig = {
   slug: 'events',
-  access: accessByTenantRole('events'),
+  access: accessByProviderOrTenantRole,
   admin: {
     baseListFilter: filterByTenant,
     group: 'Events',
@@ -220,6 +222,13 @@ export const Events: CollectionConfig = {
       name: 'type',
       type: 'select',
       required: true,
+      defaultValue: ({ user }) => {
+        // Default to external provider course type for provider users/managers
+        if (hasProviderAccess(user)) {
+          return 'course-by-external-provider'
+        }
+        return undefined
+      },
       admin: {
         position: 'sidebar',
       },
@@ -237,6 +246,16 @@ export const Events: CollectionConfig = {
         label: eventType.label,
         value: eventType.value,
       })),
+      filterOptions: ({ req, options }) => {
+        // Provider users/managers can only create external provider courses
+        if (hasProviderAccess(req.user)) {
+          return options.filter((option) => {
+            const optionValue = typeof option === 'string' ? option : option.value
+            return optionValue === 'course-by-external-provider'
+          })
+        }
+        return options
+      },
     },
     {
       name: 'subType',
@@ -245,24 +264,14 @@ export const Events: CollectionConfig = {
       admin: {
         position: 'sidebar',
         condition: (_, siblingData) => typesWithSubTypes.includes(siblingData?.type),
+        components: {
+          Field: '@/collections/Events/components/SubTypeField#SubTypeField',
+        },
       },
       options: eventSubTypesData.map((eventSubType) => ({
         label: eventSubType.label,
         value: eventSubType.value,
       })),
-      filterOptions: ({ data, options }) => {
-        if (!data.eventType) return options
-
-        // Get all allowed values for the selected eventType from the data
-        const allowedValues = eventSubTypesData
-          .filter((subType) => subType.eventType === data.type)
-          .map((subType) => subType.value)
-
-        return options.filter((option) => {
-          const optionValue = typeof option === 'string' ? option : option.value
-          return allowedValues.includes(optionValue)
-        })
-      },
     },
     {
       name: 'eventGroups',
@@ -271,6 +280,14 @@ export const Events: CollectionConfig = {
       hasMany: true,
       admin: {
         position: 'sidebar',
+        condition: (_data, _siblingData, { user }) => {
+          // Only show to users with tenant role permissions
+          return hasTenantRolePermission({
+            method: 'read',
+            collection: 'events',
+            user,
+          })
+        },
       },
     },
     {
@@ -280,6 +297,14 @@ export const Events: CollectionConfig = {
       hasMany: true,
       admin: {
         position: 'sidebar',
+        condition: (_data, _siblingData, { user }) => {
+          // Only show to users with tenant role permissions
+          return hasTenantRolePermission({
+            method: 'read',
+            collection: 'events',
+            user,
+          })
+        },
       },
     },
     {
@@ -324,14 +349,48 @@ export const Events: CollectionConfig = {
     {
       name: 'provider',
       type: 'relationship',
+      defaultValue: ({ user }) => {
+        // Auto-select provider if user has exactly one provider relationship
+        if (user?.providers && Array.isArray(user.providers) && user.providers.length === 1) {
+          const providerId =
+            typeof user.providers[0] === 'number' ? user.providers[0] : user.providers[0]?.id
+          return providerId
+        }
+        return undefined
+      },
       admin: {
         allowCreate: false,
         allowEdit: false,
         position: 'sidebar',
+        condition: (_data, _siblingData, { user }) => {
+          // Only show provider field to users who have provider access:
+          // - Users with provider relationships
+          // - Users with global roles that grant provider permissions
+          return hasProviderAccess(user)
+        },
       },
       hasMany: false,
       index: true,
       relationTo: 'providers',
+      filterOptions: ({ user }) => {
+        // If user has provider relationships, only show those providers
+        if (user?.providers && Array.isArray(user.providers) && user.providers.length > 0) {
+          const providerIds = user.providers
+            .map((provider) => (typeof provider === 'number' ? provider : provider?.id))
+            .filter((id): id is number => typeof id === 'number')
+
+          if (providerIds.length > 0) {
+            return {
+              id: {
+                in: providerIds,
+              },
+            }
+          }
+        }
+
+        // Otherwise, show all providers (for users with global roles)
+        return true
+      },
     },
     contentHashField(),
   ],

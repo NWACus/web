@@ -1,14 +1,15 @@
-import { accessByGlobalRole } from '@/access/byGlobalRole'
+import { accessByProviderRelationship } from '@/access/byProviderRelationship'
 import { contentHashField } from '@/fields/contentHashField'
 import { coreLocationFields } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { CollectionConfig } from 'payload'
 import { eventSubTypesData } from '../Events/constants'
+import { courseTypesFieldAccess } from './access/courseTypesFieldAccess'
 import { setToken } from './hooks/SetToken'
 
 export const Providers: CollectionConfig = {
   slug: 'providers',
-  access: accessByGlobalRole('providers'),
+  access: accessByProviderRelationship,
   admin: {
     useAsTitle: 'name',
     group: 'Events',
@@ -30,12 +31,14 @@ export const Providers: CollectionConfig = {
     },
     {
       type: 'group',
-      label: 'accreditations',
+      label: 'Accreditations',
       fields: [
         {
           name: 'courseTypes',
           label: 'Approved Course Types',
           type: 'select',
+          hasMany: true,
+          access: courseTypesFieldAccess,
           admin: {
             description: 'These are the course types this provider is approved to create.',
           },

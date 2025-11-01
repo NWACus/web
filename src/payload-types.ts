@@ -1019,7 +1019,7 @@ export interface Provider {
   /**
    * These are the course types this provider is approved to create.
    */
-  courseTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external') | null;
+  courseTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
   events?: {
     docs?: (number | Event)[];
     hasNextPage?: boolean;
