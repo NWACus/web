@@ -262,7 +262,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
         <Checkbox
           id="hidePastEvents"
           checked={hidePastEvents}
-          onCheckedChange={(checked) => handleHidePastEventsChange(checked as boolean)}
+          onCheckedChange={(checked: boolean) => handleHidePastEventsChange(checked)}
           disabled={['upcoming', 'nextWeek', 'nextMonth'].includes(filterType)}
         />
         <Label htmlFor="hidePastEvents">Hide past events</Label>

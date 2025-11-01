@@ -29,15 +29,12 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
     return typesFromUrl.filter((typeId) => !subTypes.some((st) => st.eventType === typeId))
   })
 
-  const subTypesByType = subTypes.reduce(
-    (acc, subType) => {
-      const parentId = subType.eventType
-      if (!acc[parentId]) acc[parentId] = []
-      acc[parentId].push(subType.value)
-      return acc
-    },
-    {} as Record<string, string[]>,
-  )
+  const subTypesByType = subTypes.reduce((acc: Record<string, string[]>, subType) => {
+    const subTypeEventType: string = subType.eventType
+    if (!acc[subTypeEventType]) acc[subTypeEventType] = []
+    acc[subTypeEventType].push(subType.value)
+    return acc
+  }, {})
 
   // Determine state of parent checkbox
   const getParentState = useCallback(
@@ -154,9 +151,7 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
                       className="mr-2"
                       checked={parentState === 'checked' || parentState === 'indeterminate'}
                       onCheckedChange={() => toggleType(typeId)}
-                      icon={
-                        parentState === 'indeterminate' ? <Minus className="h-4 w-4" /> : undefined
-                      }
+                      icon={parentState === 'indeterminate' && <Minus className="h-4 w-4" />}
                     />
                     <Label htmlFor={typeId} className="text-md">
                       {type.label}
@@ -164,7 +159,7 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
                   </div>
 
                   {childSubTypes.length > 0 && (
-                    <ul className="flex flex-col gap-1 p-0 list-none ml-6 mt-1">
+                    <ul className="flex flex-col gap-1 p-0 list-none ml-6 mt-1.5">
                       {childSubTypes.map((subType) => (
                         <li key={subType.value}>
                           <div className="cursor-pointer flex items-center">
