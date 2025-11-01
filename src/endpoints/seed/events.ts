@@ -83,6 +83,7 @@ export const getEventsData = (
       modeOfTravel: 'any',
       tenant: tenant.id,
       slug: 'introduction-to-avalanche-safety',
+      _status: 'published',
       content: simpleContent(
         'Learn the basics of avalanche safety in this free community presentation. Topics include: understanding avalanche terrain, reading avalanche forecasts, essential rescue equipment, and trip planning basics.',
         'No previous experience necessary. This event is open to all.',
@@ -109,7 +110,7 @@ export const getEventsData = (
       },
       featuredImage: featuredImage?.id,
       registrationUrl: 'https://example.com/register/snowpack-workshop',
-      registrationDeadline: futureDate(1, 25, 23),
+      registrationDeadline: futureDate(2, 1, 23),
       capacity: 12,
       cost: 150,
       skillRating: '2',
@@ -117,6 +118,7 @@ export const getEventsData = (
       modeOfTravel: 'ski',
       tenant: tenant.id,
       slug: 'advanced-snowpack-analysis-workshop',
+      _status: 'published',
       content: simpleContent(
         'This intensive one-day workshop is designed for experienced backcountry travelers who want to deepen their understanding of snowpack analysis.',
         'Prerequisites: Participants should have completed a recreational avalanche course and have experience conducting basic stability tests in the field.',
@@ -152,6 +154,7 @@ export const getEventsData = (
       modeOfTravel: 'motorized',
       tenant: tenant.id,
       slug: 'avalanche-safety-for-snowmobilers',
+      _status: 'published',
       content: simpleContent(
         'This full-day field course covers everything snowmobile riders need to know about avalanche safety.',
         'Course Topics: Avalanche terrain identification and avoidance, reading and using avalanche forecasts, companion rescue with snowmobiles, safe riding techniques in avalanche terrain, and decision-making frameworks.',
@@ -182,6 +185,7 @@ export const getEventsData = (
       modeOfTravel: 'any',
       tenant: tenant.id,
       slug: 'virtual-avalanche-awareness-webinar',
+      _status: 'published',
       content: simpleContent(
         'Join us from the comfort of your home for this free avalanche awareness presentation. This interactive webinar covers the essentials of avalanche safety.',
         'What We Will Cover: How avalanches form and release, terrain selection and avoidance strategies, essential rescue equipment, and how to use avalanche forecasts.',
@@ -216,6 +220,7 @@ export const getEventsData = (
       modeOfTravel: 'any',
       tenant: tenant.id,
       slug: 'meet-your-forecasters',
+      _status: 'published',
       content: simpleContent(
         'Join us for a casual evening to meet the forecast team and learn about the work that goes into keeping backcountry travelers informed and safe.',
         'What to Expect: Our forecasters will give a short presentation about their daily routine, the tools they use, and some of the challenging decisions they face. After the presentation, stick around to chat, ask questions, and connect with other backcountry enthusiasts in the community.',
@@ -253,6 +258,7 @@ export const getEventsData = (
       tenant: tenant.id,
       provider: providers?.['Mountain Education Center']?.id,
       slug: 'aiare-recreational-level-1-february',
+      _status: 'published',
       content: simpleContent(
         'This AIARE Level 1 course is the standard for recreational avalanche education. Over three days, you will learn and practice essential avalanche safety skills.',
         'Course Format: Day 1 is classroom-based, covering avalanche fundamentals, weather, terrain, and human factors. Days 2 and 3 are field days where you will practice rescue, conduct snowpack tests, and make terrain decisions in real mountain environments.',
@@ -291,6 +297,7 @@ export const getEventsData = (
       tenant: tenant.id,
       provider: providers?.['Alpine Skills International']?.id,
       slug: 'aiare-recreational-level-2-march',
+      _status: 'published',
       content: simpleContent(
         'AIARE Level 2 is designed for experienced backcountry travelers who have completed a Level 1 course and want to advance their avalanche skills.',
         'Prerequisites: Completion of an AIARE Level 1 course (or equivalent) and significant backcountry experience. Students should be comfortable in avalanche terrain and have strong ski/split touring skills.',
@@ -329,6 +336,7 @@ export const getEventsData = (
       tenant: tenant.id,
       provider: providers?.['Backcountry Alliance']?.id,
       slug: 'avalanche-rescue-course-january',
+      _status: 'published',
       content: simpleContent(
         'This one-day rescue course provides intensive practice in companion rescue scenarios. Perfect as a refresher or for those wanting to build confidence in their rescue skills.',
         'Course Content: Multiple beacon search scenarios including single and multiple burials, probe line organization, strategic shoveling techniques, and managing rescue scenes.',
@@ -367,6 +375,7 @@ export const getEventsData = (
       tenant: tenant.id,
       provider: providers?.['Pro Avalanche Training']?.id,
       slug: 'aiare-pro-1-march',
+      _status: 'published',
       content: simpleContent(
         'AIARE Pro 1 is the entry-level professional avalanche course for those working or aspiring to work in avalanche terrain.',
         'Prerequisites: Extensive avalanche education and backcountry experience required. Students should have completed Rec 2 or equivalent training and have multiple seasons of backcountry experience.',
@@ -404,6 +413,7 @@ export const getEventsData = (
       tenant: tenant.id,
       provider: providers?.['Backcountry Alliance']?.id,
       slug: 'know-before-you-go-january',
+      _status: 'published',
       content: simpleContent(
         'Know Before You Go is a free avalanche awareness program designed to introduce outdoor recreationists to avalanche safety basics.',
         "Topics Covered: Avalanche ABC's, terrain recognition, rescue equipment basics, and where to find avalanche information.",
@@ -440,6 +450,7 @@ export const getEventsData = (
       modeOfTravel: 'ski',
       tenant: tenant.id,
       slug: 'womens-avalanche-field-day',
+      _status: 'published',
       content: simpleContent(
         'This field day is designed to provide a supportive environment for women to practice and refine their avalanche safety skills.',
         "What We'll Cover: Rescue practice, snowpack observation and testing, terrain assessment, and group decision-making. The focus is on building confidence through hands-on practice in a collaborative setting.",
@@ -476,6 +487,7 @@ export const getEventsData = (
       modeOfTravel: 'ski',
       tenant: tenant.id,
       slug: 'backcountry-observer-training',
+      _status: 'published',
       content: simpleContent(
         'Become part of our community observation network! This training will teach you how to collect and submit high-quality avalanche observations.',
         'Training Topics: What forecasters need to know, how to conduct basic snowpack tests, photo guidelines, observation submission through our website, and field safety considerations.',
@@ -514,6 +526,7 @@ export const getEventsData = (
       tenant: null,
       provider: providers?.['Alpine Skills International']?.id,
       slug: 'aiare-rec1-splitboarders',
+      _status: 'published',
       content: simpleContent(
         'This AIARE Level 1 course is specifically designed for splitboarders, with terrain and instruction optimized for splitboard travel.',
         'Our instructors are experienced splitboarders who understand the unique challenges and opportunities of splitboard-based backcountry travel.',
@@ -551,6 +564,7 @@ export const getEventsData = (
       tenant: null,
       provider: providers?.['Pro Avalanche Training']?.id,
       slug: 'aiare-pro-2-april',
+      _status: 'published',
       content: simpleContent(
         'AIARE Pro 2 is the advanced professional course for experienced avalanche workers. This intensive 5-day course builds on Pro 1 fundamentals.',
         'Prerequisites: Completion of AIARE Pro 1 and significant professional experience in avalanche terrain. Participants typically include ski patrol directors, lead guides, and avalanche forecasters.',
@@ -588,6 +602,7 @@ export const getEventsData = (
       tenant: null,
       provider: providers?.['Mountain Education Center']?.id,
       slug: 'womens-aiare-rec1',
+      _status: 'published',
       content: simpleContent(
         'This AIARE Level 1 course is designed to provide a supportive learning environment for women taught by experienced female avalanche educators.',
         'The curriculum follows the standard AIARE Level 1 format, with instruction and examples tailored to create an inclusive, empowering experience.',
@@ -625,6 +640,7 @@ export const getEventsData = (
       tenant: null,
       provider: providers?.['Backcountry Alliance']?.id,
       slug: 'rescue-refresher-jan',
+      _status: 'published',
       content: simpleContent(
         'Keep your rescue skills sharp with this half-day refresher focusing on beacon searching, probing, and efficient shoveling.',
         'Perfect for those who have completed formal avalanche training and want to practice before the season or as a mid-season tune-up.',
