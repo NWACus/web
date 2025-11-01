@@ -44,57 +44,67 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   const [customEnd, setCustomEnd] = useState(endDate || '')
   const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString())
   const [selectedYear, setSelectedYear] = useState(currentYear.toString())
+  // TODO: if has params, what should we set hidePast dates to?
+  const [hidePastEvents, setHidePastEvents] = useState(true)
   const isInitialMount = useRef(true)
 
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const getDateRange = (type: string) => {
-    let start, end
+  const getDateRange = useCallback(
+    (type: string) => {
+      let start, end
+      const today = new Date()
 
-    switch (type) {
-      case 'upcoming': {
-        start = today
-        end = null
-        break
+      switch (type) {
+        case 'upcoming': {
+          start = today
+          end = null
+          setHidePastEvents(true)
+          break
+        }
+        case 'thisWeek': {
+          const dayOfWeek = hidePastEvents ? 0 : today.getDay()
+          start = new Date(today)
+          start.setDate(today.getDate() - dayOfWeek)
+          end = new Date(start)
+          end.setDate(start.getDate() + 6)
+          break
+        }
+        case 'nextWeek': {
+          const dayOfWeek = today.getDay()
+          start = new Date(today)
+          start.setDate(today.getDate() + (7 - dayOfWeek))
+          end = new Date(start)
+          end.setDate(start.getDate() + 6)
+          setHidePastEvents(true)
+          break
+        }
+        case 'thisMonth':
+        case 'custom': {
+          const dayOfWeek = hidePastEvents ? today.getDate() : 1
+          start = new Date(today.getFullYear(), today.getMonth(), dayOfWeek)
+          end = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+          break
+        }
+        case 'nextMonth': {
+          start = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+          end = new Date(today.getFullYear(), today.getMonth() + 2, 0)
+          setHidePastEvents(true)
+          break
+        }
+        default:
+          return null
       }
-      case 'thisWeek': {
-        const dayOfWeek = today.getDay()
-        start = new Date(today)
-        start.setDate(today.getDate() - dayOfWeek)
-        end = new Date(start)
-        end.setDate(start.getDate() + 6)
-        break
-      }
-      case 'nextWeek': {
-        const dayOfWeek = today.getDay()
-        start = new Date(today)
-        start.setDate(today.getDate() + (7 - dayOfWeek))
-        end = new Date(start)
-        end.setDate(start.getDate() + 6)
-        break
-      }
-      case 'thisMonth':
-      case 'custom': {
-        start = new Date(today.getFullYear(), today.getMonth(), 1)
-        end = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-        break
-      }
-      case 'nextMonth': {
-        start = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-        end = new Date(today.getFullYear(), today.getMonth() + 2, 0)
-        break
-      }
-      default:
-        return null
-    }
 
-    return {
-      start: start.toISOString().split('T')[0],
-      end: end ? end.toISOString().split('T')[0] : null,
-    }
-  }
+      return {
+        start: start.toISOString().split('T')[0],
+        end: end ? end.toISOString().split('T')[0] : null,
+      }
+    },
+    [hidePastEvents],
+  )
 
   const updateParams = useCallback(
     (start: string, end: string) => {
@@ -124,12 +134,15 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     [updateParams],
   )
 
-  const handleQuickFilter = (type: string) => {
-    const range = getDateRange(type)
-    if (range) {
-      updateDateSelection(type, range.start, range.end || '')
-    }
-  }
+  const handleQuickFilter = useCallback(
+    (type: string) => {
+      const range = getDateRange(type)
+      if (range) {
+        updateDateSelection(type, range.start, range.end || '')
+      }
+    },
+    [getDateRange, updateDateSelection],
+  )
 
   const handleMonthYearChange = (month: string, year: string) => {
     const monthNum = parseInt(month)
@@ -145,6 +158,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     setFilterType('')
     setCustomStart('')
     setCustomEnd('')
+    setHidePastEvents(false)
 
     const params = new URLSearchParams(searchParams.toString())
     params.delete('startDate')
@@ -152,7 +166,19 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
+  const handleHidePastEventsChange = (checked: boolean) => {
+    setHidePastEvents(checked)
+  }
+
   useEffect(() => {
+    if (filterType && ['thisWeek', 'thisMonth'].includes(filterType)) {
+      handleQuickFilter(filterType)
+    }
+  }, [hidePastEvents, filterType, handleQuickFilter])
+
+  useEffect(() => {
+    // TODO: if on events & mess with params and click events - does nothing...
+    //    should refresh to initalLoad state - upocoming w/hidepast events selected
     const todayStr = new Date().toISOString().split('T')[0]
     // On initial load with no params, set filter to 'Upcoming'
     if (isInitialMount.current && !startDate && !endDate) {
@@ -194,20 +220,20 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
             This Week
           </Button>
           <Button
-            onClick={() => handleQuickFilter('nextWeek')}
-            variant={filterType === 'nextWeek' ? 'callout' : 'outline'}
-            className="w-1/3"
-          >
-            Next Week
-          </Button>
-        </ButtonGroup>
-        <ButtonGroup className="w-full">
-          <Button
             onClick={() => handleQuickFilter('thisMonth')}
             variant={filterType === 'thisMonth' ? 'callout' : 'outline'}
             className="w-1/3"
           >
             This Month
+          </Button>
+        </ButtonGroup>
+        <ButtonGroup className="w-full">
+          <Button
+            onClick={() => handleQuickFilter('nextWeek')}
+            variant={filterType === 'nextWeek' ? 'callout' : 'outline'}
+            className="w-1/3"
+          >
+            Next Week
           </Button>
           <Button
             onClick={() => handleQuickFilter('nextMonth')}
@@ -224,6 +250,20 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
             Custom
           </Button>
         </ButtonGroup>
+      </div>
+
+      <div className="mb-4 flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="hidePastEvents"
+          checked={hidePastEvents}
+          onChange={(e) => handleHidePastEventsChange(e.target.checked)}
+          className="w-4 h-4"
+          disabled={['upcoming', 'nextWeek', 'nextMonth'].includes(filterType)}
+        />
+        <label htmlFor="hidePastEvents" className="text-sm font-medium">
+          Hide past events
+        </label>
       </div>
 
       {filterType === 'custom' && (
