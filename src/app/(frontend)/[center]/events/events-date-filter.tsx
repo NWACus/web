@@ -1,6 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -21,6 +22,7 @@ type Props = {
 
 export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
   const months = [
@@ -173,13 +175,15 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   useEffect(() => {
     if (filterType && ['thisWeek', 'thisMonth'].includes(filterType)) {
       handleQuickFilter(filterType)
+    } else if (filterType === 'custom' && hidePastEvents) {
+      setCustomStart(todayStr)
+      updateParams(todayStr, customEnd)
     }
-  }, [hidePastEvents, filterType, handleQuickFilter])
+  }, [hidePastEvents, filterType, handleQuickFilter, updateParams, customEnd, todayStr])
 
   useEffect(() => {
     // TODO: if on events & mess with params and click events - does nothing...
     //    should refresh to initalLoad state - upocoming w/hidepast events selected
-    const todayStr = new Date().toISOString().split('T')[0]
     // On initial load with no params, set filter to 'Upcoming'
     if (isInitialMount.current && !startDate && !endDate) {
       updateDateSelection('upcoming', todayStr, '')
@@ -187,9 +191,10 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     // On initial load with params, set filter to 'Custom'
     if (isInitialMount.current && startDate && endDate) {
       updateDateSelection('custom', startDate, endDate)
+      setHidePastEvents(false)
     }
     isInitialMount.current = false
-  }, [endDate, startDate, updateDateSelection])
+  }, [endDate, startDate, todayStr, updateDateSelection])
 
   return (
     <div className="w-full">
@@ -253,12 +258,10 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
       </div>
 
       <div className="mb-4 flex items-center gap-2">
-        <input
-          type="checkbox"
+        <Checkbox
           id="hidePastEvents"
           checked={hidePastEvents}
-          onChange={(e) => handleHidePastEventsChange(e.target.checked)}
-          className="w-4 h-4"
+          onCheckedChange={(checked) => handleHidePastEventsChange(checked as boolean)}
           disabled={['upcoming', 'nextWeek', 'nextMonth'].includes(filterType)}
         />
         <label htmlFor="hidePastEvents" className="text-sm font-medium">

@@ -65,7 +65,7 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
           if (!childIds?.length) return false
           return (
             newTypesWithoutSubTypes.includes(type.value) ||
-            childIds.some((id) => newSubTypes.includes(id))
+            childIds.every((id) => newSubTypes.includes(id))
           )
         })
         .map((type) => type.value)
