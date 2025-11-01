@@ -9,6 +9,7 @@ import { Pagination } from '@/components/Pagination'
 import { EVENTS_LIMIT } from '@/utilities/constants'
 import { notFound } from 'next/navigation'
 import { EventsDatePicker } from './events-date-filter'
+import { EventsMobileFilters } from './events-mobile-filters'
 import { EventsTypeFilter } from './events-type-filter'
 
 type Args = {
@@ -89,14 +90,32 @@ export default async function Page({ params, searchParams }: Args) {
     sort: 'startDate',
   })
 
+  const hasActiveFilters =
+    (selectedTypes && selectedTypes.length > 0) ||
+    (selectedSubTypes && selectedSubTypes.length > 0) ||
+    selectedStartDate ||
+    selectedEndDate
+
   return (
     <div className="pt-4">
-      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
-        <div className="grow">
+      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
+        {/* Mobile Filter Toggle */}
+        <div className="md:hidden">
+          <EventsMobileFilters
+            types={eventTypesData}
+            subTypes={eventSubTypesData}
+            hasActiveFilters={Boolean(hasActiveFilters)}
+            eventCount={events.totalDocs}
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="grow order-2 md:order-1">
           <EventCollection events={events.docs} />
         </div>
 
-        <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
+        {/* Desktop Sidebar - Hidden on Mobile */}
+        <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
           <EventsTypeFilter types={eventTypesData} subTypes={eventSubTypesData} />
           <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
         </div>

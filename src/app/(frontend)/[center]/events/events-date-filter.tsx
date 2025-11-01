@@ -199,7 +199,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center hidden md:block">
         <h3 className="font-semibold">Filter by date</h3>
         {filterType && (
           <Button onClick={clearFilter} variant="ghost">
@@ -207,7 +207,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
           </Button>
         )}
       </div>
-      <hr className="p-2" />
+      <hr className="hidden md:block p-2" />
 
       <div className="mb-4">
         <ButtonGroup className="w-full">

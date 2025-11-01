@@ -135,8 +135,8 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
     <div className="space-y-6">
       {types.length > 0 && (
         <div className="mb-4">
-          <h3 className="font-semibold">Filter by type</h3>
-          <hr className="p-2" />
+          <h3 className="hidden md:block font-semibold">Filter by type</h3>
+          <hr className="hidden md:block p-2" />
           <ul className="flex flex-col gap-1 p-0 list-none">
             {types.map((type) => {
               const typeId = type.value
