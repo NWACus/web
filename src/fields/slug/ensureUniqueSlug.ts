@@ -13,7 +13,8 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
 
   const tenantField = collection.fields.find((field) => 'name' in field && field.name === 'tenant')
   const collectionHasTenantField = !!tenantField
-  const tenantFieldRequired = tenantField && 'required' in tenantField
+  const tenantFieldRequired =
+    tenantField && 'required' in tenantField && tenantField.required === true
 
   const incomingTenantID = data?.tenant?.id ? data?.tenant.id : data?.tenant
   const currentTenantID = originalDoc?.tenant?.id ? originalDoc.tenant.id : originalDoc?.tenant
@@ -25,14 +26,17 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
         equals: value,
       },
     },
-    {
-      id: {
-        not_in: [data?.id ?? originalDoc.id],
-      },
-    },
   ]
 
-  if (collectionHasTenantField && tenantFieldRequired) {
+  if (data?.id || originalDoc.id) {
+    conditions.push({
+      id: {
+        not_in: [data?.id || originalDoc.id],
+      },
+    })
+  }
+
+  if (collectionHasTenantField && tenantFieldRequired && tenantIDToMatch) {
     conditions.push({
       tenant: {
         equals: tenantIDToMatch,

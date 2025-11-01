@@ -81,5 +81,10 @@ export const Providers: CollectionConfig = {
   hooks: {
     beforeChange: [setToken],
   },
-  versions: true,
+  versions: {
+    drafts: {
+      autosave: true,
+    },
+    maxPerDoc: 10,
+  },
 }

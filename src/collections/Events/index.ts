@@ -379,4 +379,10 @@ export const Events: CollectionConfig = {
     // TODO: need revalidation hooks here
     // TODO: need to update revalidation utilities to look for this blocksInContent field for relationships in addition to Posts and Home Pages
   },
+  versions: {
+    drafts: {
+      autosave: true,
+    },
+    maxPerDoc: 10,
+  },
 }

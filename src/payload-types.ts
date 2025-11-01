@@ -913,6 +913,7 @@ export interface Event {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1030,6 +1031,7 @@ export interface Provider {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3133,6 +3135,7 @@ export interface EventsSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3184,6 +3187,7 @@ export interface ProvidersSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,10 +1,16 @@
-import { Media, Tenant } from '@/payload-types'
+import { Media, Provider, Tenant } from '@/payload-types'
 import { US_TIMEZONES } from '@/utilities/timezones'
 import { RequiredDataFromCollectionSlug } from 'payload'
 
 export const getEventsData = (
   tenant: Tenant,
   featuredImage?: Media,
+  providers?: {
+    'Alpine Skills International'?: Provider
+    'Mountain Education Center'?: Provider
+    'Backcountry Alliance'?: Provider
+    'Pro Avalanche Training'?: Provider
+  },
 ): RequiredDataFromCollectionSlug<'events'>[] => {
   // Helper to create dates in the future
   const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
@@ -245,6 +251,7 @@ export const getEventsData = (
       subType: 'rec-1',
       modeOfTravel: 'ski',
       tenant: tenant.id,
+      provider: providers?.['Mountain Education Center']?.id,
       slug: 'aiare-recreational-level-1-february',
       content: simpleContent(
         'This AIARE Level 1 course is the standard for recreational avalanche education. Over three days, you will learn and practice essential avalanche safety skills.',
@@ -282,6 +289,7 @@ export const getEventsData = (
       subType: 'rec-2',
       modeOfTravel: 'ski',
       tenant: tenant.id,
+      provider: providers?.['Alpine Skills International']?.id,
       slug: 'aiare-recreational-level-2-march',
       content: simpleContent(
         'AIARE Level 2 is designed for experienced backcountry travelers who have completed a Level 1 course and want to advance their avalanche skills.',
@@ -319,6 +327,7 @@ export const getEventsData = (
       subType: 'rescue',
       modeOfTravel: 'any',
       tenant: tenant.id,
+      provider: providers?.['Backcountry Alliance']?.id,
       slug: 'avalanche-rescue-course-january',
       content: simpleContent(
         'This one-day rescue course provides intensive practice in companion rescue scenarios. Perfect as a refresher or for those wanting to build confidence in their rescue skills.',
@@ -356,6 +365,7 @@ export const getEventsData = (
       subType: 'pro-1',
       modeOfTravel: 'ski',
       tenant: tenant.id,
+      provider: providers?.['Pro Avalanche Training']?.id,
       slug: 'aiare-pro-1-march',
       content: simpleContent(
         'AIARE Pro 1 is the entry-level professional avalanche course for those working or aspiring to work in avalanche terrain.',
@@ -392,6 +402,7 @@ export const getEventsData = (
       subType: 'awareness-external',
       modeOfTravel: 'any',
       tenant: tenant.id,
+      provider: providers?.['Backcountry Alliance']?.id,
       slug: 'know-before-you-go-january',
       content: simpleContent(
         'Know Before You Go is a free avalanche awareness program designed to introduce outdoor recreationists to avalanche safety basics.',
@@ -470,6 +481,154 @@ export const getEventsData = (
         'Training Topics: What forecasters need to know, how to conduct basic snowpack tests, photo guidelines, observation submission through our website, and field safety considerations.',
         'Requirements: Participants should be comfortable traveling in the backcountry and have completed at least an avalanche awareness session. Bring your own touring equipment and avalanche safety gear.',
         'Your observations make a difference! Community data is essential for accurate avalanche forecasting.',
+      ),
+    },
+
+    // New Provider Event - Splitboard-focused Rec 1
+    {
+      title: 'AIARE Rec 1 for Splitboarders',
+      subtitle: 'Avalanche course tailored for splitboarders',
+      description:
+        'AIARE Level 1 course designed specifically for splitboarders, with instruction and terrain selection optimized for splitboard travel.',
+      startDate: futureDate(2, 21, 8),
+      endDate: futureDate(2, 23, 17),
+      timezone: US_TIMEZONES.PACIFIC,
+      location: {
+        isVirtual: false,
+        placeName: 'Alpine Skills International HQ',
+        address: '123 Mountain View Drive',
+        city: 'Tahoe City',
+        state: 'CA',
+        zip: '96145',
+        extraInfo: 'Splitboard-specific instruction',
+      },
+      featuredImage: featuredImage?.id,
+      registrationUrl: 'https://alpineskills.com/register/splitboard-rec1',
+      registrationDeadline: futureDate(2, 10, 23),
+      capacity: 6,
+      cost: 475,
+      skillRating: '0',
+      type: 'course-by-external-provider',
+      subType: 'rec-1',
+      modeOfTravel: 'splitboard',
+      tenant: null,
+      provider: providers?.['Alpine Skills International']?.id,
+      slug: 'aiare-rec1-splitboarders',
+      content: simpleContent(
+        'This AIARE Level 1 course is specifically designed for splitboarders, with terrain and instruction optimized for splitboard travel.',
+        'Our instructors are experienced splitboarders who understand the unique challenges and opportunities of splitboard-based backcountry travel.',
+        'Requirements: Participants should be comfortable riding a splitboard in variable terrain. Full avalanche safety gear required.',
+      ),
+    },
+
+    // New Provider Event - Pro 2
+    {
+      title: 'AIARE Pro 2 Course',
+      subtitle: 'Advanced professional avalanche training',
+      description:
+        'Professional Level 2 course for experienced avalanche professionals. Advanced forecasting, program management, and decision-making for complex operations.',
+      startDate: futureDate(4, 10, 8),
+      endDate: futureDate(4, 14, 17),
+      timezone: US_TIMEZONES.MOUNTAIN,
+      location: {
+        isVirtual: false,
+        placeName: 'Pro Avalanche Training Center',
+        address: '321 Powder Boulevard',
+        city: 'Jackson',
+        state: 'WY',
+        zip: '83001',
+        extraInfo: 'Lodging recommendations provided upon registration',
+      },
+      featuredImage: featuredImage?.id,
+      registrationUrl: 'https://proavatraining.com/register/pro2-april',
+      registrationDeadline: futureDate(3, 25, 23),
+      capacity: 8,
+      cost: 1250,
+      skillRating: '3',
+      type: 'course-by-external-provider',
+      subType: 'pro-2',
+      modeOfTravel: 'ski',
+      tenant: null,
+      provider: providers?.['Pro Avalanche Training']?.id,
+      slug: 'aiare-pro-2-april',
+      content: simpleContent(
+        'AIARE Pro 2 is the advanced professional course for experienced avalanche workers. This intensive 5-day course builds on Pro 1 fundamentals.',
+        'Prerequisites: Completion of AIARE Pro 1 and significant professional experience in avalanche terrain. Participants typically include ski patrol directors, lead guides, and avalanche forecasters.',
+        'Course Topics: Advanced forecasting techniques, snowpack modeling, avalanche program management, risk analysis for operations, explosive use and safety, and professional ethics.',
+      ),
+    },
+
+    // New Provider Event - Women's Rec 1
+    {
+      title: "Women's AIARE Rec 1",
+      subtitle: 'Avalanche course by women, for women',
+      description:
+        'AIARE Level 1 course taught by experienced female instructors in a supportive, women-only environment.',
+      startDate: futureDate(3, 12, 8),
+      endDate: futureDate(3, 14, 17),
+      timezone: US_TIMEZONES.PACIFIC,
+      location: {
+        isVirtual: false,
+        placeName: 'Mountain Education Center',
+        address: '456 Cascade Loop',
+        city: 'Leavenworth',
+        state: 'WA',
+        zip: '98826',
+        extraInfo: 'Women-only course with female instructors',
+      },
+      featuredImage: featuredImage?.id,
+      registrationUrl: 'https://mountainedu.com/register/womens-rec1',
+      registrationDeadline: futureDate(2, 28, 23),
+      capacity: 8,
+      cost: 450,
+      skillRating: '0',
+      type: 'course-by-external-provider',
+      subType: 'rec-1',
+      modeOfTravel: 'any',
+      tenant: null,
+      provider: providers?.['Mountain Education Center']?.id,
+      slug: 'womens-aiare-rec1',
+      content: simpleContent(
+        'This AIARE Level 1 course is designed to provide a supportive learning environment for women taught by experienced female avalanche educators.',
+        'The curriculum follows the standard AIARE Level 1 format, with instruction and examples tailored to create an inclusive, empowering experience.',
+        'All skill levels welcome - from those brand new to the backcountry to experienced recreationists seeking formal avalanche education.',
+      ),
+    },
+
+    // New Provider Event - Rescue Refresher
+    {
+      title: 'Avalanche Rescue Refresher',
+      subtitle: 'Sharpen your rescue skills',
+      description:
+        'Half-day rescue skills refresher for those who have completed formal avalanche training and want to practice their skills.',
+      startDate: futureDate(1, 30, 9),
+      endDate: futureDate(1, 30, 13),
+      timezone: US_TIMEZONES.MOUNTAIN,
+      location: {
+        isVirtual: false,
+        placeName: 'Durango Nordic Center',
+        address: '789 Summit Street',
+        city: 'Durango',
+        state: 'CO',
+        zip: '81301',
+        extraInfo: 'Meet at the day lodge',
+      },
+      featuredImage: featuredImage?.id,
+      registrationUrl: 'https://backcountryalliance.org/rescue-refresher',
+      registrationDeadline: futureDate(1, 25, 23),
+      capacity: 15,
+      cost: 75,
+      skillRating: '1',
+      type: 'course-by-external-provider',
+      subType: 'rescue',
+      modeOfTravel: 'any',
+      tenant: null,
+      provider: providers?.['Backcountry Alliance']?.id,
+      slug: 'rescue-refresher-jan',
+      content: simpleContent(
+        'Keep your rescue skills sharp with this half-day refresher focusing on beacon searching, probing, and efficient shoveling.',
+        'Perfect for those who have completed formal avalanche training and want to practice before the season or as a mid-season tune-up.',
+        'Requirements: Completion of previous avalanche course. Bring your own beacon, shovel, and probe.',
       ),
     },
   ]
