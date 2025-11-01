@@ -185,7 +185,6 @@ export const Events: CollectionConfig = {
               ]
             },
           }),
-          required: true,
         },
       ],
     },

@@ -1,4 +1,5 @@
 import { byTenantRole } from '@/access/byTenantRole'
+import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import { Access, CollectionConfig } from 'payload'
 
@@ -16,6 +17,15 @@ export const byProviderOrTenantRole: (method: 'create' | 'read' | 'update' | 'de
     // If tenant role grants full access (true), return it
     if (tenantRoleAccess === true) {
       return true
+    }
+
+    const isManager = await isProviderManager(args.req.payload, args.req.user)
+    if (isManager) {
+      return {
+        provider: {
+          exists: true,
+        },
+      }
     }
 
     // Check if user has provider relationships
@@ -54,6 +64,10 @@ export const byProviderOrTenantRole: (method: 'create' | 'read' | 'update' | 'de
 
 export const accessByProviderOrTenantRole: CollectionConfig['access'] = {
   create: async ({ req }) => {
+    if (!req.user) {
+      return false
+    }
+
     const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
 
     // Check tenant role access
@@ -68,7 +82,12 @@ export const accessByProviderOrTenantRole: CollectionConfig['access'] = {
       return byProviderOrTenantRole('create')({ req })
     }
 
-    // No tenant role access, check for provider relationships
+    // No tenant role access, check for provider relationships or provider manager status
+    const isManager = await isProviderManager(req.payload, req.user)
+    if (isManager) {
+      return true
+    }
+
     const userProviders = req.user?.providers
     if (!userProviders || !Array.isArray(userProviders) || userProviders.length === 0) {
       return false

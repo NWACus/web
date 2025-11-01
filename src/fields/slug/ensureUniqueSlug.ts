@@ -16,13 +16,12 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
     return value
   }
 
-  const collectionHasTenantField = !!collection.fields.find(
-    (field) => 'name' in field && field.name === 'tenant',
-  )
+  const tenantField = collection.fields.find((field) => 'name' in field && field.name === 'tenant')
+  const collectionHasTenantField = !!tenantField
+  const tenantFieldRequired = tenantField && 'required' in tenantField
 
-  const incomingTenantID = typeof data?.tenant === 'object' ? data.tenant.id : data?.tenant
-  const currentTenantID =
-    typeof originalDoc?.tenant === 'object' ? originalDoc.tenant.id : originalDoc?.tenant
+  const incomingTenantID = data?.tenant?.id ? data?.tenant.id : data?.tenant
+  const currentTenantID = originalDoc?.tenant?.id ? originalDoc.tenant.id : originalDoc?.tenant
   const tenantIDToMatch = incomingTenantID || currentTenantID
 
   const conditions: Where[] = [
@@ -33,7 +32,7 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
     },
   ]
 
-  if (collectionHasTenantField) {
+  if (collectionHasTenantField && tenantFieldRequired) {
     conditions.push({
       tenant: {
         equals: tenantIDToMatch,

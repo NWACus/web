@@ -2,7 +2,7 @@
 
 import type { SelectFieldClientProps } from 'payload'
 
-import { SelectField, useFormFields } from '@payloadcms/ui'
+import { SelectField, useField, useFormFields } from '@payloadcms/ui'
 import React from 'react'
 
 import { eventSubTypesData } from '../constants'
@@ -12,6 +12,7 @@ type Props = SelectFieldClientProps
 export const SubTypeField = (props: Props) => {
   const typeField = useFormFields(([fields]) => fields.type)
   const providerField = useFormFields(([fields]) => fields.provider)
+  const { value: subTypeValue, setValue: setSubTypeValue } = useField<string>({ path: 'subType' })
 
   const [providerCourseTypes, setProviderCourseTypes] = React.useState<string[] | null>(null)
 
@@ -64,6 +65,16 @@ export const SubTypeField = (props: Props) => {
 
     return allowedValues
   }, [typeField?.value, providerCourseTypes])
+
+  // Clear subType field if current value is not in allowed values
+  React.useEffect(() => {
+    if (subTypeValue && filteredOptions.length > 0) {
+      const isValueAllowed = filteredOptions.some((option) => option.value === subTypeValue)
+      if (!isValueAllowed) {
+        setSubTypeValue(null)
+      }
+    }
+  }, [filteredOptions, subTypeValue, setSubTypeValue])
 
   // Create a new props object with filtered options
   const modifiedProps = {
