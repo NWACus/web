@@ -47,7 +47,6 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   const [customEnd, setCustomEnd] = useState(endDate || '')
   const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString())
   const [selectedYear, setSelectedYear] = useState(currentYear.toString())
-  // TODO: if has params, what should we set hidePast dates to?
   const [hidePastEvents, setHidePastEvents] = useState(true)
   const isInitialMount = useRef(true)
 
@@ -199,7 +198,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center hidden md:block">
+      <div className="hidden md:flex justify-between items-center">
         <h3 className="font-semibold">Filter by date</h3>
         {filterType && (
           <Button onClick={clearFilter} variant="ghost">

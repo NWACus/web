@@ -2,7 +2,7 @@
 
 import { EventSubType, EventType } from '@/collections/Events/constants'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, X } from 'lucide-react'
+import { ChevronDown, Filter, FilterX, X } from 'lucide-react'
 import { useState } from 'react'
 import { EventsDatePicker } from './events-date-filter'
 import { EventsTypeFilter } from './events-type-filter'
@@ -24,11 +24,7 @@ export const EventsMobileFilters = ({ eventCount, types, subTypes, hasActiveFilt
       <Button variant="outline" onClick={() => setIsOpen(true)} aria-label="Open filters">
         <div className="flex items-center gap-2">
           <span>Filters</span>
-          {hasActiveFilters && (
-            <span className="inline-flex items-center justify-center h-5 w-5 text-xs font-bold text-white bg-secondary rounded-full">
-              ✓
-            </span>
-          )}
+          {hasActiveFilters ? <FilterX width={16} /> : <Filter width={16} />}
         </div>
       </Button>
 
