@@ -11,11 +11,6 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
     'Collection config missing in ensureUniqueSlug FieldHook. This is likely a misuse of the slug field.',
   )
 
-  // if value is unchanged, skip validation
-  if (originalDoc.slug === value) {
-    return value
-  }
-
   const tenantField = collection.fields.find((field) => 'name' in field && field.name === 'tenant')
   const collectionHasTenantField = !!tenantField
   const tenantFieldRequired = tenantField && 'required' in tenantField
@@ -28,6 +23,11 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
     {
       slug: {
         equals: value,
+      },
+    },
+    {
+      id: {
+        not_in: [data?.id ?? originalDoc.id],
       },
     },
   ]

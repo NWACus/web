@@ -4,11 +4,13 @@ import { APIError, RelationshipField } from 'payload'
 export const tenantField = ({
   access,
   unique = false,
-  debug = false,
+  showInputInDocumentView = false,
+  required = true,
 }: {
   access?: RelationshipField['access']
   unique?: boolean
-  debug?: boolean
+  showInputInDocumentView?: boolean
+  required?: boolean
 } = {}): RelationshipField => ({
   name: 'tenant',
   type: 'relationship',
@@ -19,12 +21,14 @@ export const tenantField = ({
     components: {
       Field: {
         clientProps: {
-          debug,
+          showInputInDocumentView,
           unique,
+          required,
         },
         path: '@/fields/tenantField/TenantFieldComponent#TenantFieldComponent',
       },
     },
+    position: 'sidebar',
   },
   hasMany: false,
   maxDepth: 3,
@@ -47,5 +51,5 @@ export const tenantField = ({
   label: 'Avalanche Center',
   relationTo: 'tenants',
   unique,
-  required: true,
+  required,
 })

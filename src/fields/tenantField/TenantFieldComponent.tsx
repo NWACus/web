@@ -6,17 +6,15 @@ import { RelationshipField, useField, useFormModified } from '@payloadcms/ui'
 import React from 'react'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
-import './index.scss'
-
-const baseClass = 'tenantField'
 
 type Props = {
-  debug?: boolean
+  required?: boolean
+  showInputInDocumentView?: boolean
   unique?: boolean
 } & RelationshipFieldClientProps
 
 export const TenantFieldComponent = (args: Props) => {
-  const { debug, unique } = args
+  const { required, showInputInDocumentView: showFieldInDoc, unique } = args
   const { setValue, value } = useField<number | string>()
   const modified = useFormModified()
   const {
@@ -35,17 +33,19 @@ export const TenantFieldComponent = (args: Props) => {
       // set value on load
       if (value && value !== selectedTenantID) {
         setTenant({ id: value, refresh: unique })
-      } else {
+      } else if (required) {
         // in the document view, the tenant field should always have a value
         const defaultValue = selectedTenantID || options[0]?.value
         setTenant({ id: defaultValue, refresh: unique })
       }
       hasSetValueRef.current = true
-    } else if (!value || value !== selectedTenantID) {
+    } else if ((!value || value !== selectedTenantID) && required) {
       // Update the field on the document value when the tenant is changed
       setValue(selectedTenantID, !value || value === selectedTenantID)
+    } else if (value && value !== selectedTenantID) {
+      setTenant({ id: value })
     }
-  }, [value, selectedTenantID, setTenant, setValue, options, unique, isGlobalCollection])
+  }, [value, selectedTenantID, setTenant, setValue, options, unique, isGlobalCollection, required])
 
   React.useEffect(() => {
     setEntityType(unique ? 'global' : 'document')
@@ -63,15 +63,8 @@ export const TenantFieldComponent = (args: Props) => {
     }
   }, [modified, setModified])
 
-  if (debug) {
-    return (
-      <div className={baseClass}>
-        <div className={`${baseClass}__wrapper`}>
-          <RelationshipField {...args} />
-        </div>
-        <div className={`${baseClass}__hr`} />
-      </div>
-    )
+  if (showFieldInDoc) {
+    return <RelationshipField {...args} />
   }
 
   return null

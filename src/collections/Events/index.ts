@@ -13,6 +13,7 @@ import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
 import { slugField } from '@/fields/slug'
+import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { hasTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
 import { hasProviderAccess } from '@/utilities/rbac/hasProviderAccess'
@@ -321,30 +322,10 @@ export const Events: CollectionConfig = {
         description: 'Mode of travel for this event',
       },
     },
-    {
-      name: 'tenant',
-      type: 'relationship',
-      admin: {
-        allowCreate: false,
-        allowEdit: false,
-        position: 'sidebar',
-        // TODO: need a slightly different TenantFieldComponent with custom logic for optional tenant fields like this (maybe abstract this optional tenant field into it's own field fn)
-        // should set to the current tenant if the admin panel is tenant-scoped (i.e. the user has only one tenant), should be selectable if the user has access to multiple tenants
-        // components: {
-        //   Field: {
-        //     clientProps: {
-        //       debug: false,
-        //       unique: false,
-        //     },
-        //     path: '@/fields/tenantField/TenantFieldComponent#TenantFieldComponent',
-        //   },
-        // },
-      },
-      maxDepth: 3,
-      index: true,
-      label: 'Avalanche Center',
-      relationTo: 'tenants',
-    },
+    tenantField({
+      required: false,
+      showInputInDocumentView: true,
+    }),
     {
       name: 'provider',
       type: 'relationship',
