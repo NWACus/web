@@ -1,16 +1,18 @@
 import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
-import { APIError, RelationshipField } from 'payload'
+import { APIError, Condition, RelationshipField } from 'payload'
 
 export const tenantField = ({
   access,
   unique = false,
   showInputInDocumentView = false,
   required = true,
+  condition,
 }: {
   access?: RelationshipField['access']
   unique?: boolean
   showInputInDocumentView?: boolean
   required?: boolean
+  condition?: Condition
 } = {}): RelationshipField => ({
   name: 'tenant',
   type: 'relationship',
@@ -18,6 +20,7 @@ export const tenantField = ({
   admin: {
     allowCreate: false,
     allowEdit: false,
+    condition,
     components: {
       Field: {
         clientProps: {
@@ -40,7 +43,12 @@ export const tenantField = ({
           if (tenantFromCookie) {
             return tenantFromCookie
           }
-          throw new APIError('You must select a tenant', 400, null, true)
+          // Only throw error if field is required
+          if (required) {
+            throw new APIError('You must select a tenant', 400, null, true)
+          }
+          // Field is not required, allow undefined/null
+          return value
         }
 
         return value

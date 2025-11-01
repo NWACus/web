@@ -20,6 +20,11 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
   const currentTenantID = originalDoc?.tenant?.id ? originalDoc.tenant.id : originalDoc?.tenant
   const tenantIDToMatch = incomingTenantID || currentTenantID
 
+  // Don't validate if slug hasn't been generated yet
+  if (!value) {
+    return value
+  }
+
   const conditions: Where[] = [
     {
       slug: {

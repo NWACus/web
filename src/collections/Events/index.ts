@@ -15,7 +15,10 @@ import { locationField } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { hasTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
+import {
+  hasGlobalOrTenantRolePermission,
+  hasTenantRolePermission,
+} from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
 import { hasProviderAccess } from '@/utilities/rbac/hasProviderAccess'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
@@ -28,6 +31,7 @@ import {
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
 import { eventSubTypesData, eventTypesData } from './constants'
+import { validateEvent } from './hooks/validateEvent'
 
 const typesWithSubTypes = [...new Set(eventSubTypesData.map((item) => item.eventType))]
 
@@ -79,6 +83,18 @@ export const Events: CollectionConfig = {
         },
         description: 'Optional end date for multi-day events',
       },
+      validate: (value, { siblingData }) => {
+        const data = siblingData as { startDate?: string | Date }
+        if (value && data?.startDate) {
+          const startDate = new Date(data.startDate)
+          const endDate = new Date(value)
+
+          if (endDate <= startDate) {
+            return 'End date must be after start date.'
+          }
+        }
+        return true
+      },
     },
     {
       name: 'timezone',
@@ -122,6 +138,18 @@ export const Events: CollectionConfig = {
           pickerAppearance: 'dayAndTime',
         },
         description: 'Registration cutoff',
+      },
+      validate: (value, { siblingData }) => {
+        const data = siblingData as { startDate?: string | Date }
+        if (value && data?.startDate) {
+          const registrationDeadline = new Date(value)
+          const startDate = new Date(data.startDate)
+
+          if (registrationDeadline >= startDate) {
+            return 'Registration deadline must be before start date.'
+          }
+        }
+        return true
       },
     },
     {
@@ -325,13 +353,20 @@ export const Events: CollectionConfig = {
     tenantField({
       required: false,
       showInputInDocumentView: true,
+      condition: (_data, _siblingData, { user }) => {
+        return hasGlobalOrTenantRolePermission({
+          method: 'read',
+          collection: 'events',
+          user,
+        })
+      },
     }),
     {
       name: 'provider',
       type: 'relationship',
       defaultValue: ({ user }) => {
-        // Auto-select provider if user has exactly one provider relationship
-        if (user?.providers && Array.isArray(user.providers) && user.providers.length === 1) {
+        // Set provider to their first provider if a provider user
+        if (user?.providers && Array.isArray(user.providers)) {
           const providerId =
             typeof user.providers[0] === 'number' ? user.providers[0] : user.providers[0]?.id
           return providerId
@@ -375,6 +410,7 @@ export const Events: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
+    beforeValidate: [validateEvent],
     beforeChange: [populatePublishedAt, populateBlocksInContent],
     // TODO: need revalidation hooks here
     // TODO: need to update revalidation utilities to look for this blocksInContent field for relationships in addition to Posts and Home Pages

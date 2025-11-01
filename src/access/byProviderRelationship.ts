@@ -16,23 +16,23 @@ export const byProviderRelationship: (method: 'create' | 'read' | 'update' | 'de
       return globalAccess
     }
 
-    // For users with provider relationships
-    const userProviders = args.req.user.providers
-    if (!userProviders || !Array.isArray(userProviders) || userProviders.length === 0) {
-      return false
-    }
+    if (method !== 'create') {
+      // For users with provider relationships
+      const userProviders = args.req.user.providers
+      if (!userProviders || !Array.isArray(userProviders) || userProviders.length === 0) {
+        return false
+      }
 
-    // Extract provider IDs from the user's providers relationship
-    const providerIds = userProviders
-      .map((provider) => (typeof provider === 'number' ? provider : provider?.id))
-      .filter((id): id is number => typeof id === 'number')
+      // Extract provider IDs from the user's providers relationship
+      const providerIds = userProviders
+        .map((provider) => (typeof provider === 'number' ? provider : provider?.id))
+        .filter((id): id is number => typeof id === 'number')
 
-    if (providerIds.length === 0) {
-      return false
-    }
+      if (providerIds.length === 0) {
+        return false
+      }
 
-    // For read access, return a where clause to filter by user's providers
-    if (method === 'read') {
+      // For update, only allow if the document is one of their providers
       return {
         id: {
           in: providerIds,
@@ -40,13 +40,7 @@ export const byProviderRelationship: (method: 'create' | 'read' | 'update' | 'de
       }
     }
 
-    // For create/update/delete, only allow if the document is one of their providers
-    // This will be checked against the document being accessed
-    return {
-      id: {
-        in: providerIds,
-      },
-    }
+    return false
   }
 
 export const accessByProviderRelationship: CollectionConfig['access'] = {
