@@ -2,6 +2,7 @@
 
 import { EventSubType, EventType } from '@/collections/Events/constants'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 import { Minus } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
@@ -139,7 +140,7 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
         <div className="mb-4">
           <h3 className="font-semibold">Filter by type</h3>
           <hr className="p-2" />
-          <ul className="flex flex-col gap-1.5 p-0 list-none">
+          <ul className="flex flex-col gap-1 p-0 list-none">
             {types.map((type) => {
               const typeId = type.value
               const parentState = getParentState(typeId)
@@ -147,35 +148,35 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
 
               return (
                 <li key={typeId}>
-                  <div
-                    className="cursor-pointer flex items-center"
-                    onClick={() => toggleType(typeId)}
-                    aria-pressed={parentState === 'checked'}
-                  >
+                  <div className="cursor-pointer flex items-center">
                     <Checkbox
+                      id={typeId}
                       className="mr-2"
                       checked={parentState === 'checked' || parentState === 'indeterminate'}
+                      onCheckedChange={() => toggleType(typeId)}
                       icon={
                         parentState === 'indeterminate' ? <Minus className="h-4 w-4" /> : undefined
                       }
                     />
-                    {type.label}
+                    <Label htmlFor={typeId} className="text-md">
+                      {type.label}
+                    </Label>
                   </div>
 
                   {childSubTypes.length > 0 && (
-                    <ul className="flex flex-col gap-1.5 p-0 list-none ml-6 mt-1.5">
+                    <ul className="flex flex-col gap-1 p-0 list-none ml-6 mt-1">
                       {childSubTypes.map((subType) => (
                         <li key={subType.value}>
-                          <div
-                            className="cursor-pointer flex items-center"
-                            onClick={() => toggleSubType(subType.value)}
-                            aria-pressed={selectedSubTypes.includes(subType.value)}
-                          >
+                          <div className="cursor-pointer flex items-center">
                             <Checkbox
+                              id={subType.value}
                               className="mr-2"
                               checked={selectedSubTypes.includes(subType.value)}
+                              onCheckedChange={() => toggleSubType(subType.value)}
                             />
-                            {subType.label}
+                            <Label htmlFor={subType.value} className="text-md">
+                              {subType.label}
+                            </Label>
                           </div>
                         </li>
                       ))}

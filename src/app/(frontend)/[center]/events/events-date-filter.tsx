@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -264,9 +265,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
           onCheckedChange={(checked) => handleHidePastEventsChange(checked as boolean)}
           disabled={['upcoming', 'nextWeek', 'nextMonth'].includes(filterType)}
         />
-        <label htmlFor="hidePastEvents" className="text-sm font-medium">
-          Hide past events
-        </label>
+        <Label htmlFor="hidePastEvents">Hide past events</Label>
       </div>
 
       {filterType === 'custom' && (
