@@ -153,7 +153,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     const end = new Date(yearNum, monthNum + 1, 0).toISOString().split('T')[0]
     setSelectedMonth(month)
     setSelectedYear(year)
-    updateDateSelection('monthSelect', start, end)
+    updateDateSelection('custom', start, end)
   }
 
   const clearFilter = () => {
@@ -182,8 +182,6 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   }, [hidePastEvents, filterType, handleQuickFilter, updateParams, customEnd, todayStr])
 
   useEffect(() => {
-    // TODO: if on events & mess with params and click events - does nothing...
-    //    should refresh to initalLoad state - upocoming w/hidepast events selected
     // On initial load with no params, set filter to 'Upcoming'
     if (isInitialMount.current && !startDate && !endDate) {
       updateDateSelection('upcoming', todayStr, '')
