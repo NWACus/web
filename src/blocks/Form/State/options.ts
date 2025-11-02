@@ -49,4 +49,11 @@ export const stateOptions = [
   { label: 'West Virginia', value: 'WV' },
   { label: 'Wisconsin', value: 'WI' },
   { label: 'Wyoming', value: 'WY' },
+  { label: 'District of Columbia', value: 'DC' },
 ]
+
+// Get full state label from value
+export const getStateLabel = (stateValue: string): string => {
+  const state = stateOptions.find((option) => option.value === stateValue)
+  return state?.label || stateValue
+}

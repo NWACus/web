@@ -1,5 +1,6 @@
 'use client'
 
+import { getStateLabel } from '@/blocks/Form/State/options'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import type { Provider } from '@/payload-types'
@@ -38,8 +39,9 @@ export function ProviderCard({ provider }: ProviderCardProps) {
             {provider.location && (provider.location.city || provider.location.state) && (
               <div className="text-sm text-muted-foreground">
                 {provider.location.city && provider.location.state
-                  ? `${provider.location.city}, ${provider.location.state}`
-                  : provider.location.city || provider.location.state}
+                  ? `${provider.location.city}, ${getStateLabel(provider.location.state)}`
+                  : provider.location.city ||
+                    (provider.location.state && getStateLabel(provider.location.state))}
               </div>
             )}
 

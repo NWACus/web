@@ -951,6 +951,9 @@ export interface Provider {
   id: number;
   name: string;
   details?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
   location?: {
     address?: string | null;
     city?: string | null;
@@ -1011,22 +1014,22 @@ export interface Provider {
       | null;
     zip?: string | null;
     country?: 'US' | null;
-    /**
-     * @minItems 2
-     * @maxItems 2
-     */
-    coordinates?: [number, number] | null;
   };
-  /**
-   * These are the course types this provider is approved to create.
-   */
-  courseTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
   events?: {
     docs?: (number | Event)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  experience?: string | null;
+  /**
+   * These are the course types this provider has applied to be able to create.
+   */
+  courseTypesAppliedFor?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
   slug: string;
+  /**
+   * These are the course types this provider is approved to create.
+   */
+  courseTypes: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[];
   token?: string | null;
   contentHash?: string | null;
   updatedAt: string;
@@ -3170,6 +3173,9 @@ export interface EventTagsSelect<T extends boolean = true> {
 export interface ProvidersSelect<T extends boolean = true> {
   name?: T;
   details?: T;
+  email?: T;
+  phone?: T;
+  website?: T;
   location?:
     | T
     | {
@@ -3178,11 +3184,12 @@ export interface ProvidersSelect<T extends boolean = true> {
         state?: T;
         zip?: T;
         country?: T;
-        coordinates?: T;
       };
-  courseTypes?: T;
   events?: T;
+  experience?: T;
+  courseTypesAppliedFor?: T;
   slug?: T;
+  courseTypes?: T;
   token?: T;
   contentHash?: T;
   updatedAt?: T;

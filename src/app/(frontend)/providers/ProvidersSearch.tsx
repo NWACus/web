@@ -1,5 +1,6 @@
 'use client'
 
+import { stateOptions } from '@/blocks/Form/State/options'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -13,25 +14,6 @@ import Fuse from 'fuse.js'
 import { Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { ProviderCard } from './ProviderCard'
-
-const US_STATES = [
-  { value: 'AK', label: 'Alaska' },
-  { value: 'AZ', label: 'Arizona' },
-  { value: 'CA', label: 'California' },
-  { value: 'CO', label: 'Colorado' },
-  { value: 'ID', label: 'Idaho' },
-  { value: 'ME', label: 'Maine' },
-  { value: 'MT', label: 'Montana' },
-  { value: 'NV', label: 'Nevada' },
-  { value: 'NH', label: 'New Hampshire' },
-  { value: 'NM', label: 'New Mexico' },
-  { value: 'NY', label: 'New York' },
-  { value: 'OR', label: 'Oregon' },
-  { value: 'UT', label: 'Utah' },
-  { value: 'VT', label: 'Vermont' },
-  { value: 'WA', label: 'Washington' },
-  { value: 'WY', label: 'Wyoming' },
-]
 
 const COURSE_TYPES = [
   { value: 'rec-1', label: 'Rec 1' },
@@ -96,7 +78,7 @@ export function ProvidersSearch({ initialProviders }: ProvidersSearchProps) {
       if (!grouped.has(state)) {
         grouped.set(state, [])
       }
-      grouped.get(state)!.push(provider)
+      grouped.get(state)?.push(provider)
     })
 
     // Sort states alphabetically
@@ -108,8 +90,8 @@ export function ProvidersSearch({ initialProviders }: ProvidersSearchProps) {
 
     return sortedStates.map((state) => ({
       state,
-      stateName: US_STATES.find((s) => s.value === state)?.label || state,
-      providers: grouped.get(state)!.sort((a, b) => a.name.localeCompare(b.name)),
+      stateName: stateOptions.find((s) => s.value === state)?.label || state,
+      providers: (grouped.get(state) || []).sort((a, b) => a.name.localeCompare(b.name)),
     }))
   }, [filteredProviders])
 
@@ -136,7 +118,7 @@ export function ProvidersSearch({ initialProviders }: ProvidersSearchProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All states</SelectItem>
-            {US_STATES.map((state) => (
+            {stateOptions.map((state) => (
               <SelectItem key={state.value} value={state.value}>
                 {state.label}
               </SelectItem>
