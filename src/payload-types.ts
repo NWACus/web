@@ -1030,7 +1030,6 @@ export interface Provider {
    * These are the course types this provider is approved to create.
    */
   courseTypes: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[];
-  token?: string | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -3190,7 +3189,6 @@ export interface ProvidersSelect<T extends boolean = true> {
   courseTypesAppliedFor?: T;
   slug?: T;
   courseTypes?: T;
-  token?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

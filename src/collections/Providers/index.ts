@@ -8,7 +8,6 @@ import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { eventSubTypesData } from '../Events/constants'
 import { courseTypesFieldAccess } from './access/courseTypesFieldAccess'
-import { setToken } from './hooks/SetToken'
 import { revalidateProvider, revalidateProviderDelete } from './hooks/revalidateProvider'
 import { sendProviderEmails } from './hooks/sendProviderEmails'
 
@@ -162,28 +161,9 @@ export const Providers: CollectionConfig = {
           value: eventSubType.value,
         })),
     },
-    {
-      name: 'managementLink',
-      type: 'ui',
-      admin: {
-        components: {
-          Field: '@/collections/Providers/components/ManagementLink#ManagementLink',
-        },
-        position: 'sidebar',
-      },
-    },
-    {
-      name: 'token',
-      type: 'text',
-      index: true,
-      admin: {
-        hidden: true,
-      },
-    },
     contentHashField(),
   ],
   hooks: {
-    beforeChange: [setToken],
     afterChange: [sendProviderEmails, revalidateProvider],
     afterDelete: [revalidateProviderDelete],
   },
