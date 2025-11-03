@@ -22,10 +22,12 @@ interface ProviderCardProps {
 export function ProviderCard({ provider }: ProviderCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const hasDescription = provider.details && provider.details.trim().length > 0
-  const shouldTruncate = hasDescription && provider.details!.length > 200
+  const shouldTruncate = hasDescription && provider.details && provider.details.length > 200
 
   const displayDescription =
-    shouldTruncate && !isExpanded ? provider.details!.slice(0, 200) + '...' : provider.details
+    shouldTruncate && !isExpanded && provider.details
+      ? provider.details.slice(0, 200) + '...'
+      : provider.details
 
   return (
     <Card className="@container">

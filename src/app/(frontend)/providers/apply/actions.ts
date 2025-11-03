@@ -7,7 +7,7 @@ import { getURL } from '@/utilities/getURL'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-type CourseType = 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external'
+export type CourseType = 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external'
 type StateCode =
   | 'AL'
   | 'AK'

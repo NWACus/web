@@ -14,6 +14,7 @@ import Fuse from 'fuse.js'
 import { Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { ProviderCard } from './ProviderCard'
+import { CourseType } from './apply/actions'
 
 const COURSE_TYPES = [
   { value: 'rec-1', label: 'Rec 1' },
@@ -31,7 +32,7 @@ interface ProvidersSearchProps {
 export function ProvidersSearch({ initialProviders }: ProvidersSearchProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedState, setSelectedState] = useState<string>('all')
-  const [selectedCourseType, setSelectedCourseType] = useState<string>('all')
+  const [selectedCourseType, setSelectedCourseType] = useState<CourseType | 'all'>('all')
 
   // Initialize Fuse.js
   const fuse = useMemo(
@@ -61,9 +62,7 @@ export function ProvidersSearch({ initialProviders }: ProvidersSearchProps) {
 
     // Apply course type filter
     if (selectedCourseType !== 'all') {
-      results = results.filter(
-        (p) => p.courseTypes && p.courseTypes.includes(selectedCourseType as any),
-      )
+      results = results.filter((p) => p.courseTypes && p.courseTypes.includes(selectedCourseType))
     }
 
     return results
@@ -127,7 +126,10 @@ export function ProvidersSearch({ initialProviders }: ProvidersSearchProps) {
         </Select>
 
         {/* Course Type Filter */}
-        <Select value={selectedCourseType} onValueChange={setSelectedCourseType}>
+        <Select
+          value={selectedCourseType}
+          onValueChange={(val: CourseType | 'all') => setSelectedCourseType(val)}
+        >
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="All course types" />
           </SelectTrigger>
