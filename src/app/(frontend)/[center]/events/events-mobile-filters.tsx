@@ -2,7 +2,7 @@
 
 import { EventSubType, EventType } from '@/collections/Events/constants'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, Filter, FilterX, X } from 'lucide-react'
+import { ChevronDown, Filter, FilterX } from 'lucide-react'
 import { useState } from 'react'
 import { EventsDatePicker } from './events-date-filter'
 import { EventsTypeFilter } from './events-type-filter'
@@ -49,13 +49,6 @@ export const EventsMobileFilters = ({ eventCount, types, subTypes, hasActiveFilt
 
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold">Filters</h2>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Close filters"
-          >
-            <X className="h-6 w-6" />
-          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6">

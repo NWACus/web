@@ -1,10 +1,11 @@
 'use client'
 
 import { EventSubType, EventType } from '@/collections/Events/constants'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { Minus } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { Minus, X } from 'lucide-react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 type Props = {
@@ -12,10 +13,11 @@ type Props = {
   subTypes: EventSubType[]
 }
 
-type ParentState = 'unchecked' | 'checked' | 'indeterminate'
+type CheckboxState = 'unchecked' | 'checked' | 'indeterminate'
 
 export const EventsTypeFilter = ({ types, subTypes }: Props) => {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const [selectedSubTypes, setSelectedSubTypes] = useState<string[]>(() => {
@@ -23,7 +25,7 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
     return subTypesParam ? subTypesParam.split(',').filter(Boolean) : []
   })
 
-  const [selectedTypesWithoutSubTypes, setSelectedTypesWithoutSubTypes] = useState<string[]>(() => {
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(() => {
     const typesParam = searchParams.get('types')
     const typesFromUrl = typesParam ? typesParam.split(',').filter(Boolean) : []
     return typesFromUrl.filter((typeId) => !subTypes.some((st) => st.eventType === typeId))
@@ -37,12 +39,12 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
   }, {})
 
   // Determine state of parent checkbox
-  const getParentState = useCallback(
-    (typeId: string): ParentState => {
+  const getCheckboxState = useCallback(
+    (typeId: string): CheckboxState => {
       const childIds = subTypesByType[typeId] || []
 
       if (childIds.length === 0) {
-        return selectedTypesWithoutSubTypes.includes(typeId) ? 'checked' : 'unchecked'
+        return selectedTypes.includes(typeId) ? 'checked' : 'unchecked'
       }
 
       const selectedCount = childIds.filter((id) => selectedSubTypes.includes(id)).length
@@ -50,25 +52,22 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
       if (selectedCount === childIds.length) return 'checked'
       return 'indeterminate'
     },
-    [selectedSubTypes, selectedTypesWithoutSubTypes, subTypesByType],
+    [selectedSubTypes, selectedTypes, subTypesByType],
   )
 
-  const pushUpdatedParams = useCallback(
-    (newSubTypes: string[], newTypesWithoutSubTypes: string[]) => {
+  const updateParams = useCallback(
+    (newTypes: string[], newSubTypes: string[]) => {
       const params = new URLSearchParams(searchParams.toString())
 
       const typesWithSubTypesSelected = types
         .filter((type) => {
           const childIds = subTypesByType[type.value]
           if (!childIds?.length) return false
-          return (
-            newTypesWithoutSubTypes.includes(type.value) ||
-            childIds.every((id) => newSubTypes.includes(id))
-          )
+          return newTypes.includes(type.value) || childIds.every((id) => newSubTypes.includes(id))
         })
         .map((type) => type.value)
 
-      const allSelectedTypes = [...typesWithSubTypesSelected, ...newTypesWithoutSubTypes]
+      const allSelectedTypes = [...typesWithSubTypesSelected, ...newTypes]
 
       if (allSelectedTypes.length > 0) {
         params.set('types', allSelectedTypes.join(','))
@@ -82,9 +81,9 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
         params.delete('subtypes')
       }
 
-      router.push(`/events?${params.toString()}`, { scroll: false })
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
     },
-    [searchParams, types, subTypesByType, router],
+    [searchParams, types, router, pathname, subTypesByType],
   )
 
   // Toggle parent type
@@ -94,29 +93,23 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
 
       // Type has no subtypes - toggle it directly
       if (childIds.length === 0) {
-        const newTypes = selectedTypesWithoutSubTypes.includes(typeId)
-          ? selectedTypesWithoutSubTypes.filter((t) => t !== typeId)
-          : [...selectedTypesWithoutSubTypes, typeId]
-        setSelectedTypesWithoutSubTypes(newTypes)
-        pushUpdatedParams(selectedSubTypes, newTypes)
+        const newTypes = selectedTypes.includes(typeId)
+          ? selectedTypes.filter((t) => t !== typeId)
+          : [...selectedTypes, typeId]
+        setSelectedTypes(newTypes)
+        updateParams(newTypes, selectedSubTypes)
       } else {
         // Type has subtypes - toggle all children
-        const state = getParentState(typeId)
-        const shouldCheck = state === 'indeterminate' || state === 'unchecked'
-        const newSubTypes = shouldCheck
+        const state = getCheckboxState(typeId)
+        const shouldBeCheck = state === 'indeterminate' || state === 'unchecked'
+        const newSubTypes = shouldBeCheck
           ? Array.from(new Set([...selectedSubTypes, ...childIds]))
           : selectedSubTypes.filter((id) => !childIds.includes(id))
         setSelectedSubTypes(newSubTypes)
-        pushUpdatedParams(newSubTypes, selectedTypesWithoutSubTypes)
+        updateParams(selectedTypes, newSubTypes)
       }
     },
-    [
-      getParentState,
-      subTypesByType,
-      selectedTypesWithoutSubTypes,
-      selectedSubTypes,
-      pushUpdatedParams,
-    ],
+    [getCheckboxState, subTypesByType, selectedTypes, selectedSubTypes, updateParams],
   )
 
   // Toggle individual subtype
@@ -126,32 +119,51 @@ export const EventsTypeFilter = ({ types, subTypes }: Props) => {
         ? selectedSubTypes.filter((s) => s !== subTypeId)
         : [...selectedSubTypes, subTypeId]
       setSelectedSubTypes(newSubTypes)
-      pushUpdatedParams(newSubTypes, selectedTypesWithoutSubTypes)
+      updateParams(selectedTypes, newSubTypes)
     },
-    [selectedSubTypes, selectedTypesWithoutSubTypes, pushUpdatedParams],
+    [selectedSubTypes, selectedTypes, updateParams],
   )
+
+  const clearFilter = () => {
+    setSelectedTypes([])
+    setSelectedSubTypes([])
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('types')
+    params.delete('subtypes')
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+  }
 
   return (
     <div className="space-y-6">
       {types.length > 0 && (
         <div className="mb-4">
-          <h3 className="hidden md:block font-semibold">Filter by type</h3>
+          <div className="hidden md:flex justify-between items-center">
+            <h3 className="font-semibold my-2">Filter by type</h3>
+            {(selectedTypes.length > 0 || selectedSubTypes.length > 0) && (
+              <Button onClick={clearFilter} variant="ghost">
+                <X width={16} />
+              </Button>
+            )}
+          </div>
           <hr className="hidden md:block p-2" />
           <ul className="flex flex-col gap-1 p-0 list-none">
             {types.map((type) => {
               const typeId = type.value
-              const parentState = getParentState(typeId)
+              const CheckboxState = getCheckboxState(typeId)
               const childSubTypes = subTypes.filter((subType) => subType.eventType === typeId)
 
               return (
                 <li key={typeId}>
-                  <div className="cursor-pointer flex items-center">
+                  <div
+                    className="cursor-pointer flex items-center"
+                    onClick={() => toggleType(typeId)}
+                  >
                     <Checkbox
                       id={typeId}
                       className="mr-2"
-                      checked={parentState === 'checked' || parentState === 'indeterminate'}
-                      onCheckedChange={() => toggleType(typeId)}
-                      icon={parentState === 'indeterminate' && <Minus className="h-4 w-4" />}
+                      checked={CheckboxState === 'checked' || CheckboxState === 'indeterminate'}
+                      icon={CheckboxState === 'indeterminate' && <Minus className="h-4 w-4" />}
                     />
                     <Label htmlFor={typeId} className="text-md">
                       {type.label}
