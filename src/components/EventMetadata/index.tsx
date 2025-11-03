@@ -45,13 +45,13 @@ export const EventMetadata = ({
   }
 
   return (
-    <div className={`flex flex-col gap-2 text-sm text-muted-foreground ${className}`}>
+    <div className={`grid grid-cols-2 gap-2 text-sm text-muted-foreground ${className}`}>
       {/* Date and Time */}
       {startDate && (
         <div className="flex items-start gap-2">
           <Calendar className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <div>
-            {showLabels && <span className="font-medium">Date: </span>}
+            {showLabels && <span className="font-medium font-semibold">Date: </span>}
             <span>{formatDateTime(startDate, timezone)}</span>
             {endDate && (
               <>
@@ -89,7 +89,7 @@ export const EventMetadata = ({
             <>
               <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <div>
-                {showLabels && <span className="font-medium">Location: </span>}
+                {showLabels && <span className="font-medium font-semibold">Location: </span>}
                 {location.venue && <div>{location.venue}</div>}
                 {(location.address || location.city || location.state) && (
                   <div>
@@ -104,22 +104,12 @@ export const EventMetadata = ({
         </div>
       )}
 
-      {location?.extraInfo && (
-        <div className="flex items-start gap-2">
-          <Globe className="h-4 w-4 mt-0.5 flex-shrink-0" />
-          <div>
-            {showLabels && <span className="font-medium">Additional Info: </span>}
-            <span>{location.extraInfo}</span>
-          </div>
-        </div>
-      )}
-
       {/* Cost */}
       {cost !== undefined && cost !== null && (
         <div className="flex items-center gap-2">
           <DollarSign className="h-4 w-4 flex-shrink-0" />
           <span>
-            {showLabels && <span className="font-medium">Cost: </span>}
+            {showLabels && <span className="font-medium font-semibold">Cost: </span>}
             {cost === 0 ? 'Free' : `$${cost}`}
           </span>
         </div>
@@ -130,7 +120,7 @@ export const EventMetadata = ({
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 flex-shrink-0" />
           <span>
-            {showLabels && <span className="font-medium">Capacity: </span>}
+            {showLabels && <span className="font-medium font-semibold">Capacity: </span>}
             {capacity} {capacity === 1 ? 'spot' : 'spots'}
           </span>
         </div>
@@ -141,7 +131,7 @@ export const EventMetadata = ({
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 flex-shrink-0" />
           <span>
-            {showLabels && <span className="font-medium">Level: </span>}
+            {showLabels && <span className="font-medium font-semibold">Level: </span>}
             {skillLevelLabels[skillRating] || skillRating}
           </span>
         </div>
@@ -152,6 +142,16 @@ export const EventMetadata = ({
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 flex-shrink-0" />
           <span className="text-xs">{timezone}</span>
+        </div>
+      )}
+
+      {location?.extraInfo && (
+        <div className="flex items-start gap-2">
+          <Globe className="h-4 w-4 mt-0.5 flex-shrink-0" />
+          <div>
+            {showLabels && <span className="font-medium font-semibold">Additional Info: </span>}
+            <span>{location.extraInfo}</span>
+          </div>
         </div>
       )}
     </div>

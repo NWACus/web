@@ -797,6 +797,7 @@ export interface Event {
     extraInfo?: string | null;
   };
   featuredImage?: (number | null) | Media;
+  thumbnailImage?: (number | null) | Media;
   /**
    * External registration link
    */
@@ -2955,6 +2956,7 @@ export interface EventsSelect<T extends boolean = true> {
         extraInfo?: T;
       };
   featuredImage?: T;
+  thumbnailImage?: T;
   registrationUrl?: T;
   externalEventUrl?: T;
   registrationDeadline?: T;

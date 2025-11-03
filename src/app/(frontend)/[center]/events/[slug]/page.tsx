@@ -6,6 +6,7 @@ import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { Media } from '@/components/Media'
 import { Button } from '@/components/ui/button'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { Metadata, ResolvedMetadata } from 'next'
@@ -71,17 +72,22 @@ export default async function Event({ params: paramsPromise }: Args) {
     <article className="pt-4">
       {draft && <LivePreviewListener />}
 
-      <div className="flex flex-col items-center gap-4 py-8">
-        <div className="container">
-          <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
-            <h1 className="font-bold mb-2">{event.title}</h1>
-            {event.subtitle && (
-              <p className="text-xl text-muted-foreground mt-0">{event.subtitle}</p>
-            )}
-          </div>
-
+      <div className="flex flex-col items-center gap-4 pb-8">
+        <Media
+          resource={event.featuredImage}
+          className="w-full absolute"
+          imgClassName="w-full h-[500px] object-cover"
+        />
+        <div className="container z-10 mt-40">
           <div className="max-w-[48rem] mx-auto mb-8">
             <div className="bg-card border rounded-lg p-6 shadow-sm">
+              <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
+                <h1 className="font-bold mb-2">{event.title}</h1>
+                {event.subtitle && (
+                  <p className="text-xl text-muted-foreground mt-0">{event.subtitle}</p>
+                )}
+              </div>
+
               <EventMetadata
                 startDate={event.startDate}
                 endDate={event.endDate}
