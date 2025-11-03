@@ -114,28 +114,6 @@ export async function inviteUserAction({
         })
       }
 
-      // Validate that the manager is only assigning providers they have access to
-      const userProviderIds = Array.isArray(loggedInUser.providers)
-        ? loggedInUser.providers
-            .map((p) => (typeof p === 'number' ? p : p?.id))
-            .filter((id): id is number => id !== undefined)
-        : []
-
-      const invalidProviders = providers.filter(
-        (providerId) => !userProviderIds.includes(providerId),
-      )
-
-      if (invalidProviders.length > 0) {
-        throw new ValidationError({
-          errors: [
-            {
-              message: 'You are not allowed to assign providers you do not have access to.',
-              path: 'providers',
-            },
-          ],
-        })
-      }
-
       // Require at least one provider for provider managers
       if (providers.length === 0) {
         throw new ValidationError({

@@ -121,18 +121,18 @@ export async function submitProviderApplication(
 
     try {
       // Get notification receivers from aaaManagement global
-      const _aaaManagement = await payload.findGlobal({
+      const aaaManagement = await payload.findGlobal({
         slug: 'aaaManagement',
         depth: 1, // Populate user relationships
       })
 
-      const _notificationReceivers = Array.isArray(_aaaManagement.notificationReceivers)
-        ? _aaaManagement.notificationReceivers
+      const notificationReceivers = Array.isArray(aaaManagement.notificationReceivers)
+        ? aaaManagement.notificationReceivers
         : []
 
       // Send notification emails to admins
-      if (_notificationReceivers.length > 0) {
-        const adminEmailPromises = _notificationReceivers.map(async (receiver) => {
+      if (notificationReceivers.length > 0) {
+        const adminEmailPromises = notificationReceivers.map(async (receiver) => {
           if (typeof receiver === 'object' && receiver.email) {
             const emailContent = await generateProviderApplicationNotification({
               providerName: data.name,
