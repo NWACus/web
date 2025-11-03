@@ -173,7 +173,7 @@ const staticEventRelatedFields: Field[] = [
 const eventListBlockWithFields = (fields: Field[]): Block => ({
   slug: 'eventList',
   interfaceName: 'EventListBlock',
-  imageURL: '/thumbnail/EventListThumbnail.jpg',
+  imageURL: '/thumbnail/BlogListThumbnail.jpg',
   fields,
 })
 
