@@ -48,7 +48,7 @@
     "@payloadcms/db-sqlite": "3.61.1",
     "@payloadcms/email-nodemailer": "3.61.1",
     "@payloadcms/email-resend": "3.61.1",
-    "@payloadcms/live-preview-react": "3.61.1",
+    "@payloadcms/live-preview-react": "3.62.0",
     "@payloadcms/next": "3.61.1",
     "@payloadcms/plugin-form-builder": "3.61.1",
     "@payloadcms/plugin-sentry": "3.61.1",
