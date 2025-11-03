@@ -1,13 +1,13 @@
 import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import colorPickerField from '@/fields/color'
-import { getTenantFilter } from '@/utilities/collectionFilters'
+import { getOptionalTenantAndIdFilter } from '@/utilities/collectionFilters'
 import {
   BlocksFeature,
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import type { Block, Field, FilterOptionsProps } from 'payload'
+import type { Block, Field } from 'payload'
 import { ButtonBlock } from '../Button/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { MediaBlockLexical } from '../MediaBlock/config'
@@ -164,9 +164,7 @@ const staticEventRelatedFields: Field[] = [
         admin: {
           description: 'Choose new event from dropdown and/or drag and drop to change order',
         },
-        filterOptions: (props: FilterOptionsProps) => ({
-          and: [getTenantFilter(props)],
-        }),
+        filterOptions: getOptionalTenantAndIdFilter,
       },
     ],
   },

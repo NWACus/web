@@ -25,6 +25,11 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
+    where: {
+      _status: {
+        equals: 'published',
+      },
+    },
   })
 
   const params: PathArgs[] = []

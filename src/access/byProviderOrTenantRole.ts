@@ -1,4 +1,5 @@
 import { byTenantRole } from '@/access/byTenantRole'
+import { hasTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
 import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import { Access, CollectionConfig } from 'payload'
@@ -22,9 +23,29 @@ export const byProviderOrTenantRole: (method: 'create' | 'read' | 'update' | 'de
     const isManager = await isProviderManager(args.req.payload, args.req.user)
     if (isManager) {
       return {
-        provider: {
-          exists: true,
-        },
+        or: [
+          // creating a new event the provider and tenant will be empty
+          {
+            and: [
+              {
+                _status: {
+                  equals: 'draft',
+                },
+              },
+              {
+                tenant: {
+                  exists: false,
+                },
+              },
+            ],
+          },
+          // this is for existing provider events
+          {
+            provider: {
+              exists: true,
+            },
+          },
+        ],
       }
     }
 
@@ -71,7 +92,11 @@ export const accessByProviderOrTenantRole: CollectionConfig['access'] = {
     const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
 
     // Check tenant role access
-    const tenantRoleAccess = await byTenantRole('create', 'events')({ req })
+    const tenantRoleAccess = hasTenantRolePermission({
+      method: 'create',
+      collection: 'events',
+      user: req.user,
+    })
 
     // If user has tenant role access (true or where clause), tenant cookie is required
     if (tenantRoleAccess !== false) {

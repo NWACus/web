@@ -876,6 +876,36 @@ export interface Event {
    * Skill level required for this event
    */
   skillRating?: ('0' | '1' | '2' | '3') | null;
+  tenantContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  providerContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   content?: {
     root: {
       type: string;
@@ -3117,6 +3147,8 @@ export interface EventsSelect<T extends boolean = true> {
   capacity?: T;
   cost?: T;
   skillRating?: T;
+  tenantContent?: T;
+  providerContent?: T;
   content?: T;
   blocksInContent?:
     | T

@@ -31,6 +31,7 @@ import {
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
 import { eventSubTypesData, eventTypesData } from './constants'
+import { syncContentFields } from './hooks/syncContentFields'
 import { validateEvent } from './hooks/validateEvent'
 
 const typesWithSubTypes = [...new Set(eventSubTypesData.map((item) => item.eventType))]
@@ -185,12 +186,74 @@ export const Events: CollectionConfig = {
       admin: {
         description:
           "Create page content for this event's landing page. This landing page will only be displayed if there is not an External Event URL.",
+        condition: (data) => data?.provider || data?.tenant,
       },
       fields: [
         {
-          name: 'content',
-          label: '',
+          name: 'tenantContent',
+          label: 'Content',
           type: 'richText',
+          admin: {
+            condition: (data) => {
+              // Show full content editor for non-provider events (events without a provider)
+              return !data?.provider && !!data?.tenant
+            },
+          },
+          editor: lexicalEditor({
+            features: ({ rootFeatures }) => {
+              return [
+                ...rootFeatures,
+                BlocksFeature({
+                  blocks: [
+                    Banner,
+                    BlogListBlockLexical,
+                    DocumentBlock,
+                    EventListBlockLexical,
+                    GenericEmbedLexical,
+                    HeaderBlock,
+                    MediaBlockLexical,
+                    SingleBlogPostBlockLexical,
+                    SingleEventBlockLexical,
+                    SponsorsBlock,
+                  ],
+                }),
+                HorizontalRuleFeature(),
+                InlineToolbarFeature(),
+              ]
+            },
+          }),
+        },
+        {
+          name: 'providerContent',
+          label: 'Content',
+          type: 'richText',
+          admin: {
+            condition: (data) => {
+              // Show limited content editor for provider events (events with a provider)
+              return !!data?.provider && !data?.tenant
+            },
+          },
+          editor: lexicalEditor({
+            features: ({ rootFeatures }) => {
+              return [
+                ...rootFeatures,
+                BlocksFeature({
+                  blocks: [Banner, EventListBlockLexical, HeaderBlock, SingleEventBlockLexical],
+                }),
+                HorizontalRuleFeature(),
+                InlineToolbarFeature(),
+              ]
+            },
+          }),
+        },
+        {
+          name: 'content',
+          label: false,
+          type: 'richText',
+          admin: {
+            hidden: true,
+            readOnly: true,
+          },
           editor: lexicalEditor({
             features: ({ rootFeatures }) => {
               return [
@@ -353,7 +416,12 @@ export const Events: CollectionConfig = {
     tenantField({
       required: false,
       showInputInDocumentView: true,
-      condition: (_data, _siblingData, { user }) => {
+      condition: (data, _siblingData, { user }) => {
+        // Hide tenant field for provider events
+        if (data?.provider) {
+          return false
+        }
+        // Show for users with proper permissions
         return hasGlobalOrTenantRolePermission({
           method: 'read',
           collection: 'events',
@@ -411,7 +479,7 @@ export const Events: CollectionConfig = {
   ],
   hooks: {
     beforeValidate: [validateEvent],
-    beforeChange: [populatePublishedAt, populateBlocksInContent],
+    beforeChange: [syncContentFields, populatePublishedAt, populateBlocksInContent],
     // TODO: need revalidation hooks here
     // TODO: need to update revalidation utilities to look for this blocksInContent field for relationships in addition to Posts and Home Pages
   },
