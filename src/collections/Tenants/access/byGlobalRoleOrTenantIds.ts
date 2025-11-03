@@ -66,23 +66,25 @@ export const byGlobalRoleOrTenantIdsWithOwnTenantsRead: (method: ruleMethod) => 
       .filter((tenant) => !!tenant && typeof tenant !== 'number') // captured in the getter
       .map((tenant) => tenant.id)
 
-    if (matchingTenantIds.length > 0) {
-      return {
-        id: {
-          in: matchingTenantIds,
-        },
-      }
+    let tenantIdsToMatch = matchingTenantIds
+
+    if (method === 'read') {
+      const tenantIdsUserHasRoleAssignmentsFor = roleAssignments
+        .map((assignment) => assignment.tenant)
+        .filter((tenant) => !!tenant && typeof tenant !== 'number')
+        .map((tenant) => tenant.id)
+
+      const uniqueTenantIdsToMatch = new Set([
+        ...matchingTenantIds,
+        ...tenantIdsUserHasRoleAssignmentsFor,
+      ])
+      tenantIdsToMatch = Array.from(uniqueTenantIdsToMatch)
     }
 
-    const tenantIdsUserHasRoleAssignmentsFor = roleAssignments
-      .map((assignment) => assignment.tenant)
-      .filter((tenant) => !!tenant && typeof tenant !== 'number')
-      .map((tenant) => tenant.id)
-
-    if (tenantIdsUserHasRoleAssignmentsFor.length > 0) {
+    if (tenantIdsToMatch.length > 0) {
       return {
         id: {
-          in: tenantIdsUserHasRoleAssignmentsFor,
+          in: tenantIdsToMatch,
         },
       }
     }
