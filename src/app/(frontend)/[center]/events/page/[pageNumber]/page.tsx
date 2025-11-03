@@ -62,6 +62,10 @@ export default async function Page({ params, searchParams }: Args) {
     'tenant.slug': {
       equals: center,
     },
+    // exclude provider events
+    provider: {
+      exists: false,
+    },
   }
 
   if (orConditions.length > 0) {
