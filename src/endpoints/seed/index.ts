@@ -174,7 +174,7 @@ export const seed = async ({
           name: 'Provider Manager',
           rules: [
             {
-              collections: ['providers', 'aaaManagement', 'events'],
+              collections: ['providers'],
               actions: ['*'],
             },
           ],
