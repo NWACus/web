@@ -36,13 +36,15 @@ export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: accessByTenantRoleOrReadPublished('posts'),
   defaultPopulate: {
+    _status: true,
+    authors: true,
     description: true,
     featuredImage: true,
+    publishedAt: true,
+    showAuthors: true,
+    showDate: true,
     slug: true,
     title: true,
-    _status: true,
-    publishedAt: true,
-    authors: true,
   },
   admin: {
     group: 'Content',
