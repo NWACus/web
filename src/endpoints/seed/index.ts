@@ -763,7 +763,11 @@ export const seed = async ({
       (obj) => obj.slug,
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
-          return getEventsData(tenant, images[tenant.slug]['imageMountain'])
+          return getEventsData(
+            tenant,
+            images[tenant.slug]['image1'],
+            images[tenant.slug]['imageMountain'],
+          )
         })
         .flat(),
     )
