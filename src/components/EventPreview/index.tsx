@@ -16,7 +16,7 @@ export type EventPreviewData = Pick<
   | 'subtitle'
   | 'description'
   | 'slug'
-  | 'featuredImage'
+  | 'thumbnailImage'
   | 'startDate'
   | 'endDate'
   | 'timezone'
@@ -45,7 +45,7 @@ export const EventPreview = (props: {
     subtitle,
     description,
     slug,
-    featuredImage,
+    thumbnailImage,
     startDate,
     endDate,
     timezone,
@@ -167,10 +167,10 @@ export const EventPreview = (props: {
         href={eventUrl}
         className="w-full @md:w-48 @lg:w-56 @xl:w-64 @md:flex-shrink-0 h-40 @md:h-auto overflow-hidden rounded"
       >
-        {featuredImage && typeof featuredImage !== 'number' && (
+        {thumbnailImage && typeof thumbnailImage !== 'number' && (
           <ImageMedia
             imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            resource={featuredImage}
+            resource={thumbnailImage}
             pictureClassName="w-full h-full"
           />
         )}

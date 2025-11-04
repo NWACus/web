@@ -12,7 +12,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
 
   if (!doc) return null
 
-  const { featuredImage, startDate, slug, title, location, externalEventUrl, type, subType } = doc
+  const { thumbnailImage, startDate, slug, title, location, externalEventUrl, type, subType } = doc
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -46,10 +46,10 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
     >
       <article className={cn('flex gap-3', className)}>
         <div className="flex-shrink-0 overflow-hidden">
-          {featuredImage && typeof featuredImage !== 'number' ? (
+          {thumbnailImage && typeof thumbnailImage !== 'number' ? (
             <ImageMedia
               imgClassName="w-28 max-h-28 object-cover transition-all duration-200"
-              resource={featuredImage}
+              resource={thumbnailImage}
               pictureClassName="w-28 max-h-28 overflow-hidden rounded aspect-square"
             />
           ) : (
