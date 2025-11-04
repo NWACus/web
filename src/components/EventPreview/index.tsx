@@ -5,7 +5,7 @@ import type { Event } from '@/payload-types'
 import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
-import { EventMetadata } from '../EventMetadata'
+import { EventInfo } from '../EventInfo'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -115,7 +115,7 @@ export const EventPreview = (props: {
               {description}
             </p>
           )}
-          <EventMetadata
+          <EventInfo
             startDate={startDate}
             endDate={endDate}
             timezone={timezone}

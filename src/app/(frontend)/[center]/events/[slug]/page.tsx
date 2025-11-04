@@ -1,10 +1,10 @@
-import { EventMetadata } from '@/components/EventMetadata'
 import { Redirects } from '@/components/Redirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
 
+import { EventInfo } from '@/components/EventInfo'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
 import { Button } from '@/components/ui/button'
@@ -88,7 +88,7 @@ export default async function Event({ params: paramsPromise }: Args) {
                 )}
               </div>
 
-              <EventMetadata
+              <EventInfo
                 startDate={event.startDate}
                 endDate={event.endDate}
                 timezone={event.timezone}

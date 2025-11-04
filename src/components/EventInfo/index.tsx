@@ -4,7 +4,7 @@ import type { USTimezone } from '@/utilities/timezones'
 import { Calendar, Clock, DollarSign, Globe, MapPin, TrendingUp, Users, Video } from 'lucide-react'
 import { Badge } from '../ui/badge'
 
-export type EventMetadataProps = Pick<
+export type EventInfoProps = Pick<
   Event,
   'startDate' | 'endDate' | 'timezone' | 'location' | 'cost' | 'capacity' | 'skillRating'
 > & {
@@ -12,7 +12,7 @@ export type EventMetadataProps = Pick<
   showLabels?: boolean
 }
 
-export const EventMetadata = ({
+export const EventInfo = ({
   startDate,
   endDate,
   timezone,
@@ -22,7 +22,7 @@ export const EventMetadata = ({
   skillRating,
   className = '',
   showLabels = false,
-}: EventMetadataProps) => {
+}: EventInfoProps) => {
   const formatDateTime = (dateString: string, tz?: string | null) => {
     const date = new Date(dateString)
     const options: Intl.DateTimeFormatOptions = {
@@ -45,7 +45,7 @@ export const EventMetadata = ({
   }
 
   return (
-    <div className={`grid grid-cols-2 gap-2 text-sm text-muted-foreground ${className}`}>
+    <div className={`flex flex-col gap-2 text-sm text-muted-foreground ${className}`}>
       {/* Date and Time */}
       {startDate && (
         <div className="flex items-start gap-2">
