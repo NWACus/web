@@ -97,6 +97,8 @@ export default async function Event({ params: paramsPromise }: Args) {
                 capacity={event.capacity}
                 skillRating={event.skillRating}
                 showLabels={true}
+                className="columns-1 sm:columns-2"
+                itemsClassName="break-inside-avoid mb-4"
               />
 
               {/* Registration Information */}

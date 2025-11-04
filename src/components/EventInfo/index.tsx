@@ -1,7 +1,8 @@
 'use client'
 import type { Event } from '@/payload-types'
-import type { USTimezone } from '@/utilities/timezones'
-import { Calendar, Clock, DollarSign, Globe, MapPin, TrendingUp, Users, Video } from 'lucide-react'
+import { formatDateTime } from '@/utilities/formatDateTime'
+import { isSameDay } from 'date-fns'
+import { Calendar, DollarSign, Globe, MapPin, TrendingUp, Users, Video } from 'lucide-react'
 import { Badge } from '../ui/badge'
 
 export type EventInfoProps = Pick<
@@ -9,34 +10,22 @@ export type EventInfoProps = Pick<
   'startDate' | 'endDate' | 'timezone' | 'location' | 'cost' | 'capacity' | 'skillRating'
 > & {
   className?: string
+  itemsClassName?: string
   showLabels?: boolean
 }
 
 export const EventInfo = ({
-  startDate,
-  endDate,
-  timezone,
-  location,
-  cost,
   capacity,
-  skillRating,
   className = '',
+  cost,
+  endDate,
+  itemsClassName = '',
+  location,
   showLabels = false,
+  skillRating,
+  startDate,
+  timezone,
 }: EventInfoProps) => {
-  const formatDateTime = (dateString: string, tz?: string | null) => {
-    const date = new Date(dateString)
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZoneName: 'short',
-      ...(tz && { timeZone: tz as USTimezone }),
-    }
-    return date.toLocaleString('en-US', options)
-  }
-
   const skillLevelLabels: Record<string, string> = {
     '0': 'Beginner Friendly',
     '1': 'Previous Knowledge Helpful',
@@ -45,18 +34,30 @@ export const EventInfo = ({
   }
 
   return (
-    <div className={`flex flex-col gap-2 text-sm text-muted-foreground ${className}`}>
+    <div className={`gap-4 text-sm text-muted-foreground ${className}`}>
       {/* Date and Time */}
       {startDate && (
-        <div className="flex items-start gap-2">
+        <div className={`flex items-start gap-2 ${itemsClassName}`}>
           <Calendar className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <div>
             {showLabels && <span className="font-medium font-semibold">Date: </span>}
-            <span>{formatDateTime(startDate, timezone)}</span>
-            {endDate && (
+
+            {endDate && isSameDay(startDate, endDate) ? (
               <>
-                <span className="mx-1">-</span>
-                <span>{formatDateTime(endDate, timezone)}</span>
+                <span>
+                  {formatDateTime(startDate, timezone, 'MMM d, yyyy, p')}-{' '}
+                  {formatDateTime(endDate, timezone, 'p zzz')}
+                </span>
+              </>
+            ) : (
+              <>
+                <span>{formatDateTime(startDate, timezone, 'MMM d, yyyy, p')}</span>
+                {endDate && (
+                  <>
+                    <span className="mx-1">-</span>
+                    <span>{formatDateTime(endDate, timezone, 'MMM d, yyyy, p')}</span>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -65,7 +66,7 @@ export const EventInfo = ({
 
       {/* Location */}
       {location && (
-        <div className="flex items-start gap-2">
+        <div className={`flex items-start gap-2 ${itemsClassName}`}>
           {location.isVirtual ? (
             <>
               <Video className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -106,7 +107,7 @@ export const EventInfo = ({
 
       {/* Cost */}
       {cost !== undefined && cost !== null && (
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${itemsClassName}`}>
           <DollarSign className="h-4 w-4 flex-shrink-0" />
           <span>
             {showLabels && <span className="font-medium font-semibold">Cost: </span>}
@@ -117,7 +118,7 @@ export const EventInfo = ({
 
       {/* Capacity */}
       {capacity && (
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${itemsClassName}`}>
           <Users className="h-4 w-4 flex-shrink-0" />
           <span>
             {showLabels && <span className="font-medium font-semibold">Capacity: </span>}
@@ -128,7 +129,7 @@ export const EventInfo = ({
 
       {/* Skill Rating */}
       {skillRating && (
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${itemsClassName}`}>
           <TrendingUp className="h-4 w-4 flex-shrink-0" />
           <span>
             {showLabels && <span className="font-medium font-semibold">Level: </span>}
@@ -137,16 +138,8 @@ export const EventInfo = ({
         </div>
       )}
 
-      {/* Timezone indicator */}
-      {timezone && !startDate && (
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 flex-shrink-0" />
-          <span className="text-xs">{timezone}</span>
-        </div>
-      )}
-
       {location?.extraInfo && (
-        <div className="flex items-start gap-2">
+        <div className={`flex items-start gap-2 ${itemsClassName}`}>
           <Globe className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <div>
             {showLabels && <span className="font-medium font-semibold">Additional Info: </span>}

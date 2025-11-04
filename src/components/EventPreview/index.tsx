@@ -120,7 +120,7 @@ export const EventPreview = (props: {
             endDate={endDate}
             timezone={timezone}
             skillRating={skillRating}
-            className="mb-4"
+            className="flex flex-col mb-4"
           />
           {(isPastEvent || isRegistrationClosed) && (
             <div className="flex gap-2 mb-2">
