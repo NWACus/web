@@ -16,9 +16,11 @@ import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonBlockComponent } from '@/blocks/Button/Component'
 import { CalloutBlock } from '@/blocks/Callout/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
+import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
+import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import type {
   BannerBlock as BannerBlockProps,
@@ -26,10 +28,12 @@ import type {
   ButtonBlock as ButtonBlockProps,
   CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
+  EventListBlock as EventListBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
   MediaBlock as MediaBlockProps,
-  SingleBlogPostBlock,
+  SingleBlogPostBlock as SingleBlogPostBlockProps,
+  SingleEventBlock as SingleEventBlockProps,
   SponsorsBlock as SponsorsBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
@@ -42,10 +46,12 @@ type NodeTypes =
       | ButtonBlockProps
       | CalloutBlockProps
       | DocumentBlockProps
+      | EventListBlockProps
       | GenericEmbedBlockProps
       | HeaderBlockProps
       | MediaBlockProps
-      | SingleBlogPostBlock
+      | SingleBlogPostBlockProps
+      | SingleEventBlockProps
       | SponsorsBlockProps
     >
 
@@ -74,6 +80,20 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     calloutBlock: ({ node }) => <CalloutBlock {...node.fields} />,
     documentBlock: ({ node }) => (
       <DocumentBlock
+        {...node.fields}
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    eventList: ({ node }) => (
+      <EventListBlockComponent
+        {...node.fields}
+        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
+    ),
+    singleEvent: ({ node }) => (
+      <SingleEventBlockComponent
         {...node.fields}
         // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
