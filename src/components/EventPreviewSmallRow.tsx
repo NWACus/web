@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import type { Event } from '@/payload-types'
 
+import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
 import { Calendar } from 'lucide-react'
 import { ImageMedia } from './Media/ImageMedia'
 import { Badge } from './ui/badge'
@@ -29,8 +30,10 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
   const eventUrl = externalEventUrl || `/events/${slug}`
   const isExternal = !!externalEventUrl
 
-  const eventTypeName = type ? type : null
-  const eventSubTypeName = subType ? subType : null
+  const eventTypeName = type ? eventTypesData.find((et) => et.value === type)?.label : null
+  const eventSubTypeName = subType
+    ? eventSubTypesData.find((est) => est.value === subType)?.label
+    : null
 
   const typeDisplayText =
     eventTypeName && eventSubTypeName
