@@ -693,7 +693,7 @@ export interface EventListBlock {
      */
     sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
     /**
-     * Optionally select event types to filter events in this list by.
+     * Optionally select event types to filter events.
      */
     filterByEventTypes?:
       | (
@@ -706,7 +706,7 @@ export interface EventListBlock {
         )[]
       | null;
     /**
-     * Optionally select event sub types to filter events in this list by.
+     * Optionally select event sub types to filter events. Ensure the parent event type is selected first.
      */
     filterByEventSubTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
     /**

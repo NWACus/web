@@ -1,5 +1,6 @@
 'use client'
 
+import { eventSubTypesData } from '@/collections/Events/constants'
 import { Event } from '@/payload-types'
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { FieldDescription, SelectInput, useField, useForm, useFormFields } from '@payloadcms/ui'
@@ -75,7 +76,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const typeIds = filterByEventTypes.filter(Boolean)
 
           if (typeIds.length > 0) {
-            params.append('where[or][0][eventType][in]', typeIds.join(','))
+            params.append('where[type][in]', typeIds.join(','))
           }
         }
 
@@ -84,10 +85,21 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           Array.isArray(filterByEventSubTypes) &&
           filterByEventSubTypes.length > 0
         ) {
-          const subTypeIds = filterByEventSubTypes.filter(Boolean)
+          const selectedTypes =
+            filterByEventTypes && Array.isArray(filterByEventTypes)
+              ? filterByEventTypes.filter(Boolean)
+              : []
 
-          if (subTypeIds.length > 0) {
-            params.append('where[or][1][eventSubType][in]', subTypeIds.join(','))
+          // Only apply subtype filters if event types are selected
+          if (selectedTypes.length > 0) {
+            const validSubTypeIds = filterByEventSubTypes.filter(Boolean).filter((subTypeId) => {
+              const subType = eventSubTypesData.find((st) => st.value === subTypeId)
+              return subType && selectedTypes.includes(subType.eventType)
+            })
+
+            if (validSubTypeIds.length > 0) {
+              params.append('where[subType][in]', validSubTypeIds.join(','))
+            }
           }
         }
 
