@@ -3,9 +3,10 @@ import { cn } from '@/utilities/ui'
 import type { Event } from '@/payload-types'
 
 import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { Link } from '@payloadcms/ui'
 import { ExternalLink } from 'lucide-react'
-import Link from 'next/link'
 import { EventInfo } from '../EventInfo'
+import { CMSLink } from '../Link'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -84,12 +85,21 @@ export const EventPreview = (props: {
       )}
     >
       {startDate && (
-        <div className="hidden @md:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0 p-4">
-          <div className="flex flex-col">
+        <div className="hidden @md:flex flex-col min-w-[80px] gap-1 items-center text-center">
+          <div
+            className={cn('flex flex-col pt-4', {
+              'text-muted-foreground italic': isPastEvent,
+            })}
+          >
             <div className="text-2xl font-bold">{month}</div>
-            <div className="text-2xl font-bold leading-none">{day}</div>
+            <div className="text-2xl font-bold leading-none pb-1">{day}</div>
+            <div className="text-sm pb-2">{year}</div>
+            {isPastEvent && (
+              <Badge variant="secondary" className="text-xs whitespace-nowrap not-italic">
+                Past Event
+              </Badge>
+            )}
           </div>
-          <div className="text-sm">{year}</div>
         </div>
       )}
 
@@ -122,50 +132,45 @@ export const EventPreview = (props: {
             skillRating={skillRating}
             className="flex flex-col mb-4"
           />
-          {(isPastEvent || isRegistrationClosed) && (
-            <div className="flex gap-2 mb-2">
-              {isPastEvent && (
-                <Badge variant="secondary" className="text-xs">
-                  Past Event
-                </Badge>
-              )}
-              {isRegistrationClosed && !isPastEvent && (
-                <Badge variant="destructive" className="text-xs">
-                  Registration Closed
-                </Badge>
-              )}
-            </div>
-          )}
         </div>
 
-        <div className="flex gap-3">
-          {registrationUrl && (
-            <Link href={registrationUrl}>
+        <div className="flex @sm:flex-col @md:flex-row gap-3">
+          {registrationUrl &&
+            (isPastEvent || isRegistrationClosed ? (
               <Button
+                className="group-hover:opacity-90 transition-opacity"
+                size="sm"
                 variant="default"
+                disabled
+              >
+                Registration Closed
+                <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
+              </Button>
+            ) : (
+              <CMSLink
+                appearance="default"
                 size="sm"
                 className="group-hover:opacity-90 transition-opacity"
+                url={registrationUrl}
               >
                 Register
                 <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-              </Button>
-            </Link>
-          )}
-          <Link href={eventUrl}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="group-hover:opacity-90 transition-opacity"
-            >
-              Learn More
-            </Button>
-          </Link>
+              </CMSLink>
+            ))}
+          <CMSLink
+            appearance="outline"
+            size="sm"
+            className="group-hover:opacity-90 transition-opacity"
+            url={eventUrl}
+          >
+            Learn More
+          </CMSLink>
         </div>
       </div>
 
       <Link
         href={eventUrl}
-        className="w-full @md:w-48 @lg:w-56 @xl:w-64 @md:flex-shrink-0 h-40 @md:h-auto overflow-hidden rounded"
+        className="w-full @md:hidden @lg:block @lg:w-56 @xl:w-64 @md:flex-shrink-0 h-40 @md:h-auto overflow-hidden rounded"
       >
         {thumbnailImage && typeof thumbnailImage !== 'number' && (
           <ImageMedia
