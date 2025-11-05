@@ -9,6 +9,7 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
 import { Button } from '@/components/ui/button'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
+import { cn } from '@/utilities/ui'
 import { Metadata, ResolvedMetadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -72,12 +73,16 @@ export default async function Event({ params: paramsPromise }: Args) {
     <article className="pt-4">
       {draft && <LivePreviewListener />}
 
-      <div className="flex flex-col items-center gap-4 pb-8">
-        <Media
-          resource={event.featuredImage}
-          className="w-full absolute"
-          imgClassName="w-full h-[500px] object-cover"
-        />
+      <div
+        className={cn('flex flex-col items-center gap-4 pb-8', { 'pt-8': !event.featuredImage })}
+      >
+        {event.featuredImage && (
+          <Media
+            resource={event.featuredImage}
+            className="w-full absolute"
+            imgClassName="w-full h-[35vh] object-cover"
+          />
+        )}
         <div className="container z-10 mt-40">
           <div className="max-w-[48rem] mx-auto mb-8">
             <div className="bg-card border rounded-lg p-6 shadow-sm">
