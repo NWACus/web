@@ -51,7 +51,7 @@ export function ProviderCard({ provider }: ProviderCardProps) {
             {provider.courseTypes && provider.courseTypes.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {provider.courseTypes.map((courseType) => (
-                  <Badge key={courseType} variant="secondary">
+                  <Badge key={courseType} variant="outline">
                     {courseTypeLabels[courseType] || courseType}
                   </Badge>
                 ))}
