@@ -1,15 +1,15 @@
 import { accessByGlobalRole } from '@/access/byGlobalRole'
 import type { GlobalConfig } from 'payload'
 
-export const AAAManagement: GlobalConfig = {
-  slug: 'aaaManagement',
-  label: 'AAA Management',
+export const A3Management: GlobalConfig = {
+  slug: 'a3Management',
+  label: 'A3 Management',
   admin: {
     group: 'Settings',
     description:
-      'Manage settings for American Avalanche Association features like external event management.',
+      'Manage settings for American Avalanche Association (A3) features like external event management.',
   },
-  access: accessByGlobalRole('aaaManagement'),
+  access: accessByGlobalRole('a3Management'),
   fields: [
     {
       name: 'notificationReceivers',
@@ -27,6 +27,7 @@ export const AAAManagement: GlobalConfig = {
       name: 'providerManagerRole',
       type: 'relationship',
       relationTo: 'globalRoles',
+      // TOOD: should be readOnly for the providerManagerRole if selected
     },
   ],
 }

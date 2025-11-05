@@ -6,7 +6,7 @@ import { ruleMatches } from './ruleMatches'
 
 /**
  * Checks if a user can manage providers, either through:
- * 1. Being a provider manager (defined in aaaManagement), OR
+ * 1. Being a provider manager (defined in a3Management), OR
  * 2. Having a global role with permissions on the providers collection
  */
 export const canManageProviders = async (

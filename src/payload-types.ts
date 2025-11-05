@@ -141,12 +141,12 @@ export interface Config {
   globals: {
     nacWidgetsConfig: NacWidgetsConfig;
     diagnostics: Diagnostic;
-    aaaManagement: AaaManagement;
+    a3Management: A3Management;
   };
   globalsSelect: {
     nacWidgetsConfig: NacWidgetsConfigSelect<false> | NacWidgetsConfigSelect<true>;
     diagnostics: DiagnosticsSelect<false> | DiagnosticsSelect<true>;
-    aaaManagement: AaaManagementSelect<false> | AaaManagementSelect<true>;
+    a3Management: A3ManagementSelect<false> | A3ManagementSelect<true>;
   };
   locale: null;
   user: User & {
@@ -3975,12 +3975,12 @@ export interface Diagnostic {
   createdAt?: string | null;
 }
 /**
- * Manage settings for American Avalanche Association features like external event management.
+ * Manage settings for American Avalanche Association (A3) features like external event management.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "aaaManagement".
+ * via the `definition` "a3Management".
  */
-export interface AaaManagement {
+export interface A3Management {
   id: number;
   /**
    * These users will receive notifications when new provider applications are submitted.
@@ -4012,9 +4012,9 @@ export interface DiagnosticsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "aaaManagement_select".
+ * via the `definition` "a3Management_select".
  */
-export interface AaaManagementSelect<T extends boolean = true> {
+export interface A3ManagementSelect<T extends boolean = true> {
   notificationReceivers?: T;
   providerManagerRole?: T;
   updatedAt?: T;

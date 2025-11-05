@@ -182,9 +182,9 @@ export const seed = async ({
       ],
     )
 
-    // Set up AAA Management global with Provider Manager role (notification receivers set later after users are created)
+    // Set up A3 Management global with Provider Manager role (notification receivers set later after users are created)
     await payload.updateGlobal({
-      slug: 'aaaManagement',
+      slug: 'a3Management',
       data: {
         providerManagerRole: globalRoles['Provider Manager'].id,
       },
@@ -628,9 +628,9 @@ export const seed = async ({
       },
     })
 
-    // Update AAA Management global with notification receivers now that users are created
+    // Update A3 Management global with notification receivers now that users are created
     await payload.updateGlobal({
-      slug: 'aaaManagement',
+      slug: 'a3Management',
       data: {
         notificationReceivers: [users['Super Admin'].id, users['Provider Manager'].id],
       },

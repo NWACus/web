@@ -3,21 +3,21 @@ import { ClientUser, Payload } from 'payload'
 import { globalRoleAssignmentsForUser } from './globalRoleAssignmentsForUser'
 
 /**
- * Checks if a user has the provider manager role defined in aaaManagement global
+ * Checks if a user has the provider manager role defined in a3Management global
  */
 export const isProviderManager = async (
   payload: Payload,
   user: User | ClientUser,
 ): Promise<boolean> => {
   try {
-    const aaaManagement = await payload.findGlobal({
-      slug: 'aaaManagement',
+    const a3Management = await payload.findGlobal({
+      slug: 'a3Management',
     })
 
     const providerManagerRoleId =
-      typeof aaaManagement.providerManagerRole === 'number'
-        ? aaaManagement.providerManagerRole
-        : aaaManagement.providerManagerRole?.id
+      typeof a3Management.providerManagerRole === 'number'
+        ? a3Management.providerManagerRole
+        : a3Management.providerManagerRole?.id
 
     if (!providerManagerRoleId) {
       return false
