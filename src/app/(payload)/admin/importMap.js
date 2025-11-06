@@ -2,7 +2,7 @@ import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
 import { QueriedEventsComponent as QueriedEventsComponent_65bd30cc675f775ebce6af07a79e525c } from '@/blocks/EventList/fields/QueriedEventsComponent'
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de } from '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription'
-import { SubTypeField as SubTypeField_acbb598e544f5d002c5f61d3b1c8285e } from '@/collections/Events/components/SubTypeField'
+import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
@@ -123,8 +123,8 @@ export const importMap = {
     ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
   '@/fields/location/components/LocationMap#LocationMap':
     LocationMap_4b1c9ff6af70dfec8b61ae82b54165d8,
-  '@/collections/Events/components/SubTypeField#SubTypeField':
-    SubTypeField_acbb598e544f5d002c5f61d3b1c8285e,
+  '@/collections/Courses/components/CourseTypeField#CourseTypeField':
+    CourseTypeField_348fff62462d32a00f93a0ac5be86e99,
   '@/collections/Users/components/UserStatusCell#UserStatusCell':
     UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
   '@/collections/Users/components/InviteUser#InviteUser':

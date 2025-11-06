@@ -12,7 +12,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
 
   if (!doc) return null
 
-  const { featuredImage, startDate, slug, title, location, externalEventUrl, type, subType } = doc
+  const { featuredImage, startDate, slug, title, location, externalEventUrl, type } = doc
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -30,12 +30,6 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
   const isExternal = !!externalEventUrl
 
   const eventTypeName = type ? type : null
-  const eventSubTypeName = subType ? subType : null
-
-  const typeDisplayText =
-    eventTypeName && eventSubTypeName
-      ? `${eventTypeName} > ${eventSubTypeName}`
-      : eventSubTypeName || eventTypeName
 
   // Build location display text with fallbacks
   const getLocationText = () => {
@@ -72,9 +66,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
           )}
         </div>
         <div className="flex flex-col gap-1 flex-1">
-          {typeDisplayText && (
-            <div className="text-xs text-muted-foreground">{typeDisplayText}</div>
-          )}
+          {eventTypeName && <div className="text-xs text-muted-foreground">{eventTypeName}</div>}
           <h3 className="text-lg leading-tight group-hover:underline">{title}</h3>
           <div className="flex flex-col">
             {eventDate && <p className="text-sm text-muted-foreground">{eventDate}</p>}

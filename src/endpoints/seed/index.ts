@@ -16,6 +16,7 @@ import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
+import { seedCourses } from './courses'
 import { getEventsData } from './events'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
@@ -848,6 +849,10 @@ export const seed = async ({
       'Pro Avalanche Training': allProviders.docs.find((p) => p.name === 'Pro Avalanche Training'),
     }
 
+    // Courses
+    payload.logger.info(`— Seeding courses...`)
+    await seedCourses(payload, incremental, providers)
+
     // Assign provider relationships to users
     payload.logger.info(`— Assigning provider relationships to users...`)
     await payload.update({
@@ -909,9 +914,7 @@ export const seed = async ({
       (obj) => obj.slug,
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
-          return getEventsData(tenant, images[tenant.slug]['imageMountain'], providers).filter(
-            (event) => event.tenant !== null,
-          )
+          return getEventsData(tenant, images[tenant.slug]['imageMountain'])
         })
         .flat(),
     )

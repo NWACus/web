@@ -2,7 +2,7 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { EventMetadata } from '../EventMetadata'
@@ -29,7 +29,6 @@ export type EventPreviewData = Pick<
   | 'registrationUrl'
   | 'externalEventUrl'
   | 'type'
-  | 'subType'
 >
 
 export const EventPreview = (props: {
@@ -54,7 +53,6 @@ export const EventPreview = (props: {
     registrationDeadline,
     registrationUrl,
     type,
-    subType,
     location,
   } = doc
 
@@ -64,15 +62,6 @@ export const EventPreview = (props: {
   const eventUrl = `/events/${slug}`
 
   const eventTypeName = type ? eventTypesData.find((et) => et.value === type)?.label : null
-  const eventSubTypeName = subType
-    ? eventSubTypesData.find((et) => et.value === subType)?.label
-    : null
-
-  const typeDisplayText =
-    eventTypeName && eventSubTypeName
-      ? `${eventTypeName} > ${eventSubTypeName}`
-      : eventSubTypeName || eventTypeName
-
   const parsedStartDate = new Date(startDate)
   const month = parsedStartDate.toLocaleDateString('en-US', { month: 'short' })
   const day = parsedStartDate.getDate()
@@ -97,8 +86,8 @@ export const EventPreview = (props: {
 
       <div className="flex flex-col justify-between flex-grow min-w-0">
         <div>
-          {typeDisplayText && (
-            <div className="text-xs text-muted-foreground mb-2">{typeDisplayText}</div>
+          {eventTypeName && (
+            <div className="text-xs text-muted-foreground mb-2">{eventTypeName}</div>
           )}
 
           {title && (

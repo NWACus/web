@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import type { Event } from '@/payload-types'
 
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import { Button } from './ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 
@@ -71,14 +71,6 @@ export const EventsTable = ({ events }: EventsTableProps) => {
               const eventTypeName = event.type
                 ? eventTypesData.find((et) => et.value === event.type)?.label
                 : null
-              const eventSubTypeName = event.subType
-                ? eventSubTypesData.find((et) => et.value === event.subType)?.label
-                : null
-
-              const typeDisplayText =
-                eventTypeName && eventSubTypeName
-                  ? `${eventTypeName} > ${eventSubTypeName}`
-                  : eventSubTypeName || eventTypeName
 
               return (
                 <TableRow key={event.id}>
@@ -100,7 +92,7 @@ export const EventsTable = ({ events }: EventsTableProps) => {
                     )}
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{typeDisplayText || '-'}</span>
+                    <span className="text-sm">{eventTypeName || '--'}</span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

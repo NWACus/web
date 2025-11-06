@@ -5,14 +5,15 @@ import type { SelectFieldClientProps } from 'payload'
 import { SelectField, useField, useFormFields } from '@payloadcms/ui'
 import React from 'react'
 
-import { eventSubTypesData } from '../constants'
+import { courseTypesData } from '../constants'
 
 type Props = SelectFieldClientProps
 
-export const SubTypeField = (props: Props) => {
-  const typeField = useFormFields(([fields]) => fields.type)
+export const CourseTypeField = (props: Props) => {
   const providerField = useFormFields(([fields]) => fields.provider)
-  const { value: subTypeValue, setValue: setSubTypeValue } = useField<string>({ path: 'subType' })
+  const { value: courseTypeValue, setValue: setCourseTypeValue } = useField<string>({
+    path: 'courseType',
+  })
 
   const [providerCourseTypes, setProviderCourseTypes] = React.useState<string[] | null>(null)
 
@@ -48,33 +49,20 @@ export const SubTypeField = (props: Props) => {
 
   // Filter options based on type and provider's approved courseTypes
   const filteredOptions = React.useMemo(() => {
-    if (!typeField?.value) return []
+    if (!providerCourseTypes) return []
 
-    // First filter by event type
-    let allowedValues = eventSubTypesData
-      .filter((subType) => subType.eventType === typeField.value)
-      .map((subType) => ({
-        label: subType.label,
-        value: subType.value,
-      }))
+    return courseTypesData.filter((option) => providerCourseTypes.includes(option.value))
+  }, [providerCourseTypes])
 
-    // Then filter by provider's approved courseTypes if available
-    if (providerCourseTypes) {
-      allowedValues = allowedValues.filter((option) => providerCourseTypes.includes(option.value))
-    }
-
-    return allowedValues
-  }, [typeField?.value, providerCourseTypes])
-
-  // Clear subType field if current value is not in allowed values
+  // Clear courseType field if current value is not in allowed values
   React.useEffect(() => {
-    if (subTypeValue && filteredOptions.length > 0) {
-      const isValueAllowed = filteredOptions.some((option) => option.value === subTypeValue)
+    if (courseTypeValue && filteredOptions.length > 0) {
+      const isValueAllowed = filteredOptions.some((option) => option.value === courseTypeValue)
       if (!isValueAllowed) {
-        setSubTypeValue(null)
+        setCourseTypeValue(null)
       }
     }
-  }, [filteredOptions, subTypeValue, setSubTypeValue])
+  }, [filteredOptions, courseTypeValue, setCourseTypeValue])
 
   // Create a new props object with filtered options
   const modifiedProps = {

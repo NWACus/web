@@ -39,6 +39,7 @@ import { plugins } from '@/plugins'
 import { getURL } from '@/utilities/getURL'
 import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
+import { Courses } from './collections/Courses'
 import { Providers } from './collections/Providers'
 import { A3Management } from './globals/A3Management/config'
 
@@ -173,7 +174,9 @@ export default buildConfig({
     Events,
     EventGroups,
     EventTags,
+    // Courses
     Providers,
+    Courses,
     // Staff
     Biographies,
     Teams,

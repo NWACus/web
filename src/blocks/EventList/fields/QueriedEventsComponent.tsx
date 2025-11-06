@@ -26,9 +26,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
   const filterByEventTypes = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['filterByEventTypes']).join('.')]?.value,
   )
-  const filterByEventSubTypes = useFormFields(
-    ([fields]) => fields[parentPathParts.concat(['filterByEventSubTypes']).join('.')]?.value,
-  )
   const sortBy = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['sortBy']).join('.')]?.value,
   )
@@ -79,18 +76,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           }
         }
 
-        if (
-          filterByEventSubTypes &&
-          Array.isArray(filterByEventSubTypes) &&
-          filterByEventSubTypes.length > 0
-        ) {
-          const subTypeIds = filterByEventSubTypes.filter(Boolean)
-
-          if (subTypeIds.length > 0) {
-            params.append('where[or][1][eventSubType][in]', subTypeIds.join(','))
-          }
-        }
-
         const response = await fetch(`/api/events?${params.toString()}`)
         if (!response.ok) {
           throw new Error('Failed to fetch events')
@@ -128,7 +113,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
     fetchEvents()
   }, [
     filterByEventTypes,
-    filterByEventSubTypes,
     sortBy,
     maxEvents,
     showUpcomingOnly,

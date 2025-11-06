@@ -1,4 +1,4 @@
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import colorPickerField from '@/fields/color'
 import { getOptionalTenantAndIdFilter } from '@/utilities/collectionFilters'
 import {
@@ -90,20 +90,6 @@ const dynamicEventRelatedFields: Field[] = [
         label: 'Filter by Event Type(s)',
         admin: {
           description: 'Optionally select event types to filter events in this list by.',
-        },
-      },
-      {
-        name: 'filterByEventSubTypes',
-        type: 'select',
-        dbName: 'filterByEventSubTypes',
-        options: eventSubTypesData.map((eventType) => ({
-          label: eventType.label,
-          value: eventType.value,
-        })),
-        hasMany: true,
-        label: 'Filter by Event Sub Type(s)',
-        admin: {
-          description: 'Optionally select event sub types to filter events in this list by.',
         },
       },
       {

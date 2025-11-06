@@ -1,4 +1,4 @@
-import { eventSubTypesData } from '@/collections/Events/constants'
+import { courseTypesData } from '@/collections/Courses/constants'
 import { Column, Heading, Row, Section, Text } from '@react-email/components'
 import EmailButton from './_components/EmailButton'
 import EmailLayout from './_components/EmailLayout'
@@ -16,14 +16,12 @@ export type ProviderApplicationNotificationProps = {
   providerId: string | number
 }
 
-const courseTypeLabels = eventSubTypesData
-  .filter((subType) => subType.eventType === 'course-by-external-provider')
-  .reduce<Record<string, string>>((acc, cur) => {
-    if (!acc[cur.value]) {
-      acc[cur.value] = cur.label
-    }
-    return acc
-  }, {})
+const courseTypeLabels = courseTypesData.reduce<Record<string, string>>((acc, cur) => {
+  if (!acc[cur.value]) {
+    acc[cur.value] = cur.label
+  }
+  return acc
+}, {})
 
 export function ProviderApplicationNotification({
   appUrl,

@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
 
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import { EventCollection } from '@/components/EventCollection'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
@@ -28,7 +28,6 @@ export default async function Page({ params, searchParams }: Args) {
   const { center, pageNumber } = await params
   const resolvedSearchParams = await searchParams
   const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
-  const selectedSubTypes = resolvedSearchParams?.subtypes?.split(',').filter(Boolean)
 
   const payload = await getPayload({ config: configPromise })
 
@@ -54,17 +53,9 @@ export default async function Page({ params, searchParams }: Args) {
     orConditions.push({ type: { in: selectedTypes } })
   }
 
-  if (selectedSubTypes?.length) {
-    orConditions.push({ subType: { in: selectedSubTypes } })
-  }
-
   const whereConditions: Where = {
     'tenant.slug': {
       equals: center,
-    },
-    // exclude provider events
-    provider: {
-      exists: false,
     },
   }
 
@@ -88,7 +79,7 @@ export default async function Page({ params, searchParams }: Args) {
         </div>
 
         <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <EventsFilters types={eventTypesData} subTypes={eventSubTypesData} />
+          <EventsFilters types={eventTypesData} />
         </div>
       </div>
 

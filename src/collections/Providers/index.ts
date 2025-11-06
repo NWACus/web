@@ -6,7 +6,7 @@ import { validatePhone } from '@/utilities/validatePhone'
 import { validateWebsite } from '@/utilities/validateWebsite'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
-import { eventSubTypesData } from '../Events/constants'
+import { courseTypesData } from '../Courses/constants'
 import { courseTypesFieldAccess } from './access/courseTypesFieldAccess'
 import { revalidateProvider, revalidateProviderDelete } from './hooks/revalidateProvider'
 import { sendProviderEmails } from './hooks/sendProviderEmails'
@@ -16,7 +16,7 @@ export const Providers: CollectionConfig = {
   access: accessByProviderRelationship,
   admin: {
     useAsTitle: 'name',
-    group: 'Events',
+    group: 'Courses',
   },
   fields: [
     {
@@ -106,9 +106,9 @@ export const Providers: CollectionConfig = {
       ],
     },
     {
-      name: 'events',
+      name: 'courses',
       type: 'join',
-      collection: 'events',
+      collection: 'courses',
       on: 'provider',
     },
     {
@@ -133,12 +133,10 @@ export const Providers: CollectionConfig = {
               'These are the course types this provider has applied to be able to create.',
             readOnly: true,
           },
-          options: eventSubTypesData
-            .filter((subType) => subType.eventType === 'course-by-external-provider')
-            .map((eventSubType) => ({
-              label: eventSubType.label,
-              value: eventSubType.value,
-            })),
+          options: courseTypesData.map((courseType) => ({
+            label: courseType.label,
+            value: courseType.value,
+          })),
         },
       ],
     },
@@ -154,12 +152,10 @@ export const Providers: CollectionConfig = {
         description: 'These are the course types this provider is approved to create.',
         position: 'sidebar',
       },
-      options: eventSubTypesData
-        .filter((subType) => subType.eventType === 'course-by-external-provider')
-        .map((eventSubType) => ({
-          label: eventSubType.label,
-          value: eventSubType.value,
-        })),
+      options: courseTypesData.map((courseType) => ({
+        label: courseType.label,
+        value: courseType.value,
+      })),
     },
     contentHashField(),
   ],

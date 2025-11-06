@@ -79,6 +79,7 @@ export interface Config {
     eventGroups: EventGroup;
     eventTags: EventTag;
     providers: Provider;
+    courses: Course;
     biographies: Biography;
     teams: Team;
     users: User;
@@ -98,7 +99,7 @@ export interface Config {
   };
   collectionsJoins: {
     providers: {
-      events: 'events';
+      courses: 'courses';
     };
     users: {
       roles: 'roleAssignments';
@@ -118,6 +119,7 @@ export interface Config {
     eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
     eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
     providers: ProvidersSelect<false> | ProvidersSelect<true>;
+    courses: CoursesSelect<false> | CoursesSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -703,19 +705,8 @@ export interface EventListBlock {
      * Optionally select event types to filter events in this list by.
      */
     filterByEventTypes?:
-      | (
-          | 'events-by-ac'
-          | 'awareness'
-          | 'workshop'
-          | 'field-class-by-ac'
-          | 'course-by-external-provider'
-          | 'volunteer'
-        )[]
+      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
       | null;
-    /**
-     * Optionally select event sub types to filter events in this list by.
-     */
-    filterByEventSubTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
     /**
      * Only display events that have not yet occurred.
      */
@@ -876,7 +867,7 @@ export interface Event {
    * Skill level required for this event
    */
   skillRating?: ('0' | '1' | '2' | '3') | null;
-  tenantContent?: {
+  content: {
     root: {
       type: string;
       children: {
@@ -890,37 +881,7 @@ export interface Event {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
-  providerContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+  };
   blocksInContent?:
     | {
         blockType?: string | null;
@@ -930,16 +891,11 @@ export interface Event {
       }[]
     | null;
   slug: string;
-  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'course-by-external-provider' | 'volunteer';
-  subType?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external') | null;
+  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others';
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
-  /**
-   * Mode of travel for this event
-   */
-  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe' | 'any') | null;
-  tenant?: (number | null) | Tenant;
-  provider?: (number | null) | Provider;
+  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
+  tenant: number | Tenant;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -972,98 +928,6 @@ export interface EventTag {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "providers".
- */
-export interface Provider {
-  id: number;
-  name: string;
-  details?: string | null;
-  email?: string | null;
-  phone?: string | null;
-  website?: string | null;
-  location?: {
-    address?: string | null;
-    city?: string | null;
-    state?:
-      | (
-          | 'AL'
-          | 'AK'
-          | 'AZ'
-          | 'AR'
-          | 'CA'
-          | 'CO'
-          | 'CT'
-          | 'DE'
-          | 'FL'
-          | 'GA'
-          | 'HI'
-          | 'ID'
-          | 'IL'
-          | 'IN'
-          | 'IA'
-          | 'KS'
-          | 'KY'
-          | 'LA'
-          | 'ME'
-          | 'MD'
-          | 'MA'
-          | 'MI'
-          | 'MN'
-          | 'MS'
-          | 'MO'
-          | 'MT'
-          | 'NE'
-          | 'NV'
-          | 'NH'
-          | 'NJ'
-          | 'NM'
-          | 'NY'
-          | 'NC'
-          | 'ND'
-          | 'OH'
-          | 'OK'
-          | 'OR'
-          | 'PA'
-          | 'RI'
-          | 'SC'
-          | 'SD'
-          | 'TN'
-          | 'TX'
-          | 'UT'
-          | 'VT'
-          | 'VA'
-          | 'WA'
-          | 'WV'
-          | 'WI'
-          | 'WY'
-          | 'DC'
-        )
-      | null;
-    zip?: string | null;
-    country?: 'US' | null;
-  };
-  events?: {
-    docs?: (number | Event)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  experience?: string | null;
-  /**
-   * These are the course types this provider has applied to be able to create.
-   */
-  courseTypesAppliedFor?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
-  slug: string;
-  /**
-   * These are the course types this provider is approved to create.
-   */
-  courseTypes: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1612,6 +1476,230 @@ export interface Team {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "providers".
+ */
+export interface Provider {
+  id: number;
+  name: string;
+  details?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  location?: {
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+  };
+  courses?: {
+    docs?: (number | Course)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  experience?: string | null;
+  /**
+   * These are the course types this provider has applied to be able to create.
+   */
+  courseTypesAppliedFor?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
+  slug: string;
+  /**
+   * These are the course types this provider is approved to create.
+   */
+  courseTypes: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: number;
+  title: string;
+  /**
+   * Optional subtitle/tagline for the event
+   */
+  subtitle?: string | null;
+  /**
+   * Short description/summary for event previews
+   */
+  description?: string | null;
+  startDate: string;
+  /**
+   * Optional end date for multi-day events
+   */
+  endDate?: string | null;
+  /**
+   * Event timezone
+   */
+  timezone?:
+    | (
+        | 'America/New_York'
+        | 'America/Chicago'
+        | 'America/Denver'
+        | 'America/Los_Angeles'
+        | 'America/Anchorage'
+        | 'America/Honolulu'
+      )
+    | null;
+  location?: {
+    /**
+     * Check if this is a virtual event
+     */
+    isVirtual?: boolean | null;
+    /**
+     * Name of the place or venue
+     */
+    placeName?: string | null;
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    coordinates?: [number, number] | null;
+    /**
+     * URL for virtual event (Zoom, Teams, etc.)
+     */
+    virtualUrl?: string | null;
+    /**
+     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
+     */
+    extraInfo?: string | null;
+  };
+  /**
+   * External registration link or landing page link
+   */
+  courseUrl?: string | null;
+  /**
+   * Registration cutoff
+   */
+  registrationDeadline?: string | null;
+  slug: string;
+  courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
+  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
+  provider?: (number | null) | Provider;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2455,6 +2543,10 @@ export interface PayloadLockedDocument {
         value: number | Provider;
       } | null)
     | ({
+        relationTo: 'courses';
+        value: number | Course;
+      } | null)
+    | ({
         relationTo: 'biographies';
         value: number | Biography;
       } | null)
@@ -2699,7 +2791,6 @@ export interface EventListBlockSelect<T extends boolean = true> {
     | {
         sortBy?: T;
         filterByEventTypes?: T;
-        filterByEventSubTypes?: T;
         showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
@@ -3147,8 +3238,6 @@ export interface EventsSelect<T extends boolean = true> {
   capacity?: T;
   cost?: T;
   skillRating?: T;
-  tenantContent?: T;
-  providerContent?: T;
   content?: T;
   blocksInContent?:
     | T
@@ -3160,12 +3249,10 @@ export interface EventsSelect<T extends boolean = true> {
       };
   slug?: T;
   type?: T;
-  subType?: T;
   eventGroups?: T;
   eventTags?: T;
   modeOfTravel?: T;
   tenant?: T;
-  provider?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3216,11 +3303,47 @@ export interface ProvidersSelect<T extends boolean = true> {
         zip?: T;
         country?: T;
       };
-  events?: T;
+  courses?: T;
   experience?: T;
   courseTypesAppliedFor?: T;
   slug?: T;
   courseTypes?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses_select".
+ */
+export interface CoursesSelect<T extends boolean = true> {
+  title?: T;
+  subtitle?: T;
+  description?: T;
+  startDate?: T;
+  endDate?: T;
+  timezone?: T;
+  location?:
+    | T
+    | {
+        isVirtual?: T;
+        placeName?: T;
+        address?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+        coordinates?: T;
+        virtualUrl?: T;
+        extraInfo?: T;
+      };
+  courseUrl?: T;
+  registrationDeadline?: T;
+  slug?: T;
+  courseType?: T;
+  modeOfTravel?: T;
+  provider?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
