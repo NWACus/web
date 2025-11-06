@@ -1,8 +1,10 @@
 import { contentHashField } from '@/fields/contentHashField'
-import { locationField } from '@/fields/location'
+import { coordinatesWithMap } from '@/fields/location/coordinatesWithMap'
+import { stateOptions } from '@/fields/location/states'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
+import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { accessByProviderOrProviderManager } from './access/byProviderOrProviderManager'
 import { courseTypesData } from './constants'
@@ -82,7 +84,59 @@ export const Courses: CollectionConfig = {
         description: 'Event timezone',
       },
     },
-    locationField(),
+    {
+      name: 'location',
+      type: 'group',
+      fields: [
+        {
+          name: 'placeName',
+          type: 'text',
+          label: 'Place Name',
+          required: true,
+        },
+        {
+          name: 'address',
+          type: 'text',
+          label: 'Street Address',
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'city',
+              type: 'text',
+              label: 'City',
+            },
+            {
+              name: 'state',
+              type: 'select',
+              label: 'State',
+              options: stateOptions,
+              required: true,
+            },
+            {
+              name: 'zip',
+              type: 'text',
+              label: 'ZIP Code',
+              validate: validateZipCode,
+            },
+          ],
+        },
+        {
+          name: 'country',
+          type: 'select',
+          options: [{ label: 'United States - US', value: 'US' }],
+          label: 'Country',
+          defaultValue: 'US',
+          admin: {
+            readOnly: true,
+          },
+        },
+        ...coordinatesWithMap({
+          condition: (_data, siblingData) => !siblingData?.isVirtual,
+        }),
+      ],
+    },
     {
       name: 'courseUrl',
       type: 'text',

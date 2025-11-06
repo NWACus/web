@@ -1,6 +1,6 @@
 import { accessByProviderRelationship } from '@/access/byProviderRelationship'
-import { stateOptions } from '@/blocks/Form/State/options'
 import { contentHashField } from '@/fields/contentHashField'
+import { stateOptions } from '@/fields/location/states'
 import { slugField } from '@/fields/slug'
 import { validatePhone } from '@/utilities/validatePhone'
 import { validateWebsite } from '@/utilities/validateWebsite'

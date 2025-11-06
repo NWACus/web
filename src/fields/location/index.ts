@@ -1,6 +1,7 @@
-import { stateOptions } from '@/blocks/Form/State/options'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { Field, GroupField } from 'payload'
+import { coordinatesWithMap } from './coordinatesWithMap'
+import { stateOptions } from './states'
 
 export const coreLocationFields: Field[] = [
   {
@@ -53,26 +54,9 @@ export const coreLocationFields: Field[] = [
       readOnly: true,
     },
   },
-  {
-    name: 'coordinates',
-    type: 'point',
-    label: 'Coordinates',
-    admin: {
-      condition: (_data, siblingData) => !siblingData?.isVirtual,
-    },
-  },
-  {
-    type: 'ui',
-    name: 'locationMap',
-    admin: {
-      components: {
-        Field: {
-          path: '@/fields/location/components/LocationMap#LocationMap',
-        },
-      },
-      condition: (_data, siblingData) => !siblingData?.isVirtual,
-    },
-  },
+  ...coordinatesWithMap({
+    condition: (_data, siblingData) => !siblingData?.isVirtual,
+  }),
 ]
 
 export const locationField = (): GroupField => ({

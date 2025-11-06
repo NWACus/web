@@ -1597,72 +1597,62 @@ export interface Course {
         | 'America/Honolulu'
       )
     | null;
-  location?: {
-    /**
-     * Check if this is a virtual event
-     */
-    isVirtual?: boolean | null;
-    /**
-     * Name of the place or venue
-     */
-    placeName?: string | null;
+  location: {
+    placeName: string;
     address?: string | null;
     city?: string | null;
-    state?:
-      | (
-          | 'AL'
-          | 'AK'
-          | 'AZ'
-          | 'AR'
-          | 'CA'
-          | 'CO'
-          | 'CT'
-          | 'DE'
-          | 'FL'
-          | 'GA'
-          | 'HI'
-          | 'ID'
-          | 'IL'
-          | 'IN'
-          | 'IA'
-          | 'KS'
-          | 'KY'
-          | 'LA'
-          | 'ME'
-          | 'MD'
-          | 'MA'
-          | 'MI'
-          | 'MN'
-          | 'MS'
-          | 'MO'
-          | 'MT'
-          | 'NE'
-          | 'NV'
-          | 'NH'
-          | 'NJ'
-          | 'NM'
-          | 'NY'
-          | 'NC'
-          | 'ND'
-          | 'OH'
-          | 'OK'
-          | 'OR'
-          | 'PA'
-          | 'RI'
-          | 'SC'
-          | 'SD'
-          | 'TN'
-          | 'TX'
-          | 'UT'
-          | 'VT'
-          | 'VA'
-          | 'WA'
-          | 'WV'
-          | 'WI'
-          | 'WY'
-          | 'DC'
-        )
-      | null;
+    state:
+      | 'AL'
+      | 'AK'
+      | 'AZ'
+      | 'AR'
+      | 'CA'
+      | 'CO'
+      | 'CT'
+      | 'DE'
+      | 'FL'
+      | 'GA'
+      | 'HI'
+      | 'ID'
+      | 'IL'
+      | 'IN'
+      | 'IA'
+      | 'KS'
+      | 'KY'
+      | 'LA'
+      | 'ME'
+      | 'MD'
+      | 'MA'
+      | 'MI'
+      | 'MN'
+      | 'MS'
+      | 'MO'
+      | 'MT'
+      | 'NE'
+      | 'NV'
+      | 'NH'
+      | 'NJ'
+      | 'NM'
+      | 'NY'
+      | 'NC'
+      | 'ND'
+      | 'OH'
+      | 'OK'
+      | 'OR'
+      | 'PA'
+      | 'RI'
+      | 'SC'
+      | 'SD'
+      | 'TN'
+      | 'TX'
+      | 'UT'
+      | 'VT'
+      | 'VA'
+      | 'WA'
+      | 'WV'
+      | 'WI'
+      | 'WY'
+      | 'DC';
     zip?: string | null;
     country?: 'US' | null;
     /**
@@ -1670,14 +1660,6 @@ export interface Course {
      * @maxItems 2
      */
     coordinates?: [number, number] | null;
-    /**
-     * URL for virtual event (Zoom, Teams, etc.)
-     */
-    virtualUrl?: string | null;
-    /**
-     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
-     */
-    extraInfo?: string | null;
   };
   /**
    * External registration link or landing page link
@@ -3320,7 +3302,6 @@ export interface CoursesSelect<T extends boolean = true> {
   location?:
     | T
     | {
-        isVirtual?: T;
         placeName?: T;
         address?: T;
         city?: T;
@@ -3328,8 +3309,6 @@ export interface CoursesSelect<T extends boolean = true> {
         zip?: T;
         country?: T;
         coordinates?: T;
-        virtualUrl?: T;
-        extraInfo?: T;
       };
   courseUrl?: T;
   registrationDeadline?: T;
