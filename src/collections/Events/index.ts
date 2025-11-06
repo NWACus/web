@@ -12,7 +12,9 @@ import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
+import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { slugField } from '@/fields/slug'
+import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
@@ -56,45 +58,7 @@ export const Events: CollectionConfig = {
         description: 'Short description/summary for event previews',
       },
     },
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'startDate',
-          type: 'date',
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-            width: '50%',
-          },
-        },
-        {
-          name: 'endDate',
-          type: 'date',
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-            description: 'Optional end date for multi-day events',
-            width: '50%',
-          },
-          validate: (value, { siblingData }) => {
-            const data = siblingData as { startDate?: string | Date }
-            if (value && data?.startDate) {
-              const startDate = new Date(data.startDate)
-              const endDate = new Date(value)
-
-              if (endDate <= startDate) {
-                return 'End date must be after start date.'
-              }
-            }
-            return true
-          },
-        },
-      ],
-    },
+    startAndEndDateField(),
     {
       name: 'timezone',
       type: 'select',
@@ -276,20 +240,7 @@ export const Events: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    {
-      name: 'modeOfTravel',
-      type: 'select',
-      options: [
-        { label: 'Ski', value: 'ski' },
-        { label: 'Splitboard', value: 'splitboard' },
-        { label: 'Motorized', value: 'motorized' },
-        { label: 'Snowshoe', value: 'snowshoe' },
-      ],
-      hasMany: true,
-      admin: {
-        position: 'sidebar',
-      },
-    },
+    modeOfTravelField(),
     tenantField(),
     contentHashField(),
   ],

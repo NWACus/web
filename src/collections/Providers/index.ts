@@ -3,12 +3,13 @@ import { contentHashField } from '@/fields/contentHashField'
 import { stateOptions } from '@/fields/location/states'
 import { slugField } from '@/fields/slug'
 import { validatePhone } from '@/utilities/validatePhone'
-import { validateWebsite } from '@/utilities/validateWebsite'
+import { validateExternalUrl } from '@/utilities/validateUrl'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { courseTypesData } from '../Courses/constants'
 import { courseTypesFieldAccess } from './access/courseTypesFieldAccess'
 import { sendProviderEmails } from './hooks/sendProviderEmails'
+import { setNotificationEmail } from './hooks/setNotificationEmail'
 
 export const Providers: CollectionConfig = {
   slug: 'providers',
@@ -16,6 +17,7 @@ export const Providers: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: 'Courses',
+    description: 'Note: This information will be displayed on your public provider listing.',
   },
   fields: [
     {
@@ -30,6 +32,9 @@ export const Providers: CollectionConfig = {
     {
       type: 'group',
       label: 'Contact Information',
+      admin: {
+        description: 'Note: This information will be displayed on your public provider listing.',
+      },
       fields: [
         {
           name: 'email',
@@ -43,21 +48,21 @@ export const Providers: CollectionConfig = {
         {
           name: 'website',
           type: 'text',
-          validate: validateWebsite,
+          validate: validateExternalUrl,
         },
       ],
     },
     {
       name: 'location',
       type: 'group',
+      admin: {
+        description: "Your organization's business address.",
+      },
       fields: [
         {
           name: 'address',
           type: 'text',
           label: 'Street Address',
-          admin: {
-            condition: (_data, siblingData) => !siblingData?.isVirtual,
-          },
         },
         {
           type: 'row',
@@ -66,28 +71,18 @@ export const Providers: CollectionConfig = {
               name: 'city',
               type: 'text',
               label: 'City',
-              admin: {
-                condition: (_data, siblingData) => !siblingData?.isVirtual,
-              },
             },
             {
               name: 'state',
               type: 'select',
               label: 'State',
               options: stateOptions,
-              required: true,
-              admin: {
-                condition: (_data, siblingData) => !siblingData?.isVirtual,
-              },
             },
             {
               name: 'zip',
               type: 'text',
               label: 'ZIP Code',
               validate: validateZipCode,
-              admin: {
-                condition: (_data, siblingData) => !siblingData?.isVirtual,
-              },
             },
           ],
         },
@@ -98,9 +93,26 @@ export const Providers: CollectionConfig = {
           label: 'Country',
           defaultValue: 'US',
           admin: {
-            condition: (_data, siblingData) => !siblingData?.isVirtual,
             readOnly: true,
           },
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'States you offer courses in',
+      admin: {
+        description:
+          'Include all of the states you offer courses in. This will be used when displaying your provider in our list by state.',
+      },
+      fields: [
+        {
+          name: 'statesServiced',
+          label: false,
+          type: 'select',
+          options: stateOptions,
+          required: true,
+          hasMany: true,
         },
       ],
     },
@@ -111,6 +123,18 @@ export const Providers: CollectionConfig = {
       on: 'provider',
     },
     slugField('name'),
+    {
+      name: 'notificationEmail',
+      type: 'email',
+      admin: {
+        description:
+          'This email will be used for email notifications. Defaults to the contact email if not specified.',
+        position: 'sidebar',
+      },
+      hooks: {
+        beforeChange: [setNotificationEmail],
+      },
+    },
     {
       name: 'courseTypes',
       label: 'Approved Course Types',

@@ -1478,6 +1478,8 @@ export interface Team {
   createdAt: string;
 }
 /**
+ * Note: This information will be displayed on your public provider listing.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "providers".
  */
@@ -1488,6 +1490,9 @@ export interface Provider {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  /**
+   * Your organization's business address.
+   */
   location?: {
     address?: string | null;
     city?: string | null;
@@ -1549,12 +1554,69 @@ export interface Provider {
     zip?: string | null;
     country?: 'US' | null;
   };
+  statesServiced: (
+    | 'AL'
+    | 'AK'
+    | 'AZ'
+    | 'AR'
+    | 'CA'
+    | 'CO'
+    | 'CT'
+    | 'DE'
+    | 'FL'
+    | 'GA'
+    | 'HI'
+    | 'ID'
+    | 'IL'
+    | 'IN'
+    | 'IA'
+    | 'KS'
+    | 'KY'
+    | 'LA'
+    | 'ME'
+    | 'MD'
+    | 'MA'
+    | 'MI'
+    | 'MN'
+    | 'MS'
+    | 'MO'
+    | 'MT'
+    | 'NE'
+    | 'NV'
+    | 'NH'
+    | 'NJ'
+    | 'NM'
+    | 'NY'
+    | 'NC'
+    | 'ND'
+    | 'OH'
+    | 'OK'
+    | 'OR'
+    | 'PA'
+    | 'RI'
+    | 'SC'
+    | 'SD'
+    | 'TN'
+    | 'TX'
+    | 'UT'
+    | 'VT'
+    | 'VA'
+    | 'WA'
+    | 'WV'
+    | 'WI'
+    | 'WY'
+    | 'DC'
+  )[];
   courses?: {
     docs?: (number | Course)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
   slug: string;
+  /**
+   * This email will be used for email notifications. Defaults to the contact email if not specified.
+   */
+  notificationEmail?: string | null;
   /**
    * These are the course types this provider is approved to create.
    */
@@ -1672,6 +1734,7 @@ export interface Course {
   slug: string;
   courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
+  affinityGroups?: ('lgbtq' | 'women-specific')[] | null;
   provider?: (number | null) | Provider;
   contentHash?: string | null;
   updatedAt: string;
@@ -3280,8 +3343,10 @@ export interface ProvidersSelect<T extends boolean = true> {
         zip?: T;
         country?: T;
       };
+  statesServiced?: T;
   courses?: T;
   slug?: T;
+  notificationEmail?: T;
   courseTypes?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -3315,6 +3380,7 @@ export interface CoursesSelect<T extends boolean = true> {
   slug?: T;
   courseType?: T;
   modeOfTravel?: T;
+  affinityGroups?: T;
   provider?: T;
   contentHash?: T;
   updatedAt?: T;

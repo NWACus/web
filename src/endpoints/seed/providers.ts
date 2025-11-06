@@ -17,6 +17,7 @@ export const seedProviders = async (payload: Payload, incremental: boolean): Pro
       },
       courseTypes: ['rec-1', 'rec-2', 'pro-1', 'pro-2'],
       _status: 'published',
+      statesServiced: ['CA'],
     },
     {
       name: 'Mountain Education Center',
@@ -32,6 +33,7 @@ export const seedProviders = async (payload: Payload, incremental: boolean): Pro
       },
       courseTypes: ['rec-1', 'rec-2', 'rescue'],
       _status: 'published',
+      statesServiced: ['WA'],
     },
     {
       name: 'Backcountry Alliance',
@@ -47,6 +49,7 @@ export const seedProviders = async (payload: Payload, incremental: boolean): Pro
       },
       courseTypes: ['awareness-external', 'rescue'],
       _status: 'published',
+      statesServiced: ['CO'],
     },
     {
       name: 'Pro Avalanche Training',
@@ -62,6 +65,7 @@ export const seedProviders = async (payload: Payload, incremental: boolean): Pro
       },
       courseTypes: ['pro-1', 'pro-2'],
       _status: 'published',
+      statesServiced: ['WY', 'ID'],
     },
   ]
 

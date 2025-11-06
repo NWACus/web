@@ -1,7 +1,9 @@
 import { contentHashField } from '@/fields/contentHashField'
 import { coordinatesWithMap } from '@/fields/location/coordinatesWithMap'
 import { stateOptions } from '@/fields/location/states'
+import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { slugField } from '@/fields/slug'
+import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateZipCode } from '@/utilities/validateZipCode'
@@ -37,45 +39,7 @@ export const Courses: CollectionConfig = {
         description: 'Short description/summary for event previews',
       },
     },
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'startDate',
-          type: 'date',
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-            width: '50%',
-          },
-        },
-        {
-          name: 'endDate',
-          type: 'date',
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-            description: 'Optional end date for multi-day events',
-            width: '50%',
-          },
-          validate: (value, { siblingData }) => {
-            const data = siblingData as { startDate?: string | Date }
-            if (value && data?.startDate) {
-              const startDate = new Date(data.startDate)
-              const endDate = new Date(value)
-
-              if (endDate <= startDate) {
-                return 'End date must be after start date.'
-              }
-            }
-            return true
-          },
-        },
-      ],
-    },
+    startAndEndDateField(),
     {
       name: 'timezone',
       type: 'select',
@@ -183,14 +147,13 @@ export const Courses: CollectionConfig = {
         value: courseType.value,
       })),
     },
+    modeOfTravelField(),
     {
-      name: 'modeOfTravel',
+      name: 'affinityGroups',
       type: 'select',
       options: [
-        { label: 'Ski', value: 'ski' },
-        { label: 'Splitboard', value: 'splitboard' },
-        { label: 'Motorized', value: 'motorized' },
-        { label: 'Snowshoe', value: 'snowshoe' },
+        { label: 'LGBTQ+', value: 'lgbtq' },
+        { label: 'Women Specific', value: 'women-specific' },
       ],
       hasMany: true,
       admin: {
