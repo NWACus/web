@@ -153,7 +153,7 @@ export const Courses: CollectionConfig = {
       type: 'select',
       options: [
         { label: 'LGBTQ+', value: 'lgbtq' },
-        { label: 'Women Specific', value: 'women-specific' },
+        { label: "Women's Specific", value: 'womens-specific' },
       ],
       hasMany: true,
       admin: {
