@@ -8,7 +8,6 @@ import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { courseTypesData } from '../Courses/constants'
 import { courseTypesFieldAccess } from './access/courseTypesFieldAccess'
-import { revalidateProvider, revalidateProviderDelete } from './hooks/revalidateProvider'
 import { sendProviderEmails } from './hooks/sendProviderEmails'
 
 export const Providers: CollectionConfig = {
@@ -111,35 +110,6 @@ export const Providers: CollectionConfig = {
       collection: 'courses',
       on: 'provider',
     },
-    {
-      type: 'group',
-      label: 'Application Information',
-      fields: [
-        {
-          name: 'experience',
-          type: 'textarea',
-          label: 'Experience & Certifications',
-          admin: {
-            readOnly: true,
-          },
-        },
-        {
-          name: 'courseTypesAppliedFor',
-          label: 'Course Types Applied For',
-          type: 'select',
-          hasMany: true,
-          admin: {
-            description:
-              'These are the course types this provider has applied to be able to create.',
-            readOnly: true,
-          },
-          options: courseTypesData.map((courseType) => ({
-            label: courseType.label,
-            value: courseType.value,
-          })),
-        },
-      ],
-    },
     slugField('name'),
     {
       name: 'courseTypes',
@@ -160,8 +130,7 @@ export const Providers: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterChange: [sendProviderEmails, revalidateProvider],
-    afterDelete: [revalidateProviderDelete],
+    afterChange: [sendProviderEmails],
   },
   versions: {
     drafts: {

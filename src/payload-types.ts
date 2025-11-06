@@ -1554,11 +1554,6 @@ export interface Provider {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  experience?: string | null;
-  /**
-   * These are the course types this provider has applied to be able to create.
-   */
-  courseTypesAppliedFor?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
   slug: string;
   /**
    * These are the course types this provider is approved to create.
@@ -3304,8 +3299,6 @@ export interface ProvidersSelect<T extends boolean = true> {
         country?: T;
       };
   courses?: T;
-  experience?: T;
-  courseTypesAppliedFor?: T;
   slug?: T;
   courseTypes?: T;
   contentHash?: T;
