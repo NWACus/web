@@ -17,15 +17,18 @@ const canCreateAndUpdate: FieldAccess = async ({ req }) => {
     return true
   }
 
+  // We don't want anyone with the selected provider manager role to change which role is selected
+  // as the provider manager role
   const isManager = await isProviderManager(req.payload, req.user)
   if (isManager) {
-    return true
+    return false
   }
 
-  return false
+  // user already has access to this collection
+  return true
 }
 
-export const courseTypesFieldAccess = {
+export const providerManagerRoleFieldAccess = {
   read: () => true, // Everyone with collection access can read
   create: canCreateAndUpdate,
   update: canCreateAndUpdate,

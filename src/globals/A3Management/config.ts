@@ -1,5 +1,7 @@
 import { accessByGlobalRole } from '@/access/byGlobalRole'
 import type { GlobalConfig } from 'payload'
+import { providerManagerRoleFieldAccess } from './access/providerManagerRoleFieldAccess'
+import { validateNotificationReceivers } from './hooks/validateNotificationReceivers'
 
 export const A3Management: GlobalConfig = {
   slug: 'a3Management',
@@ -10,6 +12,9 @@ export const A3Management: GlobalConfig = {
       'Manage settings for American Avalanche Association (A3) features like external event management.',
   },
   access: accessByGlobalRole('a3Management'),
+  hooks: {
+    beforeValidate: [validateNotificationReceivers],
+  },
   fields: [
     {
       name: 'notificationReceivers',
@@ -21,13 +26,12 @@ export const A3Management: GlobalConfig = {
         description:
           'These users will receive notifications when new provider applications are submitted.',
       },
-      // TODO: add a hook that validates that these manager users have provider * permission (not a specific role though because the name could be anything in different environments)
     },
     {
       name: 'providerManagerRole',
       type: 'relationship',
       relationTo: 'globalRoles',
-      // TOOD: should be readOnly for the providerManagerRole if selected
+      access: providerManagerRoleFieldAccess,
     },
   ],
 }
