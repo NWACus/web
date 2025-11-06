@@ -154,6 +154,7 @@ export const Courses: CollectionConfig = {
       options: [
         { label: 'LGBTQ+', value: 'lgbtq' },
         { label: "Women's Specific", value: 'womens-specific' },
+        { label: 'Youth Specific', value: 'youth-specific' },
       ],
       hasMany: true,
       admin: {

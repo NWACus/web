@@ -1734,7 +1734,7 @@ export interface Course {
   slug: string;
   courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
-  affinityGroups?: ('lgbtq' | 'women-specific')[] | null;
+  affinityGroups?: ('lgbtq' | 'womens-specific' | 'youth-specific')[] | null;
   provider?: (number | null) | Provider;
   contentHash?: string | null;
   updatedAt: string;
