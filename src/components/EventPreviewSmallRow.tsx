@@ -45,7 +45,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
     if (location.city && location.state) return `${location.city}, ${location.state}`
     if (location.city) return location.city
     if (location.state) return location.state
-    return null
+    return 'Location'
   }
 
   const locationText = getLocationText()
