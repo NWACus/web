@@ -4,13 +4,6 @@ import { ButtonGroup } from '@/components/ui/button-group'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { X } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
@@ -24,29 +17,10 @@ type Props = {
 export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   const today = new Date()
   const todayStr = today.toISOString().split('T')[0]
-  const currentMonth = today.getMonth()
-  const currentYear = today.getFullYear()
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ]
-  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i)
 
   const [filterType, setFilterType] = useState('')
   const [customStart, setCustomStart] = useState(startDate)
   const [customEnd, setCustomEnd] = useState(endDate || '')
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString())
-  const [selectedYear, setSelectedYear] = useState(currentYear.toString())
   const [hidePastEvents, setHidePastEvents] = useState(true)
   const isInitialMount = useRef(true)
 
@@ -145,16 +119,6 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     },
     [getDateRange, updateDateSelection],
   )
-
-  const handleMonthYearChange = (month: string, year: string) => {
-    const monthNum = parseInt(month)
-    const yearNum = parseInt(year)
-    const start = new Date(yearNum, monthNum, 1).toISOString().split('T')[0]
-    const end = new Date(yearNum, monthNum + 1, 0).toISOString().split('T')[0]
-    setSelectedMonth(month)
-    setSelectedYear(year)
-    updateDateSelection('custom', start, end)
-  }
 
   const clearFilter = () => {
     setFilterType('')
@@ -267,44 +231,6 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
       {filterType === 'custom' && (
         <>
-          {/* Month/Year Selection */}
-          <div className="mb-4">
-            <h4>Select Month & Year</h4>
-            <div className="flex gap-3">
-              <Select
-                value={selectedMonth}
-                onValueChange={(month) => handleMonthYearChange(month, selectedYear)}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {months.map((month, idx) => (
-                    <SelectItem key={month} value={idx.toString()}>
-                      {month}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={selectedYear}
-                onValueChange={(year) => handleMonthYearChange(selectedMonth, year)}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           {/* Custom Date Range */}
           <div>
             <h4>Custom Date Range</h4>
