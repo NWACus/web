@@ -203,9 +203,7 @@ export const Pages: CollectionConfig<'pages'> = {
   },
   versions: {
     drafts: {
-      autosave: {
-        showSaveDraftButton: true,
-      },
+      autosave: true,
     },
     maxPerDoc: 50,
   },

@@ -263,9 +263,7 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   versions: {
     drafts: {
-      autosave: {
-        showSaveDraftButton: true,
-      },
+      autosave: true,
     },
     maxPerDoc: 50,
   },
