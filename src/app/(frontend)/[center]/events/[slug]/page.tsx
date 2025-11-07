@@ -1,13 +1,15 @@
-import { EventMetadata } from '@/components/EventMetadata'
 import { Redirects } from '@/components/Redirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
 
+import { EventInfo } from '@/components/EventInfo'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { Media } from '@/components/Media'
 import { Button } from '@/components/ui/button'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
+import { cn } from '@/utilities/ui'
 import { Metadata, ResolvedMetadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -68,21 +70,28 @@ export default async function Event({ params: paramsPromise }: Args) {
     event.registrationDeadline && new Date(event.registrationDeadline) < new Date()
 
   return (
-    <article className="pt-4">
+    <article className={cn('pt-4 pb-16', { 'pt-8': !event.featuredImage })}>
       {draft && <LivePreviewListener />}
 
-      <div className="flex flex-col items-center gap-4 py-8">
-        <div className="container">
-          <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
-            <h1 className="font-bold mb-2">{event.title}</h1>
-            {event.subtitle && (
-              <p className="text-xl text-muted-foreground mt-0">{event.subtitle}</p>
-            )}
-          </div>
-
+      <div className="flex flex-col items-center gap-4">
+        {event.featuredImage && (
+          <Media
+            resource={event.featuredImage}
+            className="w-full absolute"
+            imgClassName="w-full h-[35vh] object-cover"
+          />
+        )}
+        <div className={cn('container z-10', { 'mt-40': event.featuredImage })}>
           <div className="max-w-[48rem] mx-auto mb-8">
             <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <EventMetadata
+              <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
+                <h1 className="font-bold mb-2">{event.title}</h1>
+                {event.subtitle && (
+                  <p className="text-xl text-muted-foreground mt-0">{event.subtitle}</p>
+                )}
+              </div>
+
+              <EventInfo
                 startDate={event.startDate}
                 endDate={event.endDate}
                 timezone={event.timezone}
@@ -91,6 +100,8 @@ export default async function Event({ params: paramsPromise }: Args) {
                 capacity={event.capacity}
                 skillRating={event.skillRating}
                 showLabels={true}
+                className="columns-1 sm:columns-2"
+                itemsClassName="break-inside-avoid mb-4"
               />
 
               {/* Registration Information */}

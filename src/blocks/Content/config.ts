@@ -11,10 +11,12 @@ import { BlogListBlockLexical } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
 import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../DocumentBlock/config'
+import { EventListBlockLexical } from '../EventList/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
 import { MediaBlockLexical } from '../MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
+import { SingleEventBlockLexical } from '../SingleEvent/config'
 import { SponsorsBlock } from '../SponsorsBlock/config'
 
 const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => {
@@ -128,6 +130,8 @@ export const Content: Block = {
                     ButtonBlock,
                     CalloutBlock,
                     DocumentBlock,
+                    EventListBlockLexical,
+                    SingleEventBlockLexical,
                     GenericEmbedLexical,
                     HeaderBlock,
                     MediaBlockLexical,

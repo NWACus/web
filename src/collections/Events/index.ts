@@ -11,8 +11,10 @@ import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
+import { locationField } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
 import {
@@ -57,24 +59,29 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'startDate',
-      type: 'date',
-      required: true,
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
+      type: 'row',
+      fields: [
+        {
+          name: 'startDate',
+          type: 'date',
+          required: true,
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
         },
-      },
-    },
-    {
-      name: 'endDate',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
+        {
+          name: 'endDate',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+            description: 'Optional end date for multi-day events',
+          },
         },
-        description: 'Optional end date for multi-day events',
-      },
+      ],
     },
     {
       name: 'timezone',
@@ -84,74 +91,7 @@ export const Events: CollectionConfig = {
         description: 'Event timezone',
       },
     },
-    {
-      name: 'location',
-      type: 'group',
-      fields: [
-        {
-          name: 'isVirtual',
-          type: 'checkbox',
-          admin: {
-            description: 'Check if this is an online/virtual event',
-          },
-        },
-        {
-          name: 'virtualUrl',
-          type: 'text',
-          admin: {
-            condition: (_data, siblingData) => siblingData?.isVirtual,
-            description: 'Meeting link for virtual events',
-          },
-        },
-        {
-          name: 'venue',
-          type: 'text',
-          admin: {
-            description: 'Venue name',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'address',
-          type: 'text',
-          admin: {
-            description: 'Street address',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'city',
-          type: 'text',
-          admin: {
-            description: 'City',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'state',
-          type: 'text',
-          admin: {
-            description: 'State',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'zip',
-          type: 'text',
-          admin: {
-            description: 'ZIP code',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'extraInfo',
-          type: 'text',
-          admin: {
-            description: 'Extra location info (e.g., "Meet in lot 4")',
-          },
-        },
-      ],
-    },
+    locationField(),
     MetaImageField({
       hasGenerateFn: true,
       relationTo: 'media',
@@ -163,6 +103,12 @@ export const Events: CollectionConfig = {
         label: 'Featured image',
       },
     }),
+    {
+      name: 'thumbnailImage',
+      type: 'upload',
+      relationTo: 'media',
+      filterOptions: getImageTypeFilter,
+    },
     {
       name: 'registrationUrl',
       type: 'text',
@@ -178,28 +124,33 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'registrationDeadline',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
+      type: 'row',
+      fields: [
+        {
+          name: 'registrationDeadline',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+            description: 'Registration cutoff',
+          },
         },
-        description: 'Registration cutoff',
-      },
-    },
-    {
-      name: 'capacity',
-      type: 'number',
-      admin: {
-        description: 'Maximum attendees',
-      },
-    },
-    {
-      name: 'cost',
-      type: 'number',
-      admin: {
-        description: 'Event cost in dollars',
-      },
+        {
+          name: 'capacity',
+          type: 'number',
+          admin: {
+            description: 'Maximum attendees',
+          },
+        },
+        {
+          name: 'cost',
+          type: 'number',
+          admin: {
+            description: 'Event cost in dollars',
+          },
+        },
+      ],
     },
     {
       name: 'skillRating',

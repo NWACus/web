@@ -763,7 +763,11 @@ export const seed = async ({
       (obj) => obj.slug,
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
-          return getEventsData(tenant, images[tenant.slug]['imageMountain'])
+          return getEventsData(
+            tenant,
+            images[tenant.slug]['image1'],
+            images[tenant.slug]['imageMountain'],
+          )
         })
         .flat(),
     )
@@ -833,6 +837,7 @@ export const seed = async ({
             tenant,
             images[tenant.slug]['imageMountain'],
             Object.values(posts[tenant.slug]),
+            Object.values(events[tenant.slug]),
           ),
           whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
           page(
