@@ -706,10 +706,6 @@ export interface EventListBlock {
         )[]
       | null;
     /**
-     * Optionally select event sub types to filter events. Ensure the parent event type is selected first.
-     */
-    filterByEventSubTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
-    /**
      * Only display events that have not yet occurred.
      */
     showUpcomingOnly?: boolean | null;
@@ -2515,7 +2511,6 @@ export interface EventListBlockSelect<T extends boolean = true> {
     | {
         sortBy?: T;
         filterByEventTypes?: T;
-        filterByEventSubTypes?: T;
         showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;

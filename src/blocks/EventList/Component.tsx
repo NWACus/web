@@ -13,8 +13,7 @@ type EventListComponentProps = EventListBlockProps & {
 export const EventListBlockComponent = async (args: EventListComponentProps) => {
   const { heading, belowHeadingContent, backgroundColor, className, wrapInContainer = true } = args
 
-  const { filterByEventTypes, filterByEventSubTypes, sortBy, queriedEvents } =
-    args.dynamicOptions || {}
+  const { filterByEventTypes, sortBy, queriedEvents } = args.dynamicOptions || {}
   const { staticEvents } = args.staticOptions || {}
 
   let events = staticEvents?.filter(
@@ -36,10 +35,6 @@ export const EventListBlockComponent = async (args: EventListComponentProps) => 
 
   if (filterByEventTypes && filterByEventTypes.length > 0) {
     eventsLinkQueryParams.set('types', filterByEventTypes.join(','))
-  }
-
-  if (filterByEventSubTypes && filterByEventSubTypes.length > 0) {
-    eventsLinkQueryParams.set('subtypes', filterByEventSubTypes.join(','))
   }
 
   if (!events) {

@@ -1,4 +1,4 @@
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import colorPickerField from '@/fields/color'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
@@ -90,34 +90,6 @@ const dynamicEventRelatedFields: Field[] = [
         label: 'Filter by Event Type(s)',
         admin: {
           description: 'Optionally select event types to filter events.',
-        },
-      },
-      {
-        name: 'filterByEventSubTypes',
-        type: 'select',
-        dbName: 'filterByEventSubTypes',
-        options: eventSubTypesData.map((subType) => ({
-          label: subType.label,
-          value: subType.value,
-        })),
-        filterOptions: ({ siblingData, options }) => {
-          const selectedTypes: string[] = siblingData?.filterByEventTypes
-          if (!selectedTypes || selectedTypes.length === 0) {
-            return []
-          }
-          const allowedValues = eventSubTypesData
-            .filter((subType) => selectedTypes.includes(subType.eventType))
-            .map((subType) => subType.value)
-          return options.filter((option) => {
-            const optionValue = typeof option === 'string' ? option : option.value
-            return allowedValues.includes(optionValue)
-          })
-        },
-        hasMany: true,
-        label: 'Filter by Event Sub Type(s)',
-        admin: {
-          description:
-            'Optionally select event sub types to filter events. Ensure the parent event type is selected first.',
         },
       },
       {

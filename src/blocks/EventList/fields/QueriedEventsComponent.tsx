@@ -1,6 +1,5 @@
 'use client'
 
-import { eventSubTypesData } from '@/collections/Events/constants'
 import { Event } from '@/payload-types'
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { FieldDescription, SelectInput, useField, useForm, useFormFields } from '@payloadcms/ui'
@@ -27,9 +26,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
   const filterByEventTypes = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['filterByEventTypes']).join('.')]?.value,
   )
-  const filterByEventSubTypes = useFormFields(
-    ([fields]) => fields[parentPathParts.concat(['filterByEventSubTypes']).join('.')]?.value,
-  )
+
   const sortBy = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['sortBy']).join('.')]?.value,
   )
@@ -80,29 +77,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           }
         }
 
-        if (
-          filterByEventSubTypes &&
-          Array.isArray(filterByEventSubTypes) &&
-          filterByEventSubTypes.length > 0
-        ) {
-          const selectedTypes =
-            filterByEventTypes && Array.isArray(filterByEventTypes)
-              ? filterByEventTypes.filter(Boolean)
-              : []
-
-          // Only apply subtype filters if event types are selected
-          if (selectedTypes.length > 0) {
-            const validSubTypeIds = filterByEventSubTypes.filter(Boolean).filter((subTypeId) => {
-              const subType = eventSubTypesData.find((st) => st.value === subTypeId)
-              return subType && selectedTypes.includes(subType.eventType)
-            })
-
-            if (validSubTypeIds.length > 0) {
-              params.append('where[subType][in]', validSubTypeIds.join(','))
-            }
-          }
-        }
-
         const response = await fetch(`/api/events?${params.toString()}`)
         if (!response.ok) {
           throw new Error('Failed to fetch events')
@@ -140,7 +114,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
     fetchEvents()
   }, [
     filterByEventTypes,
-    filterByEventSubTypes,
     sortBy,
     maxEvents,
     showUpcomingOnly,
