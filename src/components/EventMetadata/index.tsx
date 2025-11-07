@@ -91,27 +91,11 @@ export const EventMetadata = ({
               <div>
                 {showLabels && <span className="font-medium">Location: </span>}
                 {location.placeName && <div>{location.placeName}</div>}
-                {(location.address || location.city || location.state) && (
+                {(location.address || location.city || location.state || location.zip) && (
                   <div>
-                    {location.address && (
-                      <span>
-                        {location.address}
-                        {(location.city || location.state || location.zip) && <>,</>}{' '}
-                      </span>
-                    )}
-                    {location.city && (
-                      <span>
-                        {location.city}
-                        {(location.state || location.zip) && <>,</>}{' '}
-                      </span>
-                    )}
-                    {location.state && (
-                      <span>
-                        {location.state}
-                        {location.zip && <>,</>}{' '}
-                      </span>
-                    )}
-                    {location.zip && <span>{location.zip} </span>}
+                    {[location.address, location.city, location.state, location.zip]
+                      .filter(Boolean)
+                      .join(', ')}
                   </div>
                 )}
               </div>
