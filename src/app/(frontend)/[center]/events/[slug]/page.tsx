@@ -70,12 +70,10 @@ export default async function Event({ params: paramsPromise }: Args) {
     event.registrationDeadline && new Date(event.registrationDeadline) < new Date()
 
   return (
-    <article className="pt-4">
+    <article className={cn('pt-4 pb-16', { 'pt-8': !event.featuredImage })}>
       {draft && <LivePreviewListener />}
 
-      <div
-        className={cn('flex flex-col items-center gap-4 pb-8', { 'pt-8': !event.featuredImage })}
-      >
+      <div className="flex flex-col items-center gap-4">
         {event.featuredImage && (
           <Media
             resource={event.featuredImage}
@@ -83,7 +81,7 @@ export default async function Event({ params: paramsPromise }: Args) {
             imgClassName="w-full h-[35vh] object-cover"
           />
         )}
-        <div className="container z-10 mt-40">
+        <div className={cn('container z-10', { 'mt-40': event.featuredImage })}>
           <div className="max-w-[48rem] mx-auto mb-8">
             <div className="bg-card border rounded-lg p-6 shadow-sm">
               <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
