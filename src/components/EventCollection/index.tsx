@@ -1,7 +1,8 @@
-import { EventPreview, EventPreviewData } from '@/components/EventPreview'
+import { EventPreview } from '@/components/EventPreview'
+import type { Event } from '@/payload-types'
 
 export type Props = {
-  events: EventPreviewData[] | null | undefined
+  events: Event[] | null | undefined
 }
 
 export const EventCollection = (props: Props) => {
@@ -14,7 +15,7 @@ export const EventCollection = (props: Props) => {
           if (typeof result === 'object' && result !== null) {
             return (
               <div className="mb-8" key={index}>
-                <EventPreview className="h-full" doc={result} />
+                <EventPreview className="h-full" event={result} />
               </div>
             )
           }

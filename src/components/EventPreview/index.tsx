@@ -2,7 +2,7 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import { Link } from '@payloadcms/ui'
 import { ExternalLink } from 'lucide-react'
 import { EventInfo } from '../EventInfo'
@@ -10,36 +10,16 @@ import { CMSLink } from '../Link'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-
-export type EventPreviewData = Pick<
-  Event,
-  | 'title'
-  | 'subtitle'
-  | 'description'
-  | 'slug'
-  | 'thumbnailImage'
-  | 'startDate'
-  | 'endDate'
-  | 'timezone'
-  | 'location'
-  | 'cost'
-  | 'capacity'
-  | 'skillRating'
-  | 'registrationDeadline'
-  | 'registrationUrl'
-  | 'externalEventUrl'
-  | 'type'
-  | 'subType'
->
+import { LocationPopover } from './LocationPopover'
 
 export const EventPreview = (props: {
   alignItems?: 'center'
   className?: string
-  doc?: EventPreviewData
+  event?: Event
 }) => {
-  const { className, doc } = props
+  const { className, event } = props
 
-  if (!doc) return null
+  if (!event) return null
 
   const {
     title,
@@ -54,23 +34,15 @@ export const EventPreview = (props: {
     registrationDeadline,
     registrationUrl,
     type,
-    subType,
-  } = doc
+    location,
+  } = event
 
   const isPastEvent = startDate && new Date(startDate) < new Date()
   const isRegistrationClosed = registrationDeadline && new Date(registrationDeadline) < new Date()
 
   const eventUrl = `/events/${slug}`
 
-  const eventTypeName = type ? eventTypesData.find((et) => et.value === type)?.label : null
-  const eventSubTypeName = subType
-    ? eventSubTypesData.find((et) => et.value === subType)?.label
-    : null
-
-  const typeDisplayText =
-    eventTypeName && eventSubTypeName
-      ? `${eventTypeName} > ${eventSubTypeName}`
-      : eventSubTypeName || eventTypeName
+  const eventTypeDisplay = type ? eventTypesData.find((et) => et.value === type)?.label : null
 
   const parsedStartDate = new Date(startDate)
   const month = parsedStartDate.toLocaleDateString('en-US', { month: 'short' })
@@ -80,7 +52,7 @@ export const EventPreview = (props: {
   return (
     <article
       className={cn(
-        'flex flex-col @md:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @md:p-6',
+        'flex flex-col @lg:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @lg:p-6',
         className,
       )}
     >
@@ -105,13 +77,13 @@ export const EventPreview = (props: {
 
       <div className="flex flex-col justify-between flex-grow min-w-0">
         <div>
-          {typeDisplayText && (
-            <div className="text-xs text-muted-foreground mb-2">{typeDisplayText}</div>
+          {eventTypeDisplay && (
+            <div className="text-xs text-muted-foreground mb-2">{eventTypeDisplay}</div>
           )}
 
           {title && (
             <div>
-              <Link href={eventUrl} className="mb-2">
+              <Link href={eventUrl ?? '#'} className="mb-2">
                 <h3 className="text-lg @lg:text-xl font-semibold leading-tight group-hover:underline">
                   {title}
                 </h3>
@@ -167,19 +139,21 @@ export const EventPreview = (props: {
           </CMSLink>
         </div>
       </div>
-
-      <Link
-        href={eventUrl}
-        className="w-full @md:hidden @lg:block @lg:w-56 @xl:w-64 @md:flex-shrink-0 h-40 @md:h-auto overflow-hidden rounded"
-      >
-        {thumbnailImage && typeof thumbnailImage !== 'number' && (
-          <ImageMedia
-            imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            resource={thumbnailImage}
-            pictureClassName="w-full h-full"
-          />
-        )}
-      </Link>
+      <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
+        {location && <LocationPopover location={location} />}
+        <Link
+          href={eventUrl}
+          className="w-full @md:hidden @lg:block @lg:w-56 @xl:w-64 @md:flex-shrink-0 h-40 @md:h-auto overflow-hidden rounded"
+        >
+          {thumbnailImage && typeof thumbnailImage !== 'number' && (
+            <ImageMedia
+              imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              resource={thumbnailImage}
+              pictureClassName="w-full h-full"
+            />
+          )}
+        </Link>
+      </div>
     </article>
   )
 }

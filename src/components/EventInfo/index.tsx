@@ -90,13 +90,13 @@ export const EventInfo = ({
             <>
               <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <div>
-                {showLabels && <span className="font-medium font-semibold">Location: </span>}
-                {location.venue && <div>{location.venue}</div>}
-                {(location.address || location.city || location.state) && (
+                {showLabels && <span className="font-medium">Location: </span>}
+                {location.placeName && <div>{location.placeName}</div>}
+                {(location.address || location.city || location.state || location.zip) && (
                   <div>
-                    {location.address && <span>{location.address}, </span>}
-                    {location.city && <span>{location.city}, </span>}
-                    {location.state} {location.zip}
+                    {[location.address, location.city, location.state, location.zip]
+                      .filter(Boolean)
+                      .join(', ')}
                   </div>
                 )}
               </div>

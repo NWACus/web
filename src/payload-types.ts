@@ -693,7 +693,7 @@ export interface EventListBlock {
      */
     sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
     /**
-     * Optionally select event types to filter events in this list by.
+     * Optionally select event types to filter events.
      */
     filterByEventTypes?:
       | (
@@ -705,10 +705,6 @@ export interface EventListBlock {
           | 'volunteer'
         )[]
       | null;
-    /**
-     * Optionally select event sub types to filter events in this list by.
-     */
-    filterByEventSubTypes?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[] | null;
     /**
      * Only display events that have not yet occurred.
      */
@@ -764,35 +760,83 @@ export interface Event {
     | null;
   location?: {
     /**
-     * Check if this is an online/virtual event
+     * Check if this is a virtual event
      */
     isVirtual?: boolean | null;
     /**
-     * Meeting link for virtual events
+     * Name of the place or venue
+     */
+    placeName?: string | null;
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    coordinates?: [number, number] | null;
+    /**
+     * URL for virtual event (Zoom, Teams, etc.)
      */
     virtualUrl?: string | null;
     /**
-     * Venue name
-     */
-    venue?: string | null;
-    /**
-     * Street address
-     */
-    address?: string | null;
-    /**
-     * City
-     */
-    city?: string | null;
-    /**
-     * State
-     */
-    state?: string | null;
-    /**
-     * ZIP code
-     */
-    zip?: string | null;
-    /**
-     * Extra location info (e.g., "Meet in lot 4")
+     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
      */
     extraInfo?: string | null;
   };
@@ -2516,7 +2560,6 @@ export interface EventListBlockSelect<T extends boolean = true> {
     | {
         sortBy?: T;
         filterByEventTypes?: T;
-        filterByEventSubTypes?: T;
         showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
@@ -2947,12 +2990,14 @@ export interface EventsSelect<T extends boolean = true> {
     | T
     | {
         isVirtual?: T;
-        virtualUrl?: T;
-        venue?: T;
+        placeName?: T;
         address?: T;
         city?: T;
         state?: T;
         zip?: T;
+        country?: T;
+        coordinates?: T;
+        virtualUrl?: T;
         extraInfo?: T;
       };
   featuredImage?: T;

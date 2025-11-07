@@ -837,6 +837,7 @@ export const seed = async ({
             tenant,
             images[tenant.slug]['imageMountain'],
             Object.values(posts[tenant.slug]),
+            Object.values(events[tenant.slug]),
           ),
           whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
           page(

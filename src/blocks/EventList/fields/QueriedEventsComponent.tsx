@@ -26,9 +26,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
   const filterByEventTypes = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['filterByEventTypes']).join('.')]?.value,
   )
-  const filterByEventSubTypes = useFormFields(
-    ([fields]) => fields[parentPathParts.concat(['filterByEventSubTypes']).join('.')]?.value,
-  )
+
   const sortBy = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['sortBy']).join('.')]?.value,
   )
@@ -75,19 +73,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const typeIds = filterByEventTypes.filter(Boolean)
 
           if (typeIds.length > 0) {
-            params.append('where[or][0][eventType][in]', typeIds.join(','))
-          }
-        }
-
-        if (
-          filterByEventSubTypes &&
-          Array.isArray(filterByEventSubTypes) &&
-          filterByEventSubTypes.length > 0
-        ) {
-          const subTypeIds = filterByEventSubTypes.filter(Boolean)
-
-          if (subTypeIds.length > 0) {
-            params.append('where[or][1][eventSubType][in]', subTypeIds.join(','))
+            params.append('where[type][in]', typeIds.join(','))
           }
         }
 
@@ -128,7 +114,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
     fetchEvents()
   }, [
     filterByEventTypes,
-    filterByEventSubTypes,
     sortBy,
     maxEvents,
     showUpcomingOnly,

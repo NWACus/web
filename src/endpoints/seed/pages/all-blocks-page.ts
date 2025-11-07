@@ -1,7 +1,8 @@
-import type { Media, Post, Tenant } from '@/payload-types'
+import type { Event, Media, Post, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 import { blogListBlock } from '../blocks/blog-list'
 import { contentWithCallout } from '../blocks/content-with-callout'
+import { eventListBlock } from '../blocks/event-list'
 import { genericEmbed } from '../blocks/generic-embed'
 import { imageLinkGrid } from '../blocks/image-link-grid'
 import { imageQuote } from '../blocks/image-quote'
@@ -10,15 +11,18 @@ import { imageTextList } from '../blocks/image-text-list'
 import { linkPreview } from '../blocks/link-preview'
 import { mediaBlocks } from '../blocks/media-blocks'
 import { singleBlogPostBlock } from '../blocks/single-blog-post'
+import { singleEventBlock } from '../blocks/single-event'
 
 export const allBlocksPage: (
   tenant: Tenant,
   image1: Media,
   posts: Post[],
+  events: Event[],
 ) => RequiredDataFromCollectionSlug<'pages'> = (
   tenant: Tenant,
   image1: Media,
   posts: Post[],
+  events: Event[],
 ): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: 'blocks',
@@ -54,6 +58,32 @@ export const allBlocksPage: (
       {
         ...singleBlogPostBlock,
         post: posts[0]?.id || 0, // Use first post
+      },
+      {
+        ...eventListBlock,
+        eventOptions: 'dynamic',
+        dynamicOptions: {
+          sortBy: 'startDate',
+          showUpcomingOnly: true,
+          maxEvents: 4,
+          queriedEvents: events.slice(0, 4).map((event) => event.id), // Use first 4 events for preview
+        },
+      },
+      {
+        ...eventListBlock,
+        eventOptions: 'static',
+        staticOptions: {
+          staticEvents: events.slice(0, 3).map((event) => event.id), // Use first 3 events
+        },
+      },
+      {
+        ...singleEventBlock,
+        event: events[0]?.id || 0, // Use first event
+      },
+      {
+        ...singleEventBlock,
+        event: events[1]?.id || 0, // Use second event
+        backgroundColor: 'gray',
       },
     ],
     meta: {

@@ -9,7 +9,7 @@ import { Access, CollectionConfig } from 'payload'
 // tenant-scoped collections
 export const byTenantRole: (method: ruleMethod, collection: ruleCollection) => Access =
   (method: ruleMethod, collection: ruleCollection): Access =>
-  async ({ req: { user, payload } }) => {
+  async ({ req: { user, payload, headers } }) => {
     if (!user) {
       return false
     }
@@ -42,11 +42,16 @@ export const byTenantRole: (method: ruleMethod, collection: ruleCollection) => A
       .map((tenant) => tenant.id)
 
     if (matchingTenantIds.length > 0) {
-      // otherwise, return a where clause capturing the tenants they can take this action in
-      return {
-        tenant: {
-          in: matchingTenantIds,
-        },
+      const tenantFromCookie = getTenantFromCookie(headers, 'number')
+
+      if (tenantFromCookie) {
+        return matchingTenantIds.includes(tenantFromCookie)
+      } else {
+        return {
+          tenant: {
+            in: matchingTenantIds,
+          },
+        }
       }
     }
 
