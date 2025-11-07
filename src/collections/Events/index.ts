@@ -14,6 +14,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
 import {
@@ -58,24 +59,29 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'startDate',
-      type: 'date',
-      required: true,
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
+      type: 'row',
+      fields: [
+        {
+          name: 'startDate',
+          type: 'date',
+          required: true,
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
         },
-      },
-    },
-    {
-      name: 'endDate',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
+        {
+          name: 'endDate',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+            description: 'Optional end date for multi-day events',
+          },
         },
-        description: 'Optional end date for multi-day events',
-      },
+      ],
     },
     {
       name: 'timezone',
@@ -98,6 +104,12 @@ export const Events: CollectionConfig = {
       },
     }),
     {
+      name: 'thumbnailImage',
+      type: 'upload',
+      relationTo: 'media',
+      filterOptions: getImageTypeFilter,
+    },
+    {
       name: 'registrationUrl',
       type: 'text',
       admin: {
@@ -112,28 +124,33 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'registrationDeadline',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
+      type: 'row',
+      fields: [
+        {
+          name: 'registrationDeadline',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+            description: 'Registration cutoff',
+          },
         },
-        description: 'Registration cutoff',
-      },
-    },
-    {
-      name: 'capacity',
-      type: 'number',
-      admin: {
-        description: 'Maximum attendees',
-      },
-    },
-    {
-      name: 'cost',
-      type: 'number',
-      admin: {
-        description: 'Event cost in dollars',
-      },
+        {
+          name: 'capacity',
+          type: 'number',
+          admin: {
+            description: 'Maximum attendees',
+          },
+        },
+        {
+          name: 'cost',
+          type: 'number',
+          admin: {
+            description: 'Event cost in dollars',
+          },
+        },
+      ],
     },
     {
       name: 'skillRating',
