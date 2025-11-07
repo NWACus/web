@@ -20,9 +20,9 @@ export const SingleEventBlockComponent = ({
   const bgColorClass = `bg-${backgroundColor}`
 
   return (
-    <div className={cn(wrapInContainer && bgColorClass)}>
+    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
       <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
-        <EventPreview doc={event} className={cn('not-prose')} />
+        <EventPreview event={event} className={cn('not-prose')} />
       </div>
     </div>
   )

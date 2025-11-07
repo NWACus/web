@@ -13,8 +13,7 @@ type EventListComponentProps = EventListBlockProps & {
 export const EventListBlockComponent = async (args: EventListComponentProps) => {
   const { heading, belowHeadingContent, backgroundColor, className, wrapInContainer = true } = args
 
-  const { filterByEventTypes, filterByEventSubTypes, sortBy, queriedEvents } =
-    args.dynamicOptions || {}
+  const { filterByEventTypes, sortBy, queriedEvents } = args.dynamicOptions || {}
   const { staticEvents } = args.staticOptions || {}
 
   let events = staticEvents?.filter(
@@ -38,10 +37,6 @@ export const EventListBlockComponent = async (args: EventListComponentProps) => 
     eventsLinkQueryParams.set('types', filterByEventTypes.join(','))
   }
 
-  if (filterByEventSubTypes && filterByEventSubTypes.length > 0) {
-    eventsLinkQueryParams.set('subtypes', filterByEventSubTypes.join(','))
-  }
-
   if (!events) {
     return null
   }
@@ -49,7 +44,7 @@ export const EventListBlockComponent = async (args: EventListComponentProps) => 
   const bgColorClass = `bg-${backgroundColor}`
 
   return (
-    <div className={cn(wrapInContainer && bgColorClass)}>
+    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
       <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
         <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
           <div className="flex flex-col justify-start gap-1">

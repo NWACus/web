@@ -2,7 +2,7 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { EventMetadata } from '../EventMetadata'
@@ -11,35 +11,14 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { LocationPopover } from './LocationPopover'
 
-export type EventPreviewData = Pick<
-  Event,
-  | 'title'
-  | 'subtitle'
-  | 'description'
-  | 'slug'
-  | 'featuredImage'
-  | 'startDate'
-  | 'endDate'
-  | 'timezone'
-  | 'location'
-  | 'cost'
-  | 'capacity'
-  | 'skillRating'
-  | 'registrationDeadline'
-  | 'registrationUrl'
-  | 'externalEventUrl'
-  | 'type'
-  | 'subType'
->
-
 export const EventPreview = (props: {
   alignItems?: 'center'
   className?: string
-  doc?: EventPreviewData
+  event?: Event
 }) => {
-  const { className, doc } = props
+  const { className, event } = props
 
-  if (!doc) return null
+  if (!event) return null
 
   const {
     title,
@@ -54,24 +33,15 @@ export const EventPreview = (props: {
     registrationDeadline,
     registrationUrl,
     type,
-    subType,
     location,
-  } = doc
+  } = event
 
   const isPastEvent = startDate && new Date(startDate) < new Date()
   const isRegistrationClosed = registrationDeadline && new Date(registrationDeadline) < new Date()
 
   const eventUrl = `/events/${slug}`
 
-  const eventTypeName = type ? eventTypesData.find((et) => et.value === type)?.label : null
-  const eventSubTypeName = subType
-    ? eventSubTypesData.find((et) => et.value === subType)?.label
-    : null
-
-  const typeDisplayText =
-    eventTypeName && eventSubTypeName
-      ? `${eventTypeName} > ${eventSubTypeName}`
-      : eventSubTypeName || eventTypeName
+  const eventTypeDisplay = type ? eventTypesData.find((et) => et.value === type)?.label : null
 
   const parsedStartDate = new Date(startDate)
   const month = parsedStartDate.toLocaleDateString('en-US', { month: 'short' })
@@ -97,8 +67,8 @@ export const EventPreview = (props: {
 
       <div className="flex flex-col justify-between flex-grow min-w-0">
         <div>
-          {typeDisplayText && (
-            <div className="text-xs text-muted-foreground mb-2">{typeDisplayText}</div>
+          {eventTypeDisplay && (
+            <div className="text-xs text-muted-foreground mb-2">{eventTypeDisplay}</div>
           )}
 
           {title && (
