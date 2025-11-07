@@ -20,7 +20,12 @@ export const EventsMobileFilters = ({ eventCount, types, hasActiveFilters }: Pro
 
   return (
     <>
-      <Button variant="outline" onClick={() => setIsOpen(true)} aria-label="Open filters">
+      <Button
+        variant="outline"
+        onClick={() => setIsOpen(true)}
+        aria-label="Open filters"
+        className="w-full sm:w-1/2"
+      >
         <div className="flex items-center gap-2">
           <span>Filters</span>
           {hasActiveFilters ? <FilterX width={16} /> : <Filter width={16} />}
