@@ -12,12 +12,6 @@ import { EventsDatePicker } from '../../events-date-filter'
 import { EventsMobileFilters } from '../../events-mobile-filters'
 import { EventsTypeFilter } from '../../events-type-filter'
 
-export const dynamicParams = true
-
-export async function generateStaticParams() {
-  return []
-}
-
 type Args = {
   params: Promise<{
     center: string
