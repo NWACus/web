@@ -46,6 +46,12 @@ export const byTenantRole: (method: ruleMethod, collection: ruleCollection) => A
 
       if (tenantFromCookie) {
         return matchingTenantIds.includes(tenantFromCookie)
+      } else {
+        return {
+          tenant: {
+            in: matchingTenantIds,
+          },
+        }
       }
     }
 
