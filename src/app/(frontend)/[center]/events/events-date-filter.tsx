@@ -1,7 +1,6 @@
 'use client'
 import { QUICK_DATE_FILTERS } from '@/collections/Events/constants'
 import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
 import { Input } from '@/components/ui/input'
 import { X } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -70,10 +69,9 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     if (!filter) return null
     return (
       <Button
-        key={filter.id}
         onClick={() => handleQuickFilter(filter.id)}
         variant={filterType === filter.id ? 'callout' : 'outline'}
-        className="w-1/3"
+        className="flex-1"
       >
         {filter.label}
       </Button>
@@ -81,7 +79,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   }
 
   useEffect(() => {
-    if (isInitialMount.current && !startDate && !endDate) {
+    if (isInitialMount.current && ((!startDate && !endDate) || (startDate && !endDate))) {
       handleQuickFilter('upcoming')
     }
     if (isInitialMount.current && startDate && endDate) {
@@ -93,7 +91,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
   return (
     <div className="w-full">
       <div className="hidden md:flex justify-between items-center">
-        <h3 className="font-semibold">Filter by date</h3>
+        <h3 className="font-semibold my-2">Filter by date</h3>
         {filterType && filterType !== 'upcoming' && (
           <Button onClick={() => handleQuickFilter('upcoming')} variant="ghost">
             <X width={16} />
@@ -102,35 +100,27 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
       </div>
       <hr className="hidden md:block p-2" />
 
-      <div className="mb-4">
-        <ButtonGroup className="w-full">
-          {renderQuickFilterButton('upcoming')}
-          {renderQuickFilterButton('this-week')}
-          {renderQuickFilterButton('this-month')}
-        </ButtonGroup>
-        <ButtonGroup className="w-full">
-          {renderQuickFilterButton('next-week')}
-          {renderQuickFilterButton('next-month')}
-          {renderQuickFilterButton('past-events')}
-        </ButtonGroup>
-      </div>
-      <div className="mb-4">
-        <ButtonGroup className="w-full">
-          <Button
-            onClick={() => handleQuickFilter('custom')}
-            variant={filterType === 'custom' ? 'callout' : 'outline'}
-            className="w-1/2"
-          >
-            Custom date range
-          </Button>
-        </ButtonGroup>
+      <div className="mb-4 flex flex-wrap gap-2">
+        {renderQuickFilterButton('upcoming')}
+        {renderQuickFilterButton('this-week')}
+        {renderQuickFilterButton('this-month')}
+        {renderQuickFilterButton('next-week')}
+        {renderQuickFilterButton('next-month')}
+        {renderQuickFilterButton('past-events')}
+
+        <Button
+          onClick={() => handleQuickFilter('custom')}
+          variant={filterType === 'custom' ? 'callout' : 'outline'}
+          className="w-full"
+        >
+          Custom date range
+        </Button>
       </div>
 
       {filterType === 'custom' && (
         <>
           {/* Custom Date Range */}
           <div>
-            <h4>Custom Date Range</h4>
             <div className="flex gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400">Start Date</label>
@@ -145,6 +135,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
                 <Input
                   type="date"
                   value={customEnd}
+                  min={customStart}
                   onChange={(e) => updateDateSelection('custom', customStart, e.target.value)}
                 />
               </div>
