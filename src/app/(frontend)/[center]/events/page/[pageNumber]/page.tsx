@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
 
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import { EventCollection } from '@/components/EventCollection'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
@@ -30,7 +30,6 @@ export default async function Page({ params, searchParams }: Args) {
   const { center, pageNumber } = await params
   const resolvedSearchParams = await searchParams
   const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
-  const selectedSubTypes = resolvedSearchParams?.subtypes?.split(',').filter(Boolean)
   const selectedStartDate = resolvedSearchParams?.startDate || ''
   const selectedEndDate = resolvedSearchParams?.endDate || ''
 
@@ -53,14 +52,9 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const conditions: Where[] = [{ 'tenant.slug': { equals: center } }]
-  const orConditions: Where[] = []
 
   if (selectedTypes?.length) {
-    orConditions.push({ type: { in: selectedTypes } })
-  }
-
-  if (selectedSubTypes?.length) {
-    orConditions.push({ subType: { in: selectedSubTypes } })
+    conditions.push({ type: { in: selectedTypes } })
   }
 
   if (selectedStartDate && selectedEndDate) {
@@ -84,10 +78,6 @@ export default async function Page({ params, searchParams }: Args) {
     })
   }
 
-  if (orConditions.length > 0) {
-    conditions.push({ or: orConditions })
-  }
-
   const whereConditions: Where = { and: conditions }
   const events = await payload.find({
     collection: 'events',
@@ -99,10 +89,7 @@ export default async function Page({ params, searchParams }: Args) {
   })
 
   const hasActiveFilters =
-    (selectedTypes && selectedTypes.length > 0) ||
-    (selectedSubTypes && selectedSubTypes.length > 0) ||
-    selectedStartDate ||
-    selectedEndDate
+    (selectedTypes && selectedTypes.length > 0) || selectedStartDate || selectedEndDate
 
   return (
     <div className="pt-4">
@@ -111,7 +98,6 @@ export default async function Page({ params, searchParams }: Args) {
         <div className="md:hidden">
           <EventsMobileFilters
             types={eventTypesData}
-            subTypes={eventSubTypesData}
             hasActiveFilters={Boolean(hasActiveFilters)}
             eventCount={events.totalDocs}
           />
@@ -124,7 +110,7 @@ export default async function Page({ params, searchParams }: Args) {
 
         {/* Desktop Sidebar - Hidden on Mobile */}
         <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
-          <EventsTypeFilter types={eventTypesData} subTypes={eventSubTypesData} />
+          <EventsTypeFilter types={eventTypesData} />
           <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
         </div>
       </div>

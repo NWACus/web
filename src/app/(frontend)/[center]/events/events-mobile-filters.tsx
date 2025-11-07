@@ -1,6 +1,6 @@
 'use client'
 
-import { EventSubType, EventType } from '@/collections/Events/constants'
+import { EventType } from '@/collections/Events/constants'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, Filter, FilterX } from 'lucide-react'
 import { useState } from 'react'
@@ -10,11 +10,10 @@ import { EventsTypeFilter } from './events-type-filter'
 type Props = {
   eventCount: number
   types: EventType[]
-  subTypes: EventSubType[]
   hasActiveFilters: boolean
 }
 
-export const EventsMobileFilters = ({ eventCount, types, subTypes, hasActiveFilters }: Props) => {
+export const EventsMobileFilters = ({ eventCount, types, hasActiveFilters }: Props) => {
   const [isOpen, setIsOpen] = useState(false)
   const [typeOpen, setTypeOpen] = useState(true)
   const [dateOpen, setDateOpen] = useState(true)
@@ -64,7 +63,7 @@ export const EventsMobileFilters = ({ eventCount, types, subTypes, hasActiveFilt
             </div>
             {typeOpen && (
               <div className="pb-4">
-                <EventsTypeFilter types={types} subTypes={subTypes} />
+                <EventsTypeFilter types={types} />
               </div>
             )}
           </div>
