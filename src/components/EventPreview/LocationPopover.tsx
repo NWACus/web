@@ -44,7 +44,6 @@ export const LocationPopover = ({ location }: LocationPopoverProps) => {
         <div className="flex gap-2">
           <CopyButton
             text={[
-              location.placeName,
               location.address,
               [location.city, location.state, location.zip].filter(Boolean).join(' '),
             ]
