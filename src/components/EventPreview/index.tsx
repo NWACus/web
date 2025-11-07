@@ -103,7 +103,7 @@ export const EventPreview = (props: {
 
           {title && (
             <div>
-              <Link href={eventUrl} className="mb-2">
+              <Link href={eventUrl ?? '#'} className="mb-2">
                 <h3 className="text-lg @lg:text-xl font-semibold leading-tight group-hover:underline">
                   {title}
                 </h3>
@@ -153,21 +153,23 @@ export const EventPreview = (props: {
               </Button>
             </Link>
           )}
-          <Link href={eventUrl}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="group-hover:opacity-90 transition-opacity"
-            >
-              Learn More
-            </Button>
-          </Link>
+          {eventUrl && (
+            <Link href={eventUrl}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="group-hover:opacity-90 transition-opacity"
+              >
+                Learn More
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
         {location && <LocationPopover location={location} />}
         <Link
-          href={eventUrl}
+          href={eventUrl ?? '#'}
           className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-40 @lg:h-auto"
         >
           {featuredImage && typeof featuredImage !== 'number' && (
