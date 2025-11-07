@@ -10,7 +10,14 @@ import { Button } from '../ui/button'
 
 export type PostPreviewData = Pick<
   Post,
-  'authors' | 'description' | 'featuredImage' | 'publishedAt' | 'slug' | 'title'
+  | 'authors'
+  | 'description'
+  | 'featuredImage'
+  | 'publishedAt'
+  | 'showAuthors'
+  | 'showDate'
+  | 'slug'
+  | 'title'
 >
 
 export const PostPreview = (props: {
@@ -23,7 +30,8 @@ export const PostPreview = (props: {
 
   if (!doc) return null
 
-  const { authors, description, featuredImage, publishedAt, slug, title } = doc
+  const { authors, description, featuredImage, publishedAt, slug, title, showAuthors, showDate } =
+    doc
 
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
@@ -54,8 +62,8 @@ export const PostPreview = (props: {
                   <AuthorAvatar
                     authors={authors ?? []}
                     date={publishedAt ?? ''}
-                    showAuthors={true}
-                    showDate={true}
+                    showAuthors={showAuthors ?? true}
+                    showDate={showDate ?? true}
                   />
                 )}
                 <h3 className="text-lg @lg:text-xl font-semibold mt-2 mb-2 leading-tight group-hover:underline">
