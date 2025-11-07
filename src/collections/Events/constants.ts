@@ -94,3 +94,101 @@ export const eventSubTypesData: EventSubType[] = [
     value: 'awareness-external',
   },
 ]
+
+interface QuickDateFilter {
+  id: string
+  label: string
+  startDate: () => string // Returns ISO date string
+  endDate: () => string | null // Returns ISO date string or null for "no end"
+  sortDirection: 'asc' | 'desc' // How events should be sorted for this filter
+}
+
+export const QUICK_DATE_FILTERS: QuickDateFilter[] = [
+  {
+    id: 'upcoming',
+    label: 'Upcoming',
+    startDate: () => new Date().toISOString().split('T')[0], // Today
+    endDate: () => null,
+    sortDirection: 'asc', // Soonest events first
+  },
+  {
+    id: 'this-week',
+    label: 'This Week',
+    startDate: () => {
+      const today = new Date()
+      return today.toISOString().split('T')[0]
+    },
+    endDate: () => {
+      const today = new Date()
+      const endOfWeek = new Date(today)
+      endOfWeek.setDate(today.getDate() + (6 - today.getDay())) // Next Saturday
+      return endOfWeek.toISOString().split('T')[0]
+    },
+    sortDirection: 'asc', // Soonest events first
+  },
+  {
+    id: 'next-week',
+    label: 'Next Week',
+    startDate: () => {
+      const today = new Date()
+      const nextSunday = new Date(today)
+      nextSunday.setDate(today.getDate() + (7 - today.getDay())) // Next Sunday
+      return nextSunday.toISOString().split('T')[0]
+    },
+    endDate: () => {
+      const today = new Date()
+      const nextSaturday = new Date(today)
+      nextSaturday.setDate(today.getDate() + (7 - today.getDay()) + 6) // Next Saturday
+      return nextSaturday.toISOString().split('T')[0]
+    },
+    sortDirection: 'asc', // Soonest events first
+  },
+  {
+    id: 'this-month',
+    label: 'This Month',
+    startDate: () => {
+      const today = new Date()
+      return today.toISOString().split('T')[0]
+    },
+    endDate: () => {
+      const today = new Date()
+      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      return lastDayOfMonth.toISOString().split('T')[0]
+    },
+    sortDirection: 'asc', // Soonest events first
+  },
+  {
+    id: 'next-month',
+    label: 'Next Month',
+    startDate: () => {
+      const today = new Date()
+      const firstDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+      return firstDayNextMonth.toISOString().split('T')[0]
+    },
+    endDate: () => {
+      const today = new Date()
+      const lastDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0)
+      return lastDayNextMonth.toISOString().split('T')[0]
+    },
+    sortDirection: 'asc', // Soonest events first
+  },
+  {
+    id: 'past-events',
+    label: 'Past Events',
+    startDate: () => {
+      // Start from 1 year ago
+      const today = new Date()
+      const oneYearAgo = new Date(today)
+      oneYearAgo.setFullYear(today.getFullYear() - 1)
+      return oneYearAgo.toISOString().split('T')[0]
+    },
+    endDate: () => {
+      // End at yesterday
+      const today = new Date()
+      const yesterday = new Date(today)
+      yesterday.setDate(today.getDate() - 1)
+      return yesterday.toISOString().split('T')[0]
+    },
+    sortDirection: 'desc', // Most recent events first
+  },
+]
