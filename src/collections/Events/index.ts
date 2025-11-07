@@ -11,6 +11,7 @@ import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
+import { locationField } from '@/fields/location'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
@@ -84,74 +85,7 @@ export const Events: CollectionConfig = {
         description: 'Event timezone',
       },
     },
-    {
-      name: 'location',
-      type: 'group',
-      fields: [
-        {
-          name: 'isVirtual',
-          type: 'checkbox',
-          admin: {
-            description: 'Check if this is an online/virtual event',
-          },
-        },
-        {
-          name: 'virtualUrl',
-          type: 'text',
-          admin: {
-            condition: (_data, siblingData) => siblingData?.isVirtual,
-            description: 'Meeting link for virtual events',
-          },
-        },
-        {
-          name: 'venue',
-          type: 'text',
-          admin: {
-            description: 'Venue name',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'address',
-          type: 'text',
-          admin: {
-            description: 'Street address',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'city',
-          type: 'text',
-          admin: {
-            description: 'City',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'state',
-          type: 'text',
-          admin: {
-            description: 'State',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'zip',
-          type: 'text',
-          admin: {
-            description: 'ZIP code',
-            condition: (data, siblingData) => !siblingData?.isVirtual,
-          },
-        },
-        {
-          name: 'extraInfo',
-          type: 'text',
-          admin: {
-            description: 'Extra location info (e.g., "Meet in lot 4")',
-          },
-        },
-      ],
-    },
+    locationField(),
     MetaImageField({
       hasGenerateFn: true,
       relationTo: 'media',

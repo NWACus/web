@@ -61,7 +61,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Mountain Community Center',
+        placeName: 'Mountain Community Center',
         address: '123 Alpine Way',
         city: 'North Bend',
         state: 'WA',
@@ -94,7 +94,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Backcountry Lodge',
+        placeName: 'Backcountry Lodge',
         address: '456 Summit Ridge Rd',
         city: 'Stevens Pass',
         state: 'WA',
@@ -129,7 +129,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Mountain View Snowpark',
+        placeName: 'Mountain View Snowpark',
         address: 'Forest Road 2510',
         city: 'Greenwater',
         state: 'WA',
@@ -194,7 +194,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Local Brewery Taproom',
+        placeName: 'Local Brewery Taproom',
         address: '789 Main Street',
         city: 'North Bend',
         state: 'WA',
@@ -228,7 +228,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Mountain Education Center',
+        placeName: 'Mountain Education Center',
         address: '567 Backcountry Road',
         city: 'Leavenworth',
         state: 'WA',
@@ -265,7 +265,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Alpine Skills Institute',
+        placeName: 'Alpine Skills Institute',
         address: '890 Summit Trail',
         city: 'Mazama',
         state: 'WA',
@@ -302,7 +302,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Snoqualmie Pass Parking Area',
+        placeName: 'Snoqualmie Pass Parking Area',
         address: 'Interstate 90, Exit 52',
         city: 'Snoqualmie Pass',
         state: 'WA',
@@ -339,7 +339,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Professional Mountain Training Center',
+        placeName: 'Professional Mountain Training Center',
         address: '234 Pro Peak Way',
         city: 'Crystal Mountain',
         state: 'WA',
@@ -376,7 +376,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Mountain Gear Outfitters',
+        placeName: 'Mountain Gear Outfitters',
         address: '345 Outdoor Way',
         city: 'Issaquah',
         state: 'WA',
@@ -412,7 +412,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Commonwealth Basin Trailhead',
+        placeName: 'Commonwealth Basin Trailhead',
         address: 'Interstate 90, Exit 52',
         city: 'Snoqualmie Pass',
         state: 'WA',
@@ -448,7 +448,7 @@ export const getEventsData = (
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
-        venue: 'Stevens Pass Nordic Center',
+        placeName: 'Stevens Pass Nordic Center',
         address: 'US Highway 2',
         city: 'Skykomish',
         state: 'WA',
