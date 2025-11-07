@@ -4143,10 +4143,6 @@ export interface Diagnostic {
  */
 export interface A3Management {
   id: number;
-  /**
-   * These users will receive notifications when new provider applications are submitted.
-   */
-  notificationReceivers?: (number | User)[] | null;
   providerManagerRole?: (number | null) | GlobalRole;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -4176,7 +4172,6 @@ export interface DiagnosticsSelect<T extends boolean = true> {
  * via the `definition` "a3Management_select".
  */
 export interface A3ManagementSelect<T extends boolean = true> {
-  notificationReceivers?: T;
   providerManagerRole?: T;
   updatedAt?: T;
   createdAt?: T;

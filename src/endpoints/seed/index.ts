@@ -629,18 +629,6 @@ export const seed = async ({
       },
     })
 
-    // Update A3 Management global with notification receivers now that users are created
-    await payload.updateGlobal({
-      slug: 'a3Management',
-      data: {
-        notificationReceivers: [users['Super Admin'].id, users['Provider Manager'].id],
-      },
-      depth: 0,
-      context: {
-        disableRevalidate: true,
-      },
-    })
-
     try {
       const requestHeaders = await headers()
       const { user } = await payload.auth({ headers: requestHeaders })
