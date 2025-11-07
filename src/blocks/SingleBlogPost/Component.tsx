@@ -21,7 +21,7 @@ export const SingleBlogPostBlockComponent = ({
   const bgColorClass = `bg-${backgroundColor}`
 
   return (
-    <div className={cn(bgColorClass && `${bgColorClass}`)}>
+    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
       <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
         <PostPreview doc={post} className={cn('not-prose')} />
       </div>
