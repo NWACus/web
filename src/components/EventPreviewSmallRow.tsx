@@ -4,7 +4,7 @@ import Link from 'next/link'
 import type { Event } from '@/payload-types'
 
 import { eventTypesData } from '@/collections/Events/constants'
-import { Calendar } from 'lucide-react'
+import { Calendar, MapPin } from 'lucide-react'
 import { ImageMedia } from './Media/ImageMedia'
 import { Badge } from './ui/badge'
 
@@ -32,6 +32,19 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
 
   const eventTypeDisplay = type ? eventTypesData.find((et) => et.value === type)?.label : null
 
+  // Build location display text with fallbacks
+  const getLocationText = () => {
+    if (!location) return null
+    if (location.isVirtual) return 'Virtual'
+    if (location.placeName) return location.placeName
+    if (location.city && location.state) return `${location.city}, ${location.state}`
+    if (location.city) return location.city
+    if (location.state) return location.state
+    return 'Location'
+  }
+
+  const locationText = getLocationText()
+
   return (
     <Link
       href={eventUrl}
@@ -58,13 +71,16 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
             <div className="text-xs text-muted-foreground">{eventTypeDisplay}</div>
           )}
           <h3 className="text-lg leading-tight group-hover:underline">{title}</h3>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col">
             {eventDate && <p className="text-sm text-muted-foreground">{eventDate}</p>}
-            {location?.isVirtual && (
-              <Badge variant="secondary" className="text-xs">
-                Virtual
-              </Badge>
+            {locationText && (
+              <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>{locationText}</span>
+              </div>
             )}
+          </div>
+          <div>
             {isPastEvent && (
               <Badge variant="outline" className="text-xs">
                 Past Event

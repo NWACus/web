@@ -105,6 +105,15 @@ export const TenantSelectionProviderClient = ({
     document.cookie = 'payload-tenant=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
   }, [])
 
+  const getTenantCookie = (): string | undefined => {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; payload-tenant=`)
+    if (parts.length === 2) {
+      return parts.pop()?.split(';').shift()
+    }
+    return undefined
+  }
+
   const setTenant = React.useCallback<ContextType['setTenant']>(
     ({ id, refresh }) => {
       if (id === undefined) {
@@ -186,7 +195,7 @@ export const TenantSelectionProviderClient = ({
   )
 
   React.useEffect(() => {
-    if (userChanged) {
+    if (userChanged || (initialValue && String(initialValue) !== getTenantCookie())) {
       if (userID) {
         // user logging in
         void syncTenants()
@@ -200,7 +209,7 @@ export const TenantSelectionProviderClient = ({
       }
       prevUserID.current = userID
     }
-  }, [userID, userChanged, syncTenants, deleteCookie, tenantOptions])
+  }, [userID, userChanged, syncTenants, deleteCookie, tenantOptions, initialValue])
 
   return (
     <span

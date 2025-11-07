@@ -9,6 +9,7 @@ import { EventMetadata } from '../EventMetadata'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
+import { LocationPopover } from './LocationPopover'
 
 export const EventPreview = (props: {
   alignItems?: 'center'
@@ -32,6 +33,7 @@ export const EventPreview = (props: {
     registrationDeadline,
     registrationUrl,
     type,
+    location,
   } = event
 
   const isPastEvent = startDate && new Date(startDate) < new Date()
@@ -49,12 +51,12 @@ export const EventPreview = (props: {
   return (
     <article
       className={cn(
-        'flex flex-col @md:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @md:p-6',
+        'flex flex-col @lg:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @lg:p-6',
         className,
       )}
     >
       {startDate && (
-        <div className="hidden @md:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0 p-4">
+        <div className="hidden @lg:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0 p-4">
           <div className="flex flex-col">
             <div className="text-2xl font-bold">{month}</div>
             <div className="text-2xl font-bold leading-none">{day}</div>
@@ -71,7 +73,7 @@ export const EventPreview = (props: {
 
           {title && (
             <div>
-              <Link href={eventUrl} className="mb-2">
+              <Link href={eventUrl ?? '#'} className="mb-2">
                 <h3 className="text-lg @lg:text-xl font-semibold leading-tight group-hover:underline">
                   {title}
                 </h3>
@@ -121,30 +123,34 @@ export const EventPreview = (props: {
               </Button>
             </Link>
           )}
-          <Link href={eventUrl}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="group-hover:opacity-90 transition-opacity"
-            >
-              Learn More
-            </Button>
-          </Link>
+          {eventUrl && (
+            <Link href={eventUrl}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="group-hover:opacity-90 transition-opacity"
+              >
+                Learn More
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
-
-      <Link
-        href={eventUrl}
-        className="w-full @md:w-48 @lg:w-56 @xl:w-64 @md:flex-shrink-0 h-40 @md:h-auto overflow-hidden rounded"
-      >
-        {featuredImage && typeof featuredImage !== 'number' && (
-          <ImageMedia
-            imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            resource={featuredImage}
-            pictureClassName="w-full h-full"
-          />
-        )}
-      </Link>
+      <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
+        {location && <LocationPopover location={location} />}
+        <Link
+          href={eventUrl ?? '#'}
+          className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-40 @lg:h-auto"
+        >
+          {featuredImage && typeof featuredImage !== 'number' && (
+            <ImageMedia
+              imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              resource={featuredImage}
+              pictureClassName="w-full h-full overflow-hidden rounded"
+            />
+          )}
+        </Link>
+      </div>
     </article>
   )
 }

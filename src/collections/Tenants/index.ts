@@ -9,6 +9,7 @@ import {
   updateEdgeConfigAfterDelete,
 } from '@/collections/Tenants/hooks/updateEdgeConfig'
 import { contentHashField } from '@/fields/contentHashField'
+import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
 import type { CollectionConfig } from 'payload'
 
 export const Tenants: CollectionConfig = {
@@ -17,6 +18,7 @@ export const Tenants: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: 'Permissions',
+    hidden: ({ user }) => hasReadOnlyAccess(user, 'tenants'),
   },
   labels: {
     plural: 'Avalanche Centers',
