@@ -1,6 +1,6 @@
 import { eventTypesData } from '@/collections/Events/constants'
 import colorPickerField from '@/fields/color'
-import { getTenantAndIdFilter } from '@/utilities/collectionFilters'
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
   BlocksFeature,
   HorizontalRuleFeature,
@@ -150,7 +150,7 @@ const staticEventRelatedFields: Field[] = [
         admin: {
           description: 'Choose new event from dropdown and/or drag and drop to change order',
         },
-        filterOptions: getTenantAndIdFilter,
+        filterOptions: getTenantFilter,
       },
     ],
   },

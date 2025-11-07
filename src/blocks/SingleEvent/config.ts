@@ -1,5 +1,5 @@
 import colorPickerField from '@/fields/color'
-import { getTenantAndIdFilter } from '@/utilities/collectionFilters'
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import type { Block, Field } from 'payload'
 
 const defaultFields: Field[] = [
@@ -12,7 +12,7 @@ const defaultFields: Field[] = [
     admin: {
       description: 'Select an event to display',
     },
-    filterOptions: getTenantAndIdFilter,
+    filterOptions: getTenantFilter,
   },
 ]
 

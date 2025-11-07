@@ -48,6 +48,13 @@ const isValidFullUrl = (url?: string | null): boolean => {
   }
 }
 
-export const validateExternalUrl: TextFieldSingleValidation = (val) =>
-  isValidFullUrl(val) ||
-  'URL must be a valid, full URL with http/https protocol. I.e. https://www.example.com.'
+export const validateExternalUrl: TextFieldSingleValidation = (val) => {
+  if (val == null || typeof val !== 'string' || val.trim() === '') {
+    return true // Allow empty values - add required: true to field if needed
+  }
+
+  return (
+    isValidFullUrl(val) ||
+    'URL must be a valid, full URL with http/https protocol. I.e. https://www.example.com.'
+  )
+}
