@@ -1,6 +1,7 @@
 import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e } from '@/blocks/BlogList/fields/QueriedPostsComponent'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
 import { QueriedEventsComponent as QueriedEventsComponent_65bd30cc675f775ebce6af07a79e525c } from '@/blocks/EventList/fields/QueriedEventsComponent'
+import { QueriedEventsComponent as QueriedEventsComponent_f2dcb9815766a4294d50909b2f64da85 } from '@/blocks/EventTable/fields/QueriedEventsComponent'
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de } from '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription'
 import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
@@ -106,6 +107,8 @@ export const importMap = {
     DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
   '@/blocks/EventList/fields/QueriedEventsComponent#QueriedEventsComponent':
     QueriedEventsComponent_65bd30cc675f775ebce6af07a79e525c,
+  '@/blocks/EventTable/fields/QueriedEventsComponent#QueriedEventsComponent':
+    QueriedEventsComponent_f2dcb9815766a4294d50909b2f64da85,
   '@payloadcms/plugin-seo/client#OverviewComponent':
     OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/plugin-seo/client#MetaImageComponent':

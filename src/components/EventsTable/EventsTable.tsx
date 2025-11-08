@@ -58,7 +58,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   // Get display address
   const getAddress = (event: Event) => {
     if (event.location?.isVirtual) {
-      return 'Virtual Event'
+      return ''
     }
     const { address, city, state, zip } = event.location || {}
     if (address) return address
@@ -70,17 +70,12 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   // Get display location (city/venue)
   const getLocation = (event: Event) => {
     if (event.location?.isVirtual) {
-      return 'Virtual'
+      return 'Online'
     }
     const { placeName, city, state } = event.location || {}
     if (placeName) return placeName
     if (city && state) return `${city}, ${state}`
     return 'TBA'
-  }
-
-  // Get in-person status for sorting
-  const getInPersonValue = (event: Event) => {
-    return !event.location?.isVirtual ? 1 : 0
   }
 
   // Sort function
@@ -90,10 +85,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
       let bValue = b[sortConfig.key as keyof Event]
 
       // Handle special cases
-      if (sortConfig.key === 'location') {
-        aValue = getInPersonValue(a)
-        bValue = getInPersonValue(b)
-      } else if (sortConfig.key === 'type') {
+      if (sortConfig.key === 'type') {
         aValue = getStatus(a).label
         bValue = getStatus(b).label
       }
@@ -155,77 +147,69 @@ export function EventTable({ events = [] }: { events: Event[] }) {
 
   return (
     <div className="w-full">
-      <div className="border-2 border-blue-500 rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="w-32">
-                <SortableHeader label="Date" sortKey="startDate" />
-              </TableHead>
-              <TableHead className="w-24">
-                <SortableHeader label="Time" sortKey="startDate" />
-              </TableHead>
-              <TableHead>
-                <SortableHeader label="Name" sortKey="title" />
-              </TableHead>
-              <TableHead className="w-24">
-                <SortableHeader label="Status" sortKey="type" />
-              </TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead className="w-20 text-center">
-                <SortableHeader label="In-Person" sortKey="location" />
-              </TableHead>
-              <TableHead className="w-24 text-center">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {displayedEvents.map((event) => {
-              const { date, time } = formatDateTime(event.startDate)
-              const status = getStatus(event)
-              const inPerson = !event.location?.isVirtual
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-50">
+            <TableHead className="w-32">
+              <SortableHeader label="Date" sortKey="startDate" />
+            </TableHead>
+            <TableHead className="w-24">
+              <SortableHeader label="Time" sortKey="startDate" />
+            </TableHead>
+            <TableHead>
+              <SortableHeader label="Name" sortKey="title" />
+            </TableHead>
+            <TableHead className="w-24">
+              <SortableHeader label="Status" sortKey="type" />
+            </TableHead>
+            <TableHead>Address</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Virtual</TableHead>
+            <TableHead className="w-24 text-center">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {displayedEvents.map((event) => {
+            const { date, time } = formatDateTime(event.startDate)
+            const status = getStatus(event)
+            const isVirtual = event.location?.isVirtual
 
-              return (
-                <TableRow key={event.id} className="hover:bg-gray-50 transition">
-                  <TableCell className="text-sm">{date}</TableCell>
-                  <TableCell className="text-sm">{time}</TableCell>
-                  <TableCell className="text-sm max-w-xs truncate">
-                    <a href={`#${event.id}`} className="text-blue-600 hover:underline">
-                      {event.title}
-                    </a>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${status.color}`}
+            return (
+              <TableRow key={event.id} className="hover:bg-gray-50 transition">
+                <TableCell className="text-sm">{date}</TableCell>
+                <TableCell className="text-sm">{time}</TableCell>
+                <TableCell className="text-sm max-w-xs truncate">{event.title}</TableCell>
+                <TableCell>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${status.color}`}
+                  >
+                    {status.label}
+                  </span>
+                </TableCell>
+                <TableCell className="text-sm">{getAddress(event)}</TableCell>
+                <TableCell className="text-sm">{getLocation(event)}</TableCell>
+                <TableCell className="text-center">
+                  {isVirtual && <span className="text-lg">✓</span>}
+                </TableCell>
+                <TableCell className="text-center">
+                  {event.registrationUrl ? (
+                    <a
+                      href={event.registrationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-lime-400 hover:bg-lime-500 text-black font-semibold text-sm rounded transition inline-block"
                     >
-                      {status.label}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-sm">{getAddress(event)}</TableCell>
-                  <TableCell className="text-sm">{getLocation(event)}</TableCell>
-                  <TableCell className="text-center">
-                    {inPerson && <span className="text-lg">✓</span>}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {event.registrationUrl ? (
-                      <a
-                        href={event.registrationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-lime-400 hover:bg-lime-500 text-black font-semibold text-sm rounded transition inline-block"
-                      >
-                        Register
-                      </a>
-                    ) : (
-                      <span className="text-gray-400 text-sm">—</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </div>
+                      Register
+                    </a>
+                  ) : (
+                    <span className="text-gray-400 text-sm">—</span>
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
 
       {/* Load More Button */}
       {hasMore && (

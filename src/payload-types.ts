@@ -316,6 +316,7 @@ export interface Page {
     | ContentBlock
     | DocumentBlock
     | EventListBlock
+    | EventTableBlock
     | SingleEventBlock
     | FormBlock
     | HeaderBlock
@@ -911,6 +912,21 @@ export interface EventGroup {
   tenant: number | Tenant;
   title: string;
   description?: string | null;
+  richText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   slug: string;
   contentHash?: string | null;
   updatedAt: string;
@@ -929,6 +945,61 @@ export interface EventTag {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventTableBlock".
+ */
+export interface EventTableBlock {
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the event table.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  eventOptions: 'dynamic' | 'static';
+  dynamicOptions?: {
+    /**
+     * Optionally select event types to filter events.
+     */
+    filterByEventTypes?:
+      | (
+          | 'events-by-ac'
+          | 'awareness'
+          | 'workshop'
+          | 'field-class-by-ac'
+          | 'course-by-external-provider'
+          | 'volunteer'
+        )[]
+      | null;
+    /**
+     * Maximum number of events that will be displayed. Must be an integer.
+     */
+    maxEvents?: number | null;
+    queriedEvents?: (number | Event)[] | null;
+  };
+  staticOptions?: {
+    /**
+     * Choose new event from dropdown and/or drag and drop to change order
+     */
+    staticEvents?: (number | Event)[] | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventTable';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3041,6 +3112,7 @@ export interface PagesSelect<T extends boolean = true> {
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
         eventList?: T | EventListBlockSelect<T>;
+        eventTable?: T | EventTableBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
@@ -3067,6 +3139,29 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventTableBlock_select".
+ */
+export interface EventTableBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  eventOptions?: T;
+  dynamicOptions?:
+    | T
+    | {
+        filterByEventTypes?: T;
+        maxEvents?: T;
+        queriedEvents?: T;
+      };
+  staticOptions?:
+    | T
+    | {
+        staticEvents?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3308,6 +3403,7 @@ export interface EventGroupsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   description?: T;
+  richText?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;
