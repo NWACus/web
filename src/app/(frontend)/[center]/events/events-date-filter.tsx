@@ -2,7 +2,6 @@
 import { QUICK_DATE_FILTERS } from '@/collections/Events/constants'
 import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
-import { X } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -92,8 +91,12 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
       <div className="hidden md:flex justify-between items-center">
         <h3 className="font-semibold my-2">Filter by date</h3>
         {filterType && filterType !== 'upcoming' && (
-          <Button onClick={() => handleQuickFilter('upcoming')} variant="ghost">
-            <X width={16} />
+          <Button
+            onClick={() => handleQuickFilter('upcoming')}
+            variant="ghost"
+            className="underline"
+          >
+            Clear
           </Button>
         )}
       </div>

@@ -4,7 +4,6 @@ import { EventType } from '@/collections/Events/constants'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { X } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -63,8 +62,8 @@ export const EventsTypeFilter = ({ types }: Props) => {
           <div className="hidden md:flex justify-between items-center">
             <h3 className="font-semibold my-2">Filter by type</h3>
             {selectedTypes.length > 0 && (
-              <Button onClick={clearFilter} variant="ghost">
-                <X width={16} />
+              <Button onClick={clearFilter} variant="ghost" className="underline">
+                Clear
               </Button>
             )}
           </div>
