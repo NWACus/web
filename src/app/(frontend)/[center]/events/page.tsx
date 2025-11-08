@@ -2,13 +2,15 @@ import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
 
-import { eventSubTypesData, eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/collections/Events/constants'
 import { EventCollection } from '@/components/EventCollection'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { EVENTS_LIMIT } from '@/utilities/constants'
 import { notFound } from 'next/navigation'
-import { EventsFilters } from './events-filters'
+import { EventsDatePicker } from './events-date-filter'
+import { EventsMobileFilters } from './events-mobile-filters'
+import { EventsTypeFilter } from './events-type-filter'
 
 type Args = {
   params: Promise<{
@@ -21,7 +23,8 @@ export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
   const resolvedSearchParams = await searchParams
   const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
-  const selectedSubTypes = resolvedSearchParams?.subtypes?.split(',').filter(Boolean)
+  const selectedStartDate = resolvedSearchParams?.startDate || ''
+  const selectedEndDate = resolvedSearchParams?.endDate || ''
 
   const payload = await getPayload({ config: configPromise })
 
@@ -41,42 +44,66 @@ export default async function Page({ params, searchParams }: Args) {
     return notFound()
   }
 
-  const orConditions: Where[] = []
+  const conditions: Where[] = [{ 'tenant.slug': { equals: center } }]
 
   if (selectedTypes?.length) {
-    orConditions.push({ type: { in: selectedTypes } })
+    conditions.push({ type: { in: selectedTypes } })
   }
 
-  if (selectedSubTypes?.length) {
-    orConditions.push({ subType: { in: selectedSubTypes } })
+  if (selectedStartDate && selectedEndDate) {
+    conditions.push({
+      startDate: {
+        greater_than_equal: selectedStartDate,
+        less_than_equal: selectedEndDate,
+      },
+    })
+  } else if (selectedStartDate) {
+    conditions.push({
+      startDate: {
+        greater_than_equal: selectedStartDate,
+      },
+    })
+  } else if (selectedEndDate) {
+    conditions.push({
+      startDate: {
+        less_than_equal: selectedEndDate,
+      },
+    })
   }
 
-  const whereConditions: Where = {
-    'tenant.slug': {
-      equals: center,
-    },
-  }
-
-  if (orConditions.length > 0) {
-    whereConditions.or = orConditions
-  }
-
+  const whereConditions: Where = { and: conditions }
   const events = await payload.find({
     collection: 'events',
     depth: 2,
     limit: EVENTS_LIMIT,
     where: whereConditions,
+    sort: 'startDate',
   })
+
+  const hasActiveFilters =
+    (selectedTypes && selectedTypes.length > 0) || selectedStartDate || selectedEndDate
 
   return (
     <div className="pt-4">
-      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
-        <div className="grow">
+      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
+        {/* Mobile Filter Toggle */}
+        <div className="md:hidden">
+          <EventsMobileFilters
+            types={eventTypesData}
+            hasActiveFilters={Boolean(hasActiveFilters)}
+            eventCount={events.totalDocs}
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="grow order-2 md:order-1">
           <EventCollection events={events.docs} />
         </div>
 
-        <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <EventsFilters types={eventTypesData} subTypes={eventSubTypesData} />
+        {/* Desktop Sidebar - Hidden on Mobile */}
+        <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
+          <EventsTypeFilter types={eventTypesData} />
+          <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
         </div>
       </div>
 

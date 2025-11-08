@@ -102,8 +102,15 @@ export const EventPreview = (props: {
             endDate={endDate}
             timezone={timezone}
             skillRating={skillRating}
-            className="flex flex-col mb-4"
+            className="columns-1 sm:columns-2"
           />
+          {location?.isVirtual ? (
+            <Badge variant="secondary" className="text-xs whitespace-nowrap not-italic my-2">
+              Virtual Event
+            </Badge>
+          ) : (
+            location && <LocationPopover location={location} />
+          )}
         </div>
 
         <div className="flex @sm:flex-col @md:flex-row gap-3">
@@ -140,16 +147,15 @@ export const EventPreview = (props: {
         </div>
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
-        {location && <LocationPopover location={location} />}
         <Link
           href={eventUrl}
-          className="w-full @md:hidden @lg:block @lg:w-56 @xl:w-64 @md:flex-shrink-0 h-40 @md:h-auto overflow-hidden rounded"
+          className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-full"
         >
           {thumbnailImage && typeof thumbnailImage !== 'number' && (
             <ImageMedia
               imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               resource={thumbnailImage}
-              pictureClassName="w-full h-full"
+              pictureClassName="w-full h-full overflow-hidden rounded"
             />
           )}
         </Link>
