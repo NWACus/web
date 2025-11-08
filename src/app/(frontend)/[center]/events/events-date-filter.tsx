@@ -1,10 +1,9 @@
 'use client'
 import { QUICK_DATE_FILTERS } from '@/collections/Events/constants'
+import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { X } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 type Props = {
@@ -102,10 +101,10 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
       <div className="mb-4 flex flex-wrap gap-2">
         {renderQuickFilterButton('upcoming')}
-        {renderQuickFilterButton('this-week')}
-        {renderQuickFilterButton('this-month')}
         {renderQuickFilterButton('next-week')}
+        {renderQuickFilterButton('this-week')}
         {renderQuickFilterButton('next-month')}
+        {renderQuickFilterButton('this-month')}
         {renderQuickFilterButton('past-events')}
 
         <Button
@@ -117,31 +116,22 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
         </Button>
       </div>
 
+      {/* Custom Date Range */}
       {filterType === 'custom' && (
-        <>
-          {/* Custom Date Range */}
-          <div>
-            <div className="flex gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400">Start Date</label>
-                <Input
-                  type="date"
-                  value={customStart}
-                  onChange={(e) => updateDateSelection('custom', e.target.value, customEnd)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400">End Date</label>
-                <Input
-                  type="date"
-                  value={customEnd}
-                  min={customStart}
-                  onChange={(e) => updateDateSelection('custom', customStart, e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-        </>
+        <div className="flex gap-4">
+          <DatePickerField
+            label="Start Date"
+            value={customStart}
+            id="customStart"
+            onChange={(date) => updateDateSelection('custom', date, customEnd)}
+          />
+          <DatePickerField
+            label="End Date"
+            value={customEnd}
+            id="customEnd"
+            onChange={(date) => updateDateSelection('custom', customStart, date)}
+          />
+        </div>
       )}
     </div>
   )

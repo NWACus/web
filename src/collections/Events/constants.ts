@@ -1,3 +1,15 @@
+import {
+  addDays,
+  addMonths,
+  endOfMonth,
+  endOfWeek,
+  format,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+  subYears,
+} from 'date-fns'
+
 export type EventType = {
   label: string
   value: string
@@ -103,92 +115,53 @@ interface QuickDateFilter {
   sortDirection: 'asc' | 'desc' // How events should be sorted for this filter
 }
 
-export const QUICK_DATE_FILTERS: QuickDateFilter[] = [
-  {
-    id: 'upcoming',
-    label: 'Upcoming',
-    startDate: () => new Date().toISOString().split('T')[0], // Today
-    endDate: () => null,
-    sortDirection: 'asc', // Soonest events first
-  },
-  {
-    id: 'this-week',
-    label: 'This Week',
-    startDate: () => {
-      const today = new Date()
-      return today.toISOString().split('T')[0]
+export const QUICK_DATE_FILTERS: QuickDateFilter[] = (() => {
+  const fmt = (date: Date) => format(date, 'MM-dd-yyyy')
+  const today = () => new Date()
+  const yesterday = () => subDays(today(), 1)
+
+  return [
+    {
+      id: 'upcoming',
+      label: 'Upcoming',
+      startDate: () => fmt(today()),
+      endDate: () => null,
+      sortDirection: 'asc',
     },
-    endDate: () => {
-      const today = new Date()
-      const endOfWeek = new Date(today)
-      endOfWeek.setDate(today.getDate() + (6 - today.getDay())) // Next Saturday
-      return endOfWeek.toISOString().split('T')[0]
+    {
+      id: 'this-week',
+      label: 'This Week',
+      startDate: () => fmt(today()),
+      endDate: () => fmt(endOfWeek(today(), { weekStartsOn: 0 })),
+      sortDirection: 'asc',
     },
-    sortDirection: 'asc', // Soonest events first
-  },
-  {
-    id: 'next-week',
-    label: 'Next Week',
-    startDate: () => {
-      const today = new Date()
-      const nextSunday = new Date(today)
-      nextSunday.setDate(today.getDate() + (7 - today.getDay())) // Next Sunday
-      return nextSunday.toISOString().split('T')[0]
+    {
+      id: 'next-week',
+      label: 'Next Week',
+      startDate: () => fmt(addDays(startOfWeek(today(), { weekStartsOn: 0 }), 7)),
+      endDate: () => fmt(endOfWeek(addDays(today(), 7), { weekStartsOn: 0 })),
+      sortDirection: 'asc',
     },
-    endDate: () => {
-      const today = new Date()
-      const nextSaturday = new Date(today)
-      nextSaturday.setDate(today.getDate() + (7 - today.getDay()) + 6) // Next Saturday
-      return nextSaturday.toISOString().split('T')[0]
+    {
+      id: 'this-month',
+      label: 'This Month',
+      startDate: () => fmt(today()),
+      endDate: () => fmt(endOfMonth(today())),
+      sortDirection: 'asc',
     },
-    sortDirection: 'asc', // Soonest events first
-  },
-  {
-    id: 'this-month',
-    label: 'This Month',
-    startDate: () => {
-      const today = new Date()
-      return today.toISOString().split('T')[0]
+    {
+      id: 'next-month',
+      label: 'Next Month',
+      startDate: () => fmt(startOfMonth(addMonths(today(), 1))),
+      endDate: () => fmt(endOfMonth(addMonths(today(), 1))),
+      sortDirection: 'asc',
     },
-    endDate: () => {
-      const today = new Date()
-      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-      return lastDayOfMonth.toISOString().split('T')[0]
+    {
+      id: 'past-events',
+      label: 'Past Events',
+      startDate: () => fmt(subYears(today(), 1)),
+      endDate: () => fmt(yesterday()),
+      sortDirection: 'desc',
     },
-    sortDirection: 'asc', // Soonest events first
-  },
-  {
-    id: 'next-month',
-    label: 'Next Month',
-    startDate: () => {
-      const today = new Date()
-      const firstDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-      return firstDayNextMonth.toISOString().split('T')[0]
-    },
-    endDate: () => {
-      const today = new Date()
-      const lastDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0)
-      return lastDayNextMonth.toISOString().split('T')[0]
-    },
-    sortDirection: 'asc', // Soonest events first
-  },
-  {
-    id: 'past-events',
-    label: 'Past Events',
-    startDate: () => {
-      // Start from 1 year ago
-      const today = new Date()
-      const oneYearAgo = new Date(today)
-      oneYearAgo.setFullYear(today.getFullYear() - 1)
-      return oneYearAgo.toISOString().split('T')[0]
-    },
-    endDate: () => {
-      // End at yesterday
-      const today = new Date()
-      const yesterday = new Date(today)
-      yesterday.setDate(today.getDate() - 1)
-      return yesterday.toISOString().split('T')[0]
-    },
-    sortDirection: 'desc', // Most recent events first
-  },
-]
+  ]
+})()
