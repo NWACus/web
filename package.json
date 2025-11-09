@@ -109,6 +109,7 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.0.1",
     "react-hook-form": "7.45.4",
+    "react-intersection-observer": "^10.0.0",
     "require-in-the-middle": "^7.5.2",
     "sharp": "0.33.5",
     "tailwind-merge": "^2.6.0",
