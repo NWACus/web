@@ -6,7 +6,6 @@ import EmailLayout from './_components/EmailLayout'
 export type ProviderApplicationApprovedProps = {
   appUrl: string
   providerName: string
-  applicantEmail: string
   courseTypes: string[]
 }
 
@@ -71,7 +70,6 @@ export function ProviderApplicationApproved({
 ProviderApplicationApproved.PreviewProps = {
   appUrl: 'http://localhost:3000',
   providerName: 'Mountain Safety Academy',
-  applicantEmail: 'contact@mountainsafety.com',
   courseTypes: ['rec-1', 'rec-2', 'pro-1'],
 } as ProviderApplicationApprovedProps
 

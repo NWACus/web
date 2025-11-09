@@ -41,27 +41,28 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
   // If there's only one published version (the current one), this is an initial approval
   const isInitialApproval = lastPublishedVersion.docs.length === 1
 
+  const providerEmail = doc.notificationEmail ?? doc.email
+
   if (isInitialApproval) {
     // Scenario 1: Provider was approved for the first time
     try {
       const emailContent = await generateProviderApplicationApproved({
         appUrl,
         providerName: doc.name,
-        applicantEmail: doc.email,
         courseTypes: doc.courseTypes || [],
       })
 
       await sendEmail({
-        to: doc.email,
+        to: providerEmail,
         subject: emailContent.subject,
         html: emailContent.html,
         text: emailContent.text,
       })
 
-      payload.logger.info(`Sent approval email to ${doc.email} for provider ${doc.name}`)
+      payload.logger.info(`Sent approval email to ${providerEmail} for provider ${doc.name}`)
     } catch (error) {
       payload.logger.error(
-        `Failed to send approval email to ${doc.email} for provider ${doc.name}: ${error}`,
+        `Failed to send approval email to ${providerEmail} for provider ${doc.name}: ${error}`,
       )
     }
   } else if (lastPublishedVersion.docs.length >= 2) {
@@ -82,22 +83,21 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
           appUrl,
           providerName: doc.name,
           courseTypes: currentCourseTypes,
-          applicantEmail: doc.email,
         })
 
         await sendEmail({
-          to: doc.email,
+          to: providerEmail,
           subject: emailContent.subject,
           html: emailContent.html,
           text: emailContent.text,
         })
 
         payload.logger.info(
-          `Sent course types updated email to ${doc.email} for provider ${doc.name}`,
+          `Sent course types updated email to ${providerEmail} for provider ${doc.name}`,
         )
       } catch (error) {
         payload.logger.error(
-          `Failed to send course types updated email to ${doc.email} for provider ${doc.name}: ${error}`,
+          `Failed to send course types updated email to ${providerEmail} for provider ${doc.name}: ${error}`,
         )
       }
     }
