@@ -72,7 +72,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const typeIds = filterByEventTypes.filter(Boolean)
 
           if (typeIds.length > 0) {
-            params.append('where[or][0][eventType][in]', typeIds.join(','))
+            params.append('where[type][in]', typeIds.join(','))
           }
         }
 

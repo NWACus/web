@@ -3,49 +3,30 @@ import { cn } from '@/utilities/ui'
 import type { Event } from '@/payload-types'
 
 import { eventTypesData } from '@/collections/Events/constants'
+import { Link } from '@payloadcms/ui'
 import { ExternalLink } from 'lucide-react'
-import Link from 'next/link'
-import { EventMetadata } from '../EventMetadata'
+import { EventInfo } from '../EventInfo'
+import { CMSLink } from '../Link'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { LocationPopover } from './LocationPopover'
 
-export type EventPreviewData = Pick<
-  Event,
-  | 'title'
-  | 'subtitle'
-  | 'description'
-  | 'slug'
-  | 'featuredImage'
-  | 'startDate'
-  | 'endDate'
-  | 'timezone'
-  | 'location'
-  | 'cost'
-  | 'capacity'
-  | 'skillRating'
-  | 'registrationDeadline'
-  | 'registrationUrl'
-  | 'externalEventUrl'
-  | 'type'
->
-
 export const EventPreview = (props: {
   alignItems?: 'center'
   className?: string
-  doc?: EventPreviewData
+  event?: Event
 }) => {
-  const { className, doc } = props
+  const { className, event } = props
 
-  if (!doc) return null
+  if (!event) return null
 
   const {
     title,
     subtitle,
     description,
     slug,
-    featuredImage,
+    thumbnailImage,
     startDate,
     endDate,
     timezone,
@@ -54,14 +35,15 @@ export const EventPreview = (props: {
     registrationUrl,
     type,
     location,
-  } = doc
+  } = event
 
   const isPastEvent = startDate && new Date(startDate) < new Date()
   const isRegistrationClosed = registrationDeadline && new Date(registrationDeadline) < new Date()
 
   const eventUrl = `/events/${slug}`
 
-  const eventTypeName = type ? eventTypesData.find((et) => et.value === type)?.label : null
+  const eventTypeDisplay = type ? eventTypesData.find((et) => et.value === type)?.label : null
+
   const parsedStartDate = new Date(startDate)
   const month = parsedStartDate.toLocaleDateString('en-US', { month: 'short' })
   const day = parsedStartDate.getDate()
@@ -75,19 +57,28 @@ export const EventPreview = (props: {
       )}
     >
       {startDate && (
-        <div className="hidden @lg:flex flex-col gap-1 -mt-1 items-center text-center flex-shrink-0 p-4">
-          <div className="flex flex-col">
+        <div className="hidden @md:flex flex-col min-w-[80px] gap-1 items-center text-center">
+          <div
+            className={cn('flex flex-col pt-4', {
+              'text-muted-foreground italic': isPastEvent,
+            })}
+          >
             <div className="text-2xl font-bold">{month}</div>
-            <div className="text-2xl font-bold leading-none">{day}</div>
+            <div className="text-2xl font-bold leading-none pb-1">{day}</div>
+            <div className="text-sm pb-2">{year}</div>
+            {isPastEvent && (
+              <Badge variant="secondary" className="text-xs whitespace-nowrap not-italic">
+                Past Event
+              </Badge>
+            )}
           </div>
-          <div className="text-sm">{year}</div>
         </div>
       )}
 
       <div className="flex flex-col justify-between flex-grow min-w-0">
         <div>
-          {eventTypeName && (
-            <div className="text-xs text-muted-foreground mb-2">{eventTypeName}</div>
+          {eventTypeDisplay && (
+            <div className="text-xs text-muted-foreground mb-2">{eventTypeDisplay}</div>
           )}
 
           {title && (
@@ -106,65 +97,64 @@ export const EventPreview = (props: {
               {description}
             </p>
           )}
-          <EventMetadata
+          <EventInfo
             startDate={startDate}
             endDate={endDate}
             timezone={timezone}
             skillRating={skillRating}
-            className="mb-4"
+            className="columns-1 sm:columns-2"
           />
-          {(isPastEvent || isRegistrationClosed) && (
-            <div className="flex gap-2 mb-2">
-              {isPastEvent && (
-                <Badge variant="secondary" className="text-xs">
-                  Past Event
-                </Badge>
-              )}
-              {isRegistrationClosed && !isPastEvent && (
-                <Badge variant="destructive" className="text-xs">
-                  Registration Closed
-                </Badge>
-              )}
-            </div>
+          {location?.isVirtual ? (
+            <Badge variant="secondary" className="text-xs whitespace-nowrap not-italic my-2">
+              Virtual Event
+            </Badge>
+          ) : (
+            location && <LocationPopover location={location} />
           )}
         </div>
 
-        <div className="flex gap-3">
-          {registrationUrl && (
-            <Link href={registrationUrl}>
+        <div className="flex @sm:flex-col @md:flex-row gap-3">
+          {registrationUrl &&
+            (isPastEvent || isRegistrationClosed ? (
               <Button
+                className="group-hover:opacity-90 transition-opacity"
+                size="sm"
                 variant="default"
+                disabled
+              >
+                Registration Closed
+                <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
+              </Button>
+            ) : (
+              <CMSLink
+                appearance="default"
                 size="sm"
                 className="group-hover:opacity-90 transition-opacity"
+                url={registrationUrl}
               >
                 Register
                 <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-              </Button>
-            </Link>
-          )}
-          {eventUrl && (
-            <Link href={eventUrl}>
-              <Button
-                variant="outline"
-                size="sm"
-                className="group-hover:opacity-90 transition-opacity"
-              >
-                Learn More
-              </Button>
-            </Link>
-          )}
+              </CMSLink>
+            ))}
+          <CMSLink
+            appearance="outline"
+            size="sm"
+            className="group-hover:opacity-90 transition-opacity"
+            url={eventUrl}
+          >
+            Learn More
+          </CMSLink>
         </div>
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
-        {location && <LocationPopover location={location} />}
         <Link
-          href={eventUrl ?? '#'}
-          className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-40 @lg:h-auto"
+          href={eventUrl}
+          className="flex flex-grow w-full @lg:w-48 @xl:w-56 @2xl:w-64 @lg:flex-shrink-0 h-full"
         >
-          {featuredImage && typeof featuredImage !== 'number' && (
+          {thumbnailImage && typeof thumbnailImage !== 'number' && (
             <ImageMedia
               imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              resource={featuredImage}
+              resource={thumbnailImage}
               pictureClassName="w-full h-full overflow-hidden rounded"
             />
           )}

@@ -19,14 +19,14 @@ export const LocationPopover = ({ location }: LocationPopoverProps) => {
   return (
     <Popover open={isLocationOpen} onOpenChange={setIsLocationOpen}>
       <PopoverTrigger className="min-w-0 max-w-full">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
-          <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
+        <div className="flex items-center gap-1.5 my-2 min-w-0 text-muted-foreground">
+          <MapPin className="h-5 w-5 mt-0.5 " />
+          <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0 text-sm ">
             {location.placeName}
           </p>
           <ChevronDown
             className={cn(
-              'h-5 w-5 flex-shrink-0 transition-transform duration-200',
+              'h-4 w-4 flex-shrink-0 transition-transform duration-200',
               isLocationOpen && 'rotate-180',
             )}
           />
@@ -53,7 +53,7 @@ export const LocationPopover = ({ location }: LocationPopoverProps) => {
           />
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-              [location.placeName, location.address, location.city, location.state, location.zip]
+              [location.address, location.city, location.state, location.zip]
                 .filter(Boolean)
                 .join(', '),
             )}`}

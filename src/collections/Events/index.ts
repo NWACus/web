@@ -17,6 +17,7 @@ import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
 import {
@@ -80,6 +81,12 @@ export const Events: CollectionConfig = {
       },
     }),
     {
+      name: 'thumbnailImage',
+      type: 'upload',
+      relationTo: 'media',
+      filterOptions: getImageTypeFilter,
+    },
+    {
       name: 'registrationUrl',
       type: 'text',
       admin: {
@@ -94,40 +101,45 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'registrationDeadline',
-      type: 'date',
-      admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
-        },
-        description: 'Registration cutoff',
-      },
-      validate: (value, { siblingData }) => {
-        const data = siblingData as { startDate?: string | Date }
-        if (value && data?.startDate) {
-          const registrationDeadline = new Date(value)
-          const startDate = new Date(data.startDate)
+      type: 'row',
+      fields: [
+        {
+          name: 'registrationDeadline',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+            description: 'Registration cutoff',
+          },
+          validate: (value, { siblingData }) => {
+            const data = siblingData as { startDate?: string | Date }
+            if (value && data?.startDate) {
+              const registrationDeadline = new Date(value)
+              const startDate = new Date(data.startDate)
 
-          if (registrationDeadline >= startDate) {
-            return 'Registration deadline must be before start date.'
-          }
-        }
-        return true
-      },
-    },
-    {
-      name: 'capacity',
-      type: 'number',
-      admin: {
-        description: 'Maximum attendees',
-      },
-    },
-    {
-      name: 'cost',
-      type: 'number',
-      admin: {
-        description: 'Event cost in dollars',
-      },
+              if (registrationDeadline >= startDate) {
+                return 'Registration deadline must be before start date.'
+              }
+            }
+            return true
+          },
+        },
+        {
+          name: 'capacity',
+          type: 'number',
+          admin: {
+            description: 'Maximum attendees',
+          },
+        },
+        {
+          name: 'cost',
+          type: 'number',
+          admin: {
+            description: 'Event cost in dollars',
+          },
+        },
+      ],
     },
     {
       name: 'skillRating',

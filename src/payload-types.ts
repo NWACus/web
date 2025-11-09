@@ -702,7 +702,7 @@ export interface EventListBlock {
      */
     sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
     /**
-     * Optionally select event types to filter events in this list by.
+     * Optionally select event types to filter events.
      */
     filterByEventTypes?:
       | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
@@ -843,6 +843,7 @@ export interface Event {
     extraInfo?: string | null;
   };
   featuredImage?: (number | null) | Media;
+  thumbnailImage?: (number | null) | Media;
   /**
    * External registration link
    */
@@ -3272,6 +3273,7 @@ export interface EventsSelect<T extends boolean = true> {
         extraInfo?: T;
       };
   featuredImage?: T;
+  thumbnailImage?: T;
   registrationUrl?: T;
   externalEventUrl?: T;
   registrationDeadline?: T;

@@ -82,14 +82,14 @@ const dynamicEventRelatedFields: Field[] = [
         name: 'filterByEventTypes',
         type: 'select',
         dbName: 'filterByEventTypes',
-        options: eventTypesData.map((eventType) => ({
-          label: eventType.label,
-          value: eventType.value,
+        options: eventTypesData.map((type) => ({
+          label: type.label,
+          value: type.value,
         })),
         hasMany: true,
         label: 'Filter by Event Type(s)',
         admin: {
-          description: 'Optionally select event types to filter events in this list by.',
+          description: 'Optionally select event types to filter events.',
         },
       },
       {

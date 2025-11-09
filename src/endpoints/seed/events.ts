@@ -5,6 +5,7 @@ import { RequiredDataFromCollectionSlug } from 'payload'
 export const getEventsData = (
   tenant: Tenant,
   featuredImage?: Media,
+  thumbnailImage?: Media,
 ): RequiredDataFromCollectionSlug<'events'>[] => {
   // Helper to create dates in the future
   const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
@@ -69,6 +70,7 @@ export const getEventsData = (
         extraInfo: 'Enter through main entrance, presentation in Room A',
       },
       featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/awareness-intro',
       capacity: 75,
       cost: 0,
@@ -103,6 +105,7 @@ export const getEventsData = (
         extraInfo: 'Meet at the lodge, dress for field work',
       },
       featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/snowpack-workshop',
       registrationDeadline: futureDate(2, 1, 23),
       capacity: 12,
@@ -139,6 +142,7 @@ export const getEventsData = (
         extraInfo: 'Meet in the main parking area, bring your sled',
       },
       featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/snowmobile-safety',
       registrationDeadline: futureDate(1, 15, 23),
       capacity: 16,
@@ -171,6 +175,7 @@ export const getEventsData = (
         extraInfo: 'Zoom link will be sent upon registration',
       },
       featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/virtual-awareness',
       capacity: 100,
       cost: 0,
@@ -206,6 +211,7 @@ export const getEventsData = (
         extraInfo: 'All ages welcome, food and beverages available for purchase',
       },
       featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/meet-forecasters',
       capacity: 50,
       cost: 0,
@@ -241,6 +247,7 @@ export const getEventsData = (
         extraInfo: 'Meet at the Commonwealth Basin parking area',
       },
       featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/womens-field-day',
       registrationDeadline: futureDate(2, 15, 23),
       capacity: 10,
@@ -278,6 +285,7 @@ export const getEventsData = (
         extraInfo: 'Meet at the Nordic Center lodge',
       },
       featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/observer-training',
       registrationDeadline: futureDate(1, 18, 23),
       capacity: 15,
