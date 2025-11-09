@@ -19,7 +19,7 @@ const defaultFields: Field[] = [
 const singleEventWithFields = (fields?: Field[]): Block => ({
   slug: 'singleEvent',
   interfaceName: 'SingleEventBlock',
-  imageURL: '/thumbnail/SingleBlogPostThumbnail.jpg',
+  imageURL: '/thumbnail/SingleEventThumbnail.jpg',
   fields: [...defaultFields, ...(fields ?? [])],
 })
 
