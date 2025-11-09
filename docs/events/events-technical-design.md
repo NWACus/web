@@ -161,27 +161,28 @@
 - [x] Initial, simple implementation
 - [x] Add modeOfTravel field to events. Options: ski, splitboard, motorized, snowshoe, any
 - [x] Update look and feel of EventsCollection to match initial designs and only include basic filters for now
-- [X] Add Event Groups and Event Tags i.e. another thing to group events by (this would represent an event series like multiple meet your forecasters or an attribute of an event like it being 21+ or Women Only/Women Taught or some other generic grouping like that)
-- [ ] Refactor EventTypes and EventSubTypes into hardcoded values + custom field for selecting these
-- [ ] Enhance EventsCollection UI filtering
-  - [ ] "Quick filters" for dates: this week, next week, this month, next month, January, February, etc.
-  - [ ] Custom dates filtering
-  - [ ] Indeterminate logic for event type -> sub type filters (i.e. you select the parent event type and all sub types are checked but then deselecting a sub type makes the parent type render as indeterminate and clicking it would set all as checked again, then all unchecked if clicked again)
-- [ ] Add draft and publish, autosave, preview to Events, Event Groups
-- [ ] Add a cover image and a thumbnail image to events collection instead of single featured image. Cover gets used on single event page at the top of the page - full width. Thumbnail gets used for EventPreview components.
-- [ ] Add a table of events component that can be used on landing pages for Event Types, Event SubTypes,single Event pages, Event Groups, etc. Just use on single Event page for now.
-- [ ] POC for location data that can be displayed on a map and used to filter results
-- [ ] POC for allowing ACs to control which events appear on their website. Probably a global collection that allows them to specify other avalanche centers and external courses (filtered by provider and/or location) that should show up on their website.
-
-- [ ] POC for event instances / events with multiple dates
+- [x] Add Event Groups and Event Tags i.e. another thing to group events by (this would represent an event series like multiple meet your forecasters or an attribute of an event like it being 21+ or Women Only/Women Taught or some other generic grouping like that)
+- [x] Refactor EventTypes and EventSubTypes into hardcoded values + custom field for selecting these
+- [x] Enhance EventsCollection UI filtering
+  - [x] "Quick filters" for dates: this week, next week, this month, next month, January, February, etc.
+  - [x] Custom dates filtering
+  - [x] ~~Indeterminate logic for event type -> sub type filters (i.e. you select the parent event type and all sub types are checked but then deselecting a sub type makes the parent type render as indeterminate and clicking it would set all as checked again, then all unchecked if clicked again)~~
+- [x] Add draft and publish, autosave, preview to Events, Event Groups
+- [x] Add a cover image and a thumbnail image to events collection instead of single featured image. Cover gets used on single event page at the top of the page - full width. Thumbnail gets used for EventPreview components.
+- [x] POC for location data that can be displayed on a map and used to filter results
 - [ ] Ensure revalidation is implemented for all new collections. See `/docs/revalidation.md`
 - [ ] Ensure migrations have been created
-- [ ] Mess around with Next.js scroll restoration behavior to ensure that navigating back to the /events page after "learning more" about an event lands you at the same scroll position so you don't lose your place in the list.
 
 ### A3 things
-- [ ] Handle internal vs. external events (i.e. external events have a relationship to a Course Provider / External Course Provider / Provider). Create collection representing Providers.
-- [ ] Handle global role setup for A3 event manager type users who can perform all actions on external events but they shouldn't be able to manage internal events associated with an avalanche center.
-- [ ] POC for a publishing workflow for providers to submit events and then have them approved (and the providers still need to be able to manage them after the fact -- potentially a v2 but good to consider now)
-- [ ] Simple embed of EventCollection with specific filters for third-parties to use on their websites
+- [x] Handle internal vs. external events (i.e. external events have a relationship to a Course Provider / External Course Provider / Provider). Create collection representing Providers.
+- [x] Handle global role setup for A3 event manager type users who can perform all actions on external events but they shouldn't be able to manage internal events associated with an avalanche center.
+- [x] POC for a publishing workflow for providers to submit events and then have them approved (and the providers still need to be able to manage them after the fact -- potentially a v2 but good to consider now)
+- [ ] Embed of courses list with specific filters for third-parties to use on their websites
+- [ ] Embed of providers list grouped by states they service
+
+### Future enhancements
+- [ ] POC for allowing ACs to control which events appear on their website. Probably a global collection that allows them to specify other avalanche centers and external courses (filtered by provider and/or location) that should show up on their website.
+- [ ] POC for event instances / events with multiple dates
+- [ ] Mess around with Next.js scroll restoration behavior to ensure that navigating back to the /events page after "learning more" about an event lands you at the same scroll position so you don't lose your place in the list.
 
 
