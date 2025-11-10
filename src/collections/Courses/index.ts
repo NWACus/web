@@ -5,6 +5,7 @@ import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { Course } from '@/payload-types'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
@@ -118,7 +119,7 @@ export const Courses: CollectionConfig = {
         description: 'Registration cutoff',
       },
       validate: (value, { siblingData }) => {
-        const data = siblingData as { startDate?: string | Date }
+        const data = siblingData as Partial<Course>
         if (value && data?.startDate) {
           const registrationDeadline = new Date(value)
           const startDate = new Date(data.startDate)
