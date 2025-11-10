@@ -89,3 +89,46 @@ export async function getSeedImageByFilename(filename: string, logger: Logger) {
     throw error
   }
 }
+
+// Helper to create dates in the future
+export const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
+  const date = new Date()
+  date.setMonth(date.getMonth() + monthOffset)
+  date.setDate(day)
+  date.setHours(hour, 0, 0, 0)
+  return date.toISOString()
+}
+
+// Helper to create properly formatted lexical text nodes
+export const textNode = (text: string) => ({
+  type: 'text',
+  detail: 0,
+  format: 0,
+  mode: 'normal' as const,
+  style: '',
+  text,
+  version: 1,
+})
+
+// Helper to create properly formatted lexical paragraph nodes
+export const paragraphNode = (text: string) => ({
+  type: 'paragraph',
+  children: [textNode(text)],
+  direction: 'ltr' as const,
+  format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
+  indent: 0,
+  textFormat: 0,
+  version: 1,
+})
+
+// Helper to create simple content with just paragraphs
+export const simpleContent = (...paragraphs: string[]) => ({
+  root: {
+    type: 'root',
+    children: paragraphs.map(paragraphNode),
+    direction: 'ltr' as const,
+    format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
+    indent: 0,
+    version: 1,
+  },
+})

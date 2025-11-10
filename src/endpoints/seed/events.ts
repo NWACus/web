@@ -1,55 +1,13 @@
 import { Media, Tenant } from '@/payload-types'
 import { US_TIMEZONES } from '@/utilities/timezones'
 import { RequiredDataFromCollectionSlug } from 'payload'
+import { futureDate, simpleContent } from './utilities'
 
 export const getEventsData = (
   tenant: Tenant,
   featuredImage?: Media,
   thumbnailImage?: Media,
 ): RequiredDataFromCollectionSlug<'events'>[] => {
-  // Helper to create dates in the future
-  const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
-    const date = new Date()
-    date.setMonth(date.getMonth() + monthOffset)
-    date.setDate(day)
-    date.setHours(hour, 0, 0, 0)
-    return date.toISOString()
-  }
-
-  // Helper to create properly formatted lexical text nodes
-  const textNode = (text: string) => ({
-    type: 'text',
-    detail: 0,
-    format: 0,
-    mode: 'normal' as const,
-    style: '',
-    text,
-    version: 1,
-  })
-
-  // Helper to create properly formatted lexical paragraph nodes
-  const paragraphNode = (text: string) => ({
-    type: 'paragraph',
-    children: [textNode(text)],
-    direction: 'ltr' as const,
-    format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
-    indent: 0,
-    textFormat: 0,
-    version: 1,
-  })
-
-  // Helper to create simple content with just paragraphs
-  const simpleContent = (...paragraphs: string[]) => ({
-    root: {
-      type: 'root',
-      children: paragraphs.map(paragraphNode),
-      direction: 'ltr' as const,
-      format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
-      indent: 0,
-      version: 1,
-    },
-  })
-
   return [
     // Awareness event - Free beginner-friendly
     {

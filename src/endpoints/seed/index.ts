@@ -1,6 +1,6 @@
 import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
-import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
+import { getPath, getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
 import { Form, Tenant } from '@/payload-types'
 import fs from 'fs'
 import { headers } from 'next/headers'
@@ -306,25 +306,6 @@ export const seed = async ({
         ],
       },
     ])
-
-    // Event groups
-    await upsert(
-      'eventGroups',
-      payload,
-      incremental,
-      tenantsById,
-      (obj) => obj.slug,
-      Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'eventGroups'>[] => [
-          {
-            title: 'Meet Your Forecaster',
-            description: 'Meet your local avalanche forecasters & learn more about your avy center',
-            slug: 'meet-your-forecaster',
-            tenant: tenant.id,
-          },
-        ])
-        .flat(),
-    )
 
     // Event tags
     await upsert(
@@ -908,6 +889,30 @@ export const seed = async ({
             images[tenant.slug]['imageMountain'],
           )
         })
+        .flat(),
+    )
+    // Event groups
+    await upsert(
+      'eventGroups',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'eventGroups'>[] => [
+          {
+            title: 'Meet Your Forecaster',
+            description: 'Meet your local avalanche forecasters & learn more about your avy center',
+            slug: 'meet-your-forecaster',
+            tenant: tenant.id,
+            content: simpleContent(
+              'Learn the basics of avalanche safety in this free community presentation. Topics include: understanding avalanche terrain, reading avalanche forecasts, essential rescue equipment, and trip planning basics.',
+              'No previous experience necessary. This event is open to all.',
+            ),
+            thumbnailImage: images[tenant.slug]['imageMountain'],
+            featuredImage: images[tenant.slug]['image1'],
+          },
+        ])
         .flat(),
     )
 

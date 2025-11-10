@@ -912,7 +912,7 @@ export interface EventGroup {
   tenant: number | Tenant;
   title: string;
   description?: string | null;
-  richText?: {
+  content: {
     root: {
       type: string;
       children: {
@@ -926,8 +926,10 @@ export interface EventGroup {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
+  };
   slug: string;
+  featuredImage?: (number | null) | Media;
+  thumbnailImage?: (number | null) | Media;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -3403,8 +3405,10 @@ export interface EventGroupsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   description?: T;
-  richText?: T;
+  content?: T;
   slug?: T;
+  featuredImage?: T;
+  thumbnailImage?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

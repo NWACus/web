@@ -1,18 +1,13 @@
-import { Redirects } from '@/components/Redirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
-import { EventInfo } from '@/components/EventInfo'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
-import { Button } from '@/components/ui/button'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { cn } from '@/utilities/ui'
 import { Metadata, ResolvedMetadata } from 'next'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
 
 export const dynamicParams = true
 
@@ -26,11 +21,6 @@ export async function generateStaticParams() {
     select: {
       tenant: true,
       slug: true,
-    },
-    where: {
-      _status: {
-        equals: 'published',
-      },
     },
   })
 
@@ -57,22 +47,10 @@ type PathArgs = {
   slug: string
 }
 
-export default async function Event({ params: paramsPromise }: Args) {
+export default async function EventGroup({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center, slug } = await paramsPromise
-  const url = '/events/' + slug
   const event = await queryEventBySlug({ center: center, slug: slug })
-
-  if (!event) return <Redirects center={center} url={url} />
-
-  // If there's an external event URL, redirect to it
-  if (event.externalEventUrl && !draft) {
-    redirect(event.externalEventUrl)
-  }
-
-  const isPastEvent = event.startDate && new Date(event.startDate) < new Date()
-  const isRegistrationClosed =
-    event.registrationDeadline && new Date(event.registrationDeadline) < new Date()
 
   return (
     <article className={cn('pt-4 pb-16', { 'pt-8': !event.featuredImage })}>
@@ -89,64 +67,15 @@ export default async function Event({ params: paramsPromise }: Args) {
         <div className={cn('container z-10', { 'mt-40': event.featuredImage })}>
           <div className="max-w-[48rem] mx-auto mb-8">
             <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
+              <div className="prose dark:prose-invert max-w-[48rem] mx-auto">
                 <h1 className="font-bold mb-2">{event.title}</h1>
-                {event.subtitle && (
-                  <p className="text-xl text-muted-foreground mt-0">{event.subtitle}</p>
-                )}
               </div>
-
-              <EventInfo
-                startDate={event.startDate}
-                endDate={event.endDate}
-                timezone={event.timezone}
-                location={event.location}
-                cost={event.cost}
-                capacity={event.capacity}
-                skillRating={event.skillRating}
-                showLabels={true}
-                className="columns-1 sm:columns-2"
-                itemsClassName="break-inside-avoid mb-4"
-              />
-
-              {/* Registration Information */}
-              {event.registrationUrl && (
-                <div className="mt-6 pt-6 border-t">
-                  {event.registrationDeadline && (
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Registration deadline:{' '}
-                      {new Date(event.registrationDeadline).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        ...(event.timezone && { timeZone: event.timezone }),
-                      })}
-                    </p>
-                  )}
-                  {!isPastEvent && !isRegistrationClosed ? (
-                    <Button asChild size="lg" className="w-full md:w-auto">
-                      <Link href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                        Register for Event
-                      </Link>
-                    </Button>
-                  ) : (
-                    <p className="text-destructive font-medium">
-                      {isPastEvent ? 'This event has passed' : 'Registration is closed'}
-                    </p>
-                  )}
-                </div>
-              )}
+              <div className="mt-6 pt-6 border-t">{event.description}</div>
             </div>
           </div>
 
           {event.content && (
-            <RichText
-              className="prose max-w-[48rem] mx-auto"
-              data={event.content}
-              enableGutter={false}
-            />
+            <RichText className="prose mx-auto" data={event.content} enableGutter={false} />
           )}
         </div>
       </div>
@@ -171,7 +100,7 @@ const queryEventBySlug = async ({ center, slug }: { center: string; slug: string
   const payload = await getPayload({ config: configPromise })
 
   const result = await payload.find({
-    collection: 'events',
+    collection: 'eventGroups',
     draft,
     limit: 1,
     pagination: false,
