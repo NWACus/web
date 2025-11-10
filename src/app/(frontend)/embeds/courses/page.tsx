@@ -11,8 +11,8 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
   const params = await searchParams
 
   // Extract filter parameters
-  const backgroundColor = params.backgroundColor as string
-  const title = (params.title as string) || 'Courses'
+  const backgroundColor = params.backgroundColor
+  const title = params.title
   const types = params.types as string
   const showPast = params.showPast as string
   const providers = params.providers as string
@@ -34,23 +34,24 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
     endDate,
   }
 
-  const { courses, hasMore, total } = await getCourses({
+  const { courses, hasMore } = await getCourses({
     ...filters,
     offset: 0,
     limit: 20,
   })
 
   return (
-    <div className="min-h-screen p-6" style={backgroundColor ? { backgroundColor } : undefined}>
-      <div className="max-w-4xl mx-auto">
+    <div
+      style={
+        backgroundColor && typeof backgroundColor === 'string' ? { backgroundColor } : undefined
+      }
+    >
+      {title && (
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-2">{title}</h1>
-          <p className="text-sm text-muted-foreground">
-            {total} course{total !== 1 ? 's' : ''} found
-          </p>
         </div>
-        <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
-      </div>
+      )}
+      <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
     </div>
   )
 }
