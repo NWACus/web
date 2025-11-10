@@ -77,10 +77,6 @@ export const Users: CollectionConfig = {
       hasMany: true,
       saveToJWT: true,
       maxDepth: 3,
-      // TODO
-      // access: {
-
-      // }
     },
     {
       name: 'inviteToken',
