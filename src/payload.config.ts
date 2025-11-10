@@ -39,6 +39,9 @@ import { plugins } from '@/plugins'
 import { getURL } from '@/utilities/getURL'
 import { getProductionTenantUrls } from '@/utilities/tenancy/getProductionTenantUrls'
 import { getTenantSubdomainUrls } from '@/utilities/tenancy/getTenantSubdomainUrls'
+import { Courses } from './collections/Courses'
+import { Providers } from './collections/Providers'
+import { A3Management } from './globals/A3Management/config'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -171,6 +174,9 @@ export default buildConfig({
     Events,
     EventGroups,
     EventTags,
+    // Courses
+    Providers,
+    Courses,
     // Staff
     Biographies,
     Teams,
@@ -197,7 +203,7 @@ export default buildConfig({
     ...(await getTenantSubdomainUrls()),
     ...(await getProductionTenantUrls()),
   ].filter(Boolean),
-  globals: [NACWidgetsConfig, DiagnosticsConfig],
+  globals: [NACWidgetsConfig, DiagnosticsConfig, A3Management],
   graphQL: {
     disable: true,
   },

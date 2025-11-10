@@ -26,7 +26,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
   const filterByEventTypes = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['filterByEventTypes']).join('.')]?.value,
   )
-
   const sortBy = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['sortBy']).join('.')]?.value,
   )

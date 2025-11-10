@@ -78,6 +78,8 @@ export interface Config {
     events: Event;
     eventGroups: EventGroup;
     eventTags: EventTag;
+    providers: Provider;
+    courses: Course;
     biographies: Biography;
     teams: Team;
     users: User;
@@ -96,6 +98,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    providers: {
+      courses: 'courses';
+    };
     users: {
       roles: 'roleAssignments';
       globalRoleAssignments: 'globalRoleAssignments';
@@ -113,6 +118,8 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
     eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
+    providers: ProvidersSelect<false> | ProvidersSelect<true>;
+    courses: CoursesSelect<false> | CoursesSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -136,10 +143,12 @@ export interface Config {
   globals: {
     nacWidgetsConfig: NacWidgetsConfig;
     diagnostics: Diagnostic;
+    a3Management: A3Management;
   };
   globalsSelect: {
     nacWidgetsConfig: NacWidgetsConfigSelect<false> | NacWidgetsConfigSelect<true>;
     diagnostics: DiagnosticsSelect<false> | DiagnosticsSelect<true>;
+    a3Management: A3ManagementSelect<false> | A3ManagementSelect<true>;
   };
   locale: null;
   user: User & {
@@ -696,14 +705,7 @@ export interface EventListBlock {
      * Optionally select event types to filter events.
      */
     filterByEventTypes?:
-      | (
-          | 'events-by-ac'
-          | 'awareness'
-          | 'workshop'
-          | 'field-class-by-ac'
-          | 'course-by-external-provider'
-          | 'volunteer'
-        )[]
+      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
       | null;
     /**
      * Only display events that have not yet occurred.
@@ -890,18 +892,15 @@ export interface Event {
       }[]
     | null;
   slug: string;
-  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'course-by-external-provider' | 'volunteer';
-  subType?: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external') | null;
+  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others';
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
-  /**
-   * Mode of travel for this event
-   */
-  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe' | 'any') | null;
-  tenant?: (number | null) | Tenant;
+  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
+  tenant: number | Tenant;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1480,6 +1479,270 @@ export interface Team {
   createdAt: string;
 }
 /**
+ * Note: This information will be displayed on your public provider listing.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "providers".
+ */
+export interface Provider {
+  id: number;
+  name: string;
+  details?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  /**
+   * Your organization's business address.
+   */
+  location?: {
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+  };
+  statesServiced: (
+    | 'AL'
+    | 'AK'
+    | 'AZ'
+    | 'AR'
+    | 'CA'
+    | 'CO'
+    | 'CT'
+    | 'DE'
+    | 'FL'
+    | 'GA'
+    | 'HI'
+    | 'ID'
+    | 'IL'
+    | 'IN'
+    | 'IA'
+    | 'KS'
+    | 'KY'
+    | 'LA'
+    | 'ME'
+    | 'MD'
+    | 'MA'
+    | 'MI'
+    | 'MN'
+    | 'MS'
+    | 'MO'
+    | 'MT'
+    | 'NE'
+    | 'NV'
+    | 'NH'
+    | 'NJ'
+    | 'NM'
+    | 'NY'
+    | 'NC'
+    | 'ND'
+    | 'OH'
+    | 'OK'
+    | 'OR'
+    | 'PA'
+    | 'RI'
+    | 'SC'
+    | 'SD'
+    | 'TN'
+    | 'TX'
+    | 'UT'
+    | 'VT'
+    | 'VA'
+    | 'WA'
+    | 'WV'
+    | 'WI'
+    | 'WY'
+    | 'DC'
+  )[];
+  courses?: {
+    docs?: (number | Course)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  slug: string;
+  /**
+   * This email will be used for email notifications. Defaults to the contact email if not specified.
+   */
+  notificationEmail?: string | null;
+  /**
+   * These are the course types this provider is approved to create.
+   */
+  courseTypes: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: number;
+  title: string;
+  /**
+   * Optional subtitle/tagline for the event
+   */
+  subtitle?: string | null;
+  /**
+   * Short description/summary for event previews
+   */
+  description?: string | null;
+  startDate: string;
+  /**
+   * Optional end date for multi-day events
+   */
+  endDate?: string | null;
+  /**
+   * Event timezone
+   */
+  timezone?:
+    | (
+        | 'America/New_York'
+        | 'America/Chicago'
+        | 'America/Denver'
+        | 'America/Los_Angeles'
+        | 'America/Anchorage'
+        | 'America/Honolulu'
+      )
+    | null;
+  location: {
+    placeName: string;
+    address?: string | null;
+    city?: string | null;
+    state:
+      | 'AL'
+      | 'AK'
+      | 'AZ'
+      | 'AR'
+      | 'CA'
+      | 'CO'
+      | 'CT'
+      | 'DE'
+      | 'FL'
+      | 'GA'
+      | 'HI'
+      | 'ID'
+      | 'IL'
+      | 'IN'
+      | 'IA'
+      | 'KS'
+      | 'KY'
+      | 'LA'
+      | 'ME'
+      | 'MD'
+      | 'MA'
+      | 'MI'
+      | 'MN'
+      | 'MS'
+      | 'MO'
+      | 'MT'
+      | 'NE'
+      | 'NV'
+      | 'NH'
+      | 'NJ'
+      | 'NM'
+      | 'NY'
+      | 'NC'
+      | 'ND'
+      | 'OH'
+      | 'OK'
+      | 'OR'
+      | 'PA'
+      | 'RI'
+      | 'SC'
+      | 'SD'
+      | 'TN'
+      | 'TX'
+      | 'UT'
+      | 'VT'
+      | 'VA'
+      | 'WA'
+      | 'WV'
+      | 'WI'
+      | 'WY'
+      | 'DC';
+    zip?: string | null;
+    country?: 'US' | null;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    coordinates?: [number, number] | null;
+  };
+  /**
+   * External registration link or landing page link
+   */
+  courseUrl?: string | null;
+  /**
+   * Registration cutoff
+   */
+  registrationDeadline?: string | null;
+  slug: string;
+  courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
+  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
+  affinityGroups?: ('lgbtq' | 'womens-specific' | 'youth-specific')[] | null;
+  provider?: (number | null) | Provider;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -1499,6 +1762,7 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  providers?: (number | Provider)[] | null;
   inviteToken?: string | null;
   inviteExpiration?: string | null;
   lastLogin?: string | null;
@@ -2316,6 +2580,14 @@ export interface PayloadLockedDocument {
         value: number | EventTag;
       } | null)
     | ({
+        relationTo: 'providers';
+        value: number | Provider;
+      } | null)
+    | ({
+        relationTo: 'courses';
+        value: number | Course;
+      } | null)
+    | ({
         relationTo: 'biographies';
         value: number | Biography;
       } | null)
@@ -3019,7 +3291,6 @@ export interface EventsSelect<T extends boolean = true> {
       };
   slug?: T;
   type?: T;
-  subType?: T;
   eventGroups?: T;
   eventTags?: T;
   modeOfTravel?: T;
@@ -3027,6 +3298,7 @@ export interface EventsSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3053,6 +3325,69 @@ export interface EventTagsSelect<T extends boolean = true> {
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "providers_select".
+ */
+export interface ProvidersSelect<T extends boolean = true> {
+  name?: T;
+  details?: T;
+  email?: T;
+  phone?: T;
+  website?: T;
+  location?:
+    | T
+    | {
+        address?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+      };
+  statesServiced?: T;
+  courses?: T;
+  slug?: T;
+  notificationEmail?: T;
+  courseTypes?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses_select".
+ */
+export interface CoursesSelect<T extends boolean = true> {
+  title?: T;
+  subtitle?: T;
+  description?: T;
+  startDate?: T;
+  endDate?: T;
+  timezone?: T;
+  location?:
+    | T
+    | {
+        placeName?: T;
+        address?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+        coordinates?: T;
+      };
+  courseUrl?: T;
+  registrationDeadline?: T;
+  slug?: T;
+  courseType?: T;
+  modeOfTravel?: T;
+  affinityGroups?: T;
+  provider?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3089,6 +3424,7 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
   globalRoleAssignments?: T;
+  providers?: T;
   inviteToken?: T;
   inviteExpiration?: T;
   lastLogin?: T;
@@ -3802,6 +4138,18 @@ export interface Diagnostic {
   createdAt?: string | null;
 }
 /**
+ * Manage settings for American Avalanche Association (A3) features like external event management.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "a3Management".
+ */
+export interface A3Management {
+  id: number;
+  providerManagerRole?: (number | null) | GlobalRole;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "nacWidgetsConfig_select".
  */
@@ -3817,6 +4165,16 @@ export interface NacWidgetsConfigSelect<T extends boolean = true> {
  * via the `definition` "diagnostics_select".
  */
 export interface DiagnosticsSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "a3Management_select".
+ */
+export interface A3ManagementSelect<T extends boolean = true> {
+  providerManagerRole?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

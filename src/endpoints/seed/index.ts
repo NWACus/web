@@ -16,6 +16,7 @@ import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
+import { seedCourses } from './courses'
 import { getEventsData } from './events'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
@@ -27,6 +28,7 @@ import { contact as contactPageData } from './pages/contact-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
+import { seedProviders } from './providers'
 import { sponsors } from './sponsors'
 
 const collections: CollectionSlug[] = [
@@ -169,8 +171,29 @@ export const seed = async ({
             },
           ],
         },
+        {
+          name: 'Provider Manager',
+          rules: [
+            {
+              collections: ['providers'],
+              actions: ['*'],
+            },
+          ],
+        },
       ],
     )
+
+    // Set up A3 Management global with Provider Manager role (notification receivers set later after users are created)
+    await payload.updateGlobal({
+      slug: 'a3Management',
+      data: {
+        providerManagerRole: globalRoles['Provider Manager'].id,
+      },
+      depth: 0,
+      context: {
+        disableRevalidate: true,
+      },
+    })
 
     const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
       {
@@ -554,6 +577,31 @@ export const seed = async ({
         email: 'multicenter@avy.com',
         password: password,
       },
+      {
+        name: 'Provider Manager',
+        email: 'provider-manager@avy.com',
+        password: password,
+      },
+      {
+        name: 'Sarah Johnson',
+        email: 'sarah@alpineskills.com',
+        password: password,
+      },
+      {
+        name: 'Mike Torres',
+        email: 'mike@mountainedu.com',
+        password: password,
+      },
+      {
+        name: 'Emma Chen',
+        email: 'emma@backcountryalliance.org',
+        password: password,
+      },
+      {
+        name: 'Alex Rivera',
+        email: 'alex@proavatraining.com',
+        password: password,
+      },
     ])
 
     const { teams, bios } = await seedStaff(payload, incremental, tenants, tenantsById)
@@ -564,6 +612,17 @@ export const seed = async ({
       data: {
         user: users['Super Admin'].id,
         globalRole: globalRoles['Super Admin'].id,
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    await payload.create({
+      collection: 'globalRoleAssignments',
+      data: {
+        user: users['Provider Manager'].id,
+        globalRole: globalRoles['Provider Manager'].id,
       },
       context: {
         disableRevalidate: true,
@@ -682,6 +741,7 @@ export const seed = async ({
         ])
         .flat(),
     )
+
     // Tags
     const tags = await upsert(
       'tags',
@@ -709,6 +769,7 @@ export const seed = async ({
         ])
         .flat(),
     )
+
     const posts = await upsert(
       'posts',
       payload,
@@ -732,7 +793,9 @@ export const seed = async ({
 
     payload.logger.info(`— Updating post relationships...`)
     for (const tenant in posts) {
-      Object.values(posts[tenant]).forEach(async (post, index) => {
+      const postsArray = Object.values(posts[tenant])
+      for (let index = 0; index < postsArray.length; index++) {
+        const post = postsArray[index]
         payload.logger.info(
           `Updating posts['${tenantsById[typeof post.tenant === 'number' ? post.tenant : post.tenant.id].slug}']['${post.slug}']...`,
         )
@@ -751,8 +814,84 @@ export const seed = async ({
             disableRevalidate: true,
           },
         })
-      })
+      }
     }
+
+    // Providers
+    payload.logger.info(`— Seeding providers...`)
+    await seedProviders(payload, incremental)
+
+    // Get providers for relationship assignments
+    const allProviders = await payload.find({
+      collection: 'providers',
+      limit: 100,
+    })
+    const providers = {
+      'Alpine Skills International': allProviders.docs.find(
+        (p) => p.name === 'Alpine Skills International',
+      ),
+      'Mountain Education Center': allProviders.docs.find(
+        (p) => p.name === 'Mountain Education Center',
+      ),
+      'Backcountry Alliance': allProviders.docs.find((p) => p.name === 'Backcountry Alliance'),
+      'Pro Avalanche Training': allProviders.docs.find((p) => p.name === 'Pro Avalanche Training'),
+    }
+
+    // Courses
+    payload.logger.info(`— Seeding courses...`)
+    await seedCourses(payload, incremental, providers)
+
+    // Assign provider relationships to users
+    payload.logger.info(`— Assigning provider relationships to users...`)
+    await payload.update({
+      collection: 'users',
+      id: users['Sarah Johnson'].id,
+      data: {
+        providers: [providers['Alpine Skills International']?.id],
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    await payload.update({
+      collection: 'users',
+      id: users['Mike Torres'].id,
+      data: {
+        providers: [providers['Mountain Education Center']?.id],
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    await payload.update({
+      collection: 'users',
+      id: users['Emma Chen'].id,
+      data: {
+        providers: [
+          providers['Backcountry Alliance']?.id,
+          providers['Mountain Education Center']?.id,
+        ],
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    await payload.update({
+      collection: 'users',
+      id: users['Alex Rivera'].id,
+      data: {
+        providers: [
+          providers['Pro Avalanche Training']?.id,
+          providers['Alpine Skills International']?.id,
+        ],
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
 
     // Events
     const events = await upsert(
@@ -1177,5 +1316,7 @@ export const seed = async ({
     payload.logger.error(
       `Error occurred during seed: ${err instanceof Error ? err.message : 'Unknown error'}`,
     )
+    payload.logger.error(err)
+    throw err
   }
 }

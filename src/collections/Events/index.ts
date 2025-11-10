@@ -1,4 +1,4 @@
-import { accessByTenantRoleWithPermissiveRead } from '@/access/byTenantRole'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
@@ -12,7 +12,10 @@ import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
+import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { slugField } from '@/fields/slug'
+import { startAndEndDateField } from '@/fields/startAndEndDateField'
+import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
@@ -25,13 +28,11 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
-import { eventSubTypesData, eventTypesData } from './constants'
-
-const typesWithSubTypes = [...new Set(eventSubTypesData.map((item) => item.eventType))]
+import { eventTypesData } from './constants'
 
 export const Events: CollectionConfig = {
   slug: 'events',
-  access: accessByTenantRoleWithPermissiveRead('events'),
+  access: accessByTenantRole('events'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Events',
@@ -58,31 +59,7 @@ export const Events: CollectionConfig = {
         description: 'Short description/summary for event previews',
       },
     },
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'startDate',
-          type: 'date',
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-          },
-        },
-        {
-          name: 'endDate',
-          type: 'date',
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-            description: 'Optional end date for multi-day events',
-          },
-        },
-      ],
-    },
+    startAndEndDateField(),
     {
       name: 'timezone',
       type: 'select',
@@ -134,6 +111,18 @@ export const Events: CollectionConfig = {
               pickerAppearance: 'dayAndTime',
             },
             description: 'Registration cutoff',
+          },
+          validate: (value, { siblingData }) => {
+            const data = siblingData as { startDate?: string | Date }
+            if (value && data?.startDate) {
+              const registrationDeadline = new Date(value)
+              const startDate = new Date(data.startDate)
+
+              if (registrationDeadline >= startDate) {
+                return 'Registration deadline must be before start date.'
+              }
+            }
+            return true
           },
         },
         {
@@ -202,31 +191,31 @@ export const Events: CollectionConfig = {
           }),
           required: true,
         },
-      ],
-    },
-    // Hidden field to track blocks embedded in content for revalidation purposes
-    {
-      name: 'blocksInContent',
-      type: 'array',
-      access: {
-        update: () => false,
-      },
-      admin: {
-        disabled: true,
-        readOnly: true,
-      },
-      fields: [
+        // Hidden field to track blocks embedded in content for revalidation purposes
         {
-          name: 'blockType',
-          type: 'text',
-        },
-        {
-          name: 'collection',
-          type: 'text',
-        },
-        {
-          name: 'docId',
-          type: 'number',
+          name: 'blocksInContent',
+          type: 'array',
+          access: {
+            update: () => false,
+          },
+          admin: {
+            disabled: true,
+            readOnly: true,
+          },
+          fields: [
+            {
+              name: 'blockType',
+              type: 'text',
+            },
+            {
+              name: 'collection',
+              type: 'text',
+            },
+            {
+              name: 'docId',
+              type: 'number',
+            },
+          ],
         },
       ],
     },
@@ -240,46 +229,10 @@ export const Events: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
-      hooks: {
-        beforeChange: [
-          ({ value, siblingData }) => {
-            if (typesWithSubTypes.includes(value)) {
-              siblingData.eventSubType = undefined
-            }
-            return value
-          },
-        ],
-      },
       options: eventTypesData.map((eventType) => ({
         label: eventType.label,
         value: eventType.value,
       })),
-    },
-    {
-      name: 'subType',
-      type: 'select',
-      required: true,
-      admin: {
-        position: 'sidebar',
-        condition: (_, siblingData) => typesWithSubTypes.includes(siblingData?.type),
-      },
-      options: eventSubTypesData.map((eventSubType) => ({
-        label: eventSubType.label,
-        value: eventSubType.value,
-      })),
-      filterOptions: ({ data, options }) => {
-        if (!data.type) return options
-
-        // Get all allowed values for the selected eventType from the data
-        const allowedValues = eventSubTypesData
-          .filter((subType) => subType.eventType === data.type)
-          .map((subType) => subType.value)
-
-        return options.filter((option) => {
-          const optionValue = typeof option === 'string' ? option : option.value
-          return allowedValues.includes(optionValue)
-        })
-      },
     },
     {
       name: 'eventGroups',
@@ -299,50 +252,19 @@ export const Events: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    {
-      name: 'modeOfTravel',
-      type: 'select',
-      options: [
-        { label: 'Ski', value: 'ski' },
-        { label: 'Splitboard', value: 'splitboard' },
-        { label: 'Motorized', value: 'motorized' },
-        { label: 'Snowshoe', value: 'snowshoe' },
-        { label: 'Any', value: 'any' },
-      ],
-      admin: {
-        position: 'sidebar',
-        description: 'Mode of travel for this event',
-      },
-    },
-    {
-      name: 'tenant',
-      type: 'relationship',
-      admin: {
-        allowCreate: false,
-        allowEdit: false,
-        position: 'sidebar',
-        // TODO: need a slightly different TenantFieldComponent with custom logic for optional tenant fields like this (maybe abstract this optional tenant field into it's own field fn)
-        // should set to the current tenant if the admin panel is tenant-scoped (i.e. the user has only one tenant), should be selectable if the user has access to multiple tenants
-        // components: {
-        //   Field: {
-        //     clientProps: {
-        //       debug: false,
-        //       unique: false,
-        //     },
-        //     path: '@/fields/tenantField/TenantFieldComponent#TenantFieldComponent',
-        //   },
-        // },
-      },
-      maxDepth: 3,
-      index: true,
-      label: 'Avalanche Center',
-      relationTo: 'tenants',
-    },
+    modeOfTravelField(),
+    tenantField(),
     contentHashField(),
   ],
   hooks: {
     beforeChange: [populatePublishedAt, populateBlocksInContent],
     // TODO: need revalidation hooks here
     // TODO: need to update revalidation utilities to look for this blocksInContent field for relationships in addition to Posts and Home Pages
+  },
+  versions: {
+    drafts: {
+      autosave: true,
+    },
+    maxPerDoc: 10,
   },
 }
