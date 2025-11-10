@@ -27,6 +27,8 @@ import { quickLinksField } from '@/fields/quickLinksFields'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { Tenant } from '@/payload-types'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
+import { isTenantValue } from '@/utilities/isTenantValue'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import {
   BlocksFeature,
   HorizontalRuleFeature,
@@ -49,34 +51,27 @@ export const HomePages: CollectionConfig = {
     group: 'Content',
     livePreview: {
       url: async ({ data, req }) => {
-        let tenant = data.tenant
+        let tenant: Partial<Tenant> | null = null
 
-        if (typeof tenant === 'number') {
-          tenant = await req.payload.findByID({
-            collection: 'tenants',
-            id: tenant,
-            depth: 2,
-          })
+        if (isTenantValue(data.tenant)) {
+          tenant = await resolveTenant(data.tenant)
         }
 
-        const path = generatePreviewPath({
+        return generatePreviewPath({
           slug: '',
           collection: 'pages',
           tenant,
           req,
         })
-
-        return path
       },
     },
-    preview: (data, { req }) => {
-      const tenant =
-        data.tenant &&
-        typeof data.tenant === 'object' &&
-        'id' in data.tenant &&
-        'slug' in data.tenant
-          ? (data.tenant as Tenant)
-          : null
+    preview: async (data, { req }) => {
+      let tenant: Partial<Tenant> | null = null
+
+      if (isTenantValue(data.tenant)) {
+        tenant = await resolveTenant(data.tenant)
+      }
+
       return generatePreviewPath({
         slug: '',
         collection: 'pages',

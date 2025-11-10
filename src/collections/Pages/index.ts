@@ -36,6 +36,8 @@ import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 import { Tenant } from '@/payload-types'
+import { isTenantValue } from '@/utilities/isTenantValue'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -52,34 +54,27 @@ export const Pages: CollectionConfig<'pages'> = {
     baseListFilter: filterByTenant,
     livePreview: {
       url: async ({ data, req }) => {
-        let tenant = data.tenant
+        let tenant: Partial<Tenant> | null = null
 
-        if (typeof tenant === 'number') {
-          tenant = await req.payload.findByID({
-            collection: 'tenants',
-            id: tenant,
-            depth: 2,
-          })
+        if (isTenantValue(data.tenant)) {
+          tenant = await resolveTenant(data.tenant)
         }
 
-        const path = generatePreviewPath({
+        return generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'pages',
           tenant,
           req,
         })
-
-        return path
       },
     },
-    preview: (data, { req }) => {
-      const tenant =
-        data.tenant &&
-        typeof data.tenant === 'object' &&
-        'id' in data.tenant &&
-        'slug' in data.tenant
-          ? (data.tenant as Tenant)
-          : null
+    preview: async (data, { req }) => {
+      let tenant: Partial<Tenant> | null = null
+
+      if (isTenantValue(data.tenant)) {
+        tenant = await resolveTenant(data.tenant)
+      }
+
       return generatePreviewPath({
         slug: typeof data.slug === 'string' ? data.slug : '',
         collection: 'pages',

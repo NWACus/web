@@ -3,7 +3,10 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { navLink } from '@/fields/navLink'
 import { tenantField } from '@/fields/tenantField'
+import { Tenant } from '@/payload-types'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
+import { isTenantValue } from '@/utilities/isTenantValue'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { CollectionConfig } from 'payload'
 import { topLevelNavTab } from './fields/topLevelNavTab'
 import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
@@ -25,24 +28,18 @@ export const Navigations: CollectionConfig = {
     group: 'Settings',
     livePreview: {
       url: async ({ data, req }) => {
-        let tenant = data.tenant
+        let tenant: Partial<Tenant> | null = null
 
-        if (typeof tenant === 'number') {
-          tenant = await req.payload.findByID({
-            collection: 'tenants',
-            id: tenant,
-            depth: 2,
-          })
+        if (isTenantValue(data.tenant)) {
+          tenant = await resolveTenant(data.tenant)
         }
 
-        const path = generatePreviewPath({
+        return generatePreviewPath({
           slug: '',
           collection: 'pages',
           tenant,
           req,
         })
-
-        return path
       },
     },
   },
