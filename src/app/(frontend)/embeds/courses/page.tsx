@@ -1,5 +1,13 @@
 import { getCourses } from '@/actions/getCourses'
+import { getProviders } from '@/actions/getProviders'
 import { CoursesList } from '@/components/CoursesList'
+import { CoursesAffinityFilter } from './courses-affinity-filter'
+import { CoursesDateFilter } from './courses-date-filter'
+import { CoursesLocationFilter } from './courses-location-filter'
+import { CoursesMobileFilters } from './courses-mobile-filters'
+import { CoursesProviderFilter } from './courses-provider-filter'
+import { CoursesTravelFilter } from './courses-travel-filter'
+import { CoursesTypeFilter } from './courses-type-filter'
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -13,6 +21,7 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
   // Extract filter parameters
   const backgroundColor = params.backgroundColor
   const title = params.title
+  const showFilters = params.showFilters === 'true'
   const types = params.types as string
   const showPast = params.showPast as string
   const providers = params.providers as string
@@ -34,24 +43,87 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
     endDate,
   }
 
-  const { courses, hasMore } = await getCourses({
+  const { courses, hasMore, total } = await getCourses({
     ...filters,
     offset: 0,
     limit: 20,
   })
+
+  // Fetch providers if filters are enabled
+  const { providers: providersList } = showFilters ? await getProviders() : { providers: [] }
+
+  // Check if any filters are active
+  const hasActiveFilters = Boolean(
+    types ||
+      providers ||
+      states ||
+      affinityGroups ||
+      modesOfTravel ||
+      startDate ||
+      endDate ||
+      showPast === 'true',
+  )
+
+  if (!showFilters) {
+    return (
+      <div
+        style={
+          backgroundColor && typeof backgroundColor === 'string' ? { backgroundColor } : undefined
+        }
+      >
+        {title && (
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold mb-2">{title}</h1>
+          </div>
+        )}
+        <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
+      </div>
+    )
+  }
 
   return (
     <div
       style={
         backgroundColor && typeof backgroundColor === 'string' ? { backgroundColor } : undefined
       }
+      className="p-4"
     >
       {title && (
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-2">{title}</h1>
         </div>
       )}
-      <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
+
+      {/* Mobile Filters Button */}
+      <div className="md:hidden mb-4">
+        <CoursesMobileFilters
+          courseCount={total}
+          providers={providersList}
+          hasActiveFilters={hasActiveFilters}
+          startDate={startDate || ''}
+          endDate={endDate || ''}
+        />
+      </div>
+
+      {/* Desktop Layout with Sidebar */}
+      <div className="flex gap-6">
+        {/* Main Content */}
+        <div className="flex-1">
+          <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
+        </div>
+
+        {/* Desktop Filters Sidebar */}
+        <aside className="hidden md:block w-80 flex-shrink-0">
+          <div className="sticky top-4">
+            <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
+            <CoursesTypeFilter />
+            <CoursesProviderFilter providers={providersList} />
+            <CoursesLocationFilter />
+            <CoursesAffinityFilter />
+            <CoursesTravelFilter />
+          </div>
+        </aside>
+      </div>
     </div>
   )
 }

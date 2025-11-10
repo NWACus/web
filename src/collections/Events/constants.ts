@@ -1,14 +1,4 @@
-import {
-  addDays,
-  addMonths,
-  endOfMonth,
-  endOfWeek,
-  format,
-  startOfMonth,
-  startOfWeek,
-  subDays,
-  subYears,
-} from 'date-fns'
+import { QUICK_DATE_FILTERS_EVENTS } from '@/constants/quickDateFilters'
 
 export type EventType = {
   label: string
@@ -54,61 +44,4 @@ export const eventTypesData: EventType[] = [
   },
 ]
 
-interface QuickDateFilter {
-  id: string
-  label: string
-  startDate: () => string // Returns ISO date string
-  endDate: () => string | null // Returns ISO date string or null for "no end"
-  sortDirection: 'asc' | 'desc' // How events should be sorted for this filter
-}
-
-export const QUICK_DATE_FILTERS: QuickDateFilter[] = (() => {
-  const fmt = (date: Date) => format(date, 'MM-dd-yyyy')
-  const today = () => new Date()
-  const yesterday = () => subDays(today(), 1)
-
-  return [
-    {
-      id: 'upcoming',
-      label: 'Upcoming',
-      startDate: () => fmt(today()),
-      endDate: () => null,
-      sortDirection: 'asc',
-    },
-    {
-      id: 'this-week',
-      label: 'This Week',
-      startDate: () => fmt(today()),
-      endDate: () => fmt(endOfWeek(today(), { weekStartsOn: 0 })),
-      sortDirection: 'asc',
-    },
-    {
-      id: 'next-week',
-      label: 'Next Week',
-      startDate: () => fmt(addDays(startOfWeek(today(), { weekStartsOn: 0 }), 7)),
-      endDate: () => fmt(endOfWeek(addDays(today(), 7), { weekStartsOn: 0 })),
-      sortDirection: 'asc',
-    },
-    {
-      id: 'this-month',
-      label: 'This Month',
-      startDate: () => fmt(today()),
-      endDate: () => fmt(endOfMonth(today())),
-      sortDirection: 'asc',
-    },
-    {
-      id: 'next-month',
-      label: 'Next Month',
-      startDate: () => fmt(startOfMonth(addMonths(today(), 1))),
-      endDate: () => fmt(endOfMonth(addMonths(today(), 1))),
-      sortDirection: 'asc',
-    },
-    {
-      id: 'past-events',
-      label: 'Past Events',
-      startDate: () => fmt(subYears(today(), 1)),
-      endDate: () => fmt(yesterday()),
-      sortDirection: 'desc',
-    },
-  ]
-})()
+export const QUICK_DATE_FILTERS = QUICK_DATE_FILTERS_EVENTS

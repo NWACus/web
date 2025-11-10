@@ -108,7 +108,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
         {renderQuickFilterButton('this-week')}
         {renderQuickFilterButton('next-month')}
         {renderQuickFilterButton('this-month')}
-        {renderQuickFilterButton('past-events')}
+        {renderQuickFilterButton('past')}
 
         <Button
           onClick={() => handleQuickFilter('custom')}

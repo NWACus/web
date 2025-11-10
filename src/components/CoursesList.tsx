@@ -3,7 +3,8 @@
 import { getCourses, type GetCoursesParams } from '@/actions/getCourses'
 import type { Course } from '@/payload-types'
 import { Loader2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { CoursePreviewSmallRow } from './CoursePreviewSmallRow'
 
@@ -18,11 +19,44 @@ export const CoursesList = ({ initialCourses, initialHasMore, filters }: Courses
   const [offset, setOffset] = useState(initialCourses.length)
   const [hasMoreData, setHasMoreData] = useState(initialHasMore)
   const [isLoading, setIsLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const previousParamsRef = useRef<string>(searchParams.toString())
 
   const { ref, inView } = useInView({
     threshold: 0,
     triggerOnce: false,
   })
+
+  // Reset courses when URL search params change
+  useEffect(() => {
+    const currentParams = searchParams.toString()
+
+    // Only refetch if params actually changed
+    if (currentParams !== previousParamsRef.current) {
+      previousParamsRef.current = currentParams
+
+      const resetAndFetch = async () => {
+        setIsLoading(true)
+        try {
+          const result = await getCourses({
+            ...filters,
+            offset: 0,
+            limit: 20,
+          })
+
+          setCourses(result.courses)
+          setOffset(result.courses.length)
+          setHasMoreData(result.hasMore)
+        } catch (error) {
+          console.error('Error fetching courses:', error)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+
+      resetAndFetch()
+    }
+  }, [searchParams, filters])
 
   useEffect(() => {
     if (inView && hasMoreData && !isLoading) {
