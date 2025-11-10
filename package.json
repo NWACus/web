@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.4",
-    "@payloadcms/admin-bar": "3.61.1",
+    "@payloadcms/admin-bar": "3.63.0",
     "@payloadcms/db-sqlite": "3.61.1",
     "@payloadcms/email-nodemailer": "3.61.1",
     "@payloadcms/email-resend": "3.61.1",
