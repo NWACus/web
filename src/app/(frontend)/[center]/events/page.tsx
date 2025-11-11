@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload, Where } from 'payload'
 
-import { eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData, QUICK_DATE_FILTERS } from '@/collections/Events/constants'
 import { EventCollection } from '@/components/EventCollection'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
@@ -23,8 +23,17 @@ export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
   const resolvedSearchParams = await searchParams
   const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
-  const selectedStartDate = resolvedSearchParams?.startDate || ''
-  const selectedEndDate = resolvedSearchParams?.endDate || ''
+  let selectedStartDate = resolvedSearchParams?.startDate || ''
+  let selectedEndDate = resolvedSearchParams?.endDate || ''
+
+  // Apply "upcoming" filter by default if no dates are provided
+  if (!selectedStartDate && !selectedEndDate) {
+    const upcomingFilter = QUICK_DATE_FILTERS.find((f) => f.id === 'upcoming')
+    if (upcomingFilter) {
+      selectedStartDate = upcomingFilter.startDate()
+      selectedEndDate = upcomingFilter.endDate() || ''
+    }
+  }
 
   const payload = await getPayload({ config: configPromise })
 
