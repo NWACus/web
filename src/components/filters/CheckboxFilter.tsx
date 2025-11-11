@@ -110,19 +110,18 @@ export const CheckboxFilter = ({
             <ul className={listClasses}>
               {options.map((option) => (
                 <li key={option.value}>
-                  <div
-                    className="cursor-pointer flex items-center"
-                    onClick={() => toggleValue(option.value)}
+                  <Label
+                    htmlFor={option.value}
+                    className="cursor-pointer flex items-center text-md"
                   >
                     <Checkbox
                       id={option.value}
                       className="mr-2"
                       checked={selectedValues.includes(option.value)}
+                      onCheckedChange={() => toggleValue(option.value)}
                     />
-                    <Label htmlFor={option.value} className="text-md">
-                      {option.label}
-                    </Label>
-                  </div>
+                    <span>{option.label}</span>
+                  </Label>
                 </li>
               ))}
             </ul>
