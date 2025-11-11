@@ -42,7 +42,7 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
     endDate,
   }
 
-  const { courses, hasMore, total } = await getCourses({
+  const { courses, hasMore, total, error } = await getCourses({
     ...filters,
   })
 
@@ -82,7 +82,12 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
 
       <div className="flex gap-6">
         <div className="flex-1">
-          <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
+          <CoursesList
+            initialCourses={courses}
+            initialHasMore={hasMore}
+            initialError={error}
+            filters={filters}
+          />
         </div>
         {showFilters && (
           <aside className="hidden md:block w-80 flex-shrink-0">

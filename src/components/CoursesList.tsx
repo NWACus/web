@@ -2,23 +2,31 @@
 
 import { getCourses, type GetCoursesParams } from '@/actions/getCourses'
 import type { Course } from '@/payload-types'
-import { Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { CoursePreviewSmallRow } from './CoursePreviewSmallRow'
+import { Card } from './ui/card'
 
 interface CoursesListProps {
   initialCourses: Course[]
   initialHasMore: boolean
+  initialError?: string
   filters: GetCoursesParams
 }
 
-export const CoursesList = ({ initialCourses, initialHasMore, filters }: CoursesListProps) => {
+export const CoursesList = ({
+  initialCourses,
+  initialHasMore,
+  initialError,
+  filters,
+}: CoursesListProps) => {
   const [courses, setCourses] = useState<Course[]>(initialCourses)
   const [offset, setOffset] = useState(initialCourses.length)
   const [hasMoreData, setHasMoreData] = useState(initialHasMore)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(initialError || null)
   const searchParams = useSearchParams()
   const previousParamsRef = useRef<string>(searchParams.toString())
 
@@ -40,17 +48,24 @@ export const CoursesList = ({ initialCourses, initialHasMore, filters }: Courses
 
       const resetAndFetch = async () => {
         setIsLoading(true)
+        setError(null)
         try {
           const result = await getCourses({
             ...stableFilters,
             offset: 0,
           })
 
-          setCourses(result.courses)
-          setOffset(result.courses.length)
-          setHasMoreData(result.hasMore)
-        } catch (error) {
-          console.error('Error fetching courses:', error)
+          if (result.error) {
+            setError(result.error)
+            setCourses([])
+            setHasMoreData(false)
+          } else {
+            setCourses(result.courses)
+            setOffset(result.courses.length)
+            setHasMoreData(result.hasMore)
+          }
+        } catch (_error) {
+          setError('An unexpected error occurred. Please try again.')
         } finally {
           setIsLoading(false)
         }
@@ -70,16 +85,22 @@ export const CoursesList = ({ initialCourses, initialHasMore, filters }: Courses
             offset,
           })
 
-          // Deduplicate courses by ID to prevent duplicate key errors
-          setCourses((prevCourses) => {
-            const existingIds = new Set(prevCourses.map((course) => course.id))
-            const newCourses = result.courses.filter((course) => !existingIds.has(course.id))
-            return [...prevCourses, ...newCourses]
-          })
-          setOffset((prevOffset) => prevOffset + result.courses.length)
-          setHasMoreData(result.hasMore)
-        } catch (error) {
-          console.error('Error loading more courses:', error)
+          if (result.error) {
+            setError(result.error)
+            setHasMoreData(false)
+          } else {
+            // Deduplicate courses by ID to prevent duplicate key errors
+            setCourses((prevCourses) => {
+              const existingIds = new Set(prevCourses.map((course) => course.id))
+              const newCourses = result.courses.filter((course) => !existingIds.has(course.id))
+              return [...prevCourses, ...newCourses]
+            })
+            setOffset((prevOffset) => prevOffset + result.courses.length)
+            setHasMoreData(result.hasMore)
+          }
+        } catch (_error) {
+          setError('An unexpected error occurred while loading more courses.')
+          setHasMoreData(false)
         } finally {
           setIsLoading(false)
         }
@@ -89,7 +110,21 @@ export const CoursesList = ({ initialCourses, initialHasMore, filters }: Courses
     }
   }, [inView, hasMoreData, isLoading, offset, stableFilters])
 
-  if (courses.length === 0) {
+  if (error) {
+    return (
+      <Card className="p-6">
+        <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <AlertCircle className="h-12 w-12 text-destructive" />
+          <div className="space-y-2">
+            <h3 className="font-semibold text-lg">Error Loading Courses</h3>
+            <p className="text-muted-foreground">{error}</p>
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
+  if (courses.length === 0 && !isLoading) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">No courses found matching your criteria.</p>

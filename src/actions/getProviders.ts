@@ -1,6 +1,7 @@
 'use server'
 
 import config from '@/payload.config'
+import * as Sentry from '@sentry/nextjs'
 import { getPayload } from 'payload'
 
 export interface GetProvidersResult {
@@ -8,22 +9,27 @@ export interface GetProvidersResult {
 }
 
 export async function getProviders(): Promise<GetProvidersResult> {
-  const payload = await getPayload({ config })
+  try {
+    const payload = await getPayload({ config })
 
-  const result = await payload.find({
-    collection: 'providers',
-    limit: 1000,
-    sort: 'name',
-    select: {
-      id: true,
-      name: true,
-    },
-  })
+    const result = await payload.find({
+      collection: 'providers',
+      limit: 1000,
+      sort: 'name',
+      select: {
+        id: true,
+        name: true,
+      },
+    })
 
-  return {
-    providers: result.docs.map((doc) => ({
-      id: Number(doc.id),
-      name: doc.name,
-    })),
+    return {
+      providers: result.docs.map((doc) => ({
+        id: Number(doc.id),
+        name: doc.name,
+      })),
+    }
+  } catch (error) {
+    Sentry.captureException(error)
+    return { providers: [] }
   }
 }
