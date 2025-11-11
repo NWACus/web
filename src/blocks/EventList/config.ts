@@ -9,9 +9,9 @@ import {
 } from '@payloadcms/richtext-lexical'
 import type { Block, Field } from 'payload'
 import { ButtonBlock } from '../Button/config'
+import { validateMaxEvents } from '../EventQuery/hooks/validateMaxEvents'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { MediaBlockLexical } from '../MediaBlock/config'
-import { validateMaxEvents } from './hooks/validateMaxEvents'
 
 const defaultStylingFields: Field[] = [
   { name: 'heading', type: 'text' },
