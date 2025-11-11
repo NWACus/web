@@ -194,6 +194,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
             const status = getStatus(event)
             const { isPast, isRegistrationClosed } = status
             const isExpanded = expandedRows.has(String(event.id))
+            const eventUrl = `/events/${event.slug}`
 
             return (
               <Fragment key={`event-group-${event.id}`}>
@@ -219,7 +220,12 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   </TableCell>
 
                   {/* Name */}
-                  <TableCell className="text-sm max-w-xs">{event.title}</TableCell>
+                  <TableCell className="text-sm max-w-xs">
+                    <CMSLink className="hidden md:inline-block" appearance="link" url={eventUrl}>
+                      {event.title}
+                    </CMSLink>
+                    <span className="md:hidden">{event.title}</span>
+                  </TableCell>
 
                   {/* Status label */}
                   <TableCell className="hidden sm:table-cell px-1 sm:px-2 text-center">
@@ -299,7 +305,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                           </div>
 
                           {/* Deadline date */}
-                          <div className="break-inside-avoid">
+                          <div className="break-inside-avoid mb-2">
                             {event.registrationDeadline
                               ? (() => {
                                   const { date, time } = formatDateTime(event.registrationDeadline)
@@ -316,6 +322,12 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                                   )
                                 })()
                               : null}
+                          </div>
+                          <div>
+                            <CMSLink appearance="outline" size="sm" url={eventUrl}>
+                              Learn More
+                              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
+                            </CMSLink>
                           </div>
                         </div>
                       </div>
