@@ -54,7 +54,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString)
     return {
-      date: format(date, 'MMM d, yyyy'), // "Nov 10, 2025"
+      date: format(date, 'MMM d, yy'),
       time: format(date, 'h:mm a'),
     }
   }
@@ -283,15 +283,19 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                     <TableCell colSpan={1} className="w-2"></TableCell>
                     <TableCell colSpan={4} className="py-4 ps-0">
                       <div className="flex justify-between">
-                        <div>
-                          {/* Status badge */}
-                          <div className="sm:hidden break-inside-avoid flex items-center mb-3">
+                        {/* Location */}
+                        <div className="w-1/2 break-inside-avoid ">
+                          <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
+                          <p className="text-sm text-gray-600">{getLocation(event)}</p>
+                          {getAddress(event) && (
+                            <p className="text-sm text-gray-500">{getAddress(event)}</p>
+                          )}
+                        </div>
+                        <div className="w-1/2">
+                          {/* Status */}
+                          <div className="sm:hidden break-inside-avoid flex items-start mb-3">
                             <h4 className="font-semibold text-gray-900 me-2">Status</h4>
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${status.color}`}
-                            >
-                              {status.label}
-                            </span>
+                            <span>{status.label}</span>
                           </div>
 
                           {/* Deadline date */}
@@ -304,22 +308,15 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                                       <h4 className="font-semibold text-gray-900">
                                         Registration deadline
                                       </h4>
-                                      <div>{date}</div>
-                                      <div className="text-gray-500 text-xs">{time}</div>
+                                      <div>
+                                        {date}
+                                        <span className="text-gray-500 text-xs"> @ {time}</span>
+                                      </div>
                                     </div>
                                   )
                                 })()
                               : null}
                           </div>
-                        </div>
-
-                        {/* Location */}
-                        <div className="break-inside-avoid">
-                          <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
-                          <p className="text-sm text-gray-600">{getLocation(event)}</p>
-                          {getAddress(event) && (
-                            <p className="text-sm text-gray-500">{getAddress(event)}</p>
-                          )}
                         </div>
                       </div>
                     </TableCell>
