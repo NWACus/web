@@ -34,7 +34,7 @@ export const EventTableBlockComponent = async (args: EventTableComponentProps) =
   }
 
   return (
-    <div className={cn('@container', className)}>
+    <div className={cn('container', className)}>
       <div className="flex flex-col justify-start gap-1">
         {heading && (
           <div className="prose md:prose-md dark:prose-invert">
