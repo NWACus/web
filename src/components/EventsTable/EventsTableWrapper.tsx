@@ -1,6 +1,6 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
-import { EventTable } from './EventsTable'
+import { EventTable } from './index'
 
 export default async function EventTableWrapper() {
   const payload = await getPayload({ config })

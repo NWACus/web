@@ -1,4 +1,4 @@
-import { EventTable } from '@/components/EventsTable/EventsTable'
+import { EventTable } from '@/components/EventsTable'
 import RichText from '@/components/RichText'
 import type { Event, EventTableBlock as EventTableBlockProps } from '@/payload-types'
 import { cn } from '@/utilities/ui'
