@@ -9,8 +9,6 @@ import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { cn } from '@/utilities/ui'
 import { Metadata, ResolvedMetadata } from 'next'
 
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const events = await payload.find({
