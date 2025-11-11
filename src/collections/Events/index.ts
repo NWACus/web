@@ -4,6 +4,7 @@ import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { EventListBlockLexical } from '@/blocks/EventList/config'
+import { EventTableBlock } from '@/blocks/EventTable/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
@@ -176,6 +177,7 @@ export const Events: CollectionConfig = {
                     BlogListBlockLexical,
                     DocumentBlock,
                     EventListBlockLexical,
+                    EventTableBlock,
                     GenericEmbedLexical,
                     HeaderBlock,
                     MediaBlockLexical,

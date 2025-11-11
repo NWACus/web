@@ -251,6 +251,7 @@ export interface HomePage {
     | DocumentBlock
     | EventListBlock
     | SingleEventBlock
+    | EventTableBlock
     | FormBlock
     | GenericEmbedBlock
     | HeaderBlock
@@ -2790,6 +2791,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         documentBlock?: T | DocumentBlockSelect<T>;
         eventList?: T | EventListBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
+        eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
@@ -2921,6 +2923,30 @@ export interface EventListBlockSelect<T extends boolean = true> {
 export interface SingleEventBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   event?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventTableBlock_select".
+ */
+export interface EventTableBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  eventOptions?: T;
+  dynamicOptions?:
+    | T
+    | {
+        filterByEventTypes?: T;
+        showUpcomingOnly?: T;
+        maxEvents?: T;
+        queriedEvents?: T;
+      };
+  staticOptions?:
+    | T
+    | {
+        staticEvents?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3138,30 +3164,6 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EventTableBlock_select".
- */
-export interface EventTableBlockSelect<T extends boolean = true> {
-  heading?: T;
-  belowHeadingContent?: T;
-  eventOptions?: T;
-  dynamicOptions?:
-    | T
-    | {
-        filterByEventTypes?: T;
-        showUpcomingOnly?: T;
-        maxEvents?: T;
-        queriedEvents?: T;
-      };
-  staticOptions?:
-    | T
-    | {
-        staticEvents?: T;
-      };
-  id?: T;
-  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
