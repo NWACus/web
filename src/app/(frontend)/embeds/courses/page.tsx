@@ -23,7 +23,6 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
   const title = params.title
   const showFilters = params.showFilters === 'true'
   const types = params.types as string
-  const showPast = params.showPast as string
   const providers = params.providers as string
   const states = params.states as string
   const affinityGroups = params.affinityGroups as string
@@ -34,7 +33,6 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
   // Fetch initial courses from server
   const filters = {
     types,
-    showPast,
     providers,
     states,
     affinityGroups,
@@ -54,39 +52,14 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
 
   // Check if any filters are active
   const hasActiveFilters = Boolean(
-    types ||
-      providers ||
-      states ||
-      affinityGroups ||
-      modesOfTravel ||
-      startDate ||
-      endDate ||
-      showPast === 'true',
+    types || providers || states || affinityGroups || modesOfTravel || startDate || endDate,
   )
-
-  if (!showFilters) {
-    return (
-      <div
-        style={
-          backgroundColor && typeof backgroundColor === 'string' ? { backgroundColor } : undefined
-        }
-      >
-        {title && (
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">{title}</h1>
-          </div>
-        )}
-        <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
-      </div>
-    )
-  }
 
   return (
     <div
       style={
         backgroundColor && typeof backgroundColor === 'string' ? { backgroundColor } : undefined
       }
-      className="p-4"
     >
       {title && (
         <div className="mb-6">
@@ -94,35 +67,34 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
         </div>
       )}
 
-      {/* Mobile Filters Button */}
-      <div className="md:hidden mb-4">
-        <CoursesMobileFilters
-          courseCount={total}
-          providers={providersList}
-          hasActiveFilters={hasActiveFilters}
-          startDate={startDate || ''}
-          endDate={endDate || ''}
-        />
-      </div>
+      {showFilters && (
+        <div className="md:hidden mb-4">
+          <CoursesMobileFilters
+            courseCount={total}
+            providers={providersList}
+            hasActiveFilters={hasActiveFilters}
+            startDate={startDate || ''}
+            endDate={endDate || ''}
+          />
+        </div>
+      )}
 
-      {/* Desktop Layout with Sidebar */}
       <div className="flex gap-6">
-        {/* Main Content */}
         <div className="flex-1">
           <CoursesList initialCourses={courses} initialHasMore={hasMore} filters={filters} />
         </div>
-
-        {/* Desktop Filters Sidebar */}
-        <aside className="hidden md:block w-80 flex-shrink-0">
-          <div className="sticky top-4">
-            <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
-            <CoursesTypeFilter />
-            <CoursesProviderFilter providers={providersList} />
-            <CoursesLocationFilter />
-            <CoursesAffinityFilter />
-            <CoursesTravelFilter />
-          </div>
-        </aside>
+        {showFilters && (
+          <aside className="hidden md:block w-80 flex-shrink-0">
+            <div className="sticky top-0">
+              <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
+              <CoursesTypeFilter />
+              <CoursesProviderFilter providers={providersList} />
+              <CoursesLocationFilter />
+              <CoursesAffinityFilter />
+              <CoursesTravelFilter />
+            </div>
+          </aside>
+        )}
       </div>
     </div>
   )

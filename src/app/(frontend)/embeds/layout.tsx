@@ -9,7 +9,7 @@ type Args = {
 export default async function EmbedsLayout({ children }: Args) {
   return (
     <div className="a3">
-      <div className="flex flex-col min-h-screen max-w-screen overflow-x-hidden">{children}</div>
+      <div className="flex flex-col min-h-screen max-w-screen overflow-x-clip">{children}</div>
     </div>
   )
 }

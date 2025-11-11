@@ -9,7 +9,6 @@ export interface GetCoursesParams {
   offset?: number
   limit?: number
   types?: string
-  showPast?: string
   providers?: string
   states?: string
   affinityGroups?: string
@@ -29,7 +28,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
     offset = 0,
     limit = 20,
     types,
-    showPast,
     providers,
     states,
     affinityGroups,
@@ -123,10 +121,8 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
         less_than_equal: endDate,
       },
     })
-  }
-
-  // Filter out past courses unless showPast is true
-  if (showPast !== 'true') {
+  } else {
+    // If no date filters are provided, default to showing only upcoming courses
     const today = new Date().toISOString()
     conditions.push({
       or: [

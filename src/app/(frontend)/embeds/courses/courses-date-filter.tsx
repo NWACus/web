@@ -36,8 +36,6 @@ export const CoursesDateFilter = ({ startDate, endDate }: Props) => {
       } else {
         params.delete('endDate')
       }
-      // Remove showPast when using date filters
-      params.delete('showPast')
       router.push(`${pathname}?${params.toString()}`, { scroll: false })
     },
     [pathname, router, searchParams],
@@ -131,26 +129,26 @@ export const CoursesDateFilter = ({ startDate, endDate }: Props) => {
         </div>
         {isOpen && (
           <div className="pb-4">
-            <div className="mb-4 flex flex-wrap gap-2">
+            <div className="mb-4 grid grid-cols-2 gap-2">
               {renderQuickFilterButton('upcoming')}
-              {renderQuickFilterButton('next-week')}
               {renderQuickFilterButton('this-week')}
-              {renderQuickFilterButton('next-month')}
+              {renderQuickFilterButton('next-week')}
               {renderQuickFilterButton('this-month')}
+              {renderQuickFilterButton('next-month')}
               {renderQuickFilterButton('past')}
-
-              <Button
-                onClick={() => handleQuickFilter('custom')}
-                variant={filterType === 'custom' ? 'callout' : 'outline'}
-                className="w-full"
-              >
-                Custom date range
-              </Button>
             </div>
+
+            <Button
+              onClick={() => handleQuickFilter('custom')}
+              variant={filterType === 'custom' ? 'callout' : 'outline'}
+              className="w-full"
+            >
+              Custom date range
+            </Button>
 
             {/* Custom Date Range */}
             {filterType === 'custom' && (
-              <div className="flex gap-4">
+              <div className="flex gap-4 mt-4">
                 <DatePickerField
                   label="Start Date"
                   value={customStart}
