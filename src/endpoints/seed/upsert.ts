@@ -106,6 +106,7 @@ type TenantScopedCollectionWithHash = Exclude<
   | 'payload-preferences'
   | 'payload-migrations'
   | 'globalRoleAssignments'
+  | 'payload-kv'
 >
 
 export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
