@@ -102,7 +102,7 @@ export const getEventsData = (
       featuredImage: featuredImage?.id,
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/snowmobile-safety',
-      registrationDeadline: futureDate(1, 15, 23),
+      registrationDeadline: futureDate(1, 1, 23),
       capacity: 16,
       cost: 200,
       skillRating: '1',

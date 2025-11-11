@@ -978,14 +978,7 @@ export interface EventTableBlock {
      * Optionally select event types to filter events.
      */
     filterByEventTypes?:
-      | (
-          | 'events-by-ac'
-          | 'awareness'
-          | 'workshop'
-          | 'field-class-by-ac'
-          | 'course-by-external-provider'
-          | 'volunteer'
-        )[]
+      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
       | null;
     /**
      * Maximum number of events that will be displayed. Must be an integer.
