@@ -83,7 +83,7 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
     if (selectedAffinityGroups.length > 0) {
       conditions.push({
         affinityGroups: {
-          contains: selectedAffinityGroups,
+          in: selectedAffinityGroups,
         },
       })
     }
@@ -95,7 +95,7 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
     if (selectedModes.length > 0) {
       conditions.push({
         modeOfTravel: {
-          contains: selectedModes,
+          in: selectedModes,
         },
       })
     }

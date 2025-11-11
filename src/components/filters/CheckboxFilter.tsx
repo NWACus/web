@@ -12,13 +12,14 @@ export type CheckboxOption = {
   value: string
 }
 
-type CheckboxFilterProps = {
+export type CheckboxFilterProps = {
   title: string
   urlParam: string
   options: CheckboxOption[]
   defaultOpen?: boolean
   maxHeight?: string
   hideOnEmpty?: boolean
+  showBottomBorder?: boolean
 }
 
 export const CheckboxFilter = ({
@@ -28,6 +29,7 @@ export const CheckboxFilter = ({
   defaultOpen = false,
   maxHeight,
   hideOnEmpty = true,
+  showBottomBorder = true,
 }: CheckboxFilterProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -80,7 +82,7 @@ export const CheckboxFilter = ({
   const listClasses = `flex flex-col gap-1 p-0 list-none pb-4 ${maxHeight ? `${maxHeight} overflow-y-auto` : ''}`
 
   return (
-    <div className="border-b">
+    <div className={showBottomBorder ? 'border-b' : ''}>
       {options.length > 0 && (
         <div>
           <div

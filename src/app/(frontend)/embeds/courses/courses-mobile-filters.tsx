@@ -1,11 +1,11 @@
 'use client'
 
+import { AffinityGroupsFilter } from '@/components/filters/AffinityGroupsFilter'
 import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
-import { CoursesAffinityFilter } from './courses-affinity-filter'
+import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
+import { ProvidersFilter } from '@/components/filters/ProvidersFilter'
+import { StatesFilter } from '@/components/filters/StatesFilter'
 import { CoursesDateFilter } from './courses-date-filter'
-import { CoursesLocationFilter } from './courses-location-filter'
-import { CoursesProviderFilter } from './courses-provider-filter'
-import { CoursesTravelFilter } from './courses-travel-filter'
 import { CoursesTypeFilter } from './courses-type-filter'
 
 type Provider = {
@@ -36,10 +36,10 @@ export const CoursesMobileFilters = ({
     >
       <CoursesDateFilter startDate={startDate} endDate={endDate} />
       <CoursesTypeFilter />
-      <CoursesProviderFilter providers={providers} />
-      <CoursesLocationFilter />
-      <CoursesAffinityFilter />
-      <CoursesTravelFilter />
+      <ProvidersFilter providers={providers} />
+      <StatesFilter />
+      <AffinityGroupsFilter />
+      <ModesOfTravelFilter />
     </MobileFiltersDrawer>
   )
 }

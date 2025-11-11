@@ -1,12 +1,12 @@
 import { getCourses } from '@/actions/getCourses'
 import { getProviders } from '@/actions/getProviders'
 import { CoursesList } from '@/components/CoursesList'
-import { CoursesAffinityFilter } from './courses-affinity-filter'
+import { AffinityGroupsFilter } from '@/components/filters/AffinityGroupsFilter'
+import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
+import { ProvidersFilter } from '@/components/filters/ProvidersFilter'
+import { StatesFilter } from '@/components/filters/StatesFilter'
 import { CoursesDateFilter } from './courses-date-filter'
-import { CoursesLocationFilter } from './courses-location-filter'
 import { CoursesMobileFilters } from './courses-mobile-filters'
-import { CoursesProviderFilter } from './courses-provider-filter'
-import { CoursesTravelFilter } from './courses-travel-filter'
 import { CoursesTypeFilter } from './courses-type-filter'
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
@@ -88,10 +88,10 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
             <div className="sticky top-0">
               <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
               <CoursesTypeFilter />
-              <CoursesProviderFilter providers={providersList} />
-              <CoursesLocationFilter />
-              <CoursesAffinityFilter />
-              <CoursesTravelFilter />
+              <ProvidersFilter providers={providersList} />
+              <StatesFilter />
+              <AffinityGroupsFilter />
+              <ModesOfTravelFilter showBottomBorder={false} />
             </div>
           </aside>
         )}

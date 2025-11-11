@@ -25,7 +25,7 @@ export const MobileFiltersDrawer = ({
         variant="outline"
         onClick={() => setIsOpen(true)}
         aria-label="Open filters"
-        className="w-full sm:w-1/2"
+        className="w-full"
       >
         <div className="flex items-center gap-2">
           <span>Filters</span>

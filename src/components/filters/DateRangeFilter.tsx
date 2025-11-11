@@ -13,6 +13,7 @@ type DateRangeFilterProps = {
   quickFilters: QuickDateFilter[]
   title?: string
   defaultOpen?: boolean
+  showBottomBorder?: boolean
 }
 
 export const DateRangeFilter = ({
@@ -21,6 +22,7 @@ export const DateRangeFilter = ({
   quickFilters,
   title = 'Date Range',
   defaultOpen = true,
+  showBottomBorder = true,
 }: DateRangeFilterProps) => {
   const [filterType, setFilterType] = useState('')
   const [customStart, setCustomStart] = useState(startDate)
@@ -113,7 +115,7 @@ export const DateRangeFilter = ({
   }, [endDate, quickFilters, startDate])
 
   return (
-    <div className="border-b">
+    <div className={showBottomBorder ? 'border-b' : ''}>
       <div>
         <div
           onClick={() => setIsOpen(!isOpen)}
