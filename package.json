@@ -86,6 +86,7 @@
     "date-fns-tz": "^3.2.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
+    "fuse.js": "^7.1.0",
     "graphql": "^16.10.0",
     "import-in-the-middle": "^1.14.2",
     "isomorphic-dompurify": "^2.26.0",

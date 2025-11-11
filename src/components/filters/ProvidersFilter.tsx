@@ -21,6 +21,8 @@ export const ProvidersFilter = ({ providers, ...props }: ProvidersFilterProps) =
       urlParam="providers"
       options={options}
       maxHeight="max-h-64"
+      enableSearch
+      searchPlaceholder="Search providers..."
       {...props}
     />
   )
