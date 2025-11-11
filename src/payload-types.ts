@@ -672,9 +672,10 @@ export interface Document {
  * via the `definition` "EventListBlock".
  */
 export interface EventListBlock {
+  backgroundColor: string;
   heading?: string | null;
   /**
-   * Optional content to display below the heading and above the event list.
+   * Optional content to display below the heading and above the event content.
    */
   belowHeadingContent?: {
     root: {
@@ -691,7 +692,6 @@ export interface EventListBlock {
     };
     [k: string]: unknown;
   } | null;
-  backgroundColor: string;
   eventOptions: 'dynamic' | 'static';
   /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.
@@ -955,7 +955,7 @@ export interface EventTag {
 export interface EventTableBlock {
   heading?: string | null;
   /**
-   * Optional content to display below the heading and above the event table.
+   * Optional content to display below the heading and above the event content.
    */
   belowHeadingContent?: {
     root: {
@@ -980,6 +980,10 @@ export interface EventTableBlock {
     filterByEventTypes?:
       | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
       | null;
+    /**
+     * Only display events that have not yet occurred.
+     */
+    showUpcomingOnly?: boolean | null;
     /**
      * Maximum number of events that will be displayed. Must be an integer.
      */
@@ -2889,9 +2893,9 @@ export interface DocumentBlockSelect<T extends boolean = true> {
  * via the `definition` "EventListBlock_select".
  */
 export interface EventListBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
   heading?: T;
   belowHeadingContent?: T;
-  backgroundColor?: T;
   eventOptions?: T;
   dynamicOptions?:
     | T
@@ -3147,6 +3151,7 @@ export interface EventTableBlockSelect<T extends boolean = true> {
     | T
     | {
         filterByEventTypes?: T;
+        showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
       };

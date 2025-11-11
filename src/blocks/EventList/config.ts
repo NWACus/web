@@ -1,160 +1,26 @@
-import { eventTypesData } from '@/collections/Events/constants'
 import colorPickerField from '@/fields/color'
-import { getTenantFilter } from '@/utilities/collectionFilters'
-import {
-  BlocksFeature,
-  HorizontalRuleFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
 import type { Block, Field } from 'payload'
-import { ButtonBlock } from '../Button/config'
-import { validateMaxEvents } from '../EventQuery/hooks/validateMaxEvents'
-import { GenericEmbedLexical } from '../GenericEmbed/config'
-import { MediaBlockLexical } from '../MediaBlock/config'
+import {
+  defaultStylingFields,
+  dynamicEventRelatedFields,
+  staticEventRelatedFields,
+} from '../EventQuery/config'
 
-const defaultStylingFields: Field[] = [
-  { name: 'heading', type: 'text' },
-  {
-    name: 'belowHeadingContent',
-    type: 'richText',
-    editor: lexicalEditor({
-      features: ({ rootFeatures }) => {
-        return [
-          ...rootFeatures,
-          BlocksFeature({
-            blocks: [ButtonBlock, MediaBlockLexical, GenericEmbedLexical],
-          }),
-          HorizontalRuleFeature(),
-          InlineToolbarFeature(),
-        ]
-      },
-    }),
-    label: 'Content Below Heading',
-    admin: {
-      description: 'Optional content to display below the heading and above the event list.',
-    },
+const sortByField = (): Field => ({
+  name: 'sortBy',
+  type: 'select',
+  defaultValue: 'startDate',
+  options: [
+    { label: 'Start Date (Earliest First)', value: 'startDate' },
+    { label: 'Start Date (Latest First)', value: '-startDate' },
+    { label: 'Registration Deadline (Earliest First)', value: 'registrationDeadline' },
+    { label: 'Registration Deadline (Latest First)', value: '-registrationDeadline' },
+  ],
+  required: true,
+  admin: {
+    description: 'Select how the list of events will be sorted.',
   },
-  colorPickerField('Background color'),
-  {
-    type: 'radio',
-    name: 'eventOptions',
-    label: 'How do you want to choose your events?',
-    defaultValue: 'dynamic',
-    required: true,
-    options: [
-      {
-        label: 'Do it for me',
-        value: 'dynamic',
-      },
-      {
-        label: 'Let me choose',
-        value: 'static',
-      },
-    ],
-  },
-]
-
-const dynamicEventRelatedFields: Field[] = [
-  {
-    name: 'dynamicOptions',
-    type: 'group',
-    admin: {
-      condition: (_, siblingData) => siblingData?.eventOptions === 'dynamic',
-    },
-    fields: [
-      {
-        name: 'sortBy',
-        type: 'select',
-        defaultValue: 'startDate',
-        options: [
-          { label: 'Start Date (Earliest First)', value: 'startDate' },
-          { label: 'Start Date (Latest First)', value: '-startDate' },
-          { label: 'Registration Deadline (Earliest First)', value: 'registrationDeadline' },
-          { label: 'Registration Deadline (Latest First)', value: '-registrationDeadline' },
-        ],
-        required: true,
-        admin: {
-          description: 'Select how the list of events will be sorted.',
-        },
-      },
-      {
-        name: 'filterByEventTypes',
-        type: 'select',
-        dbName: 'filterByEventTypes',
-        options: eventTypesData.map((type) => ({
-          label: type.label,
-          value: type.value,
-        })),
-        hasMany: true,
-        label: 'Filter by Event Type(s)',
-        admin: {
-          description: 'Optionally select event types to filter events.',
-        },
-      },
-      {
-        name: 'showUpcomingOnly',
-        type: 'checkbox',
-        defaultValue: true,
-        label: 'Show Upcoming Events Only',
-        admin: {
-          description: 'Only display events that have not yet occurred.',
-        },
-      },
-      {
-        name: 'maxEvents',
-        type: 'number',
-        label: 'Max Events Displayed',
-        min: 1,
-        max: 20,
-        defaultValue: 4,
-        admin: {
-          description: 'Maximum number of events that will be displayed. Must be an integer.',
-          step: 1,
-        },
-        hooks: {
-          beforeValidate: [validateMaxEvents],
-        },
-      },
-      {
-        name: 'queriedEvents',
-        type: 'relationship',
-        label: 'Preview Events Order',
-        relationTo: 'events',
-        hasMany: true,
-        admin: {
-          readOnly: true,
-          components: {
-            Field: '@/blocks/EventQuery/fields/QueriedEventsComponent#QueriedEventsComponent',
-          },
-        },
-      },
-    ],
-  },
-]
-
-const staticEventRelatedFields: Field[] = [
-  {
-    name: 'staticOptions',
-    type: 'group',
-    admin: {
-      condition: (_, siblingData) => siblingData?.eventOptions === 'static',
-    },
-    fields: [
-      {
-        name: 'staticEvents',
-        type: 'relationship',
-        label: 'Choose events',
-        relationTo: 'events',
-        hasMany: true,
-        admin: {
-          description: 'Choose new event from dropdown and/or drag and drop to change order',
-        },
-        filterOptions: getTenantFilter,
-      },
-    ],
-  },
-]
+})
 
 const eventListBlockWithFields = (fields: Field[]): Block => ({
   slug: 'eventList',
@@ -164,13 +30,13 @@ const eventListBlockWithFields = (fields: Field[]): Block => ({
 })
 
 export const EventListBlock = eventListBlockWithFields([
-  ...defaultStylingFields,
-  ...dynamicEventRelatedFields,
+  ...defaultStylingFields([colorPickerField('Background color')]),
+  ...dynamicEventRelatedFields([sortByField()]),
   ...staticEventRelatedFields,
 ])
 
 export const EventListBlockLexical = eventListBlockWithFields([
-  ...defaultStylingFields,
+  ...defaultStylingFields([colorPickerField('Background color')]),
   {
     name: 'wrapInContainer',
     admin: {
@@ -180,6 +46,6 @@ export const EventListBlockLexical = eventListBlockWithFields([
     type: 'checkbox',
     defaultValue: false,
   },
-  ...dynamicEventRelatedFields,
+  ...dynamicEventRelatedFields([sortByField()]),
   ...staticEventRelatedFields,
 ])
