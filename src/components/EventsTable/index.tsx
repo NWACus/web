@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
-import { addDays, format, isWithinInterval } from 'date-fns'
+import { format } from 'date-fns'
 import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, ExternalLink } from 'lucide-react'
 import { Fragment, useMemo, useState } from 'react'
 import { CMSLink } from '../Link'
@@ -25,38 +25,28 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   // Determine status based on event data
   const getStatus = (event: Event) => {
     const now = new Date()
-    const isVirtual = event.location?.isVirtual || false
     const isPast = event.startDate ? new Date(event.startDate) < now : false
     const isRegistrationClosed = event.registrationDeadline
       ? new Date(event.registrationDeadline) < now
       : false
 
-    const isRegistrationClosingSoon = event.registrationDeadline
-      ? isWithinInterval(new Date(event.registrationDeadline), {
-          start: new Date(),
-          end: addDays(new Date(), 7),
-        }) && !isRegistrationClosed
-      : false
-
     // Determine label and color
     let label = 'Open'
-    let color = 'bg-brand-600'
+    let color = 'bg-brand-700'
 
     if (isRegistrationClosed) {
       label = 'Closed'
-      color = 'bg-slate-400'
+      color = 'bg-brand-400'
     } else if (isPast) {
       label = 'Past'
-      color = 'bg-gray-400'
+      color = 'bg-secondary'
     }
 
     return {
       label,
       color,
-      isVirtual,
       isPast,
       isRegistrationClosed,
-      isRegistrationClosingSoon,
     }
   }
 
@@ -85,7 +75,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   const getLocation = (event: Event) => {
     if (event.location?.isVirtual) {
       return (
-        <span className="px-2 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap bg-secondary">
+        <span className="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-callout">
           Virtual
         </span>
       )
@@ -192,6 +182,9 @@ export function EventTable({ events = [] }: { events: Event[] }) {
             <TableHead className="hidden lg:table-cell flex-1 min-w-0">
               <SortableHeader label="Cost" sortKey="cost" />
             </TableHead>
+            <TableHead className="hidden lg:table-cell flex-1 min-w-0">
+              <SortableHeader label="Deadline" sortKey="registrationDeadline" />
+            </TableHead>
             <TableHead className="flex-1 min-w-0 text-center"></TableHead>
           </TableRow>
         </TableHeader>
@@ -199,7 +192,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
           {displayedEvents.map((event) => {
             const { date, time } = formatDateTime(event.startDate)
             const status = getStatus(event)
-            const { isVirtual, isPast, isRegistrationClosed, isRegistrationClosingSoon } = status
+            const { isPast, isRegistrationClosed } = status
             const isExpanded = expandedRows.has(String(event.id))
 
             return (
@@ -247,6 +240,19 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   <TableCell className="hidden lg:table-cell text-center">
                     {event.cost === 0 ? 'Free' : `$${event.cost}`}
                   </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {event.registrationDeadline
+                      ? (() => {
+                          const { date, time } = formatDateTime(event.registrationDeadline)
+                          return (
+                            <div>
+                              <div className="font-medium">{date}</div>
+                              <div className="text-gray-500 text-xs">{time}</div>
+                            </div>
+                          )
+                        })()
+                      : null}
+                  </TableCell>
 
                   {/* Register button */}
                   <TableCell className="text-center px-1 sm:px-2">
@@ -261,16 +267,10 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                           Register
                           <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
                         </CMSLink>
-                        {isRegistrationClosingSoon && (
-                          <span className="text-orange-500 text-sm font-semibold">
-                            ⚠️ Closing Soon
-                          </span>
-                        )}
                       </>
                     ) : isPast || isRegistrationClosed ? (
                       <Button variant="default" disabled={true}>
-                        {isPast && 'Past event'}
-                        {isRegistrationClosed && 'Registration closed'}
+                        Closed
                       </Button>
                     ) : (
                       <span className="text-gray-400 text-xs">—</span>
@@ -280,22 +280,13 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                 {/* Expanded row for details on smaller screens */}
                 {isExpanded && (
                   <TableRow className="bg-gray-50 lg:hidden">
-                    <TableCell colSpan={1}></TableCell>
-                    <TableCell colSpan={4} className="py-4">
-                      <div className="columns-2 space-y-3">
-                        {/* Location */}
-                        <div className="break-inside-avoid">
-                          <h4 className="font-semibold text-gray-900">Location</h4>
-                          <p className="text-sm text-gray-600">{getLocation(event)}</p>
-                          {getAddress(event) && (
-                            <p className="text-sm text-gray-500">{getAddress(event)}</p>
-                          )}
-                        </div>
-
-                        {/* Status badge */}
-                        <div className="grid grid-cols-2">
-                          <div className="sm:hidden break-inside-avoid">
-                            <h4 className="font-semibold text-gray-900">Status</h4>
+                    <TableCell colSpan={1} className="w-2"></TableCell>
+                    <TableCell colSpan={4} className="py-4 ps-0">
+                      <div className="flex justify-between">
+                        <div>
+                          {/* Status badge */}
+                          <div className="sm:hidden break-inside-avoid flex items-center mb-3">
+                            <h4 className="font-semibold text-gray-900 me-2">Status</h4>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${status.color}`}
                             >
@@ -303,11 +294,31 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                             </span>
                           </div>
 
-                          {isVirtual && (
-                            <div className="break-inside-avoid">
-                              <h4 className="font-semibold text-gray-900">Virtual</h4>
-                              <p className="text-sm text-gray-600">Yes</p>
-                            </div>
+                          {/* Deadline date */}
+                          <div className="break-inside-avoid">
+                            {event.registrationDeadline
+                              ? (() => {
+                                  const { date, time } = formatDateTime(event.registrationDeadline)
+                                  return (
+                                    <div>
+                                      <h4 className="font-semibold text-gray-900">
+                                        Registration deadline
+                                      </h4>
+                                      <div>{date}</div>
+                                      <div className="text-gray-500 text-xs">{time}</div>
+                                    </div>
+                                  )
+                                })()
+                              : null}
+                          </div>
+                        </div>
+
+                        {/* Location */}
+                        <div className="break-inside-avoid">
+                          <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
+                          <p className="text-sm text-gray-600">{getLocation(event)}</p>
+                          {getAddress(event) && (
+                            <p className="text-sm text-gray-500">{getAddress(event)}</p>
                           )}
                         </div>
                       </div>
