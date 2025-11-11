@@ -12,7 +12,7 @@ import {
 import type { Event } from '@/payload-types'
 import { addDays, format, isWithinInterval } from 'date-fns'
 import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, ExternalLink } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { CMSLink } from '../Link'
 
 export function EventTable({ events = [] }: { events: Event[] }) {
@@ -203,7 +203,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
             const isExpanded = expandedRows.has(String(event.id))
 
             return (
-              <>
+              <Fragment key={`event-group-${event.id}`}>
                 <TableRow
                   key={event.id}
                   className="hover:bg-gray-50 transition cursor-pointer lg:cursor-auto"
@@ -277,7 +277,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                     )}
                   </TableCell>
                 </TableRow>
-
                 {/* Expanded row for details on smaller screens */}
                 {isExpanded && (
                   <TableRow className="bg-gray-50 lg:hidden">
@@ -315,7 +314,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                     </TableCell>
                   </TableRow>
                 )}
-              </>
+              </Fragment>
             )
           })}
         </TableBody>
