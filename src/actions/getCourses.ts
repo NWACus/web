@@ -26,7 +26,7 @@ export interface GetCoursesResult {
 export async function getCourses(params: GetCoursesParams): Promise<GetCoursesResult> {
   const {
     offset = 0,
-    limit = 20,
+    limit = 10,
     types,
     providers,
     states,

@@ -44,8 +44,6 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
 
   const { courses, hasMore, total } = await getCourses({
     ...filters,
-    offset: 0,
-    limit: 20,
   })
 
   // Fetch providers and states if filters are enabled
