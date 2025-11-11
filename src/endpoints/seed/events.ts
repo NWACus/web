@@ -1,7 +1,7 @@
 import { Media, Tenant } from '@/payload-types'
 import { US_TIMEZONES } from '@/utilities/timezones'
 import { RequiredDataFromCollectionSlug } from 'payload'
-import { futureDate, simpleContent } from './utilities'
+import { futureDate, pastDate, simpleContent } from './utilities'
 
 export const getEventsData = (
   tenant: Tenant,
@@ -15,8 +15,8 @@ export const getEventsData = (
       subtitle: 'Free community presentation',
       description:
         'Join us for a free avalanche awareness presentation covering the basics of avalanche safety, terrain recognition, and rescue fundamentals. Perfect for anyone new to winter backcountry recreation.',
-      startDate: futureDate(1, 15, 19),
-      endDate: futureDate(1, 15, 21),
+      startDate: pastDate(1, 15, 19),
+      endDate: pastDate(1, 15, 21),
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
@@ -87,8 +87,8 @@ export const getEventsData = (
       subtitle: 'Hands-on training for sled riders',
       description:
         'A comprehensive field course designed specifically for snowmobile riders. Learn avalanche safety, rescue techniques, and safe riding practices in avalanche terrain.',
-      startDate: futureDate(1, 22, 8),
-      endDate: futureDate(1, 22, 17),
+      startDate: futureDate(1, 5, 8),
+      endDate: futureDate(1, 5, 17),
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,

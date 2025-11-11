@@ -90,6 +90,14 @@ export async function getSeedImageByFilename(filename: string, logger: Logger) {
   }
 }
 
+export const pastDate = (monthOffset: number, day: number, hour: number = 18) => {
+  const date = new Date()
+  date.setMonth(date.getMonth() - monthOffset)
+  date.setDate(day)
+  date.setHours(hour, 0, 0, 0)
+  return date.toISOString()
+}
+
 // Helper to create dates in the future
 export const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
   const date = new Date()

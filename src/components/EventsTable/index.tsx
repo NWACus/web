@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
-import { format } from 'date-fns'
+import { addDays, format, isWithinInterval } from 'date-fns'
 import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, ExternalLink } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { CMSLink } from '../Link'
@@ -31,19 +31,23 @@ export function EventTable({ events = [] }: { events: Event[] }) {
       ? new Date(event.registrationDeadline) < now
       : false
 
+    const isRegistrationClosingSoon = event.registrationDeadline
+      ? isWithinInterval(new Date(event.registrationDeadline), {
+          start: new Date(),
+          end: addDays(new Date(), 7),
+        }) && !isRegistrationClosed
+      : false
+
     // Determine label and color
     let label = 'Open'
-    let color = 'bg-brand-400'
+    let color = 'bg-brand-600'
 
     if (isRegistrationClosed) {
       label = 'Closed'
-      color = 'bg-slate-600'
+      color = 'bg-slate-400'
     } else if (isPast) {
       label = 'Past'
       color = 'bg-gray-400'
-    } else if (isVirtual) {
-      label = 'Virtual'
-      color = 'bg-secondary'
     }
 
     return {
@@ -52,6 +56,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
       isVirtual,
       isPast,
       isRegistrationClosed,
+      isRegistrationClosingSoon,
     }
   }
 
@@ -79,7 +84,11 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   // Get display location (city/venue)
   const getLocation = (event: Event) => {
     if (event.location?.isVirtual) {
-      return 'Online'
+      return (
+        <span className="px-2 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap bg-secondary">
+          Virtual
+        </span>
+      )
     }
     const { placeName, city, state } = event.location || {}
     if (placeName) return placeName
@@ -190,7 +199,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
           {displayedEvents.map((event) => {
             const { date, time } = formatDateTime(event.startDate)
             const status = getStatus(event)
-            const { isVirtual, isPast, isRegistrationClosed } = status
+            const { isVirtual, isPast, isRegistrationClosed, isRegistrationClosingSoon } = status
             const isExpanded = expandedRows.has(String(event.id))
 
             return (
@@ -242,15 +251,22 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   {/* Register button */}
                   <TableCell className="text-center px-1 sm:px-2">
                     {event.registrationUrl && !isPast && !isRegistrationClosed ? (
-                      <CMSLink
-                        appearance="default"
-                        size="sm"
-                        className="group-hover:opacity-90 transition-opacity text-sm"
-                        url={event.registrationUrl}
-                      >
-                        Register
-                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
-                      </CMSLink>
+                      <>
+                        <CMSLink
+                          appearance="default"
+                          size="sm"
+                          className="group-hover:opacity-90 transition-opacity text-sm"
+                          url={event.registrationUrl}
+                        >
+                          Register
+                          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
+                        </CMSLink>
+                        {isRegistrationClosingSoon && (
+                          <span className="text-orange-500 text-sm font-semibold">
+                            ⚠️ Closing Soon
+                          </span>
+                        )}
+                      </>
                     ) : isPast || isRegistrationClosed ? (
                       <Button variant="default" disabled={true}>
                         {isPast && 'Past event'}
