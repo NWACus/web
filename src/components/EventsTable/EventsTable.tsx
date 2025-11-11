@@ -10,48 +10,57 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
-import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
+import { format } from 'date-fns'
+import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, ExternalLink } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { CMSLink } from '../Link'
 
 export function EventTable({ events = [] }: { events: Event[] }) {
   const [sortConfig, setSortConfig] = useState({ key: 'startDate', direction: 'asc' })
   const [displayCount, setDisplayCount] = useState(10)
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
   const ITEMS_PER_LOAD = 10
 
   // Determine status based on event data
   const getStatus = (event: Event) => {
-    // Check if registration deadline has passed
-    if (event.registrationDeadline) {
-      const deadline = new Date(event.registrationDeadline)
-      if (deadline < new Date()) {
-        return { label: 'Closed', color: 'bg-slate-600' }
-      }
+    const now = new Date()
+    const isVirtual = event.location?.isVirtual || false
+    const isPast = event.startDate ? new Date(event.startDate) < now : false
+    const isRegistrationClosed = event.registrationDeadline
+      ? new Date(event.registrationDeadline) < now
+      : false
+
+    // Determine label and color
+    let label = 'Open'
+    let color = 'bg-brand-400'
+
+    if (isRegistrationClosed) {
+      label = 'Closed'
+      color = 'bg-slate-600'
+    } else if (isPast) {
+      label = 'Past'
+      color = 'bg-gray-400'
+    } else if (isVirtual) {
+      label = 'Virtual'
+      color = 'bg-secondary'
     }
 
-    // Check if event has passed
-    if (event.startDate) {
-      const startDate = new Date(event.startDate)
-      if (startDate < new Date()) {
-        return { label: 'Past', color: 'bg-gray-400' }
-      }
+    return {
+      label,
+      color,
+      isVirtual,
+      isPast,
+      isRegistrationClosed,
     }
-
-    if (event.cost && event.cost > 0) {
-      return { label: 'Paid', color: 'bg-slate-600' }
-    }
-    if (event.location?.isVirtual) {
-      return { label: 'Virtual', color: 'bg-blue-500' }
-    }
-    return { label: 'Open', color: 'bg-green-500' }
   }
 
   // Format date and time
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString)
     return {
-      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      time: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      date: format(date, 'MMM d, yyyy'), // "Nov 10, 2025"
+      time: format(date, 'h:mm a'),
     }
   }
 
@@ -120,6 +129,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     }
   }
 
+  const toggleRow = (eventId: string) => {
+    const newExpanded = new Set(expandedRows)
+    if (newExpanded.has(eventId)) {
+      newExpanded.delete(eventId)
+    } else {
+      newExpanded.add(eventId)
+    }
+    setExpandedRows(newExpanded)
+  }
+
   const SortIcon = ({ columnKey }: { columnKey: string }) => {
     if (sortConfig.key !== columnKey) {
       return <ChevronsUpDown className="w-4 h-4 text-gray-400" />
@@ -146,66 +165,141 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full not-prose overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50">
-            <TableHead className="w-32">
+            <TableHead className="p-2 w-4 lg:hidden"></TableHead>
+            <TableHead className="flex-1 min-w-0">
               <SortableHeader label="Date" sortKey="startDate" />
             </TableHead>
-            <TableHead className="w-24">
-              <SortableHeader label="Time" sortKey="startDate" />
-            </TableHead>
-            <TableHead>
+            <TableHead className="sm:flex-1 sm:min-w-0">
               <SortableHeader label="Name" sortKey="title" />
             </TableHead>
-            <TableHead className="w-24">
+            <TableHead className="hidden sm:table-cell flex-1 min-w-0">
               <SortableHeader label="Status" sortKey="type" />
             </TableHead>
-            <TableHead>Address</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead>Virtual</TableHead>
-            <TableHead className="w-24 text-center">Action</TableHead>
+            <TableHead className="hidden lg:table-cell flex-1 min-w-0">Location</TableHead>
+            <TableHead className="hidden lg:table-cell flex-1 min-w-0">
+              <SortableHeader label="Cost" sortKey="cost" />
+            </TableHead>
+            <TableHead className="flex-1 min-w-0 text-center"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {displayedEvents.map((event) => {
             const { date, time } = formatDateTime(event.startDate)
             const status = getStatus(event)
-            const isVirtual = event.location?.isVirtual
+            const { isVirtual, isPast, isRegistrationClosed } = status
+            const isExpanded = expandedRows.has(String(event.id))
 
             return (
-              <TableRow key={event.id} className="hover:bg-gray-50 transition">
-                <TableCell className="text-sm">{date}</TableCell>
-                <TableCell className="text-sm">{time}</TableCell>
-                <TableCell className="text-sm max-w-xs truncate">{event.title}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${status.color}`}
-                  >
-                    {status.label}
-                  </span>
-                </TableCell>
-                <TableCell className="text-sm">{getAddress(event)}</TableCell>
-                <TableCell className="text-sm">{getLocation(event)}</TableCell>
-                <TableCell className="text-center">
-                  {isVirtual && <span className="text-lg">✓</span>}
-                </TableCell>
-                <TableCell className="text-center">
-                  {event.registrationUrl ? (
-                    <a
-                      href={event.registrationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 bg-lime-400 hover:bg-lime-500 text-black font-semibold text-sm rounded transition inline-block"
+              <>
+                <TableRow
+                  key={event.id}
+                  className="hover:bg-gray-50 transition cursor-pointer lg:cursor-auto"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                      toggleRow(String(event.id))
+                    }
+                  }}
+                >
+                  <TableCell className="p-2 w-4 lg:hidden">
+                    <ChevronRight
+                      className={`w-4 h-4 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`}
+                    />
+                  </TableCell>
+                  <TableCell className="text-sm px-1 sm:px-2">
+                    <div>
+                      <div className="font-medium">{date}</div>
+                      <div className="text-gray-500 text-xs">{time}</div>
+                    </div>
+                  </TableCell>
+
+                  {/* Name */}
+                  <TableCell className="text-sm max-w-xs">{event.title}</TableCell>
+
+                  {/* Status label */}
+                  <TableCell className="hidden sm:table-cell px-1 sm:px-2 text-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${status.color}`}
                     >
-                      Register
-                    </a>
-                  ) : (
-                    <span className="text-gray-400 text-sm">—</span>
-                  )}
-                </TableCell>
-              </TableRow>
+                      {status.label}
+                    </span>
+                  </TableCell>
+
+                  {/* Location */}
+                  <TableCell className="hidden lg:table-cell text-sm">
+                    <div>
+                      <div className="font-medium">{getLocation(event)}</div>
+                      <div className="text-gray-500 text-xs">{getAddress(event)}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-center">
+                    {event.cost === 0 ? 'Free' : `$${event.cost}`}
+                  </TableCell>
+
+                  {/* Register button */}
+                  <TableCell className="text-center px-1 sm:px-2">
+                    {event.registrationUrl && !isPast && !isRegistrationClosed ? (
+                      <CMSLink
+                        appearance="default"
+                        size="sm"
+                        className="group-hover:opacity-90 transition-opacity text-sm"
+                        url={event.registrationUrl}
+                      >
+                        Register
+                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
+                      </CMSLink>
+                    ) : isPast || isRegistrationClosed ? (
+                      <Button variant="default" disabled={true}>
+                        {isPast && 'Past event'}
+                        {isRegistrationClosed && 'Registration closed'}
+                      </Button>
+                    ) : (
+                      <span className="text-gray-400 text-xs">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+
+                {/* Expanded row for details on smaller screens */}
+                {isExpanded && (
+                  <TableRow className="bg-gray-50 lg:hidden">
+                    <TableCell colSpan={1}></TableCell>
+                    <TableCell colSpan={4} className="py-4">
+                      <div className="columns-2 space-y-3">
+                        {/* Location */}
+                        <div className="break-inside-avoid">
+                          <h4 className="font-semibold text-gray-900">Location</h4>
+                          <p className="text-sm text-gray-600">{getLocation(event)}</p>
+                          {getAddress(event) && (
+                            <p className="text-sm text-gray-500">{getAddress(event)}</p>
+                          )}
+                        </div>
+
+                        {/* Status badge */}
+                        <div className="grid grid-cols-2">
+                          <div className="sm:hidden break-inside-avoid">
+                            <h4 className="font-semibold text-gray-900">Status</h4>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${status.color}`}
+                            >
+                              {status.label}
+                            </span>
+                          </div>
+
+                          {isVirtual && (
+                            <div className="break-inside-avoid">
+                              <h4 className="font-semibold text-gray-900">Virtual</h4>
+                              <p className="text-sm text-gray-600">Yes</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
             )
           })}
         </TableBody>
