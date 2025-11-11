@@ -1,4 +1,5 @@
 import { getCourses } from '@/actions/getCourses'
+import { getCoursesStates } from '@/actions/getCoursesStates'
 import { getProviders } from '@/actions/getProviders'
 import { CoursesList } from '@/components/CoursesList'
 import { AffinityGroupsFilter } from '@/components/filters/AffinityGroupsFilter'
@@ -47,8 +48,9 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
     limit: 20,
   })
 
-  // Fetch providers if filters are enabled
+  // Fetch providers and states if filters are enabled
   const { providers: providersList } = showFilters ? await getProviders() : { providers: [] }
+  const { states: statesList } = showFilters ? await getCoursesStates() : { states: [] }
 
   // Check if any filters are active
   const hasActiveFilters = Boolean(
@@ -72,6 +74,7 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
           <CoursesMobileFilters
             courseCount={total}
             providers={providersList}
+            states={statesList}
             hasActiveFilters={hasActiveFilters}
             startDate={startDate || ''}
             endDate={endDate || ''}
@@ -89,7 +92,7 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
               <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
               <CoursesTypeFilter />
               <ProvidersFilter providers={providersList} />
-              <StatesFilter />
+              <StatesFilter states={statesList} />
               <AffinityGroupsFilter />
               <ModesOfTravelFilter showBottomBorder={false} />
             </div>

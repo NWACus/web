@@ -13,9 +13,15 @@ type Provider = {
   name: string
 }
 
+type State = {
+  label: string
+  value: string
+}
+
 type Props = {
   courseCount: number
   providers: Provider[]
+  states: State[]
   hasActiveFilters: boolean
   startDate: string
   endDate: string
@@ -24,6 +30,7 @@ type Props = {
 export const CoursesMobileFilters = ({
   courseCount,
   providers,
+  states,
   hasActiveFilters,
   startDate,
   endDate,
@@ -37,7 +44,7 @@ export const CoursesMobileFilters = ({
       <CoursesDateFilter startDate={startDate} endDate={endDate} />
       <CoursesTypeFilter />
       <ProvidersFilter providers={providers} />
-      <StatesFilter />
+      <StatesFilter states={states} />
       <AffinityGroupsFilter />
       <ModesOfTravelFilter />
     </MobileFiltersDrawer>
