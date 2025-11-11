@@ -99,7 +99,7 @@ const dynamicEventRelatedFields: Field[] = [
         admin: {
           readOnly: true,
           components: {
-            Field: '@/blocks/EventTable/fields/QueriedEventsComponent#QueriedEventsComponent',
+            Field: '@/blocks/EventQuery/fields/QueriedEventsComponent#QueriedEventsComponent',
           },
         },
       },
