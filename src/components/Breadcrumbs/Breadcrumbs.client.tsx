@@ -53,7 +53,12 @@ const processNestedSegments = (
 
 export function Breadcrumbs() {
   const segments = useSelectedLayoutSegments()
-  const decodedSegments = segments.map(decodeURIComponent)
+  // Exclude the 'g' segment from breadcrumbs, but only when 'g' immediately follows 'events' in the URL path
+  // (e.g., for /events/g/[slug] routes)
+  const decodedSegments = segments
+    .map(decodeURIComponent)
+    .filter((segment, index, arr) => !(segment === 'g' && arr[index - 1] === 'events'))
+
   const { isNotFound } = useNotFound()
   const { captureWithTenant } = useAnalytics()
 
