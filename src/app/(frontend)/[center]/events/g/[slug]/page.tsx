@@ -66,8 +66,8 @@ export default async function EventGroup({ params: paramsPromise }: Args) {
         )}
         <div className={cn('container z-10', { 'mt-40': event.featuredImage })}>
           <div className="max-w-[48rem] mx-auto mb-8">
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="prose dark:prose-invert max-w-[48rem] mx-auto">
+            <div className="bg-card border rounded-lg p-6 shadow-sm min-h-[25vh] flex flex-col justify-center text-left">
+              <div className="prose dark:prose-invert">
                 <h1 className="font-bold mb-2">{event.title}</h1>
               </div>
               <div className="mt-6 pt-6 border-t">{event.description}</div>
