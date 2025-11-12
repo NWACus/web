@@ -182,9 +182,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
             <TableHead className="hidden lg:table-cell flex-1 min-w-0">
               <SortableHeader label="Cost" sortKey="cost" />
             </TableHead>
-            <TableHead className="hidden lg:table-cell flex-1 min-w-0">
-              <SortableHeader label="Deadline" sortKey="registrationDeadline" />
-            </TableHead>
             <TableHead className="flex-1 min-w-0 text-center"></TableHead>
           </TableRow>
         </TableHeader>
@@ -246,19 +243,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   <TableCell className="hidden lg:table-cell text-center">
                     {event.cost === 0 ? 'Free' : `$${event.cost}`}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {event.registrationDeadline
-                      ? (() => {
-                          const { date, time } = formatDateTime(event.registrationDeadline)
-                          return (
-                            <div>
-                              <div className="font-medium">{date}</div>
-                              <div className="text-gray-500 text-xs">{time}</div>
-                            </div>
-                          )
-                        })()
-                      : null}
-                  </TableCell>
 
                   {/* Register button */}
                   <TableCell className="text-center px-1 sm:px-2">
@@ -304,25 +288,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                             <span>{status.label}</span>
                           </div>
 
-                          {/* Deadline date */}
-                          <div className="break-inside-avoid mb-2">
-                            {event.registrationDeadline
-                              ? (() => {
-                                  const { date, time } = formatDateTime(event.registrationDeadline)
-                                  return (
-                                    <div>
-                                      <h4 className="font-semibold text-gray-900">
-                                        Registration deadline
-                                      </h4>
-                                      <div>
-                                        {date}
-                                        <span className="text-gray-500 text-xs"> @ {time}</span>
-                                      </div>
-                                    </div>
-                                  )
-                                })()
-                              : null}
-                          </div>
                           <div>
                             <CMSLink appearance="outline" size="sm" url={eventUrl}>
                               Learn More
