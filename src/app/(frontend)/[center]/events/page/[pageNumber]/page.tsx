@@ -8,24 +8,27 @@ import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { EVENTS_LIMIT } from '@/utilities/constants'
 import { notFound } from 'next/navigation'
+import { SearchParams } from 'nuqs/server'
 import { EventsDatePicker } from '../../events-date-filter'
 import { EventsMobileFilters } from '../../events-mobile-filters'
 import { EventsTypeFilter } from '../../events-type-filter'
+import { loadEventsSearchParams } from '../../page'
 
 type Args = {
   params: Promise<{
     center: string
     pageNumber: string
   }>
-  searchParams: Promise<{ [key: string]: string }>
+  searchParams: Promise<SearchParams>
 }
 
 export default async function Page({ params, searchParams }: Args) {
   const { center, pageNumber } = await params
-  const resolvedSearchParams = await searchParams
-  const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
-  const selectedStartDate = resolvedSearchParams?.startDate || ''
-  const selectedEndDate = resolvedSearchParams?.endDate || ''
+  const {
+    types: selectedTypes,
+    startDate: selectedStartDate,
+    endDate: selectedEndDate,
+  } = await loadEventsSearchParams(searchParams)
 
   const payload = await getPayload({ config: configPromise })
 

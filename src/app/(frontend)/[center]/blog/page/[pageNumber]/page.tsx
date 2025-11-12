@@ -6,7 +6,9 @@ import { PostCollection } from '@/components/PostCollection'
 import { POSTS_LIMIT } from '@/utilities/constants'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
+import { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
+import { loadBlogSearchParams } from '../../page'
 import { PostsSort } from '../../posts-sort'
 import { PostsTags } from '../../posts-tags'
 
@@ -17,13 +19,11 @@ type Args = {
     center: string
     pageNumber: string
   }>
-  searchParams: Promise<{ [key: string]: string }>
+  searchParams: Promise<SearchParams>
 }
 
 export default async function Page({ params: paramsPromise, searchParams }: Args) {
-  const resolvedSearchParams = await searchParams
-  const sort = resolvedSearchParams?.sort || '-publishedAt'
-  const selectedTag = resolvedSearchParams?.tags
+  const { sort, tags: selectedTag } = await loadBlogSearchParams(searchParams)
 
   const { center, pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })

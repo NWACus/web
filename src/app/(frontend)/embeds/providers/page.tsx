@@ -8,21 +8,24 @@ import {
 import { getStateLabel } from '@/fields/location/states'
 import type { Provider } from '@/payload-types'
 import config from '@/payload.config'
+import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
-
-type Props = {
-  searchParams: SearchParams
+const providersSearchParams = {
+  backgroundColor: parseAsString,
+  title: parseAsString,
 }
+
+const loadSearchParams = createLoader(providersSearchParams)
 
 type ProvidersByState = { [state: string]: Provider[] }
 
-export default async function ProvidersEmbedPage({ searchParams }: Props) {
-  const params = await searchParams
-
-  const backgroundColor = params.backgroundColor
-  const title = params.title
+export default async function ProvidersEmbedPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
+  const { backgroundColor, title } = await loadSearchParams(searchParams)
 
   const payload = await getPayload({ config })
 
@@ -62,11 +65,7 @@ export default async function ProvidersEmbedPage({ searchParams }: Props) {
   const rightColumnStates = states.slice(midpoint)
 
   return (
-    <div
-      style={
-        backgroundColor && typeof backgroundColor === 'string' ? { backgroundColor } : undefined
-      }
-    >
+    <div style={backgroundColor ? { backgroundColor } : undefined}>
       {title && (
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-2">{title}</h1>

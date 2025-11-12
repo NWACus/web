@@ -6,21 +6,27 @@ import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import { PostCollection } from '@/components/PostCollection'
 import { POSTS_LIMIT } from '@/utilities/constants'
+import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
 import { PostsSort } from './posts-sort'
 import { PostsTags } from './posts-tags'
+
+export const blogSearchParams = {
+  sort: parseAsString.withDefault('-publishedAt'),
+  tags: parseAsString,
+}
+
+export const loadBlogSearchParams = createLoader(blogSearchParams)
 
 type Args = {
   params: Promise<{
     center: string
   }>
-  searchParams: Promise<{ [key: string]: string }>
+  searchParams: Promise<SearchParams>
 }
 
 export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
-  const resolvedSearchParams = await searchParams
-  const sort = resolvedSearchParams?.sort || '-publishedAt'
-  const selectedTag = resolvedSearchParams?.tags
+  const { sort, tags: selectedTag } = await loadBlogSearchParams(searchParams)
 
   const payload = await getPayload({ config: configPromise })
 

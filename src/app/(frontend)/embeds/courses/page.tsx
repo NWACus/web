@@ -6,32 +6,43 @@ import { AffinityGroupsFilter } from '@/components/filters/AffinityGroupsFilter'
 import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
 import { ProvidersFilter } from '@/components/filters/ProvidersFilter'
 import { StatesFilter } from '@/components/filters/StatesFilter'
+import { createLoader, parseAsBoolean, parseAsString, SearchParams } from 'nuqs/server'
 import { CoursesDateFilter } from './courses-date-filter'
 import { CoursesMobileFilters } from './courses-mobile-filters'
 import { CoursesTypeFilter } from './courses-type-filter'
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
-
-type Props = {
-  searchParams: SearchParams
+const coursesSearchParams = {
+  backgroundColor: parseAsString,
+  title: parseAsString,
+  showFilters: parseAsBoolean.withDefault(false),
+  types: parseAsString,
+  providers: parseAsString,
+  states: parseAsString,
+  affinityGroups: parseAsString,
+  modesOfTravel: parseAsString,
+  startDate: parseAsString,
+  endDate: parseAsString,
 }
+const loadSearchParams = createLoader(coursesSearchParams)
 
-export default async function CoursesEmbedPage({ searchParams }: Props) {
-  const params = await searchParams
+export default async function CoursesEmbedPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
+  const {
+    backgroundColor,
+    title,
+    showFilters,
+    types,
+    providers,
+    states,
+    affinityGroups,
+    modesOfTravel,
+    startDate,
+    endDate,
+  } = await loadSearchParams(searchParams)
 
-  // Extract filter parameters
-  const backgroundColor = params.backgroundColor
-  const title = params.title
-  const showFilters = params.showFilters === 'true'
-  const types = params.types as string
-  const providers = params.providers as string
-  const states = params.states as string
-  const affinityGroups = params.affinityGroups as string
-  const modesOfTravel = params.modesOfTravel as string
-  const startDate = params.startDate as string
-  const endDate = params.endDate as string
-
-  // Fetch initial courses from server
   const filters = {
     types,
     providers,
@@ -42,15 +53,11 @@ export default async function CoursesEmbedPage({ searchParams }: Props) {
     endDate,
   }
 
-  const { courses, hasMore, total, error } = await getCourses({
-    ...filters,
-  })
+  const { courses, hasMore, total, error } = await getCourses(filters)
 
-  // Fetch providers and states if filters are enabled
   const { providers: providersList } = showFilters ? await getProviders() : { providers: [] }
   const { states: statesList } = showFilters ? await getCoursesStates() : { states: [] }
 
-  // Check if any filters are active
   const hasActiveFilters = Boolean(
     types || providers || states || affinityGroups || modesOfTravel || startDate || endDate,
   )

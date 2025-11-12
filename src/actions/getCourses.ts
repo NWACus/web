@@ -7,15 +7,15 @@ import type { Where } from 'payload'
 import { getPayload } from 'payload'
 
 export interface GetCoursesParams {
-  offset?: number
-  limit?: number
-  types?: string
-  providers?: string
-  states?: string
-  affinityGroups?: string
-  modesOfTravel?: string
-  startDate?: string
-  endDate?: string
+  offset?: number | null
+  limit?: number | null
+  types?: string | null
+  providers?: string | null
+  states?: string | null
+  affinityGroups?: string | null
+  modesOfTravel?: string | null
+  startDate?: string | null
+  endDate?: string | null
 }
 
 export interface GetCoursesResult {
@@ -29,22 +29,13 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
   const payload = await getPayload({ config })
 
   try {
-    const {
-      offset = 0,
-      limit = 10,
-      types,
-      providers,
-      states,
-      affinityGroups,
-      modesOfTravel,
-      startDate,
-      endDate,
-    } = params
+    const { types, providers, states, affinityGroups, modesOfTravel, startDate, endDate } = params
 
-    // Build where conditions
+    const offset = params.offset || 0
+    const limit = params.limit || 10
+
     const conditions: Where[] = []
 
-    // Filter by course types
     if (types) {
       const selectedTypes = types.split(',').filter(Boolean)
       if (selectedTypes.length > 0) {
@@ -56,7 +47,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
       }
     }
 
-    // Filter by providers
     if (providers) {
       const selectedProviders = providers.split(',').filter(Boolean).map(Number)
       if (selectedProviders.length > 0) {
@@ -68,7 +58,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
       }
     }
 
-    // Filter by states
     if (states) {
       const selectedStates = states.split(',').filter(Boolean)
       if (selectedStates.length > 0) {
@@ -80,7 +69,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
       }
     }
 
-    // Filter by affinity groups
     if (affinityGroups) {
       const selectedAffinityGroups = affinityGroups.split(',').filter(Boolean)
       if (selectedAffinityGroups.length > 0) {
@@ -92,7 +80,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
       }
     }
 
-    // Filter by modes of travel
     if (modesOfTravel) {
       const selectedModes = modesOfTravel.split(',').filter(Boolean)
       if (selectedModes.length > 0) {
@@ -104,7 +91,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
       }
     }
 
-    // Filter by date range
     if (startDate && endDate) {
       conditions.push({
         startDate: {
@@ -152,7 +138,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
       })
     }
 
-    // Always filter for published courses
     conditions.push({
       _status: {
         equals: 'published',
@@ -164,8 +149,8 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
     const result = await payload.find({
       collection: 'courses',
       where,
-      limit,
-      page: Math.floor(offset / limit) + 1,
+      limit: limit || undefined,
+      page: limit && offset ? Math.floor(offset / limit) + 1 : undefined,
       sort: 'startDate',
       depth: 1,
     })
