@@ -4,7 +4,7 @@ import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
 import { QuickDateFilter } from '@/constants/quickDateFilters'
 import { ChevronDown } from 'lucide-react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { parseAsString, useQueryStates } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 type DateRangeFilterProps = {
@@ -17,49 +17,37 @@ type DateRangeFilterProps = {
 }
 
 export const DateRangeFilter = ({
-  startDate,
-  endDate,
+  startDate: initialStartDate,
+  endDate: initialEndDate,
   quickFilters,
   title = 'Date Range',
   defaultOpen = true,
   showBottomBorder = true,
 }: DateRangeFilterProps) => {
+  const [{ startDate, endDate }, setDateParams] = useQueryStates(
+    {
+      startDate: parseAsString.withDefault(''),
+      endDate: parseAsString.withDefault(''),
+    },
+    {
+      history: 'push',
+      shallow: false,
+    },
+  )
+
   const [filterType, setFilterType] = useState('')
-  const [customStart, setCustomStart] = useState(startDate)
-  const [customEnd, setCustomEnd] = useState(endDate || '')
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const isInitialMount = useRef(true)
-
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const updateParams = useCallback(
-    (start: string, end: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      if (start) {
-        params.set('startDate', start)
-      } else {
-        params.delete('startDate')
-      }
-      if (end) {
-        params.set('endDate', end)
-      } else {
-        params.delete('endDate')
-      }
-      router.push(`${pathname}?${params.toString()}`, { scroll: false })
-    },
-    [pathname, router, searchParams],
-  )
 
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string) => {
       setFilterType(filter)
-      setCustomStart(start)
-      setCustomEnd(end)
-      updateParams(start, end)
+      setDateParams({
+        startDate: start || null,
+        endDate: end || null,
+      })
     },
-    [updateParams],
+    [setDateParams],
   )
 
   const handleQuickFilter = useCallback(
@@ -70,10 +58,10 @@ export const DateRangeFilter = ({
         const end = filter.endDate() || ''
         updateDateSelection(filterKey, start, end)
       } else {
-        updateDateSelection(filterKey, customStart, customEnd)
+        updateDateSelection(filterKey, startDate, endDate)
       }
     },
-    [customEnd, customStart, quickFilters, updateDateSelection],
+    [endDate, startDate, quickFilters, updateDateSelection],
   )
 
   const renderQuickFilterButton = (id: string) => {
@@ -92,15 +80,19 @@ export const DateRangeFilter = ({
 
   useEffect(() => {
     if (isInitialMount.current) {
-      if ((!startDate && !endDate) || (startDate && !endDate)) {
+      // Use initial props for first mount
+      const currentStart = startDate || initialStartDate
+      const currentEnd = endDate || initialEndDate
+
+      if ((!currentStart && !currentEnd) || (currentStart && !currentEnd)) {
         // No dates set or only start date, default to upcoming
         setFilterType('upcoming')
-      } else if (startDate && endDate) {
+      } else if (currentStart && currentEnd) {
         // Try to match against quick filters
         const matchingFilter = quickFilters.find((filter) => {
           const filterStart = filter.startDate()
           const filterEnd = filter.endDate() || ''
-          return filterStart === startDate && filterEnd === endDate
+          return filterStart === currentStart && filterEnd === currentEnd
         })
 
         if (matchingFilter) {
@@ -112,7 +104,7 @@ export const DateRangeFilter = ({
       }
       isInitialMount.current = false
     }
-  }, [endDate, quickFilters, startDate])
+  }, [endDate, initialEndDate, initialStartDate, quickFilters, startDate])
 
   return (
     <div className={showBottomBorder ? 'border-b' : ''}>
@@ -162,15 +154,15 @@ export const DateRangeFilter = ({
               <div className="flex gap-4 mt-4">
                 <DatePickerField
                   label="Start Date"
-                  value={customStart}
+                  value={startDate}
                   id="customStart"
-                  onChange={(date) => updateDateSelection('custom', date, customEnd)}
+                  onChange={(date) => updateDateSelection('custom', date, endDate)}
                 />
                 <DatePickerField
                   label="End Date"
-                  value={customEnd}
+                  value={endDate}
                   id="customEnd"
-                  onChange={(date) => updateDateSelection('custom', customStart, date)}
+                  onChange={(date) => updateDateSelection('custom', startDate, date)}
                 />
               </div>
             )}

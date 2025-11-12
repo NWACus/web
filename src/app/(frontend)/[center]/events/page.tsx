@@ -1,25 +1,23 @@
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
-import { getPayload, Where } from 'payload'
+import { getPayload } from 'payload'
 
+import { getEvents } from '@/actions/getEvents'
 import { eventTypesData } from '@/collections/Events/constants'
-import { EventCollection } from '@/components/EventCollection'
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
-import { EVENTS_LIMIT } from '@/utilities/constants'
+import { EventsList } from '@/components/EventsList'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
 import { EventsDatePicker } from './events-date-filter'
 import { EventsMobileFilters } from './events-mobile-filters'
 import { EventsTypeFilter } from './events-type-filter'
 
-export const eventsSearchParams = {
+const eventsSearchParams = {
   types: parseAsArrayOf(parseAsString),
   startDate: parseAsString.withDefault(''),
   endDate: parseAsString.withDefault(''),
 }
 
-export const loadEventsSearchParams = createLoader(eventsSearchParams)
+const loadEventsSearchParams = createLoader(eventsSearchParams)
 
 type Args = {
   params: Promise<{
@@ -54,41 +52,14 @@ export default async function Page({ params, searchParams }: Args) {
     return notFound()
   }
 
-  const conditions: Where[] = [{ 'tenant.slug': { equals: center } }]
-
-  if (selectedTypes?.length) {
-    conditions.push({ type: { in: selectedTypes } })
+  const filters = {
+    types: selectedTypes || null,
+    startDate: selectedStartDate,
+    endDate: selectedEndDate,
+    center,
   }
 
-  if (selectedStartDate && selectedEndDate) {
-    conditions.push({
-      startDate: {
-        greater_than_equal: selectedStartDate,
-        less_than_equal: selectedEndDate,
-      },
-    })
-  } else if (selectedStartDate) {
-    conditions.push({
-      startDate: {
-        greater_than_equal: selectedStartDate,
-      },
-    })
-  } else if (selectedEndDate) {
-    conditions.push({
-      startDate: {
-        less_than_equal: selectedEndDate,
-      },
-    })
-  }
-
-  const whereConditions: Where = { and: conditions }
-  const events = await payload.find({
-    collection: 'events',
-    depth: 2,
-    limit: EVENTS_LIMIT,
-    where: whereConditions,
-    sort: 'startDate',
-  })
+  const { events, hasMore, total, error } = await getEvents(filters)
 
   const hasActiveFilters =
     (selectedTypes && selectedTypes.length > 0) || selectedStartDate || selectedEndDate
@@ -101,40 +72,26 @@ export default async function Page({ params, searchParams }: Args) {
           <EventsMobileFilters
             types={eventTypesData}
             hasActiveFilters={Boolean(hasActiveFilters)}
-            eventCount={events.totalDocs}
+            eventCount={total}
           />
         </div>
 
         {/* Main Content */}
         <div className="grow order-2 md:order-1">
-          <EventCollection events={events.docs} />
+          <EventsList
+            initialEvents={events}
+            initialHasMore={hasMore}
+            initialError={error}
+            center={center}
+          />
         </div>
 
         {/* Desktop Sidebar - Hidden on Mobile */}
         <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
-          <EventsTypeFilter types={eventTypesData} />
           <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
+          <EventsTypeFilter types={eventTypesData} />
         </div>
       </div>
-
-      {events.totalPages > 1 && events.page && (
-        <div className="container mb-4">
-          <Pagination
-            page={events.page}
-            totalPages={events.totalPages}
-            relativePath="/events/page"
-          />
-          <PageRange
-            collectionLabels={{
-              plural: 'Events',
-              singular: 'Event',
-            }}
-            currentPage={events.page}
-            limit={EVENTS_LIMIT}
-            totalDocs={events.totalDocs}
-          />
-        </div>
-      )}
     </div>
   )
 }

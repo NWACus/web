@@ -9,6 +9,12 @@ type Props = {
 
 export const EventsTypeFilter = ({ types }: Props) => {
   return (
-    <CheckboxFilter title="Filter by type" urlParam="types" options={types} defaultOpen={true} />
+    <CheckboxFilter
+      title="Filter by type"
+      urlParam="types"
+      options={types}
+      defaultOpen={true}
+      showBottomBorder={false}
+    />
   )
 }

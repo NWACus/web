@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Fuse from 'fuse.js'
 import { ChevronDown, Search, X } from 'lucide-react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { parseAsArrayOf, parseAsString, useQueryState } from 'nuqs'
 import { useCallback, useMemo, useState } from 'react'
 
 export type CheckboxOption = {
@@ -37,16 +37,12 @@ export const CheckboxFilter = ({
   enableSearch = false,
   searchPlaceholder = 'Search...',
 }: CheckboxFilterProps) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const [selectedValues, setSelectedValues] = useQueryState(
+    urlParam,
+    parseAsArrayOf(parseAsString).withDefault([]),
+  )
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const [searchQuery, setSearchQuery] = useState('')
-
-  const [selectedValues, setSelectedValues] = useState<string[]>(() => {
-    const param = searchParams.get(urlParam)
-    return param ? param.split(',').filter(Boolean) : []
-  })
 
   // Initialize Fuse.js for fuzzy search
   const fuse = useMemo(
@@ -67,38 +63,18 @@ export const CheckboxFilter = ({
     return fuse.search(searchQuery).map((result) => result.item)
   }, [enableSearch, searchQuery, options, fuse])
 
-  const updateParams = useCallback(
-    (newValues: string[]) => {
-      const params = new URLSearchParams(searchParams.toString())
-
-      if (newValues.length > 0) {
-        params.set(urlParam, newValues.join(','))
-      } else {
-        params.delete(urlParam)
-      }
-
-      router.push(`${pathname}?${params.toString()}`, { scroll: false })
-    },
-    [searchParams, router, pathname, urlParam],
-  )
-
   const toggleValue = useCallback(
     (value: string) => {
       const newValues = selectedValues.includes(value)
         ? selectedValues.filter((v) => v !== value)
         : [...selectedValues, value]
-      setSelectedValues(newValues)
-      updateParams(newValues)
+      setSelectedValues(newValues.length > 0 ? newValues : null)
     },
-    [selectedValues, updateParams],
+    [selectedValues, setSelectedValues],
   )
 
   const clearFilter = () => {
-    setSelectedValues([])
-
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete(urlParam)
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    setSelectedValues(null)
   }
 
   if (hideOnEmpty && options.length === 0) {

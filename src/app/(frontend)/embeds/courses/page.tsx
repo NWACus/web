@@ -89,12 +89,7 @@ export default async function CoursesEmbedPage({
 
       <div className="flex gap-6">
         <div className="flex-1">
-          <CoursesList
-            initialCourses={courses}
-            initialHasMore={hasMore}
-            initialError={error}
-            filters={filters}
-          />
+          <CoursesList initialCourses={courses} initialHasMore={hasMore} initialError={error} />
         </div>
         {showFilters && (
           <aside className="hidden md:block w-80 flex-shrink-0">
