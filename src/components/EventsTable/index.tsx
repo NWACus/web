@@ -187,7 +187,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
               <SortableHeader label="Name" sortKey="title" />
             </TableHead>
             <TableHead className="hidden lg:table-cell flex-1 min-w-0">Location</TableHead>
-            <TableHead className="hidden md:table-cell"></TableHead>
+            <TableHead className="hidden sm:table-cell"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -242,7 +242,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   </TableCell>
 
                   {/* Register button */}
-                  <TableCell className="hidden md:table-cell text-right px-2">
+                  <TableCell className="hidden sm:table-cell text-right px-2">
                     {event.registrationUrl && !isPast && !isRegistrationClosed ? (
                       <>
                         <CMSLink
@@ -283,7 +283,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                           )}
                         </div>
                         <div className="flex flex-col gap-2 text-right">
-                          <div className="md:hidden">
+                          <div className="sm:hidden">
                             {event.registrationUrl && !isPast && !isRegistrationClosed ? (
                               <>
                                 <CMSLink
