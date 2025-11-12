@@ -3,7 +3,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
 
 import { getEvents } from '@/actions/getEvents'
-import { eventTypesData } from '@/collections/Events/constants'
+import { getEventTypes } from '@/actions/getEventTypes'
 import { EventsList } from '@/components/EventsList'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
@@ -60,6 +60,7 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const { events, hasMore, total, error } = await getEvents(filters)
+  const { eventTypes } = await getEventTypes({ center })
 
   const hasActiveFilters =
     (selectedTypes && selectedTypes.length > 0) || selectedStartDate || selectedEndDate
@@ -70,7 +71,7 @@ export default async function Page({ params, searchParams }: Args) {
         {/* Mobile Filter Toggle */}
         <div className="md:hidden">
           <EventsMobileFilters
-            types={eventTypesData}
+            types={eventTypes}
             hasActiveFilters={Boolean(hasActiveFilters)}
             eventCount={total}
           />
@@ -89,7 +90,7 @@ export default async function Page({ params, searchParams }: Args) {
         {/* Desktop Sidebar - Hidden on Mobile */}
         <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
           <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
-          <EventsTypeFilter types={eventTypesData} />
+          <EventsTypeFilter types={eventTypes} />
         </div>
       </div>
     </div>
