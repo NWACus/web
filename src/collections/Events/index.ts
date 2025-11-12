@@ -30,6 +30,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
+import { revalidateEvent, revalidateEventDelete } from './hooks/revalidateEvent'
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -262,8 +263,8 @@ export const Events: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [populatePublishedAt, populateBlocksInContent],
-    // TODO: need revalidation hooks herehooks: {
-    // TODO: need to update revalidation utilities to look for this blocksInContent field for relationships in addition to Posts and Home Pages
+    afterChange: [revalidateEvent],
+    afterDelete: [revalidateEventDelete],
   },
   versions: {
     drafts: {

@@ -13,11 +13,12 @@ export interface RevalidationReference {
     | 'posts'
     | 'homePages'
     | 'sponsors'
+    | 'events'
   id: number
 }
 
 export interface DocumentForRevalidation {
-  collection: 'pages' | 'posts' | 'homePages'
+  collection: 'pages' | 'posts' | 'homePages' | 'events'
   id: number
   slug: string
   tenant: number | { id: number; slug: string }
@@ -83,6 +84,16 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
 
     payload.logger.info(
       `Revalidating ${doc.collection} for tenant ${tenant.slug} at paths: ${basePaths.join(', ')}`,
+    )
+
+    basePaths.forEach((path) => revalidatePath(path))
+  }
+
+  if (doc.collection === 'events') {
+    const basePaths = [`/events/${doc.slug}`, `/${tenant.slug}/events/${doc.slug}`]
+
+    payload.logger.info(
+      `Revalidating ${doc.collection} ${doc.slug} at paths: ${basePaths.join(', ')}`,
     )
 
     basePaths.forEach((path) => revalidatePath(path))
