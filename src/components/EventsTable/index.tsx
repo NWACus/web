@@ -64,11 +64,15 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     if (event.location?.isVirtual) {
       return ''
     }
+
+    const eventAddress: string[] = []
     const { address, city, state, zip } = event.location || {}
-    if (address) return address
-    if (city && state) return `${city}, ${state}`
-    if (zip) return zip
-    return 'TBA'
+
+    if (address) eventAddress.push(address)
+    if (city && state) eventAddress.push(`${city}, ${state}`)
+    if (zip) eventAddress.push(zip)
+
+    return eventAddress.length > 0 ? eventAddress.join(', ') : 'TBA'
   }
 
   // Get display location (city/venue)
@@ -212,7 +216,11 @@ export function EventTable({ events = [] }: { events: Event[] }) {
 
                   {/* Name */}
                   <TableCell className="text-sm max-w-xs">
-                    <CMSLink className="hidden md:inline-block" appearance="link" url={eventUrl}>
+                    <CMSLink
+                      className="hidden md:inline-block underline"
+                      appearance="link"
+                      url={eventUrl}
+                    >
                       {event.title}
                     </CMSLink>
                     <span className="md:hidden">{event.title}</span>
@@ -227,7 +235,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   </TableCell>
 
                   {/* Register button */}
-                  <TableCell className="text-center px-1 sm:px-2">
+                  <TableCell className="text-right px-2">
                     {event.registrationUrl && !isPast && !isRegistrationClosed ? (
                       <>
                         <CMSLink
@@ -263,13 +271,11 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                             <p className="text-sm text-gray-500">{getAddress(event)}</p>
                           )}
                         </div>
-                        <div className="w-1/2">
-                          <div>
-                            <CMSLink appearance="outline" size="sm" url={eventUrl}>
-                              Learn More
-                              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
-                            </CMSLink>
-                          </div>
+                        <div className="w-1/2 text-right">
+                          <CMSLink appearance="outline" size="sm" url={eventUrl}>
+                            Learn More
+                            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
+                          </CMSLink>
                         </div>
                       </div>
                     </TableCell>
