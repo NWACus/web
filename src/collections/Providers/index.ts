@@ -8,6 +8,7 @@ import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { courseTypesData } from '../Courses/constants'
 import { courseTypesFieldAccess } from './access/courseTypesFieldAccess'
+import { revalidateProvider, revalidateProviderDelete } from './hooks/revalidateProvider'
 import { sendProviderEmails } from './hooks/sendProviderEmails'
 import { setNotificationEmail } from './hooks/setNotificationEmail'
 
@@ -154,7 +155,8 @@ export const Providers: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterChange: [sendProviderEmails],
+    afterChange: [sendProviderEmails, revalidateProvider],
+    afterDelete: [revalidateProviderDelete],
   },
   versions: {
     drafts: {

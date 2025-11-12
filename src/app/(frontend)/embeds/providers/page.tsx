@@ -11,6 +11,8 @@ import config from '@/payload.config'
 import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 
+export const dynamic = 'force-static'
+
 const providersSearchParams = {
   backgroundColor: parseAsString,
   title: parseAsString,
