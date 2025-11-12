@@ -79,6 +79,7 @@ export async function findDocumentsWithBlockReferences(
     postsBlockMappings,
     homePagesBlockMappings,
     homePagesHighlightedContentBlockMappings,
+    eventsBlockMappings,
   } = await getBlocksFromConfig()
 
   const pagesMappings = pagesBlockMappings[reference.collection]
@@ -297,6 +298,43 @@ export async function findDocumentsWithBlockReferences(
     } catch (error) {
       payload.logger.warn(
         `Error querying homePages.blocksInHighlightedContent for ${reference.collection} reference ${reference.id}: ${error}`,
+      )
+    }
+  }
+
+  const eventsMappings = eventsBlockMappings[reference.collection]
+
+  if (eventsMappings) {
+    try {
+      const eventsWithBlocksRes = await payload.find({
+        collection: 'events',
+        where: {
+          and: [
+            {
+              _status: { equals: 'published' },
+            },
+            {
+              'blocksInContent.collection': { equals: reference.collection },
+            },
+            {
+              'blocksInContent.docId': { equals: reference.id },
+            },
+          ],
+        },
+        depth: 1,
+      })
+
+      const eventsWithBlocks: DocumentForRevalidation[] = eventsWithBlocksRes.docs.map((doc) => ({
+        collection: 'events',
+        id: doc.id,
+        slug: doc.slug,
+        tenant: doc.tenant,
+      }))
+
+      results.push(...eventsWithBlocks)
+    } catch (error) {
+      payload.logger.warn(
+        `Error querying events for ${reference.collection} reference ${reference.id}: ${error}`,
       )
     }
   }
