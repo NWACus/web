@@ -60,11 +60,11 @@ export default async function EventGroup({ params: paramsPromise }: Args) {
         {event.featuredImage && (
           <Media
             resource={event.featuredImage}
-            className="w-full absolute"
+            className="w-full absolute z-1"
             imgClassName="w-full h-[35vh] object-cover"
           />
         )}
-        <div className={cn('container z-10', { 'mt-40': event.featuredImage })}>
+        <div className={cn('container relative', { 'mt-40': event.featuredImage })}>
           <div className="max-w-[48rem] mx-auto mb-8">
             <div className="bg-card border rounded-lg p-6 shadow-sm min-h-[25vh] flex flex-col justify-center text-left">
               <div className="prose dark:prose-invert">
