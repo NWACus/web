@@ -175,9 +175,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
             <TableHead className="sm:flex-1 sm:min-w-0">
               <SortableHeader label="Name" sortKey="title" />
             </TableHead>
-            <TableHead className="hidden sm:table-cell flex-1 min-w-0">
-              <SortableHeader label="Status" sortKey="type" />
-            </TableHead>
             <TableHead className="hidden lg:table-cell flex-1 min-w-0">Location</TableHead>
             <TableHead className="flex-1 min-w-0 text-center"></TableHead>
           </TableRow>
@@ -219,15 +216,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                       {event.title}
                     </CMSLink>
                     <span className="md:hidden">{event.title}</span>
-                  </TableCell>
-
-                  {/* Status label */}
-                  <TableCell className="hidden sm:table-cell px-1 sm:px-2 text-center">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${status.color}`}
-                    >
-                      {status.label}
-                    </span>
                   </TableCell>
 
                   {/* Location */}
@@ -276,12 +264,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                           )}
                         </div>
                         <div className="w-1/2">
-                          {/* Status */}
-                          <div className="sm:hidden break-inside-avoid flex items-start mb-3">
-                            <h4 className="font-semibold text-gray-900 me-2">Status</h4>
-                            <span>{status.label}</span>
-                          </div>
-
                           <div>
                             <CMSLink appearance="outline" size="sm" url={eventUrl}>
                               Learn More
