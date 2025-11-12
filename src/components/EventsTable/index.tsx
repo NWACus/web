@@ -11,7 +11,14 @@ import {
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
 import { format } from 'date-fns'
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, ExternalLink } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
+  ChevronUp,
+  ExternalLink,
+  MapPin,
+} from 'lucide-react'
 import { Fragment, useMemo, useState } from 'react'
 import { CMSLink } from '../Link'
 
@@ -180,7 +187,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
               <SortableHeader label="Name" sortKey="title" />
             </TableHead>
             <TableHead className="hidden lg:table-cell flex-1 min-w-0">Location</TableHead>
-            <TableHead className="flex-1 min-w-0 text-center"></TableHead>
+            <TableHead className="hidden md:table-cell"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -235,7 +242,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   </TableCell>
 
                   {/* Register button */}
-                  <TableCell className="text-right px-2">
+                  <TableCell className="hidden md:table-cell text-right px-2">
                     {event.registrationUrl && !isPast && !isRegistrationClosed ? (
                       <>
                         <CMSLink
@@ -262,19 +269,44 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   <TableRow className="bg-gray-50 lg:hidden">
                     <TableCell colSpan={1} className="w-2"></TableCell>
                     <TableCell colSpan={4} className="py-4 ps-0">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between gap-2">
                         {/* Location */}
-                        <div className="w-1/2 break-inside-avoid ">
-                          <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
+                        <div className="break-inside-avoid ">
+                          <div className="flex">
+                            <MapPin className="h-3 w-3 mt-1 me-0.5 flex-shrink-0" />
+
+                            <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
+                          </div>
                           <p className="text-sm text-gray-600">{getLocation(event)}</p>
                           {getAddress(event) && (
                             <p className="text-sm text-gray-500">{getAddress(event)}</p>
                           )}
                         </div>
-                        <div className="w-1/2 text-right">
+                        <div className="flex flex-col gap-2 text-right">
+                          <div className="md:hidden">
+                            {event.registrationUrl && !isPast && !isRegistrationClosed ? (
+                              <>
+                                <CMSLink
+                                  appearance="default"
+                                  size="sm"
+                                  className="group-hover:opacity-90 transition-opacity text-sm"
+                                  url={event.registrationUrl}
+                                >
+                                  Register
+                                  <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted" />
+                                </CMSLink>
+                              </>
+                            ) : isPast || isRegistrationClosed ? (
+                              <Button variant="default" disabled={true}>
+                                Closed
+                              </Button>
+                            ) : (
+                              <span className="text-gray-400 text-xs">—</span>
+                            )}
+                          </div>
+
                           <CMSLink appearance="outline" size="sm" url={eventUrl}>
                             Learn More
-                            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
                           </CMSLink>
                         </div>
                       </div>
