@@ -179,9 +179,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
               <SortableHeader label="Status" sortKey="type" />
             </TableHead>
             <TableHead className="hidden lg:table-cell flex-1 min-w-0">Location</TableHead>
-            <TableHead className="hidden lg:table-cell flex-1 min-w-0">
-              <SortableHeader label="Cost" sortKey="cost" />
-            </TableHead>
             <TableHead className="flex-1 min-w-0 text-center"></TableHead>
           </TableRow>
         </TableHeader>
@@ -239,9 +236,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                       <div className="font-medium">{getLocation(event)}</div>
                       <div className="text-gray-500 text-xs">{getAddress(event)}</div>
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell text-center">
-                    {event.cost === 0 ? 'Free' : `$${event.cost}`}
                   </TableCell>
 
                   {/* Register button */}
