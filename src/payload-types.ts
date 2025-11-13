@@ -700,15 +700,19 @@ export interface EventListBlock {
   wrapInContainer?: boolean | null;
   dynamicOptions?: {
     /**
-     * Select how the list of events will be sorted.
-     */
-    sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
-    /**
      * Optionally select event types to filter events.
      */
     filterByEventTypes?:
       | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
       | null;
+    /**
+     * Optionally select event group to filter events.
+     */
+    filterByEventGroups?: (number | EventGroup)[] | null;
+    /**
+     * Optionally select event tags to filter events.
+     */
+    filterByEventTags?: (number | EventTag)[] | null;
     /**
      * Only display events that have not yet occurred.
      */
@@ -728,6 +732,34 @@ export interface EventListBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'eventList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventGroups".
+ */
+export interface EventGroup {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTags".
+ */
+export interface EventTag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -906,51 +938,6 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventGroups".
- */
-export interface EventGroup {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  description?: string | null;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  slug: string;
-  featuredImage?: (number | null) | Media;
-  thumbnailImage?: (number | null) | Media;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTags".
- */
-export interface EventTag {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  description?: string | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "EventTableBlock".
  */
 export interface EventTableBlock {
@@ -981,6 +968,14 @@ export interface EventTableBlock {
     filterByEventTypes?:
       | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
       | null;
+    /**
+     * Optionally select event group to filter events.
+     */
+    filterByEventGroups?: (number | EventGroup)[] | null;
+    /**
+     * Optionally select event tags to filter events.
+     */
+    filterByEventTags?: (number | EventTag)[] | null;
     /**
      * Only display events that have not yet occurred.
      */
@@ -2902,8 +2897,9 @@ export interface EventListBlockSelect<T extends boolean = true> {
   dynamicOptions?:
     | T
     | {
-        sortBy?: T;
         filterByEventTypes?: T;
+        filterByEventGroups?: T;
+        filterByEventTags?: T;
         showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
@@ -2938,6 +2934,8 @@ export interface EventTableBlockSelect<T extends boolean = true> {
     | T
     | {
         filterByEventTypes?: T;
+        filterByEventGroups?: T;
+        filterByEventTags?: T;
         showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
@@ -3405,10 +3403,7 @@ export interface EventGroupsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   description?: T;
-  content?: T;
   slug?: T;
-  featuredImage?: T;
-  thumbnailImage?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -6,22 +6,6 @@ import {
 } from '@/fields/EventQuery/config'
 import type { Block, Field } from 'payload'
 
-const sortByField = (): Field => ({
-  name: 'sortBy',
-  type: 'select',
-  defaultValue: 'startDate',
-  options: [
-    { label: 'Start Date (Earliest First)', value: 'startDate' },
-    { label: 'Start Date (Latest First)', value: '-startDate' },
-    { label: 'Registration Deadline (Earliest First)', value: 'registrationDeadline' },
-    { label: 'Registration Deadline (Latest First)', value: '-registrationDeadline' },
-  ],
-  required: true,
-  admin: {
-    description: 'Select how the list of events will be sorted.',
-  },
-})
-
 const eventListBlockWithFields = (fields: Field[]): Block => ({
   slug: 'eventList',
   interfaceName: 'EventListBlock',
@@ -31,7 +15,7 @@ const eventListBlockWithFields = (fields: Field[]): Block => ({
 
 export const EventListBlock = eventListBlockWithFields([
   ...defaultStylingFields([colorPickerField('Background color')]),
-  ...dynamicEventRelatedFields([sortByField()]),
+  ...dynamicEventRelatedFields(),
   ...staticEventRelatedFields,
 ])
 
@@ -46,6 +30,6 @@ export const EventListBlockLexical = eventListBlockWithFields([
     type: 'checkbox',
     defaultValue: false,
   },
-  ...dynamicEventRelatedFields([sortByField()]),
+  ...dynamicEventRelatedFields(),
   ...staticEventRelatedFields,
 ])

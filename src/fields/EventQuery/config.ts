@@ -79,6 +79,28 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
         },
       },
       {
+        name: 'filterByEventGroups',
+        type: 'relationship',
+        relationTo: 'eventGroups',
+        hasMany: true,
+        admin: {
+          position: 'sidebar',
+          description: 'Optionally select event group to filter events.',
+        },
+        filterOptions: getTenantFilter,
+      },
+      {
+        name: 'filterByEventTags',
+        type: 'relationship',
+        relationTo: 'eventTags',
+        hasMany: true,
+        admin: {
+          position: 'sidebar',
+          description: 'Optionally select event tags to filter events.',
+        },
+        filterOptions: getTenantFilter,
+      },
+      {
         name: 'showUpcomingOnly',
         type: 'checkbox',
         defaultValue: true,
