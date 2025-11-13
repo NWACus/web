@@ -37,11 +37,17 @@ export const EventsList = ({
     const types = searchParams.get('types')
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
+    const groups = searchParams.get('groups')
+    const tags = searchParams.get('tags')
+    const modesOfTravel = searchParams.get('modesOfTravel')
     return {
       center,
       types: types ? types.split(',').filter(Boolean) : null,
       startDate: startDate || null,
       endDate: endDate || null,
+      groups: groups ? groups.split(',').filter(Boolean) : null,
+      tags: tags ? tags.split(',').filter(Boolean) : null,
+      modesOfTravel: modesOfTravel ? modesOfTravel.split(',').filter(Boolean) : null,
     }
   }, [searchParams, center])
 

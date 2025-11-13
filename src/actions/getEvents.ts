@@ -12,6 +12,9 @@ export interface GetEventsParams {
   types?: string[] | null
   startDate?: string | null
   endDate?: string | null
+  groups?: string[] | null
+  tags?: string[] | null
+  modesOfTravel?: string[] | null
   center: string
 }
 
@@ -26,7 +29,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
   const payload = await getPayload({ config })
 
   try {
-    const { types, startDate, endDate, center } = params
+    const { types, startDate, endDate, groups, tags, modesOfTravel, center } = params
 
     const offset = params.offset || 0
     const limit = params.limit || 10
@@ -43,6 +46,30 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
       conditions.push({
         type: {
           in: types,
+        },
+      })
+    }
+
+    if (groups && groups.length > 0) {
+      conditions.push({
+        eventGroups: {
+          in: groups,
+        },
+      })
+    }
+
+    if (tags && tags.length > 0) {
+      conditions.push({
+        eventTags: {
+          in: tags,
+        },
+      })
+    }
+
+    if (modesOfTravel && modesOfTravel.length > 0) {
+      conditions.push({
+        modeOfTravel: {
+          in: modesOfTravel,
         },
       })
     }
