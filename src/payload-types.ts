@@ -251,6 +251,7 @@ export interface HomePage {
     | DocumentBlock
     | EventListBlock
     | SingleEventBlock
+    | EventTableBlock
     | FormBlock
     | GenericEmbedBlock
     | HeaderBlock
@@ -316,6 +317,7 @@ export interface Page {
     | ContentBlock
     | DocumentBlock
     | EventListBlock
+    | EventTableBlock
     | SingleEventBlock
     | FormBlock
     | HeaderBlock
@@ -671,9 +673,10 @@ export interface Document {
  * via the `definition` "EventListBlock".
  */
 export interface EventListBlock {
+  backgroundColor: string;
   heading?: string | null;
   /**
-   * Optional content to display below the heading and above the event list.
+   * Optional content to display below the heading and above the event content.
    */
   belowHeadingContent?: {
     root: {
@@ -690,7 +693,6 @@ export interface EventListBlock {
     };
     [k: string]: unknown;
   } | null;
-  backgroundColor: string;
   eventOptions: 'dynamic' | 'static';
   /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.
@@ -698,15 +700,19 @@ export interface EventListBlock {
   wrapInContainer?: boolean | null;
   dynamicOptions?: {
     /**
-     * Select how the list of events will be sorted.
-     */
-    sortBy: 'startDate' | '-startDate' | 'registrationDeadline' | '-registrationDeadline';
-    /**
      * Optionally select event types to filter events.
      */
     filterByEventTypes?:
       | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
       | null;
+    /**
+     * Optionally select event group to filter events.
+     */
+    filterByEventGroups?: (number | EventGroup)[] | null;
+    /**
+     * Optionally select event tags to filter events.
+     */
+    filterByEventTags?: (number | EventTag)[] | null;
     /**
      * Only display events that have not yet occurred.
      */
@@ -726,6 +732,34 @@ export interface EventListBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'eventList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventGroups".
+ */
+export interface EventGroup {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTags".
+ */
+export interface EventTag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -904,31 +938,63 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventGroups".
+ * via the `definition` "EventTableBlock".
  */
-export interface EventGroup {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  description?: string | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTags".
- */
-export interface EventTag {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  description?: string | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
+export interface EventTableBlock {
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the event content.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  eventOptions: 'dynamic' | 'static';
+  dynamicOptions?: {
+    /**
+     * Optionally select event types to filter events.
+     */
+    filterByEventTypes?:
+      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
+      | null;
+    /**
+     * Optionally select event group to filter events.
+     */
+    filterByEventGroups?: (number | EventGroup)[] | null;
+    /**
+     * Optionally select event tags to filter events.
+     */
+    filterByEventTags?: (number | EventTag)[] | null;
+    /**
+     * Only display events that have not yet occurred.
+     */
+    showUpcomingOnly?: boolean | null;
+    /**
+     * Maximum number of events that will be displayed. Must be an integer.
+     */
+    maxEvents?: number | null;
+    queriedEvents?: (number | Event)[] | null;
+  };
+  staticOptions?: {
+    /**
+     * Choose new event from dropdown and/or drag and drop to change order
+     */
+    staticEvents?: (number | Event)[] | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventTable';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2720,6 +2786,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         documentBlock?: T | DocumentBlockSelect<T>;
         eventList?: T | EventListBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
+        eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
@@ -2823,15 +2890,16 @@ export interface DocumentBlockSelect<T extends boolean = true> {
  * via the `definition` "EventListBlock_select".
  */
 export interface EventListBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
   heading?: T;
   belowHeadingContent?: T;
-  backgroundColor?: T;
   eventOptions?: T;
   dynamicOptions?:
     | T
     | {
-        sortBy?: T;
         filterByEventTypes?: T;
+        filterByEventGroups?: T;
+        filterByEventTags?: T;
         showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
@@ -2851,6 +2919,32 @@ export interface EventListBlockSelect<T extends boolean = true> {
 export interface SingleEventBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   event?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventTableBlock_select".
+ */
+export interface EventTableBlockSelect<T extends boolean = true> {
+  heading?: T;
+  belowHeadingContent?: T;
+  eventOptions?: T;
+  dynamicOptions?:
+    | T
+    | {
+        filterByEventTypes?: T;
+        filterByEventGroups?: T;
+        filterByEventTags?: T;
+        showUpcomingOnly?: T;
+        maxEvents?: T;
+        queriedEvents?: T;
+      };
+  staticOptions?:
+    | T
+    | {
+        staticEvents?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3041,6 +3135,7 @@ export interface PagesSelect<T extends boolean = true> {
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
         eventList?: T | EventListBlockSelect<T>;
+        eventTable?: T | EventTableBlockSelect<T>;
         singleEvent?: T | SingleEventBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;

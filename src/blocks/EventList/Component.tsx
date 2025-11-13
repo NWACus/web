@@ -13,7 +13,7 @@ type EventListComponentProps = EventListBlockProps & {
 export const EventListBlockComponent = async (args: EventListComponentProps) => {
   const { heading, belowHeadingContent, backgroundColor, className, wrapInContainer = true } = args
 
-  const { filterByEventTypes, sortBy, queriedEvents } = args.dynamicOptions || {}
+  const { filterByEventTypes, queriedEvents } = args.dynamicOptions || {}
   const { staticEvents } = args.staticOptions || {}
 
   let events = staticEvents?.filter(
@@ -29,9 +29,6 @@ export const EventListBlockComponent = async (args: EventListComponentProps) => 
   }
 
   const eventsLinkQueryParams = new URLSearchParams()
-  if (sortBy !== undefined) {
-    eventsLinkQueryParams.set('sort', sortBy)
-  }
 
   if (filterByEventTypes && filterByEventTypes.length > 0) {
     eventsLinkQueryParams.set('types', filterByEventTypes.join(','))

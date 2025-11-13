@@ -12,6 +12,7 @@ import { ButtonBlock } from '../Button/config'
 import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../DocumentBlock/config'
 import { EventListBlockLexical } from '../EventList/config'
+import { EventTableBlock } from '../EventTable/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
 import { MediaBlockLexical } from '../MediaBlock/config'
@@ -131,6 +132,7 @@ export const Content: Block = {
                     CalloutBlock,
                     DocumentBlock,
                     EventListBlockLexical,
+                    EventTableBlock,
                     SingleEventBlockLexical,
                     GenericEmbedLexical,
                     HeaderBlock,
