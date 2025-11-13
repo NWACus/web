@@ -18,7 +18,7 @@ import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { getImageTypeFilter } from '@/utilities/collectionFilters'
+import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
 import {
@@ -244,6 +244,7 @@ export const Events: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
+      filterOptions: getTenantFilter,
     },
     {
       name: 'eventTags',
@@ -253,6 +254,7 @@ export const Events: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
+      filterOptions: getTenantFilter,
     },
     modeOfTravelField(),
     tenantField(),
