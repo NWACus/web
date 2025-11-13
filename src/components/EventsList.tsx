@@ -1,6 +1,7 @@
 'use client'
 
 import { getEvents } from '@/actions/getEvents'
+import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import type { Event } from '@/payload-types'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
@@ -29,6 +30,7 @@ export const EventsList = ({
   const [error, setError] = useState<string | null>(initialError || null)
   const searchParams = useSearchParams()
   const previousParamsRef = useRef<string>(searchParams.toString())
+  const { setTotal } = useFiltersTotalContext()
 
   // Rebuild filters from current URL params
   const stableFilters = useMemo(() => {
@@ -69,10 +71,12 @@ export const EventsList = ({
             setError(result.error)
             setEvents([])
             setHasMoreData(false)
+            setTotal(0)
           } else {
             setEvents(result.events)
             setOffset(result.events.length)
             setHasMoreData(result.hasMore)
+            setTotal(result.total)
           }
         } catch (_error) {
           setError('An unexpected error occurred. Please try again.')
@@ -83,7 +87,7 @@ export const EventsList = ({
 
       resetAndFetch()
     }
-  }, [searchParams, stableFilters])
+  }, [searchParams, setTotal, stableFilters])
 
   useEffect(() => {
     if (inView && hasMoreData && !isLoading) {

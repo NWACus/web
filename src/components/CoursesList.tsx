@@ -1,6 +1,7 @@
 'use client'
 
 import { getCourses } from '@/actions/getCourses'
+import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import type { Course } from '@/payload-types'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
@@ -23,6 +24,7 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
   const [error, setError] = useState<string | null>(initialError || null)
   const searchParams = useSearchParams()
   const previousParamsRef = useRef<string>(searchParams.toString())
+  const { setTotal } = useFiltersTotalContext()
 
   // Rebuild filters from current URL params
   const stableFilters = useMemo(() => {
@@ -70,10 +72,12 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
             setError(result.error)
             setCourses([])
             setHasMoreData(false)
+            setTotal(0)
           } else {
             setCourses(result.courses)
             setOffset(result.courses.length)
             setHasMoreData(result.hasMore)
+            setTotal(result.total)
           }
         } catch (_error) {
           setError('An unexpected error occurred. Please try again.')
@@ -84,7 +88,7 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
 
       resetAndFetch()
     }
-  }, [searchParams, stableFilters])
+  }, [searchParams, setTotal, stableFilters])
 
   useEffect(() => {
     if (inView && hasMoreData && !isLoading) {

@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import { getEvents } from '@/actions/getEvents'
 import { getEventTypes } from '@/actions/getEventTypes'
 import { EventsList } from '@/components/EventsList'
+import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
 import { EventsDatePicker } from './events-date-filter'
@@ -66,34 +67,32 @@ export default async function Page({ params, searchParams }: Args) {
     (selectedTypes && selectedTypes.length > 0) || selectedStartDate || selectedEndDate
 
   return (
-    <div className="pt-4">
-      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
-        {/* Mobile Filter Toggle */}
-        <div className="md:hidden">
-          <EventsMobileFilters
-            types={eventTypes}
-            hasActiveFilters={Boolean(hasActiveFilters)}
-            eventCount={total}
-          />
-        </div>
+    <FiltersTotalProvider initialTotal={total}>
+      <div className="pt-4">
+        <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
+          {/* Mobile Filter Toggle */}
+          <div className="md:hidden">
+            <EventsMobileFilters types={eventTypes} hasActiveFilters={Boolean(hasActiveFilters)} />
+          </div>
 
-        {/* Main Content */}
-        <div className="grow order-2 md:order-1">
-          <EventsList
-            initialEvents={events}
-            initialHasMore={hasMore}
-            initialError={error}
-            center={center}
-          />
-        </div>
+          {/* Main Content */}
+          <div className="grow order-2 md:order-1">
+            <EventsList
+              initialEvents={events}
+              initialHasMore={hasMore}
+              initialError={error}
+              center={center}
+            />
+          </div>
 
-        {/* Desktop Sidebar - Hidden on Mobile */}
-        <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
-          <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
-          <EventsTypeFilter types={eventTypes} />
+          {/* Desktop Sidebar - Hidden on Mobile */}
+          <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
+            <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
+            <EventsTypeFilter types={eventTypes} />
+          </div>
         </div>
       </div>
-    </div>
+    </FiltersTotalProvider>
   )
 }
 

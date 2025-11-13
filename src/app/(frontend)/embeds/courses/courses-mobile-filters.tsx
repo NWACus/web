@@ -5,6 +5,7 @@ import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
 import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
 import { ProvidersFilter } from '@/components/filters/ProvidersFilter'
 import { StatesFilter } from '@/components/filters/StatesFilter'
+import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import { CoursesDateFilter } from './courses-date-filter'
 import { CoursesTypeFilter } from './courses-type-filter'
 
@@ -19,7 +20,6 @@ type State = {
 }
 
 type Props = {
-  courseCount: number
   providers: Provider[]
   states: State[]
   hasActiveFilters: boolean
@@ -28,19 +28,16 @@ type Props = {
 }
 
 export const CoursesMobileFilters = ({
-  courseCount,
   providers,
   states,
   hasActiveFilters,
   startDate,
   endDate,
 }: Props) => {
+  const { total } = useFiltersTotalContext()
+
   return (
-    <MobileFiltersDrawer
-      docLabel="courses"
-      docCount={courseCount}
-      hasActiveFilters={hasActiveFilters}
-    >
+    <MobileFiltersDrawer docLabel="courses" docCount={total} hasActiveFilters={hasActiveFilters}>
       <CoursesDateFilter startDate={startDate} endDate={endDate} />
       <CoursesTypeFilter />
       <ProvidersFilter providers={providers} />

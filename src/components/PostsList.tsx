@@ -1,6 +1,7 @@
 'use client'
 
 import { getPosts } from '@/actions/getPosts'
+import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import type { Post } from '@/payload-types'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
@@ -31,6 +32,7 @@ export const PostsList = ({
   const [error, setError] = useState<string | null>(initialError || null)
   const searchParams = useSearchParams()
   const previousParamsRef = useRef<string>(searchParams.toString())
+  const { setTotal } = useFiltersTotalContext()
 
   // Rebuild filters from current URL params
   const stableFilters = useMemo(() => {
@@ -69,10 +71,12 @@ export const PostsList = ({
             setError(result.error)
             setPosts([])
             setHasMoreData(false)
+            setTotal(0)
           } else {
             setPosts(result.posts)
             setOffset(result.posts.length)
             setHasMoreData(result.hasMore)
+            setTotal(result.total)
           }
         } catch (_error) {
           setError('An unexpected error occurred. Please try again.')
@@ -83,7 +87,7 @@ export const PostsList = ({
 
       resetAndFetch()
     }
-  }, [searchParams, stableFilters])
+  }, [searchParams, setTotal, stableFilters])
 
   useEffect(() => {
     if (inView && hasMoreData && !isLoading) {
