@@ -1,3 +1,8 @@
+import type { Field, FilterOptionsProps } from 'payload'
+
+import { ButtonBlock } from '@/blocks/Button/config'
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { eventTypesData } from '@/collections/Events/constants'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
@@ -6,10 +11,6 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import type { Field, FilterOptionsProps } from 'payload'
-import { ButtonBlock } from '../Button/config'
-import { GenericEmbedLexical } from '../GenericEmbed/config'
-import { MediaBlockLexical } from '../MediaBlock/config'
 import { validateMaxEvents } from './hooks/validateMaxEvents'
 
 export const defaultStylingFields = (additionalFilters?: Field[]): Field[] => [
@@ -110,7 +111,7 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
         admin: {
           readOnly: true,
           components: {
-            Field: '@/blocks/EventQuery/fields/QueriedEventsComponent#QueriedEventsComponent',
+            Field: '@/fields/EventQuery/QueriedEventsComponent#QueriedEventsComponent',
           },
         },
       },

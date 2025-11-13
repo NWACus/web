@@ -1,10 +1,10 @@
 import colorPickerField from '@/fields/color'
-import type { Block, Field } from 'payload'
 import {
   defaultStylingFields,
   dynamicEventRelatedFields,
   staticEventRelatedFields,
-} from '../EventQuery/config'
+} from '@/fields/EventQuery/config'
+import type { Block, Field } from 'payload'
 
 const sortByField = (): Field => ({
   name: 'sortBy',

@@ -1,9 +1,9 @@
-import type { Block } from 'payload'
 import {
   defaultStylingFields,
   dynamicEventRelatedFields,
   staticEventRelatedFields,
-} from '../EventQuery/config'
+} from '@/fields/EventQuery/config'
+import type { Block } from 'payload'
 
 export const EventTableBlock: Block = {
   slug: 'eventTable',
