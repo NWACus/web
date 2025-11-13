@@ -1,6 +1,22 @@
 import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { Metadata } from 'next'
+import { Fjalla_One, Libre_Franklin } from 'next/font/google'
+
+const fjallaOne = Fjalla_One({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-fjalla-one',
+})
+
+const libreFranklin = Libre_Franklin({
+  weight: ['400', '500', '700'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-libre-franklin',
+})
 
 type Args = {
   children: React.ReactNode
@@ -8,7 +24,7 @@ type Args = {
 
 export default async function EmbedsLayout({ children }: Args) {
   return (
-    <div className="a3">
+    <div className={`a3 ${fjallaOne.variable} ${libreFranklin.variable}`}>
       <div className="flex flex-col min-h-screen max-w-screen overflow-x-clip">{children}</div>
     </div>
   )

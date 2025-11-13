@@ -70,7 +70,7 @@ export const DateRangeFilter = ({
     return (
       <Button
         onClick={() => handleQuickFilter(filter.id)}
-        variant={filterType === filter.id ? 'callout' : 'outline'}
+        variant={filterType === filter.id ? 'default' : 'outline'}
         className="flex-1"
       >
         {filter.label}
@@ -143,7 +143,7 @@ export const DateRangeFilter = ({
 
             <Button
               onClick={() => handleQuickFilter('custom')}
-              variant={filterType === 'custom' ? 'callout' : 'outline'}
+              variant={filterType === 'custom' ? 'default' : 'outline'}
               className="w-full"
             >
               Custom date range
