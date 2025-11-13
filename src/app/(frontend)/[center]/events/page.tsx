@@ -1,39 +1,50 @@
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
-import { getPayload, Where } from 'payload'
+import { getPayload } from 'payload'
 
-import { eventTypesData, QUICK_DATE_FILTERS } from '@/collections/Events/constants'
-import { EventCollection } from '@/components/EventCollection'
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
-import { EVENTS_LIMIT } from '@/utilities/constants'
+import { getEventGroups } from '@/actions/getEventGroups'
+import { getEvents } from '@/actions/getEvents'
+import { getEventTags } from '@/actions/getEventTags'
+import { getEventTypes } from '@/actions/getEventTypes'
+import { EventsList } from '@/components/EventsList'
+import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
+import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { notFound } from 'next/navigation'
+import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
 import { EventsDatePicker } from './events-date-filter'
+import { EventsGroupsFilter } from './events-groups-filter'
 import { EventsMobileFilters } from './events-mobile-filters'
+import { EventsTagsFilter } from './events-tags-filter'
 import { EventsTypeFilter } from './events-type-filter'
+
+const eventsSearchParams = {
+  types: parseAsArrayOf(parseAsString),
+  startDate: parseAsString.withDefault(''),
+  endDate: parseAsString.withDefault(''),
+  groups: parseAsArrayOf(parseAsString),
+  tags: parseAsArrayOf(parseAsString),
+  modesOfTravel: parseAsArrayOf(parseAsString),
+}
+
+const loadEventsSearchParams = createLoader(eventsSearchParams)
 
 type Args = {
   params: Promise<{
     center: string
   }>
-  searchParams: Promise<{ [key: string]: string }>
+  searchParams: Promise<SearchParams>
 }
 
 export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
-  const resolvedSearchParams = await searchParams
-  const selectedTypes = resolvedSearchParams?.types?.split(',').filter(Boolean)
-  let selectedStartDate = resolvedSearchParams?.startDate || ''
-  let selectedEndDate = resolvedSearchParams?.endDate || ''
-
-  // Apply "upcoming" filter by default if no dates are provided
-  if (!selectedStartDate && !selectedEndDate) {
-    const upcomingFilter = QUICK_DATE_FILTERS.find((f) => f.id === 'upcoming')
-    if (upcomingFilter) {
-      selectedStartDate = upcomingFilter.startDate()
-      selectedEndDate = upcomingFilter.endDate() || ''
-    }
-  }
+  const {
+    types: selectedTypes,
+    startDate: selectedStartDate,
+    endDate: selectedEndDate,
+    groups: selectedGroups,
+    tags: selectedTags,
+    modesOfTravel: selectedModesOfTravel,
+  } = await loadEventsSearchParams(searchParams)
 
   const payload = await getPayload({ config: configPromise })
 
@@ -53,88 +64,64 @@ export default async function Page({ params, searchParams }: Args) {
     return notFound()
   }
 
-  const conditions: Where[] = [{ 'tenant.slug': { equals: center } }]
-
-  if (selectedTypes?.length) {
-    conditions.push({ type: { in: selectedTypes } })
+  const filters = {
+    types: selectedTypes || null,
+    startDate: selectedStartDate,
+    endDate: selectedEndDate,
+    groups: selectedGroups || null,
+    tags: selectedTags || null,
+    modesOfTravel: selectedModesOfTravel || null,
+    center,
   }
 
-  if (selectedStartDate && selectedEndDate) {
-    conditions.push({
-      startDate: {
-        greater_than_equal: selectedStartDate,
-        less_than_equal: selectedEndDate,
-      },
-    })
-  } else if (selectedStartDate) {
-    conditions.push({
-      startDate: {
-        greater_than_equal: selectedStartDate,
-      },
-    })
-  } else if (selectedEndDate) {
-    conditions.push({
-      startDate: {
-        less_than_equal: selectedEndDate,
-      },
-    })
-  }
-
-  const whereConditions: Where = { and: conditions }
-  const events = await payload.find({
-    collection: 'events',
-    depth: 2,
-    limit: EVENTS_LIMIT,
-    where: whereConditions,
-    sort: 'startDate',
-  })
+  const { events, hasMore, total, error } = await getEvents(filters)
+  const { eventTypes } = await getEventTypes({ center })
+  const { eventGroups } = await getEventGroups({ center })
+  const { eventTags } = await getEventTags({ center })
 
   const hasActiveFilters =
-    (selectedTypes && selectedTypes.length > 0) || selectedStartDate || selectedEndDate
+    (selectedTypes && selectedTypes.length > 0) ||
+    selectedStartDate ||
+    selectedEndDate ||
+    (selectedGroups && selectedGroups.length > 0) ||
+    (selectedTags && selectedTags.length > 0) ||
+    (selectedModesOfTravel && selectedModesOfTravel.length > 0)
 
   return (
-    <div className="pt-4">
-      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
-        {/* Mobile Filter Toggle */}
-        <div className="md:hidden">
-          <EventsMobileFilters
-            types={eventTypesData}
-            hasActiveFilters={Boolean(hasActiveFilters)}
-            eventCount={events.totalDocs}
-          />
-        </div>
+    <FiltersTotalProvider initialTotal={total}>
+      <div className="pt-4">
+        <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
+          {/* Mobile Filter Toggle */}
+          <div className="md:hidden">
+            <EventsMobileFilters
+              types={eventTypes}
+              groups={eventGroups}
+              tags={eventTags}
+              hasActiveFilters={Boolean(hasActiveFilters)}
+            />
+          </div>
 
-        {/* Main Content */}
-        <div className="grow order-2 md:order-1">
-          <EventCollection events={events.docs} />
-        </div>
+          {/* Main Content */}
+          <div className="grow order-2 md:order-1">
+            <EventsList
+              initialEvents={events}
+              initialHasMore={hasMore}
+              initialError={error}
+              center={center}
+            />
+          </div>
 
-        {/* Desktop Sidebar - Hidden on Mobile */}
-        <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
-          <EventsTypeFilter types={eventTypesData} />
-          <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
+          {/* Desktop Sidebar - Hidden on Mobile */}
+          <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
+            <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
+            <EventsTypeFilter types={eventTypes} />
+            <EventsGroupsFilter groups={eventGroups} />
+            <EventsTagsFilter tags={eventTags} />
+            <ModesOfTravelFilter showBottomBorder={false} />
+          </div>
         </div>
       </div>
-
-      {events.totalPages > 1 && events.page && (
-        <div className="container mb-4">
-          <Pagination
-            page={events.page}
-            totalPages={events.totalPages}
-            relativePath="/events/page"
-          />
-          <PageRange
-            collectionLabels={{
-              plural: 'Events',
-              singular: 'Event',
-            }}
-            currentPage={events.page}
-            limit={EVENTS_LIMIT}
-            totalDocs={events.totalDocs}
-          />
-        </div>
-      )}
-    </div>
+    </FiltersTotalProvider>
   )
 }
 

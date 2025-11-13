@@ -3,7 +3,7 @@ import { TextFieldSingleValidation } from 'payload'
 /**
  * Validates whether a string is a valid, full URL with protocol, host, and proper TLD
  */
-const isValidFullUrl = (url?: string | null): boolean => {
+export const isValidFullUrl = (url?: string | null): boolean => {
   if (url == null || typeof url !== 'string' || url.trim() === '') {
     return false
   }

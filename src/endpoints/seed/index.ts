@@ -12,6 +12,7 @@ import type {
   RequiredDataFromCollectionSlug,
 } from 'payload'
 
+import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
@@ -1063,13 +1064,7 @@ export const seed = async ({
             'The avalanche center offers free avalanche classes to the public throughout our forecast area.',
             'avalanche-awareness-classes',
           ),
-          page(
-            tenant,
-            images[tenant.slug]['image2'],
-            'Courses by External Providers',
-            'Find avalanche education courses offered by external providers in your area.',
-            'courses-by-external-providers',
-          ),
+          coursesByExternalProvidersPage(tenant, images[tenant.slug]['image2']),
           page(
             tenant,
             images[tenant.slug]['image2'],
