@@ -905,57 +905,6 @@ export const seed = async ({
             description: 'Meet your local avalanche forecasters & learn more about your avy center',
             slug: 'meet-your-forecaster',
             tenant: tenant.id,
-            content: {
-              root: {
-                type: 'root',
-                format: '',
-                indent: 0,
-                version: 1,
-                children: [
-                  {
-                    type: 'paragraph',
-                    format: '',
-                    indent: 0,
-                    version: 1,
-                    children: [
-                      {
-                        mode: 'normal',
-                        text: 'Meet the expert forecasters behind avalanche predictions. Learn about the people and expertise that go into creating daily forecasts to keep backcountry users safe. Discover how our team analyzes snow and weather data to provide you with the most accurate and timely avalanche information.',
-                        type: 'text',
-                        style: '',
-                        detail: 0,
-                        format: 0,
-                        version: 1,
-                      },
-                    ],
-                    direction: 'ltr',
-                    textStyle: '',
-                    textFormat: 0,
-                  },
-                  {
-                    type: 'block',
-                    version: 0,
-                    format: '',
-                    fields: {
-                      blockName: '',
-                      eventOptions: 'dynamic',
-
-                      dynamicOptions: {
-                        maxEvents: 12,
-                        queriedEvents: [], // Will be populated during seeding
-                      },
-                      staticOptions: {
-                        staticEvents: [],
-                      },
-                      blockType: 'eventTable',
-                    },
-                  },
-                ],
-                direction: 'ltr',
-              },
-            },
-            thumbnailImage: images[tenant.slug]['imageMountain'],
-            featuredImage: images[tenant.slug]['image1'],
           },
         ])
         .flat(),
