@@ -6,6 +6,7 @@ import HighlightedContent from '@/collections/HomePages/components/HighlightedCo
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
+import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { draftMode } from 'next/headers'
@@ -13,6 +14,8 @@ import { draftMode } from 'next/headers'
 export const dynamic = 'force-static'
 export const revalidate = 600
 export const dynamicParams = false
+
+const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -44,6 +47,26 @@ export default async function Page({ params }: Args) {
   const { quickLinks, highlightedContent, layout } =
     (await getCachedHomePage(center, draft)()) ?? {}
 
+  const metadata = await getAvalancheCenterMetadata(center)
+  const configuredMapHeight = metadata.widget_config?.danger_map?.height
+
+  let parsedConfiguredMapHeight: number | null = null
+
+  if (configuredMapHeight) {
+    if (typeof configuredMapHeight === 'number') {
+      parsedConfiguredMapHeight = configuredMapHeight
+    } else {
+      try {
+        parsedConfiguredMapHeight = parseInt(configuredMapHeight)
+      } catch (err) {
+        payload.logger.error(
+          err,
+          'Failed to determine map height from AFP danger map configuration',
+        )
+      }
+    }
+  }
+
   return (
     <>
       <NACWidget
@@ -55,7 +78,14 @@ export default async function Page({ params }: Args) {
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         {draft && <LivePreviewListener />}
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
-          <div className="w-full">
+          <div
+            className="w-full"
+            style={{
+              minHeight: parsedConfiguredMapHeight
+                ? parsedConfiguredMapHeight + HEIGHT_OF_DANGER_SCALE_GRAPHIC
+                : undefined,
+            }}
+          >
             <NACWidget
               center={center}
               widget="map"
