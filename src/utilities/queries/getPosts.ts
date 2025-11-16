@@ -1,5 +1,3 @@
-'use server'
-
 import { POSTS_LIMIT } from '@/constants/defaults'
 import type { Post } from '@/payload-types'
 import config from '@/payload.config'

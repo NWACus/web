@@ -1,14 +1,25 @@
 'use client'
 
-import { getEvents } from '@/actions/getEvents'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import type { Event } from '@/payload-types'
+import type { GetEventsResult } from '@/utilities/queries/getEvents'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
+import { createSerializer, parseAsArrayOf, parseAsInteger, parseAsString } from 'nuqs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { EventPreview } from './EventPreview'
 import { Card } from './ui/card'
+
+const searchParamsSerializer = createSerializer({
+  offset: parseAsInteger,
+  types: parseAsArrayOf(parseAsString, ','),
+  startDate: parseAsString,
+  endDate: parseAsString,
+  groups: parseAsArrayOf(parseAsString, ','),
+  tags: parseAsArrayOf(parseAsString, ','),
+  modesOfTravel: parseAsArrayOf(parseAsString, ','),
+})
 
 interface EventsListProps {
   initialEvents: Event[]
@@ -68,10 +79,19 @@ export const EventsList = ({
         setIsLoading(true)
         setError(null)
         try {
-          const result = await getEvents({
-            ...stableFilters,
+          const queryString = searchParamsSerializer({
             offset: 0,
+            types: stableFilters.types || undefined,
+            startDate: stableFilters.startDate || undefined,
+            endDate: stableFilters.endDate || undefined,
+            groups: stableFilters.groups || undefined,
+            tags: stableFilters.tags || undefined,
+            modesOfTravel: stableFilters.modesOfTravel || undefined,
           })
+
+          const result: GetEventsResult = await fetch(`/api/${center}/events?${queryString}`).then(
+            (res) => res.json(),
+          )
 
           if (result.error) {
             setError(result.error)
@@ -100,10 +120,19 @@ export const EventsList = ({
       const loadMore = async () => {
         setIsLoading(true)
         try {
-          const result = await getEvents({
-            ...stableFilters,
+          const queryString = searchParamsSerializer({
             offset,
+            types: stableFilters.types || undefined,
+            startDate: stableFilters.startDate || undefined,
+            endDate: stableFilters.endDate || undefined,
+            groups: stableFilters.groups || undefined,
+            tags: stableFilters.tags || undefined,
+            modesOfTravel: stableFilters.modesOfTravel || undefined,
           })
+
+          const result: GetEventsResult = await fetch(`/api/${center}/events?${queryString}`).then(
+            (res) => res.json(),
+          )
 
           if (result.error) {
             setError(result.error)

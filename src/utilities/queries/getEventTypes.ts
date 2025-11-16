@@ -1,5 +1,3 @@
-'use server'
-
 import { EventType, eventTypesData } from '@/constants/eventTypes'
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'

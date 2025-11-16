@@ -1,5 +1,3 @@
-'use server'
-
 import { getStateLabel } from '@/fields/location/states'
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'

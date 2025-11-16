@@ -1,5 +1,3 @@
-'use server'
-
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'
 import { getPayload } from 'payload'

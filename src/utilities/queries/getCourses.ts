@@ -1,5 +1,3 @@
-'use server'
-
 import { COURSES_LIMIT } from '@/constants/defaults'
 import type { Course } from '@/payload-types'
 import config from '@/payload.config'

@@ -1,5 +1,3 @@
-'use server'
-
 import { EVENTS_LIMIT } from '@/constants/defaults'
 import type { Event } from '@/payload-types'
 import config from '@/payload.config'

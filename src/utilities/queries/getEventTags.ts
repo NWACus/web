@@ -1,20 +1,22 @@
-'use server'
-
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'
 import { getPayload } from 'payload'
 
-export interface GetTagsResult {
-  tags: { label: string; value: string }[]
-  error?: string
+export interface GetEventTagsParams {
+  center: string
 }
 
-export async function getTags(center: string): Promise<GetTagsResult> {
-  const payload = await getPayload({ config })
+export interface GetEventTagsResults {
+  eventTags: { label: string; value: string }[]
+}
 
+export async function getEventTags({ center }: GetEventTagsParams): Promise<GetEventTagsResults> {
   try {
+    const payload = await getPayload({ config })
+
+    // Query all events for the center to get unique event tags
     const result = await payload.find({
-      collection: 'tags',
+      collection: 'eventTags',
       where: {
         and: [
           {
@@ -23,12 +25,12 @@ export async function getTags(center: string): Promise<GetTagsResult> {
             },
           },
           {
-            'posts.id': {
+            'events.id': {
               exists: true,
             },
           },
           {
-            'posts._status': {
+            'events._status': {
               equals: 'published',
             },
           },
@@ -42,20 +44,14 @@ export async function getTags(center: string): Promise<GetTagsResult> {
       sort: 'title',
     })
 
-    const tags = result.docs.map(({ title, slug }) => ({
+    const eventTags = result.docs.map(({ title, slug }) => ({
       label: title,
       value: slug,
     }))
 
-    return {
-      tags,
-    }
+    return { eventTags }
   } catch (error) {
-    payload.logger.error(error, 'Failed to getTags')
     Sentry.captureException(error)
-    return {
-      tags: [],
-      error: 'Failed to load tags.',
-    }
+    return { eventTags: [] }
   }
 }
