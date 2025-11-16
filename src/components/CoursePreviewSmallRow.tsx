@@ -81,7 +81,7 @@ export const CoursePreviewSmallRow = (props: {
             {title}
           </h3>
           {providerName && (
-            <p className="text-sm font-medium text-muted-foreground">{providerName}</p>
+            <p className="text-sm font-medium text-muted-foreground">Provided by: {providerName}</p>
           )}
           {startDate && (
             <p className="text-sm text-muted-foreground">
