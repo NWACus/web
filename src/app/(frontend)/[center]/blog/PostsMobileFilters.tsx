@@ -10,7 +10,7 @@ type Props = {
   hasActiveFilters: boolean
 }
 
-export const BlogMobileFilters = ({ tags, sort, hasActiveFilters }: Props) => {
+export const PostsMobileFilters = ({ tags, sort, hasActiveFilters }: Props) => {
   const { total } = useFiltersTotalContext()
 
   return (
