@@ -1,4 +1,4 @@
-import { courseTypesData } from '@/collections/Courses/constants'
+import { courseTypesData } from '@/constants/courseTypes'
 import { Heading, Text } from '@react-email/components'
 import EmailButton from './_components/EmailButton'
 import EmailLayout from './_components/EmailLayout'

@@ -2,15 +2,10 @@ import { getCourses } from '@/actions/getCourses'
 import { getCoursesStates } from '@/actions/getCoursesStates'
 import { getProviders } from '@/actions/getProviders'
 import { CoursesList } from '@/components/CoursesList'
-import { AffinityGroupsFilter } from '@/components/filters/AffinityGroupsFilter'
-import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
-import { ProvidersFilter } from '@/components/filters/ProvidersFilter'
-import { StatesFilter } from '@/components/filters/StatesFilter'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { createLoader, parseAsBoolean, parseAsString, SearchParams } from 'nuqs/server'
-import { CoursesDateFilter } from './courses-date-filter'
-import { CoursesMobileFilters } from './courses-mobile-filters'
-import { CoursesTypeFilter } from './courses-type-filter'
+import { CoursesFilters } from './CoursesFilters'
+import { CoursesMobileFilters } from './CoursesMobileFilters'
 
 const coursesSearchParams = {
   backgroundColor: parseAsString,
@@ -95,12 +90,12 @@ export default async function CoursesEmbedPage({
           {showFilters && (
             <aside className="hidden md:block w-80 flex-shrink-0">
               <div className="sticky top-0">
-                <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
-                <CoursesTypeFilter />
-                <ProvidersFilter providers={providersList} />
-                <StatesFilter states={statesList} />
-                <AffinityGroupsFilter />
-                <ModesOfTravelFilter showBottomBorder={false} />
+                <CoursesFilters
+                  startDate={startDate || ''}
+                  endDate={endDate || ''}
+                  states={statesList}
+                  providers={providersList}
+                />
               </div>
             </aside>
           )}

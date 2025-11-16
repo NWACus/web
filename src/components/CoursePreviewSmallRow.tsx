@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 import type { Course } from '@/payload-types'
 
-import { courseTypesData } from '@/collections/Courses/constants'
+import { courseTypesData } from '@/constants/courseTypes'
 import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react'

@@ -17,6 +17,7 @@ export type CheckboxOption = {
 
 export type CheckboxFilterProps = {
   title: string
+  titleClassName?: string
   urlParam: string
   options: CheckboxOption[]
   defaultOpen?: boolean
@@ -29,6 +30,7 @@ export type CheckboxFilterProps = {
 
 export const CheckboxFilter = ({
   title,
+  titleClassName,
   urlParam,
   options,
   defaultOpen = false,
@@ -90,7 +92,7 @@ export const CheckboxFilter = ({
             onClick={() => setIsOpen(!isOpen)}
             className="w-full flex items-center justify-between py-3 cursor-pointer transition-colors"
           >
-            <h3 className="font-semibold">{title}</h3>
+            <h3 className={cn('font-semibold', titleClassName)}>{title}</h3>
             <div className="flex items-center gap-2">
               {selectedValues.length > 0 && (
                 <Button

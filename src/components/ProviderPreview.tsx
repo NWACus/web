@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import type { Provider } from '@/payload-types'
 
-import { courseTypesData } from '@/collections/Courses/constants'
+import { courseTypesData } from '@/constants/courseTypes'
 import { isValidFullUrl } from '@/utilities/validateUrl'
 import { ExternalLink, Mail, MapPin, Phone } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
