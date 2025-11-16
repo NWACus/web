@@ -1,7 +1,10 @@
+import { PostHogProvider } from '@/providers/PostHogProvider'
 import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { Metadata } from 'next'
 import { Fjalla_One, Libre_Franklin } from 'next/font/google'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import './a3-globals.css'
 
 const fjallaOne = Fjalla_One({
   weight: '400',
@@ -24,9 +27,19 @@ type Args = {
 
 export default async function EmbedsLayout({ children }: Args) {
   return (
-    <div className={`a3 ${fjallaOne.variable} ${libreFranklin.variable}`}>
-      <div className="flex flex-col min-h-screen max-w-screen overflow-x-clip">{children}</div>
-    </div>
+    <html
+      className={`a3 ${fjallaOne.variable} ${libreFranklin.variable}`}
+      lang="en"
+      suppressHydrationWarning
+    >
+      <body>
+        <PostHogProvider>
+          <NuqsAdapter>
+            <div className="flex flex-col max-w-screen overflow-x-clip">{children}</div>
+          </NuqsAdapter>
+        </PostHogProvider>
+      </body>
+    </html>
   )
 }
 

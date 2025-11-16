@@ -60,67 +60,7 @@ export const GenericEmbedBlock = ({
       setShouldBeIFrame(true)
     }
 
-    const resizeScript = `
-    <style>
-      html, body {
-      margin: 0;
-      padding: 0;
-      }
-    </style>
-      <script>
-        function sendHeight() {
-          try {
-            var height = document.body.scrollHeight || document.documentElement.scrollHeight;
-            if (height && height > 0) {
-              parent.postMessage({ type: 'embed-resize', id:'${id}', height: height }, '*');
-            }
-          } catch (error) {
-            console.error('Failed to send height:', error);
-          }
-        }
-
-        function waitForContent() {
-          var retries = 0;
-          var maxRetries = 50; // 5 seconds max
-          var checkInterval = 100;
-
-          function check() {
-            try {
-              var currentHeight = document.body.scrollHeight || document.documentElement.scrollHeight;
-              if (currentHeight > 0) {
-                sendHeight();
-                return;
-              }
-
-              retries++;
-              if (retries < maxRetries) {
-                setTimeout(check, checkInterval);
-              } else {
-                // Fallback after max retries
-                sendHeight();
-              }
-            } catch (error) {
-              console.error('Content check failed:', error);
-              sendHeight(); // Send anyway as fallback
-            }
-          }
-
-          check();
-        }
-
-        window.addEventListener('load', sendHeight);
-        window.addEventListener('resize', sendHeight);
-
-        // Dynamic content loading detection
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', waitForContent);
-        } else {
-          waitForContent();
-        }
-      </script>
-    `
-
-    setSanitizedHtml(doc.body.innerHTML + resizeScript)
+    setSanitizedHtml(doc.body.innerHTML)
   }, [html, id])
 
   useEffect(() => {
@@ -168,17 +108,19 @@ export const GenericEmbedBlock = ({
             }}
           />
         ) : (
-          <div
-            className={cn(
-              'prose max-w-none md:prose-md dark:prose-invert w-full',
-              'flex flex-col',
-              alignContent === 'left' && 'items-start',
-              alignContent === 'center' && 'items-center',
-              alignContent === 'right' && 'items-end',
-              'overflow-x-hidden',
-            )}
-            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-          />
+          <>
+            <div
+              className={cn(
+                'prose max-w-none md:prose-md dark:prose-invert w-full',
+                'flex flex-col',
+                alignContent === 'left' && 'items-start',
+                alignContent === 'center' && 'items-center',
+                alignContent === 'right' && 'items-end',
+                'overflow-x-hidden',
+              )}
+              dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+            />
+          </>
         )}
       </div>
     </div>

@@ -18,6 +18,9 @@ importers:
       '@mapbox/search-js-react':
         specifier: ^1.5.0
         version: 1.5.0(mapbox-gl@3.15.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@open-iframe-resizer/core':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@payloadcms/admin-bar':
         specifier: 3.61.1
         version: 3.61.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -3148,6 +3151,12 @@ packages:
         integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==,
       }
     engines: { node: '>=12.4.0' }
+
+  '@open-iframe-resizer/core@2.1.0':
+    resolution:
+      {
+        integrity: sha512-FKpcXXMgcdM86m+cF2TqU6cG05IQ6PEuTSvJfab5we78A4cXjdpb5MofdcCPz4f4hUr+zZyb3pUzZ834YVxtLg==,
+      }
 
   '@opentelemetry/api-logs@0.53.0':
     resolution:
@@ -15568,6 +15577,8 @@ snapshots:
       fastq: 1.19.1
 
   '@nolyfill/is-core-module@1.0.39': {}
+
+  '@open-iframe-resizer/core@2.1.0': {}
 
   '@opentelemetry/api-logs@0.53.0':
     dependencies:

@@ -2,11 +2,13 @@ import { getCourses } from '@/actions/getCourses'
 import { getCoursesStates } from '@/actions/getCoursesStates'
 import { getProviders } from '@/actions/getProviders'
 import { CoursesList } from '@/components/CoursesList'
+import { CustomEmbedStyles } from '@/components/CustomEmbedStyles'
 import { AffinityGroupsFilter } from '@/components/filters/AffinityGroupsFilter'
 import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
 import { ProvidersFilter } from '@/components/filters/ProvidersFilter'
 import { StatesFilter } from '@/components/filters/StatesFilter'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import Script from 'next/script'
 import { createLoader, parseAsBoolean, parseAsString, SearchParams } from 'nuqs/server'
 import { CoursesDateFilter } from './courses-date-filter'
 import { CoursesMobileFilters } from './courses-mobile-filters'
@@ -14,6 +16,7 @@ import { CoursesTypeFilter } from './courses-type-filter'
 
 const coursesSearchParams = {
   backgroundColor: parseAsString,
+  textColor: parseAsString,
   title: parseAsString,
   showFilters: parseAsBoolean.withDefault(false),
   types: parseAsString,
@@ -33,6 +36,7 @@ export default async function CoursesEmbedPage({
 }) {
   const {
     backgroundColor,
+    textColor,
     title,
     showFilters,
     types,
@@ -63,49 +67,57 @@ export default async function CoursesEmbedPage({
     types || providers || states || affinityGroups || modesOfTravel || startDate || endDate,
   )
 
+  const containerStyle = {
+    ...(backgroundColor ? { backgroundColor } : {}),
+    ...(textColor ? { color: textColor } : {}),
+  }
+
   return (
-    <FiltersTotalProvider initialTotal={total}>
-      <div
-        style={
-          backgroundColor && typeof backgroundColor === 'string' ? { backgroundColor } : undefined
-        }
-      >
-        {title && (
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">{title}</h1>
-          </div>
-        )}
-
-        {showFilters && (
-          <div className="md:hidden mb-4">
-            <CoursesMobileFilters
-              providers={providersList}
-              states={statesList}
-              hasActiveFilters={hasActiveFilters}
-              startDate={startDate || ''}
-              endDate={endDate || ''}
-            />
-          </div>
-        )}
-
-        <div className="flex gap-6">
-          <div className="flex-1">
-            <CoursesList initialCourses={courses} initialHasMore={hasMore} initialError={error} />
-          </div>
-          {showFilters && (
-            <aside className="hidden md:block w-80 flex-shrink-0">
-              <div className="sticky top-0">
-                <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
-                <CoursesTypeFilter />
-                <ProvidersFilter providers={providersList} />
-                <StatesFilter states={statesList} />
-                <AffinityGroupsFilter />
-                <ModesOfTravelFilter showBottomBorder={false} />
-              </div>
-            </aside>
+    <>
+      <CustomEmbedStyles backgroundColor={backgroundColor} textColor={textColor} />
+      <FiltersTotalProvider initialTotal={total}>
+        <div style={containerStyle}>
+          {title && (
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold mb-2">{title}</h1>
+            </div>
           )}
+
+          {showFilters && (
+            <div className="md:hidden mb-4">
+              <CoursesMobileFilters
+                providers={providersList}
+                states={statesList}
+                hasActiveFilters={hasActiveFilters}
+                startDate={startDate || ''}
+                endDate={endDate || ''}
+              />
+            </div>
+          )}
+
+          <div className="flex gap-6">
+            <div className="flex-1">
+              <CoursesList initialCourses={courses} initialHasMore={hasMore} initialError={error} />
+            </div>
+            {showFilters && (
+              <aside className="hidden md:block w-80 flex-shrink-0">
+                <div className="sticky top-0">
+                  <CoursesDateFilter startDate={startDate || ''} endDate={endDate || ''} />
+                  <CoursesTypeFilter />
+                  <ProvidersFilter providers={providersList} />
+                  <StatesFilter states={statesList} />
+                  <AffinityGroupsFilter />
+                  <ModesOfTravelFilter showBottomBorder={false} />
+                </div>
+              </aside>
+            )}
+          </div>
         </div>
-      </div>
-    </FiltersTotalProvider>
+      </FiltersTotalProvider>
+      <Script
+        type="module"
+        src="https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@latest/dist/index.js"
+      />
+    </>
   )
 }
