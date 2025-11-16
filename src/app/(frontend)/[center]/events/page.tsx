@@ -8,13 +8,10 @@ import { getEventTags } from '@/actions/getEventTags'
 import { getEventTypes } from '@/actions/getEventTypes'
 import { EventsList } from '@/components/EventsList'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
-import { createQuickDateFilters } from '@/utilities/createQuickDateFilters'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
 import { EventsFilters } from './EventsFilters'
 import { EventsMobileFilters } from './EventsMobileFilters'
-
-export const QUICK_DATE_FILTERS = createQuickDateFilters('Past Events')
 
 const eventsSearchParams = {
   types: parseAsArrayOf(parseAsString),
