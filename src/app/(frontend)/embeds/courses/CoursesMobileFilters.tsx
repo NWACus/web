@@ -1,14 +1,12 @@
 'use client'
 
-import { GetCoursesStatesResults } from '@/actions/getCoursesStates'
-import { GetProvidersResult } from '@/actions/getProviders'
 import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
-import { CoursesFilters } from './CoursesFilters'
+import { CoursesFilters, FilterProvider, FilterState } from './CoursesFilters'
 
 type Props = {
-  providers: GetProvidersResult['providers']
-  states: GetCoursesStatesResults['states']
+  providers: FilterProvider[]
+  states: FilterState[]
   hasActiveFilters: boolean
   startDate: string
   endDate: string

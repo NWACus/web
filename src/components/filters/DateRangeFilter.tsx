@@ -3,6 +3,7 @@
 import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
 import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
+import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
 import { parseAsString, useQueryStates } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -12,6 +13,7 @@ type DateRangeFilterProps = {
   endDate: string
   quickFilters: QuickDateFilter[]
   title?: string
+  titleClassName?: string
   defaultOpen?: boolean
   showBottomBorder?: boolean
 }
@@ -21,6 +23,7 @@ export const DateRangeFilter = ({
   endDate: initialEndDate,
   quickFilters,
   title = 'Date Range',
+  titleClassName,
   defaultOpen = true,
   showBottomBorder = true,
 }: DateRangeFilterProps) => {
@@ -113,7 +116,7 @@ export const DateRangeFilter = ({
           onClick={() => setIsOpen(!isOpen)}
           className="w-full flex items-center justify-between py-3 cursor-pointer transition-colors"
         >
-          <h3 className="font-semibold">{title}</h3>
+          <h3 className={cn('font-semibold', titleClassName)}>{title}</h3>
           <div className="flex items-center gap-2">
             {filterType && filterType !== 'upcoming' && (
               <Button

@@ -12,8 +12,12 @@ import { formatDateTime } from '@/utilities/formatDateTime'
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react'
 import { Badge } from './ui/badge'
 
-export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course }) => {
-  const { className, doc } = props
+export const CoursePreviewSmallRow = (props: {
+  className?: string
+  titleClassName?: string
+  doc?: Course
+}) => {
+  const { className, titleClassName, doc } = props
   const [isExpanded, setIsExpanded] = useState(false)
 
   if (!doc) return null
@@ -67,29 +71,29 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
           {courseTypeDisplay && (
             <div className="text-xs text-muted-foreground">{courseTypeDisplay}</div>
           )}
-          <h3 className={cn('text-lg leading-tight', hasExternalUrl && 'group-hover:underline')}>
+          <h3
+            className={cn(
+              'text-lg leading-tight',
+              hasExternalUrl && 'group-hover:underline',
+              titleClassName,
+            )}
+          >
             {title}
           </h3>
           {providerName && (
             <p className="text-sm font-medium text-muted-foreground">{providerName}</p>
           )}
-          <div className="flex flex-col">
-            {startDate && (
-              <p className="text-sm text-muted-foreground">
-                <StartAndEndDateDisplay
-                  startDate={startDate}
-                  endDate={endDate}
-                  timezone={timezone}
-                />
-              </p>
-            )}
-            {locationText && (
-              <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                <span>{locationText}</span>
-              </div>
-            )}
-          </div>
+          {startDate && (
+            <p className="text-sm text-muted-foreground">
+              <StartAndEndDateDisplay startDate={startDate} endDate={endDate} timezone={timezone} />
+            </p>
+          )}
+          {locationText && (
+            <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>{locationText}</span>
+            </div>
+          )}
           <div className="flex gap-2 items-center">
             {isPastCourse && (
               <Badge variant="outline" className="text-xs">

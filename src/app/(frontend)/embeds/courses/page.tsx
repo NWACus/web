@@ -3,9 +3,12 @@ import { getCoursesStates } from '@/actions/getCoursesStates'
 import { getProviders } from '@/actions/getProviders'
 import { CoursesList } from '@/components/CoursesList'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import { createQuickDateFilters } from '@/utilities/createQuickDateFilters'
 import { createLoader, parseAsBoolean, parseAsString, SearchParams } from 'nuqs/server'
 import { CoursesFilters } from './CoursesFilters'
 import { CoursesMobileFilters } from './CoursesMobileFilters'
+
+export const QUICK_DATE_FILTERS = createQuickDateFilters('Past Courses')
 
 const coursesSearchParams = {
   backgroundColor: parseAsString,

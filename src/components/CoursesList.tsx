@@ -151,7 +151,7 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
     <div className="space-y-4">
       {courses.map((course) => (
         <div key={course.id} className="border-b pb-4 last:border-b-0">
-          <CoursePreviewSmallRow doc={course} />
+          <CoursePreviewSmallRow doc={course} titleClassName="text-xl" />
         </div>
       ))}
 
