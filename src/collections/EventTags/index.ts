@@ -24,6 +24,12 @@ export const EventTags: CollectionConfig = {
       name: 'description',
       type: 'textarea',
     },
+    {
+      name: 'events',
+      type: 'join',
+      collection: 'events',
+      on: 'eventTags',
+    },
     slugField(),
     contentHashField(),
   ],

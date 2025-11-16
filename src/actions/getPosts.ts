@@ -31,19 +31,18 @@ export async function getPosts(params: GetPostsParams): Promise<GetPostsResult> 
     const offset = params.offset || 0
     const limit = params.limit || POSTS_LIMIT
 
-    const conditions: Where[] = []
-
-    conditions.push({
-      'tenant.slug': {
-        equals: center,
+    const conditions: Where[] = [
+      {
+        'tenant.slug': {
+          equals: center,
+        },
       },
-    })
-
-    conditions.push({
-      _status: {
-        equals: 'published',
+      {
+        _status: {
+          equals: 'published',
+        },
       },
-    })
+    ]
 
     if (tags) {
       const selectedTags = tags.split(',').filter(Boolean)

@@ -35,13 +35,18 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
     const offset = params.offset || 0
     const limit = params.limit || EVENTS_LIMIT
 
-    const conditions: Where[] = []
-
-    conditions.push({
-      'tenant.slug': {
-        equals: center,
+    const conditions: Where[] = [
+      {
+        'tenant.slug': {
+          equals: center,
+        },
       },
-    })
+      {
+        _status: {
+          equals: 'published',
+        },
+      },
+    ]
 
     if (types && types.length > 0) {
       conditions.push({
@@ -53,7 +58,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
 
     if (groups && groups.length > 0) {
       conditions.push({
-        eventGroups: {
+        'eventGroups.slug': {
           in: groups,
         },
       })
@@ -61,7 +66,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
 
     if (tags && tags.length > 0) {
       conditions.push({
-        eventTags: {
+        'eventTags.slug': {
           in: tags,
         },
       })

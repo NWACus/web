@@ -13,30 +13,20 @@ export async function getCoursesStates(): Promise<GetCoursesStatesResults> {
   try {
     const payload = await getPayload({ config })
 
-    // Query all to get unique states
-    const result = await payload.find({
+    const result = await payload.findDistinct({
       collection: 'courses',
-      limit: 10000,
-      select: {
-        location: true,
-      },
+      field: 'location.state',
+      sort: 'location.state',
     })
 
-    // Extract unique state values
-    const uniqueStates = new Set<string>()
-    result.docs.forEach((doc) => {
-      if (doc.location?.state) {
-        uniqueStates.add(doc.location.state)
+    const states = result.values.map((value) => {
+      // @ts-expect-error Payload returns { location: { state: string }}[] but the type returned is actually { 'location.state': string }[]
+      const stateCode = value['location.state']
+      return {
+        label: getStateLabel(stateCode),
+        value: stateCode,
       }
     })
-
-    // Convert to array and sort alphabetically by label
-    const states = Array.from(uniqueStates)
-      .map((value) => ({
-        label: getStateLabel(value),
-        value,
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label))
 
     return { states }
   } catch (error) {

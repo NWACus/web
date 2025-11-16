@@ -12,57 +12,43 @@ export interface GetEventTagsResults {
   eventTags: { label: string; value: string }[]
 }
 
-export async function getEventTags(params: GetEventTagsParams): Promise<GetEventTagsResults> {
+export async function getEventTags({ center }: GetEventTagsParams): Promise<GetEventTagsResults> {
   try {
     const payload = await getPayload({ config })
 
     // Query all events for the center to get unique event tags
     const result = await payload.find({
-      collection: 'events',
-      limit: 10000,
-      where: {
-        'tenant.slug': {
-          equals: params.center,
-        },
-      },
-      select: {
-        eventTags: true,
-      },
-    })
-
-    // Extract unique event tag IDs
-    const uniqueTagIds = new Set<number>()
-    result.docs.forEach((doc) => {
-      if (doc.eventTags && Array.isArray(doc.eventTags)) {
-        doc.eventTags.forEach((tag) => {
-          if (typeof tag === 'number') {
-            uniqueTagIds.add(tag)
-          } else if (tag && typeof tag === 'object' && 'id' in tag) {
-            uniqueTagIds.add(tag.id)
-          }
-        })
-      }
-    })
-
-    if (uniqueTagIds.size === 0) {
-      return { eventTags: [] }
-    }
-
-    // Fetch the actual event tag documents
-    const tagsResult = await payload.find({
       collection: 'eventTags',
       where: {
-        id: {
-          in: Array.from(uniqueTagIds),
-        },
+        and: [
+          {
+            'tenant.slug': {
+              equals: center,
+            },
+          },
+          {
+            'events.id': {
+              exists: true,
+            },
+          },
+          {
+            'events._status': {
+              equals: 'published',
+            },
+          },
+        ],
       },
-      limit: 1000,
+      pagination: false,
+      select: {
+        title: true,
+        slug: true,
+      },
+      sort: 'title',
     })
 
-    // Map to label/value format
-    const eventTags = tagsResult.docs.map((tag) => ({
-      label: tag.title,
-      value: String(tag.id),
+    const eventTags = result.docs.map(({ title, slug }) => ({
+      label: title,
+      value: slug,
     }))
 
     return { eventTags }

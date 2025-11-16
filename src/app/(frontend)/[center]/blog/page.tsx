@@ -55,7 +55,6 @@ export default async function Page({ params, searchParams }: Args) {
             />
           </div>
 
-          {/* Desktop sorting and filters */}
           <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
             <PostsFilters sort={sort} tags={tagsList} />
           </div>

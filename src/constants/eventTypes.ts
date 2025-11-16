@@ -1,6 +1,12 @@
 export type EventType = {
   label: string
-  value: string
+  value:
+    | 'events-by-ac'
+    | 'awareness'
+    | 'workshop'
+    | 'field-class-by-ac'
+    | 'volunteer'
+    | 'events-by-others'
   description?: string | null
 }
 

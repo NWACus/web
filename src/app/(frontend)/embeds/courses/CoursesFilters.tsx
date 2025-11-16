@@ -9,7 +9,7 @@ import { StatesFilter } from '@/components/filters/StatesFilter'
 import { courseTypesData } from '@/constants/courseTypes'
 import { QUICK_DATE_FILTERS_COURSES } from '@/constants/quickDateFilters'
 
-export type FilterProvider = { id: number; name: string }
+export type FilterProvider = { label: string; value: string }
 export type FilterState = { label: string; value: string }
 
 export const CoursesFilters = ({
