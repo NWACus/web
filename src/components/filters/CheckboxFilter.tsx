@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { cn } from '@/utilities/ui'
 import Fuse from 'fuse.js'
 import { ChevronDown, Search, X } from 'lucide-react'
 import { parseAsArrayOf, parseAsString, useQueryState } from 'nuqs'
@@ -81,8 +82,6 @@ export const CheckboxFilter = ({
     return null
   }
 
-  const listClasses = `flex flex-col gap-1 p-0 list-none pb-4 ${maxHeight ? `${maxHeight} overflow-y-auto` : ''}`
-
   return (
     <div className={showBottomBorder ? 'border-b' : ''}>
       {options.length > 0 && (
@@ -140,13 +139,15 @@ export const CheckboxFilter = ({
                   {searchQuery ? 'No results found' : 'No options available'}
                 </div>
               ) : (
-                <ul className={listClasses}>
+                <ul
+                  className={cn(
+                    'flex flex-col gap-2.5 p-0 list-none pb-4',
+                    maxHeight && `${maxHeight} overflow-y-auto`,
+                  )}
+                >
                   {filteredOptions.map((option) => (
                     <li key={option.value}>
-                      <Label
-                        htmlFor={option.value}
-                        className="cursor-pointer flex items-center text-md"
-                      >
+                      <Label htmlFor={option.value} className="cursor-pointer flex items-center">
                         <Checkbox
                           id={option.value}
                           className="mr-2"
