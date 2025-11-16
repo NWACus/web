@@ -32,10 +32,6 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
     provider,
   } = doc
 
-  const formatRegistrationDeadline = (dateString: string) => {
-    return formatDateTime(dateString, timezone, 'MMM d, yyyy')
-  }
-
   // Check if course is past based on endDate (or startDate if no endDate)
   const isPastCourse = endDate
     ? new Date(endDate) < new Date()
@@ -120,7 +116,7 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
           {registrationDeadline && (
             <p className="text-sm">
               <span className="font-medium">Registration Deadline:</span>{' '}
-              {formatRegistrationDeadline(registrationDeadline)}
+              {formatDateTime(registrationDeadline, timezone, 'MMM d, yyyy')}
             </p>
           )}
         </div>

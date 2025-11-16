@@ -75,7 +75,7 @@ export const EventPreview = (props: {
         </div>
       )}
 
-      <div className="flex flex-col justify-between flex-grow min-w-0">
+      <div className="flex flex-col justify-between flex-grow min-w-0 gap-1">
         <div>
           {eventTypeDisplay && (
             <div className="text-xs text-muted-foreground mb-2">{eventTypeDisplay}</div>
