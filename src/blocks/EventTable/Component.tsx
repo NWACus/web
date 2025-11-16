@@ -5,14 +5,14 @@ import RichText from '@/components/RichText'
 import type { Event, EventTableBlock as EventTableBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
-import { useEffect, useState } from 'react'
+import { useDynamicEvents } from './useDynamicEvents'
 
 type EventTableComponentProps = EventTableBlockProps & {
   className?: string
 }
 
 export const EventTableBlockComponent = (args: EventTableComponentProps) => {
-  const { heading, belowHeadingContent, className } = args
+  const { heading, belowHeadingContent, className, eventOptions } = args
   const {
     filterByEventTypes,
     filterByEventGroups,
@@ -22,105 +22,23 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   } = args.dynamicOptions || {}
   const { staticEvents } = args.staticOptions || {}
 
-  const [events, setEvents] = useState<Event[] | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const { tenant } = useTenant()
-
-  const eventsLinkQueryParams = new URLSearchParams()
-
-  if (filterByEventTypes && filterByEventTypes.length > 0) {
-    eventsLinkQueryParams.set('types', filterByEventTypes.join(','))
-  }
-
-  // Fetch dynamic events
-  useEffect(() => {
-    const shouldFetchDynamic =
-      !staticEvents ||
-      (staticEvents.length === 0 &&
-        (filterByEventTypes?.length || filterByEventGroups?.length || filterByEventTags?.length))
-
-    if (!shouldFetchDynamic) {
-      setLoading(false)
-      return
-    }
-
-    const fetchEvents = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        const tenantId = typeof tenant === 'number' ? tenant : (tenant as { id?: number })?.id
-        if (!tenantId) return
-
-        const params = new URLSearchParams({
-          limit: String(maxEvents || 4),
-          depth: '1',
-          'where[tenant][equals]': String(tenantId),
-        })
-
-        if (filterByEventTypes && filterByEventTypes.length > 0) {
-          params.append('where[type][in]', filterByEventTypes.join(','))
-        }
-
-        if (filterByEventGroups && filterByEventGroups.length > 0) {
-          const groupIds = filterByEventGroups
-            .map((g) => (typeof g === 'object' ? g.id : g))
-            .filter(Boolean)
-          if (groupIds.length > 0) {
-            params.append('where[groups][in]', groupIds.join(','))
-          }
-        }
-
-        if (filterByEventTags && filterByEventTags.length > 0) {
-          const tagIds = filterByEventTags
-            .map((t) => (typeof t === 'object' ? t.id : t))
-            .filter(Boolean)
-          if (tagIds.length > 0) {
-            params.append('where[tags][in]', tagIds.join(','))
-          }
-        }
-
-        if (showUpcomingOnly) {
-          params.append('where[startDate][greater_than]', new Date().toISOString())
-        }
-
-        const response = await fetch(`/api/events?${params.toString()}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-          },
-          cache: 'no-store', // Add this
-        })
-        if (!response.ok) {
-          throw new Error('Failed to fetch events')
-        }
-
-        const data = await response.json()
-        setEvents(data.docs)
-      } catch (err) {
-        console.error('[EventTable Error]:', err)
-        setError(err instanceof Error ? err.message : 'An error occurred while fetching events')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchEvents()
-  }, [
+  const {
+    events: fetchedEvents,
+    loading,
+    error,
+  } = useDynamicEvents({
+    tenant,
     filterByEventTypes,
     filterByEventGroups,
     filterByEventTags,
     showUpcomingOnly,
     maxEvents,
-    staticEvents,
-    tenant,
-  ])
+  })
 
-  // Use static events if available, otherwise use fetched events
-  const displayEvents =
-    staticEvents?.filter((event): event is Event => typeof event === 'object' && event !== null) ??
-    events
+  let displayEvents
+  if (eventOptions === 'static') displayEvents = staticEvents as Event[]
+  if (eventOptions === 'dynamic') displayEvents = fetchedEvents
 
   if (!displayEvents) {
     return null
