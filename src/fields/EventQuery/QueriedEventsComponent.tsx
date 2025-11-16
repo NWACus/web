@@ -23,8 +23,14 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
   const [selectOptions, setSelectOptions] = useState<OptionObject[]>([])
   const { setDisabled } = useForm()
 
+  const filterByEventGroups = useFormFields(
+    ([fields]) => fields[parentPathParts.concat(['filterByEventGroups']).join('.')]?.value,
+  )
   const filterByEventTypes = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['filterByEventTypes']).join('.')]?.value,
+  )
+  const filterByEventTags = useFormFields(
+    ([fields]) => fields[parentPathParts.concat(['filterByEventTags']).join('.')]?.value,
   )
   const sortBy = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['sortBy']).join('.')]?.value,
@@ -65,6 +71,18 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
         }
 
         if (
+          filterByEventGroups &&
+          Array.isArray(filterByEventGroups) &&
+          filterByEventGroups.length > 0
+        ) {
+          const groupIds = filterByEventGroups.filter(Boolean)
+
+          if (groupIds.length > 0) {
+            params.append('where[type][in]', groupIds.join(','))
+          }
+        }
+
+        if (
           filterByEventTypes &&
           Array.isArray(filterByEventTypes) &&
           filterByEventTypes.length > 0
@@ -73,6 +91,14 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
 
           if (typeIds.length > 0) {
             params.append('where[type][in]', typeIds.join(','))
+          }
+        }
+
+        if (filterByEventTags && Array.isArray(filterByEventTags) && filterByEventTags.length > 0) {
+          const tagIds = filterByEventTags.filter(Boolean)
+
+          if (tagIds.length > 0) {
+            params.append('where[tags][in]', tagIds.join(','))
           }
         }
 
@@ -112,14 +138,16 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
 
     fetchEvents()
   }, [
+    filterByEventGroups,
+    filterByEventTags,
     filterByEventTypes,
-    sortBy,
     maxEvents,
-    showUpcomingOnly,
-    tenant,
-    setValue,
-    value,
     setDisabled,
+    setValue,
+    showUpcomingOnly,
+    sortBy,
+    tenant,
+    value,
   ])
 
   const currentValue = fetchedEvents.map((event) => String(event.id))
