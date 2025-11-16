@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/nextjs'
 import { getPayload } from 'payload'
 
 export interface GetTagsResult {
-  tags: Tag[]
+  tags: { id: number; title: string; slug: string }[]
   error?: string
 }
 
@@ -45,7 +45,13 @@ export async function getTags(center: string): Promise<GetTagsResult> {
     // Convert to array and sort by title
     const tags = Array.from(tagMap.values()).sort((a, b) => a.title.localeCompare(b.title))
 
-    return { tags }
+    return {
+      tags: tags.map((tag) => ({
+        id: Number(tag.id),
+        title: tag.title,
+        slug: tag.slug,
+      })),
+    }
   } catch (error) {
     payload.logger.error(error, 'Failed to getTags')
     Sentry.captureException(error)
