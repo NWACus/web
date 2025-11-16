@@ -32,10 +32,10 @@ export const TeamBlock = ({ team }: Props) => {
           const name: string = member.name || 'Unknown'
           const initials = getAuthorInitials(name)
           return (
-            <div className="w-full flex  justify-center" key={`bio__${member.id}`}>
+            <div className="w-full flex justify-center" key={`bio__${member.id}`}>
               <div className="flex flex-col items-center space-y-4">
                 <Dialog>
-                  <DialogTrigger className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
+                  <DialogTrigger className="transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer flex flex-col items-center">
                     <MediaAvatar
                       resource={member.photo}
                       fallback={initials}

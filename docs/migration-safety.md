@@ -129,6 +129,8 @@ Look at the auto-generated migration and identify the **actual schema change**. 
 
 One liner (compares the two most recent migrations): `diff -u --color=always $(ls -t src/migrations/*.json | sed -n '2p') $(ls -t src/migrations/*.json | sed -n '1p')`
 
+One liner for saving to a file (no `--color` flag): `diff -u $(ls -t src/migrations/*.json | sed -n '2p') $(ls -t src/migrations/*.json | sed -n '1p') > migration.diff`
+
 #### Step 2: Write a minimal, safe migration
 
 Replace the auto-generated migration using `await db.run()` sql statements or using the Payload Local API.
@@ -179,9 +181,6 @@ Follow the "Testing a migration locally" workflow above using a local Turso serv
 If the migration genuinely needs to modify table structures in ways that require `PRAGMA foreign_keys=OFF`:
 
 Keep the old schema and mark fields as `hidden: true` (see "The fix: keep old attributes" above)
-
-
-## Known issues
 
 ## Implementation Details
 
