@@ -42,7 +42,7 @@ export default async function ProvidersEmbedPage({
     depth: 0,
   })
 
-  const providers = result.docs as Provider[]
+  const providers = result.docs
 
   // Organize providers by state based on statesServiced
   // providers can be in multiple states
