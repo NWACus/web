@@ -1,5 +1,6 @@
 'use server'
 
+import { POSTS_LIMIT } from '@/constants/defaults'
 import type { Post } from '@/payload-types'
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'
@@ -28,7 +29,7 @@ export async function getPosts(params: GetPostsParams): Promise<GetPostsResult> 
     const { tags, sort, center } = params
 
     const offset = params.offset || 0
-    const limit = params.limit || 10
+    const limit = params.limit || POSTS_LIMIT
 
     const conditions: Where[] = []
 

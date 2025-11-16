@@ -1,7 +1,7 @@
 'use client'
 
-import { EventType } from '@/collections/Events/constants'
 import { CheckboxFilter } from '@/components/filters/CheckboxFilter'
+import { EventType } from '@/constants/eventTypes'
 
 type Props = {
   types: EventType[]

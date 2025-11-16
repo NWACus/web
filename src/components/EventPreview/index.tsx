@@ -2,7 +2,7 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
-import { eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/constants/eventTypes'
 import { Link } from '@payloadcms/ui'
 import { ExternalLink } from 'lucide-react'
 import { EventInfo } from '../EventInfo'

@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import type { Event } from '@/payload-types'
 
-import { eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/constants/eventTypes'
 import { Calendar, MapPin } from 'lucide-react'
 import { ImageMedia } from './Media/ImageMedia'
 import { Badge } from './ui/badge'

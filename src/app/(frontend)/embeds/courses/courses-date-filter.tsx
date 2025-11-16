@@ -1,7 +1,9 @@
 'use client'
 
 import { DateRangeFilter } from '@/components/filters/DateRangeFilter'
-import { QUICK_DATE_FILTERS_COURSES } from '@/constants/quickDateFilters'
+import { createQuickDateFilters } from '@/utilities/createQuickDateFilters'
+
+export const QUICK_DATE_FILTERS = createQuickDateFilters('Past Courses')
 
 type Props = {
   startDate: string
@@ -13,7 +15,7 @@ export const CoursesDateFilter = ({ startDate, endDate }: Props) => {
     <DateRangeFilter
       startDate={startDate}
       endDate={endDate}
-      quickFilters={QUICK_DATE_FILTERS_COURSES}
+      quickFilters={QUICK_DATE_FILTERS}
       title="Date Range"
       defaultOpen={true}
     />

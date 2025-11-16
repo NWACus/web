@@ -1,7 +1,9 @@
 'use client'
 
-import { QUICK_DATE_FILTERS } from '@/collections/Events/constants'
 import { DateRangeFilter } from '@/components/filters/DateRangeFilter'
+import { createQuickDateFilters } from '@/utilities/createQuickDateFilters'
+
+export const QUICK_DATE_FILTERS = createQuickDateFilters('Past Events')
 
 type Props = {
   startDate: string

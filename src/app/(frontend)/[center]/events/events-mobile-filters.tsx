@@ -1,8 +1,8 @@
 'use client'
 
-import { EventType } from '@/collections/Events/constants'
 import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
 import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
+import { EventType } from '@/constants/eventTypes'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import { EventsDatePicker } from './events-date-filter'
 import { EventsGroupsFilter } from './events-groups-filter'

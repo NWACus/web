@@ -18,7 +18,7 @@ export interface QuickDateFilter {
   sortDirection?: 'asc' | 'desc' // How items should be sorted for this filter (optional)
 }
 
-export const createQuickDateFilters = (pastLabel = 'Past Events'): QuickDateFilter[] => {
+export const createQuickDateFilters = (pastLabel = 'Past Items'): QuickDateFilter[] => {
   const fmt = (date: Date) => format(date, 'MM-dd-yyyy')
   const today = () => new Date()
   const yesterday = () => subDays(today(), 1)
@@ -68,7 +68,3 @@ export const createQuickDateFilters = (pastLabel = 'Past Events'): QuickDateFilt
     },
   ]
 }
-
-// Default exports for events and courses
-export const QUICK_DATE_FILTERS_EVENTS = createQuickDateFilters('Past Events')
-export const QUICK_DATE_FILTERS_COURSES = createQuickDateFilters('Past Courses')

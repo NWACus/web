@@ -10,6 +10,7 @@ import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { eventTypesData } from '@/constants/eventTypes'
 import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
 import { modeOfTravelField } from '@/fields/modeOfTravelField'
@@ -28,7 +29,6 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
-import { eventTypesData } from './constants'
 
 export const Events: CollectionConfig = {
   slug: 'events',

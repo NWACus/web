@@ -2,7 +2,7 @@
 
 import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
-import { QuickDateFilter } from '@/constants/quickDateFilters'
+import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
 import { ChevronDown } from 'lucide-react'
 import { parseAsString, useQueryStates } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
