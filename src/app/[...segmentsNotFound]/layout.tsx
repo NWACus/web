@@ -106,7 +106,7 @@ const lato = localFont({
 export default function FallbackRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
-      <body className="w-screen h-screen overflow-x-hidden flex justify-center items-center">
+      <body className="w-screen h-screen overflow-x-clip flex justify-center items-center">
         {children}
       </body>
     </html>

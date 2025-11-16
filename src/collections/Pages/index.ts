@@ -1,4 +1,10 @@
 import { Tenant } from '@/payload-types'
+import {
+  MetaDescriptionField,
+  MetaImageField,
+  OverviewField,
+  PreviewField,
+} from '@payloadcms/plugin-seo/fields'
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
@@ -21,24 +27,20 @@ import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
-import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
-
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
-import {
-  MetaDescriptionField,
-  MetaImageField,
-  OverviewField,
-  PreviewField,
-} from '@payloadcms/plugin-seo/fields'
 
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
+
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { generatePreviewPath } from '@/utilities/generatePreviewPath'
+import { isTenantValue } from '@/utilities/isTenantValue'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
+import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -55,34 +57,27 @@ export const Pages: CollectionConfig<'pages'> = {
     baseListFilter: filterByTenant,
     livePreview: {
       url: async ({ data, req }) => {
-        let tenant = data.tenant
+        let tenant: Partial<Tenant> | null = null
 
-        if (typeof tenant === 'number') {
-          tenant = await req.payload.findByID({
-            collection: 'tenants',
-            id: tenant,
-            depth: 2,
-          })
+        if (isTenantValue(data.tenant)) {
+          tenant = await resolveTenant(data.tenant)
         }
 
-        const path = generatePreviewPath({
+        return generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'pages',
           tenant,
           req,
         })
-
-        return path
       },
     },
-    preview: (data, { req }) => {
-      const tenant =
-        data.tenant &&
-        typeof data.tenant === 'object' &&
-        'id' in data.tenant &&
-        'slug' in data.tenant
-          ? (data.tenant as Tenant)
-          : null
+    preview: async (data, { req }) => {
+      let tenant: Partial<Tenant> | null = null
+
+      if (isTenantValue(data.tenant)) {
+        tenant = await resolveTenant(data.tenant)
+      }
+
       return generatePreviewPath({
         slug: typeof data.slug === 'string' ? data.slug : '',
         collection: 'pages',

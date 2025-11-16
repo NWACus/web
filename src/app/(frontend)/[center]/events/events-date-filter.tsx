@@ -11,10 +11,10 @@ type Props = {
 }
 
 export const EventsDatePicker = ({ startDate, endDate }: Props) => {
-  const [filterType, setFilterType] = useState('')
+  const [filterType, setFilterType] = useState('upcoming')
   const [customStart, setCustomStart] = useState(startDate)
   const [customEnd, setCustomEnd] = useState(endDate || '')
-  const isInitialMount = useRef(true)
+  const isUserAction = useRef(false)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -22,6 +22,7 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
 
   const updateParams = useCallback(
     (start: string, end: string) => {
+      isUserAction.current = true
       const params = new URLSearchParams(searchParams.toString())
       if (start) {
         params.set('startDate', start)
@@ -76,15 +77,35 @@ export const EventsDatePicker = ({ startDate, endDate }: Props) => {
     )
   }
 
+  // Sync state with URL params when they change externally (not from user action)
   useEffect(() => {
-    if (isInitialMount.current && ((!startDate && !endDate) || (startDate && !endDate))) {
+    if (isUserAction.current) {
+      isUserAction.current = false
+      return
+    }
+
+    const urlStart = searchParams.get('startDate') || ''
+    const urlEnd = searchParams.get('endDate') || ''
+
+    if (!urlStart && !urlEnd) {
       handleQuickFilter('upcoming')
+      return
     }
-    if (isInitialMount.current && startDate && endDate) {
-      updateDateSelection('custom', startDate, endDate)
+
+    // Check if dates match a quick filter
+    const matchedFilter = QUICK_DATE_FILTERS.find(
+      (f) => f.startDate() === urlStart && (f.endDate() || '') === urlEnd,
+    )
+
+    if (matchedFilter) {
+      setFilterType(matchedFilter.id)
+    } else {
+      setFilterType('custom')
     }
-    isInitialMount.current = false
-  }, [endDate, startDate, handleQuickFilter, updateDateSelection])
+
+    setCustomStart(urlStart)
+    setCustomEnd(urlEnd)
+  }, [searchParams, handleQuickFilter])
 
   return (
     <div className="w-full">

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 type Props = {
   types: EventType[]
@@ -16,10 +16,13 @@ export const EventsTypeFilter = ({ types }: Props) => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [selectedTypes, setSelectedTypes] = useState<string[]>(() => {
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
+
+  useEffect(() => {
     const typesParam = searchParams.get('types')
-    return typesParam ? typesParam.split(',').filter(Boolean) : []
-  })
+    const typesFromUrl = typesParam ? typesParam.split(',').filter(Boolean) : []
+    setSelectedTypes(typesFromUrl)
+  }, [searchParams])
 
   const updateParams = useCallback(
     (newTypes: string[]) => {
@@ -41,15 +44,12 @@ export const EventsTypeFilter = ({ types }: Props) => {
       const newTypes = selectedTypes.includes(typeId)
         ? selectedTypes.filter((t) => t !== typeId)
         : [...selectedTypes, typeId]
-      setSelectedTypes(newTypes)
       updateParams(newTypes)
     },
     [selectedTypes, updateParams],
   )
 
   const clearFilter = () => {
-    setSelectedTypes([])
-
     const params = new URLSearchParams(searchParams.toString())
     params.delete('types')
     router.push(`${pathname}?${params.toString()}`, { scroll: false })
