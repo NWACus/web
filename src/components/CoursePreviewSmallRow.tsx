@@ -7,8 +7,8 @@ import { useState } from 'react'
 import type { Course } from '@/payload-types'
 
 import { courseTypesData } from '@/collections/Courses/constants'
+import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import { formatDateTime } from '@/utilities/formatDateTime'
-import { isSameDay } from 'date-fns'
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react'
 import { Badge } from './ui/badge'
 
@@ -31,21 +31,6 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
     timezone,
     provider,
   } = doc
-
-  // Format dates using the same logic as EventPreviewSmallRow and EventInfo
-  const getDateDisplay = () => {
-    if (!startDate) return null
-
-    if (endDate && isSameDay(startDate, endDate)) {
-      return formatDateTime(startDate, timezone, 'MMM d, yyyy')
-    } else if (endDate) {
-      return `${formatDateTime(startDate, timezone, 'MMM d, yyyy')} - ${formatDateTime(endDate, timezone, 'MMM d, yyyy')}`
-    } else {
-      return formatDateTime(startDate, timezone, 'MMM d, yyyy')
-    }
-  }
-
-  const dateDisplay = getDateDisplay()
 
   const formatRegistrationDeadline = (dateString: string) => {
     return formatDateTime(dateString, timezone, 'MMM d, yyyy')
@@ -93,7 +78,15 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
             <p className="text-sm font-medium text-muted-foreground">{providerName}</p>
           )}
           <div className="flex flex-col">
-            {dateDisplay && <p className="text-sm text-muted-foreground">{dateDisplay}</p>}
+            {startDate && (
+              <p className="text-sm text-muted-foreground">
+                <StartAndEndDateDisplay
+                  startDate={startDate}
+                  endDate={endDate}
+                  timezone={timezone}
+                />
+              </p>
+            )}
             {locationText && (
               <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
