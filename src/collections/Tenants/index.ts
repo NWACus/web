@@ -24,6 +24,7 @@ export const Tenants: CollectionConfig = {
     plural: 'Avalanche Centers',
     singular: 'Avalanche Center',
   },
+  // update src/utilities/isTenantValue.ts if this changes
   defaultPopulate: {
     slug: true,
     customDomain: true, // required for byGlobalRoleOrTenantRoleAssignment

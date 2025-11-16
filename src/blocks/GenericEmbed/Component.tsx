@@ -162,7 +162,7 @@ export const GenericEmbedBlock = ({
             title={`Embedded content ${id}`}
             srcDoc={sanitizedHtml}
             sandbox="allow-scripts allow-forms allow-same-origin"
-            className="w-full border-none m-0 overflow-x-hidden"
+            className="w-full border-none m-0 overflow-x-clip"
             style={{
               height: iframeHeight,
             }}
@@ -175,7 +175,7 @@ export const GenericEmbedBlock = ({
               alignContent === 'left' && 'items-start',
               alignContent === 'center' && 'items-center',
               alignContent === 'right' && 'items-end',
-              'overflow-x-hidden',
+              'overflow-x-clip',
             )}
             dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
           />
