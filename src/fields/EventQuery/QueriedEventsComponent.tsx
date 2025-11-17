@@ -38,9 +38,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
   const maxEvents = useFormFields(
     ([fields]) => fields[parentPathParts.concat(['maxEvents']).join('.')]?.value,
   )
-  const showUpcomingOnly = useFormFields(
-    ([fields]) => fields[parentPathParts.concat(['showUpcomingOnly']).join('.')]?.value,
-  )
   const { selectedTenantID: tenant } = useTenantSelection()
 
   useEffect(() => {
@@ -64,10 +61,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
 
         if (sortBy) {
           params.append('sort', String(sortBy))
-        }
-
-        if (showUpcomingOnly) {
-          params.append('where[startDate][greater_than]', new Date().toISOString())
         }
 
         if (
@@ -101,6 +94,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
             params.append('where[tags][in]', tagIds.join(','))
           }
         }
+        params.append('where[startDate][greater_than]', new Date().toISOString())
 
         const response = await fetch(`/api/events?${params.toString()}`)
         if (!response.ok) {
@@ -144,7 +138,6 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
     maxEvents,
     setDisabled,
     setValue,
-    showUpcomingOnly,
     sortBy,
     tenant,
     value,

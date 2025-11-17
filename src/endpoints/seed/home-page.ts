@@ -161,7 +161,6 @@ export const homePage: (
         backgroundColor: 'transparent',
         eventOptions: 'dynamic',
         dynamicOptions: {
-          showUpcomingOnly: true,
           maxEvents: 4,
           queriedEvents: events.slice(0, 4).map((event) => event.id), // Use first 4 events for preview
         },

@@ -101,15 +101,6 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
         filterOptions: getTenantFilter,
       },
       {
-        name: 'showUpcomingOnly',
-        type: 'checkbox',
-        defaultValue: true,
-        label: 'Show Upcoming Events Only',
-        admin: {
-          description: 'Only display events that have not yet occurred.',
-        },
-      },
-      {
         name: 'maxEvents',
         type: 'number',
         label: 'Max Events Displayed',

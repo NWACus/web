@@ -11,10 +11,8 @@ export const useDynamicEvents = ({
   filterByEventTypes,
   filterByEventGroups,
   filterByEventTags,
-  showUpcomingOnly,
   maxEvents,
 }: UseEventsProps) => {
-  // ... rest of code
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -56,9 +54,7 @@ export const useDynamicEvents = ({
           }
         }
 
-        if (showUpcomingOnly) {
-          params.append('upcomingOnly', 'true')
-        }
+        params.append('where[startDate][greater_than]', new Date().toISOString())
 
         const response = await fetch(`/api/events?${params.toString()}`, {
           cache: 'no-store',
@@ -79,14 +75,7 @@ export const useDynamicEvents = ({
     }
 
     fetchEvents()
-  }, [
-    filterByEventTypes,
-    filterByEventGroups,
-    filterByEventTags,
-    showUpcomingOnly,
-    maxEvents,
-    tenant,
-  ])
+  }, [filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
 
   return { events, loading, error }
 }

@@ -35,7 +35,6 @@ export const eventListBlock: EventListBlock = {
   },
   eventOptions: 'dynamic',
   dynamicOptions: {
-    showUpcomingOnly: true,
     maxEvents: 4,
     queriedEvents: [], // Will be populated during seeding
   },

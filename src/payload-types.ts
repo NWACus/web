@@ -714,10 +714,6 @@ export interface EventListBlock {
      */
     filterByEventTags?: (number | EventTag)[] | null;
     /**
-     * Only display events that have not yet occurred.
-     */
-    showUpcomingOnly?: boolean | null;
-    /**
      * Maximum number of events that will be displayed. Must be an integer.
      */
     maxEvents?: number | null;
@@ -976,10 +972,6 @@ export interface EventTableBlock {
      * Optionally select event tags to filter events.
      */
     filterByEventTags?: (number | EventTag)[] | null;
-    /**
-     * Only display events that have not yet occurred.
-     */
-    showUpcomingOnly?: boolean | null;
     /**
      * Maximum number of events that will be displayed. Must be an integer.
      */
@@ -2900,7 +2892,6 @@ export interface EventListBlockSelect<T extends boolean = true> {
         filterByEventTypes?: T;
         filterByEventGroups?: T;
         filterByEventTags?: T;
-        showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
       };
@@ -2936,7 +2927,6 @@ export interface EventTableBlockSelect<T extends boolean = true> {
         filterByEventTypes?: T;
         filterByEventGroups?: T;
         filterByEventTags?: T;
-        showUpcomingOnly?: T;
         maxEvents?: T;
         queriedEvents?: T;
       };

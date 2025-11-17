@@ -13,13 +13,8 @@ type EventTableComponentProps = EventTableBlockProps & {
 
 export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   const { heading, belowHeadingContent, className, eventOptions } = args
-  const {
-    filterByEventTypes,
-    filterByEventGroups,
-    filterByEventTags,
-    showUpcomingOnly,
-    maxEvents,
-  } = args.dynamicOptions || {}
+  const { filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents } =
+    args.dynamicOptions || {}
   const { staticEvents } = args.staticOptions || {}
 
   const { tenant } = useTenant()
@@ -32,7 +27,6 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     filterByEventTypes,
     filterByEventGroups,
     filterByEventTags,
-    showUpcomingOnly,
     maxEvents,
   })
 
