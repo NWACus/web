@@ -16,18 +16,13 @@ export const EventGroups: CollectionConfig = {
   fields: [
     tenantField(),
     {
-      type: 'group',
-      fields: [
-        {
-          name: 'title',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-        },
-      ],
+      name: 'title',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'description',
+      type: 'textarea',
     },
     slugField(),
     contentHashField(),
