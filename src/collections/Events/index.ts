@@ -27,6 +27,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { revalidatePath } from 'next/cache'
 import { CollectionConfig } from 'payload'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
 import { eventTypesData } from './constants'
@@ -262,8 +263,13 @@ export const Events: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [populatePublishedAt, populateBlocksInContent],
-    // TODO: need revalidation hooks here
+    // TODO: need revalidation hooks herehooks: {
     // TODO: need to update revalidation utilities to look for this blocksInContent field for relationships in addition to Posts and Home Pages
+    afterChange: [
+      async () => {
+        await revalidatePath('/api/eventsQuery')
+      },
+    ],
   },
   versions: {
     drafts: {

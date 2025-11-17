@@ -43,7 +43,14 @@ export async function GET(req: Request) {
       depth,
     })
 
-    return Response.json({ docs: data.docs || [] })
+    return Response.json(
+      { docs: data.docs || [] },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
+      },
+    )
   } catch (error) {
     console.error('[Dynamic Events Endpoint Error]:', error)
     return Response.json(
