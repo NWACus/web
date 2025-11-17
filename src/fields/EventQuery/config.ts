@@ -3,7 +3,7 @@ import type { Field, FilterOptionsProps } from 'payload'
 import { ButtonBlock } from '@/blocks/Button/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
-import { eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/constants/eventTypes'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
   BlocksFeature,

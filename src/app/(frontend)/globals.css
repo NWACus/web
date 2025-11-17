@@ -24,3 +24,17 @@
     @apply bg-background text-foreground min-h-[100vh] flex flex-col max-w-[100vw] overflow-x-clip;
   }
 }
+
+/* A3 Embed Fonts */
+.a3 {
+  font-family: var(--font-libre-franklin), sans-serif;
+}
+
+.a3 h1,
+.a3 h2,
+.a3 h3,
+.a3 h4,
+.a3 h5,
+.a3 h6 {
+  font-family: var(--font-fjalla-one), sans-serif;
+}

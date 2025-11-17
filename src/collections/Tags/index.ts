@@ -21,6 +21,12 @@ export const Tags: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      name: 'posts',
+      type: 'join',
+      collection: 'posts',
+      on: 'tags',
+    },
     slugField(),
     contentHashField(),
   ],

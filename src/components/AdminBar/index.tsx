@@ -29,6 +29,10 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   const { tenant } = useTenant()
   const hostname = getHostnameFromTenant(tenant)
 
+  if (pathname.startsWith('/embeds')) {
+    return null
+  }
+
   return (
     <>
       <div

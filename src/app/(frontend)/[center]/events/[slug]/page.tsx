@@ -8,8 +8,10 @@ import { EventInfo } from '@/components/EventInfo'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
 import { Button } from '@/components/ui/button'
+import { formatDateTime } from '@/utilities/formatDateTime'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { cn } from '@/utilities/ui'
+import { ExternalLink } from 'lucide-react'
 import { Metadata, ResolvedMetadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -114,21 +116,15 @@ export default async function Event({ params: paramsPromise }: Args) {
                 <div className="mt-6 pt-6 border-t">
                   {event.registrationDeadline && (
                     <p className="text-sm text-muted-foreground mb-2">
-                      Registration deadline:{' '}
-                      {new Date(event.registrationDeadline).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        ...(event.timezone && { timeZone: event.timezone }),
-                      })}
+                      Registration Deadline:{' '}
+                      {formatDateTime(event.registrationDeadline, event.timezone, 'MMM d, yyyy')}
                     </p>
                   )}
                   {!isPastEvent && !isRegistrationClosed ? (
                     <Button asChild size="lg" className="w-full md:w-auto">
                       <Link href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
                         Register for Event
+                        <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
                       </Link>
                     </Button>
                   ) : (

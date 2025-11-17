@@ -1,3 +1,5 @@
+import { courseTypesData } from '@/constants/courseTypes'
+import { affinityGroupField } from '@/fields/affinityGroupField'
 import { contentHashField } from '@/fields/contentHashField'
 import { coordinatesWithMap } from '@/fields/location/coordinatesWithMap'
 import { stateOptions } from '@/fields/location/states'
@@ -10,7 +12,6 @@ import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { accessByProviderOrProviderManager } from './access/byProviderOrProviderManager'
-import { courseTypesData } from './constants'
 
 export const Courses: CollectionConfig = {
   slug: 'courses',
@@ -149,19 +150,7 @@ export const Courses: CollectionConfig = {
       })),
     },
     modeOfTravelField(),
-    {
-      name: 'affinityGroups',
-      type: 'select',
-      options: [
-        { label: 'LGBTQ+', value: 'lgbtq' },
-        { label: "Women's Specific", value: 'womens-specific' },
-        { label: 'Youth Specific', value: 'youth-specific' },
-      ],
-      hasMany: true,
-      admin: {
-        position: 'sidebar',
-      },
-    },
+    affinityGroupField(),
     {
       name: 'provider',
       type: 'relationship',

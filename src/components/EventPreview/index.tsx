@@ -2,7 +2,7 @@ import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
 
-import { eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/constants/eventTypes'
 import { Link } from '@payloadcms/ui'
 import { ExternalLink } from 'lucide-react'
 import { EventInfo } from '../EventInfo'
@@ -75,7 +75,7 @@ export const EventPreview = (props: {
         </div>
       )}
 
-      <div className="flex flex-col justify-between flex-grow min-w-0">
+      <div className="flex flex-col justify-between flex-grow min-w-0 gap-1">
         <div>
           {eventTypeDisplay && (
             <div className="text-xs text-muted-foreground mb-2">{eventTypeDisplay}</div>
