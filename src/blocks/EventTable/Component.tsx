@@ -5,7 +5,7 @@ import RichText from '@/components/RichText'
 import type { Event, EventTableBlock as EventTableBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
-import { useDynamicEvents } from './useDynamicEvents'
+import { useEffect, useState } from 'react'
 
 type EventTableComponentProps = EventTableBlockProps & {
   className?: string
@@ -18,17 +18,69 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   const { staticEvents } = args.staticOptions || {}
 
   const { tenant } = useTenant()
-  const {
-    events: fetchedEvents,
-    loading,
-    error,
-  } = useDynamicEvents({
-    tenant,
-    filterByEventTypes,
-    filterByEventGroups,
-    filterByEventTags,
-    maxEvents,
-  })
+  const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (eventOptions !== 'dynamic') return
+
+    const fetchEvents = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const tenantId = typeof tenant === 'number' ? tenant : (tenant as { id?: number })?.id
+        if (!tenantId) return
+
+        const params = new URLSearchParams({
+          tenantId: String(tenantId),
+          limit: String(maxEvents || 4),
+          depth: '1',
+        })
+
+        if (filterByEventTypes?.length) {
+          params.append('types', filterByEventTypes.join(','))
+        }
+
+        if (filterByEventGroups?.length) {
+          const groupIds = filterByEventGroups
+            .map((g) => (typeof g === 'object' ? g.id : g))
+            .filter(Boolean)
+          if (groupIds.length) {
+            params.append('groups', groupIds.join(','))
+          }
+        }
+
+        if (filterByEventTags?.length) {
+          const tagIds = filterByEventTags
+            .map((t) => (typeof t === 'object' ? t.id : t))
+            .filter(Boolean)
+          if (tagIds.length) {
+            params.append('tags', tagIds.join(','))
+          }
+        }
+
+        const response = await fetch(`/api/eventsQuery?${params.toString()}`, {
+          cache: 'no-store',
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch events')
+        }
+
+        const data = await response.json()
+        setFetchedEvents(data.docs || [])
+      } catch (err) {
+        console.error('[EventTable Error]:', err)
+        setError(err instanceof Error ? err.message : 'An error occurred while fetching events')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
 
   let displayEvents
   if (eventOptions === 'static') displayEvents = staticEvents as Event[]

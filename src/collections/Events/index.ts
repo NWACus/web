@@ -1,4 +1,4 @@
-import { accessByTenantRoleWithPermissiveRead } from '@/access/byTenantRole'
+import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
@@ -33,7 +33,7 @@ import { eventTypesData } from './constants'
 
 export const Events: CollectionConfig = {
   slug: 'events',
-  access: accessByTenantRoleWithPermissiveRead('events'),
+  access: accessByTenantRole('events'),
   admin: {
     baseListFilter: filterByTenant,
     group: 'Events',
