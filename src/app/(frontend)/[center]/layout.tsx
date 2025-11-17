@@ -60,9 +60,7 @@ export default async function RootLayout({ children, params }: Args) {
     },
   })
   const tenant = tenantsRes.docs.length >= 1 ? tenantsRes.docs[0] : null
-  // invariant(tenant, `Could not determine tenant for center value: ${center}`)
-
-  if (!tenant) return null
+  invariant(tenant, `Could not determine tenant for center value: ${center}`)
 
   const platforms = await getAvalancheCenterPlatforms(center)
   invariant(platforms, 'Could not determine avalanche center platforms')
