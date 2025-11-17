@@ -61,7 +61,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           }
         }
 
-        const response = await fetch(`/api/eventsQuery?${params.toString()}`, {
+        const response = await fetch(`/api/events?${params.toString()}`, {
           cache: 'no-store',
         })
 
