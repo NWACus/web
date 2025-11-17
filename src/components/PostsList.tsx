@@ -99,7 +99,7 @@ export const PostsList = ({
 
       resetAndFetch()
     }
-  }, [searchParams, setTotal, stableFilters])
+  }, [center, searchParams, setTotal, stableFilters])
 
   useEffect(() => {
     if (inView && hasMoreData && !isLoading) {
@@ -139,7 +139,7 @@ export const PostsList = ({
 
       loadMore()
     }
-  }, [inView, hasMoreData, isLoading, offset, stableFilters])
+  }, [inView, hasMoreData, isLoading, offset, stableFilters, center])
 
   if (error) {
     return (

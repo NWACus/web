@@ -113,7 +113,7 @@ export const EventsList = ({
 
       resetAndFetch()
     }
-  }, [searchParams, setTotal, stableFilters])
+  }, [center, searchParams, setTotal, stableFilters])
 
   useEffect(() => {
     if (inView && hasMoreData && !isLoading) {
@@ -157,7 +157,7 @@ export const EventsList = ({
 
       loadMore()
     }
-  }, [inView, hasMoreData, isLoading, offset, stableFilters])
+  }, [inView, hasMoreData, isLoading, offset, stableFilters, center])
 
   if (error) {
     return (
