@@ -1,90 +1,66 @@
-import configPromise from '@payload-config'
+import { PostsList } from '@/components/PostsList'
+import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import { getPosts } from '@/utilities/queries/getPosts'
+import { getTags } from '@/utilities/queries/getTags'
 import type { Metadata, ResolvedMetadata } from 'next/types'
-import { getPayload } from 'payload'
+import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
+import { PostsFilters } from './PostsFilters'
+import { PostsMobileFilters } from './PostsMobileFilters'
 
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
-import { PostCollection } from '@/components/PostCollection'
-import { POSTS_LIMIT } from '@/utilities/constants'
-import { PostsSort } from './posts-sort'
-import { PostsTags } from './posts-tags'
+const blogSearchParams = {
+  sort: parseAsString.withDefault('-publishedAt'),
+  tags: parseAsString,
+}
+
+const loadBlogSearchParams = createLoader(blogSearchParams)
 
 type Args = {
   params: Promise<{
     center: string
   }>
-  searchParams: Promise<{ [key: string]: string }>
+  searchParams: Promise<SearchParams>
 }
 
 export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
-  const resolvedSearchParams = await searchParams
-  const sort = resolvedSearchParams?.sort || '-publishedAt'
-  const selectedTag = resolvedSearchParams?.tags
+  const { sort, tags } = await loadBlogSearchParams(searchParams)
 
-  const payload = await getPayload({ config: configPromise })
-
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 2,
-    limit: POSTS_LIMIT,
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-      _status: {
-        equals: 'published',
-      },
-      'tags.slug': {
-        in: selectedTag,
-      },
-    },
+  const filters = {
+    tags,
     sort,
-  })
+    center,
+  }
 
-  const tags = await payload.find({
-    collection: 'tags',
-    depth: 1,
-    limit: 99,
-    pagination: false,
-    where: {
-      'tenant.slug': {
-        equals: center,
-      },
-    },
-    sort: 'slug',
-  })
+  const { posts, hasMore, total, error } = await getPosts(filters)
+
+  const { tags: tagsList } = await getTags(center)
+
+  const hasActiveFilters = Boolean(tags || sort !== '-publishedAt')
 
   return (
-    <div className="pt-4">
-      <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
-        <div className="grow">
-          <PostCollection posts={posts.docs} />
-        </div>
+    <FiltersTotalProvider initialTotal={total}>
+      <div className="pt-4">
+        <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
+          <div className="grow">
+            <div className="md:hidden mb-4">
+              <PostsMobileFilters tags={tagsList} sort={sort} hasActiveFilters={hasActiveFilters} />
+            </div>
 
-        {/* Sorting and filters */}
-        <div className="flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
-          <PostsSort initialSort={sort} />
-          {tags.docs.length > 1 && <PostsTags tags={tags.docs} />}
+            <PostsList
+              initialPosts={posts}
+              initialHasMore={hasMore}
+              initialError={error}
+              center={center}
+              defaultSort={sort}
+            />
+          </div>
+
+          <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px]">
+            <PostsFilters sort={sort} tags={tagsList} />
+          </div>
         </div>
       </div>
-
-      {/* Pagination */}
-      {posts.totalPages > 1 && posts.page && (
-        <div className="container mb-4">
-          <Pagination page={posts.page} totalPages={posts.totalPages} relativePath="/blog/page" />
-          <PageRange
-            collectionLabels={{
-              plural: 'Posts',
-              singular: 'Post',
-            }}
-            currentPage={posts.page}
-            limit={POSTS_LIMIT}
-            totalDocs={posts.totalDocs}
-          />
-        </div>
-      )}
-    </div>
+    </FiltersTotalProvider>
   )
 }
 

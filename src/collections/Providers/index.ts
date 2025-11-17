@@ -1,4 +1,5 @@
 import { accessByProviderRelationship } from '@/access/byProviderRelationship'
+import { courseTypesData } from '@/constants/courseTypes'
 import { contentHashField } from '@/fields/contentHashField'
 import { stateOptions } from '@/fields/location/states'
 import { slugField } from '@/fields/slug'
@@ -6,8 +7,8 @@ import { validatePhone } from '@/utilities/validatePhone'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
-import { courseTypesData } from '../Courses/constants'
 import { courseTypesFieldAccess } from './access/courseTypesFieldAccess'
+import { revalidateProvider, revalidateProviderDelete } from './hooks/revalidateProvider'
 import { sendProviderEmails } from './hooks/sendProviderEmails'
 import { setNotificationEmail } from './hooks/setNotificationEmail'
 
@@ -154,7 +155,8 @@ export const Providers: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
-    afterChange: [sendProviderEmails],
+    afterChange: [sendProviderEmails, revalidateProvider],
+    afterDelete: [revalidateProviderDelete],
   },
   versions: {
     drafts: {

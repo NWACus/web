@@ -3,7 +3,8 @@ import Link from 'next/link'
 
 import type { Event } from '@/payload-types'
 
-import { eventTypesData } from '@/collections/Events/constants'
+import { eventTypesData } from '@/constants/eventTypes'
+import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import { Calendar, MapPin } from 'lucide-react'
 import { ImageMedia } from './Media/ImageMedia'
 import { Badge } from './ui/badge'
@@ -13,19 +14,18 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
 
   if (!doc) return null
 
-  const { thumbnailImage, startDate, slug, title, location, externalEventUrl, type } = doc
+  const {
+    thumbnailImage,
+    startDate,
+    endDate,
+    timezone,
+    slug,
+    title,
+    location,
+    externalEventUrl,
+    type,
+  } = doc
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }
-    return date.toLocaleDateString('en-US', options)
-  }
-
-  const eventDate = startDate ? formatDate(startDate) : null
   const isPastEvent = startDate && new Date(startDate) < new Date()
   const eventUrl = externalEventUrl || `/events/${slug}`
   const isExternal = !!externalEventUrl
@@ -72,7 +72,15 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
           )}
           <h3 className="text-lg leading-tight group-hover:underline">{title}</h3>
           <div className="flex flex-col">
-            {eventDate && <p className="text-sm text-muted-foreground">{eventDate}</p>}
+            {startDate && (
+              <p className="text-sm text-muted-foreground">
+                <StartAndEndDateDisplay
+                  startDate={startDate}
+                  endDate={endDate}
+                  timezone={timezone}
+                />
+              </p>
+            )}
             {locationText && (
               <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
