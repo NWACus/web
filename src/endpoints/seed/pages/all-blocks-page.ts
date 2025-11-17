@@ -84,6 +84,19 @@ export const allBlocksPage: (
         event: events[1]?.id || 0, // Use second event
         backgroundColor: 'gray',
       },
+      {
+        blockName: '',
+        eventOptions: 'dynamic',
+
+        dynamicOptions: {
+          maxEvents: 6,
+          queriedEvents: [], // Will be populated during seeding
+        },
+        staticOptions: {
+          staticEvents: [],
+        },
+        blockType: 'eventTable',
+      },
     ],
     meta: {
       image: null,
