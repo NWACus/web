@@ -1,8 +1,12 @@
-import { QUICK_DATE_FILTERS_EVENTS } from '@/constants/quickDateFilters'
-
 export type EventType = {
   label: string
-  value: string
+  value:
+    | 'events-by-ac'
+    | 'awareness'
+    | 'workshop'
+    | 'field-class-by-ac'
+    | 'volunteer'
+    | 'events-by-others'
   description?: string | null
 }
 
@@ -43,5 +47,3 @@ export const eventTypesData: EventType[] = [
     value: 'events-by-others',
   },
 ]
-
-export const QUICK_DATE_FILTERS = QUICK_DATE_FILTERS_EVENTS

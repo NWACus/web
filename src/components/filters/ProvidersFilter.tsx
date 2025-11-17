@@ -1,25 +1,20 @@
 import { CheckboxFilter, CheckboxFilterProps } from '@/components/filters/CheckboxFilter'
 
-type Provider = {
-  id: number
-  name: string
+type ProviderOption = {
+  label: string
+  value: string
 }
 
 type ProvidersFilterProps = {
-  providers: Provider[]
+  providers: ProviderOption[]
 } & Partial<CheckboxFilterProps>
 
 export const ProvidersFilter = ({ providers, ...props }: ProvidersFilterProps) => {
-  const options = providers.map((provider) => ({
-    label: provider.name,
-    value: String(provider.id),
-  }))
-
   return (
     <CheckboxFilter
       title="Provider"
       urlParam="providers"
-      options={options}
+      options={providers}
       maxHeight="max-h-64"
       enableSearch
       searchPlaceholder="Search providers..."

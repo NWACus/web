@@ -2,10 +2,9 @@
 
 import type { SelectFieldClientProps } from 'payload'
 
+import { courseTypesData } from '@/constants/courseTypes'
 import { SelectField, useField, useFormFields } from '@payloadcms/ui'
 import React, { useEffect, useMemo } from 'react'
-
-import { courseTypesData } from '../constants'
 
 type Props = SelectFieldClientProps
 

@@ -1,3 +1,4 @@
+import { courseTypesData } from '@/constants/courseTypes'
 import { affinityGroupField } from '@/fields/affinityGroupField'
 import { contentHashField } from '@/fields/contentHashField'
 import { coordinatesWithMap } from '@/fields/location/coordinatesWithMap'
@@ -11,7 +12,6 @@ import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { accessByProviderOrProviderManager } from './access/byProviderOrProviderManager'
-import { courseTypesData } from './constants'
 
 export const Courses: CollectionConfig = {
   slug: 'courses',

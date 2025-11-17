@@ -1,5 +1,4 @@
-'use server'
-
+import { COURSES_LIMIT } from '@/constants/defaults'
 import type { Course } from '@/payload-types'
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'
@@ -32,9 +31,15 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
     const { types, providers, states, affinityGroups, modesOfTravel, startDate, endDate } = params
 
     const offset = params.offset || 0
-    const limit = params.limit || 10
+    const limit = params.limit || COURSES_LIMIT
 
-    const conditions: Where[] = []
+    const conditions: Where[] = [
+      {
+        _status: {
+          equals: 'published',
+        },
+      },
+    ]
 
     if (types) {
       const selectedTypes = types.split(',').filter(Boolean)
@@ -51,7 +56,7 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
       const selectedProviders = providers.split(',').filter(Boolean).map(Number)
       if (selectedProviders.length > 0) {
         conditions.push({
-          provider: {
+          'provider.slug': {
             in: selectedProviders,
           },
         })
@@ -137,12 +142,6 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
         ],
       })
     }
-
-    conditions.push({
-      _status: {
-        equals: 'published',
-      },
-    })
 
     const where: Where = conditions.length > 0 ? { and: conditions } : {}
 

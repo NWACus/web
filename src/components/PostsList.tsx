@@ -1,14 +1,21 @@
 'use client'
 
-import { getPosts } from '@/actions/getPosts'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import type { Post } from '@/payload-types'
+import type { GetPostsResult } from '@/utilities/queries/getPosts'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
+import { createSerializer, parseAsInteger, parseAsString } from 'nuqs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { PostPreview } from './PostPreview'
 import { Card } from './ui/card'
+
+const searchParamsSerializer = createSerializer({
+  offset: parseAsInteger,
+  tags: parseAsString,
+  sort: parseAsString,
+})
 
 interface PostsListProps {
   initialPosts: Post[]
@@ -62,10 +69,15 @@ export const PostsList = ({
         setIsLoading(true)
         setError(null)
         try {
-          const result = await getPosts({
-            ...stableFilters,
+          const queryString = searchParamsSerializer({
             offset: 0,
+            tags: stableFilters.tags || undefined,
+            sort: stableFilters.sort || undefined,
           })
+
+          const result: GetPostsResult = await fetch(`/api/${center}/posts?${queryString}`).then(
+            (res) => res.json(),
+          )
 
           if (result.error) {
             setError(result.error)
@@ -87,17 +99,22 @@ export const PostsList = ({
 
       resetAndFetch()
     }
-  }, [searchParams, setTotal, stableFilters])
+  }, [center, searchParams, setTotal, stableFilters])
 
   useEffect(() => {
     if (inView && hasMoreData && !isLoading) {
       const loadMore = async () => {
         setIsLoading(true)
         try {
-          const result = await getPosts({
-            ...stableFilters,
+          const queryString = searchParamsSerializer({
             offset,
+            tags: stableFilters.tags || undefined,
+            sort: stableFilters.sort || undefined,
           })
+
+          const result: GetPostsResult = await fetch(`/api/${center}/posts?${queryString}`).then(
+            (res) => res.json(),
+          )
 
           if (result.error) {
             setError(result.error)
@@ -122,7 +139,7 @@ export const PostsList = ({
 
       loadMore()
     }
-  }, [inView, hasMoreData, isLoading, offset, stableFilters])
+  }, [inView, hasMoreData, isLoading, offset, stableFilters, center])
 
   if (error) {
     return (

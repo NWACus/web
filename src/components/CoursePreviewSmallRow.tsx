@@ -6,14 +6,18 @@ import { useState } from 'react'
 
 import type { Course } from '@/payload-types'
 
-import { courseTypesData } from '@/collections/Courses/constants'
+import { courseTypesData } from '@/constants/courseTypes'
+import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import { formatDateTime } from '@/utilities/formatDateTime'
-import { isSameDay } from 'date-fns'
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react'
 import { Badge } from './ui/badge'
 
-export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course }) => {
-  const { className, doc } = props
+export const CoursePreviewSmallRow = (props: {
+  className?: string
+  titleClassName?: string
+  doc?: Course
+}) => {
+  const { className, titleClassName, doc } = props
   const [isExpanded, setIsExpanded] = useState(false)
 
   if (!doc) return null
@@ -31,25 +35,6 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
     timezone,
     provider,
   } = doc
-
-  // Format dates using the same logic as EventPreviewSmallRow and EventInfo
-  const getDateDisplay = () => {
-    if (!startDate) return null
-
-    if (endDate && isSameDay(startDate, endDate)) {
-      return formatDateTime(startDate, timezone, 'MMM d, yyyy')
-    } else if (endDate) {
-      return `${formatDateTime(startDate, timezone, 'MMM d, yyyy')} - ${formatDateTime(endDate, timezone, 'MMM d, yyyy')}`
-    } else {
-      return formatDateTime(startDate, timezone, 'MMM d, yyyy')
-    }
-  }
-
-  const dateDisplay = getDateDisplay()
-
-  const formatRegistrationDeadline = (dateString: string) => {
-    return formatDateTime(dateString, timezone, 'MMM d, yyyy')
-  }
 
   // Check if course is past based on endDate (or startDate if no endDate)
   const isPastCourse = endDate
@@ -86,21 +71,29 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
           {courseTypeDisplay && (
             <div className="text-xs text-muted-foreground">{courseTypeDisplay}</div>
           )}
-          <h3 className={cn('text-lg leading-tight', hasExternalUrl && 'group-hover:underline')}>
+          <h3
+            className={cn(
+              'text-lg leading-tight',
+              hasExternalUrl && 'group-hover:underline',
+              titleClassName,
+            )}
+          >
             {title}
           </h3>
           {providerName && (
-            <p className="text-sm font-medium text-muted-foreground">{providerName}</p>
+            <p className="text-sm font-medium text-muted-foreground">Provided by: {providerName}</p>
           )}
-          <div className="flex flex-col">
-            {dateDisplay && <p className="text-sm text-muted-foreground">{dateDisplay}</p>}
-            {locationText && (
-              <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                <span>{locationText}</span>
-              </div>
-            )}
-          </div>
+          {startDate && (
+            <p className="text-sm text-muted-foreground">
+              <StartAndEndDateDisplay startDate={startDate} endDate={endDate} timezone={timezone} />
+            </p>
+          )}
+          {locationText && (
+            <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>{locationText}</span>
+            </div>
+          )}
           <div className="flex gap-2 items-center">
             {isPastCourse && (
               <Badge variant="outline" className="text-xs">
@@ -127,7 +120,7 @@ export const CoursePreviewSmallRow = (props: { className?: string; doc?: Course 
           {registrationDeadline && (
             <p className="text-sm">
               <span className="font-medium">Registration Deadline:</span>{' '}
-              {formatRegistrationDeadline(registrationDeadline)}
+              {formatDateTime(registrationDeadline, timezone, 'MMM d, yyyy')}
             </p>
           )}
         </div>

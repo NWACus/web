@@ -22,6 +22,8 @@ import invariant from 'tiny-invariant'
 import './nac-widgets.css'
 import ThemeSetter from './theme'
 
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const tenants = await payload.find({
@@ -71,7 +73,7 @@ export default async function RootLayout({ children, params }: Args) {
       <TenantProvider tenant={tenant}>
         <PostHogTenantRegister />
         <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
-          <div className={cn('flex flex-col min-h-screen max-w-screen overflow-x-hidden', center)}>
+          <div className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}>
             <ThemeSetter theme={center} />
             <Header center={center} />
             <main className="flex-grow">

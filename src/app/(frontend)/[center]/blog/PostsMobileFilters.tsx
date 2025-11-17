@@ -2,23 +2,20 @@
 
 import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
-import type { Tag } from '@/payload-types'
-import { BlogTagsFilter } from './blog-tags-filter'
-import { PostsSort } from './posts-sort'
+import { FiltersPostsTag, PostsFilters } from './PostsFilters'
 
 type Props = {
-  tags: Tag[]
-  initialSort: string
+  tags: FiltersPostsTag[]
+  sort: string
   hasActiveFilters: boolean
 }
 
-export const BlogMobileFilters = ({ tags, initialSort, hasActiveFilters }: Props) => {
+export const PostsMobileFilters = ({ tags, sort, hasActiveFilters }: Props) => {
   const { total } = useFiltersTotalContext()
 
   return (
     <MobileFiltersDrawer docLabel="posts" docCount={total} hasActiveFilters={hasActiveFilters}>
-      <PostsSort initialSort={initialSort} className="pt-3 border-b" />
-      {tags.length > 1 && <BlogTagsFilter tags={tags} />}
+      <PostsFilters sort={sort} tags={tags} />
     </MobileFiltersDrawer>
   )
 }

@@ -1,5 +1,4 @@
-'use server'
-
+import { EVENTS_LIMIT } from '@/constants/defaults'
 import type { Event } from '@/payload-types'
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'
@@ -32,15 +31,20 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
     const { types, startDate, endDate, groups, tags, modesOfTravel, center } = params
 
     const offset = params.offset || 0
-    const limit = params.limit || 10
+    const limit = params.limit || EVENTS_LIMIT
 
-    const conditions: Where[] = []
-
-    conditions.push({
-      'tenant.slug': {
-        equals: center,
+    const conditions: Where[] = [
+      {
+        'tenant.slug': {
+          equals: center,
+        },
       },
-    })
+      {
+        _status: {
+          equals: 'published',
+        },
+      },
+    ]
 
     if (types && types.length > 0) {
       conditions.push({
@@ -52,7 +56,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
 
     if (groups && groups.length > 0) {
       conditions.push({
-        eventGroups: {
+        'eventGroups.slug': {
           in: groups,
         },
       })
@@ -60,7 +64,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
 
     if (tags && tags.length > 0) {
       conditions.push({
-        eventTags: {
+        'eventTags.slug': {
           in: tags,
         },
       })

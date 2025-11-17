@@ -21,9 +21,8 @@ export const PostsSort = ({ initialSort: _initialSort, className }: Props) => {
   )
 
   return (
-    <div className={cn(className)}>
-      <h4 className="w-full">Sort</h4>
-      <hr className="p-2" />
+    <div className={cn('flex flex-col gap-2 pt-3', className)}>
+      <h3 className="font-semibold">Sort</h3>
       <Select value={sortOption} onValueChange={setSortOption}>
         <SelectTrigger className="mb-4">
           <SelectValue placeholder="Sort" />

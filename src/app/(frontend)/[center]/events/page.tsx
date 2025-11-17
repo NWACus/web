@@ -2,20 +2,16 @@ import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
 
-import { getEventGroups } from '@/actions/getEventGroups'
-import { getEvents } from '@/actions/getEvents'
-import { getEventTags } from '@/actions/getEventTags'
-import { getEventTypes } from '@/actions/getEventTypes'
 import { EventsList } from '@/components/EventsList'
-import { ModesOfTravelFilter } from '@/components/filters/ModesOfTravelFilter'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import { getEventGroups } from '@/utilities/queries/getEventGroups'
+import { getEvents } from '@/utilities/queries/getEvents'
+import { getEventTags } from '@/utilities/queries/getEventTags'
+import { getEventTypes } from '@/utilities/queries/getEventTypes'
 import { notFound } from 'next/navigation'
 import { createLoader, parseAsArrayOf, parseAsString, SearchParams } from 'nuqs/server'
-import { EventsDatePicker } from './events-date-filter'
-import { EventsGroupsFilter } from './events-groups-filter'
-import { EventsMobileFilters } from './events-mobile-filters'
-import { EventsTagsFilter } from './events-tags-filter'
-import { EventsTypeFilter } from './events-type-filter'
+import { EventsFilters } from './EventsFilters'
+import { EventsMobileFilters } from './EventsMobileFilters'
 
 const eventsSearchParams = {
   types: parseAsArrayOf(parseAsString),
@@ -37,14 +33,8 @@ type Args = {
 
 export default async function Page({ params, searchParams }: Args) {
   const { center } = await params
-  const {
-    types: selectedTypes,
-    startDate: selectedStartDate,
-    endDate: selectedEndDate,
-    groups: selectedGroups,
-    tags: selectedTags,
-    modesOfTravel: selectedModesOfTravel,
-  } = await loadEventsSearchParams(searchParams)
+  const { types, startDate, endDate, groups, tags, modesOfTravel } =
+    await loadEventsSearchParams(searchParams)
 
   const payload = await getPayload({ config: configPromise })
 
@@ -65,12 +55,12 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const filters = {
-    types: selectedTypes || null,
-    startDate: selectedStartDate,
-    endDate: selectedEndDate,
-    groups: selectedGroups || null,
-    tags: selectedTags || null,
-    modesOfTravel: selectedModesOfTravel || null,
+    types,
+    startDate,
+    endDate,
+    groups,
+    tags,
+    modesOfTravel,
     center,
   }
 
@@ -79,29 +69,23 @@ export default async function Page({ params, searchParams }: Args) {
   const { eventGroups } = await getEventGroups({ center })
   const { eventTags } = await getEventTags({ center })
 
-  const hasActiveFilters =
-    (selectedTypes && selectedTypes.length > 0) ||
-    selectedStartDate ||
-    selectedEndDate ||
-    (selectedGroups && selectedGroups.length > 0) ||
-    (selectedTags && selectedTags.length > 0) ||
-    (selectedModesOfTravel && selectedModesOfTravel.length > 0)
+  const hasActiveFilters = Boolean(types || groups || tags || modesOfTravel || startDate || endDate)
 
   return (
     <FiltersTotalProvider initialTotal={total}>
       <div className="pt-4">
         <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
-          {/* Mobile Filter Toggle */}
           <div className="md:hidden">
             <EventsMobileFilters
               types={eventTypes}
               groups={eventGroups}
               tags={eventTags}
-              hasActiveFilters={Boolean(hasActiveFilters)}
+              hasActiveFilters={hasActiveFilters}
+              startDate={startDate}
+              endDate={endDate}
             />
           </div>
 
-          {/* Main Content */}
           <div className="grow order-2 md:order-1">
             <EventsList
               initialEvents={events}
@@ -111,13 +95,14 @@ export default async function Page({ params, searchParams }: Args) {
             />
           </div>
 
-          {/* Desktop Sidebar - Hidden on Mobile */}
           <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
-            <EventsDatePicker startDate={selectedStartDate} endDate={selectedEndDate} />
-            <EventsTypeFilter types={eventTypes} />
-            <EventsGroupsFilter groups={eventGroups} />
-            <EventsTagsFilter tags={eventTags} />
-            <ModesOfTravelFilter showBottomBorder={false} />
+            <EventsFilters
+              startDate={startDate}
+              endDate={endDate}
+              types={eventTypes}
+              groups={eventGroups}
+              tags={eventTags}
+            />
           </div>
         </div>
       </div>

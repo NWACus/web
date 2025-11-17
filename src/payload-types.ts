@@ -98,6 +98,15 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    tags: {
+      posts: 'posts';
+    };
+    eventGroups: {
+      events: 'events';
+    };
+    eventTags: {
+      events: 'events';
+    };
     providers: {
       courses: 'courses';
     };
@@ -528,6 +537,11 @@ export interface Tag {
   id: number;
   tenant: number | Tenant;
   title: string;
+  posts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   slug: string;
   contentHash?: string | null;
   updatedAt: string;
@@ -911,6 +925,11 @@ export interface EventGroup {
   tenant: number | Tenant;
   title: string;
   description?: string | null;
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   slug: string;
   contentHash?: string | null;
   updatedAt: string;
@@ -925,6 +944,11 @@ export interface EventTag {
   tenant: number | Tenant;
   title: string;
   description?: string | null;
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   slug: string;
   contentHash?: string | null;
   updatedAt: string;
@@ -3242,6 +3266,7 @@ export interface SponsorsSelect<T extends boolean = true> {
 export interface TagsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
+  posts?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -3308,6 +3333,7 @@ export interface EventGroupsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   description?: T;
+  events?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -3321,6 +3347,7 @@ export interface EventTagsSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   description?: T;
+  events?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;

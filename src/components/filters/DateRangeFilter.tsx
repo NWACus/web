@@ -2,7 +2,8 @@
 
 import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
-import { QuickDateFilter } from '@/constants/quickDateFilters'
+import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
+import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
 import { parseAsString, useQueryStates } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -12,6 +13,7 @@ type DateRangeFilterProps = {
   endDate: string
   quickFilters: QuickDateFilter[]
   title?: string
+  titleClassName?: string
   defaultOpen?: boolean
   showBottomBorder?: boolean
 }
@@ -21,6 +23,7 @@ export const DateRangeFilter = ({
   endDate: initialEndDate,
   quickFilters,
   title = 'Date Range',
+  titleClassName,
   defaultOpen = true,
   showBottomBorder = true,
 }: DateRangeFilterProps) => {
@@ -35,13 +38,13 @@ export const DateRangeFilter = ({
     },
   )
 
-  const [filterType, setFilterType] = useState('')
+  const [quickFilter, setQuickFilter] = useState('')
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const isInitialMount = useRef(true)
 
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string) => {
-      setFilterType(filter)
+      setQuickFilter(filter)
       setDateParams({
         startDate: start || null,
         endDate: end || null,
@@ -70,7 +73,7 @@ export const DateRangeFilter = ({
     return (
       <Button
         onClick={() => handleQuickFilter(filter.id)}
-        variant={filterType === filter.id ? 'default' : 'outline'}
+        variant={quickFilter === filter.id ? 'default' : 'outline'}
         className="flex-1"
       >
         {filter.label}
@@ -86,7 +89,7 @@ export const DateRangeFilter = ({
 
       if ((!currentStart && !currentEnd) || (currentStart && !currentEnd)) {
         // No dates set or only start date, default to upcoming
-        setFilterType('upcoming')
+        setQuickFilter('upcoming')
       } else if (currentStart && currentEnd) {
         // Try to match against quick filters
         const matchingFilter = quickFilters.find((filter) => {
@@ -96,10 +99,10 @@ export const DateRangeFilter = ({
         })
 
         if (matchingFilter) {
-          setFilterType(matchingFilter.id)
+          setQuickFilter(matchingFilter.id)
         } else {
           // No match found, must be custom
-          setFilterType('custom')
+          setQuickFilter('custom')
         }
       }
       isInitialMount.current = false
@@ -113,9 +116,9 @@ export const DateRangeFilter = ({
           onClick={() => setIsOpen(!isOpen)}
           className="w-full flex items-center justify-between py-3 cursor-pointer transition-colors"
         >
-          <h3 className="font-semibold">{title}</h3>
+          <h3 className={cn('font-semibold', titleClassName)}>{title}</h3>
           <div className="flex items-center gap-2">
-            {filterType && filterType !== 'upcoming' && (
+            {quickFilter && quickFilter !== 'upcoming' && (
               <Button
                 onClick={(e) => {
                   e.stopPropagation()
@@ -143,14 +146,14 @@ export const DateRangeFilter = ({
 
             <Button
               onClick={() => handleQuickFilter('custom')}
-              variant={filterType === 'custom' ? 'default' : 'outline'}
+              variant={quickFilter === 'custom' ? 'default' : 'outline'}
               className="w-full"
             >
               Custom date range
             </Button>
 
             {/* Custom Date Range */}
-            {filterType === 'custom' && (
+            {quickFilter === 'custom' && (
               <div className="flex gap-4 mt-4">
                 <DatePickerField
                   label="Start Date"

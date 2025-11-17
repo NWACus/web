@@ -1,14 +1,26 @@
 'use client'
 
-import { getCourses } from '@/actions/getCourses'
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
 import type { Course } from '@/payload-types'
+import type { GetCoursesResult } from '@/utilities/queries/getCourses'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
+import { createSerializer, parseAsInteger, parseAsString } from 'nuqs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { CoursePreviewSmallRow } from './CoursePreviewSmallRow'
 import { Card } from './ui/card'
+
+const searchParamsSerializer = createSerializer({
+  offset: parseAsInteger,
+  types: parseAsString,
+  providers: parseAsString,
+  states: parseAsString,
+  affinityGroups: parseAsString,
+  modesOfTravel: parseAsString,
+  startDate: parseAsString,
+  endDate: parseAsString,
+})
 
 interface CoursesListProps {
   initialCourses: Course[]
@@ -63,10 +75,20 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
         setIsLoading(true)
         setError(null)
         try {
-          const result = await getCourses({
-            ...stableFilters,
+          const queryString = searchParamsSerializer({
             offset: 0,
+            types: stableFilters.types || undefined,
+            providers: stableFilters.providers || undefined,
+            states: stableFilters.states || undefined,
+            affinityGroups: stableFilters.affinityGroups || undefined,
+            modesOfTravel: stableFilters.modesOfTravel || undefined,
+            startDate: stableFilters.startDate || undefined,
+            endDate: stableFilters.endDate || undefined,
           })
+
+          const result: GetCoursesResult = await fetch(`/api/courses?${queryString}`).then((res) =>
+            res.json(),
+          )
 
           if (result.error) {
             setError(result.error)
@@ -95,10 +117,20 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
       const loadMore = async () => {
         setIsLoading(true)
         try {
-          const result = await getCourses({
-            ...stableFilters,
+          const queryString = searchParamsSerializer({
             offset,
+            types: stableFilters.types || undefined,
+            providers: stableFilters.providers || undefined,
+            states: stableFilters.states || undefined,
+            affinityGroups: stableFilters.affinityGroups || undefined,
+            modesOfTravel: stableFilters.modesOfTravel || undefined,
+            startDate: stableFilters.startDate || undefined,
+            endDate: stableFilters.endDate || undefined,
           })
+
+          const result: GetCoursesResult = await fetch(`/api/courses?${queryString}`).then((res) =>
+            res.json(),
+          )
 
           if (result.error) {
             setError(result.error)
@@ -148,10 +180,10 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
   }
 
   return (
-    <div className="space-y-4">
+    <div className="gap-y-4 gap-x-6 grid xl:grid-cols-2">
       {courses.map((course) => (
         <div key={course.id} className="border-b pb-4 last:border-b-0">
-          <CoursePreviewSmallRow doc={course} />
+          <CoursePreviewSmallRow doc={course} titleClassName="text-xl" />
         </div>
       ))}
 

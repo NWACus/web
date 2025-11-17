@@ -33,6 +33,8 @@ import { ButtonBlock } from '@/blocks/Button/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
+import { isTenantValue } from '@/utilities/isTenantValue'
+import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -59,34 +61,27 @@ export const Posts: CollectionConfig<'posts'> = {
     },
     livePreview: {
       url: async ({ data, req }) => {
-        let tenant = data.tenant
+        let tenant: Partial<Tenant> | null = null
 
-        if (typeof tenant === 'number') {
-          tenant = await req.payload.findByID({
-            collection: 'tenants',
-            id: tenant,
-            depth: 2,
-          })
+        if (isTenantValue(data.tenant)) {
+          tenant = await resolveTenant(data.tenant)
         }
 
-        const path = generatePreviewPath({
+        return generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : '',
           collection: 'posts',
           tenant,
           req,
         })
-
-        return path
       },
     },
-    preview: (data, { req }) => {
-      const tenant =
-        data?.tenant &&
-        typeof data.tenant === 'object' &&
-        'id' in data.tenant &&
-        'slug' in data.tenant
-          ? (data.tenant as Tenant)
-          : null
+    preview: async (data, { req }) => {
+      let tenant: Partial<Tenant> | null = null
+
+      if (isTenantValue(data.tenant)) {
+        tenant = await resolveTenant(data.tenant)
+      }
+
       return generatePreviewPath({
         slug: typeof data?.slug === 'string' ? data.slug : '',
         collection: 'posts',
