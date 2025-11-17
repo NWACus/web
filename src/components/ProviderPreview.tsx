@@ -8,7 +8,7 @@ import { courseTypesData } from '@/constants/courseTypes'
 import { cn } from '@/utilities/ui'
 import { isValidFullUrl } from '@/utilities/validateUrl'
 import { ExternalLink, Mail, MapPin, Phone } from 'lucide-react'
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
 
 export const ProviderPreview = (props: { doc?: Provider }) => {
   const { doc } = props
@@ -38,9 +38,14 @@ export const ProviderPreview = (props: { doc?: Provider }) => {
   return (
     <Dialog>
       <DialogTrigger className="cursor-help hover:underline text-base w-fit">{name}</DialogTrigger>
-      <DialogContent className="flex flex-col gap-2 py-2" overlayClassName="bg-transparent">
+      <DialogContent className="flex flex-col gap-2" overlayClassName="bg-transparent">
+        <DialogHeader>
+          <DialogTitle>{name}</DialogTitle>
+        </DialogHeader>
         {courseTypeLabels && courseTypeLabels.length > 0 && (
-          <p>Offers: {courseTypeLabels.join(', ')}</p>
+          <p>
+            <span className="font-semibold">Offers:</span> {courseTypeLabels.join(', ')}
+          </p>
         )}
         {details && <p className="hidden md:block text-sm leading-tight">{details}</p>}
         <div className={cn('space-y-1', contactItems.length > 1 && 'md:columns-2')}>
