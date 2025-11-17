@@ -34,7 +34,7 @@ import * as migration_20251020_222917_blocks_in_highlighted_content from './2025
 import * as migration_20251023_195638_rename_indexes from './20251023_195638_rename_indexes'
 import * as migration_20251024_203935_content_block_default_value from './20251024_203935_content_block_default_value'
 import * as migration_20251029_173505_upgrade_payload_3_61_1 from './20251029_173505_upgrade_payload_3_61_1'
-import * as migration_20251116_190259_kv_undefined from './20251116_190259_kv_undefined'
+import * as migration_20251117_210840_kv from './20251117_210840_kv'
 
 export const migrations = [
   {
@@ -218,8 +218,8 @@ export const migrations = [
     name: '20251029_173505_upgrade_payload_3_61_1',
   },
   {
-    up: migration_20251116_190259_kv_undefined.up,
-    down: migration_20251116_190259_kv_undefined.down,
-    name: '20251116_190259_kv_undefined',
+    up: migration_20251117_210840_kv.up,
+    down: migration_20251117_210840_kv.down,
+    name: '20251117_210840_kv',
   },
 ]
