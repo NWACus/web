@@ -24,10 +24,7 @@ import { CMSLink } from '../Link'
 
 export function EventTable({ events = [] }: { events: Event[] }) {
   const [sortConfig, setSortConfig] = useState({ key: 'startDate', direction: 'asc' })
-  const [displayCount, setDisplayCount] = useState(10)
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
-
-  const ITEMS_PER_LOAD = 10
 
   // Determine status based on event data
   const getStatus = (event: Event) => {
@@ -125,9 +122,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     return sorted
   }, [events, sortConfig])
 
-  const displayedEvents = sortedEvents.slice(0, displayCount)
-  const hasMore = displayCount < sortedEvents.length
-
   const handleSort = (key: string) => {
     if (sortConfig.key === key) {
       setSortConfig({
@@ -191,7 +185,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {displayedEvents.map((event) => {
+          {sortedEvents.map((event) => {
             const { date, time } = formatDateTime(event.startDate)
             const status = getStatus(event)
             const { isPast, isRegistrationClosed } = status
@@ -285,17 +279,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                         <div className="flex flex-col gap-2 text-right">
                           <div className="sm:hidden">
                             {event.registrationUrl && !isPast && !isRegistrationClosed ? (
-                              <>
-                                <CMSLink
-                                  appearance="default"
-                                  size="sm"
-                                  className="group-hover:opacity-90 transition-opacity text-sm"
-                                  url={event.registrationUrl}
-                                >
-                                  Register
-                                  <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted" />
-                                </CMSLink>
-                              </>
+                              <CMSLink
+                                appearance="default"
+                                size="sm"
+                                className="group-hover:opacity-90 transition-opacity text-sm"
+                                url={event.registrationUrl}
+                                newTab={true}
+                              >
+                                Register
+                                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted" />
+                              </CMSLink>
                             ) : isPast || isRegistrationClosed ? (
                               <Button variant="default" disabled={true}>
                                 Closed
@@ -318,23 +311,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
           })}
         </TableBody>
       </Table>
-
-      {/* Load More Button */}
-      {hasMore && (
-        <div className="mt-4 text-center">
-          <Button
-            onClick={() => setDisplayCount((prev) => prev + ITEMS_PER_LOAD)}
-            variant="default"
-          >
-            Load More
-          </Button>
-        </div>
-      )}
-
-      {/* Results info */}
-      <div className="mt-4 text-sm text-gray-600">
-        Showing {displayedEvents.length} of {sortedEvents.length} events
-      </div>
     </div>
   )
 }
