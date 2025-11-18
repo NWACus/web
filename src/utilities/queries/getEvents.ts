@@ -35,7 +35,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
 
     const conditions: Where[] = [
       {
-        'tenant.slug': {
+        'tenant.id': {
           equals: center,
         },
       },

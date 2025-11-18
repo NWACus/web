@@ -54,9 +54,9 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
         if (!tenantId) return
 
         const params = new URLSearchParams({
+          tenantId: String(tenantId),
           limit: String(maxEvents || 4),
           depth: '1',
-          'where[tenant][equals]': String(tenantId),
         })
 
         if (sortBy) {
@@ -71,7 +71,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const groupIds = filterByEventGroups.filter(Boolean)
 
           if (groupIds.length > 0) {
-            params.append('where[type][in]', groupIds.join(','))
+            params.append('groups', groupIds.join(','))
           }
         }
 
@@ -83,7 +83,7 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const typeIds = filterByEventTypes.filter(Boolean)
 
           if (typeIds.length > 0) {
-            params.append('where[type][in]', typeIds.join(','))
+            params.append('types', typeIds.join(','))
           }
         }
 
@@ -91,18 +91,17 @@ export const QueriedEventsComponent = ({ path, field }: QueriedEventsComponentPr
           const tagIds = filterByEventTags.filter(Boolean)
 
           if (tagIds.length > 0) {
-            params.append('where[tags][in]', tagIds.join(','))
+            params.append('tags', tagIds.join(','))
           }
         }
-        params.append('where[startDate][greater_than]', new Date().toISOString())
+        // params.append('startDate', new Date().toISOString())
 
         const response = await fetch(`/api/events?${params.toString()}`)
         if (!response.ok) {
           throw new Error('Failed to fetch events')
         }
 
-        const data = await response.json()
-        const events = data.docs || []
+        const { events } = await response.json()
         setFetchedEvents(events)
 
         const options: OptionObject[] = events.map((event: Event) => ({

@@ -105,16 +105,15 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
         )}
       </div>
       <div>
-        {(loading || error) && (
+        {loading || error ? (
           <div className="flex items-center justify-center py-8">
             {loading && <p className="text-muted-foreground">Loading events...</p>}
             {error && <p className="text-destructive">Error loading events: {error}</p>}
           </div>
-        )}
-        {displayEvents && displayEvents.length > 0 ? (
+        ) : displayEvents && displayEvents.length > 0 ? (
           <EventTable events={displayEvents} />
         ) : (
-          <h3>There are no events matching these results.</h3>
+          <p>There are no events matching these results.</p>
         )}
       </div>
     </div>
