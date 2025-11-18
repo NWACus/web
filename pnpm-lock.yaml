@@ -21,6 +21,9 @@ importers:
       '@open-iframe-resizer/core':
         specifier: ^2.1.0
         version: 2.1.0
+      '@open-iframe-resizer/react':
+        specifier: ^2.1.0
+        version: 2.1.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@payloadcms/admin-bar':
         specifier: 3.61.1
         version: 3.61.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -3157,6 +3160,15 @@ packages:
       {
         integrity: sha512-FKpcXXMgcdM86m+cF2TqU6cG05IQ6PEuTSvJfab5we78A4cXjdpb5MofdcCPz4f4hUr+zZyb3pUzZ834YVxtLg==,
       }
+
+  '@open-iframe-resizer/react@2.1.0':
+    resolution:
+      {
+        integrity: sha512-P7+BCqMXOwDF1x3HhGVayU9M7slFIKI+9gsIoahLS71Pq/BF/Sc+36EyMNhSOV1KKtKZn6g8fEYywqQSdjglmw==,
+      }
+    peerDependencies:
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
 
   '@opentelemetry/api-logs@0.53.0':
     resolution:
@@ -15579,6 +15591,12 @@ snapshots:
   '@nolyfill/is-core-module@1.0.39': {}
 
   '@open-iframe-resizer/core@2.1.0': {}
+
+  '@open-iframe-resizer/react@2.1.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@open-iframe-resizer/core': 2.1.0
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@opentelemetry/api-logs@0.53.0':
     dependencies:

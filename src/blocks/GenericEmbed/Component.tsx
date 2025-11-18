@@ -2,6 +2,7 @@
 
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
+import { IframeResizer } from '@open-iframe-resizer/react'
 import DOMPurify from 'isomorphic-dompurify'
 import { useEffect, useState } from 'react'
 import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
@@ -20,8 +21,6 @@ export const GenericEmbedBlock = ({
   wrapInContainer = true,
 }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
-  const [shouldBeIframe, setShouldBeIFrame] = useState(false)
-  const [iframeHeight, setIframeHeight] = useState<number | string>('auto')
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -30,7 +29,7 @@ export const GenericEmbedBlock = ({
     if (typeof window === 'undefined' || !html) return
 
     // Normalize problematic quotes that are parsed incorrectly by DOMParser and DOMPurify
-    const normalizedHTML = html.replaceAll('“', '"').replaceAll('”', '"')
+    const normalizedHTML = html.replaceAll('"', '"').replaceAll('"', '"')
 
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
       ADD_TAGS: ['iframe', 'script', 'style'],
@@ -46,38 +45,26 @@ export const GenericEmbedBlock = ({
         'src',
         'height',
         'id',
+        'type',
+        'width',
         'allowpaymentrequest',
       ],
     })
 
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(sanitized, 'text/html')
-
-    const scripts = Array.from(doc.querySelectorAll('script'))
-    const iframes = Array.from(doc.querySelectorAll('iframe'))
-
-    if (scripts.length > 0 && !(iframes.length > 0)) {
-      setShouldBeIFrame(true)
-    }
-
-    setSanitizedHtml(doc.body.innerHTML)
-  }, [html, id])
-
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'embed-resize' && event.data?.id === id) {
-        const newHeight = event.data.height
-        if (newHeight && typeof newHeight === 'number') {
-          setIframeHeight(newHeight)
+    const styleOverrides = `
+      <style>
+        html, body {
+          margin: 0;
+          padding: 0;
         }
-      }
-    }
+        iframe {
+          border: 0
+        }
+      </style>
+    `
 
-    window.addEventListener('message', handleMessage)
-    return () => {
-      window.removeEventListener('message', handleMessage)
-    }
-  }, [id])
+    setSanitizedHtml(sanitized + styleOverrides)
+  }, [html])
 
   if (sanitizedHtml === null) return null
 
@@ -92,34 +79,15 @@ export const GenericEmbedBlock = ({
           alignContent === 'right' && 'items-end',
           className,
         )}
-        style={{
-          height: shouldBeIframe ? iframeHeight : undefined,
-        }}
       >
-        {shouldBeIframe ? (
-          <iframe
-            id={String(id)}
-            title={`Embedded content ${id}`}
-            srcDoc={sanitizedHtml}
-            sandbox="allow-scripts allow-forms allow-same-origin"
-            className="w-full border-none m-0 overflow-x-clip"
-            style={{
-              height: iframeHeight,
-            }}
-          />
-        ) : (
-          <div
-            className={cn(
-              'prose max-w-none md:prose-md dark:prose-invert w-full',
-              'flex flex-col',
-              alignContent === 'left' && 'items-start',
-              alignContent === 'center' && 'items-center',
-              alignContent === 'right' && 'items-end',
-              'overflow-x-clip',
-            )}
-            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-          />
-        )}
+        <IframeResizer
+          id={String(id)}
+          title={`Embedded content ${id}`}
+          srcDoc={sanitizedHtml}
+          sandbox="allow-scripts allow-forms allow-same-origin"
+          className="w-full border-none m-0 p-0"
+          height={0} // This iframe will resize to it's content height - this initial height is to avoid the iframe rendering at the browser default 150px initially
+        />
       </div>
     </div>
   )
