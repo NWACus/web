@@ -3,6 +3,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { NACDisclaimer } from '@/components/NACDisclaimer'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
 import { Button } from '@/components/ui/button'
@@ -57,6 +58,7 @@ export default async function Page({ params }: Args) {
             </Button>
           </div>
         </div>
+        <NACDisclaimer />
         <NACWidget
           center={center}
           widget={'observations'}
