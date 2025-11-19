@@ -33,7 +33,8 @@ export default async function EmbedsLayout({ children }: Args) {
       suppressHydrationWarning
     >
       <body>
-        <PostHogProvider>
+        {/** We expect these routes to be embedded in iframes so we avoid using third-party cookies */}
+        <PostHogProvider persistence="localStorage">
           <NuqsAdapter>
             <div className="flex flex-col max-w-screen overflow-x-clip">{children}</div>
           </NuqsAdapter>
