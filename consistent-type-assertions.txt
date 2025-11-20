@@ -36,5 +36,4 @@ src/utilities/generateOGImage.tsx
 src/utilities/getGlobals.ts
 src/utilities/rbac/hasReadOnlyAccess.ts
 src/utilities/removeNonDeterministicKeys.ts
-src/utilities/tenancy/getTenantFromCookie.ts
 src/utilities/useClickableCard.ts
