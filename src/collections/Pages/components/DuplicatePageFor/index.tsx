@@ -1,18 +1,23 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
-import { User } from '@/payload-types'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches } from '@/utilities/rbac/ruleMatches'
 import { EditMenuItemsServerProps, PayloadRequest } from 'payload'
 import { DuplicatePageForDrawer } from './DuplicatePageForDrawer'
 
 export const DuplicatePageFor = ({ user, payload }: EditMenuItemsServerProps) => {
+  if (!user) {
+    return null
+  }
+
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const mockedPayloadReq = {
     user,
     payload,
   } as PayloadRequest
+
   const isSuperAdmin = byGlobalRole('*', '*')({ req: mockedPayloadReq })
 
-  const roleAssignments = roleAssignmentsForUser(payload.logger, user as User)
+  const roleAssignments = roleAssignmentsForUser(payload.logger, user)
   const matchingTenantIds = roleAssignments
     .filter(
       (assignment) =>
