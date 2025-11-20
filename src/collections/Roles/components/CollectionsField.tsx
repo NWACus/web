@@ -9,8 +9,7 @@ export const CollectionsField: TextFieldServerComponent = async ({
   clientField,
   readOnly,
 }) => {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const fieldPath = (path || field?.name || '') as string
+  const fieldPath = path || field?.name || ''
   const { type: _type, admin, ...clientFields } = clientField
 
   return (

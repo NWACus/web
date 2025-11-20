@@ -15,7 +15,6 @@ src/app/(frontend)/[center]/observations/submit/page.tsx
 src/app/(frontend)/[center]/weather/stations/map/page.tsx
 src/collections/Pages/components/DuplicatePageFor/index.tsx
 src/collections/Pages/endpoints/duplicatePageToTenant.ts
-src/collections/Roles/components/CollectionsField.tsx
 src/collections/Sponsors/index.ts
 src/collections/Users/components/InviteUser.tsx
 src/collections/Users/components/InviteUserDrawer.tsx
