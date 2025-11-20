@@ -1,4 +1,3 @@
-import { CustomEmbedStyles } from '@/components/CustomEmbedStyles'
 import { ProviderPreview } from '@/components/ProviderPreview'
 import {
   Accordion,
@@ -29,7 +28,7 @@ export default async function ProvidersEmbedPage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const { backgroundColor, textColor, title } = await loadSearchParams(searchParams)
+  const { title, textColor } = await loadSearchParams(searchParams)
   const payload = await getPayload({ config })
 
   const result = await payload.find({
@@ -67,15 +66,9 @@ export default async function ProvidersEmbedPage({
   const leftColumnStates = states.slice(0, midpoint)
   const rightColumnStates = states.slice(midpoint)
 
-  const containerStyle = {
-    ...(backgroundColor ? { backgroundColor } : {}),
-    ...(textColor ? { color: textColor } : {}),
-  }
-
   return (
     <>
-      <CustomEmbedStyles backgroundColor={backgroundColor} textColor={textColor} />
-      <div style={containerStyle} className="py-4">
+      <div className="py-4">
         {title && (
           <div className="mb-6">
             <h1 className="text-2xl font-bold mb-2">{title}</h1>

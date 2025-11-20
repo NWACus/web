@@ -1,17 +1,15 @@
 'use client'
 
+import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
 // We can't access searchParams in layouts without making them client components
-// so this sets styles passed as params on the html and body tags to avoid flashes
+// so this sets styles based on query params on the html and body tags to avoid flashes
 // of the default colors (i.e. white background) on resizes
-export function CustomEmbedStyles({
-  backgroundColor,
-  textColor,
-}: {
-  backgroundColor?: string | null
-  textColor?: string | null
-}) {
+export function CustomEmbedStyles() {
+  const [backgroundColor] = useQueryState('backgroundColor', parseAsString)
+  const [textColor] = useQueryState('textColor', parseAsString)
+
   useEffect(() => {
     const html = document.documentElement
     const body = document.body

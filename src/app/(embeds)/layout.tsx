@@ -1,3 +1,4 @@
+import { CustomEmbedStyles } from '@/components/CustomEmbedStyles'
 import { PostHogProvider } from '@/providers/PostHogProvider'
 import { getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
@@ -33,6 +34,8 @@ export default async function EmbedsLayout({ children }: Args) {
       suppressHydrationWarning
     >
       <body>
+        {/** Sets backgroundColor and textColor from query params */}
+        <CustomEmbedStyles />
         {/** We expect these routes to be embedded in iframes so we avoid using third-party cookies */}
         <PostHogProvider persistence="localStorage">
           <NuqsAdapter>

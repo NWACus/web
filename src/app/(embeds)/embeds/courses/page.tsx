@@ -1,5 +1,4 @@
 import { CoursesList } from '@/components/CoursesList'
-import { CustomEmbedStyles } from '@/components/CustomEmbedStyles'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { getCourses } from '@/utilities/queries/getCourses'
 import { getCoursesStates } from '@/utilities/queries/getCoursesStates'
@@ -69,7 +68,6 @@ export default async function CoursesEmbedPage({
 
   return (
     <>
-      <CustomEmbedStyles backgroundColor={backgroundColor} textColor={textColor} />
       <FiltersTotalProvider initialTotal={total}>
         <div style={containerStyle}>
           {title && (
