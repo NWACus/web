@@ -8,7 +8,6 @@ import { useEffect } from 'react'
 // of the default colors (i.e. white background) on resizes
 export function CustomEmbedStyles() {
   const [backgroundColor] = useQueryState('backgroundColor', parseAsString)
-  const [textColor] = useQueryState('textColor', parseAsString)
 
   useEffect(() => {
     const html = document.documentElement
@@ -19,23 +18,14 @@ export function CustomEmbedStyles() {
       body.style.backgroundColor = backgroundColor
     }
 
-    if (textColor) {
-      html.style.color = textColor
-      body.style.color = textColor
-    }
-
     return () => {
       // Cleanup on unmount
       if (backgroundColor) {
         html.style.backgroundColor = ''
         body.style.backgroundColor = ''
       }
-      if (textColor) {
-        html.style.color = ''
-        body.style.color = ''
-      }
     }
-  }, [backgroundColor, textColor])
+  }, [backgroundColor])
 
   return null
 }

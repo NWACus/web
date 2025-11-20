@@ -34,11 +34,11 @@ export default async function EmbedsLayout({ children }: Args) {
       suppressHydrationWarning
     >
       <body>
-        {/** Sets backgroundColor and textColor from query params */}
-        <CustomEmbedStyles />
         {/** We expect these routes to be embedded in iframes so we avoid using third-party cookies */}
         <PostHogProvider persistence="localStorage">
           <NuqsAdapter>
+            {/** Sets backgroundColor and textColor from query params */}
+            <CustomEmbedStyles />
             <div className="flex flex-col max-w-screen overflow-x-clip">{children}</div>
           </NuqsAdapter>
         </PostHogProvider>
