@@ -1,4 +1,4 @@
-import type { Role, RoleAssignment } from '@/payload-types'
+import type { RoleAssignment } from '@/payload-types'
 import { canAssignRole } from '@/utilities/rbac/escalationCheck'
 import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
@@ -66,8 +66,7 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
     }
   } else if (typeof role === 'object' && 'rules' in role) {
     // Role is already populated, check it directly
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    if (!canAssignRole(req.payload.logger, req.user, role as Role, tenantId)) {
+    if (!canAssignRole(req.payload.logger, req.user, role, tenantId)) {
       throw new ValidationError({
         errors: [
           {
