@@ -33,6 +33,6 @@ export function InviteUserEmail({ appUrl, inviteUrl }: InviteUserEmailProps) {
 InviteUserEmail.PreviewProps = {
   appUrl: 'http://localhost:3000',
   inviteUrl: 'http://localhost:3000/admin/accept-invite?token=123456789',
-} as InviteUserEmailProps
+}
 
 export default InviteUserEmail
