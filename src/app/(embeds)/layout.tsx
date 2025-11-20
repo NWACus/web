@@ -5,6 +5,7 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { Metadata } from 'next'
 import { Fjalla_One, Libre_Franklin } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { Suspense } from 'react'
 import './a3-globals.css'
 
 const fjallaOne = Fjalla_One({
@@ -38,7 +39,9 @@ export default async function EmbedsLayout({ children }: Args) {
         <PostHogProvider persistence="localStorage">
           <NuqsAdapter>
             {/** Sets backgroundColor and textColor from query params */}
-            <CustomEmbedStyles />
+            <Suspense fallback={null}>
+              <CustomEmbedStyles />
+            </Suspense>
             <div className="flex flex-col max-w-screen overflow-x-clip">{children}</div>
           </NuqsAdapter>
         </PostHogProvider>
