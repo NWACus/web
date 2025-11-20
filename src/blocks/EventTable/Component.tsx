@@ -30,11 +30,11 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
         setLoading(true)
         setError(null)
 
-        const tenantId = typeof tenant === 'number' ? tenant : (tenant as { id?: number })?.id
-        if (!tenantId) return
+        const tenantSlug = typeof tenant === 'object' && tenant?.slug
+        if (!tenantSlug) return
 
         const params = new URLSearchParams({
-          tenantId: String(tenantId),
+          center: tenantSlug,
           limit: String(maxEvents || 4),
           depth: '1',
         })
@@ -61,7 +61,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           }
         }
 
-        const response = await fetch(`/api/events?${params.toString()}`, {
+        const response = await fetch(`/api/${tenantSlug}/events?${params.toString()}`, {
           cache: 'no-store',
         })
 
