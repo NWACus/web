@@ -9,8 +9,6 @@ import { CoursesFilters } from './CoursesFilters'
 import { CoursesMobileFilters } from './CoursesMobileFilters'
 
 const coursesSearchParams = {
-  backgroundColor: parseAsString,
-  textColor: parseAsString,
   title: parseAsString,
   showFilters: parseAsBoolean.withDefault(false),
   types: parseAsString,
@@ -29,8 +27,6 @@ export default async function CoursesEmbedPage({
   searchParams: Promise<SearchParams>
 }) {
   const {
-    backgroundColor,
-    textColor,
     title,
     showFilters,
     types,
@@ -61,15 +57,10 @@ export default async function CoursesEmbedPage({
     types || providers || states || affinityGroups || modesOfTravel || startDate || endDate,
   )
 
-  const containerStyle = {
-    ...(backgroundColor ? { backgroundColor } : {}),
-    ...(textColor ? { color: textColor } : {}),
-  }
-
   return (
     <>
       <FiltersTotalProvider initialTotal={total}>
-        <div style={containerStyle}>
+        <div>
           {title && (
             <div className="mb-6">
               <h1 className="text-2xl font-bold mb-2">{title}</h1>

@@ -8,14 +8,11 @@ import {
 import { getStateLabel } from '@/fields/location/states'
 import type { Provider } from '@/payload-types'
 import config from '@/payload.config'
-import { cn } from '@/utilities/ui'
 import Script from 'next/script'
 import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 
 const providersSearchParams = {
-  backgroundColor: parseAsString,
-  textColor: parseAsString,
   title: parseAsString,
 }
 
@@ -28,7 +25,7 @@ export default async function ProvidersEmbedPage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const { title, textColor } = await loadSearchParams(searchParams)
+  const { title } = await loadSearchParams(searchParams)
   const payload = await getPayload({ config })
 
   const result = await payload.find({
@@ -75,16 +72,8 @@ export default async function ProvidersEmbedPage({
           </div>
         )}
         <div className="grid sm:grid-cols-2 gap-x-4">
-          <StatesAccordion
-            states={leftColumnStates}
-            providersByState={providersByState}
-            customTextColor={!!textColor}
-          />
-          <StatesAccordion
-            states={rightColumnStates}
-            providersByState={providersByState}
-            customTextColor={!!textColor}
-          />
+          <StatesAccordion states={leftColumnStates} providersByState={providersByState} />
+          <StatesAccordion states={rightColumnStates} providersByState={providersByState} />
         </div>
       </div>
       <Script
@@ -98,11 +87,9 @@ export default async function ProvidersEmbedPage({
 function StatesAccordion({
   states,
   providersByState,
-  customTextColor,
 }: {
   states: string[]
   providersByState: ProvidersByState
-  customTextColor?: boolean
 }) {
   return (
     <Accordion type="multiple">
@@ -116,7 +103,6 @@ function StatesAccordion({
               className="text-base uppercase font-semibold justify-start gap-2.5 [&[data-state=open]>svg]:rotate-45 py-1 hover:no-underline tracking-wider"
               icon="plus"
               iconPosition="left"
-              chevronClassName={cn(customTextColor ? 'text-current' : 'text-foreground')}
             >
               {stateLabel}
             </AccordionTrigger>
