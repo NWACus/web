@@ -1,7 +1,6 @@
 import Link from 'next/link'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
-import { Media, Tenant } from '@/payload-types'
 import { getURL } from '@/utilities/getURL'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import configPromise from '@payload-config'
@@ -26,8 +25,7 @@ export default async function LandingPage() {
 
   const tenantIds = tenants.map((tenant) => tenant.id)
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const tenantsLogo = (await payload
+  const tenantsLogo = await payload
     .find({
       collection: 'settings',
       where: {
@@ -40,7 +38,7 @@ export default async function LandingPage() {
         tenant: true,
       },
     })
-    .then((result) => result.docs)) as { logo: Media; tenant: Tenant }[]
+    .then((result) => result.docs)
 
   return (
     <div className="py-12">
@@ -54,7 +52,10 @@ export default async function LandingPage() {
             {tenants.map(async (tenant) => {
               const hostname = getHostnameFromTenant(tenant)
               const href = getURL(hostname)
-              const logo = tenantsLogo.find((logo) => logo.tenant.id === tenant.id)?.logo
+              const logo = tenantsLogo.find((logo) => {
+                const logoTenantId = typeof logo.tenant === 'number' ? logo.tenant : logo.tenant.id
+                return logoTenantId === tenant.id
+              })?.logo
               return (
                 <Link
                   key={tenant.slug}
