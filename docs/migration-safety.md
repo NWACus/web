@@ -15,17 +15,15 @@ Background reading:
 - https://github.com/ariga/atlas/issues/3317
 - https://github.com/launchbadge/sqlx/issues/2085#issuecomment-1237474188
 
-## Automated Checks
+## Static Analysis Check
 
-### Static Analysis
+Runs on `git commit` via Husky pre-commit hook.
 
-**What it does:** Scans migration files for dangerous patterns.
+Runs in CI: PRs with new or modified migrations:
+- The `migration-safety` CI job runs automatically
+- If issues are detected, a comment is posted on the PR with details
 
-**When it runs:**
-- Automatically on `git commit` via Husky pre-commit hook
-- In CI when migrations are added or modified in pull requests
-
-**Manual usage:**
+Run locally:
 ```bash
 # Check all migrations
 pnpm migrate:check
@@ -34,7 +32,7 @@ pnpm migrate:check
 pnpm migrate:check {migration file name}.ts
 ```
 
-**Potentially dangerous patterns it detects:**
+Potentially dangerous patterns it detects:
 - `DROP TABLE` operations
 - `PRAGMA foreign_keys=OFF` (an indicator that we may lose data in production due to the known issue mentioned above)
 - Table recreation pattern (`__new_*`)
@@ -51,13 +49,14 @@ pnpm migrate:check {migration file name}.ts
 1. Make schema changes in your Payload config
 2. Run `pnpm payload migrate:create`
 3. Review generated migration file
-4. **Optional:** Manually run `pnpm migrate:check <filename>` to preview warnings
-5. Commit changes (pre-commit hook runs checks automatically)
-6. If warnings appear in the pre-commit check:
+4. Recommended: Manually run `pnpm migrate:check <filename>` to preview warnings
+5. Recommended: Manually run `pnpm migrate:diff` to diff the current JSON snapshot compared to the previous JSON snapshot to see what actually changed
+6. Commit changes (pre-commit hook runs checks automatically)
+7. If warnings appear in the pre-commit check:
    - Review the migration for potential data loss
    - Manually modify migration to ensure it runs without unintentional data loss
    - Use `git commit --no-verify` if you're certain it's safe
-7. **Recommended** Test the migration locally using the instructions below
+8. Recommended: Test the migration locally using the instructions below
 
 ### Testing a migration locally
 
@@ -74,44 +73,20 @@ To manually test the effects of a migration locally, follow these steps:
 9. Run the migration(s) you're testing by running: `pnpm migrate`
 10. Inspect the data you expected to persist to ensure the migration has not resulted in data loss.
 
-### CI Integration
-
-When you create a pull request with new or modified migrations:
-- The `migration-safety` CI job runs automatically
-- If issues are detected, a comment is posted on the PR with details
-- Review the warnings and update the migration if needed
-
-## Bypassing Checks
-
-If you're certain a migration is safe despite warnings:
-
-```bash
-# Commit without pre-commit hook
-git commit --no-verify
-```
-
-**⚠️ Use with caution & make sure other checks have passed**
-
-## Fixing migrations with PRAGMA foreign_keys=OFF
-
-When Payload/Drizzle generates migrations that recreate tables (the `__new_*` pattern), they use `PRAGMA foreign_keys=OFF` to prevent cascade deletes. However, **Turso does not respect this pragma inside transactions**, which means relationship tables (like `*_rels`) will still have their data cascade-deleted when the original table is dropped.
-
-### The fix: keep old attributes + mark as disabled/hidden and make a note in the code
-
-Unfortunately, several solutions we tried still result in data loss due to the foreign key behavior in libSQL. We tried:
-- Using `defer_foreign_keys` instead of `foreign_keys` to temporarily disable the cascade delete behavior
-- Using backup tables (same foreign key cascade delete issue)
-- Temporarily disabling the cascade delete behavior (complex and still resulted in data loss when using a backup table strategy)
-
-The simplest solution here is to keep fields that we want to remove and avoid migrations that use the create new, drop, rename strategy that causes data loss in foreign key relations due to libSQL's inability to disable foreign key constraints inside of a transaction. We can mark these fields as `hidden: true` in our Payload collection configs and leave a code comment explaining that they are deprecated.
-
-This avoids needing the migration at all. It would be ideal to remove the data since we would be making the decision that we don't need it anymore but it is an acceptable trade off.
-
 ## Writing Custom Migrations to Replace Unsafe Auto-Generated Ones
 
-Sometimes Payload/Drizzle generates migrations that would cause data loss in production due to the `PRAGMA foreign_keys=OFF` issue. In these cases, you need to:
+Sometimes Payload/Drizzle generates migrations that would cause data loss in production due to the `PRAGMA foreign_keys=OFF` issue (see above for details). In these cases, you have two options:
+
+### Options for avoiding data loss from unsafe auto-generated migrations
+
+#### 1 - Preferred: Write a custom migration
+
 1. Manually simplify the migration to avoid the unsafe patterns
 2. Preserve the JSON schema snapshot so Payload's diffing logic recognizes the schema is in sync
+
+#### 2 - Keep old fields, marked as hidden
+
+If you can't write a custom migration that
 
 ### Understanding Payload's Migration System
 
@@ -121,11 +96,24 @@ Payload uses Drizzle under the hood, which tracks the database schema state usin
 - The **JSON file** is a snapshot of the **expected schema state after the migration runs**
 - When you run `pnpm payload migrate:create`, Drizzle compares your Payload config against the **latest JSON snapshot** to detect changes
 
-### Write your own, simplified migration
+### Write your own migration
 
 #### Step 1: Analyze what actually needs to change
 
 Look at the auto-generated migration and identify the **actual schema change**. Often, a massive migration is just Drizzle's way of making a small change.
+
+We have two options for analyzing what actually changed:
+
+**1 - Custom script**
+
+`pnpm migrate:diff`
+
+Will compare the current JSON snapshot with the previous JSON snapshot and show you:
+- Tables added
+- Tables removed
+- Tables modified + fields added/removed
+
+**2 - Diffing the actual files**
 
 One liner (compares the two most recent migrations): `diff -u --color=always $(ls -t src/migrations/*.json | sed -n '2p') $(ls -t src/migrations/*.json | sed -n '1p')`
 
@@ -182,19 +170,8 @@ If the migration genuinely needs to modify table structures in ways that require
 
 Keep the old schema and mark fields as `hidden: true` (see "The fix: keep old attributes" above)
 
-## Implementation Details
-
-**Pre-commit Hook:** `.husky/check-migrations`
-- Runs on new/modified migration files only
-- Uses `git diff --cached` to detect staged migration files
-- Runs `pnpm migrate:check` on each detected migration
-
-**CI Job:** `.github/workflows/ci.yaml` (migration-safety job)
-- Runs on all pull requests
-- Compares branch against base to find new/modified migrations
-- Posts GitHub comment with findings if issues detected
-
-**Check Script:** `src/scripts/check-migrations.ts`
-- Pattern-based analysis of migration file contents
-- Focuses only on the `up` function to avoid false positives
-- Outputs GitHub-formatted comments when run in CI
+## Relevant files
+- Pre-commit Hook: `.husky/check-migrations`
+- CI Job: `.github/workflows/ci.yaml` (migration-safety job)
+- Migration check script: `src/scripts/check-migrations.ts`
+- Migration diff script: `src/scripts/analyze-migration-diff.ts`
