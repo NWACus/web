@@ -20,7 +20,6 @@ src/collections/Users/components/InviteUser.tsx
 src/collections/Users/components/InviteUserDrawer.tsx
 src/collections/Users/components/inviteUserAction.ts
 src/collections/Users/components/resendInviteActions.ts
-src/components/AuthorAvatar/index.tsx
 src/components/Header/utils.ts
 src/components/TenantSelector/TenantSelector.client.tsx
 src/emails/forgot-password-email.tsx
