@@ -20,7 +20,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
 
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -28,7 +28,6 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
 
     const fetchEvents = async () => {
       try {
-        setLoading(true)
         setError(null)
 
         const tenantSlug = typeof tenant === 'object' && tenant?.slug
@@ -112,10 +111,8 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
             {loading && <p className="text-muted-foreground">Loading events...</p>}
             {error && <p className="text-destructive">Error loading events: {error}</p>}
           </div>
-        ) : displayEvents && displayEvents.length > 0 ? (
-          <EventTable events={displayEvents} />
         ) : (
-          <p>There are no events matching these results.</p>
+          <EventTable events={displayEvents} />
         )}
       </div>
     </div>
