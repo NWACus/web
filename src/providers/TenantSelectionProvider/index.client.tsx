@@ -171,8 +171,7 @@ export const TenantSelectionProviderClient = ({
         }
       }
     } catch (e) {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      toast.error((e as Error).message || `Error fetching tenants`)
+      toast.error(e instanceof Error ? e.message : 'Error fetching tenants')
     }
   }, [config.serverURL, config.routes.api, tenantsCollectionSlug, useAsTitle, setCookie, userID])
 

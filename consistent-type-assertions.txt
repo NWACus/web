@@ -29,7 +29,6 @@ src/endpoints/seed/upsert.ts
 src/fields/defaultLexical.ts
 src/fields/slug/SlugComponent.tsx
 src/middleware.ts
-src/providers/TenantSelectionProvider/index.client.tsx
 src/services/vercel.ts
 src/utilities/findDocumentsWithBlockReferences.ts
 src/utilities/generateOGImage.tsx
