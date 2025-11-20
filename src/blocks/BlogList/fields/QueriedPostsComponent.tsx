@@ -44,14 +44,12 @@ export const QueriedPostsComponent = ({ path, field }: QueriedPostsComponentProp
       setDisabled(true)
 
       try {
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        const tenantId = typeof tenant === 'number' ? tenant : (tenant as { id?: number })?.id
-        if (!tenantId) return
+        if (!tenant) return
 
         const params = new URLSearchParams({
           limit: String(maxPosts || 4),
           depth: '1',
-          'where[tenant][equals]': String(tenantId),
+          'where[tenant][equals]': String(tenant),
           'where[_status][equals]': 'published',
         })
 

@@ -13,7 +13,6 @@ src/app/(frontend)/[center]/next/preview/route.ts
 src/app/(frontend)/[center]/observations/page.tsx
 src/app/(frontend)/[center]/observations/submit/page.tsx
 src/app/(frontend)/[center]/weather/stations/map/page.tsx
-src/blocks/BlogList/fields/QueriedPostsComponent.tsx
 src/collections/Pages/components/DuplicatePageFor/DuplicatePageForDrawer.tsx
 src/collections/Pages/components/DuplicatePageFor/index.tsx
 src/collections/Pages/endpoints/duplicatePageToTenant.ts
