@@ -5,6 +5,7 @@ import RichText from '@/components/RichText'
 import type { Event, EventTableBlock as EventTableBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
+import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
 type EventTableComponentProps = EventTableBlockProps & {
@@ -60,6 +61,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
             params.append('tags', tagIds.join(','))
           }
         }
+        params.append('startDate', format(new Date(), 'MM-dd-yyyy'))
 
         const response = await fetch(`/api/${tenantSlug}/events?${params.toString()}`, {
           cache: 'no-store',
@@ -70,7 +72,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
         }
 
         const data = await response.json()
-        setFetchedEvents(data.docs || [])
+        setFetchedEvents(data.events || [])
       } catch (err) {
         console.error('[EventTable Error]:', err)
         setError(err instanceof Error ? err.message : 'An error occurred while fetching events')

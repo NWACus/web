@@ -1,40 +1,95 @@
+'use client'
+
 import { EventPreviewSmallRow } from '@/components/EventPreviewSmallRow'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import type { Event, EventListBlock as EventListBlockProps } from '@/payload-types'
+import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
+import { format } from 'date-fns'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 type EventListComponentProps = EventListBlockProps & {
   className?: string
   wrapInContainer?: boolean
 }
 
-export const EventListBlockComponent = async (args: EventListComponentProps) => {
-  const { heading, belowHeadingContent, backgroundColor, className, wrapInContainer = true } = args
+export const EventListBlockComponent = (args: EventListComponentProps) => {
+  const {
+    heading,
+    belowHeadingContent,
+    backgroundColor,
+    className,
+    wrapInContainer = true,
+    eventOptions,
+  } = args
 
-  const { filterByEventTypes, queriedEvents } = args.dynamicOptions || {}
+  const { filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents } =
+    args.dynamicOptions || {}
   const { staticEvents } = args.staticOptions || {}
 
-  let events = staticEvents?.filter(
-    (event): event is Event => typeof event === 'object' && event !== null,
-  )
+  const { tenant } = useTenant()
+  const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
+  const [eventParams, setEventParams] = useState<string>('')
 
-  const hasStaticEvents = staticEvents && staticEvents.length > 0
+  useEffect(() => {
+    if (eventOptions !== 'dynamic') return
 
-  if (!staticEvents || (staticEvents.length === 0 && queriedEvents && queriedEvents.length > 0)) {
-    events = queriedEvents?.filter(
-      (event): event is Event => typeof event === 'object' && event !== null,
-    )
-  }
+    const fetchEvents = async () => {
+      const tenantSlug = typeof tenant === 'object' && tenant?.slug
+      if (!tenantSlug) return
 
-  const eventsLinkQueryParams = new URLSearchParams()
+      const params = new URLSearchParams({
+        center: tenantSlug,
+        limit: String(maxEvents || 4),
+        depth: '1',
+      })
 
-  if (filterByEventTypes && filterByEventTypes.length > 0) {
-    eventsLinkQueryParams.set('types', filterByEventTypes.join(','))
-  }
+      if (filterByEventTypes?.length) {
+        params.append('types', filterByEventTypes.join(','))
+      }
 
-  if (!events) {
+      if (filterByEventGroups?.length) {
+        const groupIds = filterByEventGroups
+          .map((g) => (typeof g === 'object' ? g.id : g))
+          .filter(Boolean)
+        if (groupIds.length) {
+          params.append('groups', groupIds.join(','))
+        }
+      }
+
+      if (filterByEventTags?.length) {
+        const tagIds = filterByEventTags
+          .map((t) => (typeof t === 'object' ? t.id : t))
+          .filter(Boolean)
+        if (tagIds.length) {
+          params.append('tags', tagIds.join(','))
+        }
+      }
+      params.append('startDate', format(new Date(), 'MM-dd-yyyy'))
+      setEventParams(params.toString())
+
+      const response = await fetch(`/api/${tenantSlug}/events?${params.toString()}`, {
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch events')
+      }
+
+      const data = await response.json()
+      setFetchedEvents(data.events || [])
+    }
+
+    fetchEvents()
+  }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
+
+  let displayEvents
+  if (eventOptions === 'static') displayEvents = staticEvents as Event[]
+  if (eventOptions === 'dynamic') displayEvents = fetchedEvents
+
+  if (!displayEvents) {
     return null
   }
 
@@ -59,20 +114,20 @@ export const EventListBlockComponent = async (args: EventListComponentProps) => 
           <div
             className={cn(
               'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
-              events && events.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
+              displayEvents && displayEvents.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
             )}
           >
-            {events && events?.length > 0 ? (
-              events?.map((event, index) => (
+            {displayEvents && displayEvents?.length > 0 ? (
+              displayEvents?.map((event, index) => (
                 <EventPreviewSmallRow doc={event} key={`${event.id}__${index}`} />
               ))
             ) : (
               <h3>There are no events matching these results.</h3>
             )}
           </div>
-          {!hasStaticEvents && (
+          {eventOptions === 'static' && (
             <Button asChild className="not-prose md:self-start">
-              <Link href={`/events?${eventsLinkQueryParams.toString()}`}>View all {heading}</Link>
+              <Link href={`/events?${eventParams}`}>View all {heading}</Link>
             </Button>
           )}
         </div>

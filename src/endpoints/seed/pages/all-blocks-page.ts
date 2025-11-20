@@ -64,7 +64,6 @@ export const allBlocksPage: (
         eventOptions: 'dynamic',
         dynamicOptions: {
           maxEvents: 4,
-          queriedEvents: events.slice(0, 4).map((event) => event.id), // Use first 4 events for preview
         },
       },
       {
@@ -89,7 +88,6 @@ export const allBlocksPage: (
 
         dynamicOptions: {
           maxEvents: 6,
-          queriedEvents: [], // Will be populated during seeding
         },
         staticOptions: {
           staticEvents: [],
