@@ -73,8 +73,7 @@ export const DuplicatePageForDrawer = () => {
           throw toast.error(errors[0].message || 'Error duplicating page.')
         }
       } catch (err) {
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        toast.error((err as Error).message || 'An unexpected error occurred.')
+        toast.error(err instanceof Error ? err.message : 'An unexpected error occurred.')
       }
     },
     [adminRoute, closeModal, pageData, router, selectedTenantId, startRouteTransition],
