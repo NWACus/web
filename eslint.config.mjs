@@ -36,6 +36,12 @@ const eslintConfig = [
           caughtErrorsIgnorePattern: '^(_|ignore)',
         },
       ],
+      '@typescript-eslint/consistent-type-assertions': [
+        'warn',
+        {
+          assertionStyle: 'never',
+        },
+      ],
     },
   },
   globalIgnores(['.next/', 'src/migrations/']),
