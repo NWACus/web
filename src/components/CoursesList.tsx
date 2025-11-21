@@ -180,7 +180,7 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
   }
 
   return (
-    <div className="gap-x-6 grid xl:grid-cols-2 divide-y">
+    <div className="flex flex-col divide-y">
       {courses.map((course) => (
         <div key={course.id} className="py-4">
           <CoursePreviewSmallRow doc={course} titleClassName="text-xl" />
