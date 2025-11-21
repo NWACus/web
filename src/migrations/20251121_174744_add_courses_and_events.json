@@ -13715,20 +13715,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "capacity": {
-          "name": "capacity",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "cost": {
-          "name": "cost",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "skill_rating": {
           "name": "skill_rating",
           "type": "text",
@@ -14273,20 +14259,6 @@
         "version_registration_deadline": {
           "name": "version_registration_deadline",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "version_capacity": {
-          "name": "version_capacity",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "version_cost": {
-          "name": "version_cost",
-          "type": "numeric",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -23568,6 +23540,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "298f915f-e56b-4b61-926a-d4106090083d",
+  "id": "f624bf14-b01e-4803-b560-72a344e8fca7",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
