@@ -8,7 +8,8 @@ export function InviteUser({ payload, user }: BeforeListServerProps) {
     return null
   }
 
-  const mockedPayloadReq = {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const mockedPayloadReq: PayloadRequest = {
     user,
     payload,
   } as PayloadRequest

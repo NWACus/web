@@ -34,7 +34,7 @@ export const AuthorAvatar = (props: {
 
             const authorPhoto =
               typeof author.photo === 'number'
-                ? ((await getDocumentById('media', author.photo)) as Media)
+                ? await getDocumentById('media', author.photo)
                 : author.photo
 
             photos.push(authorPhoto)

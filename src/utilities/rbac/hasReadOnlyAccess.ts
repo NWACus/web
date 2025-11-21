@@ -12,7 +12,7 @@ export const hasReadOnlyAccess = (
   if (!user) return true
 
   try {
-    const assignments = globalRoleAssignmentsForUser(payload.logger, user as User)
+    const assignments = globalRoleAssignmentsForUser(payload.logger, user)
 
     const hasCreateAccess = assignments
       .map((assignment) => {

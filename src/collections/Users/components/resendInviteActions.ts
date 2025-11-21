@@ -62,6 +62,7 @@ export async function checkExpiredInviteAction(
       throw new Error('You are not allowed to perform that action.')
     }
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const mockedPayloadReq = {
       user: loggedInUser,
       payload,
@@ -112,6 +113,7 @@ export async function resendInviteAction(
       throw new Error('You are not allowed to perform that action.')
     }
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const mockedPayloadReq = {
       user: loggedInUser,
       payload,

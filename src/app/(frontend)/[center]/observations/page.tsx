@@ -72,6 +72,7 @@ export async function generateMetadata(
   _props: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const parentMeta = (await parent) as Metadata
 
   const parentTitle =

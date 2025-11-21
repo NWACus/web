@@ -18,13 +18,16 @@ async function getGlobal<T extends Global>(slug: T, depth = 0): Promise<GlobalRe
     depth,
   })
 
-  return global as GlobalReturnType[T]
+  return global
 }
 
 /**
  * Returns a unstable_cache function mapped with the cache tag for the slug
  */
-export const getCachedGlobal = <T extends Global>(slug: T, depth = 0) =>
+export const getCachedGlobal = <T extends Global>(
+  slug: T,
+  depth = 0,
+): (() => Promise<GlobalReturnType[T]>) =>
   unstable_cache(async () => getGlobal(slug, depth), [slug], {
     tags: [`global_${slug}`],
-  }) as () => Promise<GlobalReturnType[T]>
+  })
