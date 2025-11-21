@@ -12,8 +12,8 @@
   --primary-hover: hsla(240 4% 11% / 0.8);
   --primary-foreground: hsl(0 0% 98%);
 
-  --secondary: hsl(240 30% 57%);
-  --secondary-hover: hsla(240 30% 57% / 0.8);
+  --secondary: hsl(240, 23%, 39%);
+  --secondary-hover: hsla(240, 25%, 39%, 0.8);
   --secondary-foreground: hsl(240 5.9% 10%);
 
   --muted: hsl(240 4.8% 95.9%);
@@ -70,8 +70,8 @@
 }
 
 .dvac {
-  --primary: hsl(240 67% 94%);
-  --primary-hover: hsla(240 67% 94% / 0.8);
+  --primary: hsl(240, 23%, 39%);
+  --primary-hover: hsl(240, 24%, 51%);
 
   --secondary: hsl(8 61% 45%);
   --secondary-hover: hsla(8 61% 45% / 0.9);
