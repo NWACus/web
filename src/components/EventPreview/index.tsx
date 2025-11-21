@@ -75,42 +75,42 @@ export const EventPreview = (props: {
         </div>
       )}
 
-      <div className="flex flex-col justify-between flex-grow min-w-0 gap-1">
-        <div>
+      <div className="flex flex-col justify-between flex-grow min-w-0 gap-4">
+        <div className="flex flex-col gap-2">
           {eventTypeDisplay && (
-            <div className="text-xs text-muted-foreground mb-2">{eventTypeDisplay}</div>
+            <div className="text-xs text-muted-foreground">{eventTypeDisplay}</div>
           )}
-
           {title && (
             <div>
-              <Link href={eventUrl ?? '#'} className="mb-2">
+              <Link href={eventUrl ?? '#'}>
                 <h3 className="text-lg @lg:text-xl font-semibold leading-tight group-hover:underline">
                   {title}
                 </h3>
               </Link>
-              {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+              {subtitle && <p className="text-muted-foreground line-clamp-1">{subtitle}</p>}
             </div>
           )}
-
           {description && (
-            <p className="text-muted-foreground text-sm @lg:text-base line-clamp-3 mb-4">
+            <p className="text-muted-foreground text-sm @lg:text-base line-clamp-3">
               {description}
             </p>
           )}
-          <EventInfo
-            startDate={startDate}
-            endDate={endDate}
-            timezone={timezone}
-            skillRating={skillRating}
-            className="columns-1 sm:columns-2"
-          />
-          {location?.isVirtual ? (
-            <Badge variant="secondary" className="text-xs whitespace-nowrap not-italic my-2">
-              Virtual Event
-            </Badge>
-          ) : (
-            location && <LocationPopover location={location} />
-          )}
+          <div className="flex flex-col gap-1">
+            <EventInfo
+              startDate={startDate}
+              endDate={endDate}
+              timezone={timezone}
+              skillRating={skillRating}
+              className="flex flex-col gap-1"
+            />
+            {location?.isVirtual ? (
+              <Badge variant="outline" className="text-xs whitespace-nowrap not-italic my-2 w-fit">
+                Virtual Event
+              </Badge>
+            ) : (
+              location && <LocationPopover location={location} />
+            )}
+          </div>
         </div>
 
         <div className="flex @sm:flex-col @md:flex-row gap-3">
@@ -126,15 +126,12 @@ export const EventPreview = (props: {
                 <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
               </Button>
             ) : (
-              <CMSLink
-                appearance="default"
-                size="sm"
-                className="group-hover:opacity-90 transition-opacity"
-                url={registrationUrl}
-              >
-                Register
-                <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-              </CMSLink>
+              <Button asChild size="sm" className="group-hover:opacity-90 transition-opacity">
+                <Link href={registrationUrl} target="_blank" rel="noopener noreferrer">
+                  Register
+                  <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
+                </Link>
+              </Button>
             ))}
           <CMSLink
             appearance="outline"

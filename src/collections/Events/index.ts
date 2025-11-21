@@ -126,20 +126,6 @@ export const Events: CollectionConfig = {
             return true
           },
         },
-        {
-          name: 'capacity',
-          type: 'number',
-          admin: {
-            description: 'Maximum attendees',
-          },
-        },
-        {
-          name: 'cost',
-          type: 'number',
-          admin: {
-            description: 'Event cost in dollars',
-          },
-        },
       ],
     },
     {
@@ -191,7 +177,6 @@ export const Events: CollectionConfig = {
               ]
             },
           }),
-          required: true,
         },
         // Hidden field to track blocks embedded in content for revalidation purposes
         {

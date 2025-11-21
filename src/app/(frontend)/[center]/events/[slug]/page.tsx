@@ -103,8 +103,6 @@ export default async function Event({ params: paramsPromise }: Args) {
                 endDate={event.endDate}
                 timezone={event.timezone}
                 location={event.location}
-                cost={event.cost}
-                capacity={event.capacity}
                 skillRating={event.skillRating}
                 showLabels={true}
                 className="columns-1 sm:columns-2"
@@ -113,9 +111,9 @@ export default async function Event({ params: paramsPromise }: Args) {
 
               {/* Registration Information */}
               {event.registrationUrl && (
-                <div className="mt-6 pt-6 border-t">
+                <div className="mt-4 pt-4 border-t">
                   {event.registrationDeadline && (
-                    <p className="text-sm text-muted-foreground mb-2">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Registration Deadline:{' '}
                       {formatDateTime(event.registrationDeadline, event.timezone, 'MMM d, yyyy')}
                     </p>

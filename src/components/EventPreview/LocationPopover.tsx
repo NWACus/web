@@ -19,8 +19,8 @@ export const LocationPopover = ({ location }: LocationPopoverProps) => {
   return (
     <Popover open={isLocationOpen} onOpenChange={setIsLocationOpen}>
       <PopoverTrigger className="min-w-0 max-w-full">
-        <div className="flex items-center gap-1.5 my-2 min-w-0 text-muted-foreground">
-          <MapPin className="h-5 w-5 mt-0.5 " />
+        <div className="flex items-center gap-1.5 min-w-0 text-muted-foreground">
+          <MapPin className="h-4 w-4 mt-0.5 " />
           <p className="whitespace-nowrap overflow-hidden text-ellipsis min-w-0 text-sm ">
             {location.placeName}
           </p>
