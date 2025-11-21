@@ -30,6 +30,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 import { ButtonBlock } from '@/blocks/Button/config'
+import { EventTableBlock } from '@/blocks/EventTable/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -123,6 +124,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 BlogListBlockLexical,
                 DocumentBlock,
                 EventListBlockLexical,
+                EventTableBlock,
                 GenericEmbedLexical,
                 HeaderBlock,
                 MediaBlockLexical,

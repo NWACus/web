@@ -1,8 +1,18 @@
+import { Tenant } from '@/payload-types'
+import {
+  MetaDescriptionField,
+  MetaImageField,
+  OverviewField,
+  PreviewField,
+} from '@payloadcms/plugin-seo/fields'
 import type { CollectionConfig } from 'payload'
 
 import { BiographyBlock } from '@/blocks/Biography/config'
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { Content } from '@/blocks/Content/config'
+import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { EventListBlock } from '@/blocks/EventList/config'
+import { EventTableBlock } from '@/blocks/EventTable/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbed } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
@@ -13,11 +23,9 @@ import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { SingleEventBlock } from '@/blocks/SingleEvent/config'
+import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
-
-import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
@@ -25,21 +33,14 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
-import {
-  MetaDescriptionField,
-  MetaImageField,
-  OverviewField,
-  PreviewField,
-} from '@payloadcms/plugin-seo/fields'
 
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
-import { EventListBlock } from '@/blocks/EventList/config'
-import { SingleEventBlock } from '@/blocks/SingleEvent/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
-import { Tenant } from '@/payload-types'
+
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { isTenantValue } from '@/utilities/isTenantValue'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
+import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -117,6 +118,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 Content,
                 DocumentBlock,
                 EventListBlock,
+                EventTableBlock,
                 SingleEventBlock,
                 FormBlock,
                 HeaderBlock,

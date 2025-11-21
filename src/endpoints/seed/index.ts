@@ -308,25 +308,6 @@ export const seed = async ({
       },
     ])
 
-    // Event groups
-    await upsert(
-      'eventGroups',
-      payload,
-      incremental,
-      tenantsById,
-      (obj) => obj.slug,
-      Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'eventGroups'>[] => [
-          {
-            title: 'Meet Your Forecaster',
-            description: 'Meet your local avalanche forecasters & learn more about your avy center',
-            slug: 'meet-your-forecaster',
-            tenant: tenant.id,
-          },
-        ])
-        .flat(),
-    )
-
     // Event tags
     await upsert(
       'eventTags',
@@ -909,6 +890,24 @@ export const seed = async ({
             images[tenant.slug]['imageMountain'],
           )
         })
+        .flat(),
+    )
+    // Event groups
+    await upsert(
+      'eventGroups',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.slug,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'eventGroups'>[] => [
+          {
+            title: 'Meet Your Forecaster',
+            description: 'Meet your local avalanche forecasters & learn more about your avy center',
+            slug: 'meet-your-forecaster',
+            tenant: tenant.id,
+          },
+        ])
         .flat(),
     )
 
