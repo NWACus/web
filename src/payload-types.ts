@@ -884,7 +884,7 @@ export interface Event {
    * Skill level required for this event
    */
   skillRating?: ('0' | '1' | '2' | '3') | null;
-  content: {
+  content?: {
     root: {
       type: string;
       children: {
@@ -898,7 +898,7 @@ export interface Event {
       version: number;
     };
     [k: string]: unknown;
-  };
+  } | null;
   blocksInContent?:
     | {
         blockType?: string | null;
