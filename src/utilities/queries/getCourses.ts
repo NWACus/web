@@ -53,7 +53,7 @@ export async function getCourses(params: GetCoursesParams): Promise<GetCoursesRe
     }
 
     if (providers) {
-      const selectedProviders = providers.split(',').filter(Boolean).map(Number)
+      const selectedProviders = providers.split(',').filter(Boolean)
       if (selectedProviders.length > 0) {
         conditions.push({
           'provider.slug': {
