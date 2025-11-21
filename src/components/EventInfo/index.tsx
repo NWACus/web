@@ -2,7 +2,7 @@
 import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import type { Event } from '@/payload-types'
 import { cn } from '@/utilities/ui'
-import { Calendar, DollarSign, Globe, MapPin, TrendingUp, Users, Video } from 'lucide-react'
+import { Calendar, Globe, MapPin, TrendingUp, Video } from 'lucide-react'
 import { Badge } from '../ui/badge'
 
 const skillLevelLabels: Record<string, string> = {
@@ -14,7 +14,7 @@ const skillLevelLabels: Record<string, string> = {
 
 export type EventInfoProps = Pick<
   Event,
-  'startDate' | 'endDate' | 'timezone' | 'location' | 'cost' | 'capacity' | 'skillRating'
+  'startDate' | 'endDate' | 'timezone' | 'location' | 'skillRating'
 > & {
   className?: string
   itemsClassName?: string
@@ -22,9 +22,7 @@ export type EventInfoProps = Pick<
 }
 
 export const EventInfo = ({
-  capacity,
   className = '',
-  cost,
   endDate,
   itemsClassName = '',
   location,
@@ -84,28 +82,6 @@ export const EventInfo = ({
               </div>
             </>
           )}
-        </div>
-      )}
-
-      {/* Cost */}
-      {cost !== undefined && cost !== null && (
-        <div className={cn('flex items-center gap-2', itemsClassName)}>
-          <DollarSign className="h-4 w-4 flex-shrink-0" />
-          <span>
-            {showLabels && <span className="font-semibold">Cost: </span>}
-            {cost === 0 ? 'Free' : `$${cost}`}
-          </span>
-        </div>
-      )}
-
-      {/* Capacity */}
-      {capacity && (
-        <div className={cn('flex items-center gap-2', itemsClassName)}>
-          <Users className="h-4 w-4 flex-shrink-0" />
-          <span>
-            {showLabels && <span className="font-semibold">Capacity: </span>}
-            {capacity} {capacity === 1 ? 'spot' : 'spots'}
-          </span>
         </div>
       )}
 

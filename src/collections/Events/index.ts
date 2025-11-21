@@ -125,20 +125,6 @@ export const Events: CollectionConfig = {
             return true
           },
         },
-        {
-          name: 'capacity',
-          type: 'number',
-          admin: {
-            description: 'Maximum attendees',
-          },
-        },
-        {
-          name: 'cost',
-          type: 'number',
-          admin: {
-            description: 'Event cost in dollars',
-          },
-        },
       ],
     },
     {

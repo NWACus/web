@@ -873,14 +873,6 @@ export interface Event {
    */
   registrationDeadline?: string | null;
   /**
-   * Maximum attendees
-   */
-  capacity?: number | null;
-  /**
-   * Event cost in dollars
-   */
-  cost?: number | null;
-  /**
    * Skill level required for this event
    */
   skillRating?: ('0' | '1' | '2' | '3') | null;
@@ -3321,8 +3313,6 @@ export interface EventsSelect<T extends boolean = true> {
   registrationUrl?: T;
   externalEventUrl?: T;
   registrationDeadline?: T;
-  capacity?: T;
-  cost?: T;
   skillRating?: T;
   content?: T;
   blocksInContent?:
