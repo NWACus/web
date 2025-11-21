@@ -1,7 +1,7 @@
 'use client'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { FieldLabel, useField, useFormFields } from '@payloadcms/ui'
+import { FieldLabel, useField } from '@payloadcms/ui'
 import { Columns2, Columns3, Columns4, Square } from 'lucide-react'
 import { Field, SelectFieldClientProps } from 'payload'
 import { Columns112, Columns12, Columns121, Columns21, Columns211 } from './icons'
@@ -26,10 +26,12 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
 
   const currentValue = value || '1_1'
 
-  const fields = useFormFields(([fields]) => fields)
-  const columnsPath = path.replace(/layout$/, 'columns')
-  const numOfCols = fields[columnsPath].rows?.length || 0
-  if (numOfCols === 0) return null
+  const parentPath = path.split(`.${field.name}`)[0]
+  const columnsPath = `${parentPath}.columns`
+
+  const { value: numColumns } = useField<number>({ path: columnsPath })
+
+  if (numColumns === 0) return null
 
   return (
     <div className="mb-6">
@@ -44,7 +46,7 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
         {layoutOptions.map((option) => {
           const Icon = option.icon
           const colCount = parseInt(option.value.split('_')[0])
-          const isDisabled = colCount !== numOfCols
+          const isDisabled = colCount !== numColumns
 
           return (
             <ToggleGroupItem
