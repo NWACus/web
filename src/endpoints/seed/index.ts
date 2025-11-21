@@ -50,7 +50,7 @@ const collections: CollectionSlug[] = [
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
-    version: '20251015',
+    version: '20251104',
     baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
   },
 }
