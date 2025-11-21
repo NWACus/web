@@ -46,6 +46,8 @@
   "dependencies": {
     "@libsql/client": "^0.15.4",
     "@mapbox/search-js-react": "^1.5.0",
+    "@open-iframe-resizer/core": "^2.1.0",
+    "@open-iframe-resizer/react": "^2.1.0",
     "@payloadcms/admin-bar": "3.64.0",
     "@payloadcms/db-sqlite": "3.64.0",
     "@payloadcms/email-nodemailer": "3.64.0",

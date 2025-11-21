@@ -8,13 +8,11 @@ import {
 import { getStateLabel } from '@/fields/location/states'
 import type { Provider } from '@/payload-types'
 import config from '@/payload.config'
+import Script from 'next/script'
 import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 
-export const dynamic = 'force-static'
-
 const providersSearchParams = {
-  backgroundColor: parseAsString,
   title: parseAsString,
 }
 
@@ -27,8 +25,7 @@ export default async function ProvidersEmbedPage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const { backgroundColor, title } = await loadSearchParams(searchParams)
-
+  const { title } = await loadSearchParams(searchParams)
   const payload = await getPayload({ config })
 
   const result = await payload.find({
@@ -67,17 +64,23 @@ export default async function ProvidersEmbedPage({
   const rightColumnStates = states.slice(midpoint)
 
   return (
-    <div style={backgroundColor ? { backgroundColor } : undefined}>
-      {title && (
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">{title}</h1>
+    <>
+      <div className="py-4">
+        {title && (
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold mb-2">{title}</h1>
+          </div>
+        )}
+        <div className="grid sm:grid-cols-2 gap-x-4">
+          <StatesAccordion states={leftColumnStates} providersByState={providersByState} />
+          <StatesAccordion states={rightColumnStates} providersByState={providersByState} />
         </div>
-      )}
-      <div className="grid sm:grid-cols-2 gap-x-4">
-        <StatesAccordion states={leftColumnStates} providersByState={providersByState} />
-        <StatesAccordion states={rightColumnStates} providersByState={providersByState} />
       </div>
-    </div>
+      <Script
+        type="module"
+        src="https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@latest/dist/index.js"
+      />
+    </>
   )
 }
 
@@ -100,7 +103,6 @@ function StatesAccordion({
               className="text-base uppercase font-semibold justify-start gap-2.5 [&[data-state=open]>svg]:rotate-45 py-1 hover:no-underline tracking-wider"
               icon="plus"
               iconPosition="left"
-              chevronClassName="text-foreground"
             >
               {stateLabel}
             </AccordionTrigger>
