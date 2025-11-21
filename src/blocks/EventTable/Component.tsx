@@ -4,6 +4,7 @@ import { EventTable } from '@/components/EventsTable'
 import RichText from '@/components/RichText'
 import type { Event, EventTableBlock as EventTableBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
+import { filterValidPublishedRelationships } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
@@ -83,9 +84,11 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     fetchEvents()
   }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
 
-  let displayEvents
-  if (eventOptions === 'static') displayEvents = staticEvents as Event[]
-  if (eventOptions === 'dynamic') displayEvents = fetchedEvents
+  let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
+
+  if (eventOptions === 'dynamic') {
+    displayEvents = filterValidPublishedRelationships(fetchedEvents)
+  }
 
   if (!displayEvents) {
     return null
