@@ -189,7 +189,6 @@ export const Events: CollectionConfig = {
               ]
             },
           }),
-          required: true,
         },
         // Hidden field to track blocks embedded in content for revalidation purposes
         {
