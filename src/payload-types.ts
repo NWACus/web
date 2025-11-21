@@ -714,6 +714,9 @@ export interface EventListBlock {
    * Checking this will render the block with additional padding around it and using the background color you have selected.
    */
   wrapInContainer?: boolean | null;
+  /**
+   * Use Preview ↗ to see how events will appear
+   */
   dynamicOptions?: {
     /**
      * Optionally select event types to filter events.
@@ -733,7 +736,6 @@ export interface EventListBlock {
      * Maximum number of events that will be displayed. Must be an integer.
      */
     maxEvents?: number | null;
-    queriedEvents?: (number | Event)[] | null;
   };
   staticOptions?: {
     /**
@@ -983,6 +985,9 @@ export interface EventTableBlock {
     [k: string]: unknown;
   } | null;
   eventOptions: 'dynamic' | 'static';
+  /**
+   * Use Preview ↗ to see how events will appear
+   */
   dynamicOptions?: {
     /**
      * Optionally select event types to filter events.
@@ -1002,7 +1007,6 @@ export interface EventTableBlock {
      * Maximum number of events that will be displayed. Must be an integer.
      */
     maxEvents?: number | null;
-    queriedEvents?: (number | Event)[] | null;
   };
   staticOptions?: {
     /**
@@ -2936,7 +2940,6 @@ export interface EventListBlockSelect<T extends boolean = true> {
         filterByEventGroups?: T;
         filterByEventTags?: T;
         maxEvents?: T;
-        queriedEvents?: T;
       };
   staticOptions?:
     | T
@@ -2971,7 +2974,6 @@ export interface EventTableBlockSelect<T extends boolean = true> {
         filterByEventGroups?: T;
         filterByEventTags?: T;
         maxEvents?: T;
-        queriedEvents?: T;
       };
   staticOptions?:
     | T

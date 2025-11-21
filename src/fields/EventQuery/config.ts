@@ -61,6 +61,7 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
     type: 'group',
     admin: {
       condition: (_, siblingData) => siblingData?.eventOptions === 'dynamic',
+      description: 'Use Preview ↗ to see how events will appear',
     },
     fields: [
       ...(additionalFilters ?? []),
@@ -113,19 +114,6 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
         },
         hooks: {
           beforeValidate: [validateMaxEvents],
-        },
-      },
-      {
-        name: 'queriedEvents',
-        type: 'relationship',
-        label: 'Preview Events Order',
-        relationTo: 'events',
-        hasMany: true,
-        admin: {
-          readOnly: true,
-          components: {
-            Field: '@/fields/EventQuery/QueriedEventsComponent#QueriedEventsComponent',
-          },
         },
       },
     ],

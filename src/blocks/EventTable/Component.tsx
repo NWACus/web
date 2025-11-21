@@ -4,7 +4,9 @@ import { EventTable } from '@/components/EventsTable'
 import RichText from '@/components/RichText'
 import type { Event, EventTableBlock as EventTableBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
+import { filterValidPublishedRelationships } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
+import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
 type EventTableComponentProps = EventTableBlockProps & {
@@ -19,7 +21,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
 
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -27,14 +29,13 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
 
     const fetchEvents = async () => {
       try {
-        setLoading(true)
         setError(null)
 
-        const tenantId = typeof tenant === 'number' ? tenant : (tenant as { id?: number })?.id
-        if (!tenantId) return
+        const tenantSlug = typeof tenant === 'object' && tenant?.slug
+        if (!tenantSlug) return
 
         const params = new URLSearchParams({
-          tenantId: String(tenantId),
+          center: tenantSlug,
           limit: String(maxEvents || 4),
           depth: '1',
         })
@@ -60,8 +61,9 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
             params.append('tags', tagIds.join(','))
           }
         }
+        params.append('startDate', format(new Date(), 'MM-dd-yyyy'))
 
-        const response = await fetch(`/api/events?${params.toString()}`, {
+        const response = await fetch(`/api/${tenantSlug}/events?${params.toString()}`, {
           cache: 'no-store',
         })
 
@@ -70,7 +72,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
         }
 
         const data = await response.json()
-        setFetchedEvents(data.docs || [])
+        setFetchedEvents(data.events || [])
       } catch (err) {
         console.error('[EventTable Error]:', err)
         setError(err instanceof Error ? err.message : 'An error occurred while fetching events')
@@ -82,9 +84,11 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     fetchEvents()
   }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
 
-  let displayEvents
-  if (eventOptions === 'static') displayEvents = staticEvents as Event[]
-  if (eventOptions === 'dynamic') displayEvents = fetchedEvents
+  let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
+
+  if (eventOptions === 'dynamic') {
+    displayEvents = filterValidPublishedRelationships(fetchedEvents)
+  }
 
   if (!displayEvents) {
     return null
@@ -105,16 +109,13 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
         )}
       </div>
       <div>
-        {(loading || error) && (
+        {loading || error ? (
           <div className="flex items-center justify-center py-8">
             {loading && <p className="text-muted-foreground">Loading events...</p>}
             {error && <p className="text-destructive">Error loading events: {error}</p>}
           </div>
-        )}
-        {displayEvents && displayEvents.length > 0 ? (
-          <EventTable events={displayEvents} />
         ) : (
-          <h3>There are no events matching these results.</h3>
+          <EventTable events={displayEvents} />
         )}
       </div>
     </div>
