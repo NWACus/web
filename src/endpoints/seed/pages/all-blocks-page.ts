@@ -63,10 +63,7 @@ export const allBlocksPage: (
         ...eventListBlock,
         eventOptions: 'dynamic',
         dynamicOptions: {
-          sortBy: 'startDate',
-          showUpcomingOnly: true,
           maxEvents: 4,
-          queriedEvents: events.slice(0, 4).map((event) => event.id), // Use first 4 events for preview
         },
       },
       {
@@ -84,6 +81,18 @@ export const allBlocksPage: (
         ...singleEventBlock,
         event: events[1]?.id || 0, // Use second event
         backgroundColor: 'gray',
+      },
+      {
+        blockName: '',
+        eventOptions: 'dynamic',
+
+        dynamicOptions: {
+          maxEvents: 6,
+        },
+        staticOptions: {
+          staticEvents: [],
+        },
+        blockType: 'eventTable',
       },
     ],
     meta: {

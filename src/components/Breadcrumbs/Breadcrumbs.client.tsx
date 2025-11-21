@@ -54,6 +54,7 @@ const processNestedSegments = (
 export function Breadcrumbs() {
   const segments = useSelectedLayoutSegments()
   const decodedSegments = segments.map(decodeURIComponent)
+
   const { isNotFound } = useNotFound()
   const { captureWithTenant } = useAnalytics()
 

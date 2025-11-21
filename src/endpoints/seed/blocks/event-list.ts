@@ -35,10 +35,7 @@ export const eventListBlock: EventListBlock = {
   },
   eventOptions: 'dynamic',
   dynamicOptions: {
-    sortBy: 'startDate',
-    showUpcomingOnly: true,
     maxEvents: 4,
-    queriedEvents: [], // Will be populated during seeding
   },
   staticOptions: {
     staticEvents: [], // Will be populated with actual event references during seeding

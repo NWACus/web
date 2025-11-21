@@ -1,55 +1,13 @@
 import { Media, Tenant } from '@/payload-types'
 import { US_TIMEZONES } from '@/utilities/timezones'
 import { RequiredDataFromCollectionSlug } from 'payload'
+import { futureDate, pastDate, simpleContent } from './utilities'
 
 export const getEventsData = (
   tenant: Tenant,
   featuredImage?: Media,
   thumbnailImage?: Media,
 ): RequiredDataFromCollectionSlug<'events'>[] => {
-  // Helper to create dates in the future
-  const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
-    const date = new Date()
-    date.setMonth(date.getMonth() + monthOffset)
-    date.setDate(day)
-    date.setHours(hour, 0, 0, 0)
-    return date.toISOString()
-  }
-
-  // Helper to create properly formatted lexical text nodes
-  const textNode = (text: string) => ({
-    type: 'text',
-    detail: 0,
-    format: 0,
-    mode: 'normal' as const,
-    style: '',
-    text,
-    version: 1,
-  })
-
-  // Helper to create properly formatted lexical paragraph nodes
-  const paragraphNode = (text: string) => ({
-    type: 'paragraph',
-    children: [textNode(text)],
-    direction: 'ltr' as const,
-    format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
-    indent: 0,
-    textFormat: 0,
-    version: 1,
-  })
-
-  // Helper to create simple content with just paragraphs
-  const simpleContent = (...paragraphs: string[]) => ({
-    root: {
-      type: 'root',
-      children: paragraphs.map(paragraphNode),
-      direction: 'ltr' as const,
-      format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
-      indent: 0,
-      version: 1,
-    },
-  })
-
   return [
     // Awareness event - Free beginner-friendly
     {
@@ -57,8 +15,8 @@ export const getEventsData = (
       subtitle: 'Free community presentation',
       description:
         'Join us for a free avalanche awareness presentation covering the basics of avalanche safety, terrain recognition, and rescue fundamentals. Perfect for anyone new to winter backcountry recreation.',
-      startDate: futureDate(1, 15, 19),
-      endDate: futureDate(1, 15, 21),
+      startDate: pastDate(1, 15, 19),
+      endDate: pastDate(1, 15, 21),
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
@@ -129,8 +87,8 @@ export const getEventsData = (
       subtitle: 'Hands-on training for sled riders',
       description:
         'A comprehensive field course designed specifically for snowmobile riders. Learn avalanche safety, rescue techniques, and safe riding practices in avalanche terrain.',
-      startDate: futureDate(1, 22, 8),
-      endDate: futureDate(1, 22, 17),
+      startDate: futureDate(1, 5, 8),
+      endDate: futureDate(1, 5, 17),
       timezone: US_TIMEZONES.PACIFIC,
       location: {
         isVirtual: false,
@@ -144,7 +102,7 @@ export const getEventsData = (
       featuredImage: featuredImage?.id,
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/snowmobile-safety',
-      registrationDeadline: futureDate(1, 15, 23),
+      registrationDeadline: futureDate(1, 1, 23),
       capacity: 16,
       cost: 200,
       skillRating: '1',

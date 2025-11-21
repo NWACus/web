@@ -17,6 +17,7 @@ import { ButtonBlockComponent } from '@/blocks/Button/Component'
 import { CalloutBlock } from '@/blocks/Callout/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
+import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
@@ -29,6 +30,7 @@ import type {
   CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
   EventListBlock as EventListBlockProps,
+  EventTableBlock as EventTableBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
   MediaBlock as MediaBlockProps,
@@ -47,6 +49,7 @@ type NodeTypes =
       | CalloutBlockProps
       | DocumentBlockProps
       | EventListBlockProps
+      | EventTableBlockProps
       | GenericEmbedBlockProps
       | HeaderBlockProps
       | MediaBlockProps
@@ -67,44 +70,35 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
+  // if block has two variants - to make TS happy we fallback to the default for the block variant
   blocks: {
     banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
     blogList: ({ node }) => (
       <BlogListBlockComponent
         {...node.fields}
-        // src/blocks/BlogList/config.ts has two variants - to make TS happy we fallback to the default for the BlogListBlockLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
     buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
     calloutBlock: ({ node }) => <CalloutBlock {...node.fields} />,
     documentBlock: ({ node }) => (
-      <DocumentBlock
-        {...node.fields}
-        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
+      <DocumentBlock {...node.fields} wrapInContainer={node.fields.wrapInContainer || false} />
     ),
     eventList: ({ node }) => (
       <EventListBlockComponent
         {...node.fields}
-        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
+    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} />,
     singleEvent: ({ node }) => (
       <SingleEventBlockComponent
         {...node.fields}
-        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
     genericEmbed: ({ node }) => (
-      <GenericEmbedBlock
-        {...node.fields}
-        // src/blocks/GenericEmbed/config.ts has two variants - to make TS happy we fallback to the default for the GenericEmbedLexical variant
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
+      <GenericEmbedBlock {...node.fields} wrapInContainer={node.fields.wrapInContainer || false} />
     ),
     headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} />,
     mediaBlock: ({ node }) => (
@@ -112,7 +106,6 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         className="col-start-1 col-span-3"
         imgClassName="m-0"
         {...node.fields}
-        // src/blocks/MediaBlock/config.ts has two variants - to make TS happy we fallback to the default for the MediaBlockLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
         captionClassName="mx-auto max-w-[48rem]"
       />
@@ -120,7 +113,6 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     singleBlogPost: ({ node }) => (
       <SingleBlogPostBlockComponent
         {...node.fields}
-        // src/blocks/SingleBlogPost/config.ts has two variants - to make TS happy we fallback to the default for the SingleBlogPostBlockLexical variant
         wrapInContainer={node.fields.wrapInContainer || false}
       />
     ),
