@@ -56,7 +56,11 @@ export const coursesByExternalProvidersPage: (
         blockType: 'headerBlock',
       },
       {
-        html: `<iframe src="${url}/embeds/providers" height="300px" scrolling="true" width="100%" />`,
+        html: `<iframe id="avy-web-embed-provider" src="${url}/embeds/providers" height="0" scrolling="true" width="100%"></iframe>
+        <script type="module">
+          import { initialize } from "https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@v2.1.0/dist/index.min.js";
+          initialize({}, "#avy-web-embed-provider");
+        </script>`,
         backgroundColor: 'transparent',
         alignContent: 'left',
         blockName: null,
@@ -101,7 +105,7 @@ export const coursesByExternalProvidersPage: (
         blockType: 'headerBlock',
       },
       {
-        html: `<iframe src="${url}/embeds/courses?showFilters=true" height="800px" scrolling="true" width="100%" />`,
+        html: `<iframe src="${url}/embeds/courses?showFilters=true" height="800px" scrolling="true" width="100%"></iframe>`,
         backgroundColor: 'transparent',
         alignContent: 'left',
         blockName: null,
