@@ -194,6 +194,7 @@ export const HomePages: CollectionConfig = {
       type: 'array',
       admin: {
         readOnly: true,
+        disabled: true,
         description:
           'Automatically populated field tracking block references in highlightedContent for revalidation purposes.',
       },
