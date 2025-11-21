@@ -75,7 +75,7 @@ export const EventPreview = (props: {
         </div>
       )}
 
-      <div className="flex flex-col justify-between flex-grow min-w-0 gap-2">
+      <div className="flex flex-col justify-between flex-grow min-w-0 gap-4">
         <div className="flex flex-col gap-2">
           {eventTypeDisplay && (
             <div className="text-xs text-muted-foreground">{eventTypeDisplay}</div>
@@ -95,20 +95,22 @@ export const EventPreview = (props: {
               {description}
             </p>
           )}
-          <EventInfo
-            startDate={startDate}
-            endDate={endDate}
-            timezone={timezone}
-            skillRating={skillRating}
-            className="flex flex-col gap-1"
-          />
-          {location?.isVirtual ? (
-            <Badge variant="outline" className="text-xs whitespace-nowrap not-italic my-2 w-fit">
-              Virtual Event
-            </Badge>
-          ) : (
-            location && <LocationPopover location={location} />
-          )}
+          <div className="flex flex-col gap-1">
+            <EventInfo
+              startDate={startDate}
+              endDate={endDate}
+              timezone={timezone}
+              skillRating={skillRating}
+              className="flex flex-col gap-1"
+            />
+            {location?.isVirtual ? (
+              <Badge variant="outline" className="text-xs whitespace-nowrap not-italic my-2 w-fit">
+                Virtual Event
+              </Badge>
+            ) : (
+              location && <LocationPopover location={location} />
+            )}
+          </div>
         </div>
 
         <div className="flex @sm:flex-col @md:flex-row gap-3">
