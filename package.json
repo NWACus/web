@@ -38,7 +38,9 @@
     "email:build": "email build",
     "email:dev": "email dev --dir ./src/emails --port 3001",
     "email:export": "email export",
-    "unreleased": "./unreleased-prs.sh"
+    "unreleased": "./unreleased-prs.sh",
+    "update-type-assertions": "./verify-type-assertions.sh",
+    "verify-type-assertions": "VALIDATE=1 ./verify-type-assertions.sh"
   },
   "lint-staged": {
     "**/*": "pnpm run prettify"
