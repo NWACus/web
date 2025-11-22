@@ -722,7 +722,7 @@ export interface EventListBlock {
      * Optionally select event types to filter events.
      */
     filterByEventTypes?:
-      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
+      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class' | 'volunteer' | 'events-by-others')[]
       | null;
     /**
      * Optionally select event group to filter events.
@@ -923,7 +923,7 @@ export interface Event {
       }[]
     | null;
   slug: string;
-  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others';
+  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class' | 'volunteer' | 'events-by-others';
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
@@ -985,7 +985,7 @@ export interface EventTableBlock {
      * Optionally select event types to filter events.
      */
     filterByEventTypes?:
-      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class-by-ac' | 'volunteer' | 'events-by-others')[]
+      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class' | 'volunteer' | 'events-by-others')[]
       | null;
     /**
      * Optionally select event group to filter events.
