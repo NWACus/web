@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import type { Page, Post, Tenant } from '@/payload-types'
+import type { Event, Page, Post, Tenant } from '@/payload-types'
 
 import { getURL } from './getURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
@@ -85,6 +85,54 @@ export const generateMetaForPost = async (args: {
   const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
 
   // Deep clone parent metadata to avoid mutation issues
+  const clonedParentMeta = cloneParentMeta(parentMeta)
+
+  return {
+    ...clonedParentMeta,
+    title,
+    description: doc.description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: mergeOpenGraph({
+      ...(clonedParentMeta.openGraph || {}),
+      description: doc.description || '',
+      title: title || '',
+      url,
+    }),
+  }
+}
+
+export const generateMetaForEvent = async (args: {
+  customTitle?: string
+  center: string
+  doc: Partial<Event> | null
+  parentMeta?: Metadata
+}): Promise<Metadata> => {
+  const { customTitle, doc, parentMeta } = args
+
+  if (!doc) {
+    return parentMeta || {}
+  }
+
+  let tenant: Tenant | undefined
+  let hostname
+
+  if (doc.tenant) {
+    tenant = await resolveTenant(doc.tenant)
+    hostname = getHostnameFromTenant(tenant)
+  }
+
+  const serverUrl = getURL(hostname)
+  const url = `${serverUrl}/events/${doc?.slug}/`
+
+  const parentTitle =
+    parentMeta?.title && typeof parentMeta?.title !== 'string' && 'absolute' in parentMeta?.title
+      ? parentMeta?.title.absolute
+      : parentMeta?.title
+
+  const title = customTitle ? customTitle : `${doc?.title} | ${parentTitle ?? tenant?.name}`
+
   const clonedParentMeta = cloneParentMeta(parentMeta)
 
   return {

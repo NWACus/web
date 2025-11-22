@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/select'
 import { Controller } from 'react-hook-form'
 
+import { stateOptions } from '@/fields/location/states'
 import { Error } from '../Error'
 import { Width } from '../Width'
-import { stateOptions } from './options'
 
 export const State = ({
   name,

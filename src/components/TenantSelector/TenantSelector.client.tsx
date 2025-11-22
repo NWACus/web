@@ -2,7 +2,7 @@
 import type { ReactSelectOption } from '@payloadcms/ui'
 
 import { SelectInput, useConfig } from '@payloadcms/ui'
-import React from 'react'
+import { useCallback } from 'react'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { useViewType } from '@/providers/ViewTypeProvider'
@@ -29,7 +29,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
 
   let isReadOnly = false
 
-  const handleChange = React.useCallback(
+  const handleChange = useCallback(
     (option: ReactSelectOption | ReactSelectOption[]) => {
       if (option && 'value' in option) {
         setTenant({ id: option.value as string, refresh: true })

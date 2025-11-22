@@ -46,3 +46,14 @@ export const accessByGlobalRoleWithAuthenticatedRead: (
     delete: byGlobalRole('delete', collection),
   }
 }
+
+export const accessByGlobalRoleReadOnly: (
+  collection: ruleCollection,
+) => CollectionConfig['access'] = (collection: ruleCollection) => {
+  return {
+    create: () => false,
+    read: byGlobalRole('read', collection),
+    update: () => false,
+    delete: () => false,
+  }
+}

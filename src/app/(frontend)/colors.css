@@ -12,8 +12,8 @@
   --primary-hover: hsla(240 4% 11% / 0.8);
   --primary-foreground: hsl(0 0% 98%);
 
-  --secondary: hsl(240 30% 57%);
-  --secondary-hover: hsla(240 30% 57% / 0.8);
+  --secondary: hsl(240, 23%, 39%);
+  --secondary-hover: hsla(240, 25%, 39%, 0.8);
   --secondary-foreground: hsl(240 5.9% 10%);
 
   --muted: hsl(240 4.8% 95.9%);
@@ -70,8 +70,8 @@
 }
 
 .dvac {
-  --primary: hsl(240 67% 94%);
-  --primary-hover: hsla(240 67% 94% / 0.8);
+  --primary: hsl(240, 23%, 39%);
+  --primary-hover: hsl(240, 24%, 51%);
 
   --secondary: hsl(8 61% 45%);
   --secondary-hover: hsla(8 61% 45% / 0.9);
@@ -164,4 +164,35 @@
   --callout-foreground: hsl(0 0% 100%);
 
   --header-foreground-highlight: hsl(240 3.8% 35.3%);
+}
+
+.a3 {
+  /* A3 BRAND COLORS */
+  --mountain-slate: hsl(220 25% 20%); /* RGB: 38 / 46 / 63 */
+  --couloir-blue: hsl(200 81% 95%); /* RGB: 233 / 247 / 254 */
+  --patrol-red: hsl(358 85% 52%); /* RGB: 237 / 28 / 36 */
+  /*--------------------------*/
+
+  --primary: var(--mountain-slate);
+  --primary-hover: hsla(220 25% 20% / 0.8);
+  --primary-foreground: hsl(0 0% 98%);
+
+  --secondary: var(--patrol-red);
+  --secondary-hover: hsla(358 85% 52% / 0.8);
+  --secondary-foreground: hsl(0 0% 100%);
+
+  --header: var(--mountain-slate);
+  --header-foreground: var(--couloir-blue);
+  --header-foreground-highlight: hsl(0 0% 100%);
+
+  --footer: var(--mountain-slate);
+  --footer-foreground: hsl(0 0% 100%);
+  --footer-foreground-highlight: hsl(0 0% 100%);
+
+  --callout: var(--patrol-red);
+  --callout-hover: hsla(358 85% 52% / 0.8);
+  --callout-foreground: hsl(0 0% 100%);
+
+  --accent: var(--couloir-blue);
+  --accent-foreground: var(--mountain-slate);
 }

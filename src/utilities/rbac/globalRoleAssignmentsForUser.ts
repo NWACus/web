@@ -1,9 +1,10 @@
 import { GlobalRoleAssignment, User } from '@/payload-types'
+import { ClientUser } from 'payload'
 import { Logger } from 'pino'
 
 export const globalRoleAssignmentsForUser = (
   logger: Logger,
-  user: User,
+  user: User | ClientUser,
 ): GlobalRoleAssignment[] => {
   const assignments: GlobalRoleAssignment[] = []
   if (

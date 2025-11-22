@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import '../(frontend)/colors.css';
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: auto;
+    font-weight: auto;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground flex flex-col max-w-[100vw] overflow-x-clip;
+  }
+}
+
+/* A3 Embed Fonts */
+.a3 {
+  font-family: var(--font-libre-franklin), sans-serif;
+}
+
+.a3 h1,
+.a3 h2,
+.a3 h3,
+.a3 h4,
+.a3 h5,
+.a3 h6 {
+  font-family: var(--font-fjalla-one), sans-serif;
+}

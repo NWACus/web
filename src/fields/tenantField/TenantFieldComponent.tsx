@@ -3,7 +3,7 @@
 import type { RelationshipFieldClientProps } from 'payload'
 
 import { RelationshipField, useField, useFormModified } from '@payloadcms/ui'
-import React from 'react'
+import { useEffect, useRef } from 'react'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import './index.scss'
@@ -28,9 +28,9 @@ export const TenantFieldComponent = (args: Props) => {
   } = useTenantSelection()
 
   const isGlobalCollection = !!unique
-  const hasSetValueRef = React.useRef(false)
+  const hasSetValueRef = useRef(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!hasSetValueRef.current && !isGlobalCollection) {
       // set value on load
       if (value && value !== selectedTenantID) {
@@ -47,14 +47,14 @@ export const TenantFieldComponent = (args: Props) => {
     }
   }, [value, selectedTenantID, setTenant, setValue, options, unique, isGlobalCollection])
 
-  React.useEffect(() => {
+  useEffect(() => {
     setEntityType(unique ? 'global' : 'document')
     return () => {
       setEntityType(undefined)
     }
   }, [unique, setEntityType])
 
-  React.useEffect(() => {
+  useEffect(() => {
     // sync form modified state with the tenant selection provider context
     setModified(modified)
 

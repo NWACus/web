@@ -1,6 +1,7 @@
 import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e } from '@/blocks/BlogList/fields/QueriedPostsComponent'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de } from '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription'
+import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
@@ -21,6 +22,7 @@ import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/compo
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
 import { default as default_2aead22399b7847b21b134dc4a7931e0 } from '@/components/TenantSelector/TenantSelector'
 import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/components/ViewTypeAction'
+import { LocationMap as LocationMap_4b1c9ff6af70dfec8b61ae82b54165d8 } from '@/fields/location/components/LocationMap'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { TenantFieldComponent as TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6 } from '@/fields/tenantField/TenantFieldComponent'
@@ -116,6 +118,10 @@ export const importMap = {
     DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
   '@/collections/Posts/components/ViewPostButton#ViewPostButton':
     ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
+  '@/fields/location/components/LocationMap#LocationMap':
+    LocationMap_4b1c9ff6af70dfec8b61ae82b54165d8,
+  '@/collections/Courses/components/CourseTypeField#CourseTypeField':
+    CourseTypeField_348fff62462d32a00f93a0ac5be86e99,
   '@/collections/Users/components/UserStatusCell#UserStatusCell':
     UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,
   '@/collections/Users/components/InviteUser#InviteUser':

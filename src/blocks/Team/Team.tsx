@@ -42,7 +42,7 @@ export const TeamBlock = ({ team }: Props) => {
                       className="h-48 w-48 mb-2"
                     />
                     <div className="text-center">
-                      <p className="text-md">{name}</p>
+                      <p>{name}</p>
                       {member.title && (
                         <p className="text-sm italic text-muted-foreground mb-1">{member.title}</p>
                       )}

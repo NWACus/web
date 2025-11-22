@@ -4,7 +4,7 @@ import type { OptionObject } from 'payload'
 
 import { toast, useAuth, useConfig } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation.js'
-import React, { createContext } from 'react'
+import React, { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type ContextType = {
   /**
@@ -76,32 +76,30 @@ export const TenantSelectionProviderClient = ({
   tenantsCollectionSlug: string
   useAsTitle: string
 }) => {
-  const [selectedTenantID, setSelectedTenantID] = React.useState<number | string | undefined>(
+  const [selectedTenantID, setSelectedTenantID] = useState<number | string | undefined>(
     initialValue,
   )
-  const [modified, setModified] = React.useState<boolean>(false)
-  const [entityType, setEntityType] = React.useState<'document' | 'global' | undefined>(undefined)
+  const [modified, setModified] = useState<boolean>(false)
+  const [entityType, setEntityType] = useState<'document' | 'global' | undefined>(undefined)
   const { user } = useAuth()
   const { config } = useConfig()
-  const userID = React.useMemo(() => user?.id, [user?.id])
-  const prevUserID = React.useRef(userID)
+  const userID = useMemo(() => user?.id, [user?.id])
+  const prevUserID = useRef(userID)
   const userChanged = userID !== prevUserID.current
-  const [tenantOptions, setTenantOptions] = React.useState<OptionObject[]>(
-    () => tenantOptionsFromProps,
-  )
-  const selectedTenantLabel = React.useMemo(
+  const [tenantOptions, setTenantOptions] = useState<OptionObject[]>(() => tenantOptionsFromProps)
+  const selectedTenantLabel = useMemo(
     () => tenantOptions.find((option) => option.value === selectedTenantID)?.label,
     [selectedTenantID, tenantOptions],
   )
 
   const router = useRouter()
 
-  const setCookie = React.useCallback((value?: string) => {
+  const setCookie = useCallback((value?: string) => {
     const expires = '; expires=Fri, 31 Dec 9999 23:59:59 GMT'
     document.cookie = 'payload-tenant=' + (value || '') + expires + '; path=/'
   }, [])
 
-  const deleteCookie = React.useCallback(() => {
+  const deleteCookie = useCallback(() => {
     document.cookie = 'payload-tenant=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
   }, [])
 
@@ -114,7 +112,7 @@ export const TenantSelectionProviderClient = ({
     return undefined
   }
 
-  const setTenant = React.useCallback<ContextType['setTenant']>(
+  const setTenant = useCallback<ContextType['setTenant']>(
     ({ id, refresh }) => {
       if (id === undefined) {
         if (tenantOptions.length > 1) {
@@ -145,7 +143,7 @@ export const TenantSelectionProviderClient = ({
     [deleteCookie, entityType, router, setCookie, tenantOptions],
   )
 
-  const syncTenants = React.useCallback(async () => {
+  const syncTenants = useCallback(async () => {
     try {
       const req = await fetch(
         `${config.serverURL}${config.routes.api}/${tenantsCollectionSlug}?select[${useAsTitle}]=true&limit=0&depth=0`,
@@ -175,7 +173,7 @@ export const TenantSelectionProviderClient = ({
     }
   }, [config.serverURL, config.routes.api, tenantsCollectionSlug, useAsTitle, setCookie, userID])
 
-  const updateTenants = React.useCallback<ContextType['updateTenants']>(
+  const updateTenants = useCallback<ContextType['updateTenants']>(
     ({ id, label }) => {
       setTenantOptions((prev) => {
         return prev.map((currentTenant) => {
@@ -194,7 +192,7 @@ export const TenantSelectionProviderClient = ({
     [syncTenants],
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (userChanged || (initialValue && String(initialValue) !== getTenantCookie())) {
       if (userID) {
         // user logging in
@@ -235,4 +233,4 @@ export const TenantSelectionProviderClient = ({
   )
 }
 
-export const useTenantSelection = () => React.use(Context)
+export const useTenantSelection = () => use(Context)

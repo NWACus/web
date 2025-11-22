@@ -1,4 +1,4 @@
-import { byGlobalRole } from '@/access/byGlobalRole'
+import { accessByGlobalRoleReadOnly } from '@/access/byGlobalRole'
 import type { GlobalConfig } from 'payload'
 
 export const DiagnosticsConfig: GlobalConfig = {
@@ -8,10 +8,7 @@ export const DiagnosticsConfig: GlobalConfig = {
     group: 'Settings',
     description: 'Displays diagnostic data about the current environment.',
   },
-  access: {
-    read: byGlobalRole('*', '*'),
-    update: () => false,
-  },
+  access: accessByGlobalRoleReadOnly('diagnostics'),
   fields: [
     {
       type: 'ui',

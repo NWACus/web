@@ -16,7 +16,7 @@ import {
 import { useRouter } from 'next/navigation.js'
 import { type FormState } from 'payload'
 import { formatAdminURL } from 'payload/shared'
-import React, { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { acceptInviteAction } from './acceptInviteAction'
 
 const staticInitialState: FormState = {
@@ -56,7 +56,7 @@ export function AcceptInviteForm({
   const history = useRouter()
   const { fetchFullUser } = useAuth()
 
-  const onSuccess = React.useCallback(async () => {
+  const onSuccess = useCallback(async () => {
     const user = await fetchFullUser()
     if (user) {
       history.push(adminRoute)
@@ -94,9 +94,9 @@ export function AcceptInviteForm({
     [email, name],
   )
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async (formState: FormState) => {
       setIsSubmitting(true)
       try {
