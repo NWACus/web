@@ -4,7 +4,7 @@ export type EventType = {
     | 'events-by-ac'
     | 'awareness'
     | 'workshop'
-    | 'field-class-by-ac'
+    | 'field-class'
     | 'volunteer'
     | 'events-by-others'
   description?: string | null
@@ -30,10 +30,10 @@ export const eventTypesData: EventType[] = [
     value: 'workshop',
   },
   {
-    label: 'Field Class by AC',
+    label: 'Field Class',
     description:
       'Hands-on field-based avalanche education classes taught by Avalanche Center staff in real mountain environments.',
-    value: 'field-class-by-ac',
+    value: 'field-class',
   },
   {
     label: 'Volunteer',
