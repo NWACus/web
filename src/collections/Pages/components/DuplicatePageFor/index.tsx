@@ -6,12 +6,14 @@ import { EditMenuItemsServerProps, PayloadRequest } from 'payload'
 import { DuplicatePageForDrawer } from './DuplicatePageForDrawer'
 
 export const DuplicatePageFor = ({ user, payload }: EditMenuItemsServerProps) => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const mockedPayloadReq = {
     user,
     payload,
   } as PayloadRequest
   const isSuperAdmin = byGlobalRole('*', '*')({ req: mockedPayloadReq })
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const roleAssignments = roleAssignmentsForUser(payload.logger, user as User)
   const matchingTenantIds = roleAssignments
     .filter(

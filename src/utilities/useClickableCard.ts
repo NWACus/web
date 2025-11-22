@@ -34,6 +34,7 @@ function useClickableCard<T extends HTMLElement>({
   const handleMouseDown = useCallback(
     (e: MouseEvent) => {
       if (e.target) {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         const target = e.target as Element
 
         const timeNow = +new Date()

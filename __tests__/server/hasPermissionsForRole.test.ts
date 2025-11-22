@@ -6,6 +6,7 @@ describe('hasPermissionsForRole', () => {
   let mockLogger: jest.Mocked<Logger>
 
   beforeEach(() => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     mockLogger = {
       warn: jest.fn(),
       info: jest.fn(),

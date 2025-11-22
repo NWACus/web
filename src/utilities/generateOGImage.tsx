@@ -90,6 +90,7 @@ export async function generateOGImage({
     })
     const tenantName = tenant.name || center.toUpperCase()
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const colors = centerColorMap[center as keyof typeof centerColorMap] || centerColorMap.default
 
     let bannerImgProps = null

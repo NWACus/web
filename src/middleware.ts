@@ -39,6 +39,7 @@ async function getTenants(): Promise<{
     const tenants: TenantData = []
     for (const [key, value] of Object.entries(allItems)) {
       if (key.startsWith('tenant_') && value) {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         tenants.push(value as TenantData[number])
       }
     }

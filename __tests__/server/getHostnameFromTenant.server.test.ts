@@ -31,6 +31,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('production-tenant')
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant = {
       slug: 'production-tenant',
       customDomain: 'productiondomain.com',
@@ -44,6 +45,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('production-tenant')
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant = {
       slug: 'development-tenant',
       customDomain: 'productiondomain.com',
@@ -57,16 +59,19 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('tenant1', 'tenant2', 'tenant3')
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant1: Tenant = {
       slug: 'tenant1',
       customDomain: 'tenant1productiondomain.com',
     } as Tenant
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant2: Tenant = {
       slug: 'tenant2',
       customDomain: 'tenant2productiondomain.com',
     } as Tenant
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const nonProductionTenant: Tenant = {
       slug: 'non-production',
       customDomain: 'tenant3productiondomain.com',
@@ -80,6 +85,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   it('handles empty production tenants list', () => {
     PRODUCTION_TENANTS.length = 0
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant: Tenant = {
       slug: 'any-tenant',
       customDomain: 'custom.example.com',
@@ -93,6 +99,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('production-tenant')
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant: Tenant = {
       slug: 'production-tenant',
       customDomain: '',

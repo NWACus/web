@@ -15,6 +15,7 @@ export async function GET(
   const payload = await getPayload({ config: configPromise })
   const { searchParams } = new URL(req.url)
   const path = searchParams.get('path')
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const collection = searchParams.get('collection') as CollectionSlug
   const slug = searchParams.get('slug')
 
@@ -43,6 +44,7 @@ export async function GET(
 
     try {
       user = await payload.auth({
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         req: req as unknown as PayloadRequest,
         headers: req.headers,
       })

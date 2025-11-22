@@ -70,6 +70,7 @@ function topLevelNavItem({
   }
 
   if (tab.items && tab.items.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     result.items = tab.items
       .map((item) => {
         if (!item) return null
@@ -88,6 +89,7 @@ function topLevelNavItem({
         }
 
         if (item.items && item.items.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           navItem.items = item.items
             .map((nestedItem, index) => {
               if (!nestedItem) return null
