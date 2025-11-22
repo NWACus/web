@@ -28,6 +28,7 @@ export function ForgotPasswordEmail({ appUrl, resetUrl }: ForgotPasswordEmailPro
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 ForgotPasswordEmail.PreviewProps = {
   appUrl: 'http://localhost:3000',
   resetUrl: 'http://localhost:3000/admin/reset/123456789',

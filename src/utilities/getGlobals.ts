@@ -18,6 +18,7 @@ async function getGlobal<T extends Global>(slug: T, depth = 0): Promise<GlobalRe
     depth,
   })
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return global as GlobalReturnType[T]
 }
 
@@ -25,6 +26,7 @@ async function getGlobal<T extends Global>(slug: T, depth = 0): Promise<GlobalRe
  * Returns a unstable_cache function mapped with the cache tag for the slug
  */
 export const getCachedGlobal = <T extends Global>(slug: T, depth = 0) =>
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   unstable_cache(async () => getGlobal(slug, depth), [slug], {
     tags: [`global_${slug}`],
   }) as () => Promise<GlobalReturnType[T]>

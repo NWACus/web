@@ -21,5 +21,6 @@ export function getTenantFromCookie<T extends IDType>(
       ? parseFloat(selectedTenant)
       : selectedTenant
     : null
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return result as T extends 'number' ? number | null : string | null
 }

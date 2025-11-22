@@ -44,6 +44,7 @@ export const QueriedPostsComponent = ({ path, field }: QueriedPostsComponentProp
       setDisabled(true)
 
       try {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         const tenantId = typeof tenant === 'number' ? tenant : (tenant as { id?: number })?.id
         if (!tenantId) return
 

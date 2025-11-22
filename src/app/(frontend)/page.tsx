@@ -26,6 +26,7 @@ export default async function LandingPage() {
 
   const tenantIds = tenants.map((tenant) => tenant.id)
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const tenantsLogo = (await payload
     .find({
       collection: 'settings',

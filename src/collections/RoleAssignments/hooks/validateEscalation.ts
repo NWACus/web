@@ -66,6 +66,7 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
     }
   } else if (typeof role === 'object' && 'rules' in role) {
     // Role is already populated, check it directly
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     if (!canAssignRole(req.payload.logger, req.user, role as Role, tenantId)) {
       throw new ValidationError({
         errors: [

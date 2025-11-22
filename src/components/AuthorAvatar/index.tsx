@@ -34,7 +34,8 @@ export const AuthorAvatar = (props: {
 
             const authorPhoto =
               typeof author.photo === 'number'
-                ? ((await getDocumentById('media', author.photo)) as Media)
+                ? // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+                  ((await getDocumentById('media', author.photo)) as Media)
                 : author.photo
 
             photos.push(authorPhoto)

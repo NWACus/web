@@ -46,7 +46,9 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
               },
               label: ({ t }) => t('fields:enterURL'),
               required: true,
+              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
               validate: ((value, options) => {
+                // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
                 if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
                   return true // no validation needed, as no url should exist for internal links
                 }

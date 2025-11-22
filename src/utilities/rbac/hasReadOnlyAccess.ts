@@ -12,6 +12,7 @@ export const hasReadOnlyAccess = (
   if (!user) return true
 
   try {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const assignments = globalRoleAssignmentsForUser(payload.logger, user as User)
 
     const hasCreateAccess = assignments
