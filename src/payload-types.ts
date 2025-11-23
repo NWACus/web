@@ -927,6 +927,7 @@ export interface Event {
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
+  affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
   tenant: number | Tenant;
   contentHash?: string | null;
   updatedAt: string;
@@ -1815,7 +1816,7 @@ export interface Course {
   slug: string;
   courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
-  affinityGroups?: ('lgbtq' | 'womens-specific' | 'youth-specific')[] | null;
+  affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
   provider?: (number | null) | Provider;
   contentHash?: string | null;
   updatedAt: string;
@@ -3415,6 +3416,7 @@ export interface EventsSelect<T extends boolean = true> {
   eventGroups?: T;
   eventTags?: T;
   modeOfTravel?: T;
+  affinityGroups?: T;
   tenant?: T;
   contentHash?: T;
   updatedAt?: T;

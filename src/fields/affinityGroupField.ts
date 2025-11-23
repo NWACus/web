@@ -1,9 +1,9 @@
 import { Field } from 'payload'
 
 export const affinityGroupOptions = [
-  { label: 'LGBTQ+', value: 'lgbtq' },
-  { label: "Women's Specific", value: 'womens-specific' },
-  { label: 'Youth Specific', value: 'youth-specific' },
+  { label: 'For LGBTQ+', value: 'lgbtq' },
+  { label: 'For Women', value: 'women' },
+  { label: 'For Youth', value: 'youth' },
 ]
 
 export const affinityGroupField = (): Field => ({

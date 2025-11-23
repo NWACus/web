@@ -341,6 +341,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`events_mode_of_travel_parent_idx\` ON \`events_mode_of_travel\` (\`parent_id\`);`,
   )
+  await db.run(sql`CREATE TABLE \`events_affinity_groups\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` integer NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`events\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`events_affinity_groups_order_idx\` ON \`events_affinity_groups\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`events_affinity_groups_parent_idx\` ON \`events_affinity_groups\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`events\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`title\` text,
@@ -440,6 +454,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   )
   await db.run(
     sql`CREATE INDEX \`_events_v_version_mode_of_travel_parent_idx\` ON \`_events_v_version_mode_of_travel\` (\`parent_id\`);`,
+  )
+  await db.run(sql`CREATE TABLE \`_events_v_version_affinity_groups\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` integer NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`_events_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`_events_v_version_affinity_groups_order_idx\` ON \`_events_v_version_affinity_groups\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`_events_v_version_affinity_groups_parent_idx\` ON \`_events_v_version_affinity_groups\` (\`parent_id\`);`,
   )
   await db.run(sql`CREATE TABLE \`_events_v\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
@@ -979,10 +1007,12 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   await db.run(sql`DROP TABLE \`_pages_v_blocks_single_event\`;`)
   await db.run(sql`DROP TABLE \`events_blocks_in_content\`;`)
   await db.run(sql`DROP TABLE \`events_mode_of_travel\`;`)
+  await db.run(sql`DROP TABLE \`events_affinity_groups\`;`)
   await db.run(sql`DROP TABLE \`events\`;`)
   await db.run(sql`DROP TABLE \`events_rels\`;`)
   await db.run(sql`DROP TABLE \`_events_v_version_blocks_in_content\`;`)
   await db.run(sql`DROP TABLE \`_events_v_version_mode_of_travel\`;`)
+  await db.run(sql`DROP TABLE \`_events_v_version_affinity_groups\`;`)
   await db.run(sql`DROP TABLE \`_events_v\`;`)
   await db.run(sql`DROP TABLE \`_events_v_rels\`;`)
   await db.run(sql`DROP TABLE \`event_groups\`;`)
