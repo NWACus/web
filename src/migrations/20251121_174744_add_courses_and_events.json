@@ -13556,6 +13556,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "events_affinity_groups": {
+      "name": "events_affinity_groups",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "events_affinity_groups_order_idx": {
+          "name": "events_affinity_groups_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "events_affinity_groups_parent_idx": {
+          "name": "events_affinity_groups_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "events_affinity_groups_parent_fk": {
+          "name": "events_affinity_groups_parent_fk",
+          "tableFrom": "events_affinity_groups",
+          "tableTo": "events",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "events": {
       "name": "events",
       "columns": {
@@ -14086,6 +14145,65 @@
         "_events_v_version_mode_of_travel_parent_fk": {
           "name": "_events_v_version_mode_of_travel_parent_fk",
           "tableFrom": "_events_v_version_mode_of_travel",
+          "tableTo": "_events_v",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "_events_v_version_affinity_groups": {
+      "name": "_events_v_version_affinity_groups",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_events_v_version_affinity_groups_order_idx": {
+          "name": "_events_v_version_affinity_groups_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "_events_v_version_affinity_groups_parent_idx": {
+          "name": "_events_v_version_affinity_groups_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_events_v_version_affinity_groups_parent_fk": {
+          "name": "_events_v_version_affinity_groups_parent_fk",
+          "tableFrom": "_events_v_version_affinity_groups",
           "tableTo": "_events_v",
           "columnsFrom": ["parent_id"],
           "columnsTo": ["id"],
@@ -23540,6 +23658,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "f624bf14-b01e-4803-b560-72a344e8fca7",
+  "id": "b6460668-479d-4c54-a383-05a9013d86cb",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
