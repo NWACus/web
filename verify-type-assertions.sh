@@ -18,6 +18,7 @@ if [[ -n "${VALIDATE:-}" ]]; then
 		echo "##   Type assertion opt-out track is out of date. If you're     ##"
 		echo "##   removing type assertings, update the tracker with:         ##"
 		echo "##       pnpm update-type-assertions                            ##"
+		echo "##   and commit the result.                                     ##"
 		echo "##                                                              ##"
 		echo "##   If you've added new \`as\` assertions and ESLint comments    ##"
 		echo "##   to disable the linter, please remove the assertions. This  ##"
