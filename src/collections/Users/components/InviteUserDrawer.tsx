@@ -63,6 +63,7 @@ const collectValidationErrors = (formState: FormState): string[] => {
         rowErrors[rowIndex] = {}
       }
 
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       rowErrors[rowIndex][fieldType as 'role' | 'tenant'] = field.errorMessage
     }
   })

@@ -539,16 +539,19 @@ export const seed = async ({
         .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
           {
             name: tenant.slug.toUpperCase() + ' Admin',
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
             email: 'admin@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
             password: password,
           },
           {
             name: tenant.slug.toUpperCase() + ' Forecaster',
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
             email: 'forecaster@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
             password: password,
           },
           {
             name: tenant.slug.toUpperCase() + ' Non-Profit Staff',
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
             email: 'staff@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
             password: password,
           },

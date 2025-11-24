@@ -2,9 +2,14 @@ import { Option, TextFieldServerComponent } from 'payload'
 
 import { SelectField } from '@payloadcms/ui'
 
-export const CollectionsField: TextFieldServerComponent = async (props) => {
-  const { payload, path, field, clientField, readOnly } = props
-  const fieldPath: string = path || field?.name || ''
+export const CollectionsField: TextFieldServerComponent = async ({
+  payload,
+  path,
+  field,
+  clientField,
+  readOnly,
+}) => {
+  const fieldPath = path || field?.name || ''
   const { type: _type, admin, ...clientFields } = clientField
 
   // Get includeGlobals from serverProps

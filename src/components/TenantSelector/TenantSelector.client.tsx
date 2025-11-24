@@ -32,6 +32,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
   const handleChange = useCallback(
     (option: ReactSelectOption | ReactSelectOption[]) => {
       if (option && 'value' in option) {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         setTenant({ id: option.value as string, refresh: true })
       } else {
         setTenant({ id: undefined, refresh: true })
@@ -58,6 +59,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
         options={options}
         path="setTenant"
         readOnly={isReadOnly}
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         value={selectedTenantID as string | undefined}
       />
     </div>

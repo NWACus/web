@@ -10,6 +10,7 @@ import { revalidateSponsors, revalidateSponsorsDelete } from './hooks/revalidate
 const validateDate: DateFieldValidation = (value, { data }) => {
   if (!value) return true
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const sponsorData = data as Partial<Sponsor>
   const startDate = new Date(value)
   const endDate = sponsorData.endDate ? new Date(sponsorData.endDate) : null
