@@ -4,9 +4,8 @@ import { DatePickerField } from '@/components/DatePicker'
 import { Button } from '@/components/ui/button'
 import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
 import { cn } from '@/utilities/ui'
-import { format } from 'date-fns'
 import { ChevronDown } from 'lucide-react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { parseAsString, useQueryStates } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 type DateRangeFilterProps = {
@@ -28,43 +27,30 @@ export const DateRangeFilter = ({
   defaultOpen = true,
   showBottomBorder = true,
 }: DateRangeFilterProps) => {
-  const [quickFilter, setQuickFilter] = useState('upcoming')
-  const [customStart, setCustomStart] = useState(initialStartDate)
-  const [customEnd, setCustomEnd] = useState(initialEndDate || '')
-  const [isOpen, setIsOpen] = useState(defaultOpen)
-  const isUserAction = useRef(false)
-
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const updateParams = useCallback(
-    (start: string, end: string) => {
-      isUserAction.current = true
-      const params = new URLSearchParams(searchParams.toString())
-      if (start) {
-        params.set('startDate', start)
-      } else {
-        params.delete('startDate')
-      }
-      if (end) {
-        params.set('endDate', end)
-      } else {
-        params.delete('endDate')
-      }
-      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+  const [{ startDate, endDate }, setDateParams] = useQueryStates(
+    {
+      startDate: parseAsString.withDefault(''),
+      endDate: parseAsString.withDefault(''),
     },
-    [pathname, router, searchParams],
+    {
+      history: 'push',
+      shallow: false,
+    },
   )
+
+  const [quickFilter, setQuickFilter] = useState('')
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+  const isInitialMount = useRef(true)
 
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string) => {
       setQuickFilter(filter)
-      setCustomStart(start)
-      setCustomEnd(end)
-      updateParams(start, end)
+      setDateParams({
+        startDate: start || null,
+        endDate: end || null,
+      })
     },
-    [updateParams],
+    [setDateParams],
   )
 
   const handleQuickFilter = useCallback(
@@ -75,10 +61,10 @@ export const DateRangeFilter = ({
         const end = filter.endDate() || ''
         updateDateSelection(filterKey, start, end)
       } else {
-        updateDateSelection(filterKey, customStart, customEnd)
+        updateDateSelection(filterKey, startDate, endDate)
       }
     },
-    [customEnd, customStart, quickFilters, updateDateSelection],
+    [endDate, startDate, quickFilters, updateDateSelection],
   )
 
   const renderQuickFilterButton = (id: string) => {
@@ -95,40 +81,39 @@ export const DateRangeFilter = ({
     )
   }
 
-  // Sync state with URL params when they change externally (not from user action)
-  useEffect(() => {
-    if (isUserAction.current) {
-      isUserAction.current = false
-      return
-    }
+  useEffect(
+    function determineMatchingQuickFilter() {
+      if (isInitialMount.current) {
+        // Use initial props for first mount
+        const currentStart = startDate || initialStartDate
+        const currentEnd = endDate || initialEndDate
 
-    const urlStart = searchParams.get('startDate') || ''
-    const urlEnd = searchParams.get('endDate') || ''
+        if (!currentStart && !currentEnd) {
+          // No dates set, set start date and set quick filter to upcoming
+          handleQuickFilter('upcoming')
+        } else if (currentStart && !currentEnd) {
+          // Only start date, default to upcoming
+          setQuickFilter('upcoming')
+        } else if (currentStart && currentEnd) {
+          // Try to match against quick filters
+          const matchingFilter = quickFilters.find((filter) => {
+            const filterStart = filter.startDate()
+            const filterEnd = filter.endDate() || ''
+            return filterStart === currentStart && filterEnd === currentEnd
+          })
 
-    if (!urlStart && !urlEnd) {
-      // No URL params, set to today and upcoming
-      const today = format(new Date(), 'MM-dd-yyyy')
-      setCustomStart(today)
-      setCustomEnd('')
-      setQuickFilter('upcoming')
-      updateParams(today, '')
-      return
-    }
-
-    // Check if dates match a quick filter
-    const matchedFilter = quickFilters.find(
-      (f) => f.startDate() === urlStart && (f.endDate() || '') === urlEnd,
-    )
-
-    if (matchedFilter) {
-      setQuickFilter(matchedFilter.id)
-    } else {
-      setQuickFilter('custom')
-    }
-
-    setCustomStart(urlStart)
-    setCustomEnd(urlEnd)
-  }, [searchParams, quickFilters, updateParams])
+          if (matchingFilter) {
+            setQuickFilter(matchingFilter.id)
+          } else {
+            // No match found, must be custom
+            setQuickFilter('custom')
+          }
+        }
+        isInitialMount.current = false
+      }
+    },
+    [endDate, handleQuickFilter, initialEndDate, initialStartDate, quickFilters, startDate],
+  )
 
   return (
     <div className={showBottomBorder ? 'border-b' : ''}>
@@ -178,15 +163,15 @@ export const DateRangeFilter = ({
               <div className="flex gap-4 mt-4">
                 <DatePickerField
                   label="Start Date"
-                  value={customStart}
+                  value={startDate}
                   id="customStart"
-                  onChange={(date) => updateDateSelection('custom', date, customEnd)}
+                  onChange={(date) => updateDateSelection('custom', date, endDate)}
                 />
                 <DatePickerField
                   label="End Date"
-                  value={customEnd}
+                  value={endDate}
                   id="customEnd"
-                  onChange={(date) => updateDateSelection('custom', customStart, date)}
+                  onChange={(date) => updateDateSelection('custom', startDate, date)}
                 />
               </div>
             )}
