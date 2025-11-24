@@ -19,6 +19,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'builtInPages',
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           value: { url: '/built-in-page' } as BuiltInPage,
         },
       })
@@ -31,6 +32,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'pages',
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           value: { slug: 'test-page' } as Page,
         },
       })
@@ -43,6 +45,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'posts',
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           value: { slug: 'my-blog-post' } as Post,
         },
       })
@@ -58,6 +61,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'pages',
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           value: { slug: '' } as Page,
         },
       })

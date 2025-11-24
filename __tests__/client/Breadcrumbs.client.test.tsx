@@ -9,6 +9,7 @@ jest.mock('next/navigation', () => ({
 
 import { useSelectedLayoutSegments } from 'next/navigation'
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const mockUseSelectedLayoutSegments = useSelectedLayoutSegments as jest.MockedFunction<
   typeof useSelectedLayoutSegments
 >

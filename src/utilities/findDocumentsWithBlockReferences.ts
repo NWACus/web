@@ -13,6 +13,7 @@ function hasMatchingReference(
 ): boolean {
   if (!obj || typeof obj !== 'object') return false
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const record = obj as Record<string, unknown>
 
   // Check if this object has the field we're looking for
@@ -28,6 +29,7 @@ function hasMatchingReference(
       // Array of objects with id property
       for (const item of fieldValue) {
         if (typeof item === 'object' && item && 'id' in item) {
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           if ((item as { id: unknown }).id === referenceId) {
             return true
           }
@@ -37,6 +39,7 @@ function hasMatchingReference(
 
     // Handle case where field value is an object with id
     if (typeof fieldValue === 'object' && fieldValue && 'id' in fieldValue) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       return (fieldValue as { id: unknown }).id === referenceId
     }
 
