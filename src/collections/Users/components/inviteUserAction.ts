@@ -80,6 +80,7 @@ export async function inviteUserAction({
       throw new Error('You are not allowed to perform that action.')
     }
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const mockedPayloadReq = {
       user: loggedInUser,
       payload,

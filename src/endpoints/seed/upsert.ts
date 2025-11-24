@@ -59,6 +59,7 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
         const updated = await payload.update({
           id: existing[key].id,
           collection: collection,
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           data: merge(existing[key], item) as ByIDOptions<
             TSlug,
             SelectFromCollectionSlug<TSlug>
@@ -181,6 +182,7 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
         const updated = await payload.update({
           id: existing[tenant][key].id,
           collection: collection,
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           data: merge(existing[tenant][key], item) as ByIDOptions<
             TSlug,
             SelectFromCollectionSlug<TSlug>
