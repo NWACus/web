@@ -22,8 +22,6 @@ src/collections/Users/components/inviteUserAction.ts
 src/collections/Users/components/resendInviteActions.ts
 src/components/Header/utils.ts
 src/components/TenantSelector/TenantSelector.client.tsx
-src/emails/forgot-password-email.tsx
-src/emails/invite-user-email.tsx
 src/endpoints/seed/index.ts
 src/endpoints/seed/upsert.ts
 src/fields/defaultLexical.ts

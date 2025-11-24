@@ -29,7 +29,6 @@ export function InviteUserEmail({ appUrl, inviteUrl }: InviteUserEmailProps) {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 InviteUserEmail.PreviewProps = {
   appUrl: 'http://localhost:3000',
   inviteUrl: 'http://localhost:3000/admin/accept-invite?token=123456789',
