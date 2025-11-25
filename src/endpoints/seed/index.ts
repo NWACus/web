@@ -942,11 +942,7 @@ export const seed = async ({
       () => 'homepage',
       Object.values(tenants).map(
         (tenant): RequiredDataFromCollectionSlug<'homePages'> =>
-          homePage(
-            tenant,
-            images[tenant.slug]['imageMountain'],
-            Object.values(events[tenant.slug]),
-          ),
+          homePage(tenant, images[tenant.slug]['imageMountain']),
       ),
     )
 

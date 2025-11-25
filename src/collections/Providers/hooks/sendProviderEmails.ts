@@ -67,7 +67,7 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
     }
   } else if (lastPublishedVersion.docs.length >= 2) {
     // Scenario 2: This is a re-publish, check if course types changed
-    const previousPublishedVersion = lastPublishedVersion.docs[1].version as Provider
+    const previousPublishedVersion: Provider = lastPublishedVersion.docs[1].version
     const previousCourseTypes = previousPublishedVersion.courseTypes || []
     const currentCourseTypes = doc.courseTypes || []
 

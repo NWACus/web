@@ -19,6 +19,7 @@ import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { Event } from '@/payload-types'
 import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
@@ -114,8 +115,8 @@ export const Events: CollectionConfig = {
             },
             description: 'Registration cutoff',
           },
-          validate: (value, { siblingData }) => {
-            const data = siblingData as { startDate?: string | Date }
+          validate: (value, { siblingData }: { siblingData: Partial<Event> }) => {
+            const data = siblingData
             if (value && data?.startDate) {
               const registrationDeadline = new Date(value)
               const startDate = new Date(data.startDate)

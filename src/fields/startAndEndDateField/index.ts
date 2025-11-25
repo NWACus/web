@@ -1,5 +1,10 @@
 import { RowField } from 'payload'
 
+interface EventFormData {
+  startDate?: string | Date
+  endDate?: string | Date
+}
+
 export const startAndEndDateField = (): RowField => ({
   type: 'row',
   fields: [
@@ -24,10 +29,9 @@ export const startAndEndDateField = (): RowField => ({
         description: 'Optional end date for multi-day events',
         width: '50%',
       },
-      validate: (value, { siblingData }) => {
-        const data = siblingData as { startDate?: string | Date }
-        if (value && data?.startDate) {
-          const startDate = new Date(data.startDate)
+      validate: (value, { siblingData }: { siblingData: Partial<EventFormData> }) => {
+        if (value && siblingData?.startDate) {
+          const startDate = new Date(siblingData.startDate)
           const endDate = new Date(value)
 
           if (endDate <= startDate) {

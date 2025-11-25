@@ -1,14 +1,12 @@
-import type { Event, Media, Tenant } from '@/payload-types'
+import type { Media, Tenant } from '@/payload-types'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 
 export const homePage: (
   tenant: Tenant,
   heroImage: Media,
-  events: Event[],
 ) => RequiredDataFromCollectionSlug<'homePages'> = (
   tenant: Tenant,
   heroImage: Media,
-  events: Event[],
 ): RequiredDataFromCollectionSlug<'homePages'> => {
   return {
     tenant: tenant.id,

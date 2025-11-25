@@ -1,3 +1,4 @@
+import { SerializedParagraphNode, SerializedTextNode } from '@payloadcms/richtext-lexical'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { File } from 'payload'
@@ -107,35 +108,32 @@ export const futureDate = (monthOffset: number, day: number, hour: number = 18) 
   return date.toISOString()
 }
 
-// Helper to create properly formatted lexical text nodes
-export const textNode = (text: string) => ({
+export const textNode = (text: string): SerializedTextNode => ({
   type: 'text',
   detail: 0,
   format: 0,
-  mode: 'normal' as const,
+  mode: 'normal',
   style: '',
   text,
   version: 1,
 })
 
-// Helper to create properly formatted lexical paragraph nodes
-export const paragraphNode = (text: string) => ({
+export const paragraphNode = (text: string): SerializedParagraphNode => ({
   type: 'paragraph',
   children: [textNode(text)],
-  direction: 'ltr' as const,
-  format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
+  direction: 'ltr',
+  format: '',
   indent: 0,
   textFormat: 0,
   version: 1,
 })
 
-// Helper to create simple content with just paragraphs
 export const simpleContent = (...paragraphs: string[]) => ({
   root: {
     type: 'root',
     children: paragraphs.map(paragraphNode),
     direction: 'ltr' as const,
-    format: '' as '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify',
+    format: '' as const,
     indent: 0,
     version: 1,
   },
