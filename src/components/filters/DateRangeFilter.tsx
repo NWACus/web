@@ -44,7 +44,6 @@ export const DateRangeFilter = ({
 
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string) => {
-      console.log(`Setting filter to ${filter} and startDate: ${start} and endDate: ${end}.`)
       setQuickFilter(filter)
       setDateParams({
         startDate: start || null,
