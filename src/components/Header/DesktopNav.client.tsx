@@ -26,7 +26,7 @@ export const DesktopNav = ({
   donateNavItem?: TopLevelNavItem
 }) => {
   return (
-    <NavigationMenu delayDuration={100}>
+    <NavigationMenu delayDuration={100} className="z-20">
       <NavigationMenuList>
         {topLevelNavItems.map((navItem) => {
           const label = navItem.label || navItem.link?.label
