@@ -44,6 +44,7 @@ export const DateRangeFilter = ({
 
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string) => {
+      console.log(`Setting filter to ${filter} and startDate: ${start} and endDate: ${end}.`)
       setQuickFilter(filter)
       setDateParams({
         startDate: start || null,
@@ -83,18 +84,20 @@ export const DateRangeFilter = ({
 
   useEffect(
     function determineMatchingQuickFilter() {
-      if (isInitialMount.current) {
-        // Use initial props for first mount
-        const currentStart = startDate || initialStartDate
-        const currentEnd = endDate || initialEndDate
+      const currentStart = startDate || initialStartDate
+      const currentEnd = endDate || initialEndDate
 
-        if (!currentStart && !currentEnd) {
-          // No dates set, set start date and set quick filter to upcoming
+      if (!currentStart && !currentEnd) {
+        // No dates set, set start date and set quick filter to upcoming
+        // setTimeout needed to avoid hydration race condition with nuqs
+        setTimeout(() => {
           handleQuickFilter('upcoming')
-        } else if (currentStart && !currentEnd) {
-          // Only start date, default to upcoming
-          setQuickFilter('upcoming')
-        } else if (currentStart && currentEnd) {
+        }, 0)
+        return
+      }
+
+      if (isInitialMount.current) {
+        if (currentStart) {
           // Try to match against quick filters
           const matchingFilter = quickFilters.find((filter) => {
             const filterStart = filter.startDate()
