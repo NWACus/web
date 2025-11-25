@@ -6,6 +6,8 @@ src/app/(frontend)/[center]/[...segments]/page.tsx
 src/app/(frontend)/[center]/[slug]/page.tsx
 src/app/(frontend)/[center]/blog/[slug]/page.tsx
 src/app/(frontend)/[center]/blog/page.tsx
+src/app/(frontend)/[center]/events/[slug]/page.tsx
+src/app/(frontend)/[center]/events/page.tsx
 src/app/(frontend)/[center]/forecasts/avalanche/[zone]/page.tsx
 src/app/(frontend)/[center]/forecasts/avalanche/page.tsx
 src/app/(frontend)/[center]/next/preview/route.ts

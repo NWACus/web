@@ -119,8 +119,8 @@ export const Courses: CollectionConfig = {
         },
         description: 'Registration cutoff',
       },
-      validate: (value, { siblingData }) => {
-        const data = siblingData as Partial<Course>
+      validate: (value, { siblingData }: { siblingData: Partial<Course> }) => {
+        const data = siblingData
         if (value && data?.startDate) {
           const registrationDeadline = new Date(value)
           const startDate = new Date(data.startDate)

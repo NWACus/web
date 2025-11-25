@@ -23,7 +23,13 @@ import { Fragment, useMemo, useState } from 'react'
 import { CMSLink } from '../Link'
 
 export function EventTable({ events = [] }: { events: Event[] }) {
-  const [sortConfig, setSortConfig] = useState({ key: 'startDate', direction: 'asc' })
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Event
+    direction: 'asc' | 'desc'
+  }>({
+    key: 'startDate',
+    direction: 'asc',
+  })
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
   // Determine status based on event data
@@ -97,8 +103,8 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   // Sort function
   const sortedEvents = useMemo(() => {
     const sorted = [...events].sort((a, b) => {
-      let aValue = a[sortConfig.key as keyof Event]
-      let bValue = b[sortConfig.key as keyof Event]
+      let aValue = a[sortConfig.key]
+      let bValue = b[sortConfig.key]
 
       // Handle special cases
       if (sortConfig.key === 'type') {
@@ -122,7 +128,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     return sorted
   }, [events, sortConfig])
 
-  const handleSort = (key: string) => {
+  const handleSort = (key: keyof Event) => {
     if (sortConfig.key === key) {
       setSortConfig({
         key,
@@ -154,7 +160,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     )
   }
 
-  const SortableHeader = ({ label, sortKey }: { label: string; sortKey: string }) => (
+  const SortableHeader = ({ label, sortKey }: { label: string; sortKey: keyof Event }) => (
     <button
       onClick={() => handleSort(sortKey)}
       className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900 transition"

@@ -1,4 +1,3 @@
-import type { User } from '@/payload-types'
 import { FieldAccess } from 'payload'
 import { globalRoleAssignmentsForUser } from '../utilities/rbac/globalRoleAssignmentsForUser'
 import { ruleMatches, ruleMethod } from '../utilities/rbac/ruleMatches'
@@ -23,7 +22,7 @@ export const hasSuperAdminPermissions: FieldAccess = async ({
   if (!user) return false
 
   try {
-    const assignments = globalRoleAssignmentsForUser(payload.logger, user as User)
+    const assignments = globalRoleAssignmentsForUser(payload.logger, user)
 
     if (!assignments.length) {
       return false
