@@ -18,7 +18,8 @@
   min-height: 100vh !important;
 }
 
-#nac-app .nac-forecast-view.nac-html-body {
+#nac-app .nac-forecast-view.nac-html-body,
+#nac-app #nac-single-observation {
   @apply bg-background text-foreground !important;
 }
 
@@ -54,4 +55,18 @@
 
 #nac-obs-form-widget h1.nac-h1:first-of-type {
   display: none;
+}
+
+#nac-single-observation .nac-container:not(.nac-modal .nac-container) {
+  all: unset !important;
+}
+
+#nac-obs-form-widget.nac-container {
+  all: unset !important;
+}
+
+#nac-single-observation .nac-container-fluid:not(.nac-modal .nac-container-fluid) {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+  padding-top: 0 !important;
 }

@@ -1,28 +1,10 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
-import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
-
-export const dynamic = 'force-static'
-
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 1000,
-    select: {
-      slug: true,
-    },
-  })
-
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
-}
+import SingleObservationPage from '../../SingleObservationPage'
 
 type Args = {
   params: Promise<PathArgs>
@@ -30,10 +12,11 @@ type Args = {
 
 type PathArgs = {
   center: string
+  id: string
 }
 
 export default async function Page({ params }: Args) {
-  const { center } = await params
+  const { center, id } = await params
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
@@ -45,28 +28,25 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetRouterHandler initialPath="/form" widgetPageKey="submit-observation" />
-      <div className="container flex flex-col gap-8">
-        <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">Submit Observation</h1>
-        </div>
-        <NACWidget
-          center={center}
-          widget={'observations'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
-      </div>
+      <WidgetRouterHandler initialPath={`/avalanche/${id}`} widgetPageKey="single-observation" />
+      <SingleObservationPage
+        title="Avalanche Observation"
+        center={center}
+        widgetsVersion={version}
+        widgetsBaseUrl={baseUrl}
+      />
     </>
   )
 }
 
 export async function generateMetadata(
-  _props: Args,
+  { params }: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const parentMeta = (await parent) as Metadata
+
+  const { id } = await params
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
@@ -76,14 +56,14 @@ export async function generateMetadata(
   const parentOg = parentMeta.openGraph
 
   return {
-    title: `Submit Observation | ${parentTitle}`,
+    title: `Avalanche Observation ${id} | ${parentTitle}`,
     alternates: {
-      canonical: '/observations/submit',
+      canonical: `/observations/avalanches/${id}`,
     },
     openGraph: {
       ...parentOg,
-      title: `Submit Observation | ${parentTitle}`,
-      url: '/observations/submit',
+      title: `Avalanche Observation ${id} | ${parentTitle}`,
+      url: `/observations/avalanches/${id}`,
     },
   }
 }

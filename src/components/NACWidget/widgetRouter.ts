@@ -6,6 +6,7 @@ export type WidgetPageWithRouterKey =
   | 'weather-stations'
   | 'recent-observations'
   | 'submit-observation'
+  | 'single-observation'
 
 export const pathsByWidgetPage: Record<WidgetPageWithRouterKey, string[]> = {
   forecasts: ['/all'],
@@ -32,10 +33,9 @@ export const pathsByWidgetPage: Record<WidgetPageWithRouterKey, string[]> = {
     '/view/avalanches/:id',
     '/view/visual',
     '/view/visual/:id',
-    '/observation/:id',
-    '/avalanche/:id',
   ],
   'submit-observation': ['/form', '/advanced-form', '/submit'],
+  'single-observation': ['/observation/:id', '/avalanche/:id'],
 }
 
 export type PathMatcher = MatchFunction<Record<string, string>>
@@ -46,6 +46,7 @@ export const pathMatchersByWidgetPage: Record<WidgetPageWithRouterKey, PathMatch
   'weather-stations': pathsByWidgetPage['weather-stations'].map((p) => match(p)),
   'recent-observations': pathsByWidgetPage['recent-observations'].map((p) => match(p)),
   'submit-observation': pathsByWidgetPage['submit-observation'].map((p) => match(p)),
+  'single-observation': pathsByWidgetPage['single-observation'].map((p) => match(p)),
 }
 
 export function getMatchersByWidgetPage(widgetPageKey: WidgetPageWithRouterKey) {
