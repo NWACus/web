@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
-import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
+import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { Button } from '@/components/ui/button'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
@@ -47,7 +47,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetHashHandler initialHash="/view/observations" />
+      <WidgetRouterHandler initialPath="/view/observations" widgetPageKey="recent-observations" />
       <div className="flex flex-col gap-4">
         <div className="container">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-4 prose dark:prose-invert max-w-none">

@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
-import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
+import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
@@ -57,7 +57,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetHashHandler initialHash={`/${zone}/`} />
+      <WidgetRouterHandler initialPath={`/${zone}/`} widgetPageKey="forecast-zone" />
       <div className="container flex flex-col">
         <NACWidget
           center={center}

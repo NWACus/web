@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
-import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
+import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
@@ -45,7 +45,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetHashHandler initialHash="/" />
+      <WidgetRouterHandler initialPath="/" widgetPageKey="weather-stations" />
       <div className="flex flex-col gap-4">
         <div className="container mb-4">
           <div className="prose dark:prose-invert max-w-none">
