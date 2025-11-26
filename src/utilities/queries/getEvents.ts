@@ -2,6 +2,7 @@ import { EVENTS_LIMIT } from '@/constants/defaults'
 import type { Event } from '@/payload-types'
 import config from '@/payload.config'
 import * as Sentry from '@sentry/nextjs'
+import { format } from 'date-fns'
 import type { Where } from 'payload'
 import { getPayload } from 'payload'
 
@@ -95,6 +96,12 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
       conditions.push({
         startDate: {
           less_than_equal: endDate,
+        },
+      })
+    } else if (!startDate && !endDate) {
+      conditions.push({
+        startDate: {
+          greater_than_equal: format(new Date(), 'MM-dd-yyyy'),
         },
       })
     }
