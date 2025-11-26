@@ -1,19 +1,14 @@
 'use client'
+import { skillLevelOptions } from '@/fields/skillLevel'
 import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import type { Event } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 import { Calendar, Globe, MapPin, TrendingUp, Video } from 'lucide-react'
 import { Badge } from '../ui/badge'
 
-const skillLevelLabels: Record<string, string> = {
-  beginner: 'Beginner Friendly',
-  'pre-req': 'Prerequisites Required',
-  professional: 'Professional Level',
-}
-
 export type EventInfoProps = Pick<
   Event,
-  'startDate' | 'endDate' | 'timezone' | 'location' | 'skillRating'
+  'startDate' | 'endDate' | 'timezone' | 'location' | 'skillLevel'
 > & {
   className?: string
   itemsClassName?: string
@@ -26,10 +21,12 @@ export const EventInfo = ({
   itemsClassName = '',
   location,
   showLabels = false,
-  skillRating,
+  skillLevel,
   startDate,
   timezone,
 }: EventInfoProps) => {
+  const skillLevelLabel = skillLevelOptions.find(({ value }) => skillLevel === value)?.label ?? ''
+
   return (
     <div className={cn('gap-4 text-sm text-muted-foreground', className)}>
       {/* Date and Time */}
@@ -84,13 +81,13 @@ export const EventInfo = ({
         </div>
       )}
 
-      {/* Skill Rating */}
-      {skillRating && (
+      {/* Skill Level */}
+      {skillLevel && (
         <div className={cn('flex items-center gap-2', itemsClassName)}>
           <TrendingUp className="h-4 w-4 flex-shrink-0" />
           <span>
             {showLabels && <span className="font-semibold">Level: </span>}
-            {skillLevelLabels[skillRating] || skillRating}
+            {skillLevelLabel}
           </span>
         </div>
       )}
