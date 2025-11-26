@@ -19,6 +19,10 @@ export const pathsByWidgetPage: Record<WidgetPageWithRouterKey, string[]> = {
     '/:zone/:tab',
     '/forecast/:zone/:id',
     '/forecast/:zone/:id/:tab',
+    '/blog',
+    '/blog/:id',
+    '/post',
+    '/post/:id',
   ],
   'weather-stations': ['/', '/station-table', '/station-table/:id', '/:id'],
   'recent-observations': [
