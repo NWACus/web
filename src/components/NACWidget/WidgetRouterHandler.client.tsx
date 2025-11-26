@@ -3,7 +3,7 @@
 import { normalizePath } from '@/utilities/path'
 import { useHash } from '@/utilities/useHash'
 import { match } from 'path-to-regexp'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import {
   getMatchersByWidgetPage,
   isValidPath,
@@ -19,7 +19,6 @@ export function WidgetRouterHandler({
   widgetPageKey?: WidgetPageWithRouterKey
 }) {
   const observedHash = useHash()
-  const hasSetInitialHash = useRef(false)
 
   const normalizedInitialPath = normalizePath(initialPath, { ensureLeadingSlash: true })
 
@@ -43,18 +42,7 @@ export function WidgetRouterHandler({
       window.location.hash = `#${normalizedInitialPath}`
       return
     }
-
-    if (!hasSetInitialHash.current) {
-      if (!isValid) {
-        window.location.hash = `#${normalizedInitialPath}`
-      }
-      hasSetInitialHash.current = true
-    }
   }, [observedHash, normalizedInitialPath, validPathMatchers])
-
-  useEffect(() => {
-    hasSetInitialHash.current = false
-  }, [initialPath])
 
   return null
 }
