@@ -15,7 +15,12 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb'
 
-const knownPathsWithoutPages = ['/forecasts', '/weather', '/weather/stations']
+const knownPathsWithoutPages = [
+  '/forecasts',
+  '/weather',
+  '/weather/stations',
+  '/observations/avalanche',
+]
 
 type BreadcrumbType = {
   name: string
