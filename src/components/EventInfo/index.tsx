@@ -6,10 +6,9 @@ import { Calendar, Globe, MapPin, TrendingUp, Video } from 'lucide-react'
 import { Badge } from '../ui/badge'
 
 const skillLevelLabels: Record<string, string> = {
-  '0': 'Beginner Friendly',
-  '1': 'Previous Knowledge Helpful',
-  '2': 'Prerequisites Required',
-  '3': 'Professional Level',
+  beginner: 'Beginner Friendly',
+  'pre-req': 'Prerequisites Required',
+  professional: 'Professional Level',
 }
 
 export type EventInfoProps = Pick<

@@ -898,7 +898,7 @@ export interface Event {
   /**
    * Skill level required for this event
    */
-  skillRating?: ('0' | '1' | '2' | '3') | null;
+  skillRating?: ('beginner' | 'pre-req' | 'professional') | null;
   content?: {
     root: {
       type: string;
