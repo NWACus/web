@@ -9,7 +9,7 @@ export const getEventsData = (
   thumbnailImage?: Media,
 ): RequiredDataFromCollectionSlug<'events'>[] => {
   return [
-    // Awareness event - Free beginner-friendly
+    // Awareness event - beginner-friendly
     {
       title: 'Introduction to Avalanche Safety',
       subtitle: 'Free community presentation',
@@ -30,7 +30,7 @@ export const getEventsData = (
       featuredImage: featuredImage?.id,
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/awareness-intro',
-      skillRating: '0',
+      skillLevel: '0',
       type: 'awareness',
       modeOfTravel: ['ski', 'splitboard', 'motorized', 'snowshoe'],
       tenant: tenant.id,
@@ -42,7 +42,6 @@ export const getEventsData = (
       ),
     },
 
-    // Workshop event
     {
       title: 'Advanced Snowpack Analysis Workshop',
       subtitle: 'Deep dive into snow science',
@@ -64,8 +63,8 @@ export const getEventsData = (
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/snowpack-workshop',
       registrationDeadline: futureDate(2, 1, 23),
-      skillRating: '2',
-      type: 'workshop',
+      skillLevel: '2',
+      type: 'event',
       modeOfTravel: ['ski'],
       tenant: tenant.id,
       slug: 'advanced-snowpack-analysis-workshop',
@@ -99,7 +98,7 @@ export const getEventsData = (
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/snowmobile-safety',
       registrationDeadline: futureDate(1, 1, 23),
-      skillRating: '1',
+      skillLevel: '1',
       type: 'field-class',
       modeOfTravel: ['motorized'],
       tenant: tenant.id,
@@ -129,7 +128,7 @@ export const getEventsData = (
       featuredImage: featuredImage?.id,
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/virtual-awareness',
-      skillRating: '0',
+      skillLevel: '0',
       type: 'awareness',
       modeOfTravel: ['ski', 'splitboard', 'motorized', 'snowshoe'],
       tenant: tenant.id,
@@ -163,8 +162,8 @@ export const getEventsData = (
       featuredImage: featuredImage?.id,
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/meet-forecasters',
-      skillRating: '0',
-      type: 'events-by-ac',
+      skillLevel: '0',
+      type: 'event',
       modeOfTravel: ['ski', 'splitboard', 'motorized', 'snowshoe'],
       tenant: tenant.id,
       slug: 'meet-your-forecasters',
@@ -176,7 +175,7 @@ export const getEventsData = (
       ),
     },
 
-    // Additional Field Class by AC
+    // Field Class
     {
       title: "Women's Avalanche Field Day",
       subtitle: 'Empowering women in the backcountry',
@@ -198,7 +197,7 @@ export const getEventsData = (
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/womens-field-day',
       registrationDeadline: futureDate(2, 15, 23),
-      skillRating: '1',
+      skillLevel: '1',
       type: 'field-class',
       modeOfTravel: ['ski'],
       tenant: tenant.id,
@@ -211,8 +210,6 @@ export const getEventsData = (
         'This event is taught by experienced female educators from our forecast team.',
       ),
     },
-
-    // Volunteer opportunity
     {
       title: 'Backcountry Observer Training',
       subtitle: 'Join our observation network',
@@ -234,8 +231,8 @@ export const getEventsData = (
       thumbnailImage: thumbnailImage?.id,
       registrationUrl: 'https://example.com/register/observer-training',
       registrationDeadline: futureDate(1, 18, 23),
-      skillRating: '1',
-      type: 'volunteer',
+      skillLevel: '1',
+      type: 'event',
       modeOfTravel: ['ski'],
       tenant: tenant.id,
       slug: 'backcountry-observer-training',

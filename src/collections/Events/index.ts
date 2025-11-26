@@ -15,6 +15,7 @@ import { eventTypesData } from '@/constants/eventTypes'
 import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
 import { modeOfTravelField } from '@/fields/modeOfTravelField'
+import { skillLevelField } from '@/fields/skillLevel'
 import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
@@ -130,19 +131,7 @@ export const Events: CollectionConfig = {
         },
       ],
     },
-    {
-      name: 'skillRating',
-      type: 'select',
-      options: [
-        { label: '0 - Beginner Friendly', value: '0' },
-        { label: '1 - Previous Knowledge Helpful', value: '1' },
-        { label: '2 - Prerequisites Required', value: '2' },
-        { label: '3 - Professional Level', value: '3' },
-      ],
-      admin: {
-        description: 'Skill level required for this event',
-      },
-    },
+    skillLevelField(),
     {
       type: 'group',
       label: 'Landing Page Content',
