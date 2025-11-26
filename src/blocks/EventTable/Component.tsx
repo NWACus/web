@@ -22,6 +22,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [eventsPageParams, setEventsPageParams] = useState<string>('')
 
   useEffect(() => {
     if (eventOptions !== 'dynamic') return
@@ -36,8 +37,11 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
         depth: '1',
       })
 
+      // params supported by the events page
+      const eventsTableParams = new URLSearchParams()
+
       if (filterByEventTypes?.length) {
-        params.append('types', filterByEventTypes.join(','))
+        eventsTableParams.append('types', filterByEventTypes.join(','))
       }
 
       if (filterByEventGroups?.length) {
@@ -45,7 +49,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           .map((g) => (typeof g === 'object' ? g.id : g))
           .filter(Boolean)
         if (groupIds.length) {
-          params.append('groups', groupIds.join(','))
+          eventsTableParams.append('groups', groupIds.join(','))
         }
       }
 
@@ -54,12 +58,15 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           .map((t) => (typeof t === 'object' ? t.id : t))
           .filter(Boolean)
         if (tagIds.length) {
-          params.append('tags', tagIds.join(','))
+          eventsTableParams.append('tags', tagIds.join(','))
         }
       }
-      params.append('startDate', format(new Date(), 'MM-dd-yyyy'))
+      eventsTableParams.append('startDate', format(new Date(), 'MM-dd-yyyy'))
+      setEventsPageParams(eventsPageParams.toString())
 
-      const response = await fetch(`/api/${tenantSlug}/events?${params.toString()}`, {
+      const allParams = new URLSearchParams([...params, ...eventsTableParams])
+
+      const response = await fetch(`/api/${tenantSlug}/events?${allParams.toString()}`, {
         cache: 'no-store',
       })
 
@@ -74,7 +81,15 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     }
 
     fetchEvents()
-  }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
+  }, [
+    eventOptions,
+    filterByEventTypes,
+    filterByEventGroups,
+    filterByEventTags,
+    maxEvents,
+    tenant,
+    eventsPageParams,
+  ])
 
   let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
 
