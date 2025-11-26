@@ -84,7 +84,7 @@ export default async function Event({ params: paramsPromise }: Args) {
         {event.featuredImage && (
           <Media
             resource={event.featuredImage}
-            className="w-full absolute z-1"
+            className="w-full absolute"
             imgClassName="w-full h-[35vh] object-cover"
           />
         )}
