@@ -69,7 +69,8 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
         name: 'filterByEventTypes',
         type: 'select',
         dbName: 'filterByEventTypes',
-        options: eventTypesData.map((type) => ({
+        options: eventTypesData.map((type, index) => ({
+          key: `${type.value}-${index}`,
           label: type.label,
           value: type.value,
         })),
