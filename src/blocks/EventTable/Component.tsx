@@ -32,16 +32,14 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
       if (!tenantSlug) return
 
       const params = new URLSearchParams({
-        center: tenantSlug,
         limit: String(maxEvents || 4),
-        depth: '1',
       })
 
       // params supported by the events page
-      const eventsTableParams = new URLSearchParams()
+      const eventsPageParams = new URLSearchParams()
 
       if (filterByEventTypes?.length) {
-        eventsTableParams.append('types', filterByEventTypes.join(','))
+        eventsPageParams.append('types', filterByEventTypes.join(','))
       }
 
       if (filterByEventGroups?.length) {
@@ -49,7 +47,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           .map((g) => (typeof g === 'object' ? g.id : g))
           .filter(Boolean)
         if (groupIds.length) {
-          eventsTableParams.append('groups', groupIds.join(','))
+          eventsPageParams.append('groups', groupIds.join(','))
         }
       }
 
@@ -58,13 +56,13 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           .map((t) => (typeof t === 'object' ? t.id : t))
           .filter(Boolean)
         if (tagIds.length) {
-          eventsTableParams.append('tags', tagIds.join(','))
+          eventsPageParams.append('tags', tagIds.join(','))
         }
       }
-      eventsTableParams.append('startDate', format(new Date(), 'MM-dd-yyyy'))
+      eventsPageParams.append('startDate', format(new Date(), 'MM-dd-yyyy'))
       setEventsPageParams(eventsPageParams.toString())
 
-      const allParams = new URLSearchParams([...params, ...eventsTableParams])
+      const allParams = new URLSearchParams([...params, ...eventsPageParams])
 
       const response = await fetch(`/api/${tenantSlug}/events?${allParams.toString()}`, {
         cache: 'no-store',
