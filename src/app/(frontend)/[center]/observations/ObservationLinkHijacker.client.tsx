@@ -46,7 +46,8 @@ export function ObservationLinkHijacker() {
 
                 newLink.addEventListener('click', (e) => {
                   e.preventDefault()
-                  router.push(newHref)
+                  // Disable scroll to prevent the browser from scrolling to the hash fragment
+                  router.push(newHref, { scroll: false })
                 })
 
                 if (link.parentNode) {
