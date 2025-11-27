@@ -1,5 +1,6 @@
 'use client'
 
+import { useBreadcrumbs } from '@/providers/BreadcrumbProvider'
 import { useNotFound } from '@/providers/NotFoundProvider'
 import { cn } from '@/utilities/ui'
 import { useAnalytics } from '@/utilities/useAnalytics'
@@ -19,7 +20,7 @@ const knownPathsWithoutPages = [
   '/forecasts',
   '/weather',
   '/weather/stations',
-  '/observations/avalanche',
+  '/observations/avalanches',
 ]
 
 type BreadcrumbType = {
@@ -60,6 +61,7 @@ export function Breadcrumbs() {
   const segments = useSelectedLayoutSegments()
   const decodedSegments = segments.map(decodeURIComponent)
   const { isNotFound } = useNotFound()
+  const { pageLabel } = useBreadcrumbs()
   const { captureWithTenant } = useAnalytics()
 
   if (decodedSegments.length === 0 || isNotFound) return null
@@ -76,6 +78,11 @@ export function Breadcrumbs() {
       return [createBreadcrumbItem(segment, href, isLast)]
     }
   })
+
+  // Apply page label override to the last breadcrumb if provided
+  if (pageLabel && breadcrumbItems.length > 0) {
+    breadcrumbItems[breadcrumbItems.length - 1].name = pageLabel
+  }
 
   const onClick = (item: BreadcrumbType, depth: string) => {
     captureWithTenant('breadcrumb_click', {

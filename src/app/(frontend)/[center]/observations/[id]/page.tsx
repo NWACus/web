@@ -1,5 +1,6 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import { BreadcrumbSetter } from '@/components/Breadcrumbs/BreadcrumbSetter.client'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
@@ -29,6 +30,7 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <WidgetRouterHandler initialPath={`/observation/${id}`} widgetPageKey="single-observation" />
+      <BreadcrumbSetter label="Field Observation" />
       <SingleObservationPage
         title="Observation"
         center={center}

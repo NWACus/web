@@ -1,5 +1,6 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import { BreadcrumbSetter } from '@/components/Breadcrumbs/BreadcrumbSetter.client'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
@@ -18,6 +19,10 @@ type PathArgs = {
 export default async function Page({ params }: Args) {
   const { center, id } = await params
 
+  if (!id) {
+    notFound()
+  }
+
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
   if (!avalancheCenterPlatforms.obs) {
@@ -29,6 +34,7 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <WidgetRouterHandler initialPath={`/avalanche/${id}`} widgetPageKey="single-observation" />
+      <BreadcrumbSetter label="Avalanche Occurrence" />
       <SingleObservationPage
         title="Avalanche Observation"
         center={center}
