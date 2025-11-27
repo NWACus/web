@@ -721,9 +721,7 @@ export interface EventListBlock {
     /**
      * Optionally select event types to filter events.
      */
-    filterByEventTypes?:
-      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class' | 'volunteer' | 'events-by-others')[]
-      | null;
+    filterByEventTypes?: ('event' | 'awareness' | 'field-class')[] | null;
     /**
      * Optionally select event group to filter events.
      */
@@ -898,7 +896,7 @@ export interface Event {
   /**
    * Skill level required for this event
    */
-  skillRating?: ('0' | '1' | '2' | '3') | null;
+  skillLevel?: ('beginner' | 'pre-req' | 'professional') | null;
   content?: {
     root: {
       type: string;
@@ -923,7 +921,7 @@ export interface Event {
       }[]
     | null;
   slug: string;
-  type: 'events-by-ac' | 'awareness' | 'workshop' | 'field-class' | 'volunteer' | 'events-by-others';
+  type: 'event' | 'awareness' | 'field-class';
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
@@ -984,9 +982,7 @@ export interface EventTableBlock {
     /**
      * Optionally select event types to filter events.
      */
-    filterByEventTypes?:
-      | ('events-by-ac' | 'awareness' | 'workshop' | 'field-class' | 'volunteer' | 'events-by-others')[]
-      | null;
+    filterByEventTypes?: ('event' | 'awareness' | 'field-class')[] | null;
     /**
      * Optionally select event group to filter events.
      */
@@ -3400,7 +3396,7 @@ export interface EventsSelect<T extends boolean = true> {
   registrationUrl?: T;
   externalEventUrl?: T;
   registrationDeadline?: T;
-  skillRating?: T;
+  skillLevel?: T;
   content?: T;
   blocksInContent?:
     | T
