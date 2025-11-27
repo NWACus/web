@@ -53,7 +53,9 @@
   max-height: none !important;
 }
 
-#nac-obs-form-widget h1.nac-h1:first-of-type {
+#nac-obs-form-widget h1.nac-h1:first-of-type,
+#nac-single-observation-view h1.nac-h1:first-of-type,
+#nac-single-avalanche-view h1.nac-h1:first-of-type {
   display: none;
 }
 

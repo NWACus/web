@@ -36,7 +36,7 @@ export default async function Page({ params }: Args) {
       <WidgetRouterHandler initialPath={`/avalanche/${id}`} widgetPageKey="single-observation" />
       <BreadcrumbSetter label="Avalanche Occurrence" />
       <SingleObservationPage
-        title="Avalanche Observation"
+        title="Avalanche Occurrence"
         center={center}
         widgetsVersion={version}
         widgetsBaseUrl={baseUrl}
@@ -62,13 +62,13 @@ export async function generateMetadata(
   const parentOg = parentMeta.openGraph
 
   return {
-    title: `Avalanche Observation ${id} | ${parentTitle}`,
+    title: `Avalanche Occurrence | ${parentTitle}`,
     alternates: {
       canonical: `/observations/avalanches/${id}`,
     },
     openGraph: {
       ...parentOg,
-      title: `Avalanche Observation ${id} | ${parentTitle}`,
+      title: `Avalanche Occurrence | ${parentTitle}`,
       url: `/observations/avalanches/${id}`,
     },
   }
