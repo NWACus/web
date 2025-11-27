@@ -2,6 +2,11 @@
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
+/**
+ * This takes over the observation widdget's modal button that would normally open the observation in
+ * a new tab and, depending on if it is an observation or an avalanche, sets a new href and adds a click
+ * handler that uses the next.js router to navigate.
+ */
 export function ObservationLinkHijacker() {
   const router = useRouter()
 
