@@ -32,7 +32,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
 
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
-  const [eventParams, setEventParams] = useState<string>('')
+  const [eventsPageParams, setEventsPageParams] = useState<string>('')
 
   useEffect(() => {
     if (eventOptions !== 'dynamic') return
@@ -42,13 +42,13 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
       if (!tenantSlug) return
 
       const params = new URLSearchParams({
-        center: tenantSlug,
         limit: String(maxEvents || 4),
-        depth: '1',
       })
+      // params supported by the events page
+      const eventsPageParams = new URLSearchParams()
 
       if (filterByEventTypes?.length) {
-        params.append('types', filterByEventTypes.join(','))
+        eventsPageParams.append('types', filterByEventTypes.join(','))
       }
 
       if (filterByEventGroups?.length) {
@@ -56,7 +56,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
           .map((g) => (typeof g === 'object' ? g.id : g))
           .filter(Boolean)
         if (groupIds.length) {
-          params.append('groups', groupIds.join(','))
+          eventsPageParams.append('groups', groupIds.join(','))
         }
       }
 
@@ -65,13 +65,15 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
           .map((t) => (typeof t === 'object' ? t.id : t))
           .filter(Boolean)
         if (tagIds.length) {
-          params.append('tags', tagIds.join(','))
+          eventsPageParams.append('tags', tagIds.join(','))
         }
       }
-      params.append('startDate', format(new Date(), 'MM-dd-yyyy'))
-      setEventParams(params.toString())
+      eventsPageParams.append('startDate', format(new Date(), 'MM-dd-yyyy'))
+      setEventsPageParams(eventsPageParams.toString())
 
-      const response = await fetch(`/api/${tenantSlug}/events?${params.toString()}`, {
+      const allParams = new URLSearchParams([...params, ...eventsPageParams])
+
+      const response = await fetch(`/api/${tenantSlug}/events?${allParams.toString()}`, {
         cache: 'no-store',
       })
 
@@ -128,9 +130,9 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
               <h3>There are no events matching these results.</h3>
             )}
           </div>
-          {eventOptions === 'static' && (
+          {eventOptions === 'dynamic' && (
             <Button asChild className="not-prose md:self-start">
-              <Link href={`/events?${eventParams}`}>View all {heading}</Link>
+              <Link href={`/events?${eventsPageParams}`}>View all {heading}</Link>
             </Button>
           )}
         </div>

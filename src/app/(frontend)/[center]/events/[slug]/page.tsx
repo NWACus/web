@@ -103,7 +103,7 @@ export default async function Event({ params: paramsPromise }: Args) {
                 endDate={event.endDate}
                 timezone={event.timezone}
                 location={event.location}
-                skillRating={event.skillRating}
+                skillLevel={event.skillLevel}
                 showLabels={true}
                 className="columns-1 sm:columns-2"
                 itemsClassName="break-inside-avoid mb-4"
