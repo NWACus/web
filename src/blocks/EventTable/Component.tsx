@@ -22,67 +22,72 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [eventsPageParams, setEventsPageParams] = useState<string>('')
 
   useEffect(() => {
     if (eventOptions !== 'dynamic') return
 
     const fetchEvents = async () => {
-      try {
-        setError(null)
+      const tenantSlug = typeof tenant === 'object' && tenant?.slug
+      if (!tenantSlug) return
 
-        const tenantSlug = typeof tenant === 'object' && tenant?.slug
-        if (!tenantSlug) return
+      const params = new URLSearchParams({
+        limit: String(maxEvents || 4),
+      })
 
-        const params = new URLSearchParams({
-          center: tenantSlug,
-          limit: String(maxEvents || 4),
-          depth: '1',
-        })
+      // params supported by the events page
+      const eventsPageParams = new URLSearchParams()
 
-        if (filterByEventTypes?.length) {
-          params.append('types', filterByEventTypes.join(','))
-        }
-
-        if (filterByEventGroups?.length) {
-          const groupIds = filterByEventGroups
-            .map((g) => (typeof g === 'object' ? g.id : g))
-            .filter(Boolean)
-          if (groupIds.length) {
-            params.append('groups', groupIds.join(','))
-          }
-        }
-
-        if (filterByEventTags?.length) {
-          const tagIds = filterByEventTags
-            .map((t) => (typeof t === 'object' ? t.id : t))
-            .filter(Boolean)
-          if (tagIds.length) {
-            params.append('tags', tagIds.join(','))
-          }
-        }
-        params.append('startDate', format(new Date(), 'MM-dd-yyyy'))
-
-        const response = await fetch(`/api/${tenantSlug}/events?${params.toString()}`, {
-          cache: 'no-store',
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch events')
-        }
-
-        const data = await response.json()
-        setFetchedEvents(data.events || [])
-      } catch (err) {
-        console.error('[EventTable Error]:', err)
-        setError(err instanceof Error ? err.message : 'An error occurred while fetching events')
-      } finally {
-        setLoading(false)
+      if (filterByEventTypes?.length) {
+        eventsPageParams.append('types', filterByEventTypes.join(','))
       }
+
+      if (filterByEventGroups?.length) {
+        const groupIds = filterByEventGroups
+          .map((g) => (typeof g === 'object' ? g.id : g))
+          .filter(Boolean)
+        if (groupIds.length) {
+          eventsPageParams.append('groups', groupIds.join(','))
+        }
+      }
+
+      if (filterByEventTags?.length) {
+        const tagIds = filterByEventTags
+          .map((t) => (typeof t === 'object' ? t.id : t))
+          .filter(Boolean)
+        if (tagIds.length) {
+          eventsPageParams.append('tags', tagIds.join(','))
+        }
+      }
+      eventsPageParams.append('startDate', format(new Date(), 'MM-dd-yyyy'))
+      setEventsPageParams(eventsPageParams.toString())
+
+      const allParams = new URLSearchParams([...params, ...eventsPageParams])
+
+      const response = await fetch(`/api/${tenantSlug}/events?${allParams.toString()}`, {
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch events')
+      }
+
+      const data = await response.json()
+      setFetchedEvents(data.events || [])
+
+      setLoading(false)
     }
 
     fetchEvents()
-  }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
+  }, [
+    eventOptions,
+    filterByEventTypes,
+    filterByEventGroups,
+    filterByEventTags,
+    maxEvents,
+    tenant,
+    eventsPageParams,
+  ])
 
   let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
 
@@ -109,10 +114,9 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
         )}
       </div>
       <div>
-        {loading || error ? (
+        {loading ? (
           <div className="flex items-center justify-center py-8">
             {loading && <p className="text-muted-foreground">Loading events...</p>}
-            {error && <p className="text-destructive">Error loading events: {error}</p>}
           </div>
         ) : (
           <EventTable events={displayEvents} />

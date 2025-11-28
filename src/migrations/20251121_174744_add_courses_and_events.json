@@ -13715,8 +13715,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "skill_rating": {
-          "name": "skill_rating",
+        "skill_level": {
+          "name": "skill_level",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -14263,8 +14263,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "version_skill_rating": {
-          "name": "version_skill_rating",
+        "version_skill_level": {
+          "name": "version_skill_level",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -23540,6 +23540,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "f624bf14-b01e-4803-b560-72a344e8fca7",
+  "id": "9c8ffba7-5c39-46b3-a715-3cbe3114412b",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
