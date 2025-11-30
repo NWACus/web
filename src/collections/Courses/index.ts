@@ -126,7 +126,7 @@ export const Courses: CollectionConfig = {
           const startDate = new Date(data.startDate)
 
           if (registrationDeadline >= startDate) {
-            return `Registration deadline must be before start date. ${registrationDeadline} ${startDate}`
+            return 'Registration deadline must be before start date.'
           }
         }
         return true
