@@ -1,19 +1,19 @@
 import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`CREATE TABLE \`filterByEventTypes\` (
+  await db.run(sql`CREATE TABLE \`home_pages_blocks_event_list_dynamic_opts_by_types\` (
   	\`order\` integer NOT NULL,
   	\`parent_id\` text NOT NULL,
   	\`value\` text,
   	\`id\` integer PRIMARY KEY NOT NULL,
-  	FOREIGN KEY (\`parent_id\`) REFERENCES \`pages_blocks_event_table\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`home_pages_blocks_event_list\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`filterByEventTypes_order_idx\` ON \`filterByEventTypes\` (\`order\`);`,
+    sql`CREATE INDEX \`home_pages_blocks_event_list_dynamic_opts_by_types_order_idx\` ON \`home_pages_blocks_event_list_dynamic_opts_by_types\` (\`order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`filterByEventTypes_parent_idx\` ON \`filterByEventTypes\` (\`parent_id\`);`,
+    sql`CREATE INDEX \`home_pages_blocks_event_list_dynamic_opts_by_types_parent_idx\` ON \`home_pages_blocks_event_list_dynamic_opts_by_types\` (\`parent_id\`);`,
   )
   await db.run(sql`CREATE TABLE \`home_pages_blocks_event_list\` (
   	\`_order\` integer NOT NULL,
@@ -24,7 +24,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`home_pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -62,6 +62,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`home_pages_blocks_single_event_event_idx\` ON \`home_pages_blocks_single_event\` (\`event_id\`);`,
   )
+  await db.run(sql`CREATE TABLE \`home_pages_blocks_event_table_dynamic_opts_by_types\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` text NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`home_pages_blocks_event_table\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`home_pages_blocks_event_table_dynamic_opts_by_types_order_idx\` ON \`home_pages_blocks_event_table_dynamic_opts_by_types\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`home_pages_blocks_event_table_dynamic_opts_by_types_parent_idx\` ON \`home_pages_blocks_event_table_dynamic_opts_by_types\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`home_pages_blocks_event_table\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -70,7 +84,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`home_pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -84,19 +98,19 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`home_pages_blocks_event_table_path_idx\` ON \`home_pages_blocks_event_table\` (\`_path\`);`,
   )
-  await db.run(sql`CREATE TABLE \`_filterByEventTypes_v\` (
+  await db.run(sql`CREATE TABLE \`_home_pages_v_blocks_event_list_dynamic_opts_by_types\` (
   	\`order\` integer NOT NULL,
   	\`parent_id\` integer NOT NULL,
   	\`value\` text,
   	\`id\` integer PRIMARY KEY NOT NULL,
-  	FOREIGN KEY (\`parent_id\`) REFERENCES \`_pages_v_blocks_event_table\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`_home_pages_v_blocks_event_list\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`_filterByEventTypes_v_order_idx\` ON \`_filterByEventTypes_v\` (\`order\`);`,
+    sql`CREATE INDEX \`_home_pages_v_blocks_event_list_dynamic_opts_by_types_order_idx\` ON \`_home_pages_v_blocks_event_list_dynamic_opts_by_types\` (\`order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`_filterByEventTypes_v_parent_idx\` ON \`_filterByEventTypes_v\` (\`parent_id\`);`,
+    sql`CREATE INDEX \`_home_pages_v_blocks_event_list_dynamic_opts_by_types_parent_idx\` ON \`_home_pages_v_blocks_event_list_dynamic_opts_by_types\` (\`parent_id\`);`,
   )
   await db.run(sql`CREATE TABLE \`_home_pages_v_blocks_event_list\` (
   	\`_order\` integer NOT NULL,
@@ -107,7 +121,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`_uuid\` text,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_home_pages_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
@@ -147,6 +161,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`_home_pages_v_blocks_single_event_event_idx\` ON \`_home_pages_v_blocks_single_event\` (\`event_id\`);`,
   )
+  await db.run(sql`CREATE TABLE \`_home_pages_v_blocks_event_table_dynamic_opts_by_types\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` integer NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`_home_pages_v_blocks_event_table\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`_home_pages_v_blocks_event_table_dynamic_opts_by_types_order_idx\` ON \`_home_pages_v_blocks_event_table_dynamic_opts_by_types\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`_home_pages_v_blocks_event_table_dynamic_opts_by_types_parent_idx\` ON \`_home_pages_v_blocks_event_table_dynamic_opts_by_types\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`_home_pages_v_blocks_event_table\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -155,7 +183,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`_uuid\` text,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_home_pages_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
@@ -170,6 +198,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`_home_pages_v_blocks_event_table_path_idx\` ON \`_home_pages_v_blocks_event_table\` (\`_path\`);`,
   )
+  await db.run(sql`CREATE TABLE \`pages_blocks_event_list_dynamic_opts_by_types\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` text NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`pages_blocks_event_list\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`pages_blocks_event_list_dynamic_opts_by_types_order_idx\` ON \`pages_blocks_event_list_dynamic_opts_by_types\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`pages_blocks_event_list_dynamic_opts_by_types_parent_idx\` ON \`pages_blocks_event_list_dynamic_opts_by_types\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`pages_blocks_event_list\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -179,7 +221,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -193,6 +235,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`pages_blocks_event_list_path_idx\` ON \`pages_blocks_event_list\` (\`_path\`);`,
   )
+  await db.run(sql`CREATE TABLE \`pages_blocks_event_table_dynamic_opts_by_types\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` text NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`pages_blocks_event_table\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`pages_blocks_event_table_dynamic_opts_by_types_order_idx\` ON \`pages_blocks_event_table_dynamic_opts_by_types\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`pages_blocks_event_table_dynamic_opts_by_types_parent_idx\` ON \`pages_blocks_event_table_dynamic_opts_by_types\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`pages_blocks_event_table\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -201,7 +257,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -239,6 +295,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`pages_blocks_single_event_event_idx\` ON \`pages_blocks_single_event\` (\`event_id\`);`,
   )
+  await db.run(sql`CREATE TABLE \`_pages_v_blocks_event_list_dynamic_opts_by_types\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` integer NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`_pages_v_blocks_event_list\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`_pages_v_blocks_event_list_dynamic_opts_by_types_order_idx\` ON \`_pages_v_blocks_event_list_dynamic_opts_by_types\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`_pages_v_blocks_event_list_dynamic_opts_by_types_parent_idx\` ON \`_pages_v_blocks_event_list_dynamic_opts_by_types\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`_pages_v_blocks_event_list\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -248,7 +318,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`_uuid\` text,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_pages_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
@@ -263,6 +333,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`_pages_v_blocks_event_list_path_idx\` ON \`_pages_v_blocks_event_list\` (\`_path\`);`,
   )
+  await db.run(sql`CREATE TABLE \`_pages_v_blocks_event_table_dynamic_opts_by_types\` (
+  	\`order\` integer NOT NULL,
+  	\`parent_id\` integer NOT NULL,
+  	\`value\` text,
+  	\`id\` integer PRIMARY KEY NOT NULL,
+  	FOREIGN KEY (\`parent_id\`) REFERENCES \`_pages_v_blocks_event_table\`(\`id\`) ON UPDATE no action ON DELETE cascade
+  );
+  `)
+  await db.run(
+    sql`CREATE INDEX \`_pages_v_blocks_event_table_dynamic_opts_by_types_order_idx\` ON \`_pages_v_blocks_event_table_dynamic_opts_by_types\` (\`order\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`_pages_v_blocks_event_table_dynamic_opts_by_types_parent_idx\` ON \`_pages_v_blocks_event_table_dynamic_opts_by_types\` (\`parent_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`_pages_v_blocks_event_table\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -271,7 +355,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`heading\` text,
   	\`below_heading_content\` text,
   	\`event_options\` text DEFAULT 'dynamic',
-  	\`dynamic_options_max_events\` numeric DEFAULT 4,
+  	\`dynamic_opts_max_events\` numeric DEFAULT 4,
   	\`_uuid\` text,
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_pages_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
@@ -364,7 +448,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`registration_url\` text,
   	\`external_event_url\` text,
   	\`registration_deadline\` text,
-  	\`skill_rating\` text,
+  	\`skill_level\` text,
   	\`content\` text,
   	\`slug\` text,
   	\`type\` text,
@@ -465,7 +549,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`version_registration_url\` text,
   	\`version_external_event_url\` text,
   	\`version_registration_deadline\` text,
-  	\`version_skill_rating\` text,
+  	\`version_skill_level\` text,
   	\`version_content\` text,
   	\`version_slug\` text,
   	\`version_type\` text,
@@ -963,18 +1047,24 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.run(sql`DROP TABLE \`filterByEventTypes\`;`)
+  await db.run(sql`DROP TABLE \`home_pages_blocks_event_list_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`home_pages_blocks_event_list\`;`)
   await db.run(sql`DROP TABLE \`home_pages_blocks_single_event\`;`)
+  await db.run(sql`DROP TABLE \`home_pages_blocks_event_table_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`home_pages_blocks_event_table\`;`)
-  await db.run(sql`DROP TABLE \`_filterByEventTypes_v\`;`)
+  await db.run(sql`DROP TABLE \`_home_pages_v_blocks_event_list_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`_home_pages_v_blocks_event_list\`;`)
   await db.run(sql`DROP TABLE \`_home_pages_v_blocks_single_event\`;`)
+  await db.run(sql`DROP TABLE \`_home_pages_v_blocks_event_table_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`_home_pages_v_blocks_event_table\`;`)
+  await db.run(sql`DROP TABLE \`pages_blocks_event_list_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`pages_blocks_event_list\`;`)
+  await db.run(sql`DROP TABLE \`pages_blocks_event_table_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`pages_blocks_event_table\`;`)
   await db.run(sql`DROP TABLE \`pages_blocks_single_event\`;`)
+  await db.run(sql`DROP TABLE \`_pages_v_blocks_event_list_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`_pages_v_blocks_event_list\`;`)
+  await db.run(sql`DROP TABLE \`_pages_v_blocks_event_table_dynamic_opts_by_types\`;`)
   await db.run(sql`DROP TABLE \`_pages_v_blocks_event_table\`;`)
   await db.run(sql`DROP TABLE \`_pages_v_blocks_single_event\`;`)
   await db.run(sql`DROP TABLE \`events_blocks_in_content\`;`)

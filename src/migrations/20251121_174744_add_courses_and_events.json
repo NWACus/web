@@ -714,8 +714,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "filterByEventTypes": {
-      "name": "filterByEventTypes",
+    "home_pages_blocks_event_list_dynamic_opts_by_types": {
+      "name": "home_pages_blocks_event_list_dynamic_opts_by_types",
       "columns": {
         "order": {
           "name": "order",
@@ -747,22 +747,22 @@
         }
       },
       "indexes": {
-        "filterByEventTypes_order_idx": {
-          "name": "filterByEventTypes_order_idx",
+        "home_pages_blocks_event_list_dynamic_opts_by_types_order_idx": {
+          "name": "home_pages_blocks_event_list_dynamic_opts_by_types_order_idx",
           "columns": ["order"],
           "isUnique": false
         },
-        "filterByEventTypes_parent_idx": {
-          "name": "filterByEventTypes_parent_idx",
+        "home_pages_blocks_event_list_dynamic_opts_by_types_parent_idx": {
+          "name": "home_pages_blocks_event_list_dynamic_opts_by_types_parent_idx",
           "columns": ["parent_id"],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "filterByEventTypes_parent_fk": {
-          "name": "filterByEventTypes_parent_fk",
-          "tableFrom": "filterByEventTypes",
-          "tableTo": "pages_blocks_event_table",
+        "home_pages_blocks_event_list_dynamic_opts_by_types_parent_fk": {
+          "name": "home_pages_blocks_event_list_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "home_pages_blocks_event_list_dynamic_opts_by_types",
+          "tableTo": "home_pages_blocks_event_list",
           "columnsFrom": ["parent_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -834,8 +834,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -982,6 +982,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "home_pages_blocks_event_table_dynamic_opts_by_types": {
+      "name": "home_pages_blocks_event_table_dynamic_opts_by_types",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "home_pages_blocks_event_table_dynamic_opts_by_types_order_idx": {
+          "name": "home_pages_blocks_event_table_dynamic_opts_by_types_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "home_pages_blocks_event_table_dynamic_opts_by_types_parent_idx": {
+          "name": "home_pages_blocks_event_table_dynamic_opts_by_types_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "home_pages_blocks_event_table_dynamic_opts_by_types_parent_fk": {
+          "name": "home_pages_blocks_event_table_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "home_pages_blocks_event_table_dynamic_opts_by_types",
+          "tableTo": "home_pages_blocks_event_table",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "home_pages_blocks_event_table": {
       "name": "home_pages_blocks_event_table",
       "columns": {
@@ -1035,8 +1094,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -3662,8 +3721,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "_filterByEventTypes_v": {
-      "name": "_filterByEventTypes_v",
+    "_home_pages_v_blocks_event_list_dynamic_opts_by_types": {
+      "name": "_home_pages_v_blocks_event_list_dynamic_opts_by_types",
       "columns": {
         "order": {
           "name": "order",
@@ -3695,22 +3754,22 @@
         }
       },
       "indexes": {
-        "_filterByEventTypes_v_order_idx": {
-          "name": "_filterByEventTypes_v_order_idx",
+        "_home_pages_v_blocks_event_list_dynamic_opts_by_types_order_idx": {
+          "name": "_home_pages_v_blocks_event_list_dynamic_opts_by_types_order_idx",
           "columns": ["order"],
           "isUnique": false
         },
-        "_filterByEventTypes_v_parent_idx": {
-          "name": "_filterByEventTypes_v_parent_idx",
+        "_home_pages_v_blocks_event_list_dynamic_opts_by_types_parent_idx": {
+          "name": "_home_pages_v_blocks_event_list_dynamic_opts_by_types_parent_idx",
           "columns": ["parent_id"],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "_filterByEventTypes_v_parent_fk": {
-          "name": "_filterByEventTypes_v_parent_fk",
-          "tableFrom": "_filterByEventTypes_v",
-          "tableTo": "_pages_v_blocks_event_table",
+        "_home_pages_v_blocks_event_list_dynamic_opts_by_types_parent_fk": {
+          "name": "_home_pages_v_blocks_event_list_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "_home_pages_v_blocks_event_list_dynamic_opts_by_types",
+          "tableTo": "_home_pages_v_blocks_event_list",
           "columnsFrom": ["parent_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -3782,8 +3841,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -3944,6 +4003,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "_home_pages_v_blocks_event_table_dynamic_opts_by_types": {
+      "name": "_home_pages_v_blocks_event_table_dynamic_opts_by_types",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_home_pages_v_blocks_event_table_dynamic_opts_by_types_order_idx": {
+          "name": "_home_pages_v_blocks_event_table_dynamic_opts_by_types_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "_home_pages_v_blocks_event_table_dynamic_opts_by_types_parent_idx": {
+          "name": "_home_pages_v_blocks_event_table_dynamic_opts_by_types_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_home_pages_v_blocks_event_table_dynamic_opts_by_types_parent_fk": {
+          "name": "_home_pages_v_blocks_event_table_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "_home_pages_v_blocks_event_table_dynamic_opts_by_types",
+          "tableTo": "_home_pages_v_blocks_event_table",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "_home_pages_v_blocks_event_table": {
       "name": "_home_pages_v_blocks_event_table",
       "columns": {
@@ -3997,8 +4115,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -6696,6 +6814,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "pages_blocks_event_list_dynamic_opts_by_types": {
+      "name": "pages_blocks_event_list_dynamic_opts_by_types",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "pages_blocks_event_list_dynamic_opts_by_types_order_idx": {
+          "name": "pages_blocks_event_list_dynamic_opts_by_types_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "pages_blocks_event_list_dynamic_opts_by_types_parent_idx": {
+          "name": "pages_blocks_event_list_dynamic_opts_by_types_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "pages_blocks_event_list_dynamic_opts_by_types_parent_fk": {
+          "name": "pages_blocks_event_list_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "pages_blocks_event_list_dynamic_opts_by_types",
+          "tableTo": "pages_blocks_event_list",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "pages_blocks_event_list": {
       "name": "pages_blocks_event_list",
       "columns": {
@@ -6757,8 +6934,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -6796,6 +6973,65 @@
           "tableFrom": "pages_blocks_event_list",
           "tableTo": "pages",
           "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "pages_blocks_event_table_dynamic_opts_by_types": {
+      "name": "pages_blocks_event_table_dynamic_opts_by_types",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "pages_blocks_event_table_dynamic_opts_by_types_order_idx": {
+          "name": "pages_blocks_event_table_dynamic_opts_by_types_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "pages_blocks_event_table_dynamic_opts_by_types_parent_idx": {
+          "name": "pages_blocks_event_table_dynamic_opts_by_types_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "pages_blocks_event_table_dynamic_opts_by_types_parent_fk": {
+          "name": "pages_blocks_event_table_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "pages_blocks_event_table_dynamic_opts_by_types",
+          "tableTo": "pages_blocks_event_table",
+          "columnsFrom": ["parent_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -6858,8 +7094,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -9382,6 +9618,65 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "_pages_v_blocks_event_list_dynamic_opts_by_types": {
+      "name": "_pages_v_blocks_event_list_dynamic_opts_by_types",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_pages_v_blocks_event_list_dynamic_opts_by_types_order_idx": {
+          "name": "_pages_v_blocks_event_list_dynamic_opts_by_types_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "_pages_v_blocks_event_list_dynamic_opts_by_types_parent_idx": {
+          "name": "_pages_v_blocks_event_list_dynamic_opts_by_types_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_pages_v_blocks_event_list_dynamic_opts_by_types_parent_fk": {
+          "name": "_pages_v_blocks_event_list_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "_pages_v_blocks_event_list_dynamic_opts_by_types",
+          "tableTo": "_pages_v_blocks_event_list",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "_pages_v_blocks_event_list": {
       "name": "_pages_v_blocks_event_list",
       "columns": {
@@ -9443,8 +9738,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -9489,6 +9784,65 @@
           "tableFrom": "_pages_v_blocks_event_list",
           "tableTo": "_pages_v",
           "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "_pages_v_blocks_event_table_dynamic_opts_by_types": {
+      "name": "_pages_v_blocks_event_table_dynamic_opts_by_types",
+      "columns": {
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_pages_v_blocks_event_table_dynamic_opts_by_types_order_idx": {
+          "name": "_pages_v_blocks_event_table_dynamic_opts_by_types_order_idx",
+          "columns": ["order"],
+          "isUnique": false
+        },
+        "_pages_v_blocks_event_table_dynamic_opts_by_types_parent_idx": {
+          "name": "_pages_v_blocks_event_table_dynamic_opts_by_types_parent_idx",
+          "columns": ["parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_pages_v_blocks_event_table_dynamic_opts_by_types_parent_fk": {
+          "name": "_pages_v_blocks_event_table_dynamic_opts_by_types_parent_fk",
+          "tableFrom": "_pages_v_blocks_event_table_dynamic_opts_by_types",
+          "tableTo": "_pages_v_blocks_event_table",
+          "columnsFrom": ["parent_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -9551,8 +9905,8 @@
           "autoincrement": false,
           "default": "'dynamic'"
         },
-        "dynamic_options_max_events": {
-          "name": "dynamic_options_max_events",
+        "dynamic_opts_max_events": {
+          "name": "dynamic_opts_max_events",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false,
@@ -13715,8 +14069,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "skill_rating": {
-          "name": "skill_rating",
+        "skill_level": {
+          "name": "skill_level",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -14263,8 +14617,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "version_skill_rating": {
-          "name": "version_skill_rating",
+        "version_skill_level": {
+          "name": "version_skill_level",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -23540,6 +23894,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "f624bf14-b01e-4803-b560-72a344e8fca7",
+  "id": "b45b232f-95c7-45e3-90f1-7fd0bdabee71",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
