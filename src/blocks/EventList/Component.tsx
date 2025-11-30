@@ -31,7 +31,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
 
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
-  const [eventsPageParams, setEventsPageParams] = useState<string>('')
+  const [eventsPageParamsString, setEventsPageParamsString] = useState<string>('')
 
   useEffect(() => {
     if (eventOptions !== 'dynamic') return
@@ -64,7 +64,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
         }
       }
       eventsPageParams.append('startDate', format(new Date(), 'MM-dd-yyyy'))
-      setEventsPageParams(eventsPageParams.toString())
+      setEventsPageParamsString(eventsPageParams.toString())
 
       const allParams = new URLSearchParams([...params, ...eventsPageParams])
 
@@ -127,7 +127,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
           </div>
           {eventOptions === 'dynamic' && (
             <Button asChild className="not-prose md:self-start">
-              <Link href={`/events?${eventsPageParams}`}>View all {heading}</Link>
+              <Link href={`/events?${eventsPageParamsString}`}>View all {heading}</Link>
             </Button>
           )}
         </div>
