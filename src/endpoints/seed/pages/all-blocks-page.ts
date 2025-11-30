@@ -62,14 +62,14 @@ export const allBlocksPage: (
       {
         ...eventListBlock,
         eventOptions: 'dynamic',
-        dynamicOptions: {
+        dynamicOpts: {
           maxEvents: 4,
         },
       },
       {
         ...eventListBlock,
         eventOptions: 'static',
-        staticOptions: {
+        staticOpts: {
           staticEvents: events.slice(0, 3).map((event) => event.id), // Use first 3 events
         },
       },
@@ -86,10 +86,10 @@ export const allBlocksPage: (
         blockName: '',
         eventOptions: 'dynamic',
 
-        dynamicOptions: {
+        dynamicOpts: {
           maxEvents: 6,
         },
-        staticOptions: {
+        staticOpts: {
           staticEvents: [],
         },
         blockType: 'eventTable',

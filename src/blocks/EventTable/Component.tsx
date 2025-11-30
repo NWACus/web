@@ -15,9 +15,8 @@ type EventTableComponentProps = EventTableBlockProps & {
 
 export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   const { heading, belowHeadingContent, className, eventOptions } = args
-  const { filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents } =
-    args.dynamicOptions || {}
-  const { staticEvents } = args.staticOptions || {}
+  const { byTypes, byGroups, byTags, maxEvents } = args.dynamicOpts || {}
+  const { staticEvents } = args.staticOpts || {}
 
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
@@ -40,23 +39,19 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           depth: '1',
         })
 
-        if (filterByEventTypes?.length) {
-          params.append('types', filterByEventTypes.join(','))
+        if (byTypes?.length) {
+          params.append('types', byTypes.join(','))
         }
 
-        if (filterByEventGroups?.length) {
-          const groupIds = filterByEventGroups
-            .map((g) => (typeof g === 'object' ? g.id : g))
-            .filter(Boolean)
+        if (byGroups?.length) {
+          const groupIds = byGroups.map((g) => (typeof g === 'object' ? g.id : g)).filter(Boolean)
           if (groupIds.length) {
             params.append('groups', groupIds.join(','))
           }
         }
 
-        if (filterByEventTags?.length) {
-          const tagIds = filterByEventTags
-            .map((t) => (typeof t === 'object' ? t.id : t))
-            .filter(Boolean)
+        if (byTags?.length) {
+          const tagIds = byTags.map((t) => (typeof t === 'object' ? t.id : t)).filter(Boolean)
           if (tagIds.length) {
             params.append('tags', tagIds.join(','))
           }
@@ -82,7 +77,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     }
 
     fetchEvents()
-  }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
+  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant])
 
   let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
 

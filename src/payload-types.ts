@@ -717,25 +717,25 @@ export interface EventListBlock {
   /**
    * Use Preview ↗ to see how events will appear
    */
-  dynamicOptions?: {
+  dynamicOpts?: {
     /**
      * Optionally select event types to filter events.
      */
-    filterByEventTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
     /**
      * Optionally select event group to filter events.
      */
-    filterByEventGroups?: (number | EventGroup)[] | null;
+    byGroups?: (number | EventGroup)[] | null;
     /**
      * Optionally select event tags to filter events.
      */
-    filterByEventTags?: (number | EventTag)[] | null;
+    byTags?: (number | EventTag)[] | null;
     /**
      * Maximum number of events that will be displayed. Must be an integer.
      */
     maxEvents?: number | null;
   };
-  staticOptions?: {
+  staticOpts?: {
     /**
      * Choose new event from dropdown and/or drag and drop to change order
      */
@@ -978,25 +978,25 @@ export interface EventTableBlock {
   /**
    * Use Preview ↗ to see how events will appear
    */
-  dynamicOptions?: {
+  dynamicOpts?: {
     /**
      * Optionally select event types to filter events.
      */
-    filterByEventTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
     /**
      * Optionally select event group to filter events.
      */
-    filterByEventGroups?: (number | EventGroup)[] | null;
+    byGroups?: (number | EventGroup)[] | null;
     /**
      * Optionally select event tags to filter events.
      */
-    filterByEventTags?: (number | EventTag)[] | null;
+    byTags?: (number | EventTag)[] | null;
     /**
      * Maximum number of events that will be displayed. Must be an integer.
      */
     maxEvents?: number | null;
   };
-  staticOptions?: {
+  staticOpts?: {
     /**
      * Choose new event from dropdown and/or drag and drop to change order
      */
@@ -2921,15 +2921,15 @@ export interface EventListBlockSelect<T extends boolean = true> {
   heading?: T;
   belowHeadingContent?: T;
   eventOptions?: T;
-  dynamicOptions?:
+  dynamicOpts?:
     | T
     | {
-        filterByEventTypes?: T;
-        filterByEventGroups?: T;
-        filterByEventTags?: T;
+        byTypes?: T;
+        byGroups?: T;
+        byTags?: T;
         maxEvents?: T;
       };
-  staticOptions?:
+  staticOpts?:
     | T
     | {
         staticEvents?: T;
@@ -2955,15 +2955,15 @@ export interface EventTableBlockSelect<T extends boolean = true> {
   heading?: T;
   belowHeadingContent?: T;
   eventOptions?: T;
-  dynamicOptions?:
+  dynamicOpts?:
     | T
     | {
-        filterByEventTypes?: T;
-        filterByEventGroups?: T;
-        filterByEventTags?: T;
+        byTypes?: T;
+        byGroups?: T;
+        byTags?: T;
         maxEvents?: T;
       };
-  staticOptions?:
+  staticOpts?:
     | T
     | {
         staticEvents?: T;

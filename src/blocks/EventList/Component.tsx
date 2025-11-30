@@ -26,9 +26,8 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
     eventOptions,
   } = args
 
-  const { filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents } =
-    args.dynamicOptions || {}
-  const { staticEvents } = args.staticOptions || {}
+  const { byTypes, byGroups, byTags, maxEvents } = args.dynamicOpts || {}
+  const { staticEvents } = args.staticOpts || {}
 
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
@@ -47,23 +46,19 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
       // params supported by the events page
       const eventsPageParams = new URLSearchParams()
 
-      if (filterByEventTypes?.length) {
-        eventsPageParams.append('types', filterByEventTypes.join(','))
+      if (byTypes?.length) {
+        eventsPageParams.append('types', byTypes.join(','))
       }
 
-      if (filterByEventGroups?.length) {
-        const groupIds = filterByEventGroups
-          .map((g) => (typeof g === 'object' ? g.id : g))
-          .filter(Boolean)
+      if (byGroups?.length) {
+        const groupIds = byGroups.map((g) => (typeof g === 'object' ? g.id : g)).filter(Boolean)
         if (groupIds.length) {
           eventsPageParams.append('groups', groupIds.join(','))
         }
       }
 
-      if (filterByEventTags?.length) {
-        const tagIds = filterByEventTags
-          .map((t) => (typeof t === 'object' ? t.id : t))
-          .filter(Boolean)
+      if (byTags?.length) {
+        const tagIds = byTags.map((t) => (typeof t === 'object' ? t.id : t)).filter(Boolean)
         if (tagIds.length) {
           eventsPageParams.append('tags', tagIds.join(','))
         }
@@ -86,7 +81,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
     }
 
     fetchEvents()
-  }, [eventOptions, filterByEventTypes, filterByEventGroups, filterByEventTags, maxEvents, tenant])
+  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant])
 
   let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
 
