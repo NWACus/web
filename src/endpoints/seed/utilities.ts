@@ -93,8 +93,9 @@ export async function getSeedImageByFilename(filename: string, logger: Logger) {
 
 export const pastDate = (monthOffset: number, day: number, hour: number = 18) => {
   const date = new Date()
-  date.setMonth(date.getMonth() - monthOffset)
-  date.setDate(day)
+  const newMonth = date.getMonth() - monthOffset
+  const newYear = date.getFullYear() + Math.floor(newMonth / 12)
+  date.setFullYear(newYear, ((newMonth % 12) + 12) % 12, day)
   date.setHours(hour, 0, 0, 0)
   return date.toISOString()
 }
@@ -102,8 +103,9 @@ export const pastDate = (monthOffset: number, day: number, hour: number = 18) =>
 // Helper to create dates in the future
 export const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
   const date = new Date()
-  date.setMonth(date.getMonth() + monthOffset)
-  date.setDate(day)
+  const newMonth = date.getMonth() + monthOffset
+  const newYear = date.getFullYear() + Math.floor(newMonth / 12)
+  date.setFullYear(newYear, newMonth % 12, day)
   date.setHours(hour, 0, 0, 0)
   return date.toISOString()
 }
