@@ -16,7 +16,7 @@ export function WidgetRouterHandler({
   widgetPageKey,
 }: {
   initialPath: string
-  widgetPageKey?: WidgetPageWithRouterKey
+  widgetPageKey: WidgetPageWithRouterKey
 }) {
   const observedHash = useHash()
 
