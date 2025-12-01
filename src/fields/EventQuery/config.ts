@@ -83,6 +83,7 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
       {
         name: 'byGroups',
         type: 'relationship',
+        label: 'Filter by Event Group(s)',
         relationTo: 'eventGroups',
         hasMany: true,
         admin: {
@@ -94,6 +95,7 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
       {
         name: 'byTags',
         type: 'relationship',
+        label: 'Filter by Event Tag(s)',
         relationTo: 'eventTags',
         hasMany: true,
         admin: {
