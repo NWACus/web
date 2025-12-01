@@ -43,6 +43,7 @@ export function ObservationLinkHijacker() {
 
               if (newLink instanceof HTMLAnchorElement) {
                 newLink.setAttribute('href', newHref)
+                newLink.removeAttribute('target')
 
                 newLink.addEventListener('click', (e) => {
                   e.preventDefault()
