@@ -98,19 +98,6 @@ const dynamicPostRelatedFields: Field[] = [
         },
         validate: validateMaxPosts,
       },
-      {
-        name: 'queriedPosts',
-        type: 'relationship',
-        label: 'Preview Posts Order',
-        relationTo: 'posts',
-        hasMany: true,
-        admin: {
-          readOnly: true,
-          components: {
-            Field: '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent',
-          },
-        },
-      },
     ],
   },
 ]

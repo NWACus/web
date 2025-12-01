@@ -521,7 +521,6 @@ export interface BlogListBlock {
      * Maximum number of posts that will be displayed. Must be an integer.
      */
     maxPosts?: number | null;
-    queriedPosts?: (number | Post)[] | null;
   };
   staticOptions?: {
     /**
@@ -2836,7 +2835,6 @@ export interface BlogListBlockSelect<T extends boolean = true> {
         sortBy?: T;
         filterByTags?: T;
         maxPosts?: T;
-        queriedPosts?: T;
       };
   staticOptions?:
     | T

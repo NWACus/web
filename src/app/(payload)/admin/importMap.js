@@ -1,4 +1,3 @@
-import { QueriedPostsComponent as QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e } from '@/blocks/BlogList/fields/QueriedPostsComponent'
 import { DefaultColumnAdder as DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01 } from '@/blocks/Content/components/DefaultColumnAdder'
 import { SponsorsLayoutDescription as SponsorsLayoutDescription_6f00823041b5b0999b9929fb565110de } from '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription'
 import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
@@ -98,8 +97,6 @@ export const importMap = {
     OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#UnorderedListFeatureClient':
     UnorderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent':
-    QueriedPostsComponent_a2ad38d8499118f1bebc7752c0fff51e,
   '@/components/ColumnLayoutPicker#default': default_923dc5ccc0b72de4298251644cbfe39e,
   '@/blocks/Content/components/DefaultColumnAdder#DefaultColumnAdder':
     DefaultColumnAdder_006f8c6c8800e6fe3753b3785f2c4a01,
