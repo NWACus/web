@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
+import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
@@ -47,8 +48,11 @@ export default async function Page({ params }: Args) {
     <>
       <WidgetRouterHandler initialPath="/form" widgetPageKey="submit-observation" />
       <div className="container flex flex-col gap-8">
-        <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">Submit Observation</h1>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
+            <h1 className="font-bold">Submit Observation</h1>
+          </div>
+          <ObservationsDisclaimer />
         </div>
         <NACWidget
           center={center}
