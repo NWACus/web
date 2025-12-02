@@ -1,6 +1,5 @@
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { Field, GroupField } from 'payload'
-import { coordinatesWithMap } from './coordinatesWithMap'
 import { stateOptions } from './states'
 
 export const coreLocationFields: Field[] = [
@@ -54,9 +53,6 @@ export const coreLocationFields: Field[] = [
       readOnly: true,
     },
   },
-  ...coordinatesWithMap({
-    condition: (_data, siblingData) => !siblingData?.isVirtual,
-  }),
 ]
 
 export const locationField = (): GroupField => ({
