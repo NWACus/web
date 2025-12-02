@@ -34,10 +34,10 @@ export const eventListBlock: EventListBlock = {
     },
   },
   eventOptions: 'dynamic',
-  dynamicOptions: {
+  dynamicOpts: {
     maxEvents: 4,
   },
-  staticOptions: {
+  staticOpts: {
     staticEvents: [], // Will be populated with actual event references during seeding
   },
 }

@@ -226,6 +226,6 @@ export const migrations = [
   {
     up: migration_20251121_174744_add_courses_and_events.up,
     down: migration_20251121_174744_add_courses_and_events.down,
-    name: '20251127_001846_add_courses_and_events',
+    name: '20251121_174744_add_courses_and_events',
   },
 ]

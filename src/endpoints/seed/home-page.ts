@@ -158,7 +158,7 @@ export const homePage: (
         heading: 'Upcoming Events',
         backgroundColor: 'transparent',
         eventOptions: 'dynamic',
-        dynamicOptions: {
+        dynamicOpts: {
           maxEvents: 4,
         },
       },

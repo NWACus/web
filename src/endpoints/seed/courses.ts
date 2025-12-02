@@ -1,6 +1,7 @@
 import { Media, Provider } from '@/payload-types'
 import { US_TIMEZONES } from '@/utilities/timezones'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
+import { futureDate } from './utilities'
 
 export const getCoursesData = (
   featuredImage?: Media,
@@ -11,15 +12,6 @@ export const getCoursesData = (
     'Pro Avalanche Training'?: Provider
   },
 ): RequiredDataFromCollectionSlug<'courses'>[] => {
-  // Helper to create dates in the future
-  const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
-    const date = new Date()
-    date.setMonth(date.getMonth() + monthOffset)
-    date.setDate(day)
-    date.setHours(hour, 0, 0, 0)
-    return date.toISOString()
-  }
-
   return [
     // AIARE Rec 1 - Mountain Education Center
     {

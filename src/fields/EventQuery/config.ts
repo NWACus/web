@@ -39,16 +39,16 @@ export const defaultStylingFields = (additionalFilters?: Field[]): Field[] => [
   {
     type: 'radio',
     name: 'eventOptions',
-    label: 'How do you want to choose your events?',
+    label: 'How do you want to select your events?',
     defaultValue: 'dynamic',
     required: true,
     options: [
       {
-        label: 'Do it for me',
+        label: 'Use filters',
         value: 'dynamic',
       },
       {
-        label: 'Let me choose',
+        label: 'Manually',
         value: 'static',
       },
     ],
@@ -57,8 +57,9 @@ export const defaultStylingFields = (additionalFilters?: Field[]): Field[] => [
 
 export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] => [
   {
-    name: 'dynamicOptions',
+    name: 'dynamicOpts',
     type: 'group',
+    label: 'Filter options',
     admin: {
       condition: (_, siblingData) => siblingData?.eventOptions === 'dynamic',
       description: 'Use Preview ↗ to see how events will appear',
@@ -66,9 +67,8 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
     fields: [
       ...(additionalFilters ?? []),
       {
-        name: 'filterByEventTypes',
+        name: 'byTypes',
         type: 'select',
-        dbName: 'filterByEventTypes',
         options: eventTypesData.map((type, index) => ({
           key: `${type.value}-${index}`,
           label: type.label,
@@ -81,8 +81,9 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
         },
       },
       {
-        name: 'filterByEventGroups',
+        name: 'byGroups',
         type: 'relationship',
+        label: 'Filter by Event Group(s)',
         relationTo: 'eventGroups',
         hasMany: true,
         admin: {
@@ -92,8 +93,9 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
         filterOptions: getTenantFilter,
       },
       {
-        name: 'filterByEventTags',
+        name: 'byTags',
         type: 'relationship',
+        label: 'Filter by Event Tag(s)',
         relationTo: 'eventTags',
         hasMany: true,
         admin: {
@@ -123,8 +125,9 @@ export const dynamicEventRelatedFields = (additionalFilters?: Field[]): Field[] 
 
 export const staticEventRelatedFields: Field[] = [
   {
-    name: 'staticOptions',
+    name: 'staticOpts',
     type: 'group',
+    label: 'Select events',
     admin: {
       condition: (_, siblingData) => siblingData?.eventOptions === 'static',
     },
