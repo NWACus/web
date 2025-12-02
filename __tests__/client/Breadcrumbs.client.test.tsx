@@ -1,4 +1,6 @@
+import { BreadcrumbSetter } from '@/components/Breadcrumbs/BreadcrumbSetter.client'
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
+import { BreadcrumbProvider } from '@/providers/BreadcrumbProvider'
 import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
@@ -22,9 +24,11 @@ describe('Breadcrumbs', () => {
   it('does not render breadcrumbs on the root route', () => {
     mockUseSelectedLayoutSegments.mockReturnValue([])
     const { container } = render(
-      <NotFoundProvider>
-        <Breadcrumbs />
-      </NotFoundProvider>,
+      <BreadcrumbProvider>
+        <NotFoundProvider>
+          <Breadcrumbs />
+        </NotFoundProvider>
+      </BreadcrumbProvider>,
     )
     expect(container).toBeEmptyDOMElement()
   })
@@ -32,9 +36,11 @@ describe('Breadcrumbs', () => {
   it('renders breadcrumbs for a knownPathsWithoutPages route and does not render those breadcrumb items as links', () => {
     mockUseSelectedLayoutSegments.mockReturnValue(['weather', 'stations', 'map'])
     render(
-      <NotFoundProvider>
-        <Breadcrumbs />
-      </NotFoundProvider>,
+      <BreadcrumbProvider>
+        <NotFoundProvider>
+          <Breadcrumbs />
+        </NotFoundProvider>
+      </BreadcrumbProvider>,
     )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
@@ -48,9 +54,11 @@ describe('Breadcrumbs', () => {
   it('renders breadcrumbs for a catch-all segment (single string with slashes)', () => {
     mockUseSelectedLayoutSegments.mockReturnValue(['education/classes/field-classes'])
     render(
-      <NotFoundProvider>
-        <Breadcrumbs />
-      </NotFoundProvider>,
+      <BreadcrumbProvider>
+        <NotFoundProvider>
+          <Breadcrumbs />
+        </NotFoundProvider>
+      </BreadcrumbProvider>,
     )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
@@ -67,9 +75,11 @@ describe('Breadcrumbs', () => {
       'two-feet-of-right-side-up-pow-fell-overnight',
     ])
     render(
-      <NotFoundProvider>
-        <Breadcrumbs />
-      </NotFoundProvider>,
+      <BreadcrumbProvider>
+        <NotFoundProvider>
+          <Breadcrumbs />
+        </NotFoundProvider>
+      </BreadcrumbProvider>,
     )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
@@ -79,5 +89,24 @@ describe('Breadcrumbs', () => {
     expect(screen.getByText('two feet of right side up pow fell overnight')).not.toHaveAttribute(
       'href',
     )
+  })
+
+  it('overrides the last breadcrumb label when BreadcrumbSetter is used', () => {
+    mockUseSelectedLayoutSegments.mockReturnValue(['observations', '12345'])
+    render(
+      <BreadcrumbProvider>
+        <NotFoundProvider>
+          <BreadcrumbSetter label="Avalanche near Stevens Pass" />
+          <Breadcrumbs />
+        </NotFoundProvider>
+      </BreadcrumbProvider>,
+    )
+    // Home is always clickable
+    expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
+    // observations is clickable
+    expect(screen.getByText('observations').closest('a')).toHaveAttribute('href', '/observations')
+    // The last breadcrumb should show the custom label instead of the segment ID
+    expect(screen.getByText('Avalanche near Stevens Pass')).toBeInTheDocument()
+    expect(screen.queryByText('12345')).not.toBeInTheDocument()
   })
 })

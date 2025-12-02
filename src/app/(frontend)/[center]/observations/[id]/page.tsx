@@ -1,29 +1,11 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
-import { NACWidget } from '@/components/NACWidget'
+import { BreadcrumbSetter } from '@/components/Breadcrumbs/BreadcrumbSetter.client'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
-import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
-
-export const dynamic = 'force-static'
-
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 1000,
-    select: {
-      slug: true,
-    },
-  })
-
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
-}
+import SingleObservationPage from '../SingleObservationPage'
 
 type Args = {
   params: Promise<PathArgs>
@@ -31,14 +13,15 @@ type Args = {
 
 type PathArgs = {
   center: string
+  id: string
 }
 
 export default async function Page({ params }: Args) {
-  const { center } = await params
+  const { center, id } = await params
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
-  if (!avalancheCenterPlatforms.forecasts) {
+  if (!avalancheCenterPlatforms.obs) {
     notFound()
   }
 
@@ -46,26 +29,26 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetRouterHandler initialPath="/all/" widgetPageKey="forecasts" />
-      <ZoneLinkHijacker />
-      <div className="container flex flex-col">
-        <NACWidget
-          center={center}
-          widget="forecast"
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
-      </div>
+      <WidgetRouterHandler initialPath={`/observation/${id}`} widgetPageKey="single-observation" />
+      <BreadcrumbSetter label="Field Observation" />
+      <SingleObservationPage
+        title="Field Observation"
+        center={center}
+        widgetsVersion={version}
+        widgetsBaseUrl={baseUrl}
+      />
     </>
   )
 }
 
 export async function generateMetadata(
-  _props: Args,
+  { params }: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const parentMeta = (await parent) as Metadata
+
+  const { id } = await params
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
@@ -75,14 +58,14 @@ export async function generateMetadata(
   const parentOg = parentMeta.openGraph
 
   return {
-    title: `Forecasts | ${parentTitle}`,
+    title: `Field Observation | ${parentTitle}`,
     alternates: {
-      canonical: '/forecasts/avalanche',
+      canonical: `/observations/${id}`,
     },
     openGraph: {
       ...parentOg,
-      title: `Forecasts | ${parentTitle}`,
-      url: '/forecasts/avalanche',
+      title: `Field Observation | ${parentTitle}`,
+      url: `/observations/${id}`,
     },
   }
 }
