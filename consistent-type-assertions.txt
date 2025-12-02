@@ -10,6 +10,8 @@ src/app/(frontend)/[center]/blog/page/[pageNumber]/page.tsx
 src/app/(frontend)/[center]/forecasts/avalanche/[zone]/page.tsx
 src/app/(frontend)/[center]/forecasts/avalanche/page.tsx
 src/app/(frontend)/[center]/next/preview/route.ts
+src/app/(frontend)/[center]/observations/[id]/page.tsx
+src/app/(frontend)/[center]/observations/avalanches/[id]/page.tsx
 src/app/(frontend)/[center]/observations/page.tsx
 src/app/(frontend)/[center]/observations/submit/page.tsx
 src/app/(frontend)/[center]/weather/stations/map/page.tsx

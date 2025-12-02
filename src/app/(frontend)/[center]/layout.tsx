@@ -8,6 +8,7 @@ import { Header } from '@/components/Header/Header'
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
 import { PostHogTenantRegister } from '@/components/PostHogTenantRegister.client'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
+import { BreadcrumbProvider } from '@/providers/BreadcrumbProvider'
 import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
@@ -68,20 +69,22 @@ export default async function RootLayout({ children, params }: Args) {
 
   return (
     <NotFoundProvider>
-      <TenantProvider tenant={tenant}>
-        <PostHogTenantRegister />
-        <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
-          <div className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}>
-            <ThemeSetter theme={center} />
-            <Header center={center} />
-            <main className="flex-grow">
-              <Breadcrumbs />
-              {children}
-            </main>
-            <Footer center={center} />
-          </div>
-        </AvalancheCenterProvider>
-      </TenantProvider>
+      <BreadcrumbProvider>
+        <TenantProvider tenant={tenant}>
+          <PostHogTenantRegister />
+          <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
+            <div className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}>
+              <ThemeSetter theme={center} />
+              <Header center={center} />
+              <main className="flex-grow">
+                <Breadcrumbs />
+                {children}
+              </main>
+              <Footer center={center} />
+            </div>
+          </AvalancheCenterProvider>
+        </TenantProvider>
+      </BreadcrumbProvider>
     </NotFoundProvider>
   )
 }
