@@ -866,11 +866,6 @@ export interface Event {
     zip?: string | null;
     country?: 'US' | null;
     /**
-     * @minItems 2
-     * @maxItems 2
-     */
-    coordinates?: [number, number] | null;
-    /**
      * URL for virtual event (Zoom, Teams, etc.)
      */
     virtualUrl?: string | null;
@@ -1794,11 +1789,6 @@ export interface Course {
       | 'DC';
     zip?: string | null;
     country?: 'US' | null;
-    /**
-     * @minItems 2
-     * @maxItems 2
-     */
-    coordinates?: [number, number] | null;
   };
   /**
    * External registration link or landing page link
@@ -3387,7 +3377,6 @@ export interface EventsSelect<T extends boolean = true> {
         state?: T;
         zip?: T;
         country?: T;
-        coordinates?: T;
         virtualUrl?: T;
         extraInfo?: T;
       };
@@ -3494,7 +3483,6 @@ export interface CoursesSelect<T extends boolean = true> {
         state?: T;
         zip?: T;
         country?: T;
-        coordinates?: T;
       };
   courseUrl?: T;
   registrationDeadline?: T;

@@ -1,7 +1,6 @@
 import { courseTypesData } from '@/constants/courseTypes'
 import { affinityGroupField } from '@/fields/affinityGroupField'
 import { contentHashField } from '@/fields/contentHashField'
-import { coordinatesWithMap } from '@/fields/location/coordinatesWithMap'
 import { stateOptions } from '@/fields/location/states'
 import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { slugField } from '@/fields/slug'
@@ -98,9 +97,6 @@ export const Courses: CollectionConfig = {
             readOnly: true,
           },
         },
-        ...coordinatesWithMap({
-          condition: (_data, siblingData) => !siblingData?.isVirtual,
-        }),
       ],
     },
     {

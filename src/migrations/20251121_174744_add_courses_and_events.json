@@ -14013,13 +14013,6 @@
           "autoincrement": false,
           "default": "'US'"
         },
-        "location_coordinates": {
-          "name": "location_coordinates",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "location_virtual_url": {
           "name": "location_virtual_url",
           "type": "text",
@@ -14560,13 +14553,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'US'"
-        },
-        "version_location_coordinates": {
-          "name": "version_location_coordinates",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "version_location_virtual_url": {
           "name": "version_location_virtual_url",
@@ -15947,13 +15933,6 @@
           "autoincrement": false,
           "default": "'US'"
         },
-        "location_coordinates": {
-          "name": "location_coordinates",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "course_url": {
           "name": "course_url",
           "type": "text",
@@ -16282,13 +16261,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'US'"
-        },
-        "version_location_coordinates": {
-          "name": "version_location_coordinates",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "version_course_url": {
           "name": "version_course_url",
@@ -23894,6 +23866,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "b45b232f-95c7-45e3-90f1-7fd0bdabee71",
+  "id": "3087f4ec-3997-40d1-b891-867bf6863b3b",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
