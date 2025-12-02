@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
-import { WidgetHashHandler } from '@/components/NACWidget/WidgetHashHandler.client'
+import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
@@ -47,7 +47,7 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <NACContainerRemover containerElementId="nac-obs-form-widget" />
-      <WidgetHashHandler initialHash="form" />
+      <WidgetRouterHandler initialPath="/form" widgetPageKey="submit-observation" />
       <div className="container flex flex-col gap-4">
         <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">
           <h1 className="font-bold">Submit Observation</h1>
