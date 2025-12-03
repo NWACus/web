@@ -1,7 +1,7 @@
 import { courseTypesData } from '@/constants/courseTypes'
 import { Heading, Text } from '@react-email/components'
+import A3EmailLayout from './_components/A3EmailLayout'
 import EmailButton from './_components/EmailButton'
-import EmailLayout from './_components/EmailLayout'
 
 export type ProviderCourseTypesUpdatedProps = {
   appUrl: string
@@ -24,7 +24,7 @@ export function ProviderCourseTypesUpdated({
   const providersUrl = `${appUrl}/providers`
 
   return (
-    <EmailLayout appUrl={appUrl}>
+    <A3EmailLayout appUrl={appUrl}>
       <Heading as="h1" style={{ textAlign: 'center' }}>
         Course Types Updated
       </Heading>
@@ -32,7 +32,8 @@ export function ProviderCourseTypesUpdated({
         Your approved course types have been updated.
       </Text>
       <Text style={{ fontSize: '16px', marginBottom: '16px' }}>
-        The course types for <strong>{providerName}</strong> have been updated by an administrator.
+        The course types for <strong>{providerName}</strong> have been updated by an A3
+        administrator.
       </Text>
       <Text style={{ fontSize: '16px', marginBottom: '16px' }}>
         <strong>Your current approved course types are:</strong>
@@ -56,7 +57,7 @@ export function ProviderCourseTypesUpdated({
       <Text style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
         Thank you for partnering with us to provide quality avalanche education.
       </Text>
-    </EmailLayout>
+    </A3EmailLayout>
   )
 }
 
