@@ -20,6 +20,7 @@ import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { validateEventDates } from '@/hooks/validateEventDates'
 import { Event } from '@/payload-types'
 import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
@@ -233,6 +234,7 @@ export const Events: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
+    beforeValidate: [validateEventDates],
     beforeChange: [populatePublishedAt, populateBlocksInContent],
     afterChange: [revalidateEvent],
     afterDelete: [revalidateEventDelete],

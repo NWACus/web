@@ -6,6 +6,7 @@ import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { validateEventDates } from '@/hooks/validateEventDates'
 import { Course } from '@/payload-types'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateZipCode } from '@/utilities/validateZipCode'
@@ -186,6 +187,7 @@ export const Courses: CollectionConfig = {
     contentHashField(),
   ],
   hooks: {
+    beforeValidate: [validateEventDates],
     beforeChange: [populatePublishedAt],
     // TODO: need revalidation hooks here
   },
