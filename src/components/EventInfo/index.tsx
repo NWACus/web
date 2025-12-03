@@ -1,6 +1,6 @@
 'use client'
+import { StartAndEndDateDisplay } from '@/components/StartAndEndDateDisplay'
 import { skillLevelOptions } from '@/fields/skillLevel'
-import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import type { Event } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 import { Calendar, Globe, MapPin, TrendingUp, Video } from 'lucide-react'
@@ -8,7 +8,7 @@ import { Badge } from '../ui/badge'
 
 export type EventInfoProps = Pick<
   Event,
-  'startDate' | 'endDate' | 'timezone' | 'location' | 'skillLevel'
+  'startDate' | 'startDate_tz' | 'endDate' | 'endDate_tz' | 'location' | 'skillLevel'
 > & {
   className?: string
   itemsClassName?: string
@@ -18,12 +18,13 @@ export type EventInfoProps = Pick<
 export const EventInfo = ({
   className = '',
   endDate,
+  endDate_tz,
   itemsClassName = '',
   location,
   showLabels = false,
   skillLevel,
   startDate,
-  timezone,
+  startDate_tz,
 }: EventInfoProps) => {
   const skillLevelLabel = skillLevelOptions.find(({ value }) => skillLevel === value)?.label ?? ''
 
@@ -35,7 +36,12 @@ export const EventInfo = ({
           <Calendar className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <div>
             {showLabels && <span className="font-semibold">Date: </span>}
-            <StartAndEndDateDisplay startDate={startDate} endDate={endDate} timezone={timezone} />
+            <StartAndEndDateDisplay
+              startDate={startDate}
+              startDate_tz={startDate_tz}
+              endDate={endDate}
+              endDate_tz={endDate_tz}
+            />
           </div>
         </div>
       )}

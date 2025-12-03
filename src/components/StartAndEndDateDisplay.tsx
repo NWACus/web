@@ -4,26 +4,33 @@ import { isSameDay } from 'date-fns'
 
 export function StartAndEndDateDisplay({
   startDate,
+  startDate_tz,
   endDate,
-  timezone,
-}: Pick<Event, 'startDate' | 'endDate' | 'timezone'>) {
+  endDate_tz,
+}: Pick<Event, 'startDate' | 'startDate_tz' | 'endDate' | 'endDate_tz'>) {
   return (
     <>
       {endDate && isSameDay(startDate, endDate) ? (
         <>
           <span>
-            {formatDateTime(startDate, timezone, 'MMM d, yy, p')}
+            {formatDateTime(startDate, startDate_tz, 'MMM d, yyyy, p')}
             <span className="mx-0.5">-</span>
-            {formatDateTime(endDate, timezone, 'p zzz')}
+            {formatDateTime(endDate, endDate_tz, 'p zzz')}
           </span>
         </>
       ) : (
         <>
-          <span>{formatDateTime(startDate, timezone, 'MMM d, yy, p')}</span>
+          <span>
+            {formatDateTime(
+              startDate,
+              startDate_tz,
+              endDate ? 'MMM d, yyyy, p' : 'MMM d, yyyy, p zzz',
+            )}
+          </span>
           {endDate && (
             <>
               <span className="mx-0.5">-</span>
-              <span>{formatDateTime(endDate, timezone, 'MMM d, yy, p')}</span>
+              <span>{formatDateTime(endDate, endDate_tz, 'MMM d, yyyy, p zzz')}</span>
             </>
           )}
         </>

@@ -64,14 +64,6 @@ export const Events: CollectionConfig = {
       },
     },
     startAndEndDateField(),
-    {
-      name: 'timezone',
-      type: 'select',
-      options: TIMEZONE_OPTIONS,
-      admin: {
-        description: 'Event timezone',
-      },
-    },
     locationField(),
     MetaImageField({
       hasGenerateFn: true,
@@ -110,11 +102,15 @@ export const Events: CollectionConfig = {
         {
           name: 'registrationDeadline',
           type: 'date',
+          timezone: {
+            supportedTimezones: TIMEZONE_OPTIONS,
+          },
           admin: {
             date: {
               pickerAppearance: 'dayAndTime',
             },
-            description: 'Registration cutoff',
+            description:
+              'Registration cutoff. Timezone will always be set to the startDate timezone.',
           },
           validate: (value, { siblingData }: { siblingData: Partial<Event> }) => {
             const data = siblingData

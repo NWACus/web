@@ -42,14 +42,6 @@ export const Courses: CollectionConfig = {
     },
     startAndEndDateField(),
     {
-      name: 'timezone',
-      type: 'select',
-      options: TIMEZONE_OPTIONS,
-      admin: {
-        description: 'Event timezone',
-      },
-    },
-    {
       name: 'location',
       type: 'group',
       fields: [
@@ -109,11 +101,15 @@ export const Courses: CollectionConfig = {
     {
       name: 'registrationDeadline',
       type: 'date',
+      timezone: {
+        supportedTimezones: TIMEZONE_OPTIONS,
+        required: true,
+      },
       admin: {
         date: {
           pickerAppearance: 'dayAndTime',
         },
-        description: 'Registration cutoff',
+        description: 'Registration cutoff. Timezone will always be set to the startDate timezone.',
       },
       validate: (value, { siblingData }: { siblingData: Partial<Course> }) => {
         const data = siblingData
