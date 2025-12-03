@@ -35,7 +35,7 @@ import * as migration_20251023_195638_rename_indexes from './20251023_195638_ren
 import * as migration_20251024_203935_content_block_default_value from './20251024_203935_content_block_default_value'
 import * as migration_20251029_173505_upgrade_payload_3_61_1 from './20251029_173505_upgrade_payload_3_61_1'
 import * as migration_20251117_210840_kv from './20251117_210840_kv'
-import * as migration_20251121_174744_add_courses_and_events from './20251121_174744_add_courses_and_events'
+import * as migration_20251203_015551_add_courses_and_events from './20251203_015551_add_courses_and_events'
 
 export const migrations = [
   {
@@ -224,8 +224,8 @@ export const migrations = [
     name: '20251117_210840_kv',
   },
   {
-    up: migration_20251121_174744_add_courses_and_events.up,
-    down: migration_20251121_174744_add_courses_and_events.down,
-    name: '20251121_174744_add_courses_and_events',
+    up: migration_20251203_015551_add_courses_and_events.up,
+    down: migration_20251203_015551_add_courses_and_events.down,
+    name: '20251203_015551_add_courses_and_events',
   },
 ]

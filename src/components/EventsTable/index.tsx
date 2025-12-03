@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
-import { format } from 'date-fns'
+import { formatDateTime } from '@/utilities/formatDateTime'
 import {
   ChevronDown,
   ChevronRight,
@@ -60,12 +60,11 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     }
   }
 
-  // Format date and time
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString)
+  // Format date and time with timezone
+  const formatEventDateTime = (dateString: string, tz: string) => {
     return {
-      date: format(date, 'MMM d, yy'),
-      time: format(date, 'h:mm a'),
+      date: formatDateTime(dateString, tz, 'MMM d, yyyy'),
+      time: formatDateTime(dateString, tz, 'h:mm a zzz'),
     }
   }
 
@@ -192,7 +191,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
         </TableHeader>
         <TableBody>
           {sortedEvents.map((event) => {
-            const { date, time } = formatDateTime(event.startDate)
+            const { date, time } = formatEventDateTime(event.startDate, event.startDate_tz)
             const status = getStatus(event)
             const { isPast, isRegistrationClosed } = status
             const isExpanded = expandedRows.has(String(event.id))

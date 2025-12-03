@@ -780,23 +780,12 @@ export interface Event {
    */
   description?: string | null;
   startDate: string;
+  startDate_tz: SupportedTimezones;
   /**
-   * Optional end date for multi-day events
+   * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
   endDate?: string | null;
-  /**
-   * Event timezone
-   */
-  timezone?:
-    | (
-        | 'America/New_York'
-        | 'America/Chicago'
-        | 'America/Denver'
-        | 'America/Los_Angeles'
-        | 'America/Anchorage'
-        | 'America/Honolulu'
-      )
-    | null;
+  endDate_tz: SupportedTimezones;
   location?: {
     /**
      * Check if this is a virtual event
@@ -885,9 +874,10 @@ export interface Event {
    */
   externalEventUrl?: string | null;
   /**
-   * Registration cutoff
+   * Registration cutoff. Timezone will always be set to the startDate timezone.
    */
   registrationDeadline?: string | null;
+  registrationDeadline_tz?: SupportedTimezones;
   /**
    * Skill level required for this event
    */
@@ -1714,23 +1704,12 @@ export interface Course {
    */
   description?: string | null;
   startDate: string;
+  startDate_tz: SupportedTimezones;
   /**
-   * Optional end date for multi-day events
+   * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
   endDate?: string | null;
-  /**
-   * Event timezone
-   */
-  timezone?:
-    | (
-        | 'America/New_York'
-        | 'America/Chicago'
-        | 'America/Denver'
-        | 'America/Los_Angeles'
-        | 'America/Anchorage'
-        | 'America/Honolulu'
-      )
-    | null;
+  endDate_tz: SupportedTimezones;
   location: {
     placeName: string;
     address?: string | null;
@@ -1795,9 +1774,10 @@ export interface Course {
    */
   courseUrl?: string | null;
   /**
-   * Registration cutoff
+   * Registration cutoff. Timezone will always be set to the startDate timezone.
    */
   registrationDeadline?: string | null;
+  registrationDeadline_tz: SupportedTimezones;
   slug: string;
   courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
@@ -3365,8 +3345,9 @@ export interface EventsSelect<T extends boolean = true> {
   subtitle?: T;
   description?: T;
   startDate?: T;
+  startDate_tz?: T;
   endDate?: T;
-  timezone?: T;
+  endDate_tz?: T;
   location?:
     | T
     | {
@@ -3385,6 +3366,7 @@ export interface EventsSelect<T extends boolean = true> {
   registrationUrl?: T;
   externalEventUrl?: T;
   registrationDeadline?: T;
+  registrationDeadline_tz?: T;
   skillLevel?: T;
   content?: T;
   blocksInContent?:
@@ -3472,8 +3454,9 @@ export interface CoursesSelect<T extends boolean = true> {
   subtitle?: T;
   description?: T;
   startDate?: T;
+  startDate_tz?: T;
   endDate?: T;
-  timezone?: T;
+  endDate_tz?: T;
   location?:
     | T
     | {
@@ -3486,6 +3469,7 @@ export interface CoursesSelect<T extends boolean = true> {
       };
   courseUrl?: T;
   registrationDeadline?: T;
+  registrationDeadline_tz?: T;
   slug?: T;
   courseType?: T;
   modeOfTravel?: T;

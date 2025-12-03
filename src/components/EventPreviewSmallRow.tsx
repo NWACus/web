@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 import type { Event } from '@/payload-types'
 
+import { StartAndEndDateDisplay } from '@/components/StartAndEndDateDisplay'
 import { eventTypesData } from '@/constants/eventTypes'
-import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import { Calendar, MapPin } from 'lucide-react'
 import { ImageMedia } from './Media/ImageMedia'
 import { Badge } from './ui/badge'
@@ -17,8 +17,9 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
   const {
     thumbnailImage,
     startDate,
+    startDate_tz,
     endDate,
-    timezone,
+    endDate_tz,
     slug,
     title,
     location,
@@ -76,8 +77,9 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
               <p className="text-sm text-muted-foreground">
                 <StartAndEndDateDisplay
                   startDate={startDate}
+                  startDate_tz={startDate_tz}
                   endDate={endDate}
-                  timezone={timezone}
+                  endDate_tz={endDate_tz}
                 />
               </p>
             )}

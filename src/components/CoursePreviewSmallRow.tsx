@@ -6,8 +6,8 @@ import { useState } from 'react'
 
 import type { Course } from '@/payload-types'
 
+import { StartAndEndDateDisplay } from '@/components/StartAndEndDateDisplay'
 import { courseTypesData } from '@/constants/courseTypes'
-import { StartAndEndDateDisplay } from '@/fields/startAndEndDateField/components/StartAndEndDateDisplay'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react'
 import { Badge } from './ui/badge'
@@ -24,7 +24,9 @@ export const CoursePreviewSmallRow = (props: {
 
   const {
     startDate,
+    startDate_tz,
     endDate,
+    endDate_tz,
     title,
     location,
     courseUrl,
@@ -32,7 +34,7 @@ export const CoursePreviewSmallRow = (props: {
     subtitle,
     description,
     registrationDeadline,
-    timezone,
+    registrationDeadline_tz,
     provider,
   } = doc
 
@@ -85,7 +87,12 @@ export const CoursePreviewSmallRow = (props: {
           )}
           {startDate && (
             <p className="text-sm text-muted-foreground">
-              <StartAndEndDateDisplay startDate={startDate} endDate={endDate} timezone={timezone} />
+              <StartAndEndDateDisplay
+                startDate={startDate}
+                startDate_tz={startDate_tz}
+                endDate={endDate}
+                endDate_tz={endDate_tz}
+              />
             </p>
           )}
           {locationText && (
@@ -120,7 +127,7 @@ export const CoursePreviewSmallRow = (props: {
           {registrationDeadline && (
             <p className="text-sm">
               <span className="font-medium">Registration Deadline:</span>{' '}
-              {formatDateTime(registrationDeadline, timezone, 'MMM d, yyyy')}
+              {formatDateTime(registrationDeadline, registrationDeadline_tz, 'MMM d, yyyy')}
             </p>
           )}
         </div>

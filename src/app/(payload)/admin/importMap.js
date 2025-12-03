@@ -24,6 +24,7 @@ import { default as default_2aead22399b7847b21b134dc4a7931e0 } from '@/component
 import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/components/ViewTypeAction'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
+import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
 import { TenantFieldComponent as TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6 } from '@/fields/tenantField/TenantFieldComponent'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
 import { TenantSelectionProvider as TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d } from '@/providers/TenantSelectionProvider'
@@ -117,6 +118,8 @@ export const importMap = {
     DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
   '@/collections/Posts/components/ViewPostButton#ViewPostButton':
     ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
+  '@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter':
+    InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643,
   '@/collections/Courses/components/CourseTypeField#CourseTypeField':
     CourseTypeField_348fff62462d32a00f93a0ac5be86e99,
   '@/collections/Users/components/UserStatusCell#UserStatusCell':
