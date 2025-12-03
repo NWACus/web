@@ -1,7 +1,7 @@
 import { courseTypesData } from '@/constants/courseTypes'
-import { Heading, Text } from '@react-email/components'
+import { Text } from '@react-email/components'
+import A3EmailLayout from './_components/A3EmailLayout'
 import EmailButton from './_components/EmailButton'
-import EmailLayout from './_components/EmailLayout'
 
 export type ProviderApplicationApprovedProps = {
   appUrl: string
@@ -24,16 +24,10 @@ export function ProviderApplicationApproved({
   const providersUrl = `${appUrl}/providers`
 
   return (
-    <EmailLayout appUrl={appUrl}>
-      <Heading as="h1" style={{ textAlign: 'center' }}>
-        Application Approved!
-      </Heading>
-      <Text style={{ textAlign: 'center', fontSize: '16px', marginBottom: '24px' }}>
-        Congratulations! Your provider application has been approved.
-      </Text>
+    <A3EmailLayout appUrl={appUrl}>
       <Text style={{ fontSize: '16px', marginBottom: '16px' }}>
         We are excited to let you know that <strong>{providerName}</strong> has been approved and is
-        now published on AvyFx!
+        now publish courses on AvyWeb, a tool used by A3 and avalanche centers nationwide!
       </Text>
       <Text style={{ fontSize: '16px', marginBottom: '16px' }}>
         Your organization is now visible to students looking for quality avalanche education
@@ -63,7 +57,7 @@ export function ProviderApplicationApproved({
       <Text style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
         Thank you for partnering with us to provide quality avalanche education.
       </Text>
-    </EmailLayout>
+    </A3EmailLayout>
   )
 }
 
