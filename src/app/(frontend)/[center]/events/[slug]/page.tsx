@@ -16,7 +16,9 @@ import { Metadata, ResolvedMetadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
+export const dynamic = 'force-static'
 export const dynamicParams = true
+export const revalidate = 600
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
