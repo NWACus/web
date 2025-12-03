@@ -37,6 +37,7 @@ export const blogListBlock: BlogListBlock = {
   dynamicOptions: {
     filterByTags: null,
     sortBy: '-publishedAt',
+    queriedPosts: [], // Will be populated during seeding
   },
   staticOptions: {
     staticPosts: [], // Will be populated with actual post references during seeding

@@ -71,6 +71,14 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'providers',
+      type: 'relationship',
+      relationTo: 'providers',
+      hasMany: true,
+      saveToJWT: true,
+      maxDepth: 3,
+    },
+    {
       name: 'inviteToken',
       type: 'text',
       hidden: true,

@@ -44,7 +44,7 @@ export const SlugComponent = ({
   return (
     <div className="field-type slug-field-component">
       <div className="label-wrapper">
-        <FieldLabel htmlFor={`field-${path}`} label={label} />
+        <FieldLabel htmlFor={`field-${path}`} label={label} required />
 
         <Button className="generate-button" buttonStyle="icon-label" onClick={handleGenerate}>
           <RefreshCw className="w-4" />

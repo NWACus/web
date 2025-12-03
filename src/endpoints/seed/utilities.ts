@@ -1,3 +1,4 @@
+import { SerializedParagraphNode, SerializedTextNode } from '@payloadcms/richtext-lexical'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { File } from 'payload'
@@ -89,3 +90,53 @@ export async function getSeedImageByFilename(filename: string, logger: Logger) {
     throw error
   }
 }
+
+export const pastDate = (monthOffset: number, day: number, hour: number = 18) => {
+  const date = new Date()
+  const newMonth = date.getMonth() - monthOffset
+  const newYear = date.getFullYear() + Math.floor(newMonth / 12)
+  date.setFullYear(newYear, ((newMonth % 12) + 12) % 12, day)
+  date.setHours(hour, 0, 0, 0)
+  return date.toISOString()
+}
+
+// Helper to create dates in the future
+export const futureDate = (monthOffset: number, day: number, hour: number = 18) => {
+  const date = new Date()
+  const newMonth = date.getMonth() + monthOffset
+  const newYear = date.getFullYear() + Math.floor(newMonth / 12)
+  date.setFullYear(newYear, newMonth % 12, day)
+  date.setHours(hour, 0, 0, 0)
+  return date.toISOString()
+}
+
+export const textNode = (text: string): SerializedTextNode => ({
+  type: 'text',
+  detail: 0,
+  format: 0,
+  mode: 'normal',
+  style: '',
+  text,
+  version: 1,
+})
+
+export const paragraphNode = (text: string): SerializedParagraphNode => ({
+  type: 'paragraph',
+  children: [textNode(text)],
+  direction: 'ltr',
+  format: '',
+  indent: 0,
+  textFormat: 0,
+  version: 1,
+})
+
+export const simpleContent = (...paragraphs: string[]) => ({
+  root: {
+    type: 'root',
+    children: paragraphs.map(paragraphNode),
+    direction: 'ltr' as const,
+    format: '' as const,
+    indent: 0,
+    version: 1,
+  },
+})

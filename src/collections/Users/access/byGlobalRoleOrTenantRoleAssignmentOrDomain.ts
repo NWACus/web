@@ -1,7 +1,8 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
+import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
-import { Access, CollectionConfig } from 'payload'
+import { Access, CollectionConfig, Where } from 'payload'
 
 // byGlobalRoleOrTenantRoleAssignmentOrDomain combines both tenant domain matching and role-based access
 // Users will have their tenant scoped role assignments for the users collection apply if they either:
@@ -9,9 +10,14 @@ import { Access, CollectionConfig } from 'payload'
 // 2. Have a matching email domain to the tenant's customDomain
 export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) => Access =
   (method: ruleMethod): Access =>
-  (args) => {
+  async (args) => {
     if (!args.req.user) {
       return false
+    }
+
+    // allow users to read, update their own record
+    if (args?.id === args.req.user.id && (method === 'read' || method === 'update')) {
+      return true
     }
 
     const globalAccess = byGlobalRole(method, 'users')(args)
@@ -64,15 +70,36 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
       )
     }
 
+    // Provider managers can see all users with provider relationship(s) and themselves
+    if (method === 'read') {
+      const isManager = await isProviderManager(args.req.payload, args.req.user)
+      if (isManager) {
+        const orConditions: Where[] = [
+          {
+            providers: {
+              exists: true,
+            },
+          },
+        ]
+
+        if (args.req.user.id) {
+          orConditions.push({
+            id: {
+              equals: args.req.user.id,
+            },
+          })
+        }
+
+        conditions.push({
+          or: orConditions,
+        })
+      }
+    }
+
     if (conditions.length > 0) {
       return {
         or: conditions,
       }
-    }
-
-    // allow users to read, update their own record
-    if (args?.id === args.req.user.id && (method === 'read' || method === 'update')) {
-      return true
     }
 
     return false

@@ -18,7 +18,7 @@ import {
   usePayloadAPI,
 } from '@payloadcms/ui'
 
-import { GlobalRole, Role, Tenant } from '@/payload-types'
+import { GlobalRole, Provider, Role, Tenant } from '@/payload-types'
 import { type FormState } from 'payload'
 import { reduceFieldsToValues } from 'payload/shared'
 import { useCallback, useState } from 'react'
@@ -105,12 +105,23 @@ const initialState: FormState = {
     value: [],
     rows: [],
   },
+  providers: {
+    initialValue: [],
+    valid: true, // Valid by default since it's optional
+    value: [],
+  },
 }
 
 export function InviteUserDrawer({
   canCreateGlobalRoleAssignments,
+  canCreateTenantRoleAssignments,
+  isProviderManager = false,
+  canAssignProviders = false,
 }: {
   canCreateGlobalRoleAssignments: boolean
+  canCreateTenantRoleAssignments: boolean
+  isProviderManager?: boolean
+  canAssignProviders?: boolean
 }) {
   const { openModal, closeModal } = useModal()
   const { refineListData } = useListQuery()
@@ -135,6 +146,14 @@ export function InviteUserDrawer({
     globalRolesData?.docs?.map((globalRole: GlobalRole) => ({
       label: globalRole.name,
       value: String(globalRole.id),
+    })) || []
+
+  // Fetch all providers from API for users with global permissions
+  const [{ data: providersData }] = usePayloadAPI('/api/providers?limit=100')
+  const providerOptions =
+    providersData?.docs?.map((provider: Provider) => ({
+      label: provider.name,
+      value: String(provider.id),
     })) || []
 
   const handleSubmit = useCallback(
@@ -184,11 +203,16 @@ export function InviteUserDrawer({
           ? reducedVals.globalRoleAssignments.map((roleId) => Number(roleId))
           : []
 
+        const providers = Array.isArray(reducedVals.providers)
+          ? reducedVals.providers.map((providerId) => Number(providerId))
+          : []
+
         const result = await inviteUserAction({
           email: String(formState.email?.value) || '',
           name: String(formState.name?.value) || '',
           roleAssignments,
           globalRoleAssignments,
+          providers,
         })
 
         if (result.success) {
@@ -266,6 +290,16 @@ export function InviteUserDrawer({
     )
   }
 
+  if (!canCreateTenantRoleAssignments && !canCreateGlobalRoleAssignments && !canAssignProviders) {
+    return (
+      <Gutter>
+        <Button buttonStyle="secondary" onClick={() => openModal(drawerSlug)}>
+          Error: You are not allowed to invite users
+        </Button>
+      </Gutter>
+    )
+  }
+
   return (
     <>
       <Gutter>
@@ -310,10 +344,12 @@ export function InviteUserDrawer({
             }}
           />
 
-          <div className="field-type space-y-2">
-            <FieldLabel label="Role Assignments" />
-            <RoleAssignmentsArray path="roleAssignments" />
-          </div>
+          {canCreateTenantRoleAssignments && (
+            <div className="field-type space-y-2">
+              <FieldLabel label="Role Assignments" />
+              <RoleAssignmentsArray path="roleAssignments" />
+            </div>
+          )}
 
           {canCreateGlobalRoleAssignments && (
             <SelectField
@@ -325,6 +361,27 @@ export function InviteUserDrawer({
                 hasMany: true,
               }}
               path="globalRoleAssignments"
+            />
+          )}
+
+          {canAssignProviders && (
+            <SelectField
+              field={{
+                name: 'providers',
+                type: 'select',
+                label: 'Providers',
+                options: providerOptions,
+                hasMany: true,
+                required: isProviderManager,
+              }}
+              path="providers"
+              validate={(value) => {
+                // Only require providers for provider managers
+                if (isProviderManager && (!value || (Array.isArray(value) && value.length === 0))) {
+                  return 'At least one provider is required'
+                }
+                return true
+              }}
             />
           )}
 
