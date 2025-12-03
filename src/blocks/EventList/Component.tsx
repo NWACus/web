@@ -51,16 +51,18 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
       }
 
       if (byGroups?.length) {
-        const groupIds = byGroups.map((g) => (typeof g === 'object' ? g.id : g)).filter(Boolean)
-        if (groupIds.length) {
-          eventsPageParams.append('groups', groupIds.join(','))
+        const groupSlugs = byGroups
+          .map((g) => (typeof g === 'object' ? g.slug : null))
+          .filter(Boolean)
+        if (groupSlugs.length) {
+          eventsPageParams.append('groups', groupSlugs.join(','))
         }
       }
 
       if (byTags?.length) {
-        const tagIds = byTags.map((t) => (typeof t === 'object' ? t.id : t)).filter(Boolean)
-        if (tagIds.length) {
-          eventsPageParams.append('tags', tagIds.join(','))
+        const tagSlugs = byTags.map((t) => (typeof t === 'object' ? t.slug : null)).filter(Boolean)
+        if (tagSlugs.length) {
+          eventsPageParams.append('tags', tagSlugs.join(','))
         }
       }
       eventsPageParams.append('startDate', format(new Date(), 'MM-dd-yyyy'))
