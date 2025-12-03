@@ -189,7 +189,6 @@ export const Courses: CollectionConfig = {
   hooks: {
     beforeValidate: [validateEventDates],
     beforeChange: [populatePublishedAt],
-    // TODO: need revalidation hooks here
   },
   versions: {
     drafts: {
