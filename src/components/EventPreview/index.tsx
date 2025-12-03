@@ -28,8 +28,9 @@ export const EventPreview = (props: {
     slug,
     thumbnailImage,
     startDate,
+    startDate_tz,
     endDate,
-    timezone,
+    endDate_tz,
     skillLevel,
     registrationDeadline,
     registrationUrl,
@@ -98,8 +99,9 @@ export const EventPreview = (props: {
           <div className="flex flex-col gap-1">
             <EventInfo
               startDate={startDate}
+              startDate_tz={startDate_tz}
               endDate={endDate}
-              timezone={timezone}
+              endDate_tz={endDate_tz}
               skillLevel={skillLevel}
               className="flex flex-col gap-1"
             />

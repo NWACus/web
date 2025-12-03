@@ -6,7 +6,5 @@ export const formatDateTime = (
   tz: string | null | undefined,
   options: string,
 ) => {
-  return tz && tz.length > 0
-    ? formatInTimeZone(dateString, tz, options)
-    : format(dateString, options)
+  return tz ? formatInTimeZone(dateString, tz, options) : format(dateString, options)
 }

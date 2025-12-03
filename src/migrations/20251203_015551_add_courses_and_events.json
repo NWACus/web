@@ -13948,6 +13948,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "startdate_tz": {
+          "name": "startdate_tz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "end_date": {
           "name": "end_date",
           "type": "text",
@@ -13955,8 +13962,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "timezone": {
-          "name": "timezone",
+        "enddate_tz": {
+          "name": "enddate_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -14057,6 +14064,13 @@
         },
         "registration_deadline": {
           "name": "registration_deadline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "registrationdeadline_tz": {
+          "name": "registrationdeadline_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -14489,6 +14503,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "version_startdate_tz": {
+          "name": "version_startdate_tz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "version_end_date": {
           "name": "version_end_date",
           "type": "text",
@@ -14496,8 +14517,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "version_timezone": {
-          "name": "version_timezone",
+        "version_enddate_tz": {
+          "name": "version_enddate_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -14598,6 +14619,13 @@
         },
         "version_registration_deadline": {
           "name": "version_registration_deadline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version_registrationdeadline_tz": {
+          "name": "version_registrationdeadline_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -15876,6 +15904,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "startdate_tz": {
+          "name": "startdate_tz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "end_date": {
           "name": "end_date",
           "type": "text",
@@ -15883,8 +15918,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "timezone": {
-          "name": "timezone",
+        "enddate_tz": {
+          "name": "enddate_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -15942,6 +15977,13 @@
         },
         "registration_deadline": {
           "name": "registration_deadline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "registrationdeadline_tz": {
+          "name": "registrationdeadline_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -16205,6 +16247,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "version_startdate_tz": {
+          "name": "version_startdate_tz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "version_end_date": {
           "name": "version_end_date",
           "type": "text",
@@ -16212,8 +16261,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "version_timezone": {
-          "name": "version_timezone",
+        "version_enddate_tz": {
+          "name": "version_enddate_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -16271,6 +16320,13 @@
         },
         "version_registration_deadline": {
           "name": "version_registration_deadline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version_registrationdeadline_tz": {
+          "name": "version_registrationdeadline_tz",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -23866,6 +23922,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "3087f4ec-3997-40d1-b891-867bf6863b3b",
+  "id": "572c088d-c5a9-4230-942e-66574692542b",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

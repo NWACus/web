@@ -100,8 +100,9 @@ export default async function Event({ params: paramsPromise }: Args) {
 
               <EventInfo
                 startDate={event.startDate}
+                startDate_tz={event.startDate_tz}
                 endDate={event.endDate}
-                timezone={event.timezone}
+                endDate_tz={event.endDate_tz}
                 location={event.location}
                 skillLevel={event.skillLevel}
                 showLabels={true}
@@ -115,7 +116,11 @@ export default async function Event({ params: paramsPromise }: Args) {
                   {event.registrationDeadline && (
                     <p className="text-sm text-muted-foreground mb-4">
                       Registration Deadline:{' '}
-                      {formatDateTime(event.registrationDeadline, event.timezone, 'MMM d, yyyy')}
+                      {formatDateTime(
+                        event.registrationDeadline,
+                        event.registrationDeadline_tz,
+                        'MMM d, yyyy',
+                      )}
                     </p>
                   )}
                   {!isPastEvent && !isRegistrationClosed ? (
