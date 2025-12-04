@@ -24,10 +24,10 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
   const collectionConfig = config.collections.find(
     (collectionConfig) => collectionConfig.slug === slugFromParams,
   )
-  const collectionTenantFieldConfig = collectionConfig?.fields.find(
+  const tenantFieldConfigOnCollection = collectionConfig?.fields.find(
     (fieldConfig) => 'name' in fieldConfig && fieldConfig.name === 'tenant',
   )
-  const isUnique = !!collectionTenantFieldConfig?.unique
+  const isUnique = !!tenantFieldConfigOnCollection?.unique
 
   let isReadOnly = false
 
@@ -45,7 +45,7 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
 
   // Hide for non-tenant scoped collections
   // Courses, Diagnostics, NAC widget, Global Role, Providers, Roles, & Users
-  if (isGlobal || (!collectionTenantFieldConfig && !isDashboardView)) return null
+  if (isGlobal || (!tenantFieldConfigOnCollection && !isDashboardView)) return null
 
   if (options.length <= 1) {
     return null
