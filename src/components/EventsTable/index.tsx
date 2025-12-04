@@ -20,8 +20,49 @@ import {
   ExternalLink,
   MapPin,
 } from 'lucide-react'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { CMSLink } from '../Link'
+
+// Move SortIcon outside the component to prevent re-renders
+const SortIcon = ({
+  columnKey,
+  sortKey,
+  sortDirection,
+}: {
+  columnKey: string
+  sortKey: string
+  sortDirection: 'asc' | 'desc'
+}) => {
+  if (sortKey !== columnKey) {
+    return <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+  }
+  return sortDirection === 'asc' ? (
+    <ChevronUp className="w-4 h-4" />
+  ) : (
+    <ChevronDown className="w-4 h-4" />
+  )
+}
+
+// Move SortableHeader outside the component to prevent re-renders
+const SortableHeader = ({
+  label,
+  sortKey,
+  sortConfig,
+  onSort,
+}: {
+  label: string
+  sortKey: keyof Event
+  sortConfig: { key: keyof Event; direction: 'asc' | 'desc' }
+  onSort: (key: keyof Event) => void
+}) => (
+  <button
+    onClick={() => onSort(sortKey)}
+    className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900 transition"
+  >
+    {label}
+    <SortIcon columnKey={sortKey} sortKey={sortConfig.key} sortDirection={sortConfig.direction} />
+  </button>
+)
 
 export function EventTable({ events = [] }: { events: Event[] }) {
   const [sortConfig, setSortConfig] = useState<{
@@ -128,16 +169,19 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     return sorted
   }, [events, sortConfig])
 
-  const handleSort = (key: keyof Event) => {
-    if (sortConfig.key === key) {
-      setSortConfig({
-        key,
-        direction: sortConfig.direction === 'asc' ? 'desc' : 'asc',
-      })
-    } else {
-      setSortConfig({ key, direction: 'asc' })
-    }
-  }
+  const handleSort = useCallback(
+    (key: keyof Event) => {
+      if (sortConfig.key === key) {
+        setSortConfig({
+          key,
+          direction: sortConfig.direction === 'asc' ? 'desc' : 'asc',
+        })
+      } else {
+        setSortConfig({ key, direction: 'asc' })
+      }
+    },
+    [sortConfig],
+  )
 
   const toggleRow = (eventId: string) => {
     const newExpanded = new Set(expandedRows)
@@ -148,27 +192,6 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     }
     setExpandedRows(newExpanded)
   }
-
-  const SortIcon = ({ columnKey }: { columnKey: string }) => {
-    if (sortConfig.key !== columnKey) {
-      return <ChevronsUpDown className="w-4 h-4 text-gray-400" />
-    }
-    return sortConfig.direction === 'asc' ? (
-      <ChevronUp className="w-4 h-4" />
-    ) : (
-      <ChevronDown className="w-4 h-4" />
-    )
-  }
-
-  const SortableHeader = ({ label, sortKey }: { label: string; sortKey: keyof Event }) => (
-    <button
-      onClick={() => handleSort(sortKey)}
-      className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900 transition"
-    >
-      {label}
-      <SortIcon columnKey={sortKey} />
-    </button>
-  )
 
   if (!events || events.length === 0) {
     return <div className="text-center py-8 text-gray-500">No events found</div>
@@ -181,10 +204,20 @@ export function EventTable({ events = [] }: { events: Event[] }) {
           <TableRow className="bg-gray-50">
             <TableHead className="p-2 w-4 @lg:hidden"></TableHead>
             <TableHead className="flex-1 min-w-0">
-              <SortableHeader label="Date" sortKey="startDate" />
+              <SortableHeader
+                label="Date"
+                sortKey="startDate"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+              />
             </TableHead>
             <TableHead className="sm:flex-1 @sm:min-w-0">
-              <SortableHeader label="Name" sortKey="title" />
+              <SortableHeader
+                label="Name"
+                sortKey="title"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+              />
             </TableHead>
             <TableHead className="hidden @lg:table-cell flex-1 min-w-0">Location</TableHead>
             <TableHead className="hidden @sm:table-cell"></TableHead>
