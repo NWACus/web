@@ -90,7 +90,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   }
 
   return (
-    <div className={cn('container', className)}>
+    <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>
       <div className="flex flex-col justify-start gap-1">
         {heading && (
           <div className="prose md:prose-md dark:prose-invert">
@@ -98,7 +98,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
           </div>
         )}
         {belowHeadingContent && (
-          <div>
+          <div className="mb-4">
             <RichText data={belowHeadingContent} enableGutter={false} />
           </div>
         )}
