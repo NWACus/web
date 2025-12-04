@@ -22,8 +22,13 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
 
+  let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
+
   useEffect(() => {
-    if (eventOptions !== 'dynamic') return
+    if (eventOptions !== 'dynamic') {
+      setLoading(false)
+      return
+    }
 
     const fetchEvents = async () => {
       const tenantSlug = typeof tenant === 'object' && tenant?.slug
@@ -74,9 +79,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     }
 
     fetchEvents()
-  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant])
-
-  let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
+  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant, staticEvents, fetchedEvents])
 
   if (eventOptions === 'dynamic') {
     displayEvents = filterValidPublishedRelationships(fetchedEvents)
