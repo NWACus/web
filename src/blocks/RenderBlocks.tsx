@@ -60,7 +60,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'eventList':
       return <EventListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'eventTable':
-      return <EventTableBlockComponent {...block} />
+      return <EventTableBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'formBlock':
       return <FormBlock {...block} />
     case 'genericEmbed':

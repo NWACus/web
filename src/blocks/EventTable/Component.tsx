@@ -14,7 +14,14 @@ type EventTableComponentProps = EventTableBlockProps & {
 }
 
 export const EventTableBlockComponent = (args: EventTableComponentProps) => {
-  const { heading, belowHeadingContent, className, eventOptions } = args
+  const {
+    heading,
+    belowHeadingContent,
+    className,
+    eventOptions,
+    backgroundColor,
+    wrapInContainer = true,
+  } = args
   const { byTypes, byGroups, byTags, maxEvents } = args.dynamicOpts || {}
   const { staticEvents } = args.staticOpts || {}
 
@@ -89,28 +96,34 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     return null
   }
 
+  const bgColorClass = `bg-${backgroundColor}`
+
   return (
-    <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>
-      <div className="flex flex-col justify-start gap-1">
-        {heading && (
-          <div className="prose md:prose-md dark:prose-invert">
-            <h2>{heading}</h2>
+    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
+      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
+        <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>
+          <div className="flex flex-col justify-start gap-1">
+            {heading && (
+              <div className="prose md:prose-md dark:prose-invert">
+                <h2>{heading}</h2>
+              </div>
+            )}
+            {belowHeadingContent && (
+              <div className="mb-4">
+                <RichText data={belowHeadingContent} enableGutter={false} />
+              </div>
+            )}
           </div>
-        )}
-        {belowHeadingContent && (
-          <div className="mb-4">
-            <RichText data={belowHeadingContent} enableGutter={false} />
+          <div>
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                {loading && <p className="text-muted-foreground">Loading events...</p>}
+              </div>
+            ) : (
+              <EventTable events={displayEvents} />
+            )}
           </div>
-        )}
-      </div>
-      <div>
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            {loading && <p className="text-muted-foreground">Loading events...</p>}
-          </div>
-        ) : (
-          <EventTable events={displayEvents} />
-        )}
+        </div>
       </div>
     </div>
   )

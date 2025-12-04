@@ -93,6 +93,7 @@ export const allBlocksPage: (
           staticEvents: [],
         },
         blockType: 'eventTable',
+        backgroundColor: 'transparent',
       },
     ],
     meta: {
