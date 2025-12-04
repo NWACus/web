@@ -38,8 +38,15 @@
   --footer-foreground-highlight: hsl(240 3.8% 46.1%);
 
   --callout: hsl(240 4.8% 95.9%);
+  --callout-hover: hsl(240 4.8% 87.9%);
   --callout-foreground: hsl(240 10% 3.9%);
 
+  /* Brand Colors */
+  /* We have decided to use brand-50 -> 950 colors as a range of
+  /* colors rather than shades of a singular color.
+  /* The primary use for these colors are in our backgroundColor field
+  /* and are used as background colors throughout blocks.
+  */
   --brand-50: hsl(210 40% 98%);
   --brand-100: hsl(210 40% 96%);
   --brand-200: hsl(214 32% 91%);
@@ -154,28 +161,33 @@
 }
 
 .snfac {
-  --brand-50: hsl(0, 0%, 100%);
-  --brand-100: hsl(0, 0%, 93%);
-  --brand-200: hsl(0, 0%, 88%);
-  --brand-300: hsl(0, 0%, 82%);
-  --brand-400: hsl(0, 0%, 71%);
-  --brand-500: hsl(210, 4%, 51%);
-  --brand-600: hsl(210, 4%, 37%);
-  --brand-700: hsl(210, 4%, 31%);
-  --brand-800: hsl(210, 4%, 22%);
-  --brand-900: hsl(210, 4%, 16%);
-  --brand-950: hsl(210, 4%, 12%);
+  --brand-50: hsl(0 0% 100%);
+  --brand-100: hsl(178 100% 96%);
+  --brand-200: hsl(178 83% 60%);
+  --brand-300: hsl(178 75% 42%);
+  --brand-400: hsl(0 0% 87%);
+  --brand-500: hsl(210 4% 71%);
+  --brand-600: hsl(210 4% 55%);
+  --brand-700: hsl(210 4% 38%);
+  --brand-800: hsl(210 4% 22%);
+  --brand-900: hsl(210 4% 16%);
+  --brand-950: hsl(210 4% 12%);
 
-  --secondary: hsl(178 83% 35%);
-  --secondary-hover: hsla(178 83% 35% / 0.8);
-  --secondary-foreground: hsl(0 0% 100%);
+  --secondary: var(--brand-300);
+  --secondary-hover: hsla(var(--brand-300) / 0.8);
+  --secondary-foreground: var(--brand-50);
 
-  --callout: hsl(178 83% 35%);
-  --callout-hover: hsla(178 83% 35% / 0.8);
-  --callout-foreground: hsl(0 0% 100%);
+  --callout: var(--brand-300);
+  --callout-hover: hsla(var(--brand-300) / 0.8);
+  --callout-foreground: var(--brand-50);
 
-  --header: var(--brand-200);
-  --footer: var(--brand-200);
+  --header: var(--brand-400);
+  --header-foreground: var(--brand-900);
+  --header-foreground-highlight: var(--brand-700);
+
+  --footer: var(--brand-400);
+  --footer-foreground: var(--brand-900);
+  --footer-foreground-highlight: var(--brand-700);
 }
 
 .a3 {
