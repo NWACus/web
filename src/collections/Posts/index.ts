@@ -11,8 +11,10 @@ import {
 
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { ButtonBlock } from '@/blocks/Button/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { EventListBlockLexical } from '@/blocks/EventList/config'
+import { EventTableBlockLexical } from '@/blocks/EventTable/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
@@ -29,8 +31,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
-import { ButtonBlock } from '@/blocks/Button/config'
-import { EventTableBlock } from '@/blocks/EventTable/config'
+
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -124,7 +125,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 BlogListBlockLexical,
                 DocumentBlock,
                 EventListBlockLexical,
-                EventTableBlock,
+                EventTableBlockLexical,
                 GenericEmbedLexical,
                 HeaderBlock,
                 MediaBlockLexical,
