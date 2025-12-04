@@ -130,7 +130,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   const getLocation = (event: Event) => {
     if (event.location?.isVirtual) {
       return (
-        <span className="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-callout">
+        <span className="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-callout text-callout-foreground">
           Virtual
         </span>
       )
