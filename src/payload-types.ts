@@ -528,10 +528,6 @@ export interface BlogListBlock {
      */
     staticPosts?: (number | Post)[] | null;
   };
-  /**
-   * Shows `View All` button at the bottom linking to filtered posts.
-   */
-  showViewAllButton?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'blogList';
@@ -2845,7 +2841,6 @@ export interface BlogListBlockSelect<T extends boolean = true> {
     | {
         staticPosts?: T;
       };
-  showViewAllButton?: T;
   id?: T;
   blockName?: T;
 }

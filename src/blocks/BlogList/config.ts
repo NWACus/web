@@ -146,14 +146,6 @@ export const BlogListBlock = blogListBlockWithFields([
   ...defaultStylingFields,
   ...dynamicPostRelatedFields,
   ...staticPostRelatedFields,
-  {
-    name: 'showViewAllButton',
-    admin: {
-      description: 'Shows `View All` button at the bottom linking to filtered posts.',
-    },
-    type: 'checkbox',
-    defaultValue: true,
-  },
 ])
 
 export const BlogListBlockLexical = blogListBlockWithFields([
@@ -169,12 +161,4 @@ export const BlogListBlockLexical = blogListBlockWithFields([
   },
   ...dynamicPostRelatedFields,
   ...staticPostRelatedFields,
-  {
-    name: 'showViewAllButton',
-    admin: {
-      description: 'Shows `View All` button at the bottom linking to filtered posts.',
-    },
-    type: 'checkbox',
-    defaultValue: true,
-  },
 ])

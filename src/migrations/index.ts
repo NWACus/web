@@ -36,7 +36,6 @@ import * as migration_20251024_203935_content_block_default_value from './202510
 import * as migration_20251029_173505_upgrade_payload_3_61_1 from './20251029_173505_upgrade_payload_3_61_1'
 import * as migration_20251117_210840_kv from './20251117_210840_kv'
 import * as migration_20251203_015551_add_courses_and_events from './20251203_015551_add_courses_and_events'
-import * as migration_20251204_032117_fix_blog_list from './20251204_032117_fix_blog_list'
 
 export const migrations = [
   {
@@ -228,10 +227,5 @@ export const migrations = [
     up: migration_20251203_015551_add_courses_and_events.up,
     down: migration_20251203_015551_add_courses_and_events.down,
     name: '20251203_015551_add_courses_and_events',
-  },
-  {
-    up: migration_20251204_032117_fix_blog_list.up,
-    down: migration_20251204_032117_fix_blog_list.down,
-    name: '20251204_032117_fix_blog_list',
   },
 ]

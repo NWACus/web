@@ -26,7 +26,6 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
     className,
     wrapInContainer = true,
     postOptions,
-    showViewAllButton,
   } = args
 
   const { filterByTags, sortBy, maxPosts } = args.dynamicOptions || {}
@@ -121,7 +120,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
               <h3>There are no posts matching these results.</h3>
             )}
           </div>
-          {showViewAllButton && (
+          {postOptions === 'dynamic' && (
             <Button asChild className="not-prose md:self-start">
               <Link href={`/blog?${postsPageParams.toString()}`}>View all {heading}</Link>
             </Button>
