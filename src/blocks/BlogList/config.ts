@@ -43,11 +43,11 @@ const defaultStylingFields: Field[] = [
     required: true,
     options: [
       {
-        label: 'Do it for me',
+        label: 'Use filters',
         value: 'dynamic',
       },
       {
-        label: 'Let me choose',
+        label: 'Manually',
         value: 'static',
       },
     ],
@@ -57,6 +57,7 @@ const dynamicPostRelatedFields: Field[] = [
   {
     name: 'dynamicOptions',
     type: 'group',
+    label: 'Filter options',
     admin: {
       condition: (_, siblingData) => siblingData?.postOptions === 'dynamic',
     },
