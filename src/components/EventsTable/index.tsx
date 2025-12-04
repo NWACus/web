@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { Link } from '@payloadcms/ui'
 import {
   ChevronDown,
   ChevronRight,
@@ -174,19 +175,19 @@ export function EventTable({ events = [] }: { events: Event[] }) {
   }
 
   return (
-    <div className="w-full not-prose overflow-hidden">
+    <div className="w-full not-prose overflow-hidden @container">
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50">
-            <TableHead className="p-2 w-4 lg:hidden"></TableHead>
+            <TableHead className="p-2 w-4 @lg:hidden"></TableHead>
             <TableHead className="flex-1 min-w-0">
               <SortableHeader label="Date" sortKey="startDate" />
             </TableHead>
-            <TableHead className="sm:flex-1 sm:min-w-0">
+            <TableHead className="sm:flex-1 @sm:min-w-0">
               <SortableHeader label="Name" sortKey="title" />
             </TableHead>
-            <TableHead className="hidden lg:table-cell flex-1 min-w-0">Location</TableHead>
-            <TableHead className="hidden sm:table-cell"></TableHead>
+            <TableHead className="hidden @lg:table-cell flex-1 min-w-0">Location</TableHead>
+            <TableHead className="hidden @sm:table-cell"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -201,19 +202,17 @@ export function EventTable({ events = [] }: { events: Event[] }) {
               <Fragment key={`event-group-${event.id}`}>
                 <TableRow
                   key={event.id}
-                  className="hover:bg-gray-50 transition cursor-pointer lg:cursor-auto"
+                  className="hover:bg-gray-50 transition cursor-pointer @lg:cursor-auto"
                   onClick={() => {
-                    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                      toggleRow(String(event.id))
-                    }
+                    toggleRow(String(event.id))
                   }}
                 >
-                  <TableCell className="p-2 w-4 lg:hidden">
+                  <TableCell className="p-2 w-4 @lg:hidden">
                     <ChevronRight
                       className={`w-4 h-4 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`}
                     />
                   </TableCell>
-                  <TableCell className="text-sm px-1 sm:px-2">
+                  <TableCell className="text-sm px-1 @sm:px-2">
                     <div>
                       <div className="font-medium">{date}</div>
                       <div className="text-gray-500 text-xs">{time}</div>
@@ -222,18 +221,14 @@ export function EventTable({ events = [] }: { events: Event[] }) {
 
                   {/* Name */}
                   <TableCell className="text-sm max-w-xs">
-                    <CMSLink
-                      className="hidden md:inline-block underline"
-                      appearance="link"
-                      url={eventUrl}
-                    >
+                    <Link className="hidden @md:inline-block underline" href={eventUrl}>
                       {event.title}
-                    </CMSLink>
-                    <span className="md:hidden">{event.title}</span>
+                    </Link>
+                    <span className="@md:hidden">{event.title}</span>
                   </TableCell>
 
                   {/* Location */}
-                  <TableCell className="hidden lg:table-cell text-sm">
+                  <TableCell className="hidden @lg:table-cell text-sm">
                     <div>
                       <div className="font-medium">{getLocation(event)}</div>
                       <div className="text-gray-500 text-xs">{getAddress(event)}</div>
@@ -241,7 +236,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   </TableCell>
 
                   {/* Register button */}
-                  <TableCell className="hidden sm:table-cell text-right px-2">
+                  <TableCell className="hidden @sm:table-cell text-right px-2">
                     {event.registrationUrl && !isPast && !isRegistrationClosed ? (
                       <>
                         <CMSLink
@@ -251,7 +246,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                           url={event.registrationUrl}
                         >
                           Register
-                          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted hidden sm:inline" />
+                          <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted hidden @sm:inline" />
                         </CMSLink>
                       </>
                     ) : isPast || isRegistrationClosed ? (
@@ -265,7 +260,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                 </TableRow>
                 {/* Expanded row for details on smaller screens */}
                 {isExpanded && (
-                  <TableRow className="bg-gray-50 lg:hidden">
+                  <TableRow className="bg-gray-50 @lg:hidden">
                     <TableCell colSpan={1} className="w-2"></TableCell>
                     <TableCell colSpan={4} className="py-4 ps-0">
                       <div className="flex justify-between gap-2">
@@ -282,7 +277,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                           )}
                         </div>
                         <div className="flex flex-col gap-2 text-right">
-                          <div className="sm:hidden">
+                          <div className="@sm:hidden">
                             {event.registrationUrl && !isPast && !isRegistrationClosed ? (
                               <CMSLink
                                 appearance="default"
@@ -292,7 +287,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                                 newTab={true}
                               >
                                 Register
-                                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 ml-1 sm:ml-2 -mt-0.5 text-muted" />
+                                <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted" />
                               </CMSLink>
                             ) : isPast || isRegistrationClosed ? (
                               <Button variant="default" disabled={true}>
