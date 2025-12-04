@@ -1,7 +1,6 @@
 'use client'
-import type { ReactSelectOption } from '@payloadcms/ui'
 
-import { SelectInput, useConfig } from '@payloadcms/ui'
+import { SelectInput, useConfig, type ReactSelectOption } from '@payloadcms/ui'
 import { useCallback } from 'react'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
@@ -13,11 +12,14 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
   const { config } = useConfig()
   const params = useParams()
   const { options, selectedTenantID, setTenant } = useTenantSelection()
-  const viewType = useViewType()
 
   const isGlobal = params.segments && params.segments[0] === 'globals'
   const isCollection = params.segments && params.segments[0] === 'collections'
   const slugFromParams = params.segments && params.segments[1]
+
+  const viewType = useViewType()
+  const isDashboardView = viewType === 'dashboard'
+  const isDocumentView = viewType === 'document'
 
   const collectionConfig = config.collections.find(
     (collectionConfig) => collectionConfig.slug === slugFromParams,
@@ -40,19 +42,21 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
     },
     [setTenant],
   )
-  // hide for Diagnostics, NAC widget, Global Role, Roles, & Users
-  if (isGlobal || !collectionTenantFieldConfig) return null
+
+  // Hide for non-tenant scoped collections
+  // Courses, Diagnostics, NAC widget, Global Role, Providers, Roles, & Users
+  if (isGlobal || (!collectionTenantFieldConfig && !isDashboardView)) return null
 
   if (options.length <= 1) {
     return null
   }
 
-  if (isCollection && viewType === 'document' && !isUnique) isReadOnly = true
+  if (isCollection && isDocumentView && !isUnique) isReadOnly = true
 
   return (
     <div className="tenant-selector">
       <SelectInput
-        isClearable={viewType !== 'document'}
+        isClearable={!isDocumentView}
         label={label}
         name="setTenant"
         onChange={handleChange}
