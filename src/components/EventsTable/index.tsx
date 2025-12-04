@@ -219,7 +219,9 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                 onSort={handleSort}
               />
             </TableHead>
-            <TableHead className="hidden @lg:table-cell flex-1 min-w-0">Location</TableHead>
+            <TableHead className="hidden @lg:table-cell flex-1 min-w-0 font-semibold text-gray-700">
+              Location
+            </TableHead>
             <TableHead className="hidden @sm:table-cell"></TableHead>
           </TableRow>
         </TableHeader>
@@ -302,7 +304,7 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                           <div className="flex">
                             <MapPin className="h-3 w-3 mt-1 me-0.5 flex-shrink-0" />
 
-                            <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
+                            <h4 className="font-semibold mb-1">Location</h4>
                           </div>
                           <p className="text-sm text-gray-600">{getLocation(event)}</p>
                           {getAddress(event) && (
