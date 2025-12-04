@@ -27,7 +27,7 @@ export async function getPosts(params: GetPostsParams): Promise<GetPostsResult> 
     const { tags, sort, center } = params
 
     const offset = params.offset || 0
-    const limit = params.limit || POSTS_LIMIT
+    const limit = Math.floor(Number(params.limit)) || POSTS_LIMIT
 
     const conditions: Where[] = [
       {

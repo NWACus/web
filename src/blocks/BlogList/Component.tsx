@@ -1,49 +1,94 @@
+'use client'
+
 import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import type { BlogListBlock as BlogListBlockProps, Post } from '@/payload-types'
+import { useTenant } from '@/providers/TenantProvider'
 import {
   filterValidPublishedRelationships,
   filterValidRelationships,
 } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 type BlogListComponentProps = BlogListBlockProps & {
   className?: string
   wrapInContainer?: boolean
 }
 
-export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
-  const { heading, belowHeadingContent, backgroundColor, className, wrapInContainer = true } = args
+export const BlogListBlockComponent = (args: BlogListComponentProps) => {
+  const {
+    heading,
+    belowHeadingContent,
+    backgroundColor,
+    className,
+    wrapInContainer = true,
+    postOptions,
+  } = args
 
-  const { filterByTags, sortBy, queriedPosts } = args.dynamicOptions || {}
+  const { filterByTags, sortBy, maxPosts } = args.dynamicOptions || {}
   const { staticPosts } = args.staticOptions || {}
+  const { tenant } = useTenant()
+  const [fetchedPosts, setFetchedPosts] = useState<Post[]>([])
+  const [postsPageParams, setPostsPageParams] = useState<string>('')
+
+  const bgColorClass = `bg-${backgroundColor}`
+
+  useEffect(() => {
+    if (postOptions !== 'dynamic') return
+
+    const fetchPosts = async () => {
+      const tenantSlug = typeof tenant === 'object' && tenant?.slug
+      if (!tenantSlug) return
+
+      const params = new URLSearchParams({
+        limit: String(maxPosts || 4),
+      })
+
+      // params supported by the posts page
+      const postsPageParams = new URLSearchParams()
+
+      const filterByTagsSlugs = filterValidRelationships(filterByTags).map(({ slug }) => slug)
+
+      const blogLinkQueryParams = new URLSearchParams()
+      if (sortBy !== undefined) {
+        blogLinkQueryParams.set('sort', sortBy)
+      }
+
+      if (filterByTagsSlugs && filterByTagsSlugs.length > 0) {
+        blogLinkQueryParams.set('tags', filterByTagsSlugs.join(','))
+      }
+
+      setPostsPageParams(postsPageParams.toString())
+
+      const allParams = new URLSearchParams([...params, ...postsPageParams])
+
+      const response = await fetch(`/api/${tenantSlug}/posts?${allParams.toString()}`, {
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts')
+      }
+
+      const data = await response.json()
+      setFetchedPosts(data.posts || [])
+    }
+
+    fetchPosts()
+  }, [tenant, postsPageParams, filterByTags, sortBy, postOptions, maxPosts])
 
   let posts: Post[] = filterValidPublishedRelationships(staticPosts)
 
-  const hasStaticPosts = staticPosts && staticPosts.length > 0
-
-  if (!staticPosts || (staticPosts.length === 0 && queriedPosts && queriedPosts.length > 0)) {
-    posts = filterValidPublishedRelationships(queriedPosts)
-  }
-
-  const filterByTagsSlugs = filterValidRelationships(filterByTags).map(({ slug }) => slug)
-
-  const blogLinkQueryParams = new URLSearchParams()
-  if (sortBy !== undefined) {
-    blogLinkQueryParams.set('sort', sortBy)
-  }
-
-  if (filterByTagsSlugs && filterByTagsSlugs.length > 0) {
-    blogLinkQueryParams.set('tags', filterByTagsSlugs.join(','))
+  if (postOptions === 'dynamic') {
+    posts = filterValidPublishedRelationships(fetchedPosts)
   }
 
   if (!posts) {
     return null
   }
-
-  const bgColorClass = `bg-${backgroundColor}`
 
   return (
     <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
@@ -75,9 +120,9 @@ export const BlogListBlockComponent = async (args: BlogListComponentProps) => {
               <h3>There are no posts matching these results.</h3>
             )}
           </div>
-          {!hasStaticPosts && (
+          {postOptions === 'dynamic' && (
             <Button asChild className="not-prose md:self-start">
-              <Link href={`/blog?${blogLinkQueryParams.toString()}`}>View all {heading}</Link>
+              <Link href={`/blog?${postsPageParams.toString()}`}>View all {heading}</Link>
             </Button>
           )}
         </div>

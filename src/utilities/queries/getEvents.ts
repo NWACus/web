@@ -32,7 +32,7 @@ export async function getEvents(params: GetEventsParams): Promise<GetEventsResul
     const { types, startDate, endDate, groups, tags, modesOfTravel, center } = params
 
     const offset = params.offset || 0
-    const limit = params.limit || EVENTS_LIMIT
+    const limit = Math.floor(Number(params.limit)) || EVENTS_LIMIT
 
     const conditions: Where[] = [
       {
