@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
-import { Link } from '@payloadcms/ui'
 import {
   ChevronDown,
   ChevronRight,
@@ -20,6 +19,7 @@ import {
   ExternalLink,
   MapPin,
 } from 'lucide-react'
+import Link from 'next/link'
 import { Fragment, useCallback, useMemo, useState } from 'react'
 import { CMSLink } from '../Link'
 
