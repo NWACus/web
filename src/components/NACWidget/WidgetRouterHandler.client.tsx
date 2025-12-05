@@ -39,7 +39,7 @@ export function WidgetRouterHandler({
     const isValid = hashPath && isValidPath(hashPath, validPathMatchers)
 
     if (!isValid) {
-      window.location.hash = `#${normalizedInitialPath}`
+      window.history.replaceState(null, '', `#${normalizedInitialPath}`)
       return
     }
   }, [observedHash, normalizedInitialPath, validPathMatchers])
