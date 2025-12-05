@@ -162,7 +162,7 @@ export function InviteUserDrawer({
         value: String(globalRole.id),
       })) || []
 
-  const [{ data: providersData }] = usePayloadAPI('/api/providers?limit=100')
+  const [{ data: providersData }] = usePayloadAPI('/api/providers?limit=0')
   const providerOptions =
     providersData?.docs
       ?.filter(
