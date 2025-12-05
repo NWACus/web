@@ -44,7 +44,7 @@ const eslintConfig = [
       ],
     },
   },
-  globalIgnores(['.next/', 'src/migrations/']),
+  globalIgnores(['.next/', 'src/migrations/', 'next-env.d.ts']),
 ]
 
 export default eslintConfig

@@ -1,10 +1,11 @@
-import type { CollectionConfig } from 'payload'
+import { type CollectionConfig } from 'payload'
 
 import { accessByTenantRoleWithPermissiveRead } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
+import { hasGlobalOrTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { generateBlurDataUrl } from './hooks/generateBlurDataUrl'
@@ -20,6 +21,8 @@ export const Media: CollectionConfig = {
   admin: {
     baseListFilter: filterByTenant,
     group: 'Content',
+    hidden: ({ user }) =>
+      !hasGlobalOrTenantRolePermission({ method: 'read', collection: 'media', user }),
   },
   fields: [
     tenantField(),

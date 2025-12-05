@@ -5,6 +5,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
+import { hasGlobalOrTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { prefixFilenameWithTenant } from '../Media/hooks/prefixFilenameWithTenant'
@@ -19,6 +20,8 @@ export const Documents: CollectionConfig = {
   admin: {
     baseListFilter: filterByTenant,
     group: 'Content',
+    hidden: ({ user }) =>
+      !hasGlobalOrTenantRolePermission({ method: 'read', collection: 'media', user }),
   },
   fields: [
     tenantField(),

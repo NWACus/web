@@ -153,6 +153,15 @@ export const homePage: (
         alignContent: 'center',
         imageSize: 'large',
       },
+      {
+        blockType: 'eventList',
+        heading: 'Upcoming Events',
+        backgroundColor: 'transparent',
+        eventOptions: 'dynamic',
+        dynamicOpts: {
+          maxEvents: 4,
+        },
+      },
     ],
     publishedAt: new Date().toISOString(),
   }

@@ -43,11 +43,11 @@ const defaultStylingFields: Field[] = [
     required: true,
     options: [
       {
-        label: 'Do it for me',
+        label: 'Use filters',
         value: 'dynamic',
       },
       {
-        label: 'Let me choose',
+        label: 'Manually',
         value: 'static',
       },
     ],
@@ -57,6 +57,7 @@ const dynamicPostRelatedFields: Field[] = [
   {
     name: 'dynamicOptions',
     type: 'group',
+    label: 'Filter options',
     admin: {
       condition: (_, siblingData) => siblingData?.postOptions === 'dynamic',
     },
@@ -97,19 +98,6 @@ const dynamicPostRelatedFields: Field[] = [
           step: 1,
         },
         validate: validateMaxPosts,
-      },
-      {
-        name: 'queriedPosts',
-        type: 'relationship',
-        label: 'Preview Posts Order',
-        relationTo: 'posts',
-        hasMany: true,
-        admin: {
-          readOnly: true,
-          components: {
-            Field: '@/blocks/BlogList/fields/QueriedPostsComponent#QueriedPostsComponent',
-          },
-        },
       },
     ],
   },

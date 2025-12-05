@@ -11,11 +11,15 @@ import {
 
 import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { ButtonBlock } from '@/blocks/Button/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { EventListBlockLexical } from '@/blocks/EventList/config'
+import { EventTableBlockLexical } from '@/blocks/EventTable/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -27,7 +31,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
-import { ButtonBlock } from '@/blocks/Button/config'
+
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -120,10 +124,13 @@ export const Posts: CollectionConfig<'posts'> = {
                 Banner,
                 BlogListBlockLexical,
                 DocumentBlock,
+                EventListBlockLexical,
+                EventTableBlockLexical,
                 GenericEmbedLexical,
                 HeaderBlock,
                 MediaBlockLexical,
                 SingleBlogPostBlockLexical,
+                SingleEventBlockLexical,
                 SponsorsBlock,
               ],
             }),
@@ -245,7 +252,6 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-    // @ts-expect-error Expect ts error here because of typescript mismatching Partial<TextField> with TextField
     slugField(),
     contentHashField(),
   ],
@@ -257,9 +263,7 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   versions: {
     drafts: {
-      autosave: {
-        interval: 100, // We set this interval for optimal live preview
-      },
+      autosave: true,
     },
     maxPerDoc: 50,
   },
