@@ -45,7 +45,6 @@ export const allBlocksPage: (
         dynamicOptions: {
           filterByTags: null,
           sortBy: '-publishedAt',
-          queriedPosts: posts.slice(0, 4).map((post) => post.id), // Use first 4 posts for preview
         },
       },
       {
@@ -93,6 +92,7 @@ export const allBlocksPage: (
           staticEvents: [],
         },
         blockType: 'eventTable',
+        backgroundColor: 'transparent',
       },
     ],
     meta: {

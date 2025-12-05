@@ -522,7 +522,6 @@ export interface BlogListBlock {
      * Maximum number of posts that will be displayed. Must be an integer.
      */
     maxPosts?: number | null;
-    queriedPosts?: (number | Post)[] | null;
   };
   staticOptions?: {
     /**
@@ -941,6 +940,7 @@ export interface EventTag {
  * via the `definition` "EventTableBlock".
  */
 export interface EventTableBlock {
+  backgroundColor: string;
   heading?: string | null;
   /**
    * Optional content to display below the heading and above the event content.
@@ -961,6 +961,10 @@ export interface EventTableBlock {
     [k: string]: unknown;
   } | null;
   eventOptions: 'dynamic' | 'static';
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
   /**
    * Use Preview ↗ to see how events will appear
    */
@@ -2837,7 +2841,6 @@ export interface BlogListBlockSelect<T extends boolean = true> {
         sortBy?: T;
         filterByTags?: T;
         maxPosts?: T;
-        queriedPosts?: T;
       };
   staticOptions?:
     | T
@@ -2923,6 +2926,7 @@ export interface SingleEventBlockSelect<T extends boolean = true> {
  * via the `definition` "EventTableBlock_select".
  */
 export interface EventTableBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
   heading?: T;
   belowHeadingContent?: T;
   eventOptions?: T;

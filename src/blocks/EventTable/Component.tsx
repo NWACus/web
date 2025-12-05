@@ -14,7 +14,14 @@ type EventTableComponentProps = EventTableBlockProps & {
 }
 
 export const EventTableBlockComponent = (args: EventTableComponentProps) => {
-  const { heading, belowHeadingContent, className, eventOptions } = args
+  const {
+    heading,
+    belowHeadingContent,
+    className,
+    eventOptions,
+    backgroundColor,
+    wrapInContainer = true,
+  } = args
   const { byTypes, byGroups, byTags, maxEvents } = args.dynamicOpts || {}
   const { staticEvents } = args.staticOpts || {}
 
@@ -22,8 +29,13 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
 
+  let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
+
   useEffect(() => {
-    if (eventOptions !== 'dynamic') return
+    if (eventOptions !== 'dynamic') {
+      setLoading(false)
+      return
+    }
 
     const fetchEvents = async () => {
       const tenantSlug = typeof tenant === 'object' && tenant?.slug
@@ -74,9 +86,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     }
 
     fetchEvents()
-  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant])
-
-  let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
+  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant, staticEvents, fetchedEvents])
 
   if (eventOptions === 'dynamic') {
     displayEvents = filterValidPublishedRelationships(fetchedEvents)
@@ -86,28 +96,34 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     return null
   }
 
+  const bgColorClass = `bg-${backgroundColor}`
+
   return (
-    <div className={cn('container', className)}>
-      <div className="flex flex-col justify-start gap-1">
-        {heading && (
-          <div className="prose md:prose-md dark:prose-invert">
-            <h2>{heading}</h2>
+    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
+      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
+        <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>
+          <div className="flex flex-col justify-start gap-1">
+            {heading && (
+              <div className="prose md:prose-md dark:prose-invert">
+                <h2>{heading}</h2>
+              </div>
+            )}
+            {belowHeadingContent && (
+              <div className="mb-4">
+                <RichText data={belowHeadingContent} enableGutter={false} />
+              </div>
+            )}
           </div>
-        )}
-        {belowHeadingContent && (
           <div>
-            <RichText data={belowHeadingContent} enableGutter={false} />
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                {loading && <p className="text-muted-foreground">Loading events...</p>}
+              </div>
+            ) : (
+              <EventTable events={displayEvents} />
+            )}
           </div>
-        )}
-      </div>
-      <div>
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            {loading && <p className="text-muted-foreground">Loading events...</p>}
-          </div>
-        ) : (
-          <EventTable events={displayEvents} />
-        )}
+        </div>
       </div>
     </div>
   )
