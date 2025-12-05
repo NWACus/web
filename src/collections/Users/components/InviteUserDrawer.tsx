@@ -21,7 +21,7 @@ import {
 import { GlobalRole, Provider, Role, Tenant } from '@/payload-types'
 import { type FormState } from 'payload'
 import { reduceFieldsToValues } from 'payload/shared'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { inviteUserAction } from './inviteUserAction'
 import { RoleAssignmentRow } from './RoleAssignmentRow'
 
@@ -95,19 +95,17 @@ const initialState: FormState = {
   },
   roleAssignments: {
     initialValue: [],
-    valid: true, // Valid by default since it's optional
+    valid: true,
     value: [],
-    rows: [],
   },
   globalRoleAssignments: {
     initialValue: [],
-    valid: true, // Valid by default since it's optional
+    valid: true,
     value: [],
-    rows: [],
   },
   providers: {
     initialValue: [],
-    valid: true, // Valid by default since it's optional
+    valid: true,
     value: [],
   },
 }
@@ -128,51 +126,148 @@ export function InviteUserDrawer({
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [{ data: rolesData }] = usePayloadAPI('/api/roles?limit=100')
-  const roleOptions =
-    rolesData?.docs
-      ?.filter(
-        (role: Role | null): role is Role => role != null && role.name != null && role.id != null,
-      )
-      .map((role: Role) => ({
-        label: role.name,
-        value: String(role.id),
-      })) || []
+  const roleOptions = useMemo(
+    () =>
+      rolesData?.docs
+        ?.filter(
+          (role: Role | null): role is Role => role != null && role.name != null && role.id != null,
+        )
+        .map((role: Role) => ({
+          label: role.name,
+          value: String(role.id),
+        })) || [],
+    [rolesData],
+  )
 
   const [{ data: tenantsData }] = usePayloadAPI('/api/tenants?limit=100')
-  const tenantOptions =
-    tenantsData?.docs
-      ?.filter(
-        (tenant: Tenant | null): tenant is Tenant =>
-          tenant != null && tenant.name != null && tenant.id != null,
-      )
-      .map((tenant: Tenant) => ({
-        label: tenant.name,
-        value: String(tenant.id),
-      })) || []
+  const tenantOptions = useMemo(
+    () =>
+      tenantsData?.docs
+        ?.filter(
+          (tenant: Tenant | null): tenant is Tenant =>
+            tenant != null && tenant.name != null && tenant.id != null,
+        )
+        .map((tenant: Tenant) => ({
+          label: tenant.name,
+          value: String(tenant.id),
+        })) || [],
+    [tenantsData],
+  )
 
   const [{ data: globalRolesData }] = usePayloadAPI('/api/globalRoles?limit=100')
-  const globalRoleOptions =
-    globalRolesData?.docs
-      ?.filter(
-        (globalRole: GlobalRole | null): globalRole is GlobalRole =>
-          globalRole != null && globalRole.name != null && globalRole.id != null,
-      )
-      .map((globalRole: GlobalRole) => ({
-        label: globalRole.name,
-        value: String(globalRole.id),
-      })) || []
+  const globalRoleOptions = useMemo(
+    () =>
+      globalRolesData?.docs
+        ?.filter(
+          (globalRole: GlobalRole | null): globalRole is GlobalRole =>
+            globalRole != null && globalRole.name != null && globalRole.id != null,
+        )
+        .map((globalRole: GlobalRole) => ({
+          label: globalRole.name,
+          value: String(globalRole.id),
+        })) || [],
+    [globalRolesData],
+  )
 
   const [{ data: providersData }] = usePayloadAPI('/api/providers?limit=0')
-  const providerOptions =
-    providersData?.docs
-      ?.filter(
-        (provider: Provider | null): provider is Provider =>
-          provider != null && provider.name != null && provider.id != null,
-      )
-      .map((provider: Provider) => ({
-        label: provider.name,
-        value: String(provider.id),
-      })) || []
+  const providerOptions = useMemo(
+    () =>
+      providersData?.docs
+        ?.filter(
+          (provider: Provider | null): provider is Provider =>
+            provider != null && provider.name != null && provider.id != null,
+        )
+        .map((provider: Provider) => ({
+          label: provider.name,
+          value: String(provider.id),
+        })) || [],
+    [providersData],
+  )
+
+  // Debug logging for production issue investigation
+  useEffect(() => {
+    const debugInfo = {
+      component: 'InviteUserDrawer',
+      props: {
+        canCreateGlobalRoleAssignments,
+        canCreateTenantRoleAssignments,
+        isProviderManager,
+        canAssignProviders,
+      },
+      apiResponses: {
+        roles: {
+          hasData: rolesData != null,
+          docsType:
+            rolesData?.docs === undefined
+              ? 'undefined'
+              : Array.isArray(rolesData?.docs)
+                ? 'array'
+                : typeof rolesData?.docs,
+          docsLength: rolesData?.docs?.length ?? 'N/A',
+        },
+        tenants: {
+          hasData: tenantsData != null,
+          docsType:
+            tenantsData?.docs === undefined
+              ? 'undefined'
+              : Array.isArray(tenantsData?.docs)
+                ? 'array'
+                : typeof tenantsData?.docs,
+          docsLength: tenantsData?.docs?.length ?? 'N/A',
+        },
+        globalRoles: {
+          hasData: globalRolesData != null,
+          docsType:
+            globalRolesData?.docs === undefined
+              ? 'undefined'
+              : Array.isArray(globalRolesData?.docs)
+                ? 'array'
+                : typeof globalRolesData?.docs,
+          docsLength: globalRolesData?.docs?.length ?? 'N/A',
+        },
+        providers: {
+          hasData: providersData != null,
+          docsType:
+            providersData?.docs === undefined
+              ? 'undefined'
+              : Array.isArray(providersData?.docs)
+                ? 'array'
+                : typeof providersData?.docs,
+          docsLength: providersData?.docs?.length ?? 'N/A',
+        },
+      },
+      options: {
+        roleOptionsLength: roleOptions.length,
+        tenantOptionsLength: tenantOptions.length,
+        globalRoleOptionsLength: globalRoleOptions.length,
+        providerOptionsLength: providerOptions.length,
+        // Check for any malformed options
+        globalRoleOptionsValid: globalRoleOptions.every(
+          (opt: { label: string; value: string }) =>
+            typeof opt.label === 'string' && typeof opt.value === 'string',
+        ),
+        providerOptionsValid: providerOptions.every(
+          (opt: { label: string; value: string }) =>
+            typeof opt.label === 'string' && typeof opt.value === 'string',
+        ),
+      },
+      initialStateKeys: Object.keys(initialState),
+    }
+    console.log('[InviteUserDrawer Debug]', JSON.stringify(debugInfo, null, 2))
+  }, [
+    canCreateGlobalRoleAssignments,
+    canCreateTenantRoleAssignments,
+    isProviderManager,
+    canAssignProviders,
+    rolesData,
+    tenantsData,
+    globalRolesData,
+    providersData,
+    roleOptions,
+    tenantOptions,
+    globalRoleOptions,
+    providerOptions,
+  ])
 
   const handleSubmit = useCallback(
     async (formState: FormState) => {
@@ -251,6 +346,50 @@ export function InviteUserDrawer({
     },
     [closeModal, refineListData],
   )
+
+  // Debug component to log form state structure (no sensitive values)
+  const FormStateDebugger = () => {
+    const [formState] = useAllFormFields()
+
+    useEffect(() => {
+      if (!formState) {
+        console.log('[FormStateDebugger] formState is null/undefined')
+        return
+      }
+
+      const stateShape: Record<string, unknown> = {}
+      for (const key of Object.keys(formState)) {
+        const field = formState[key]
+        stateShape[key] = {
+          type: field === null ? 'null' : typeof field,
+          isValid: field?.valid,
+          hasValue: field?.value !== undefined && field?.value !== '',
+          valueType:
+            field?.value === null
+              ? 'null'
+              : Array.isArray(field?.value)
+                ? 'array'
+                : typeof field?.value,
+          valueLength: Array.isArray(field?.value) ? field.value.length : 'N/A',
+          hasRows: 'rows' in (field || {}),
+          rowsType:
+            field?.rows === null
+              ? 'null'
+              : Array.isArray(field?.rows)
+                ? 'array'
+                : typeof field?.rows,
+          rowsLength: Array.isArray(field?.rows) ? field.rows.length : 'N/A',
+        }
+      }
+
+      console.log(
+        '[FormStateDebugger]',
+        JSON.stringify({ fieldCount: Object.keys(formState).length, fields: stateShape }, null, 2),
+      )
+    }, [formState])
+
+    return null
+  }
 
   const RoleAssignmentsArray = ({ path }: { path: string }) => {
     const { dispatchFields, removeFieldRow, addFieldRow } = useForm()
@@ -332,6 +471,7 @@ export function InviteUserDrawer({
           disableValidationOnSubmit={true}
           className="space-y-8 pt-8"
         >
+          <FormStateDebugger />
           <EmailField
             field={{
               name: 'email',
