@@ -62,10 +62,9 @@ export const TenantSelectionProvider = async ({
 
   return (
     <TenantSelectionProviderClient
+      initialTenantOptions={tenantOptions}
       initialValue={initialValue}
-      tenantOptions={tenantOptions}
       tenantsCollectionSlug={tenantsCollectionSlug}
-      useAsTitle={useAsTitle}
     >
       {children}
     </TenantSelectionProviderClient>
