@@ -129,32 +129,50 @@ export function InviteUserDrawer({
 
   const [{ data: rolesData }] = usePayloadAPI('/api/roles?limit=100')
   const roleOptions =
-    rolesData?.docs?.map((role: Role) => ({
-      label: role.name,
-      value: String(role.id),
-    })) || []
+    rolesData?.docs
+      ?.filter(
+        (role: Role | null): role is Role => role != null && role.name != null && role.id != null,
+      )
+      .map((role: Role) => ({
+        label: role.name,
+        value: String(role.id),
+      })) || []
 
   const [{ data: tenantsData }] = usePayloadAPI('/api/tenants?limit=100')
   const tenantOptions =
-    tenantsData?.docs?.map((tenant: Tenant) => ({
-      label: tenant.name,
-      value: String(tenant.id),
-    })) || []
+    tenantsData?.docs
+      ?.filter(
+        (tenant: Tenant | null): tenant is Tenant =>
+          tenant != null && tenant.name != null && tenant.id != null,
+      )
+      .map((tenant: Tenant) => ({
+        label: tenant.name,
+        value: String(tenant.id),
+      })) || []
 
   const [{ data: globalRolesData }] = usePayloadAPI('/api/globalRoles?limit=100')
   const globalRoleOptions =
-    globalRolesData?.docs?.map((globalRole: GlobalRole) => ({
-      label: globalRole.name,
-      value: String(globalRole.id),
-    })) || []
+    globalRolesData?.docs
+      ?.filter(
+        (globalRole: GlobalRole | null): globalRole is GlobalRole =>
+          globalRole != null && globalRole.name != null && globalRole.id != null,
+      )
+      .map((globalRole: GlobalRole) => ({
+        label: globalRole.name,
+        value: String(globalRole.id),
+      })) || []
 
-  // Fetch all providers from API for users with global permissions
   const [{ data: providersData }] = usePayloadAPI('/api/providers?limit=100')
   const providerOptions =
-    providersData?.docs?.map((provider: Provider) => ({
-      label: provider.name,
-      value: String(provider.id),
-    })) || []
+    providersData?.docs
+      ?.filter(
+        (provider: Provider | null): provider is Provider =>
+          provider != null && provider.name != null && provider.id != null,
+      )
+      .map((provider: Provider) => ({
+        label: provider.name,
+        value: String(provider.id),
+      })) || []
 
   const handleSubmit = useCallback(
     async (formState: FormState) => {
@@ -351,10 +369,10 @@ export function InviteUserDrawer({
             </div>
           )}
 
-          {canCreateGlobalRoleAssignments && (
+          {canCreateGlobalRoleAssignments && globalRoleOptions.length > 0 && (
             <SelectField
               field={{
-                name: 'globalRoles',
+                name: 'globalRoleAssignments',
                 type: 'select',
                 label: 'Global Role Assignments',
                 options: globalRoleOptions,
@@ -364,7 +382,7 @@ export function InviteUserDrawer({
             />
           )}
 
-          {canAssignProviders && (
+          {canAssignProviders && providerOptions.length > 0 && (
             <SelectField
               field={{
                 name: 'providers',
