@@ -34,4 +34,5 @@ src/services/vercel.ts
 src/utilities/findDocumentsWithBlockReferences.ts
 src/utilities/generateOGImage.tsx
 src/utilities/removeNonDeterministicKeys.ts
+src/utilities/tenancy/generateCookie.ts
 src/utilities/useClickableCard.ts
