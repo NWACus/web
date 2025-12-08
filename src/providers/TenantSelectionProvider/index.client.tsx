@@ -169,7 +169,7 @@ export const TenantSelectionProviderClient = ({
   const syncTenants = useCallback(async () => {
     try {
       const req = await fetch(
-        `${config.serverURL}${config.routes.api}/${tenantsCollectionSlug}/populate-tenant-options`,
+        `${config.serverURL}${config.routes.api}/${tenantsCollectionSlug}/?select[id]=true&select[name]=true&limit=0&depth=0`,
         {
           credentials: 'include',
           method: 'GET',
@@ -178,12 +178,12 @@ export const TenantSelectionProviderClient = ({
 
       const result = await req.json()
 
-      if (result.tenantOptions && userID) {
-        setTenantOptions(result.tenantOptions)
+      if (result.docs && userID) {
+        setTenantOptions(result.docs)
 
-        if (result.tenantOptions.length === 1) {
-          setSelectedTenantID(result.tenantOptions[0].value)
-          setTenantCookie({ value: String(result.tenantOptions[0].value) })
+        if (result.docs.length === 1) {
+          setSelectedTenantID(result.docs[0].value)
+          setTenantCookie({ value: String(result.docs[0].value) })
         }
       }
     } catch (e) {
