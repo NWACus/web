@@ -79,5 +79,12 @@ export const plugins: Plugin[] = [
     clientUploads: true,
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
   }),
-  sentryPlugin({ Sentry }),
+  sentryPlugin({
+    Sentry,
+    options: {
+      debug: true,
+      // >= 500 status codes are captured automatically in addition to these
+      captureErrors: [400, 401, 403, 404],
+    },
+  }),
 ]
