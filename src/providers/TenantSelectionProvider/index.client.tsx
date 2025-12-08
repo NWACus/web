@@ -5,7 +5,8 @@ import type { OptionObject } from 'payload'
 import { toast, useAuth, useConfig } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation.js'
 import React, { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generateCookie } from './generateCookie'
+
+import { generateCookie } from '@/utilities/tenancy/generateCookie'
 
 type ContextType = {
   /**
