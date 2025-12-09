@@ -169,7 +169,7 @@ export const TenantSelectionProviderClient = ({
   const syncTenants = useCallback(async () => {
     try {
       const req = await fetch(
-        `${config.serverURL}${config.routes.api}/${tenantsCollectionSlug}/?select[id]=true&select[name]=true&limit=0&depth=0`,
+        `${config.serverURL}${config.routes.api}/${tenantsCollectionSlug}/?select[id]=true&select[name]=true&limit=0&depth=0&sort=name`,
         {
           credentials: 'include',
           method: 'GET',
@@ -179,7 +179,12 @@ export const TenantSelectionProviderClient = ({
       const result = await req.json()
 
       if (result.docs && userID) {
-        setTenantOptions(result.docs)
+        setTenantOptions(
+          result.docs.map((doc: Record<string, number | string>) => ({
+            label: doc.name,
+            value: doc.id,
+          })),
+        )
 
         if (result.docs.length === 1) {
           setSelectedTenantID(result.docs[0].value)
