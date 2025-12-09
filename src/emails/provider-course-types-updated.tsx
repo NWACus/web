@@ -62,7 +62,10 @@ export function ProviderCourseTypesUpdated({
 }
 
 ProviderCourseTypesUpdated.PreviewProps = {
-  appUrl: 'http://localhost:3000',
+  appUrl:
+    process.env.NODE_ENV === 'production'
+      ? 'https://avy-fx.org/providers'
+      : 'http://localhost:3000',
   providerName: 'Mountain Safety Academy',
   courseTypes: ['rec-1', 'rec-2', 'pro-1'],
 }
