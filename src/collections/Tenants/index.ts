@@ -57,7 +57,6 @@ export const Tenants: CollectionConfig = {
       admin: {
         description:
           'Used for subdomains and url paths for previews. This is a unique identifier for a tenant.',
-        readOnly: true,
       },
       index: true,
       required: true,
