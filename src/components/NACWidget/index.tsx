@@ -3,7 +3,7 @@
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
-export type Widget = 'map' | 'forecast' | 'warnings' | 'stations' | 'observations'
+export type Widget = 'map' | 'forecast' | 'warnings' | 'stations' | 'observations' | 'media'
 
 export const loadersByWidget: Record<
   Widget,
@@ -15,12 +15,14 @@ export const loadersByWidget: Record<
       | 'warningWidgetData'
       | 'stationWidgetData'
       | 'obsWidgetData'
+      | 'mediaWidgetData'
     widgetControllerKey:
       | 'mapWidget'
       | 'forecastWidget'
       | 'warningsWidget'
       | 'stationWidget'
       | 'obsWidget'
+      | 'mediaWidget'
   }
 > = {
   map: {
@@ -47,6 +49,11 @@ export const loadersByWidget: Record<
     scriptName: 'observations',
     widgetDataKey: 'obsWidgetData',
     widgetControllerKey: 'obsWidget',
+  },
+  media: {
+    scriptName: 'media',
+    widgetDataKey: 'mediaWidgetData',
+    widgetControllerKey: 'mediaWidget',
   },
 }
 
@@ -115,6 +122,7 @@ export function NACWidget({
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,
+      ...(widget === 'media' && { mode: 'carousel' }),
     }
 
     window[widgetDataKey] = widgetData
