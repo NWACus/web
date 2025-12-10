@@ -273,6 +273,7 @@ export interface HomePage {
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
+    | NACMediaBlock
     | SponsorsBlock
     | TeamBlock
   )[];
@@ -339,6 +340,7 @@ export interface Page {
     | ImageText
     | ImageTextList
     | LinkPreviewBlock
+    | NACMediaBlock
     | MediaBlock
     | SponsorsBlock
     | TeamBlock
@@ -1444,6 +1446,22 @@ export interface LinkPreviewBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'linkPreview';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NACMediaBlock".
+ */
+export interface NACMediaBlock {
+  tenant: number | Tenant;
+  backgroundColor: string;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  mode: 'carousel' | 'grid';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'nacMediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2798,6 +2816,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        nacMediaBlock?: T | NACMediaBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
@@ -3087,6 +3106,18 @@ export interface MediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NACMediaBlock_select".
+ */
+export interface NACMediaBlockSelect<T extends boolean = true> {
+  tenant?: T;
+  backgroundColor?: T;
+  wrapInContainer?: T;
+  mode?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SponsorsBlock_select".
  */
 export interface SponsorsBlockSelect<T extends boolean = true> {
@@ -3143,6 +3174,7 @@ export interface PagesSelect<T extends boolean = true> {
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
+        nacMediaBlock?: T | NACMediaBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;

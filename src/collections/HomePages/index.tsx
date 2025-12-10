@@ -24,6 +24,7 @@ import { BlogListBlock } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
+import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
@@ -184,6 +185,7 @@ export const HomePages: CollectionConfig = {
         ImageTextList,
         LinkPreviewBlock,
         MediaBlock,
+        NACMediaBlock,
         SponsorsBlock,
         TeamBlock,
       ],

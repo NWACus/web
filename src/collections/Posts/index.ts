@@ -32,6 +32,7 @@ import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 
+import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
@@ -129,6 +130,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 GenericEmbedLexical,
                 HeaderBlock,
                 MediaBlockLexical,
+                NACMediaBlock,
                 SingleBlogPostBlockLexical,
                 SingleEventBlockLexical,
                 SponsorsBlock,

@@ -87,11 +87,13 @@ export function NACWidget({
   widget,
   widgetsVersion,
   widgetsBaseUrl,
+  mediaMode,
 }: {
   center: string
   widget: Widget
   widgetsVersion: string
   widgetsBaseUrl: string
+  mediaMode?: 'carousel' | 'grid'
 }) {
   const widgetId = `nac-widget-${widget}`
 
@@ -122,7 +124,7 @@ export function NACWidget({
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,
-      ...(widget === 'media' && { mode: 'carousel' }),
+      ...(widget === 'media' && { mode: mediaMode }),
     }
 
     window[widgetDataKey] = widgetData

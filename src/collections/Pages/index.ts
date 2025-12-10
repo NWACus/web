@@ -36,6 +36,7 @@ import { tenantField } from '@/fields/tenantField'
 
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 
+import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { isTenantValue } from '@/utilities/isTenantValue'
@@ -128,6 +129,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 ImageText,
                 ImageTextList,
                 LinkPreviewBlock,
+                NACMediaBlock,
                 MediaBlock,
                 SponsorsBlock,
                 TeamBlock,
