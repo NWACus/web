@@ -6,6 +6,7 @@ import EmailButton from './_components/EmailButton'
 export type ProviderApplicationApprovedProps = {
   appUrl: string
   providerName: string
+  providerId: number
   courseTypes: string[]
 }
 
@@ -19,9 +20,10 @@ const courseTypeLabels = courseTypesData.reduce<Record<string, string>>((acc, cu
 export function ProviderApplicationApproved({
   appUrl,
   providerName,
+  providerId,
   courseTypes,
 }: ProviderApplicationApprovedProps) {
-  const providersUrl = `${appUrl}/providers`
+  const providersUrl = `${appUrl}/admin/collections/providers/${providerId}`
 
   return (
     <A3EmailLayout appUrl={appUrl}>
@@ -51,7 +53,7 @@ export function ProviderApplicationApproved({
       </Text>
 
       <Text style={{ textAlign: 'center', paddingTop: '20px', paddingBottom: '20px' }}>
-        <EmailButton href={providersUrl}>View Providers Page</EmailButton>
+        <EmailButton href={providersUrl}>View Your Provider</EmailButton>
       </Text>
 
       <Text style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
@@ -62,11 +64,9 @@ export function ProviderApplicationApproved({
 }
 
 ProviderApplicationApproved.PreviewProps = {
-  appUrl:
-    process.env.NODE_ENV === 'production'
-      ? 'https://avy-fx.org/providers'
-      : 'http://localhost:3000',
+  appUrl: 'http://localhost:3000',
   providerName: 'Mountain Safety Academy',
+  providerId: 1,
   courseTypes: ['rec-1', 'rec-2', 'pro-1'],
 }
 

@@ -18,8 +18,10 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
   // Only process when document is published
   if (doc._status !== 'published') return
 
+  const providerEmail = doc.notificationEmail ?? doc.email
+
   // Check if provider email exists
-  if (!doc.email) return
+  if (!providerEmail) return
 
   const appUrl = getURL()
 
@@ -41,14 +43,13 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
   // If there's only one published version (the current one), this is an initial approval
   const isInitialApproval = lastPublishedVersion.docs.length === 1
 
-  const providerEmail = doc.notificationEmail ?? doc.email
-
   if (isInitialApproval) {
     // Scenario 1: Provider was approved for the first time
     try {
       const emailContent = await generateProviderApplicationApproved({
         appUrl,
         providerName: doc.name,
+        providerId: doc.id,
         courseTypes: doc.courseTypes || [],
       })
 
@@ -82,6 +83,7 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
         const emailContent = await generateProviderCourseTypesUpdated({
           appUrl,
           providerName: doc.name,
+          providerId: doc.id,
           courseTypes: currentCourseTypes,
         })
 
