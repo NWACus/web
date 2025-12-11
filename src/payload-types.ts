@@ -258,11 +258,9 @@ export interface HomePage {
   layout: (
     | BiographyBlock
     | BlogListBlock
-    | SingleBlogPostBlock
     | ContentBlock
     | DocumentBlock
     | EventListBlock
-    | SingleEventBlock
     | EventTableBlock
     | FormBlock
     | GenericEmbedBlock
@@ -274,6 +272,8 @@ export interface HomePage {
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
+    | SingleBlogPostBlock
+    | SingleEventBlock
     | SponsorsBlock
     | TeamBlock
   )[];
@@ -326,22 +326,22 @@ export interface Page {
   layout: (
     | BiographyBlock
     | BlogListBlock
-    | SingleBlogPostBlock
     | ContentBlock
     | DocumentBlock
     | EventListBlock
     | EventTableBlock
-    | SingleEventBlock
     | FormBlock
-    | HeaderBlock
     | GenericEmbedBlock
+    | HeaderBlock
     | ImageLinkGrid
     | ImageQuote
     | ImageText
     | ImageTextList
     | LinkPreviewBlock
-    | NACMediaBlock
     | MediaBlock
+    | NACMediaBlock
+    | SingleBlogPostBlock
+    | SingleEventBlock
     | SponsorsBlock
     | TeamBlock
   )[];
@@ -603,24 +603,6 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock".
- */
-export interface SingleBlogPostBlock {
-  backgroundColor: string;
-  /**
-   * Select a blog post to display
-   */
-  post: number | Post;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleBlogPost';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1000,24 +982,6 @@ export interface EventTableBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleEventBlock".
- */
-export interface SingleEventBlock {
-  backgroundColor: string;
-  /**
-   * Select an event to display
-   */
-  event: number | Event;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleEvent';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock".
  */
 export interface FormBlock {
@@ -1219,6 +1183,25 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GenericEmbedBlock".
+ */
+export interface GenericEmbedBlock {
+  /**
+   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
+  html: string;
+  /**
+   * Checking this will render the embed with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'genericEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "HeaderBlock".
  */
 export interface HeaderBlock {
@@ -1245,25 +1228,6 @@ export interface HeaderBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'headerBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "GenericEmbedBlock".
- */
-export interface GenericEmbedBlock {
-  /**
-   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
-   */
-  html: string;
-  /**
-   * Checking this will render the embed with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  backgroundColor: string;
-  alignContent?: ('left' | 'center' | 'right') | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'genericEmbed';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1449,22 +1413,6 @@ export interface LinkPreviewBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "NACMediaBlock".
- */
-export interface NACMediaBlock {
-  tenant: number | Tenant;
-  backgroundColor: string;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  mode: 'carousel' | 'grid';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'nacMediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock".
  */
 export interface MediaBlock {
@@ -1500,6 +1448,58 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NACMediaBlock".
+ */
+export interface NACMediaBlock {
+  tenant: number | Tenant;
+  backgroundColor: string;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  mode: 'carousel' | 'grid';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'nacMediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock".
+ */
+export interface SingleBlogPostBlock {
+  backgroundColor: string;
+  /**
+   * Select a blog post to display
+   */
+  post: number | Post;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleBlogPost';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleEventBlock".
+ */
+export interface SingleEventBlock {
+  backgroundColor: string;
+  /**
+   * Select an event to display
+   */
+  event: number | Event;
+  /**
+   * Checking this will render the block with additional padding around it and using the background color you have selected.
+   */
+  wrapInContainer?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleEvent';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2801,11 +2801,9 @@ export interface HomePagesSelect<T extends boolean = true> {
     | {
         biography?: T | BiographyBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
-        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
         eventList?: T | EventListBlockSelect<T>;
-        singleEvent?: T | SingleEventBlockSelect<T>;
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
@@ -2817,6 +2815,8 @@ export interface HomePagesSelect<T extends boolean = true> {
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
@@ -2871,16 +2871,6 @@ export interface BlogListBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock_select".
- */
-export interface SingleBlogPostBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  post?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
@@ -2927,16 +2917,6 @@ export interface EventListBlockSelect<T extends boolean = true> {
     | {
         staticEvents?: T;
       };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleEventBlock_select".
- */
-export interface SingleEventBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  event?: T;
   id?: T;
   blockName?: T;
 }
@@ -3118,6 +3098,26 @@ export interface NACMediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock_select".
+ */
+export interface SingleBlogPostBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
+  post?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleEventBlock_select".
+ */
+export interface SingleEventBlockSelect<T extends boolean = true> {
+  backgroundColor?: T;
+  event?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "SponsorsBlock_select".
  */
 export interface SponsorsBlockSelect<T extends boolean = true> {
@@ -3160,22 +3160,22 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         biography?: T | BiographyBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
-        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
         eventList?: T | EventListBlockSelect<T>;
         eventTable?: T | EventTableBlockSelect<T>;
-        singleEvent?: T | SingleEventBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
-        headerBlock?: T | HeaderBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
+        headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
-        nacMediaBlock?: T | NACMediaBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        nacMediaBlock?: T | NACMediaBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
