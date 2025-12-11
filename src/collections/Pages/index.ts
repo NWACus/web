@@ -89,6 +89,7 @@ export const Pages: CollectionConfig<'pages'> = {
       type: 'tabs',
       tabs: [
         {
+          label: 'Content',
           fields: [
             {
               name: 'layout',
@@ -109,9 +110,21 @@ export const Pages: CollectionConfig<'pages'> = {
                 ).length
                 return nacMediaBlockCount > 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
               },
+              validate: (value) => {
+                if (!Array.isArray(value)) return true
+
+                const nacMediaBlockCount = value.filter(
+                  (block) => block.blockType === 'nacMediaBlock',
+                ).length
+
+                if (nacMediaBlockCount > 1) {
+                  throw Error('Only one NACMediaBlock is allowed per page')
+                }
+
+                return true
+              },
             },
           ],
-          label: 'Content',
         },
         {
           name: 'meta',
