@@ -1,6 +1,5 @@
 import type { Provider } from '@/payload-types'
-import { generateProviderApplicationApproved } from '@/utilities/email/generateProviderApplicationApproved'
-import { generateProviderCourseTypesUpdated } from '@/utilities/email/generateProviderCourseTypesUpdated'
+import { generateProviderPublishedEmail } from '@/utilities/email/generateProviderPublishedEmail'
 import { sendEmail } from '@/utilities/email/sendEmail'
 import { getURL } from '@/utilities/getURL'
 import type { CollectionAfterChangeHook } from 'payload'
@@ -44,9 +43,9 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
   const isInitialApproval = lastPublishedVersion.docs.length === 1
 
   if (isInitialApproval) {
-    // Scenario 1: Provider was approved for the first time
+    // Provider was approved for the first time
     try {
-      const emailContent = await generateProviderApplicationApproved({
+      const emailContent = await generateProviderPublishedEmail({
         appUrl,
         providerName: doc.name,
         providerId: doc.id,
@@ -60,48 +59,13 @@ export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
         text: emailContent.text,
       })
 
-      payload.logger.info(`Sent approval email to ${providerEmail} for provider ${doc.name}`)
+      payload.logger.info(
+        `Sent provider published email to ${providerEmail} for provider ${doc.name}`,
+      )
     } catch (error) {
       payload.logger.error(
-        `Failed to send approval email to ${providerEmail} for provider ${doc.name}: ${error}`,
+        `Failed to send provider published email to ${providerEmail} for provider ${doc.name}: ${error}`,
       )
-    }
-  } else if (lastPublishedVersion.docs.length >= 2) {
-    // Scenario 2: This is a re-publish, check if course types changed
-    const previousPublishedVersion: Provider = lastPublishedVersion.docs[1].version
-    const previousCourseTypes = previousPublishedVersion.courseTypes || []
-    const currentCourseTypes = doc.courseTypes || []
-
-    // Check if course types have changed
-    const courseTypesChanged =
-      previousCourseTypes.length !== currentCourseTypes.length ||
-      previousCourseTypes.some((type) => !currentCourseTypes.includes(type)) ||
-      currentCourseTypes.some((type) => !previousCourseTypes.includes(type))
-
-    if (courseTypesChanged) {
-      try {
-        const emailContent = await generateProviderCourseTypesUpdated({
-          appUrl,
-          providerName: doc.name,
-          providerId: doc.id,
-          courseTypes: currentCourseTypes,
-        })
-
-        await sendEmail({
-          to: providerEmail,
-          subject: emailContent.subject,
-          html: emailContent.html,
-          text: emailContent.text,
-        })
-
-        payload.logger.info(
-          `Sent course types updated email to ${providerEmail} for provider ${doc.name}`,
-        )
-      } catch (error) {
-        payload.logger.error(
-          `Failed to send course types updated email to ${providerEmail} for provider ${doc.name}: ${error}`,
-        )
-      }
     }
   }
 }
