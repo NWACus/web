@@ -158,10 +158,10 @@ export const HomePages: CollectionConfig = {
       required: true,
       filterOptions: ({ data }) => {
         const layoutBlocks = data?.layout
-        const hasNacMediaBlock = layoutBlocks.some(
+        const nacMediaBlockCount = layoutBlocks.filter(
           (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
-        )
-        return hasNacMediaBlock ? DEFAULT_BLOCKS.map((block) => block.slug) : true
+        ).length
+        return nacMediaBlockCount > 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
       },
     },
     {
