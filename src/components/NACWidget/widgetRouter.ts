@@ -3,7 +3,7 @@ import { match, MatchFunction } from 'path-to-regexp'
 export type WidgetPageWithRouterKey =
   | 'forecasts'
   | 'forecast-zone'
-  | 'weather-forecasts'
+  | 'weather-forecast'
   | 'weather-stations'
   | 'recent-observations'
   | 'submit-observation'
@@ -26,7 +26,7 @@ export const pathsByWidgetPage: Record<WidgetPageWithRouterKey, string[]> = {
     '/post',
     '/post/:id',
   ],
-  'weather-forecasts': ['/weather'],
+  'weather-forecast': ['/weather'],
   'weather-stations': ['/', '/station-table', '/station-table/:id', '/:id'],
   'recent-observations': [
     '/view/observations',
@@ -45,7 +45,7 @@ export type PathMatcher = MatchFunction<Record<string, string>>
 export const pathMatchersByWidgetPage: Record<WidgetPageWithRouterKey, PathMatcher[]> = {
   forecasts: pathsByWidgetPage.forecasts.map((p) => match(p)),
   'forecast-zone': pathsByWidgetPage['forecast-zone'].map((p) => match(p)),
-  'weather-forecasts': pathsByWidgetPage['weather-forecasts'].map((p) => match(p)),
+  'weather-forecast': pathsByWidgetPage['weather-forecast'].map((p) => match(p)),
   'weather-stations': pathsByWidgetPage['weather-stations'].map((p) => match(p)),
   'recent-observations': pathsByWidgetPage['recent-observations'].map((p) => match(p)),
   'submit-observation': pathsByWidgetPage['submit-observation'].map((p) => match(p)),

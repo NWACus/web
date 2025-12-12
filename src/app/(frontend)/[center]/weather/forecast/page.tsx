@@ -45,13 +45,11 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <WidgetRouterHandler initialPath="/weather" widgetPageKey="weather-forecasts" />
+      <WidgetRouterHandler initialPath="/weather" widgetPageKey="weather-forecast" />
       <div className="flex flex-col gap-4">
         <div className="container mb-4">
           <div className="prose dark:prose-invert max-w-none">
-            <h1 className="font-bold">
-              <span className="uppercase">{center}</span> Weather Forecast
-            </h1>
+            <h1 className="font-bold">Mountain Weather</h1>
           </div>
         </div>
         <NACWidget
@@ -80,13 +78,13 @@ export async function generateMetadata(
   const parentOg = parentMeta.openGraph
 
   return {
-    title: `Weather Forecast | ${parentTitle}`,
+    title: `Mountain Weather | ${parentTitle}`,
     alternates: {
       canonical: '/weather/forecast',
     },
     openGraph: {
       ...parentOg,
-      title: `Weather Forecast | ${parentTitle}`,
+      title: `Mountain Weather | ${parentTitle}`,
       url: '/weather/forecast',
     },
   }
