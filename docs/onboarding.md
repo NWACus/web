@@ -22,9 +22,14 @@ We also need to get the new tenant into our Vercel Edge Config. Adding a new ten
   | All Forecasts | /forecasts/avalanche| mutli |
   | _ZONE NAME_ | /forecasts/avalanche/_ZONE_ | multi |
   | Avalanche Forecast | /forecasts/avalanche/_ZONE_ | single |
+  | Mountain Weather * | /weather/forecast| both |
   | Weather Stations | /weather/stations/map| both |
   | Recent Observations | /observations | both |
   | Submit Observations | /observations/submit | both |
+
+  > [!NOTE]
+  > \*Mountain Weather page only exists on select avalanche centers. Check `getAllAvalancheCenterCapabilities` > `platforms > weather`
+
 
 - [ ] Copy pages from the template tenant to the new tenant using the "Duplicate to..." functionality (page document view -> three dot menu)
 
