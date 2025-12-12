@@ -5,6 +5,7 @@ import {
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
 import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
+import { normalizePath } from '@/utilities/path'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
@@ -176,7 +177,9 @@ export function convertToNavLink(
   if (
     link.type === 'internal' &&
     link.reference &&
-    (link.reference.relationTo === 'pages' || link.reference.relationTo === 'posts')
+    (link.reference.relationTo === 'pages' ||
+      link.reference.relationTo === 'posts' ||
+      link.reference.relationTo === 'builtInPages')
   ) {
     const reference = link.reference
 
@@ -185,8 +188,8 @@ export function convertToNavLink(
       `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
     )
 
-    // Do not render documents in draft state
-    if (reference.value._status === 'draft') {
+    // Do not render documents in draft state (builtInPages don't have _status)
+    if ('_status' in reference.value && reference.value._status === 'draft') {
       return undefined
     }
 
@@ -204,13 +207,24 @@ export function convertToNavLink(
       `Could not determine label for link with reference ${JSON.stringify(reference)}`,
     )
 
-    let url =
-      link.reference.relationTo === 'pages'
-        ? `/${reference.value.slug}`
-        : `/blog/${reference.value.slug}`
+    let url: string
+    if (link.reference.relationTo === 'builtInPages' && 'url' in reference.value) {
+      url = normalizePath(reference.value.url, { ensureLeadingSlash: true })
+    } else if (link.reference.relationTo === 'posts' && 'slug' in reference.value) {
+      url = `/blog/${reference.value.slug}`
+    } else if ('slug' in reference.value) {
+      url = `/${reference.value.slug}`
+    } else {
+      return undefined
+    }
 
-    if (parentItems?.length && parentItems.length > 0) {
-      url = `/${parentItems.join('/')}${url}`
+    // Only apply parent items prefix for pages and posts, not builtInPages
+    if (
+      link.reference.relationTo !== 'builtInPages' &&
+      parentItems?.length &&
+      parentItems.length > 0
+    ) {
+      url = normalizePath(`/${parentItems.join('/')}${url}`, { ensureLeadingSlash: true })
     }
 
     return {
@@ -223,10 +237,10 @@ export function convertToNavLink(
   if (link.url) {
     invariant(linkLabel, `Label not set for internal relative link with url ${link.url}`)
 
-    let url = link.url
+    let url = normalizePath(link.url, { ensureLeadingSlash: true })
 
     if (parentItems?.length && parentItems.length > 0) {
-      url = `/${parentItems.join('/')}${url.startsWith('/') ? url : `/${url}`}`
+      url = normalizePath(`/${parentItems.join('/')}${url}`, { ensureLeadingSlash: true })
     }
 
     return {
