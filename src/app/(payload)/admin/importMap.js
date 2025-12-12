@@ -26,6 +26,7 @@ import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from 
 import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
 import { TenantFieldComponent as TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6 } from '@/fields/tenantField/TenantFieldComponent'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
+import { RevalidateCacheField as RevalidateCacheField_75dcdddd4342c9fd5df6099c7d907aa6 } from '@/globals/Diagnostics/components/RevalidateCacheField'
 import { TenantSelectionProvider as TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d } from '@/providers/TenantSelectionProvider'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
@@ -136,6 +137,8 @@ export const importMap = {
     USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
   '@/globals/Diagnostics/components/DiagnosticsDisplay#DiagnosticsDisplay':
     DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6,
+  '@/globals/Diagnostics/components/RevalidateCacheField#RevalidateCacheField':
+    RevalidateCacheField_75dcdddd4342c9fd5df6099c7d907aa6,
   '@/components/LogoutButton#LogoutButton': LogoutButton_db9ac62598c46d0f1db201f6af05442e,
   '@/components/Icon/AvyFxIcon#AvyFxIcon': AvyFxIcon_5698f736c9797d81d0dacf1b1321e327,
   '@/components/Logo/AvyFxLogo#AvyFxLogo': AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
