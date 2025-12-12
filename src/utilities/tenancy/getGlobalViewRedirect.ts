@@ -3,9 +3,9 @@ import type { CollectionSlug, Payload, TypedUser, ViewTypes } from 'payload'
 
 import { formatAdminURL } from 'payload/shared'
 
-import { findTenantOptions } from './findTenantOptions'
 import { getCollectionIDType } from './getCollectionIDType'
 import { getTenantFromCookie } from './getTenantFromCookie'
+import { getTenantOptions } from './getTenantOptions'
 
 type Args = {
   basePath?: string
@@ -39,7 +39,7 @@ export async function getGlobalViewRedirect({
   let redirectRoute: `/${string}` | void = undefined
 
   if (!tenant) {
-    const tenantsQuery = await findTenantOptions({
+    const tenantsQuery = await getTenantOptions({
       limit: 1,
       payload,
       tenantsCollectionSlug,

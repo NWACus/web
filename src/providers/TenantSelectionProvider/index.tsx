@@ -2,7 +2,7 @@ import type { CollectionSlug, OptionObject, Payload, TypedUser } from 'payload'
 
 import { cookies as getCookies } from 'next/headers.js'
 
-import { findTenantOptions } from '@/utilities/tenancy/findTenantOptions'
+import { getTenantOptions } from '@/utilities/tenancy/getTenantOptions'
 import { TenantSelectionProviderClient } from './index.client'
 
 type Args = {
@@ -23,7 +23,7 @@ export const TenantSelectionProvider = async ({
   let tenantOptions: OptionObject[] = []
 
   try {
-    const { docs } = await findTenantOptions({
+    const { docs } = await getTenantOptions({
       limit: 0,
       payload,
       tenantsCollectionSlug,
@@ -62,10 +62,9 @@ export const TenantSelectionProvider = async ({
 
   return (
     <TenantSelectionProviderClient
+      initialTenantOptions={tenantOptions}
       initialValue={initialValue}
-      tenantOptions={tenantOptions}
       tenantsCollectionSlug={tenantsCollectionSlug}
-      useAsTitle={useAsTitle}
     >
       {children}
     </TenantSelectionProviderClient>

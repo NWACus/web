@@ -7,7 +7,7 @@ type Args = {
   useAsTitle: string
   user?: TypedUser
 }
-export const findTenantOptions = async ({
+export const getTenantOptions = async ({
   limit,
   payload,
   tenantsCollectionSlug,
