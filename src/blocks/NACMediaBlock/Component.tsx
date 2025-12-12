@@ -4,6 +4,7 @@ import { NACWidget } from '@/components/NACWidget'
 import type { NACMediaBlock as NACMediaBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
+import * as Sentry from '@sentry/nextjs'
 import { useEffect, useState } from 'react'
 
 export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
@@ -29,7 +30,10 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  if (!center) return <div>Error loading media</div>
+  if (!center) {
+    Sentry.captureException('NACMediaWidget: center not defined')
+    return null
+  }
 
   return (
     <div className={cn(!wrapInContainer && bgColorClass)}>
