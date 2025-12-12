@@ -52,7 +52,7 @@ export const navigationSeed = (
   }: {
     url: string
     label?: string
-  }): NonNullable<NonNullable<Navigation['donate']>['link']> => {
+  }): NonNullable<Navigation['donate']>['link'] => {
     if (!builtInPages[tenant.slug] || !builtInPages[tenant.slug][url]) {
       payload.logger.warn(`BuiltInPage ${url} not found for tenant ${tenant.name}`)
       return {
