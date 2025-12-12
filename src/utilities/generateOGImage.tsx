@@ -136,73 +136,71 @@ export async function generateOGImage({
     const latoBold = await readFile(join(process.cwd(), 'src/app/(frontend)/fonts/Lato-Bold.ttf'))
 
     return new ImageResponse(
-      (
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: colors.header,
-            padding: '40px',
-          }}
-        >
-          {settings?.banner && bannerImgProps && (
-            <div tw="flex justify-center mb-8 gap-2 w-fit">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: colors.header,
+          padding: '40px',
+        }}
+      >
+        {settings?.banner && bannerImgProps && (
+          <div tw="flex justify-center mb-8 gap-2 w-fit">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={bannerImgProps.src}
+              alt={bannerImgProps.alt}
+              width={bannerImgProps.width}
+              height={bannerImgProps.height}
+              style={{
+                objectFit: 'contain',
+                height: '150px',
+                width: (150 * bannerImgProps.width) / bannerImgProps.height,
+              }}
+            />
+            {settings?.usfsLogo && usfsLogoImgProps && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={bannerImgProps.src}
-                alt={bannerImgProps.alt}
-                width={bannerImgProps.width}
-                height={bannerImgProps.height}
+                src={usfsLogoImgProps.src}
+                alt={usfsLogoImgProps.alt}
+                width={usfsLogoImgProps.width}
+                height={usfsLogoImgProps.height}
                 style={{
                   objectFit: 'contain',
                   height: '150px',
-                  width: (150 * bannerImgProps.width) / bannerImgProps.height,
                 }}
               />
-              {settings?.usfsLogo && usfsLogoImgProps && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={usfsLogoImgProps.src}
-                  alt={usfsLogoImgProps.alt}
-                  width={usfsLogoImgProps.width}
-                  height={usfsLogoImgProps.height}
-                  style={{
-                    objectFit: 'contain',
-                    height: '150px',
-                  }}
-                />
-              )}
-            </div>
-          )}
-          <div tw="flex flex-col items-center text-center">
-            <h1
-              style={{
-                fontSize: '4rem',
-                fontWeight: 'bold',
-                color: colors.headerForeground,
-                marginBottom: '1rem',
-              }}
-            >
-              {title ?? `${tenantName}${routeTitle ? ` - ${routeTitle}` : ''}`}
-            </h1>
-            <p
-              style={{
-                fontSize: '1.75rem',
-                fontWeight: 'bold',
-                color: colors.headerForeground,
-                marginBottom: '1rem',
-                maxWidth: '80%',
-              }}
-            >
-              {description ?? settings.description}
-            </p>
+            )}
           </div>
+        )}
+        <div tw="flex flex-col items-center text-center">
+          <h1
+            style={{
+              fontSize: '4rem',
+              fontWeight: 'bold',
+              color: colors.headerForeground,
+              marginBottom: '1rem',
+            }}
+          >
+            {title ?? `${tenantName}${routeTitle ? ` - ${routeTitle}` : ''}`}
+          </h1>
+          <p
+            style={{
+              fontSize: '1.75rem',
+              fontWeight: 'bold',
+              color: colors.headerForeground,
+              marginBottom: '1rem',
+              maxWidth: '80%',
+            }}
+          >
+            {description ?? settings.description}
+          </p>
         </div>
-      ),
+      </div>,
       {
         width: 1200,
         height: 630,
