@@ -1,15 +1,18 @@
-type CookieOptions = {
+type BaseCookieOptions = {
   domain?: string
   expires?: Date
   httpOnly?: boolean
   maxAge?: number
   name: string
   path?: string
-  returnCookieAsObject: boolean
   sameSite?: 'Lax' | 'None' | 'Strict'
   secure?: boolean
   value?: string
 }
+
+type CookieOptionsAsObject = BaseCookieOptions & { returnCookieAsObject: true }
+type CookieOptionsAsString = BaseCookieOptions & { returnCookieAsObject: false }
+type CookieOptions = CookieOptionsAsObject | CookieOptionsAsString
 
 type CookieObject = {
   domain?: string
@@ -23,9 +26,9 @@ type CookieObject = {
   value: string | undefined
 }
 
-export const generateCookie = <ReturnCookieAsObject = boolean>(
-  args: CookieOptions,
-): ReturnCookieAsObject extends true ? CookieObject : string => {
+export function generateCookie(args: CookieOptionsAsObject): CookieObject
+export function generateCookie(args: CookieOptionsAsString): string
+export function generateCookie(args: CookieOptions): CookieObject | string {
   const {
     name,
     domain,
@@ -101,6 +104,5 @@ export const generateCookie = <ReturnCookieAsObject = boolean>(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
-  return returnCookieAsObject ? (cookieObject as any) : (cookieString as any)
+  return returnCookieAsObject ? cookieObject : cookieString
 }

@@ -69,7 +69,7 @@ const DEFAULT_COOKIE_NAME = 'payload-tenant'
 
 const setTenantCookie = (args: { cookieName?: string; value: string }) => {
   const { cookieName = DEFAULT_COOKIE_NAME, value } = args
-  document.cookie = generateCookie<string>({
+  document.cookie = generateCookie({
     name: cookieName,
     maxAge: 60 * 60 * 24 * 365, // 1 year in seconds
     path: '/',
@@ -80,7 +80,7 @@ const setTenantCookie = (args: { cookieName?: string; value: string }) => {
 
 const deleteTenantCookie = (args: { cookieName?: string } = {}) => {
   const { cookieName = DEFAULT_COOKIE_NAME } = args
-  document.cookie = generateCookie<string>({
+  document.cookie = generateCookie({
     name: cookieName,
     maxAge: -1,
     path: '/',
