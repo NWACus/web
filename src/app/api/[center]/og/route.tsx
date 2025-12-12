@@ -4,8 +4,7 @@ import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
 import * as Sentry from '@sentry/nextjs'
 import { ImageResponse } from '@vercel/og'
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
 // Color mappings copied from colors.css since CSS variables don't work in OG images
@@ -32,19 +31,16 @@ const centerColorMap = {
   },
 }
 
-interface GenerateRouteImageParams {
-  center: string
-  routeTitle?: string
-  title?: string
-  description?: string
-}
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ center: string }> },
+) {
+  const { center } = await params
+  const searchParams = request.nextUrl.searchParams
+  const routeTitle = searchParams.get('routeTitle')
+  const title = searchParams.get('title')
+  const description = searchParams.get('description')
 
-export async function generateOGImage({
-  center,
-  routeTitle,
-  title,
-  description,
-}: GenerateRouteImageParams): Promise<ImageResponse> {
   const payload = await getPayload({ config: configPromise })
 
   try {
@@ -68,19 +64,8 @@ export async function generateOGImage({
     const settings = settingsRes.docs[0]
 
     if (!settings) {
-      try {
-        const fallbackImageBuffer = await readFile(
-          join(process.cwd(), 'public/assets/avy-web-fallback-og-image.png'),
-        )
-        return new Response(new Uint8Array(fallbackImageBuffer), {
-          headers: {
-            'Content-Type': 'image/png',
-          },
-        })
-      } catch (fallbackErr) {
-        payload.logger.error({ err: fallbackErr }, 'Failed to load fallback OG image')
-        return new Response('Failed to generate OG image', { status: 500 })
-      }
+      // Return a simple fallback response for unknown centers
+      return new Response('Center not found', { status: 404 })
     }
 
     const tenant = await resolveTenant(settings.tenant, {
@@ -133,7 +118,9 @@ export async function generateOGImage({
       }
     }
 
-    const latoBold = await readFile(join(process.cwd(), 'src/app/(frontend)/fonts/Lato-Bold.ttf'))
+    // Load font from public folder using absolute URL
+    const fontUrl = new URL('/fonts/Lato-Bold.ttf', request.url)
+    const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer())
 
     return new ImageResponse(
       (
@@ -209,7 +196,7 @@ export async function generateOGImage({
         fonts: [
           {
             name: 'Lato',
-            data: latoBold,
+            data: fontData,
             style: 'normal',
             weight: 600,
           },

@@ -61,9 +61,10 @@ export default async function Page({ params }: Args) {
 }
 
 export async function generateMetadata(
-  _props: Args,
+  props: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
+  const { center } = await props.params
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const parentMeta = (await parent) as Metadata
 
@@ -83,6 +84,9 @@ export async function generateMetadata(
       ...parentOg,
       title: `Forecasts | ${parentTitle}`,
       url: '/forecasts/avalanche',
+      images: [
+        { url: `/api/${center}/og?routeTitle=Avalanche%20Forecast`, width: 1200, height: 630 },
+      ],
     },
   }
 }
