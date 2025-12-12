@@ -1,7 +1,6 @@
 import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
-import { tenantField } from '@/fields/tenantField'
 
 export const NACMediaBlock: Block = {
   slug: 'nacMediaBlock',
@@ -12,7 +11,6 @@ export const NACMediaBlock: Block = {
   },
   imageURL: '/thumbnail/NACMediaBlockThumbnail.jpg',
   fields: [
-    tenantField(),
     colorPickerField('Background color'),
     {
       name: 'wrapInContainer',

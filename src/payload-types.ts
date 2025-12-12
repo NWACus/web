@@ -1454,7 +1454,6 @@ export interface MediaBlock {
  * via the `definition` "NACMediaBlock".
  */
 export interface NACMediaBlock {
-  tenant: number | Tenant;
   backgroundColor: string;
   /**
    * Checking this will render the block with additional padding around it and using the background color you have selected.
@@ -3089,7 +3088,6 @@ export interface MediaBlockSelect<T extends boolean = true> {
  * via the `definition` "NACMediaBlock_select".
  */
 export interface NACMediaBlockSelect<T extends boolean = true> {
-  tenant?: T;
   backgroundColor?: T;
   wrapInContainer?: T;
   mode?: T;
