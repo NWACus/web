@@ -18,7 +18,7 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
     if (!center) return
 
     const fetchData = async () => {
-      const response = await fetch(`/api/${center}/nac-media`)
+      const response = await fetch(`/api/${center}/nac-config`)
       const result = await response.json()
       setData(result)
       setLoading(false)
