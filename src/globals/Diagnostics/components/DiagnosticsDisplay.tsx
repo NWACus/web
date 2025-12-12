@@ -2,7 +2,9 @@ import { getURL } from '@/utilities/getURL'
 import { FieldDescription, FieldLabel } from '@payloadcms/ui'
 import { pick } from 'lodash-es'
 import { UIFieldServerProps } from 'payload'
+import packageJson from '../../../../package.json'
 import { ThemedCodeDisplay } from './ThemedCodeEditor.client'
+import { VersionDisplay } from './VersionDisplay.client'
 
 const configKeysToDisplay = ['cors', 'csrf', 'serverURL']
 
@@ -15,6 +17,18 @@ export function DiagnosticsDisplay({ req, payload }: UIFieldServerProps) {
 
   return (
     <div className="py-8 flex flex-col gap-8">
+      <div className="flex flex-col">
+        <FieldLabel label="Version Information" />
+        <FieldDescription
+          description="Current versions of Payload, Next.js, and Node.js running in this environment."
+          path=""
+          className="mb-2"
+        />
+        <VersionDisplay
+          payloadVersion={packageJson.dependencies.payload}
+          nodeVersion={process.version}
+        />
+      </div>
       <div className="flex flex-col">
         <FieldLabel label="Payload Config Subset" />
         <FieldDescription
