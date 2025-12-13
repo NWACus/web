@@ -33,7 +33,7 @@ export const avalancheCenterWeatherConfigurationSchema = z.object({
 })
 
 export const nacWidgetConfigurationSchema = z.object({
-  avalancheCenterPlatforms: z.array(avalancheCenterPlatformsSchema),
+  avalancheCenterPlatforms: avalancheCenterPlatformsSchema,
   baseUrl: z.string(),
   version: z.string(),
 })

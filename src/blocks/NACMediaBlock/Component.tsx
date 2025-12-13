@@ -17,6 +17,7 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
   const { tenant } = useTenant()
   const [data, setData] = useState<NacWidgetConfigurationSchema>()
   const [loading, setLoading] = useState(true)
+  const [hasError, setHasError] = useState<boolean>(false)
 
   const center = typeof tenant === 'object' && tenant !== null ? tenant.slug : null
 
@@ -26,12 +27,16 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
     const fetchData = async () => {
       const response = await fetch(`/api/${center}/nac-config`)
       const result = await response.json()
-      const parsed = nacWidgetConfigurationSchema.safeParse(response)
+      const parsed = nacWidgetConfigurationSchema.safeParse(result)
+
       if (parsed.success) {
         setData(result)
       } else {
-        console.error('Invalid config:', parsed.error.errors)
+        setHasError(true)
+        const errors = parsed.error.message
+        Sentry.captureException(`Error parsing /api/${center}/nac-config response: ${errors}`)
       }
+
       setLoading(false)
     }
     fetchData()
@@ -44,6 +49,7 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
     Sentry.captureException('NACMediaWidget: center not defined')
     return null
   }
+  if (!loading && hasError) return null
 
   return (
     <div className={cn(!wrapInContainer && bgColorClass)}>
@@ -54,14 +60,14 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
           wrapInContainer && `${bgColorClass} container`,
         )}
       >
-        {loading ? (
-          <div> Loading...</div>
-        ) : (
+        {(loading || (!data && !hasError)) && <div> Loading...</div>}
+
+        {!loading && data && (
           <NACWidget
             center={center}
             widget={'media'}
-            widgetsVersion={data?.version || ''}
-            widgetsBaseUrl={data?.baseUrl || ''}
+            widgetsVersion={data.version}
+            widgetsBaseUrl={data.baseUrl}
             mediaMode={mode}
           />
         )}
