@@ -319,14 +319,24 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
               <FieldLabel label="Start Date" />
               <DatePicker
                 value={options.startDate}
-                onChange={(date) => updateOption('startDate', date)}
+                onChange={(date) => {
+                  updateOption('startDate', date)
+                  if (date && options.endDate && date > options.endDate) {
+                    toast.error('Start date must be before end date')
+                  }
+                }}
               />
             </div>
             <div>
               <FieldLabel label="End Date" />
               <DatePicker
                 value={options.endDate}
-                onChange={(date) => updateOption('endDate', date)}
+                onChange={(date) => {
+                  updateOption('endDate', date)
+                  if (date && options.startDate && date < options.startDate) {
+                    toast.error('End date must be after start date')
+                  }
+                }}
               />
             </div>
           </div>
