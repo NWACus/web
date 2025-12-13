@@ -151,6 +151,7 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       description: settings.description ?? `${tenant.name}'s website.`,
       siteName: hostname,
       url: serverURL,
+      images: [{ url: `/api/${center}/og`, width: 1200, height: 630 }],
     }),
   }
 }
