@@ -1,18 +1,10 @@
 name: cleanup
 on:
   delete:
-    branches-ignore:
-      - 'main'
-      - 'release'
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch name to cleanup (without refs/heads/)'
-        required: true
-        type: string
+
 jobs:
   cleanup:
-    if: ${{ github.event_name != 'merge_group' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (!contains(fromJson('["main", "release"]'), github.event.ref)) }}
     runs-on: ubuntu-latest
     steps:
       - name: Install Turso CLI
@@ -25,14 +17,8 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          # Handle both automatic (delete event) and manual (workflow_dispatch) triggers
-          if [ "${{ github.event_name }}" = "delete" ]; then
-            ref="${{ github.event.ref }}"
-            branch="${ref##refs/heads/}"
-          else
-            branch="${{ github.event.inputs.branch }}"
-          fi
-
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
           clean_branch="${branch//[^a-z0-9\-]/x}"
 
           # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
@@ -71,13 +57,8 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          # Handle both automatic (delete event) and manual (workflow_dispatch) triggers
-          if [ "${{ github.event_name }}" = "delete" ]; then
-            ref="${{ github.event.ref }}"
-            branch="${ref##refs/heads/}"
-          else
-            branch="${{ github.event.inputs.branch }}"
-          fi
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
 
           ENV_VARS=(
             "DATABASE_URI"
@@ -102,13 +83,8 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          # Handle both automatic (delete event) and manual (workflow_dispatch) triggers
-          if [ "${{ github.event_name }}" = "delete" ]; then
-            ref="${{ github.event.ref }}"
-            branch="${ref##refs/heads/}"
-          else
-            branch="${{ github.event.inputs.branch }}"
-          fi
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
 
           echo "[INFO] Finding deployments for branch: ${branch}"
 
