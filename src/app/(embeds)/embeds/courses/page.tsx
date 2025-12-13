@@ -5,6 +5,7 @@ import { getCoursesStates } from '@/utilities/queries/getCoursesStates'
 import { getProviders } from '@/utilities/queries/getProviders'
 import Script from 'next/script'
 import { createLoader, parseAsBoolean, parseAsString, SearchParams } from 'nuqs/server'
+import { A3Banner } from '../../../../components/A3Banner'
 import { CoursesFilters } from './CoursesFilters'
 import { CoursesMobileFilters } from './CoursesMobileFilters'
 
@@ -66,6 +67,7 @@ export default async function CoursesEmbedPage({
               <h1 className="text-2xl font-bold mb-2">{title}</h1>
             </div>
           )}
+          <A3Banner />
 
           {showFilters && (
             <div className="md:hidden mb-4">

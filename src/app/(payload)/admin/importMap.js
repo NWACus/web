@@ -29,6 +29,7 @@ import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1
 import { TenantSelectionProvider as TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d } from '@/providers/TenantSelectionProvider'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
+import { EmbedGenerator as EmbedGenerator_1b7ef53264c103176ad65c34c5002f79 } from '@/views/EmbedGenerator'
 import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
 import {
   MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -153,4 +154,5 @@ export const importMap = {
   '@payloadcms/plugin-sentry/client#AdminErrorBoundary':
     AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688,
   '@/views/AcceptInvite#AcceptInvite': AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
+  '@/views/EmbedGenerator#EmbedGenerator': EmbedGenerator_1b7ef53264c103176ad65c34c5002f79,
 }
