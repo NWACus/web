@@ -31,6 +31,8 @@ const centerColorMap = {
   },
 }
 
+const isKnownCenter = (c: string): c is keyof typeof centerColorMap => c in centerColorMap
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ center: string }> },
@@ -75,8 +77,7 @@ export async function GET(
     })
     const tenantName = tenant.name || center.toUpperCase()
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const colors = centerColorMap[center as keyof typeof centerColorMap] || centerColorMap.default
+    const colors = isKnownCenter(center) ? centerColorMap[center] : centerColorMap.default
 
     let bannerImgProps = null
 
