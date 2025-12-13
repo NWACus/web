@@ -1,5 +1,6 @@
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { convertWebpToPng } from '@/utilities/convertWebpToPng'
+import { getURL } from '@/utilities/getURL'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
 import * as Sentry from '@sentry/nextjs'
@@ -119,8 +120,8 @@ export async function GET(
       }
     }
 
-    // Load font from public folder using absolute URL
-    const fontUrl = new URL('/fonts/Lato-Bold.ttf', request.url)
+    // Load font from public folder using root domain URL
+    const fontUrl = new URL('/fonts/Lato-Bold.ttf', getURL())
     const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer())
 
     return new ImageResponse(
