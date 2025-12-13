@@ -1,3 +1,4 @@
+import { A3Banner } from '@/components/A3Banner'
 import { CoursesList } from '@/components/CoursesList'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { getCourses } from '@/utilities/queries/getCourses'
@@ -5,7 +6,6 @@ import { getCoursesStates } from '@/utilities/queries/getCoursesStates'
 import { getProviders } from '@/utilities/queries/getProviders'
 import Script from 'next/script'
 import { createLoader, parseAsBoolean, parseAsString, SearchParams } from 'nuqs/server'
-import { A3Banner } from '../../../../components/A3Banner'
 import { CoursesFilters } from './CoursesFilters'
 import { CoursesMobileFilters } from './CoursesMobileFilters'
 

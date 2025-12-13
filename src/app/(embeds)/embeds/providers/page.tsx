@@ -1,3 +1,4 @@
+import { A3Banner } from '@/components/A3Banner'
 import { ProviderPreview } from '@/components/ProviderPreview'
 import {
   Accordion,
@@ -11,7 +12,6 @@ import config from '@/payload.config'
 import Script from 'next/script'
 import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
-import { A3Banner } from '../../../../components/A3Banner'
 
 const providersSearchParams = {
   title: parseAsString,
