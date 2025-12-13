@@ -2184,13 +2184,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -2238,23 +2231,9 @@
           "name": "home_pages_blocks_nac_media_block_path_idx",
           "columns": ["_path"],
           "isUnique": false
-        },
-        "home_pages_blocks_nac_media_block_tenant_idx": {
-          "name": "home_pages_blocks_nac_media_block_tenant_idx",
-          "columns": ["tenant_id"],
-          "isUnique": false
         }
       },
       "foreignKeys": {
-        "home_pages_blocks_nac_media_block_tenant_id_tenants_id_fk": {
-          "name": "home_pages_blocks_nac_media_block_tenant_id_tenants_id_fk",
-          "tableFrom": "home_pages_blocks_nac_media_block",
-          "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
         "home_pages_blocks_nac_media_block_parent_id_fk": {
           "name": "home_pages_blocks_nac_media_block_parent_id_fk",
           "tableFrom": "home_pages_blocks_nac_media_block",
@@ -5406,13 +5385,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -5467,23 +5439,9 @@
           "name": "_home_pages_v_blocks_nac_media_block_path_idx",
           "columns": ["_path"],
           "isUnique": false
-        },
-        "_home_pages_v_blocks_nac_media_block_tenant_idx": {
-          "name": "_home_pages_v_blocks_nac_media_block_tenant_idx",
-          "columns": ["tenant_id"],
-          "isUnique": false
         }
       },
       "foreignKeys": {
-        "_home_pages_v_blocks_nac_media_block_tenant_id_tenants_id_fk": {
-          "name": "_home_pages_v_blocks_nac_media_block_tenant_id_tenants_id_fk",
-          "tableFrom": "_home_pages_v_blocks_nac_media_block",
-          "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
         "_home_pages_v_blocks_nac_media_block_parent_id_fk": {
           "name": "_home_pages_v_blocks_nac_media_block_parent_id_fk",
           "tableFrom": "_home_pages_v_blocks_nac_media_block",
@@ -8539,13 +8497,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -8593,23 +8544,9 @@
           "name": "pages_blocks_nac_media_block_path_idx",
           "columns": ["_path"],
           "isUnique": false
-        },
-        "pages_blocks_nac_media_block_tenant_idx": {
-          "name": "pages_blocks_nac_media_block_tenant_idx",
-          "columns": ["tenant_id"],
-          "isUnique": false
         }
       },
       "foreignKeys": {
-        "pages_blocks_nac_media_block_tenant_id_tenants_id_fk": {
-          "name": "pages_blocks_nac_media_block_tenant_id_tenants_id_fk",
-          "tableFrom": "pages_blocks_nac_media_block",
-          "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
         "pages_blocks_nac_media_block_parent_id_fk": {
           "name": "pages_blocks_nac_media_block_parent_id_fk",
           "tableFrom": "pages_blocks_nac_media_block",
@@ -11558,13 +11495,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "background_color": {
           "name": "background_color",
           "type": "text",
@@ -11619,23 +11549,9 @@
           "name": "_pages_v_blocks_nac_media_block_path_idx",
           "columns": ["_path"],
           "isUnique": false
-        },
-        "_pages_v_blocks_nac_media_block_tenant_idx": {
-          "name": "_pages_v_blocks_nac_media_block_tenant_idx",
-          "columns": ["tenant_id"],
-          "isUnique": false
         }
       },
       "foreignKeys": {
-        "_pages_v_blocks_nac_media_block_tenant_id_tenants_id_fk": {
-          "name": "_pages_v_blocks_nac_media_block_tenant_id_tenants_id_fk",
-          "tableFrom": "_pages_v_blocks_nac_media_block",
-          "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
         "_pages_v_blocks_nac_media_block_parent_id_fk": {
           "name": "_pages_v_blocks_nac_media_block_parent_id_fk",
           "tableFrom": "_pages_v_blocks_nac_media_block",
@@ -24432,6 +24348,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "2d651c94-19a6-4803-ab69-891efd927649",
+  "id": "05548bcd-5fde-40b6-b353-524bfc302397",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
