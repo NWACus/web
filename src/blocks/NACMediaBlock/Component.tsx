@@ -3,6 +3,7 @@
 import { NACWidget } from '@/components/NACWidget'
 import type { NACMediaBlock as NACMediaBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
+import { nacWidgetConfigurationSchema } from '@/services/nac/types/schemas'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import * as Sentry from '@sentry/nextjs'
@@ -23,7 +24,12 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
     const fetchData = async () => {
       const response = await fetch(`/api/${center}/nac-config`)
       const result = await response.json()
-      setData(result)
+      const parsed = nacWidgetConfigurationSchema.safeParse(response)
+      if (parsed.success) {
+        setData(result)
+      } else {
+        console.error('Invalid config:', parsed.error.errors)
+      }
       setLoading(false)
     }
     fetchData()

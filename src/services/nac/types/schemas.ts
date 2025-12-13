@@ -32,6 +32,13 @@ export const avalancheCenterWeatherConfigurationSchema = z.object({
   forecast_url: z.string().nullable(),
 })
 
+export const nacWidgetConfigurationSchema = z.object({
+  avalancheCenterPlatforms: z.array(avalancheCenterPlatformsSchema),
+  baseUrl: z.string(),
+  version: z.string(),
+})
+export type NacWidgetConfigurationSchema = z.infer<typeof nacWidgetConfigurationSchema>
+
 export const avalancheCenterConfigurationSchema = z.object({
   // expires_time and published_time seem to be fractional hours past midnight, in the locale
   expires_time: z
