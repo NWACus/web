@@ -3,7 +3,10 @@
 import { NACWidget } from '@/components/NACWidget'
 import type { NACMediaBlock as NACMediaBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
-import { nacWidgetConfigurationSchema } from '@/services/nac/types/schemas'
+import {
+  NacWidgetConfigurationSchema,
+  nacWidgetConfigurationSchema,
+} from '@/services/nac/types/schemas'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import * as Sentry from '@sentry/nextjs'
@@ -12,8 +15,7 @@ import { useEffect, useState } from 'react'
 export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
   const { backgroundColor, mode, wrapInContainer } = props
   const { tenant } = useTenant()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState<NacWidgetConfigurationSchema>()
   const [loading, setLoading] = useState(true)
 
   const center = typeof tenant === 'object' && tenant !== null ? tenant.slug : null
@@ -58,8 +60,8 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
           <NACWidget
             center={center}
             widget={'media'}
-            widgetsVersion={data.version}
-            widgetsBaseUrl={data.baseUrl}
+            widgetsVersion={data?.version || ''}
+            widgetsBaseUrl={data?.baseUrl || ''}
             mediaMode={mode}
           />
         )}
