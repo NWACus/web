@@ -87,8 +87,12 @@ jobs:
 
           echo "[INFO] Finding deployments for branch: ${branch}"
 
-          # Get all deployments and filter by branch
-          DEPLOYMENTS=$(vercel deployments --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".deployments[] | select(.meta.githubCommitRef==\"$branch\") | .uid" || echo "")
+          # Debug: print all deployments to see metadata
+          echo "[DEBUG] All deployments:"
+          vercel deployments --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq '.deployments[] | {uid, meta}' || echo "Failed to fetch deployments"
+
+          # Get all deployments and filter by branch - try multiple metadata fields
+          DEPLOYMENTS=$(vercel deployments --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".deployments[] | select(.meta.githubCommitRef==\"$branch\" or .meta.githubBranch==\"$branch\" or .name | contains(\"$branch\")) | .uid" | sort -u || echo "")
 
           if [ -z "$DEPLOYMENTS" ]; then
             echo "[WARN] No deployments found for branch: ${branch}"
