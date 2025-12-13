@@ -20,6 +20,7 @@ import { affinityGroupOptions } from '@/fields/affinityGroupField'
 import { stateOptions } from '@/fields/location/states'
 import { modeOfTravelOptions } from '@/fields/modeOfTravelField'
 import type { Provider } from '@/payload-types'
+import { format } from 'date-fns'
 
 type EmbedType = 'providers' | 'courses'
 type HeightMode = 'auto' | 'fixed'
@@ -75,7 +76,7 @@ const initialOptions: EmbedOptions = {
 
 function formatDateForParam(date: Date | undefined): string {
   if (!date) return ''
-  return date.toISOString().split('T')[0]
+  return format(date, 'MM-dd-yyyy')
 }
 
 function generateEmbedCode(type: EmbedType, options: EmbedOptions, baseUrl: string): string {
