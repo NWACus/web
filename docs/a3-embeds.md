@@ -2,6 +2,10 @@
 
 This document describes the embeddable widgets for American Avalanche Association (A3) course and provider data. These embeds allow external websites to display avalanche education providers and courses via iframes.
 
+## Embed Generator
+
+There is an embed generator at `/admin/embed-generator` that provides a friendly UI for generating embeds.
+
 ## Overview
 
 Two embed routes are available:
