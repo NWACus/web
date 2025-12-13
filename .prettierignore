@@ -1,4 +1,5 @@
 **/payload-types.ts
+src/app/(payload)/admin/importMap.js
 .tmp
 **/.git
 **/.hg

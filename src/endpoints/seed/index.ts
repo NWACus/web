@@ -946,12 +946,12 @@ export const seed = async ({
       ),
     )
 
-    await upsert(
+    const builtInPages = await upsert(
       'builtInPages',
       payload,
       incremental,
       tenantsById,
-      () => 'builtInPages',
+      (obj) => obj.url,
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
           builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
@@ -1204,7 +1204,7 @@ export const seed = async ({
       (_obj) => 'nav',
       Object.values(tenants).map(
         (tenant): RequiredDataFromCollectionSlug<'navigations'> =>
-          navigationSeed(payload, pages, tenant),
+          navigationSeed(payload, pages, builtInPages, tenant),
       ),
     )
 

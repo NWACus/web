@@ -18,6 +18,7 @@ import { ImageText } from '@/blocks/ImageText/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { NACMediaBlockComponent } from '@/blocks/NACMediaBlock/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
@@ -79,6 +80,8 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <LinkPreviewBlock {...block} />
     case 'mediaBlock':
       return <MediaBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+    case 'nacMediaBlock':
+      return <NACMediaBlockComponent {...block} />
     case 'singleBlogPost':
       return (
         <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
