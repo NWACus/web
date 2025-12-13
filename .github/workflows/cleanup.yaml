@@ -1,7 +1,6 @@
 name: cleanup
 on:
   delete:
-
 jobs:
   cleanup:
     if: ${{ github.event_name == 'workflow_dispatch' || (!contains(fromJson('["main", "release"]'), github.event.ref)) }}
