@@ -13,7 +13,7 @@ import * as Sentry from '@sentry/nextjs'
 import { useEffect, useState } from 'react'
 
 export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
-  const { backgroundColor, mode, wrapInContainer } = props
+  const { backgroundColor, mode } = props
   const { tenant } = useTenant()
   const [data, setData] = useState<NacWidgetConfigurationSchema>()
   const [loading, setLoading] = useState(true)
@@ -52,14 +52,8 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
   if (!loading && hasError) return null
 
   return (
-    <div className={cn(!wrapInContainer && bgColorClass)}>
-      <div
-        className={cn(
-          'py-4 w-full text-center',
-          textColor,
-          wrapInContainer && `${bgColorClass} container`,
-        )}
-      >
+    <div className={cn(bgColorClass)}>
+      <div className={cn('container py-4 w-full text-center ', textColor)}>
         {(loading || (!data && !hasError)) && <div> Loading...</div>}
 
         {!loading && data && (

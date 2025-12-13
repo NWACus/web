@@ -238,6 +238,6 @@ export const migrations = [
   {
     up: migration_20251211_062340_add_nac_media_widget.up,
     down: migration_20251211_062340_add_nac_media_widget.down,
-    name: '20251211_062340_add_nac_media_widget',
+    name: '20251213_193605_add_nac_media_widget',
   },
 ]

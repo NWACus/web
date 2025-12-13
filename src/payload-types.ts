@@ -1455,10 +1455,6 @@ export interface MediaBlock {
  */
 export interface NACMediaBlock {
   backgroundColor: string;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   mode: 'carousel' | 'grid';
   id?: string | null;
   blockName?: string | null;
@@ -3089,7 +3085,6 @@ export interface MediaBlockSelect<T extends boolean = true> {
  */
 export interface NACMediaBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
-  wrapInContainer?: T;
   mode?: T;
   id?: T;
   blockName?: T;

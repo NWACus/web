@@ -81,7 +81,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'mediaBlock':
       return <MediaBlock {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'nacMediaBlock':
-      return <NACMediaBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <NACMediaBlockComponent {...block} />
     case 'singleBlogPost':
       return (
         <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />

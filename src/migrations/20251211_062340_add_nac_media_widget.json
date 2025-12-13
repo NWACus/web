@@ -2192,14 +2192,6 @@
           "autoincrement": false,
           "default": "'transparent'"
         },
-        "wrap_in_container": {
-          "name": "wrap_in_container",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": true
-        },
         "mode": {
           "name": "mode",
           "type": "text",
@@ -5393,14 +5385,6 @@
           "autoincrement": false,
           "default": "'transparent'"
         },
-        "wrap_in_container": {
-          "name": "wrap_in_container",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": true
-        },
         "mode": {
           "name": "mode",
           "type": "text",
@@ -8505,14 +8489,6 @@
           "autoincrement": false,
           "default": "'transparent'"
         },
-        "wrap_in_container": {
-          "name": "wrap_in_container",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": true
-        },
         "mode": {
           "name": "mode",
           "type": "text",
@@ -11502,14 +11478,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'transparent'"
-        },
-        "wrap_in_container": {
-          "name": "wrap_in_container",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": true
         },
         "mode": {
           "name": "mode",
@@ -24348,6 +24316,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "05548bcd-5fde-40b6-b353-524bfc302397",
+  "id": "98343307-cb7e-42e7-8b6f-ce2e87c44f22",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -7,7 +7,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`_path\` text NOT NULL,
   	\`id\` text PRIMARY KEY NOT NULL,
   	\`background_color\` text DEFAULT 'transparent',
-  	\`wrap_in_container\` integer DEFAULT true,
   	\`mode\` text DEFAULT 'carousel',
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`home_pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
@@ -28,7 +27,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`_path\` text NOT NULL,
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`background_color\` text DEFAULT 'transparent',
-  	\`wrap_in_container\` integer DEFAULT true,
   	\`mode\` text DEFAULT 'carousel',
   	\`_uuid\` text,
   	\`block_name\` text,
@@ -50,7 +48,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`_path\` text NOT NULL,
   	\`id\` text PRIMARY KEY NOT NULL,
   	\`background_color\` text DEFAULT 'transparent',
-  	\`wrap_in_container\` integer DEFAULT true,
   	\`mode\` text DEFAULT 'carousel',
   	\`block_name\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
@@ -71,7 +68,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`_path\` text NOT NULL,
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`background_color\` text DEFAULT 'transparent',
-  	\`wrap_in_container\` integer DEFAULT true,
   	\`mode\` text DEFAULT 'carousel',
   	\`_uuid\` text,
   	\`block_name\` text,
