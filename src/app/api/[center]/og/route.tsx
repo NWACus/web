@@ -200,7 +200,7 @@ export async function GET(
             name: 'Lato',
             data: fontData,
             style: 'normal',
-            weight: 600,
+            weight: 700,
           },
         ],
       },
