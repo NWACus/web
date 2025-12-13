@@ -3,7 +3,7 @@
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
-export type Widget = 'map' | 'forecast' | 'warnings' | 'stations' | 'observations'
+export type Widget = 'map' | 'forecast' | 'warnings' | 'stations' | 'observations' | 'media'
 
 export const loadersByWidget: Record<
   Widget,
@@ -15,12 +15,14 @@ export const loadersByWidget: Record<
       | 'warningWidgetData'
       | 'stationWidgetData'
       | 'obsWidgetData'
+      | 'mediaWidgetData'
     widgetControllerKey:
       | 'mapWidget'
       | 'forecastWidget'
       | 'warningsWidget'
       | 'stationWidget'
       | 'obsWidget'
+      | 'mediaWidget'
   }
 > = {
   map: {
@@ -47,6 +49,11 @@ export const loadersByWidget: Record<
     scriptName: 'observations',
     widgetDataKey: 'obsWidgetData',
     widgetControllerKey: 'obsWidget',
+  },
+  media: {
+    scriptName: 'media',
+    widgetDataKey: 'mediaWidgetData',
+    widgetControllerKey: 'mediaWidget',
   },
 }
 
@@ -80,11 +87,13 @@ export function NACWidget({
   widget,
   widgetsVersion,
   widgetsBaseUrl,
+  mediaMode,
 }: {
   center: string
   widget: Widget
   widgetsVersion: string
   widgetsBaseUrl: string
+  mediaMode?: 'carousel' | 'grid'
 }) {
   const widgetId = `nac-widget-${widget}`
 
@@ -115,6 +124,7 @@ export function NACWidget({
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,
+      ...(widget === 'media' && { mode: mediaMode }),
     }
 
     window[widgetDataKey] = widgetData
@@ -145,7 +155,7 @@ export function NACWidget({
     <>
       {/* container used for css selectors in src/app/(frontend)/[center]/nac-widgets.css */}
       <div id="widget-container" data-widget={widget}>
-        <div id={`nac-widget-${widget}`} />
+        <div id={widgetId} />
       </div>
       <Script
         src={`${scriptUrl}/${scriptName}.js`}

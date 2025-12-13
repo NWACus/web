@@ -7,6 +7,7 @@ interface Window {
     baseUrl: string
     controlledMount?: boolean
   }
+  mediaWidgetData?: (typeof Window)['mediaWidgetData']
   forecastWidgetData?: (typeof Window)['mapWidgetData']
   warningWidgetData?: (typeof Window)['mapWidgetData']
   stationWidgetData?: (typeof Window)['mapWidgetData']
@@ -16,6 +17,7 @@ interface Window {
     unmount: () => void
     _mounted: boolean
   }
+  mediaWidget?: (typeof Window)['mediaWidget']
   forecastWidget?: (typeof Window)['mapWidget']
   warningsWidget?: (typeof Window)['mapWidget']
   stationWidget?: (typeof Window)['mapWidget']
