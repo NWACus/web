@@ -214,7 +214,7 @@ src/app/(embeds)/
 - `src/utilities/queries/getCourses.ts` - Course query logic
 - `src/utilities/queries/getProviders.ts` - Provider query logic
 
-### Data Collections
+### Collections
 
 - **Providers**: Avalanche education providers with contact info, location, and course types offered
 - **Courses**: Individual course instances with dates, location, provider reference, and registration details
