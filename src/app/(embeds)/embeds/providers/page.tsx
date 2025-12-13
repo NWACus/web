@@ -1,3 +1,4 @@
+import { A3Banner } from '@/components/A3Banner'
 import { ProviderPreview } from '@/components/ProviderPreview'
 import {
   Accordion,
@@ -71,6 +72,7 @@ export default async function ProvidersEmbedPage({
             <h1 className="text-2xl font-bold mb-2">{title}</h1>
           </div>
         )}
+        <A3Banner />
         <div className="grid sm:grid-cols-2 gap-x-4">
           <StatesAccordion states={leftColumnStates} providersByState={providersByState} />
           <StatesAccordion states={rightColumnStates} providersByState={providersByState} />
