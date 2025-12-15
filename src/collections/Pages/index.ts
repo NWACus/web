@@ -105,13 +105,16 @@ export const Pages: CollectionConfig<'pages'> = {
               },
               filterOptions: ({ data }) => {
                 const layoutBlocks = data?.layout
+
+                if (!layoutBlocks) return true
+
                 const nacMediaBlockCount = layoutBlocks.filter(
                   (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
                 ).length
-                return nacMediaBlockCount > 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
+                return nacMediaBlockCount >= 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
               },
               validate: (value) => {
-                if (!Array.isArray(value)) return true
+                if (!value || !Array.isArray(value)) return true
 
                 const nacMediaBlockCount = value.filter(
                   (block) => block.blockType === 'nacMediaBlock',
