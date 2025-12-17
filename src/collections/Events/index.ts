@@ -24,6 +24,7 @@ import { validateEventDates } from '@/hooks/validateEventDates'
 import { Event } from '@/payload-types'
 import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
+import { validateExternalUrl } from '@/utilities/validateUrl'
 import { MetaImageField } from '@payloadcms/plugin-seo/fields'
 import {
   BlocksFeature,
@@ -89,6 +90,7 @@ export const Events: CollectionConfig = {
       admin: {
         description: 'External registration link',
       },
+      validate: validateExternalUrl,
     },
     {
       name: 'externalEventUrl',
@@ -96,6 +98,7 @@ export const Events: CollectionConfig = {
       admin: {
         description: 'Optional external landing page (takes precedence over event page)',
       },
+      validate: validateExternalUrl,
     },
     {
       type: 'row',
