@@ -1,9 +1,10 @@
-import { Navigation, Page, Tenant } from '@/payload-types'
+import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
 
 export const navigationSeed = (
   payload: Payload,
   pages: Record<string, Record<string, Page>>,
+  builtInPages: Record<string, Record<string, BuiltInPage>>,
   tenant: Tenant,
 ): RequiredDataFromCollectionSlug<'navigations'> => {
   const pageLink = ({
@@ -45,6 +46,34 @@ export const navigationSeed = (
     }
   }
 
+  const builtInPageLink = ({
+    url,
+    label,
+  }: {
+    url: string
+    label?: string
+  }): NonNullable<Navigation['donate']>['link'] => {
+    if (!builtInPages[tenant.slug] || !builtInPages[tenant.slug][url]) {
+      payload.logger.warn(`BuiltInPage ${url} not found for tenant ${tenant.name}`)
+      return {
+        type: 'internal',
+        label: label || 'Missing Page',
+        url: '/',
+      }
+    }
+
+    const builtInPage = builtInPages[tenant.slug][url]
+
+    return {
+      type: 'internal',
+      reference: {
+        value: builtInPage.id,
+        relationTo: 'builtInPages',
+      },
+      label: label || builtInPage.title,
+    }
+  }
+
   return {
     _status: 'published',
     tenant: tenant.id,
@@ -57,11 +86,10 @@ export const navigationSeed = (
     weather: {
       items: [
         {
-          link: {
-            type: 'internal',
+          link: builtInPageLink({
+            url: '/weather/stations/map',
             label: 'Weather Stations',
-            url: '/stations/map',
-          },
+          }),
         },
         {
           link: pageLink({

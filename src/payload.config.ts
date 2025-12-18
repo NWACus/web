@@ -92,6 +92,10 @@ export default buildConfig({
           Component: '@/views/AcceptInvite#AcceptInvite',
           path: '/accept-invite',
         },
+        'embed-generator': {
+          Component: '@/views/EmbedGenerator#EmbedGenerator',
+          path: '/embed-generator',
+        },
       },
     },
     meta: {

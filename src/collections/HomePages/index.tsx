@@ -4,27 +4,15 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
-import { BiographyBlock } from '@/blocks/Biography/config'
 import { ButtonBlock } from '@/blocks/Button/config'
-import { Content } from '@/blocks/Content/config'
-import { FormBlock } from '@/blocks/Form/config'
-import { GenericEmbed, GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
-import { HeaderBlock } from '@/blocks/Header/config'
-import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
-import { ImageQuote } from '@/blocks/ImageQuote/config'
-import { ImageText } from '@/blocks/ImageText/config'
-import { ImageTextList } from '@/blocks/ImageTextList/config'
-import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
-import { MediaBlock, MediaBlockLexical } from '@/blocks/MediaBlock/config'
-import { SingleBlogPostBlock, SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
+import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
-import { TeamBlock } from '@/blocks/Team/config'
 
-import { BlogListBlock } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
-import { EventListBlock } from '@/blocks/EventList/config'
-import { EventTableBlock } from '@/blocks/EventTable/config'
-import { SingleEventBlock } from '@/blocks/SingleEvent/config'
+import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
+import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -166,28 +154,15 @@ export const HomePages: CollectionConfig = {
         initCollapsed: false,
       },
       type: 'blocks',
-      blocks: [
-        BiographyBlock,
-        BlogListBlock,
-        SingleBlogPostBlock,
-        Content,
-        DocumentBlock,
-        EventListBlock,
-        SingleEventBlock,
-        EventTableBlock,
-        FormBlock,
-        GenericEmbed,
-        HeaderBlock,
-        ImageLinkGrid,
-        ImageQuote,
-        ImageText,
-        ImageTextList,
-        LinkPreviewBlock,
-        MediaBlock,
-        SponsorsBlock,
-        TeamBlock,
-      ],
+      blocks: [...DEFAULT_BLOCKS, NACMediaBlock].sort((a, b) => a.slug.localeCompare(b.slug)),
       required: true,
+      filterOptions: ({ data }) => {
+        const layoutBlocks = data?.layout
+        const nacMediaBlockCount = layoutBlocks.filter(
+          (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
+        ).length
+        return nacMediaBlockCount > 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
+      },
     },
     {
       name: 'blocksInHighlightedContent',

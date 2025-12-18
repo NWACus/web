@@ -1,12 +1,9 @@
 name: cleanup
 on:
   delete:
-    branches-ignore:
-      - 'main'
-      - 'release'
 jobs:
   cleanup:
-    if: ${{ github.event_name != 'merge_group' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (!contains(fromJson('["main", "release"]'), github.event.ref)) }}
     runs-on: ubuntu-latest
     steps:
       - name: Install Turso CLI
@@ -49,3 +46,76 @@ jobs:
           fi
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Remove Vercel Environment Variables
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
+
+          ENV_VARS=(
+            "DATABASE_URI"
+            "DATABASE_AUTH_TOKEN"
+            "PAYLOAD_SEED_PASSWORD"
+            "NEXT_PUBLIC_ROOT_DOMAIN"
+          )
+
+          echo "[INFO] Removing environment variables for branch: ${branch}"
+
+          for VAR in "${ENV_VARS[@]}"; do
+            echo "[INFO] Removing environment variable: $VAR"
+            vercel env rm "$VAR" preview "$branch" --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Variable $VAR not found or already removed"
+          done
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Remove Vercel Deployments and Aliases
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
+
+          echo "[INFO] Finding deployments for branch: ${branch}"
+
+          # Get all deployments and filter by branch
+          DEPLOYMENTS=$(vercel deployments --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".deployments[] | select(.meta.githubCommitRef==\"$branch\") | .uid" || echo "")
+
+          if [ -z "$DEPLOYMENTS" ]; then
+            echo "[WARN] No deployments found for branch: ${branch}"
+          else
+            echo "[INFO] Found deployments: $DEPLOYMENTS"
+
+            # Remove aliases first (they're tied to deployment IDs)
+            for DEPLOYMENT_ID in $DEPLOYMENTS; do
+              echo "[INFO] Removing aliases for deployment: $DEPLOYMENT_ID"
+              ALIASES=$(vercel alias ls --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".aliases[] | select(.deploymentId==\"$DEPLOYMENT_ID\") | .alias" || echo "")
+
+              if [ -z "$ALIASES" ]; then
+                echo "[WARN] No aliases found for deployment: $DEPLOYMENT_ID"
+              else
+                for ALIAS in $ALIASES; do
+                  echo "[INFO] Removing alias: $ALIAS"
+                  vercel alias remove "$ALIAS" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove alias: $ALIAS"
+                done
+              fi
+            done
+
+            # Then remove deployments
+            for DEPLOYMENT_ID in $DEPLOYMENTS; do
+              echo "[INFO] Removing deployment: $DEPLOYMENT_ID"
+              vercel remove "$DEPLOYMENT_ID" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_ID"
+            done
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

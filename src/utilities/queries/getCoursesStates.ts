@@ -15,6 +15,11 @@ export async function getCoursesStates(): Promise<GetCoursesStatesResults> {
       collection: 'courses',
       field: 'location.state',
       sort: 'location.state',
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
     })
 
     const states = result.values.map((value) => {

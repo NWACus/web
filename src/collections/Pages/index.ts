@@ -7,26 +7,6 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 import type { CollectionConfig } from 'payload'
 
-import { BiographyBlock } from '@/blocks/Biography/config'
-import { BlogListBlock } from '@/blocks/BlogList/config'
-import { Content } from '@/blocks/Content/config'
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
-import { EventListBlock } from '@/blocks/EventList/config'
-import { EventTableBlock } from '@/blocks/EventTable/config'
-import { FormBlock } from '@/blocks/Form/config'
-import { GenericEmbed } from '@/blocks/GenericEmbed/config'
-import { HeaderBlock } from '@/blocks/Header/config'
-import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
-import { ImageQuote } from '@/blocks/ImageQuote/config'
-import { ImageText } from '@/blocks/ImageText/config'
-import { ImageTextList } from '@/blocks/ImageTextList/config'
-import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
-import { MediaBlock } from '@/blocks/MediaBlock/config'
-import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
-import { SingleEventBlock } from '@/blocks/SingleEvent/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
-import { TeamBlock } from '@/blocks/Team/config'
-
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
 import { filterByTenant } from '@/access/filterByTenant'
 
@@ -36,6 +16,8 @@ import { tenantField } from '@/fields/tenantField'
 
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 
+import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
+import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { isTenantValue } from '@/utilities/isTenantValue'
@@ -107,40 +89,45 @@ export const Pages: CollectionConfig<'pages'> = {
       type: 'tabs',
       tabs: [
         {
+          label: 'Content',
           fields: [
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [
-                BiographyBlock,
-                BlogListBlock,
-                SingleBlogPostBlock,
-                Content,
-                DocumentBlock,
-                EventListBlock,
-                EventTableBlock,
-                SingleEventBlock,
-                FormBlock,
-                HeaderBlock,
-                GenericEmbed,
-                ImageLinkGrid,
-                ImageQuote,
-                ImageText,
-                ImageTextList,
-                LinkPreviewBlock,
-                MediaBlock,
-                SponsorsBlock,
-                TeamBlock,
-              ],
+              blocks: [...DEFAULT_BLOCKS, NACMediaBlock].sort((a, b) =>
+                a.slug.localeCompare(b.slug),
+              ),
               required: true,
               admin: {
                 initCollapsed: false,
                 description:
                   'This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.',
               },
+              filterOptions: ({ data }) => {
+                const layoutBlocks = data?.layout
+
+                if (!layoutBlocks) return true
+
+                const nacMediaBlockCount = layoutBlocks.filter(
+                  (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
+                ).length
+                return nacMediaBlockCount >= 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
+              },
+              validate: (value) => {
+                if (!value || !Array.isArray(value)) return true
+
+                const nacMediaBlockCount = value.filter(
+                  (block) => block.blockType === 'nacMediaBlock',
+                ).length
+
+                if (nacMediaBlockCount > 1) {
+                  throw Error('Only one NACMediaBlock is allowed per page')
+                }
+
+                return true
+              },
             },
           ],
-          label: 'Content',
         },
         {
           name: 'meta',

@@ -1,3 +1,4 @@
+import { A3Banner } from '@/components/A3Banner'
 import { CoursesList } from '@/components/CoursesList'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { getCourses } from '@/utilities/queries/getCourses'
@@ -66,6 +67,7 @@ export default async function CoursesEmbedPage({
               <h1 className="text-2xl font-bold mb-2">{title}</h1>
             </div>
           )}
+          <A3Banner />
 
           {showFilters && (
             <div className="md:hidden mb-4">

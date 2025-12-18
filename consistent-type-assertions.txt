@@ -34,6 +34,5 @@ src/globals/Diagnostics/actions/revalidateCache.ts
 src/middleware.ts
 src/services/vercel.ts
 src/utilities/findDocumentsWithBlockReferences.ts
-src/utilities/generateOGImage.tsx
 src/utilities/removeNonDeterministicKeys.ts
 src/utilities/useClickableCard.ts
