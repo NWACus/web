@@ -20,5 +20,15 @@ export const DiagnosticsConfig: GlobalConfig = {
         disableListColumn: true,
       },
     },
+    {
+      type: 'ui',
+      name: 'revalidateCache',
+      admin: {
+        components: {
+          Field: '@/globals/Diagnostics/components/RevalidateCacheField#RevalidateCacheField',
+        },
+        disableListColumn: true,
+      },
+    },
   ],
 }
