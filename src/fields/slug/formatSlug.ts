@@ -4,6 +4,7 @@ export const formatSlug = (val: string | null): string => {
   if (!val) return ''
 
   return val
+    .trim()
     .replace(/ /g, '-')
     .replace(/[^\w-]+/g, '')
     .toLowerCase()

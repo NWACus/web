@@ -49,9 +49,7 @@ export default async function Page({ params }: Args) {
       <div className="flex flex-col gap-4">
         <div className="container mb-4">
           <div className="prose dark:prose-invert max-w-none">
-            <h1 className="font-bold">
-              <span className="uppercase">{center}</span> Weather Station Map
-            </h1>
+            <h1 className="font-bold">Weather Station Map</h1>
           </div>
         </div>
         <NACWidget
