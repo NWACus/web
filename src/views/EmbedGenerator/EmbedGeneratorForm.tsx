@@ -286,7 +286,7 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
 
           {/* Affinity Groups */}
           <SelectInput
-            label="Affinity Groups"
+            label="Interest Groups"
             name="affinityGroups"
             path="affinityGroups"
             options={affinityGroupOptions.map((group) => ({
