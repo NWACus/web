@@ -39,7 +39,12 @@ export function DiagnosticsDisplay({ req, payload }: UIFieldServerProps) {
         <ThemedCodeDisplay value={configSubsetStr} />
       </div>
       <div className="flex flex-col gap-2">
-        <FieldLabel label="Result of getURL(req?.headers.get('host') || req?.host)" />
+        <FieldLabel label="Host URL" />
+        <FieldDescription
+          description="Result of getURL(req?.headers.get('host') || req?.host"
+          path=""
+          className="mb-2"
+        />
         <ThemedCodeDisplay value={serverURL} />
       </div>
     </div>
