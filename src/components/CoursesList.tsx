@@ -86,8 +86,8 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
             endDate: stableFilters.endDate || undefined,
           })
 
-          const result: GetCoursesResult = await fetch(`/api/courses?${queryString}`).then((res) =>
-            res.json(),
+          const result: GetCoursesResult = await fetch(`/api/courses/list?${queryString}`).then(
+            (res) => res.json(),
           )
 
           if (result.error) {
@@ -128,8 +128,8 @@ export const CoursesList = ({ initialCourses, initialHasMore, initialError }: Co
             endDate: stableFilters.endDate || undefined,
           })
 
-          const result: GetCoursesResult = await fetch(`/api/courses?${queryString}`).then((res) =>
-            res.json(),
+          const result: GetCoursesResult = await fetch(`/api/courses/list?${queryString}`).then(
+            (res) => res.json(),
           )
 
           if (result.error) {
