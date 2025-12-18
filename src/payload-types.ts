@@ -2512,15 +2512,15 @@ export interface Setting {
     } | null;
   };
   /**
-   * Should be a square aspect ratio image.
+   * Recommended: Use square (1:1) aspect ratio images for optimal display. Images with aspect ratios close to square are also acceptable.
    */
   logo: number | Media;
   /**
-   * Should be a compressed, 96x96 pixel, square aspect ratio image. This will be used as the browser tab icon.
+   * Used as the browser tab icon. Recommended: Use a compressed, 96x96 pixel, square aspect ratio image.
    */
   icon: number | Media;
   /**
-   * This will be used in the header of your website next to the USFS logo if added.
+   * Used in the header of your website next to the USFS logo if added.
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;

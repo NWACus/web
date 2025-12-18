@@ -174,7 +174,8 @@ const brandAssetsFields: Field[] = [
       mimeType: { contains: 'image' },
     },
     admin: {
-      description: 'Should be a square aspect ratio image.',
+      description:
+        'Recommended: Use square (1:1) aspect ratio images for optimal display. Images with aspect ratios close to square are also acceptable.',
     },
     required: true,
   },
@@ -188,7 +189,7 @@ const brandAssetsFields: Field[] = [
     },
     admin: {
       description:
-        'Should be a compressed, 96x96 pixel, square aspect ratio image. This will be used as the browser tab icon.',
+        'Used as the browser tab icon. Recommended: Use a compressed, 96x96 pixel, square aspect ratio image.',
     },
     required: true,
   },
@@ -201,8 +202,7 @@ const brandAssetsFields: Field[] = [
       mimeType: { contains: 'image' },
     },
     admin: {
-      description:
-        'This will be used in the header of your website next to the USFS logo if added.',
+      description: 'Used in the header of your website next to the USFS logo if added.',
     },
     required: true,
   },
