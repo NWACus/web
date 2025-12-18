@@ -1,11 +1,9 @@
 'use client'
 
 import { Button, useConfig, useTranslation } from '@payloadcms/ui'
-import { Book, LogOut } from 'lucide-react'
+import { HelpCircle, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { formatAdminURL } from 'payload/shared'
-
-const baseClass = 'nav'
 
 export function LogoutButton() {
   const { t } = useTranslation()
@@ -19,24 +17,23 @@ export function LogoutButton() {
   } = config
 
   return (
-    <div className={`flex flex-col ${baseClass}__log-out`}>
+    <div className="flex flex-col">
       <Link
-        className={`${baseClass}__docs`}
-        href="https://avy-fx.notion.site/23b5af40f1988035a071e397e3780103?v=23b5af40f19880dcae89000c75417e41"
-        title="Docs"
+        href="https://avy-fx.notion.site/Help-2cb5af40f19880dfb71af06a3bd0ae90"
+        title="Help"
+        target="_blank"
       >
         <Button
           buttonStyle="icon-label"
           iconPosition="left"
-          icon={<Book className="w-5 h-5 flex-shrink-0" />}
+          icon={<HelpCircle className="w-5 h-5 flex-shrink-0" />}
           className="m-0"
         >
-          Docs
+          Help
         </Button>
       </Link>
       <Link
         aria-label={t('authentication:logOut')}
-        className={`${baseClass}__log-out`}
         href={formatAdminURL({
           adminRoute,
           path: logoutRoute,
