@@ -9,6 +9,7 @@ import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { validateEventDates } from '@/hooks/validateEventDates'
 import { Course } from '@/payload-types'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
+import { validateExternalUrl } from '@/utilities/validateUrl'
 import { validateZipCode } from '@/utilities/validateZipCode'
 import { CollectionConfig } from 'payload'
 import { accessByProviderOrProviderManager } from './access/byProviderOrProviderManager'
@@ -98,6 +99,7 @@ export const Courses: CollectionConfig = {
       admin: {
         description: 'External registration link or landing page link',
       },
+      validate: validateExternalUrl,
     },
     {
       name: 'registrationDeadline',
