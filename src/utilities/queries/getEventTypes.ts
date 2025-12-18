@@ -29,6 +29,11 @@ export async function getEventTypes(params: GetEventTypesParams): Promise<GetEve
               exists: true,
             },
           },
+          {
+            _status: {
+              equals: 'published',
+            },
+          },
         ],
       },
       field: 'type',
