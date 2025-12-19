@@ -127,6 +127,11 @@ export const seed = async ({
             },
             {
               email: {
+                contains: 'payetteavalanche.org',
+              },
+            },
+            {
+              email: {
                 contains: 'sierraavalanchecenter.org',
               },
             },
@@ -206,6 +211,11 @@ export const seed = async ({
         name: 'Northwest Avalanche Center',
         slug: 'nwac',
         customDomain: 'nwac.us',
+      },
+      {
+        name: 'Payette Avalanche Center',
+        slug: 'pac',
+        customDomain: 'payetteavalanche.org',
       },
       {
         name: 'Sierra Avalanche Center',
@@ -357,17 +367,20 @@ export const seed = async ({
     const iconFiles: Record<string, string> = {
       dvac: 'dvac-icon.png',
       nwac: 'nwac-icon.png',
+      pac: 'pac-icon.png',
       sac: 'sac-icon.png',
       snfac: 'snfac-icon.png',
     }
     const bannerFiles: Record<string, string> = {
       dvac: 'dvac-icon.png',
       nwac: 'nwac-banner.webp',
+      pac: 'pac-banner.webp',
       sac: 'sac-banner.webp',
       snfac: 'sac-usfs-logo.webp',
     }
     const usfsLogoFiles: Record<string, string> = {
       nwac: 'usfs-logo.webp',
+      pac: 'usfs-logo.webp',
       sac: 'usfs-logo.webp',
     }
 
@@ -462,7 +475,6 @@ export const seed = async ({
       nwac: {
         description:
           'The Northwest Avalanche Center exists to increase avalanche awareness, reduce avalanche impacts, and equip the community with mountain weather and avalanche forecasts, education, and data.',
-
         address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
         phone: '(206)909-0203',
         email: 'info@nwac.us',
@@ -474,10 +486,16 @@ export const seed = async ({
           youtube: 'https://www.youtube.com/channel/UCXKN3Cu9rnnkukkiUUgjzFQ',
         },
       },
+      pac: {
+        description: '',
+        address: '',
+        phone: '',
+        email: 'friends@payetteavalnche.org',
+        socialMedia: {},
+      },
       sac: {
         description:
           'Backcountry Avalanche, Snow, and Weather Information for the greater Lake Tahoe area',
-
         address: '11260 Donner Pass Rd. Ste. C1 - PMB 401\nTruckee, CA 96161',
         phone: '(530)563-2257',
         email: 'info@sierraavalanchecenter.org',

@@ -71,6 +71,11 @@ export const bootstrap = async ({
       customDomain: 'nwac.us',
     },
     {
+      name: 'Payette Avalanche Center',
+      slug: 'pac',
+      customDomain: 'payetteavalanche.org',
+    },
+    {
       name: 'Sierra Avalanche Center',
       slug: 'sac',
       customDomain: 'sierraavalanchecenter.org',
