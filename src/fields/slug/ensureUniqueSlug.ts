@@ -1,3 +1,4 @@
+import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import type { FieldHook, Where } from 'payload'
 
 import { ValidationError } from 'payload'
@@ -5,6 +6,7 @@ import invariant from 'tiny-invariant'
 
 export const ensureUniqueSlug: FieldHook = async (props) => {
   const { data, originalDoc, req, value, collection } = props
+  const tenantIDFromCookie = getTenantFromCookie(req.headers, 'number')
 
   invariant(
     !!collection,
@@ -15,10 +17,6 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
   const collectionHasTenantField = !!tenantField
   const tenantFieldRequired =
     tenantField && 'required' in tenantField && tenantField.required === true
-
-  const incomingTenantID = data?.tenant?.id ? data?.tenant.id : data?.tenant
-  const currentTenantID = originalDoc?.tenant?.id ? originalDoc.tenant.id : originalDoc?.tenant
-  const tenantIDToMatch = incomingTenantID || currentTenantID
 
   // Don't validate if slug hasn't been generated yet
   if (!value) {
@@ -41,10 +39,10 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
     })
   }
 
-  if (collectionHasTenantField && tenantFieldRequired && tenantIDToMatch) {
+  if (collectionHasTenantField && tenantFieldRequired && tenantIDFromCookie) {
     conditions.push({
       tenant: {
-        equals: tenantIDToMatch,
+        equals: tenantIDFromCookie,
       },
     })
   }
