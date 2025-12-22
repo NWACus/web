@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'update-deployment-vercel'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -129,8 +130,8 @@ jobs:
 
           echo "[INFO] Finding all dev deployments for main branch"
 
-          # Get all deployments for main branch, sorted by creation time (newest first)
-          DEPLOYMENTS=$(vercel deployments --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r '.deployments[] | select(.meta.githubCommitRef=="main") | .uid' || echo "")
+          # Get all deployments for main branch
+          DEPLOYMENTS=$(vercel deployments --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | grep main | awk '{print $1}' || echo "")
 
           if [ -z "$DEPLOYMENTS" ]; then
             echo "[WARN] No deployments found for main branch"
@@ -160,16 +161,6 @@ jobs:
 
             DEPLOYMENT_ID="${DEPLOYMENT_ARRAY[$i]}"
             echo "[INFO] Removing old deployment: $DEPLOYMENT_ID"
-
-            # Remove aliases for this deployment first
-            ALIASES=$(vercel alias ls --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".aliases[] | select(.deploymentId==\"$DEPLOYMENT_ID\") | .alias" || echo "")
-
-            if [ ! -z "$ALIASES" ]; then
-              for ALIAS in $ALIASES; do
-                echo "[INFO] Removing alias: $ALIAS"
-                vercel alias remove "$ALIAS" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove alias: $ALIAS"
-              done
-            fi
 
             # Remove the deployment
             vercel remove "$DEPLOYMENT_ID" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_ID"
