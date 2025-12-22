@@ -193,9 +193,7 @@ export const Courses: CollectionConfig = {
     beforeChange: [populatePublishedAt],
   },
   versions: {
-    drafts: {
-      autosave: true,
-    },
+    drafts: true,
     maxPerDoc: 10,
   },
 }

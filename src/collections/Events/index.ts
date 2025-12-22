@@ -243,9 +243,7 @@ export const Events: CollectionConfig = {
     afterDelete: [revalidateEventDelete],
   },
   versions: {
-    drafts: {
-      autosave: true,
-    },
+    drafts: true,
     maxPerDoc: 10,
   },
 }

@@ -107,9 +107,7 @@ export const Navigations: CollectionConfig = {
     contentHashField(),
   ],
   versions: {
-    drafts: {
-      autosave: true,
-    },
+    drafts: true,
     maxPerDoc: 10,
   },
 }
