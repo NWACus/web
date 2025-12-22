@@ -121,3 +121,62 @@ jobs:
             --meta="githubRepo=${fullName##*/}" \
             --meta='githubCommitAuthorLogin=${{ github.event.pusher.name }}' \
             --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Clean up old dev deployments (keep last 2)
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          echo "[INFO] Finding all dev deployments for main branch"
+
+          # Get all deployments for main branch, sorted by creation time (newest first)
+          DEPLOYMENTS=$(vercel deployments --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r '.deployments[] | select(.meta.githubCommitRef=="main") | .uid' || echo "")
+
+          if [ -z "$DEPLOYMENTS" ]; then
+            echo "[WARN] No deployments found for main branch"
+            exit 0
+          fi
+
+          # Convert to array and get count
+          DEPLOYMENT_ARRAY=($DEPLOYMENTS)
+          DEPLOYMENT_COUNT=${#DEPLOYMENT_ARRAY[@]}
+
+          echo "[INFO] Found $DEPLOYMENT_COUNT deployments for main branch"
+
+          # Keep only the last 2 deployments
+          if [ $DEPLOYMENT_COUNT -le 2 ]; then
+            echo "[INFO] Only $DEPLOYMENT_COUNT deployment(s) exist, nothing to clean up"
+            exit 0
+          fi
+
+          echo "[INFO] Keeping the 2 most recent deployments: ${DEPLOYMENT_ARRAY[0]} and ${DEPLOYMENT_ARRAY[1]}"
+          echo "[INFO] Removing $((DEPLOYMENT_COUNT - 2)) old deployments"
+
+          # Remove all deployments except the first 2
+          for i in "${!DEPLOYMENT_ARRAY[@]}"; do
+            if [ $i -lt 2 ]; then
+              continue  # Skip the 2 most recent ones
+            fi
+
+            DEPLOYMENT_ID="${DEPLOYMENT_ARRAY[$i]}"
+            echo "[INFO] Removing old deployment: $DEPLOYMENT_ID"
+
+            # Remove aliases for this deployment first
+            ALIASES=$(vercel alias ls --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".aliases[] | select(.deploymentId==\"$DEPLOYMENT_ID\") | .alias" || echo "")
+
+            if [ ! -z "$ALIASES" ]; then
+              for ALIAS in $ALIASES; do
+                echo "[INFO] Removing alias: $ALIAS"
+                vercel alias remove "$ALIAS" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove alias: $ALIAS"
+              done
+            fi
+
+            # Remove the deployment
+            vercel remove "$DEPLOYMENT_ID" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_ID"
+          done
+
+          echo "[INFO] Cleanup complete"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
