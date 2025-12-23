@@ -130,17 +130,11 @@ jobs:
 
           echo "[INFO] Finding all dev deployments for main branch"
 
-          # Debug: show raw output first
-          echo "[DEBUG] Raw deployments output:"
-          vercel deployments --token=${{ secrets.VERCEL_TOKEN }} | head -20
-
-          # Get all deployments for main branch - improved filtering
-          DEPLOYMENTS=$(vercel deployments --token=${{ secrets.VERCEL_TOKEN }} | awk '/main/ {print $1}' || echo "")
+          # Query deployments for the specific project
+          DEPLOYMENTS=$(vercel deployments --project=${{ secrets.VERCEL_PROJECT_ID }} --token=${{ secrets.VERCEL_TOKEN }} | awk '/main/ {print $1}' || echo "")
 
           if [ -z "$DEPLOYMENTS" ]; then
             echo "[WARN] No deployments found for main branch"
-            echo "[DEBUG] Trying to list all deployments regardless of branch:"
-            vercel deployments --token=${{ secrets.VERCEL_TOKEN }} | head -10
             exit 0
           fi
 
