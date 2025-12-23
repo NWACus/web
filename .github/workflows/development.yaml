@@ -134,13 +134,17 @@ jobs:
           RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
             "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&meta-gh-branch=main&limit=100")
 
+          echo "[DEBUG] Full API response:"
+          echo "$RESPONSE" | jq . || echo "$RESPONSE"
+
           # Extract deployment IDs
           DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.deployments[].uid' 2>/dev/null || echo "")
 
+          echo "[DEBUG] Extracted deployments: '$DEPLOYMENTS'"
+
           if [ -z "$DEPLOYMENTS" ]; then
             echo "[WARN] No deployments found for main branch"
-            exit 0
-          fi
+          exit
 
           # Convert to array
           DEPLOYMENT_ARRAY=($DEPLOYMENTS)
