@@ -130,11 +130,17 @@ jobs:
 
           echo "[INFO] Finding all dev deployments for main branch"
 
-          # Get all deployments for main branch
-          DEPLOYMENTS=$(vercel deployments --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | grep main | awk '{print $1}' || echo "")
+          # Debug: show raw output first
+          echo "[DEBUG] Raw deployments output:"
+          vercel deployments --token=${{ secrets.VERCEL_TOKEN }} | head -20
+
+          # Get all deployments for main branch - improved filtering
+          DEPLOYMENTS=$(vercel deployments --token=${{ secrets.VERCEL_TOKEN }} | awk '/main/ {print $1}' || echo "")
 
           if [ -z "$DEPLOYMENTS" ]; then
             echo "[WARN] No deployments found for main branch"
+            echo "[DEBUG] Trying to list all deployments regardless of branch:"
+            vercel deployments --token=${{ secrets.VERCEL_TOKEN }} | head -10
             exit 0
           fi
 
@@ -156,13 +162,12 @@ jobs:
           # Remove all deployments except the first 2
           for i in "${!DEPLOYMENT_ARRAY[@]}"; do
             if [ $i -lt 2 ]; then
-              continue  # Skip the 2 most recent ones
+              continue
             fi
 
             DEPLOYMENT_ID="${DEPLOYMENT_ARRAY[$i]}"
             echo "[INFO] Removing old deployment: $DEPLOYMENT_ID"
 
-            # Remove the deployment
             vercel remove "$DEPLOYMENT_ID" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_ID"
           done
 
