@@ -130,43 +130,45 @@ jobs:
 
           echo "[INFO] Finding all dev deployments for main branch"
 
-          # Query deployments for the specific project
-          DEPLOYMENTS=$(vercel deployments --project=${{ secrets.VERCEL_PROJECT_ID }} --token=${{ secrets.VERCEL_TOKEN }} | awk '/main/ {print $1}' || echo "")
+          # Query Vercel API for deployments on main branch
+          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&meta-gh-branch=main&limit=100")
+
+          # Extract deployment IDs
+          DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.deployments[].uid' 2>/dev/null || echo "")
 
           if [ -z "$DEPLOYMENTS" ]; then
             echo "[WARN] No deployments found for main branch"
             exit 0
           fi
 
-          # Convert to array and get count
+          # Convert to array
           DEPLOYMENT_ARRAY=($DEPLOYMENTS)
           DEPLOYMENT_COUNT=${#DEPLOYMENT_ARRAY[@]}
 
           echo "[INFO] Found $DEPLOYMENT_COUNT deployments for main branch"
 
-          # Keep only the last 2 deployments
           if [ $DEPLOYMENT_COUNT -le 2 ]; then
             echo "[INFO] Only $DEPLOYMENT_COUNT deployment(s) exist, nothing to clean up"
             exit 0
           fi
 
-          echo "[INFO] Keeping the 2 most recent deployments: ${DEPLOYMENT_ARRAY[0]} and ${DEPLOYMENT_ARRAY[1]}"
+          echo "[INFO] Keeping the 2 most recent: ${DEPLOYMENT_ARRAY[0]} and ${DEPLOYMENT_ARRAY[1]}"
           echo "[INFO] Removing $((DEPLOYMENT_COUNT - 2)) old deployments"
 
-          # Remove all deployments except the first 2
+          # Remove all except the first 2
           for i in "${!DEPLOYMENT_ARRAY[@]}"; do
             if [ $i -lt 2 ]; then
               continue
             fi
 
             DEPLOYMENT_ID="${DEPLOYMENT_ARRAY[$i]}"
-            echo "[INFO] Removing old deployment: $DEPLOYMENT_ID"
+            echo "[INFO] Removing deployment: $DEPLOYMENT_ID"
 
-            vercel remove "$DEPLOYMENT_ID" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_ID"
+            curl -s -X DELETE \
+              -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+              "https://api.vercel.com/v13/deployments/$DEPLOYMENT_ID" \
+              || echo "[WARN] Failed to remove: $DEPLOYMENT_ID"
           done
 
           echo "[INFO] Cleanup complete"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
