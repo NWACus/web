@@ -38,7 +38,15 @@ export const Documents: CollectionConfig = {
   ],
   upload: {
     staticDir: path.resolve(dirname, '../../../public/documents'),
-    mimeTypes: ['application/pdf', 'text/x-php', 'text/xml'],
+    mimeTypes: [
+      'application/pdf',
+      'text/x-php',
+      'text/php',
+      'application/xml',
+      'application/octet-stream',
+      'application/vnd.google-earth.kml+xml',
+      '.kml',
+    ],
   },
   hooks: {
     beforeOperation: [prefixFilenameWithTenant],
