@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 export interface RevalidationReference {
   collection:
     | 'biographies'
+    | 'documents'
     | 'teams'
     | 'media'
     | 'forms'

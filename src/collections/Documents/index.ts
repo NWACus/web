@@ -9,7 +9,7 @@ import { hasGlobalOrTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTen
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { prefixFilenameWithTenant } from '../Media/hooks/prefixFilenameWithTenant'
-import { revalidateMedia, revalidateMediaDelete } from '../Media/hooks/revalidateMedia'
+import { revalidateDocuments, revalidateDocumentsDelete } from './hooks/revalidateDocuments'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -50,7 +50,7 @@ export const Documents: CollectionConfig = {
   },
   hooks: {
     beforeOperation: [prefixFilenameWithTenant],
-    afterChange: [revalidateMedia],
-    afterDelete: [revalidateMediaDelete],
+    afterChange: [revalidateDocuments],
+    afterDelete: [revalidateDocumentsDelete],
   },
 }
