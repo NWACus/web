@@ -38,7 +38,7 @@ export const Documents: CollectionConfig = {
   ],
   upload: {
     staticDir: path.resolve(dirname, '../../../public/documents'),
-    mimeTypes: ['application/pdf'],
+    mimeTypes: ['application/pdf', 'text/x-php', 'text/xml'],
   },
   hooks: {
     beforeOperation: [prefixFilenameWithTenant],
