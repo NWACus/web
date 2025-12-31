@@ -20,12 +20,14 @@ echo -e "\n${GREEN}PRs in main that haven't been released yet:${NC}\n"
 REPO_URL=$(git config --get remote.origin.url | sed 's/\.git$//' | sed 's/git@github.com:/https:\/\/github.com\//')
 
 # Get commits in main but not in release, with dates
-git log release..main --first-parent --pretty=format:"%h|%ad|%s" --date=short | while IFS='|' read -r hash date message; do
-  # Extract PR number from commit message using regex
-  if [[ $message =~ Merge\ pull\ request\ \#([0-9]+) ]]; then
-    PR_NUMBER="${BASH_REMATCH[1]}"
+# Note: --format adds a newline after each entry (unlike --pretty=format which doesn't)
+git log release..main --first-parent --format="%h|%ad|%s" --date=short | while IFS='|' read -r hash date message; do
+  # Extract PR number using grep (bash 3.2 on macOS has buggy BASH_REMATCH)
+  PR_NUMBER=$(echo "$message" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
+
+  if [[ -n "$PR_NUMBER" ]]; then
     PR_LINK="${REPO_URL}/pull/${PR_NUMBER}"
-    # Extract branch name from message
+    # Extract branch name from message (everything after "from org/")
     BRANCH_NAME=$(echo "$message" | sed 's/.*from [^/]*\///')
     echo -e "${BLUE}#${PR_NUMBER}${NC} - ${date} - ${BRANCH_NAME}"
     echo -e "  ${PR_LINK}"
