@@ -9,7 +9,7 @@ import { hasGlobalOrTenantRolePermission } from '@/utilities/rbac/hasGlobalOrTen
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { prefixFilenameWithTenant } from '../Media/hooks/prefixFilenameWithTenant'
-import { revalidateMedia, revalidateMediaDelete } from '../Media/hooks/revalidateMedia'
+import { revalidateDocuments, revalidateDocumentsDelete } from './hooks/revalidateDocuments'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -38,11 +38,19 @@ export const Documents: CollectionConfig = {
   ],
   upload: {
     staticDir: path.resolve(dirname, '../../../public/documents'),
-    mimeTypes: ['application/pdf'],
+    mimeTypes: [
+      'application/pdf',
+      'text/x-php',
+      'text/php',
+      'application/xml',
+      'application/octet-stream',
+      'application/vnd.google-earth.kml+xml',
+      '.kml',
+    ],
   },
   hooks: {
     beforeOperation: [prefixFilenameWithTenant],
-    afterChange: [revalidateMedia],
-    afterDelete: [revalidateMediaDelete],
+    afterChange: [revalidateDocuments],
+    afterDelete: [revalidateDocumentsDelete],
   },
 }
