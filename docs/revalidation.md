@@ -233,9 +233,6 @@ All revalidation hooks respect the `context.disableRevalidate` flag to prevent r
 
 We should always respect this in new revalidation hooks.
 
-### Autosave Handling
-Page and Post hooks skip revalidation when `query.autosave === 'true'` to avoid unnecessary revalidation during draft editing.
-
 ## Guidance for Writing Revalidation Functions
 
 ### Reference Collections
