@@ -50,11 +50,9 @@ const revalidatePageTags = (tenantSlug: string) => {
 export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
   doc,
   previousDoc,
-  req: { payload, context, query },
+  req: { payload, context },
 }) => {
   if (context.disableRevalidate) return
-
-  if (query && query.autosave === 'true') return
 
   const tenant = await resolveTenant(doc.tenant)
 

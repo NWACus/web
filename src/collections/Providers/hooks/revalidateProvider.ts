@@ -9,11 +9,9 @@ async function revalidate() {
 
 export const revalidateProvider: CollectionAfterChangeHook<Provider> = async ({
   doc,
-  req: { context, query },
+  req: { context },
 }) => {
   if (context.disableRevalidate) return
-
-  if (query && query.autosave === 'true') return
 
   if (doc._status === 'published') await revalidate()
 }

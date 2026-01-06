@@ -26,11 +26,9 @@ const revalidate = async (doc: HomePage, payload: BasePayload) => {
 
 export const revalidateHomePage: CollectionAfterChangeHook<HomePage> = async ({
   doc,
-  req: { payload, context, query },
+  req: { payload, context },
 }) => {
   if (context.disableRevalidate) return
-
-  if (query && query.autosave === 'true') return
 
   payload.logger.info(`Revalidating tenant home page...`)
   await revalidate(doc, payload)
