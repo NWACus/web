@@ -15,6 +15,7 @@ src/app/(frontend)/[center]/observations/[id]/page.tsx
 src/app/(frontend)/[center]/observations/avalanches/[id]/page.tsx
 src/app/(frontend)/[center]/observations/page.tsx
 src/app/(frontend)/[center]/observations/submit/page.tsx
+src/app/(frontend)/[center]/weather/forecast/page.tsx
 src/app/(frontend)/[center]/weather/stations/map/page.tsx
 src/collections/Pages/components/DuplicatePageFor/index.tsx
 src/collections/Pages/endpoints/duplicatePageToTenant.ts
@@ -29,9 +30,9 @@ src/endpoints/seed/index.ts
 src/endpoints/seed/upsert.ts
 src/fields/defaultLexical.ts
 src/fields/slug/SlugComponent.tsx
+src/globals/Diagnostics/actions/revalidateCache.ts
 src/middleware.ts
 src/services/vercel.ts
 src/utilities/findDocumentsWithBlockReferences.ts
-src/utilities/generateOGImage.tsx
 src/utilities/removeNonDeterministicKeys.ts
 src/utilities/useClickableCard.ts

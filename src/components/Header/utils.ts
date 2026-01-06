@@ -5,6 +5,7 @@ import {
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
 import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
+import { normalizePath } from '@/utilities/path'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
@@ -162,6 +163,7 @@ export function convertToNavLink(
 ): NavLink | undefined {
   let linkLabel: string | undefined = link.label || undefined
 
+  // external links
   if (link.type === 'external' && link.url) {
     invariant(linkLabel, `Label not set for external link with url ${link.url}`)
 
@@ -173,22 +175,14 @@ export function convertToNavLink(
     }
   }
 
-  if (
-    link.type === 'internal' &&
-    link.reference &&
-    (link.reference.relationTo === 'pages' || link.reference.relationTo === 'posts')
-  ) {
+  // internal page/post/builtInPage reference links
+  if (link.type === 'internal' && link.reference) {
     const reference = link.reference
 
     invariant(
       typeof reference.value !== 'number',
       `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
     )
-
-    // Do not render documents in draft state
-    if (reference.value._status === 'draft') {
-      return undefined
-    }
 
     if (
       !linkLabel &&
@@ -204,29 +198,47 @@ export function convertToNavLink(
       `Could not determine label for link with reference ${JSON.stringify(reference)}`,
     )
 
-    let url =
-      link.reference.relationTo === 'pages'
-        ? `/${reference.value.slug}`
-        : `/blog/${reference.value.slug}`
+    if (reference.relationTo === 'pages' || reference.relationTo === 'posts') {
+      // Do not render documents in draft state
+      if ('_status' in reference.value && reference.value._status === 'draft') {
+        return undefined
+      }
 
-    if (parentItems?.length && parentItems.length > 0) {
-      url = `/${parentItems.join('/')}${url}`
+      let url =
+        link.reference.relationTo === 'pages'
+          ? `/${reference.value.slug}`
+          : `/blog/${reference.value.slug}`
+
+      if (parentItems?.length && parentItems.length > 0) {
+        url = normalizePath(`/${parentItems.join('/')}${url}`, { ensureLeadingSlash: true })
+      }
+
+      return {
+        type: 'internal',
+        label: linkLabel,
+        url,
+      }
     }
 
-    return {
-      type: 'internal',
-      label: linkLabel,
-      url,
+    if (reference.relationTo === 'builtInPages') {
+      const url = normalizePath(reference.value.url, { ensureLeadingSlash: true })
+
+      return {
+        type: 'internal',
+        label: linkLabel,
+        url,
+      }
     }
   }
 
-  if (link.url) {
+  // internal hardcoded links
+  if (link.type === 'internal' && link.url) {
     invariant(linkLabel, `Label not set for internal relative link with url ${link.url}`)
 
-    let url = link.url
+    let url = normalizePath(link.url, { ensureLeadingSlash: true })
 
     if (parentItems?.length && parentItems.length > 0) {
-      url = `/${parentItems.join('/')}${url.startsWith('/') ? url : `/${url}`}`
+      url = normalizePath(`/${parentItems.join('/')}${url}`, { ensureLeadingSlash: true })
     }
 
     return {

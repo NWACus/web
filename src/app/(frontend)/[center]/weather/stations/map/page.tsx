@@ -49,9 +49,7 @@ export default async function Page({ params }: Args) {
       <div className="flex flex-col gap-4">
         <div className="container mb-4">
           <div className="prose dark:prose-invert max-w-none">
-            <h1 className="font-bold">
-              <span className="uppercase">{center}</span> Weather Station Map
-            </h1>
+            <h1 className="font-bold">Weather Station Map</h1>
           </div>
         </div>
         <NACWidget
@@ -66,9 +64,10 @@ export default async function Page({ params }: Args) {
 }
 
 export async function generateMetadata(
-  _props: Args,
+  props: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
+  const { center } = await props.params
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const parentMeta = (await parent) as Metadata
 
@@ -88,6 +87,9 @@ export async function generateMetadata(
       ...parentOg,
       title: `Weather Stations | ${parentTitle}`,
       url: '/weather/stations/map',
+      images: [
+        { url: `/api/${center}/og?routeTitle=Weather%20Stations`, width: 1200, height: 630 },
+      ],
     },
   }
 }

@@ -34,6 +34,10 @@ const nextConfig = {
         hostname: 'www.sierraavalanchecenter.org',
         protocol: PROTOCOL,
       },
+      {
+        hostname: 'www.sawtoothavalanche.com',
+        protocol: PROTOCOL,
+      },
     ],
   },
   reactStrictMode: true,
