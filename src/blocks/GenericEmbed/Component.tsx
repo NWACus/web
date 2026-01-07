@@ -49,6 +49,7 @@ export const GenericEmbedBlock = ({
         'width',
         'allowpaymentrequest',
       ],
+      FORCE_BODY: true,
     })
 
     const styleOverrides = `
