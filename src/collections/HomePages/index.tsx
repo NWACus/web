@@ -158,6 +158,9 @@ export const HomePages: CollectionConfig = {
       required: true,
       filterOptions: ({ data }) => {
         const layoutBlocks = data?.layout
+
+        if (!layoutBlocks) return true
+
         const nacMediaBlockCount = layoutBlocks.filter(
           (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
         ).length
