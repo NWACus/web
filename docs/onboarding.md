@@ -4,33 +4,72 @@ This outlines steps required when a new center (tenant) comes on board. This doc
 
 ## Checklist
 
-### Click ops / manual changes
+<table>
+  <thead>
+    <tr>
+      <th>Action</th>
+      <th>Method</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Create the new tenant in the production admin panel</td>
+      <td>Manual</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td rowspan="2">Confirm tenant is added to Vercel Edge Config</td>
+      <td>Automatic</td>
+      <td>Hook: <code>updateEdgeConfigAfterChange</code></td>
+    </tr>
+    <tr>
+      <td>Manual</td>
+      <td>Troubleshoot: <br />In Vercel, go to the project → Storage → production Edge Config and edit file</td>
+    </tr>
+    <tr>
+      <td rowspan="2">New tenant option shown in <code>TenantSelectionProvider</code></td>
+      <td>Manual</td>
+      <td>Refresh page</td>
+    </tr>
+    <tr>
+      <td>Future automation</td>
+      <td>Use <code>syncTenants</code></td>
+    </tr>
+    <tr>
+      <td>Create documents for Global Collections <ul><li>Website Settings</><li>Navigation</li><li>Home Pages</li></ul></td>
+      <td>Manual</td>
+      <td>Visit each global collection to create <br/>→ Fill out required information and save</td>
+    </tr>
+    <tr>
+      <td>Create Built-In pages</td>
+      <td>Manual</td>
+      <td>See <a href="#built-in-pages">Built-In Pages</a> below</td>
+    </tr>
+    <tr>
+      <td>Copy pages from template tenant to new tenant</td>
+      <td>Manual</td>
+      <td>Use "Duplicate to..." (page document view → three dot menu)</td>
+    </tr>
+  </tbody>
+</table>
 
-We also need to get the new tenant into our Vercel Edge Config. Adding a new tenant in production *should* do this via a Payload hook but please verify the entry has been added by checking the Edge Config values in the Vercel dashboard (go to the project -> Storage -> production Edge Config).
 
-| Action | Manual/Automatic | Automation Details |
-|--------|------------------|-------------------|
-| Create the new tenant in the production admin panel | Manual | — |
-| Tenant added to edge config | Automatic | Hook: `updateEdgeConfigAfterChange` |
-| Tenant options refreshed in TenantSelectionProvider | Manual | Future automation should use `syncTenants` |
-| Create documents for Global Collections (Website Settings, Navigation, Home Pages) | Manual | Visit each global collection to create |
-| Create Built-In pages | Manual | See [Built-In Pages](#built-in-pages) below |
-| Copy pages from template tenant to new tenant | Manual | Use "Duplicate to..." (page document view → three dot menu) |
 
-#### Built-In Pages
+### Built-In Pages
 
 | Title | URL | For AC with single or multi zone* |
 |-------|-----|-----------------------------------|
-| All Forecasts | /forecasts/avalanche | multi |
-| _ZONE NAME_ | /forecasts/avalanche/_ZONE_ | multi |
-| Avalanche Forecast | /forecasts/avalanche/_ZONE_ | single |
-| Mountain Weather* | /weather/forecast | both |
-| Weather Stations | /weather/stations/map | both |
-| Recent Observations | /observations | both |
-| Submit Observations | /observations/submit | both |
+| All Forecasts | `/forecasts/avalanche` | multi |
+| _ZONE NAME_ | `/forecasts/avalanche/ZONE` | multi |
+| Avalanche Forecast | `/forecasts/avalanche/ZONE` | single |
+| Mountain Weather** | `/weather/forecast` | both |
+| Weather Stations | `/weather/stations/map` | both |
+| Recent Observations | `/observations` | both |
+| Submit Observations | `/observations/submit` | both |
 
 > [!NOTE]
-> *Mountain Weather page only exists on select avalanche centers. Check `getAllAvalancheCenterCapabilities` > `platforms > weather`
+> ** Mountain Weather page only exists on select avalanche centers. Check `getAllAvalancheCenterCapabilities` > `platforms > weather`
 
 ## Creating the center's theme
 
