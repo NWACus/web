@@ -6,6 +6,12 @@ on:
   push:
     branches:
       - 'release'
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deployment'
+        required: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
