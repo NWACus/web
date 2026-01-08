@@ -4,34 +4,40 @@ This outlines steps required when a new center (tenant) comes on board. This doc
 
 ## Checklist
 
-### Code changes
-
-- [ ] Create center's theme in `src/app/(frontend)/colors.css`
-- [ ] Copy relevant theme colors to the `centerColorMap` in `src/utilities/generateOGImage.tsx`. We've been using the header colors.
-- [ ] Seed data?
-
 ### Click ops / manual changes
 
 We also need to get the new tenant into our Vercel Edge Config. Adding a new tenant in production *should* do this via a Payload hook but please verify the entry has been added by checking the Edge Config values in the Vercel dashboard (go to the project -> Storage -> production Edge Config).
 
-- [ ] Create the new tenant in the production admin panel
-- [ ] Fill out the new tenant's website settings
-- [ ] Create Built-In pages
-  | Title | URL | for AC w/single or multi zone*  |
-  |--------|--------|--------|
-  | All Forecasts | /forecasts/avalanche| mutli |
-  | _ZONE NAME_ | /forecasts/avalanche/_ZONE_ | multi |
-  | Avalanche Forecast | /forecasts/avalanche/_ZONE_ | single |
-  | Mountain Weather * | /weather/forecast| both |
-  | Weather Stations | /weather/stations/map| both |
-  | Recent Observations | /observations | both |
-  | Submit Observations | /observations/submit | both |
+| Action | Manual/Automatic | Automation Details |
+|--------|------------------|-------------------|
+| Create the new tenant in the production admin panel | Manual | — |
+| Tenant added to edge config | Automatic | Hook: `updateEdgeConfigAfterChange` |
+| Tenant options refreshed in TenantSelectionProvider | Manual | Future automation should use `syncTenants` |
+| Create documents for Global Collections (Website Settings, Navigation, Home Pages) | Manual | Visit each global collection to create |
+| Create Built-In pages | Manual | See [Built-In Pages](#built-in-pages) below |
+| Copy pages from template tenant to new tenant | Manual | Use "Duplicate to..." (page document view → three dot menu) |
 
-  > [!NOTE]
-  > \*Mountain Weather page only exists on select avalanche centers. Check `getAllAvalancheCenterCapabilities` > `platforms > weather`
+#### Built-In Pages
 
+| Title | URL | For AC with single or multi zone* |
+|-------|-----|-----------------------------------|
+| All Forecasts | /forecasts/avalanche | multi |
+| _ZONE NAME_ | /forecasts/avalanche/_ZONE_ | multi |
+| Avalanche Forecast | /forecasts/avalanche/_ZONE_ | single |
+| Mountain Weather* | /weather/forecast | both |
+| Weather Stations | /weather/stations/map | both |
+| Recent Observations | /observations | both |
+| Submit Observations | /observations/submit | both |
 
-- [ ] Copy pages from the template tenant to the new tenant using the "Duplicate to..." functionality (page document view -> three dot menu)
+> [!NOTE]
+> *Mountain Weather page only exists on select avalanche centers. Check `getAllAvalancheCenterCapabilities` > `platforms > weather`
+
+## Creating the center's theme
+
+This is optional. Our default theme will work but a center will likely want their brand colors to be used.
+
+- [ ] Create center's theme in `src/app/(frontend)/colors.css`
+- [ ] Copy relevant theme colors to the `centerColorMap` in `src/utilities/generateOGImage.tsx`. We've been using the header colors.
 
 ## Configuring a custom domain in production
 
