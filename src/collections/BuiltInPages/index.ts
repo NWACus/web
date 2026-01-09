@@ -5,6 +5,7 @@ import { byTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
+import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 
@@ -29,11 +30,7 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
     baseListFilter: filterByTenant,
   },
   fields: [
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-    },
+    titleField(),
     {
       name: 'url',
       label: 'URL',
