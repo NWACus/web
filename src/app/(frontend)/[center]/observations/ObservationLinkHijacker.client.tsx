@@ -67,7 +67,6 @@ export function ObservationLinkHijacker() {
             document.querySelector('#nac-obs-modal-controls a')
           ) {
             modifyLinks()
-            observer.disconnect()
           }
         }
       })
