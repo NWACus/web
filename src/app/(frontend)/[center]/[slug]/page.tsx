@@ -29,7 +29,7 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
-    // Need where clause to ignore autosave bug (https://github.com/NWACus/web/pull/204)
+    // Only use published documents (not added by default)
     where: {
       _status: {
         equals: 'published',
