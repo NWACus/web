@@ -6,11 +6,8 @@ import type { CollectionAfterChangeHook } from 'payload'
 
 export const sendProviderEmails: CollectionAfterChangeHook<Provider> = async ({
   doc,
-  req: { payload, context, query },
+  req: { payload, context },
 }) => {
-  // Skip for autosaves
-  if (query && query.autosave === 'true') return
-
   // Skip if explicitly disabled by context
   if (context.disableEmailNotifications) return
 

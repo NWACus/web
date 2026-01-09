@@ -186,9 +186,7 @@ export const Pages: CollectionConfig<'pages'> = {
     afterDelete: [revalidatePageDelete],
   },
   versions: {
-    drafts: {
-      autosave: true,
-    },
+    drafts: true,
     maxPerDoc: 50,
   },
 }

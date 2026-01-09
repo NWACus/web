@@ -38,6 +38,7 @@ import * as migration_20251117_210840_kv from './20251117_210840_kv'
 import * as migration_20251203_015551_add_courses_and_events from './20251203_015551_add_courses_and_events'
 import * as migration_20251204_192406_add_bg_color_to_events_table from './20251204_192406_add_bg_color_to_events_table'
 import * as migration_20251211_062340_add_nac_media_widget from './20251211_062340_add_nac_media_widget'
+import * as migration_20251219_073149_remove_autosave from './20251219_073149_remove_autosave'
 
 export const migrations = [
   {
@@ -238,6 +239,11 @@ export const migrations = [
   {
     up: migration_20251211_062340_add_nac_media_widget.up,
     down: migration_20251211_062340_add_nac_media_widget.down,
-    name: '20251213_193605_add_nac_media_widget',
+    name: '20251211_062340_add_nac_media_widget',
+  },
+  {
+    up: migration_20251219_073149_remove_autosave.up,
+    down: migration_20251219_073149_remove_autosave.down,
+    name: '20251219_073149_remove_autosave',
   },
 ]

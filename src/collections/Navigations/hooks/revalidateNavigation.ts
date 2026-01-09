@@ -8,11 +8,9 @@ import type { Navigation } from '@/payload-types'
 
 export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async ({
   doc,
-  req: { payload, context, query },
+  req: { payload, context },
 }) => {
   if (context.disableRevalidate) return
-
-  if (query && query.autosave === 'true') return
 
   if (doc._status === 'published') {
     const tenant = await resolveTenant(doc.tenant)

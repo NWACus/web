@@ -206,9 +206,7 @@ export const HomePages: CollectionConfig = {
     afterDelete: [revalidateHomePageDelete],
   },
   versions: {
-    drafts: {
-      autosave: true,
-    },
+    drafts: true,
     maxPerDoc: 10,
   },
 }

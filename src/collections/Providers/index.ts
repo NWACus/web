@@ -159,9 +159,7 @@ export const Providers: CollectionConfig = {
     afterDelete: [revalidateProviderDelete],
   },
   versions: {
-    drafts: {
-      autosave: true,
-    },
+    drafts: true,
     maxPerDoc: 10,
   },
 }
