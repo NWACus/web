@@ -2,6 +2,9 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 
+// Prevent caching 404 responses so new routes can take over when content is created
+export const dynamic = 'force-dynamic'
+
 export default function NotFound() {
   return (
     <div className="container py-28">
