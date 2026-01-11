@@ -2,6 +2,7 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
+import { titleField } from '@/fields/title'
 import { CollectionConfig } from 'payload'
 import { revalidateBiography, revalidateBiographyDelete } from './hooks/revalidateBiography'
 
@@ -31,11 +32,7 @@ export const Biographies: CollectionConfig = {
           'We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).',
       },
     },
-    {
-      name: 'title',
-      type: 'text',
-      required: false,
-    },
+    titleField({ isRequired: false }),
     {
       name: 'start_date',
       type: 'date',

@@ -19,6 +19,7 @@ import { skillLevelField } from '@/fields/skillLevel'
 import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
+import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { validateEventDates } from '@/hooks/validateEventDates'
 import { Event } from '@/payload-types'
@@ -46,11 +47,7 @@ export const Events: CollectionConfig = {
     useAsTitle: 'title',
   },
   fields: [
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-    },
+    titleField(),
     {
       name: 'subtitle',
       type: 'text',

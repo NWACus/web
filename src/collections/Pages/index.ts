@@ -18,6 +18,7 @@ import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePa
 
 import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
+import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { isTenantValue } from '@/utilities/isTenantValue'
@@ -76,15 +77,10 @@ export const Pages: CollectionConfig<'pages'> = {
     },
   },
   fields: [
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-      admin: {
-        description:
-          'The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.',
-      },
-    },
+    titleField({
+      description:
+        'The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.',
+    }),
     {
       type: 'tabs',
       tabs: [

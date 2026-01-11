@@ -9,12 +9,6 @@ export async function duplicatePageToTenant(req: PayloadRequest) {
 
   const { newPage } = await req.json?.()
 
-  const indexedPageResult = await getIndexedTitleAndSlug(
-    newPage.slug,
-    newPage.title,
-    selectedTenantId,
-  )
-
   const payload = await getPayload({ config: configPromise })
   const tenant = await payload
     .find({ collection: 'tenants', where: { id: { equals: selectedTenantId } } })
@@ -27,37 +21,10 @@ export async function duplicatePageToTenant(req: PayloadRequest) {
     data: {
       ...newPageSansIds,
       tenant,
-      title: indexedPageResult.title,
-      slug: indexedPageResult.slug,
+      title: `${newPage.title} - Copy`,
+      slug: `${newPage.slug}-copy`,
     },
   })
-}
-
-async function getIndexedTitleAndSlug(
-  baseSlug: string,
-  baseTitle: string,
-  tenantId: number,
-  i = 1,
-): Promise<{ slug: string; title: string }> {
-  const slug = i === 1 ? baseSlug : `${baseSlug}-${i}`
-
-  const payload = await getPayload({ config: configPromise })
-  const pageResults = await payload.find({
-    collection: 'pages',
-    depth: 0,
-    where: {
-      slug: {
-        equals: slug,
-      },
-      tenant: {
-        equals: tenantId,
-      },
-    },
-  })
-  if (pageResults.totalDocs < 1) {
-    return { slug, title: `${baseTitle} ${i}` }
-  }
-  return getIndexedTitleAndSlug(baseSlug, baseTitle, tenantId, i + 1)
 }
 
 const removeIdKey = <T>(obj: T): T => {

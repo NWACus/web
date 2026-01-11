@@ -1,5 +1,6 @@
 import type { Block, Field } from 'payload'
 
+import { titleField } from '@/fields/title'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
@@ -11,11 +12,7 @@ const columnFields: Field[] = [
     required: true,
     filterOptions: getImageTypeFilter,
   },
-  {
-    name: 'title',
-    type: 'text',
-    required: true,
-  },
+  titleField(),
   {
     name: 'richText',
     type: 'richText',

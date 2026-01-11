@@ -319,7 +319,7 @@ export interface Page {
   /**
    * The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.
    */
-  title: string;
+  title?: string | null;
   /**
    * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.
    */

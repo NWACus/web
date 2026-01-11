@@ -35,6 +35,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
+import { titleField } from '@/fields/title'
 import { isTenantValue } from '@/utilities/isTenantValue'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
@@ -95,11 +96,7 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   fields: [
     tenantField(),
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-    },
+    titleField(),
     MetaImageField({
       relationTo: 'media',
       overrides: {
