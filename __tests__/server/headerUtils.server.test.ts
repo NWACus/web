@@ -405,6 +405,40 @@ describe('Header Utilities', () => {
 
       expect(path).toEqual(['/education', '/education/classes', '/education/classes/field-classes'])
     })
+
+    it('handles accordion item with standalone label (no link) as parent', () => {
+      // This tests the scenario where a parent nav item uses standalone label
+      // instead of link (accordion mode) - the child items should still include
+      // the parent's label in the canonical URL path
+      const navWithStandaloneLabel: TopLevelNavItem[] = [
+        {
+          label: 'Education',
+          items: [
+            {
+              id: 'classes-accordion',
+              // Standalone label, no link - this is an accordion trigger
+              label: 'Classes',
+              items: [
+                {
+                  id: 'field-classes',
+                  link: {
+                    type: 'internal',
+                    label: 'Field Classes',
+                    // URL already includes /education/classes/ segment from parent
+                    url: '/education/classes/field-classes',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]
+
+      // The path should include the education and classes segments
+      const path = getNavigationPathForSlug(navWithStandaloneLabel, 'field-classes')
+
+      expect(path).toEqual(['/education/classes/field-classes'])
+    })
   })
 
   describe('getCanonicalUrlsFromNavigation', () => {

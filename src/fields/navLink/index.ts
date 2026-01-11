@@ -1,6 +1,6 @@
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
-import { FieldHook, GroupField, TextFieldSingleValidation } from 'payload'
+import { FieldHook, NamedGroupField, TextFieldSingleValidation } from 'payload'
 
 const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
   if (siblingData && typeof siblingData === 'object' && 'type' in siblingData) {
@@ -38,7 +38,7 @@ const clearIrrelevantLinkValues: FieldHook = ({ value }) => {
   return value
 }
 
-export const navLink: GroupField = {
+export const navLink: NamedGroupField = {
   name: 'link',
   type: 'group',
   admin: {

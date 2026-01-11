@@ -108,9 +108,11 @@ function topLevelNavItem({
               }
 
               if (nestedItem.link) {
+                // Use standalone label (for accordion items) or link label for parent path segment
+                const parentLabel = navItem.label || navItem.link?.label
                 const convertedNestedLink = convertToNavLink(nestedItem.link, [
                   label.toLowerCase(),
-                  ...(navItem.link ? [navItem.link.label.toLowerCase()] : []),
+                  ...(parentLabel ? [parentLabel.toLowerCase()] : []),
                 ])
                 if (convertedNestedLink) {
                   nestedNavItem.link = convertedNestedLink

@@ -104,10 +104,8 @@ export const navigationSeed = (
           link: pageLink({ slug: 'learn' }),
         },
         {
-          link: pageLink({
-            label: 'Classes',
-            slug: 'field-classes',
-          }),
+          // Items with sub-items use standalone label (not link) - they render as accordions
+          label: 'Classes',
           items: [
             {
               link: pageLink({
