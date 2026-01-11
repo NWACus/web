@@ -161,7 +161,7 @@ export function convertToNavLink(
   },
   parentItems?: string[],
 ): NavLink | undefined {
-  let linkLabel: string | null | undefined = link.label || undefined
+  let linkLabel: string | undefined = link.label || undefined
 
   // external links
   if (link.type === 'external' && link.url) {

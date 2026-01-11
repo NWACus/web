@@ -7,14 +7,16 @@ export const setDuplicateSlug: FieldHook = async ({ value }) => {
 
   return `${value} - Copy`
 }
-export const titleField = (
-  { isRequired, description }: { isRequired?: boolean; description?: string } = {
-    isRequired: true,
-  },
-): TextField => ({
+export const titleField = ({
+  isRequired = true,
+  description,
+}: {
+  isRequired?: boolean
+  description?: string
+} = {}): TextField => ({
   name: 'title',
   type: 'text',
-  ...(isRequired && { required: isRequired }),
+  required: isRequired,
   hooks: {
     beforeDuplicate: [setDuplicateSlug],
   },
