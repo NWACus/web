@@ -1,6 +1,6 @@
 import { FieldHook, TextField } from 'payload'
 
-export const getDuplicateSlug: FieldHook = async ({ value }) => {
+export const setDuplicateSlug: FieldHook = async ({ value }) => {
   if (!value || typeof value !== 'string') {
     return value
   }
@@ -16,7 +16,7 @@ export const titleField = (
   type: 'text',
   ...(isRequired && { required: isRequired }),
   hooks: {
-    beforeDuplicate: [getDuplicateSlug],
+    beforeDuplicate: [setDuplicateSlug],
   },
   ...(description && { admin: { description } }),
 })
