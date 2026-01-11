@@ -155,6 +155,53 @@ describe('Header Utilities', () => {
 
       expect(urls).toEqual(['/about', '/blog'])
     })
+
+    it('excludes URLs from items that have children (accordion items)', () => {
+      // Items with children render as accordion triggers, not clickable links
+      // So their URLs should not be included in canonical URL extraction
+      const navWithAccordionItem: TopLevelNavItem[] = [
+        {
+          label: 'Education',
+          items: [
+            {
+              id: 'classes-section',
+              // This item has children AND a link, but the link is not clickable (accordion trigger)
+              link: {
+                type: 'internal',
+                label: 'Classes',
+                url: '/education/classes',
+              },
+              items: [
+                {
+                  id: 'field-class',
+                  link: {
+                    type: 'internal',
+                    label: 'Field Class',
+                    url: '/education/classes/field',
+                  },
+                },
+              ],
+            },
+            {
+              id: 'resources',
+              // This item has NO children, so its link IS clickable
+              link: {
+                type: 'internal',
+                label: 'Resources',
+                url: '/education/resources',
+              },
+            },
+          ],
+        },
+      ]
+
+      const urls = extractAllInternalUrls(navWithAccordionItem)
+
+      // Should include /education/classes/field and /education/resources
+      // Should NOT include /education/classes (accordion item has children)
+      expect(urls).toEqual(['/education/classes/field', '/education/resources'])
+      expect(urls).not.toContain('/education/classes')
+    })
   })
 
   describe('findNavigationItemBySlug', () => {
@@ -217,6 +264,53 @@ describe('Header Utilities', () => {
           type: 'internal',
           label: 'Weather Stations',
           url: '/weather/stations/map',
+        },
+      })
+    })
+
+    it('does not find items that have children (accordion items)', () => {
+      // Items with children render as accordion triggers, not clickable links
+      // So they should not be found when searching for canonical URLs
+      const navWithAccordionItem: TopLevelNavItem[] = [
+        {
+          label: 'Education',
+          items: [
+            {
+              id: 'classes-section',
+              // This item has children AND a link with slug "classes"
+              // But it's an accordion trigger, not a clickable link
+              link: {
+                type: 'internal',
+                label: 'Classes',
+                url: '/education/classes',
+              },
+              items: [
+                {
+                  id: 'field-class',
+                  link: {
+                    type: 'internal',
+                    label: 'Field Class',
+                    url: '/education/classes/field',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]
+
+      // Searching for 'classes' should NOT find the accordion item
+      const item = findNavigationItemBySlug(navWithAccordionItem, 'classes')
+      expect(item).toBeNull()
+
+      // But searching for 'field' should find the child item (no children)
+      const childItem = findNavigationItemBySlug(navWithAccordionItem, 'field')
+      expect(childItem).toEqual({
+        id: 'field-class',
+        link: {
+          type: 'internal',
+          label: 'Field Class',
+          url: '/education/classes/field',
         },
       })
     })
