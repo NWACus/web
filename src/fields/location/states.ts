@@ -50,6 +50,7 @@ export const stateOptions = [
   { label: 'Wisconsin', value: 'WI' },
   { label: 'Wyoming', value: 'WY' },
   { label: 'District of Columbia', value: 'DC' },
+  { label: 'International', value: 'INTL' },
 ]
 
 // Get full state label from value
