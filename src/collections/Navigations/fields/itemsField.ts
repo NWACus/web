@@ -1,6 +1,52 @@
 import { navLink } from '@/fields/navLink'
 import { merge } from 'lodash-es'
-import { ArrayField } from 'payload'
+import { ArrayField, FieldHook } from 'payload'
+
+// Condition: show field only when item has sub-items (accordion/section mode)
+const hasSubItems = (_: unknown, siblingData: Record<string, unknown>) =>
+  Array.isArray(siblingData?.items) && siblingData.items.length > 0
+
+// Condition: show field only when item has NO sub-items (direct link mode)
+const hasNoSubItems = (_: unknown, siblingData: Record<string, unknown>) =>
+  !Array.isArray(siblingData?.items) || siblingData.items.length === 0
+
+// Type guard: check if value is an object with an optional label string
+function hasLabelProperty(value: unknown): value is { label?: string } {
+  return value !== null && typeof value === 'object'
+}
+
+// Copy link.label to standalone label when sub-items are added,
+// and clear standalone label when sub-items are removed
+const syncStandaloneLabelWithSubItems: FieldHook = ({ siblingData, value }) => {
+  const items = siblingData?.items
+  const hasItems = Array.isArray(items) && items.length > 0
+  const link = siblingData?.link
+
+  // If item now has sub-items and no standalone label, copy from link.label
+  if (hasItems && !value && hasLabelProperty(link) && link.label) {
+    return link.label
+  }
+
+  // If item has no sub-items, clear the standalone label (it's not used)
+  if (!hasItems && value) {
+    return null
+  }
+
+  return value
+}
+
+// Clear link data when item has sub-items (link is not used for accordion items)
+const clearLinkWhenHasSubItems: FieldHook = ({ siblingData, value }) => {
+  const items = siblingData?.items
+  const hasItems = Array.isArray(items) && items.length > 0
+
+  if (hasItems && value && typeof value === 'object') {
+    // Item has sub-items, clear the link data to avoid stale data in database
+    return null
+  }
+
+  return value
+}
 
 export const itemsField = ({
   label,
@@ -24,10 +70,24 @@ export const itemsField = ({
           name: 'label',
           type: 'text',
           admin: {
-            description: 'Label for this nav section (used when item has sub-items but no link)',
+            description: 'Label for this nav section (shown when item has sub-items)',
+            condition: hasSubItems,
+          },
+          hooks: {
+            beforeChange: [syncStandaloneLabelWithSubItems],
           },
         },
-        navLink,
+        {
+          ...navLink,
+          admin: {
+            ...navLink.admin,
+            condition: hasNoSubItems,
+          },
+          hooks: {
+            // navLink.hooks contains clearIrrelevantLinkValues; we add our cleanup hook
+            beforeChange: [...(navLink.hooks?.beforeChange ?? []), clearLinkWhenHasSubItems],
+          },
+        },
         {
           name: 'items',
           type: 'array',
