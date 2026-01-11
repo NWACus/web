@@ -31,6 +31,13 @@ export async function getCoursesStates(): Promise<GetCoursesStatesResults> {
       }
     })
 
+    // Move international to the bottom of the list
+    const intlIndex = states.findIndex((s) => s.value === 'INTL')
+    if (intlIndex !== -1) {
+      const [intlItem] = states.splice(intlIndex, 1)
+      states.push(intlItem)
+    }
+
     return { states }
   } catch (error) {
     Sentry.captureException(error)
