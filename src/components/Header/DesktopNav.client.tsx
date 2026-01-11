@@ -97,7 +97,7 @@ export const DesktopNav = ({
                                   'after:left-0 after:group-hover/accordion-trigger:w-full',
                                 )}
                               >
-                                {item.link?.label}
+                                {item.label || item.link?.label}
                               </div>
                             </AccordionTrigger>
                             <AccordionContent>

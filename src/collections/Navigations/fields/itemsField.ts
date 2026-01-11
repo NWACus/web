@@ -20,6 +20,13 @@ export const itemsField = ({
         description,
       },
       fields: [
+        {
+          name: 'label',
+          type: 'text',
+          admin: {
+            description: 'Label for this nav section (used when item has sub-items but no link)',
+          },
+        },
         navLink,
         {
           name: 'items',

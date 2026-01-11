@@ -34,6 +34,7 @@ export type NavLink =
 
 export type NavItem = {
   id: string
+  label?: string
   link?: NavLink
   items?: NavItem[]
 }
@@ -80,6 +81,11 @@ function topLevelNavItem({
 
         const navItem: NavItem = {
           id: item.id,
+        }
+
+        // Capture standalone label for items that have sub-items but no link
+        if ('label' in item && typeof item.label === 'string') {
+          navItem.label = item.label
         }
 
         if (item.link) {
