@@ -4,7 +4,9 @@
 
 ## Key Changes
 
-## Screenshots / Demo
+## How to test
+
+## Screenshots / Demo video
 
 ## Migration Explanation
 

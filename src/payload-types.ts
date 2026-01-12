@@ -1629,6 +1629,7 @@ export interface Provider {
           | 'WI'
           | 'WY'
           | 'DC'
+          | 'INTL'
         )
       | null;
     zip?: string | null;
@@ -1686,6 +1687,7 @@ export interface Provider {
     | 'WI'
     | 'WY'
     | 'DC'
+    | 'INTL'
   )[];
   courses?: {
     docs?: (number | Course)[];
@@ -1783,7 +1785,8 @@ export interface Course {
       | 'WV'
       | 'WI'
       | 'WY'
-      | 'DC';
+      | 'DC'
+      | 'INTL';
     zip?: string | null;
     country?: 'US' | null;
   };

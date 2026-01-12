@@ -1,6 +1,6 @@
 import type { FieldHook, Where } from 'payload'
 
-import { ValidationError } from 'payload'
+import { APIError } from 'payload'
 import invariant from 'tiny-invariant'
 
 export const ensureUniqueSlug: FieldHook = async (props) => {
@@ -57,14 +57,10 @@ export const ensureUniqueSlug: FieldHook = async (props) => {
   })
 
   if (duplicateDocumentsRes.docs.length > 0 && req.user) {
-    throw new ValidationError({
-      errors: [
-        {
-          message: `A ${collection.labels.singular} with the slug ${value} already exists. Slug must be unique${collectionHasTenantField ? ' per avalanche center' : ''}.`,
-          path: 'slug',
-        },
-      ],
-    })
+    throw new APIError(
+      `A ${collection.labels.singular} with the slug "${value}" already exists. Slug must be unique${collectionHasTenantField ? ' per avalanche center' : ''}.`,
+      400,
+    )
   }
 
   return value
