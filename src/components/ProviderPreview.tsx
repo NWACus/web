@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Provider } from '@/payload-types'
 
 import { courseTypesData } from '@/constants/courseTypes'
+import { getStateLabel } from '@/fields/location/states'
 import { cn } from '@/utilities/ui'
 import { isValidFullUrl } from '@/utilities/validateUrl'
 import { ExternalLink, Mail, MapPin, Phone } from 'lucide-react'
@@ -19,6 +20,7 @@ export const ProviderPreview = (props: { doc?: Provider }) => {
 
   const getLocationText = () => {
     if (!location) return null
+    if (location.state === 'INTL') return getStateLabel(location.state)
     if (location.city && location.state) return `${location.city}, ${location.state}`
     if (location.city) return location.city
     if (location.state) return location.state
