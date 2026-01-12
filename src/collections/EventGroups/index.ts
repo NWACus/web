@@ -3,6 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
+import { titleField } from '@/fields/title'
 import { CollectionConfig } from 'payload'
 
 export const EventGroups: CollectionConfig = {
@@ -15,11 +16,7 @@ export const EventGroups: CollectionConfig = {
   },
   fields: [
     tenantField(),
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-    },
+    titleField(),
     {
       name: 'description',
       type: 'textarea',

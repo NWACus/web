@@ -2,6 +2,7 @@ import type { Block, Field } from 'payload'
 
 import { button } from '@/fields/button'
 import colorPickerField from '@/fields/color'
+import { titleField } from '@/fields/title'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import {
   AlignFeature,
@@ -18,12 +19,7 @@ const cardFields: Field[] = [
     required: true,
     filterOptions: getImageTypeFilter,
   },
-  {
-    name: 'title',
-    type: 'text',
-    required: true,
-  },
-
+  titleField(),
   {
     name: 'text',
     type: 'textarea',
