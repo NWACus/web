@@ -834,7 +834,6 @@ export interface Event {
           | 'WI'
           | 'WY'
           | 'DC'
-          | 'INTL'
         )
       | null;
     zip?: string | null;

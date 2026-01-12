@@ -1,7 +1,7 @@
 import { courseTypesData } from '@/constants/courseTypes'
 import { affinityGroupField } from '@/fields/affinityGroupField'
 import { contentHashField } from '@/fields/contentHashField'
-import { stateOptions } from '@/fields/location/states'
+import { stateOptionsWIntl } from '@/fields/location/states'
 import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
@@ -70,7 +70,7 @@ export const Courses: CollectionConfig = {
               name: 'state',
               type: 'select',
               label: 'State',
-              options: stateOptions,
+              options: stateOptionsWIntl,
               required: true,
             },
             {
