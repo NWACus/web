@@ -9,6 +9,18 @@ When working with frameworks in this project, reference the official LLM documen
 - **Next.js**: https://nextjs.org/docs/llms-full.txt
 - **Payload CMS**: No official llms.txt yet (requested in [issue #13362](https://github.com/payloadcms/payload/issues/13362))
 
+### Payload CMS Source Reference
+
+When you need to understand Payload internals, reference the source code in `node_modules`:
+
+- **Core Payload**: `node_modules/payload/dist/` - Collections, fields, access control, operations
+- **Admin UI**: `node_modules/@payloadcms/ui/dist/` - React components, forms, views
+- **Next.js Integration**: `node_modules/@payloadcms/next/dist/` - Routes, handlers, middleware
+- **Lexical Rich Text**: `node_modules/@payloadcms/richtext-lexical/dist/` - Editor, features, nodes
+- **SQLite Adapter**: `node_modules/@payloadcms/db-sqlite/dist/` - Database operations
+
+The code is readable ES modules with source maps. This matches the exact Payload version used in this project.
+
 ## Essential Commands
 
 ### Development
