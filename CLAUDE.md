@@ -180,7 +180,7 @@ See `.env.example` for all available flags. Key ones:
 
 - Only add code comments when necessary - i.e. the code is not easy to understand and needs more thorough explanation
 - Always add a code comment for regex expressions or string replacements
-- Only use TypeScript casting when absolutely necessary. Prefer using correct types and type guards (see `/docs/coding-guide.md`)
+- Never use TypeScript type assertions / casting like `const someVar = val as SomeType`. Write code so that TypeScript can infer the correct type. Type guards can be helpful when you might otherwise use a type assertion.
 - Prefer Payload's logger over `console.log`
 - Prefer Tailwind utility classes over adding `.css` or `.scss` files
 - Use the `cn()` utility for conditional class names
