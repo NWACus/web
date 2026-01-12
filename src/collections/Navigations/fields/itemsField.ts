@@ -3,17 +3,12 @@ import { merge } from 'lodash-es'
 import { ArrayField, FieldHook } from 'payload'
 
 // Condition: show field only when item has sub-items (accordion/section mode)
-const hasSubItems = (_: unknown, siblingData: Record<string, unknown>) =>
+const hasSubItems = (_data: unknown, siblingData: Record<string, unknown>) =>
   Array.isArray(siblingData?.items) && siblingData.items.length > 0
 
 // Condition: show field only when item has NO sub-items (direct link mode)
-const hasNoSubItems = (_: unknown, siblingData: Record<string, unknown>) =>
+const hasNoSubItems = (_data: unknown, siblingData: Record<string, unknown>) =>
   !Array.isArray(siblingData?.items) || siblingData.items.length === 0
-
-// Type guard: check if value is an object with an optional label string
-function hasLabelProperty(value: unknown): value is { label?: string } {
-  return value !== null && typeof value === 'object'
-}
 
 // Copy link.label to standalone label when sub-items are added,
 // and clear standalone label when sub-items are removed
@@ -23,7 +18,7 @@ const syncStandaloneLabelWithSubItems: FieldHook = ({ siblingData, value }) => {
   const link = siblingData?.link
 
   // If item now has sub-items and no standalone label, copy from link.label
-  if (hasItems && !value && hasLabelProperty(link) && link.label) {
+  if (hasItems && !value && 'label' in link && link.label) {
     return link.label
   }
 
