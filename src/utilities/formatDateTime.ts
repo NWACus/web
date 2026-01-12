@@ -1,10 +1,10 @@
-import { formatInTimeZone } from 'date-fns-tz'
+import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns/format'
 
 export const formatDateTime = (
   dateString: string,
   tz: string | null | undefined,
-  options: string,
+  formatStr: string,
 ) => {
-  return tz ? formatInTimeZone(dateString, tz, options) : format(dateString, options)
+  return tz ? format(new TZDate(dateString, tz), formatStr) : format(dateString, formatStr)
 }
