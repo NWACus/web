@@ -10,16 +10,9 @@ const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
   return Boolean(val) || 'You must define a label for an external link.'
 }
 
-// Type guard to check if value is a link object
-function isLinkValue(
-  value: unknown,
-): value is { type?: string; url?: string; reference?: unknown; newTab?: boolean; label?: string } {
-  return value !== null && typeof value === 'object'
-}
-
-// Clear irrelevant link field values when switching between internal and external link types
 const clearIrrelevantLinkValues: FieldHook = ({ value }) => {
-  if (!isLinkValue(value)) return value
+  // Skip if not a link object
+  if (value === null || typeof value !== 'object') return value
 
   const { type } = value
 
