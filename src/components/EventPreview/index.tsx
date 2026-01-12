@@ -1,3 +1,4 @@
+import { formatDateTime } from '@/utilities/formatDateTime'
 import { cn } from '@/utilities/ui'
 
 import type { Event } from '@/payload-types'
@@ -45,10 +46,9 @@ export const EventPreview = (props: {
 
   const eventTypeDisplay = type ? eventTypesData.find((et) => et.value === type)?.label : null
 
-  const parsedStartDate = new Date(startDate)
-  const month = parsedStartDate.toLocaleDateString('en-US', { month: 'short' })
-  const day = parsedStartDate.getDate()
-  const year = parsedStartDate.getFullYear()
+  const month = formatDateTime(startDate, startDate_tz, 'MMM')
+  const day = formatDateTime(startDate, startDate_tz, 'd')
+  const year = formatDateTime(startDate, startDate_tz, 'yyyy')
 
   return (
     <article
