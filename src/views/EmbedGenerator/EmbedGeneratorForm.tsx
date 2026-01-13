@@ -17,7 +17,7 @@ import { type ChangeEvent, useMemo, useState } from 'react'
 
 import { courseTypesData } from '@/constants/courseTypes'
 import { affinityGroupOptions } from '@/fields/affinityGroupField'
-import { stateOptions } from '@/fields/location/states'
+import { stateOptionsWIntl } from '@/fields/location/states'
 import { modeOfTravelOptions } from '@/fields/modeOfTravelField'
 import type { Provider } from '@/payload-types'
 import { format } from 'date-fns'
@@ -276,7 +276,7 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
             label="States"
             name="states"
             path="states"
-            options={stateOptions.map((state) => ({ label: state.label, value: state.value }))}
+            options={stateOptionsWIntl.map((state) => ({ label: state.label, value: state.value }))}
             value={options.states}
             onChange={(selected) => {
               updateOption('states', extractStringValues(selected))

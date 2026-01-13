@@ -1,5 +1,5 @@
 import { CheckboxFilter, CheckboxFilterProps } from '@/components/filters/CheckboxFilter'
-import { stateOptions } from '@/fields/location/states'
+import { stateOptionsWIntl } from '@/fields/location/states'
 
 type State = {
   label: string
@@ -11,7 +11,7 @@ type StatesFilterProps = {
 } & Partial<CheckboxFilterProps>
 
 export const StatesFilter = ({ states, ...props }: StatesFilterProps = {}) => {
-  const options = states || stateOptions
+  const options = states || stateOptionsWIntl
 
   return (
     <CheckboxFilter

@@ -1,7 +1,7 @@
 import { accessByProviderRelationship } from '@/access/byProviderRelationship'
 import { courseTypesData } from '@/constants/courseTypes'
 import { contentHashField } from '@/fields/contentHashField'
-import { stateOptions } from '@/fields/location/states'
+import { stateOptionsWIntl } from '@/fields/location/states'
 import { slugField } from '@/fields/slug'
 import { validatePhone } from '@/utilities/validatePhone'
 import { validateExternalUrl } from '@/utilities/validateUrl'
@@ -77,7 +77,7 @@ export const Providers: CollectionConfig = {
               name: 'state',
               type: 'select',
               label: 'State',
-              options: stateOptions,
+              options: stateOptionsWIntl,
             },
             {
               name: 'zip',
@@ -111,7 +111,7 @@ export const Providers: CollectionConfig = {
           name: 'statesServiced',
           label: false,
           type: 'select',
-          options: stateOptions,
+          options: stateOptionsWIntl,
           required: true,
           hasMany: true,
         },
