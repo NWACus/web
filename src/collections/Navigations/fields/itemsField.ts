@@ -12,16 +12,9 @@ const hasNoSubItems = (_data: unknown, siblingData: Record<string, unknown>) =>
 
 // Copy link.label to standalone label when sub-items are added,
 // and clear standalone label when sub-items are removed
-const syncStandaloneLabelWithSubItems: FieldHook = ({ siblingData, value }) => {
+const clearLabelWhenItemHasNoSubItems: FieldHook = ({ siblingData, value }) => {
   const items = siblingData?.items
   const hasItems = Array.isArray(items) && items.length > 0
-  const link = siblingData?.link
-
-  // If item now has sub-items and no standalone label, copy from link.label
-  if (hasItems && !value && 'label' in link && link.label) {
-    return link.label
-  }
-
   // If item has no sub-items, clear the standalone label (it's not used)
   if (!hasItems && value) {
     return null
@@ -69,7 +62,7 @@ export const itemsField = ({
             condition: hasSubItems,
           },
           hooks: {
-            beforeChange: [syncStandaloneLabelWithSubItems],
+            beforeChange: [clearLabelWhenItemHasNoSubItems],
           },
         },
         {
