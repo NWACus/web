@@ -53,6 +53,7 @@ export const itemsField = ({
         {
           name: 'label',
           type: 'text',
+          required: true,
           admin: {
             description: 'Label for this nav section (shown when item has sub-items)',
             condition: hasSubItems,
