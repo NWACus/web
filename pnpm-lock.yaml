@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     dependencies:
+      '@date-fns/tz':
+        specifier: ^1.4.1
+        version: 1.4.1
       '@libsql/client':
         specifier: ^0.15.4
         version: 0.15.4
@@ -130,9 +133,6 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
-      date-fns-tz:
-        specifier: ^3.2.0
-        version: 3.2.0(date-fns@4.1.0)
       embla-carousel-autoplay:
         specifier: ^8.6.0
         version: 8.6.0(embla-carousel@8.6.0)
@@ -8020,14 +8020,6 @@ packages:
         integrity: sha512-hTIP/z+t+qKwBDcmmsnmjWTduxCg+5KfdqWQvb2X/8C9+knYY6epN/pfxdDuyVlSVeFz0sM5eEfwIUQ70U4ckg==,
       }
 
-  date-fns-tz@3.2.0:
-    resolution:
-      {
-        integrity: sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==,
-      }
-    peerDependencies:
-      date-fns: ^3.0.0 || ^4.0.0
-
   date-fns@3.6.0:
     resolution:
       {
@@ -10564,7 +10556,6 @@ packages:
       {
         integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==,
       }
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   libsql@0.5.6:
@@ -19498,10 +19489,6 @@ snapshots:
   dataloader@2.2.3: {}
 
   date-fns-jalali@4.1.0-0: {}
-
-  date-fns-tz@3.2.0(date-fns@4.1.0):
-    dependencies:
-      date-fns: 4.1.0
 
   date-fns@3.6.0: {}
 

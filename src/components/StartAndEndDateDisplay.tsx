@@ -1,5 +1,6 @@
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { tz } from '@date-fns/tz'
 import { isSameDay } from 'date-fns'
 
 export function StartAndEndDateDisplay({
@@ -10,7 +11,7 @@ export function StartAndEndDateDisplay({
 }: Pick<Event, 'startDate' | 'startDate_tz' | 'endDate' | 'endDate_tz'>) {
   return (
     <>
-      {endDate && isSameDay(startDate, endDate) ? (
+      {endDate && isSameDay(startDate, endDate, { in: tz(startDate_tz) }) ? (
         <>
           <span>
             {formatDateTime(startDate, startDate_tz, 'MMM d, yyyy, p')}
