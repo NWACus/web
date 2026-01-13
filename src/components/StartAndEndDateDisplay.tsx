@@ -11,7 +11,7 @@ export function StartAndEndDateDisplay({
 }: Pick<Event, 'startDate' | 'startDate_tz' | 'endDate' | 'endDate_tz'>) {
   return (
     <>
-      {endDate && isSameDay(startDate, endDate, { in: tz(startDate_tz ?? undefined) }) ? (
+      {endDate && isSameDay(startDate, endDate, { in: tz(startDate_tz) }) ? (
         <>
           <span>
             {formatDateTime(startDate, startDate_tz, 'MMM d, yyyy, p')}
