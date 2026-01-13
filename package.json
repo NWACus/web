@@ -46,6 +46,7 @@
     "**/*": "pnpm run prettify"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.4.1",
     "@libsql/client": "^0.15.4",
     "@open-iframe-resizer/core": "^2.1.0",
     "@open-iframe-resizer/react": "^2.1.0",
@@ -87,7 +88,6 @@
     "clsx": "^2.1.1",
     "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
-    "date-fns-tz": "^3.2.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "fuse.js": "^7.1.0",

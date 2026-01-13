@@ -3,6 +3,26 @@ import { US_TIMEZONES } from '@/utilities/timezones'
 import { RequiredDataFromCollectionSlug } from 'payload'
 import { futureDate, pastDate, simpleContent } from './utilities'
 
+/**
+ * Creates an ISO date string at midnight UTC for a future date.
+ * This is specifically designed to trigger hydration errors in timezone-naive code:
+ * - Server (UTC): renders as the specified day
+ * - Client (Pacific): renders as the previous day (since midnight UTC = 4pm previous day Pacific)
+ *
+ * For example: midnightUTCDate(1, 20) on Jan 11 returns '2026-02-20T00:00:00.000Z'
+ * - Server sees: Feb 20
+ * - Pacific client sees: Feb 19
+ */
+const midnightUTCDate = (monthOffset: number, day: number): string => {
+  const date = new Date()
+  const newMonth = date.getMonth() + monthOffset
+  const newYear = date.getFullYear() + Math.floor(newMonth / 12)
+  // Set date in UTC to ensure midnight UTC
+  date.setUTCFullYear(newYear, newMonth % 12, day)
+  date.setUTCHours(0, 0, 0, 0)
+  return date.toISOString()
+}
+
 export const getEventsData = (
   tenant: Tenant,
   featuredImage?: Media,
@@ -256,6 +276,40 @@ export const getEventsData = (
         'Training Topics: What forecasters need to know, how to conduct basic snowpack tests, photo guidelines, observation submission through our website, and field safety considerations.',
         'Requirements: Participants should be comfortable traveling in the backcountry and have completed at least an avalanche awareness session. Bring your own touring equipment and avalanche safety gear.',
         'Your observations make a difference! Community data is essential for accurate avalanche forecasting.',
+      ),
+    },
+
+    // HYDRATION ERROR TEST EVENT
+    // This event has a startDate at midnight UTC, which displays as the previous day in Pacific time.
+    // This will trigger a hydration mismatch when the server (UTC) and client (Pacific) disagree on the date.
+    // See: plans/gh-751-hydration-error-reproduction.md
+    {
+      title: 'Hydration Test Event - Midnight UTC',
+      subtitle: 'Event to reproduce date hydration error',
+      description:
+        'This event starts at midnight UTC, which displays as the previous day in Pacific time. Used to test hydration error fix.',
+      startDate: midnightUTCDate(1, 20), // Midnight UTC on the 20th = 4pm on the 19th in Pacific
+      endDate: futureDate(1, 20, 20), // 8pm local time, after the start date
+      startDate_tz: US_TIMEZONES.PACIFIC,
+      endDate_tz: US_TIMEZONES.PACIFIC,
+      location: {
+        isVirtual: true,
+        virtualUrl: 'https://example.com/hydration-test',
+        extraInfo: 'This is a test event for hydration error reproduction',
+      },
+      featuredImage: featuredImage?.id,
+      thumbnailImage: thumbnailImage?.id,
+      registrationUrl: 'https://example.com/register/hydration-test',
+      skillLevel: 'beginner',
+      type: 'event',
+      modeOfTravel: ['ski'],
+      tenant: tenant.id,
+      slug: 'hydration-test-midnight-utc',
+      _status: 'published',
+      content: simpleContent(
+        'This is a test event specifically designed to reproduce the hydration error described in GitHub issue #751.',
+        'The startDate is set to midnight UTC, which means the server (running in UTC) will render one date, while the client browser (in Pacific time) will render the previous day.',
+        'To see the hydration error: run `TZ=UTC pnpm dev` and visit the events page.',
       ),
     },
   ]
