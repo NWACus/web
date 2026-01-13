@@ -6,11 +6,18 @@ import type { NavItem, TopLevelNavItem } from './utils'
  * Putting them in their own file avoids this @payloadcms/drizzle import error.
  */
 
+function isClickableInternalLink(
+  item: NavItem | TopLevelNavItem,
+): item is (NavItem | TopLevelNavItem) & { link: { type: 'internal'; url: string } } {
+  const hasChildren = item.items && item.items.length > 0
+  return item.link?.type === 'internal' && !hasChildren
+}
+
 export function extractAllInternalUrls(navItems: TopLevelNavItem[]): string[] {
   const urls: string[] = []
 
   function extractFromNavItem(item: NavItem | TopLevelNavItem): void {
-    if (item.link && item.link.type === 'internal') {
+    if (isClickableInternalLink(item)) {
       urls.push(item.link.url)
     }
 
@@ -29,7 +36,7 @@ export function findNavigationItemBySlug(
   slug: string,
 ): NavItem | TopLevelNavItem | null {
   function searchInNavItem(item: NavItem | TopLevelNavItem): NavItem | TopLevelNavItem | null {
-    if (item.link && item.link.type === 'internal') {
+    if (isClickableInternalLink(item)) {
       const itemSlug = item.link.url.split('/').filter(Boolean).pop()
       if (itemSlug === slug) {
         return item
@@ -58,7 +65,7 @@ export function getNavigationPathForSlug(navItems: TopLevelNavItem[], slug: stri
   function buildPath(item: NavItem | TopLevelNavItem, currentPath: string[] = []): string[] | null {
     const newPath = item.link ? [...currentPath, item.link.url] : currentPath
 
-    if (item.link && item.link.type === 'internal') {
+    if (isClickableInternalLink(item)) {
       const itemSlug = item.link.url.split('/').filter(Boolean).pop()
       if (itemSlug === slug) {
         return newPath

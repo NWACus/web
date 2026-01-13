@@ -34,6 +34,7 @@ export type NavLink =
 
 export type NavItem = {
   id: string
+  label?: string
   link?: NavLink
   items?: NavItem[]
 }
@@ -82,6 +83,11 @@ function topLevelNavItem({
           id: item.id,
         }
 
+        // Capture standalone label for items that have sub-items but no link
+        if ('label' in item && typeof item.label === 'string') {
+          navItem.label = item.label
+        }
+
         if (item.link) {
           const convertedLink = convertToNavLink(item.link, [label.toLowerCase()])
           if (convertedLink) {
@@ -102,9 +108,11 @@ function topLevelNavItem({
               }
 
               if (nestedItem.link) {
+                // Use standalone label (for accordion items) or link label for parent path segment
+                const parentLabel = navItem.label || navItem.link?.label
                 const convertedNestedLink = convertToNavLink(nestedItem.link, [
                   label.toLowerCase(),
-                  ...(navItem.link ? [navItem.link.label.toLowerCase()] : []),
+                  ...(parentLabel ? [parentLabel.toLowerCase()] : []),
                 ])
                 if (convertedNestedLink) {
                   nestedNavItem.link = convertedNestedLink

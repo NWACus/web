@@ -72,14 +72,15 @@ export const MobileNavItem = ({
               ) : null
             }
 
-            if (item.link?.label) {
+            const itemLabel = item.label || item.link?.label
+            if (itemLabel) {
               return (
                 <AccordionItem key={item.id} value={item.id} className="border-0">
                   <AccordionTrigger
                     className="py-2 text-base font-normal hover:no-underline -mb-1.5"
                     chevronClassName="h-6 w-6 text-inherit"
                   >
-                    <div className={cn(underlineHoverClassName, 'pb-1.5')}>{item.link.label}</div>
+                    <div className={cn(underlineHoverClassName, 'pb-1.5')}>{itemLabel}</div>
                   </AccordionTrigger>
                   <AccordionContent className="py-0 w-full">
                     <div className="pl-4">

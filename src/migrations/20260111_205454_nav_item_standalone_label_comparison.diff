@@ -1,0 +1,36 @@
+🔍 Comparing snapshots:
+   Old: 20251219_073149_remove_autosave.json
+   New: 20260111_205454_nav_item_standalone_label.json
+
+📊 Migration Analysis: 20260111_205454_nav_item_standalone_label
+============================================================
+
+📝 Tables Modified (14):
+   • _navigations_v_version_about_items
+     + Fields added: label
+   • _navigations_v_version_accidents_items
+     + Fields added: label
+   • _navigations_v_version_blog_items
+     + Fields added: label
+   • _navigations_v_version_education_items
+     + Fields added: label
+   • _navigations_v_version_events_items
+     + Fields added: label
+   • _navigations_v_version_support_items
+     + Fields added: label
+   • _navigations_v_version_weather_items
+     + Fields added: label
+   • navigations_about_items
+     + Fields added: label
+   • navigations_accidents_items
+     + Fields added: label
+   • navigations_blog_items
+     + Fields added: label
+   • navigations_education_items
+     + Fields added: label
+   • navigations_events_items
+     + Fields added: label
+   • navigations_support_items
+     + Fields added: label
+   • navigations_weather_items
+     + Fields added: label

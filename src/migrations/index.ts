@@ -39,6 +39,7 @@ import * as migration_20251203_015551_add_courses_and_events from './20251203_01
 import * as migration_20251204_192406_add_bg_color_to_events_table from './20251204_192406_add_bg_color_to_events_table'
 import * as migration_20251211_062340_add_nac_media_widget from './20251211_062340_add_nac_media_widget'
 import * as migration_20251219_073149_remove_autosave from './20251219_073149_remove_autosave'
+import * as migration_20260111_205454_nav_item_standalone_label from './20260111_205454_nav_item_standalone_label'
 
 export const migrations = [
   {
@@ -245,5 +246,10 @@ export const migrations = [
     up: migration_20251219_073149_remove_autosave.up,
     down: migration_20251219_073149_remove_autosave.down,
     name: '20251219_073149_remove_autosave',
+  },
+  {
+    up: migration_20260111_205454_nav_item_standalone_label.up,
+    down: migration_20260111_205454_nav_item_standalone_label.down,
+    name: '20260111_205454_nav_item_standalone_label',
   },
 ]

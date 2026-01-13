@@ -1924,6 +1924,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -1977,6 +1981,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2036,6 +2044,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2095,6 +2107,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2154,6 +2170,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2213,6 +2233,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2272,6 +2296,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2331,6 +2359,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2390,6 +2422,10 @@ export interface Navigation {
      */
     items?:
       | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -3653,6 +3689,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3685,6 +3722,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3722,6 +3760,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3759,6 +3798,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3796,6 +3836,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3833,6 +3874,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3870,6 +3912,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3907,6 +3950,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
@@ -3944,6 +3988,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              label?: T;
               link?:
                 | T
                 | {
