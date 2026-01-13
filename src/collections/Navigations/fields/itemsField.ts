@@ -6,10 +6,6 @@ import { ArrayField, FieldHook } from 'payload'
 const hasSubItems = (_data: unknown, siblingData: Record<string, unknown>) =>
   Array.isArray(siblingData?.items) && siblingData.items.length > 0
 
-// Condition: show field only when item has NO sub-items (direct link mode)
-const hasNoSubItems = (_data: unknown, siblingData: Record<string, unknown>) =>
-  !Array.isArray(siblingData?.items) || siblingData.items.length === 0
-
 // Copy link.label to standalone label when sub-items are added,
 // and clear standalone label when sub-items are removed
 const clearLabelWhenItemHasNoSubItems: FieldHook = ({ siblingData, value }) => {
@@ -69,7 +65,8 @@ export const itemsField = ({
           ...navLink,
           admin: {
             ...navLink.admin,
-            condition: hasNoSubItems,
+            condition: (data: unknown, siblingData: Record<string, unknown>) =>
+              !hasSubItems(data, siblingData),
           },
           hooks: {
             // navLink.hooks contains clearIrrelevantLinkValues; we add our cleanup hook
