@@ -6,15 +6,18 @@ import type { NavItem, TopLevelNavItem } from './utils'
  * Putting them in their own file avoids this @payloadcms/drizzle import error.
  */
 
+function isClickableInternalLink(
+  item: NavItem | TopLevelNavItem,
+): item is (NavItem | TopLevelNavItem) & { link: { type: 'internal'; url: string } } {
+  const hasChildren = item.items && item.items.length > 0
+  return item.link?.type === 'internal' && !hasChildren
+}
+
 export function extractAllInternalUrls(navItems: TopLevelNavItem[]): string[] {
   const urls: string[] = []
 
   function extractFromNavItem(item: NavItem | TopLevelNavItem): void {
-    const hasChildren = item.items && item.items.length > 0
-
-    // Only include link if item has NO children
-    // Items with children render as accordion triggers (expand/collapse), not clickable links
-    if (item.link && item.link.type === 'internal' && !hasChildren) {
+    if (isClickableInternalLink(item)) {
       urls.push(item.link.url)
     }
 
@@ -33,11 +36,7 @@ export function findNavigationItemBySlug(
   slug: string,
 ): NavItem | TopLevelNavItem | null {
   function searchInNavItem(item: NavItem | TopLevelNavItem): NavItem | TopLevelNavItem | null {
-    const hasChildren = item.items && item.items.length > 0
-
-    // Only match if item has NO children
-    // Items with children render as accordion triggers (expand/collapse), not clickable links
-    if (item.link && item.link.type === 'internal' && !hasChildren) {
+    if (isClickableInternalLink(item)) {
       const itemSlug = item.link.url.split('/').filter(Boolean).pop()
       if (itemSlug === slug) {
         return item
@@ -64,12 +63,9 @@ export function findNavigationItemBySlug(
 
 export function getNavigationPathForSlug(navItems: TopLevelNavItem[], slug: string): string[] {
   function buildPath(item: NavItem | TopLevelNavItem, currentPath: string[] = []): string[] | null {
-    const hasChildren = item.items && item.items.length > 0
     const newPath = item.link ? [...currentPath, item.link.url] : currentPath
 
-    // Only match if item has NO children
-    // Items with children render as accordion triggers (expand/collapse), not clickable links
-    if (item.link && item.link.type === 'internal' && !hasChildren) {
+    if (isClickableInternalLink(item)) {
       const itemSlug = item.link.url.split('/').filter(Boolean).pop()
       if (itemSlug === slug) {
         return newPath
