@@ -1,5 +1,8 @@
 name: cleanup
 on:
+  push:
+    branches:
+      - 'gha-cleanup'
   delete:
 jobs:
   cleanup:
@@ -10,6 +13,7 @@ jobs:
         run: curl -sSfL https://get.tur.so/install.sh | bash
         env:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
+
       - name: Delete preview database
         run: |
           set -o errexit
@@ -57,7 +61,18 @@ jobs:
           set -o pipefail
 
           ref="${{ github.event.ref }}"
+          echo "[DEBUG] Raw ref: ${ref}"
+
           branch="${ref##refs/heads/}"
+          echo "[DEBUG] Extracted branch: ${branch}"
+
+          # Safety check: never delete from production
+          echo "[DEBUG] Checking if branch is protected (main or release)"
+          if [ "$branch" = "main" ] || [ "$branch" = "release" ]; then
+            echo "[ERROR] Refusing to delete environment variables from production branch: ${branch}"
+            exit 1
+          fi
+          echo "[DEBUG] Branch check passed, proceeding with cleanup"
 
           ENV_VARS=(
             "DATABASE_URI"
@@ -67,8 +82,11 @@ jobs:
           )
 
           echo "[INFO] Removing environment variables for branch: ${branch}"
+          echo "[DEBUG] VERCEL_ORG_ID: $VERCEL_ORG_ID"
+          echo "[DEBUG] VERCEL_PROJECT_ID: $VERCEL_PROJECT_ID"
 
           for VAR in "${ENV_VARS[@]}"; do
+            echo "[DEBUG] Running: vercel env rm \"$VAR\" preview \"$branch\""
             echo "[INFO] Removing environment variable: $VAR"
             vercel env rm "$VAR" preview "$branch" --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Variable $VAR not found or already removed"
           done
@@ -83,12 +101,29 @@ jobs:
           set -o pipefail
 
           ref="${{ github.event.ref }}"
+          echo "[DEBUG] Raw ref: ${ref}"
+
           branch="${ref##refs/heads/}"
+          echo "[DEBUG] Extracted branch: ${branch}"
+
+          # Safety check: never delete from production
+          echo "[DEBUG] Checking if branch is protected (main or release)"
+          if [ "$branch" = "main" ] || [ "$branch" = "release" ]; then
+            echo "[ERROR] Refusing to delete deployments from production branch: ${branch}"
+            exit 1
+          fi
+          echo "[DEBUG] Branch check passed, proceeding with cleanup"
 
           echo "[INFO] Finding deployments for branch: ${branch}"
+          echo "[DEBUG] VERCEL_ORG_ID: $VERCEL_ORG_ID"
+          echo "[DEBUG] VERCEL_PROJECT_ID: $VERCEL_PROJECT_ID"
+          echo "[DEBUG] Running: vercel deployments --json"
 
           # Get all deployments and filter by branch
           DEPLOYMENTS=$(vercel deployments --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".deployments[] | select(.meta.githubCommitRef==\"$branch\") | .uid" || echo "")
+
+          echo "[DEBUG] Deployments found: ${DEPLOYMENTS}"
+          echo "[DEBUG] Deployment count: $(echo "$DEPLOYMENTS" | wc -w)"
 
           if [ -z "$DEPLOYMENTS" ]; then
             echo "[WARN] No deployments found for branch: ${branch}"
@@ -97,13 +132,17 @@ jobs:
 
             # Remove aliases first (they're tied to deployment IDs)
             for DEPLOYMENT_ID in $DEPLOYMENTS; do
+              echo "[DEBUG] Processing deployment: $DEPLOYMENT_ID"
               echo "[INFO] Removing aliases for deployment: $DEPLOYMENT_ID"
               ALIASES=$(vercel alias ls --json --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | jq -r ".aliases[] | select(.deploymentId==\"$DEPLOYMENT_ID\") | .alias" || echo "")
+
+              echo "[DEBUG] Aliases found for $DEPLOYMENT_ID: ${ALIASES}"
 
               if [ -z "$ALIASES" ]; then
                 echo "[WARN] No aliases found for deployment: $DEPLOYMENT_ID"
               else
                 for ALIAS in $ALIASES; do
+                  echo "[DEBUG] Running: vercel alias remove \"$ALIAS\""
                   echo "[INFO] Removing alias: $ALIAS"
                   vercel alias remove "$ALIAS" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove alias: $ALIAS"
                 done
@@ -112,6 +151,7 @@ jobs:
 
             # Then remove deployments
             for DEPLOYMENT_ID in $DEPLOYMENTS; do
+              echo "[DEBUG] Running: vercel remove \"$DEPLOYMENT_ID\""
               echo "[INFO] Removing deployment: $DEPLOYMENT_ID"
               vercel remove "$DEPLOYMENT_ID" --token=${{ secrets.VERCEL_TOKEN }} --yes || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_ID"
             done
