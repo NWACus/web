@@ -53,6 +53,7 @@ import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e
 import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { EmbedGenerator as EmbedGenerator_1b7ef53264c103176ad65c34c5002f79 } from '@/views/EmbedGenerator'
+import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 
 export const importMap = {
   "@/fields/tenantField/TenantFieldComponent#TenantFieldComponent": TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6,
@@ -109,5 +110,6 @@ export const importMap = {
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/plugin-sentry/client#AdminErrorBoundary": AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688,
   "@/views/AcceptInvite#AcceptInvite": AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
-  "@/views/EmbedGenerator#EmbedGenerator": EmbedGenerator_1b7ef53264c103176ad65c34c5002f79
+  "@/views/EmbedGenerator#EmbedGenerator": EmbedGenerator_1b7ef53264c103176ad65c34c5002f79,
+  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
 }
