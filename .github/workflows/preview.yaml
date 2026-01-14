@@ -6,7 +6,7 @@ on:
   pull_request:
     types:
       - opened
-      # - synchronize
+      - synchronize
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -20,46 +20,46 @@ jobs:
         run: curl -sSfL https://get.tur.so/install.sh | bash
         env:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
-      - name: Create a new database for the preview
-        id: database
-        run: |
-          set -o errexit
-          set -o nounset
-          set -o pipefail
+      # - name: Create a new database for the preview
+      #   id: database
+      #   run: |
+      #     set -o errexit
+      #     set -o nounset
+      #     set -o pipefail
 
-          head_ref="${{ github.head_ref }}"
-          ref="${head_ref//[^a-z0-9\-]/x}"
-          # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
-          # and ensuring total database name stays within 58 character limit
-          # "payloadcms-preview-" is 19 characters, leaving 39 for the ref
-          if [ ${#ref} -gt 39 ]; then
-            prefix="${ref:0:31}"
-            hash=$(echo -n "${ref}" | sha256sum | cut -c1-7)
-            ref="${prefix}-${hash}"
-          fi
-          echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
+      #     head_ref="${{ github.head_ref }}"
+      #     ref="${head_ref//[^a-z0-9\-]/x}"
+      #     # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
+      #     # and ensuring total database name stays within 58 character limit
+      #     # "payloadcms-preview-" is 19 characters, leaving 39 for the ref
+      #     if [ ${#ref} -gt 39 ]; then
+      #       prefix="${ref:0:31}"
+      #       hash=$(echo -n "${ref}" | sha256sum | cut -c1-7)
+      #       ref="${prefix}-${hash}"
+      #     fi
+      #     echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
 
-          name="payloadcms-preview-${ref}"
-          /home/runner/.turso/turso org switch nwac
-          if /home/runner/.turso/turso db show "${name}"; then
-            /home/runner/.turso/turso db destroy "${name}" --yes
-          fi
-          /home/runner/.turso/turso db create "${name}" --wait
-          /home/runner/.turso/turso db shell "${name}" .tables
-          echo "name=${name}" >> "${GITHUB_OUTPUT}"
-        env:
-          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
-      - name: Record database connection URI and token
-        id: connection
-        run: |
-          set -o errexit
-          set -o nounset
-          set -o pipefail
+      #     name="payloadcms-preview-${ref}"
+      #     /home/runner/.turso/turso org switch nwac
+      #     if /home/runner/.turso/turso db show "${name}"; then
+      #       /home/runner/.turso/turso db destroy "${name}" --yes
+      #     fi
+      #     /home/runner/.turso/turso db create "${name}" --wait
+      #     /home/runner/.turso/turso db shell "${name}" .tables
+      #     echo "name=${name}" >> "${GITHUB_OUTPUT}"
+      #   env:
+      #     TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      # - name: Record database connection URI and token
+      #   id: connection
+      #   run: |
+      #     set -o errexit
+      #     set -o nounset
+      #     set -o pipefail
 
-          echo "uri=$(/home/runner/.turso/turso db show "${{ steps.database.outputs.name }}" --url)" >> "${GITHUB_OUTPUT}"
-          echo "token=$(/home/runner/.turso/turso db tokens create "${{ steps.database.outputs.name }}")" >> "${GITHUB_OUTPUT}"
-        env:
-          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      #     echo "uri=$(/home/runner/.turso/turso db show "${{ steps.database.outputs.name }}" --url)" >> "${GITHUB_OUTPUT}"
+      #     echo "token=$(/home/runner/.turso/turso db tokens create "${{ steps.database.outputs.name }}")" >> "${GITHUB_OUTPUT}"
+      #   env:
+      #     TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
       - name: 🏗 Setup pnpm
@@ -99,13 +99,13 @@ jobs:
         run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_ROOT_DOMAIN preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }} .env
-      - name: Seed the database
-        run: pnpm seed:standalone
-        env:
-          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
-          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
-          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+      # - name: Seed the database
+      #   run: pnpm seed:standalone
+      #   env:
+      #     DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+      #     DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+      #     PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
+      #     PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts

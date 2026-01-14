@@ -9,47 +9,47 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || (!contains(fromJson('["main", "release"]'), github.event.ref)) }}
     runs-on: ubuntu-latest
     steps:
-      - name: Install Turso CLI
-        run: curl -sSfL https://get.tur.so/install.sh | bash
-        env:
-          TURSO_INSTALL_SKIP_SIGNUP: 'true'
+      # - name: Install Turso CLI
+      #   run: curl -sSfL https://get.tur.so/install.sh | bash
+      #   env:
+      #     TURSO_INSTALL_SKIP_SIGNUP: 'true'
 
-      - name: Delete preview database
-        run: |
-          set -o errexit
-          set -o nounset
-          set -o pipefail
+      # - name: Delete preview database
+      #   run: |
+      #     set -o errexit
+      #     set -o nounset
+      #     set -o pipefail
 
-          ref="${{ github.event.ref }}"
-          branch="${ref##refs/heads/}"
-          clean_branch="${branch//[^a-z0-9\-]/x}"
+      #     ref="${{ github.event.ref }}"
+      #     branch="${ref##refs/heads/}"
+      #     clean_branch="${branch//[^a-z0-9\-]/x}"
 
-          # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
-          # and ensuring total database name stays within 58 character limit
-          # "payloadcms-preview-" is 19 characters, leaving 39 for the branch
-          if [ ${#clean_branch} -gt 39 ]; then
-            prefix="${clean_branch:0:31}"
-            hash=$(echo -n "${clean_branch}" | sha256sum | cut -c1-7)
-            clean_branch="${prefix}-${hash}"
-          fi
+      #     # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
+      #     # and ensuring total database name stays within 58 character limit
+      #     # "payloadcms-preview-" is 19 characters, leaving 39 for the branch
+      #     if [ ${#clean_branch} -gt 39 ]; then
+      #       prefix="${clean_branch:0:31}"
+      #       hash=$(echo -n "${clean_branch}" | sha256sum | cut -c1-7)
+      #       clean_branch="${prefix}-${hash}"
+      #     fi
 
-          name="payloadcms-preview-${clean_branch}"
-          echo "[INFO] Attempting to delete database ${name}"
+      #     name="payloadcms-preview-${clean_branch}"
+      #     echo "[INFO] Attempting to delete database ${name}"
 
-          # Switch to the correct organization
-          /home/runner/.turso/turso org switch nwac
+      #     # Switch to the correct organization
+      #     /home/runner/.turso/turso org switch nwac
 
-          # Check if database exists before attempting to delete
-          if /home/runner/.turso/turso db show "${name}" >/dev/null 2>&1; then
-            echo "[INFO] Database ${name} exists, deleting..."
-            /home/runner/.turso/turso db destroy --yes "${name}"
-            echo "[INFO] Successfully deleted database ${name}"
-          else
-            echo "[ERROR] Database ${name} does not exist, expected it to be there for cleanup"
-            exit 1
-          fi
-        env:
-          TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      #     # Check if database exists before attempting to delete
+      #     if /home/runner/.turso/turso db show "${name}" >/dev/null 2>&1; then
+      #       echo "[INFO] Database ${name} exists, deleting..."
+      #       /home/runner/.turso/turso db destroy --yes "${name}"
+      #       echo "[INFO] Successfully deleted database ${name}"
+      #     else
+      #       echo "[ERROR] Database ${name} does not exist, expected it to be there for cleanup"
+      #       exit 1
+      #     fi
+      #   env:
+      #     TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
 
       - name: Install Vercel CLI
         run: npm install -g vercel
@@ -61,18 +61,13 @@ jobs:
           set -o pipefail
 
           ref="${{ github.event.ref }}"
-          echo "[DEBUG] Raw ref: ${ref}"
-
           branch="${ref##refs/heads/}"
-          echo "[DEBUG] Extracted branch: ${branch}"
 
           # Safety check: never delete from production
-          echo "[DEBUG] Checking if branch is protected (main or release)"
           if [ "$branch" = "main" ] || [ "$branch" = "release" ]; then
             echo "[ERROR] Refusing to delete environment variables from production branch: ${branch}"
             exit 1
           fi
-          echo "[DEBUG] Branch check passed, proceeding with cleanup"
 
           ENV_VARS=(
             "DATABASE_URI"
@@ -82,11 +77,8 @@ jobs:
           )
 
           echo "[INFO] Removing environment variables for branch: ${branch}"
-          echo "[DEBUG] VERCEL_ORG_ID: $VERCEL_ORG_ID"
-          echo "[DEBUG] VERCEL_PROJECT_ID: $VERCEL_PROJECT_ID"
 
           for VAR in "${ENV_VARS[@]}"; do
-            echo "[DEBUG] Running: vercel env rm \"$VAR\" preview \"$branch\""
             echo "[INFO] Removing environment variable: $VAR"
             # vercel env rm "$VAR" preview "$branch" --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Variable $VAR not found or already removed"
           done
@@ -95,10 +87,6 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Remove Vercel deployments and aliases
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
           echo "Cleaning up deployments and aliases for branch: $BRANCH_NAME"
@@ -131,6 +119,10 @@ jobs:
                 "https://api.vercel.com/v13/deployments/$DEPLOYMENT_ID?teamId=$VERCEL_ORG_ID" || echo "Failed to remove deployment: $DEPLOYMENT_ID"
             fi
           done
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Log cleanup completion
         run: echo "Vercel cleanup completed for branch ${{ github.head_ref }}"
