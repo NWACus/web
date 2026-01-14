@@ -174,6 +174,136 @@ See `.env.example` for all available flags. Key ones:
 
 ---
 
+## Payload Security Patterns
+
+These patterns are critical for secure Payload development. Violations can cause security vulnerabilities or data corruption.
+
+### 1. Local API Access Control (MOST IMPORTANT)
+
+```typescript
+// ❌ SECURITY BUG: Access control bypassed - user param is ignored!
+await payload.find({
+  collection: 'posts',
+  user: someUser, // This does nothing! Operation runs with ADMIN privileges
+})
+
+// ✅ SECURE: Enforces user permissions
+await payload.find({
+  collection: 'posts',
+  user: someUser,
+  overrideAccess: false, // REQUIRED when passing user
+})
+
+// ✅ Administrative operation (intentional bypass, no user)
+await payload.find({
+  collection: 'posts',
+  // No user = admin operation, overrideAccess defaults to true
+})
+```
+
+**Rule**: When passing `user` to Local API, ALWAYS set `overrideAccess: false`
+
+### 2. Transaction Safety in Hooks
+
+```typescript
+// ❌ DATA CORRUPTION RISK: Runs in separate transaction
+hooks: {
+  afterChange: [
+    async ({ doc, req }) => {
+      await req.payload.create({
+        collection: 'audit-log',
+        data: { docId: doc.id },
+        // Missing req = separate transaction, can cause orphaned data
+      })
+    },
+  ],
+}
+
+// ✅ ATOMIC: Same transaction
+hooks: {
+  afterChange: [
+    async ({ doc, req }) => {
+      await req.payload.create({
+        collection: 'audit-log',
+        data: { docId: doc.id },
+        req, // Maintains atomicity - if parent fails, this rolls back too
+      })
+    },
+  ],
+}
+```
+
+**Rule**: ALWAYS pass `req` to nested Payload operations in hooks
+
+### 3. Prevent Infinite Hook Loops
+
+```typescript
+// ❌ INFINITE LOOP: update triggers afterChange which updates again
+hooks: {
+  afterChange: [
+    async ({ doc, req }) => {
+      await req.payload.update({
+        collection: 'posts',
+        id: doc.id,
+        data: { views: doc.views + 1 },
+        req,
+      }) // Triggers afterChange again forever!
+    },
+  ],
+}
+
+// ✅ SAFE: Use context flag to break the loop
+hooks: {
+  afterChange: [
+    async ({ doc, req, context }) => {
+      if (context.skipViewCount) return
+
+      await req.payload.update({
+        collection: 'posts',
+        id: doc.id,
+        data: { views: doc.views + 1 },
+        req,
+        context: { skipViewCount: true },
+      })
+    },
+  ],
+}
+```
+
+### 4. Field-Level vs Collection-Level Access
+
+```typescript
+// Collection-level access CAN return query constraints (row-level security)
+const collectionAccess: Access = ({ req: { user } }) => {
+  if (user?.roles?.includes('admin')) return true
+  return { author: { equals: user.id } } // Query constraint OK here
+}
+
+// ❌ Field-level access can ONLY return boolean
+{
+  name: 'salary',
+  type: 'number',
+  access: {
+    read: ({ req: { user } }) => {
+      return { department: { equals: user.department } } // WRONG! Will error
+    },
+  },
+}
+
+// ✅ Field-level access - boolean only
+{
+  name: 'salary',
+  type: 'number',
+  access: {
+    read: ({ req: { user }, doc }) => {
+      return user?.id === doc?.id || user?.roles?.includes('admin')
+    },
+  },
+}
+```
+
+---
+
 ## Coding Rules
 
 ### Style Preferences
