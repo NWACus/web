@@ -3,7 +3,7 @@ export const US_TIMEZONES = {
   MOUNTAIN: 'America/Denver',
   PACIFIC: 'America/Los_Angeles',
   ALASKA: 'America/Anchorage',
-  HAWAII: 'America/Honolulu',
+  HAWAII: 'Pacific/Honolulu',
 } as const
 
 export type USTimezone = (typeof US_TIMEZONES)[keyof typeof US_TIMEZONES]
