@@ -85,6 +85,10 @@ jobs:
 
       - name: Remove Vercel deployments and aliases
         run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
           BRANCH_NAME="${{ github.head_ref }}"
           echo "Cleaning up deployments and aliases for branch: $BRANCH_NAME"
 
