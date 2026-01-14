@@ -764,12 +764,17 @@ export interface Event {
    */
   description?: string | null;
   startDate: string;
-  startDate_tz: SupportedTimezones;
+  startDate_tz:
+    | 'America/New_York'
+    | 'America/Denver'
+    | 'America/Los_Angeles'
+    | 'America/Anchorage'
+    | 'Pacific/Honolulu';
   /**
    * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
   endDate?: string | null;
-  endDate_tz: SupportedTimezones;
+  endDate_tz: 'America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu';
   location?: {
     /**
      * Check if this is a virtual event
@@ -861,7 +866,9 @@ export interface Event {
    * Registration cutoff. Timezone will always be set to the startDate timezone.
    */
   registrationDeadline?: string | null;
-  registrationDeadline_tz?: SupportedTimezones;
+  registrationDeadline_tz?:
+    | ('America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu')
+    | null;
   /**
    * Skill level required for this event
    */
@@ -1724,12 +1731,17 @@ export interface Course {
    */
   description?: string | null;
   startDate: string;
-  startDate_tz: SupportedTimezones;
+  startDate_tz:
+    | 'America/New_York'
+    | 'America/Denver'
+    | 'America/Los_Angeles'
+    | 'America/Anchorage'
+    | 'Pacific/Honolulu';
   /**
    * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
   endDate?: string | null;
-  endDate_tz: SupportedTimezones;
+  endDate_tz: 'America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu';
   location: {
     placeName: string;
     address?: string | null;
@@ -1798,7 +1810,12 @@ export interface Course {
    * Registration cutoff. Timezone will always be set to the startDate timezone.
    */
   registrationDeadline?: string | null;
-  registrationDeadline_tz: SupportedTimezones;
+  registrationDeadline_tz:
+    | 'America/New_York'
+    | 'America/Denver'
+    | 'America/Los_Angeles'
+    | 'America/Anchorage'
+    | 'Pacific/Honolulu';
   slug: string;
   courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
