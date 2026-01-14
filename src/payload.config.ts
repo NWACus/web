@@ -50,13 +50,46 @@ const { emailAdapter, emailWarning } = getEmailAdapter()
 
 export default buildConfig({
   admin: {
-    components: {
-      beforeDashboard: [
+    dashboard: {
+      widgets: [
         {
-          clientProps: { showDevAction: process.env.NODE_ENV !== 'production' },
-          path: '@/components/BeforeDashboard',
+          slug: 'getting-started',
+          label: 'Getting Started',
+          ComponentPath: '@/components/widgets/GettingStartedWidget#GettingStartedWidget',
+          minWidth: 'x-small',
+          maxWidth: 'medium',
+        },
+        {
+          slug: 'recent-posts',
+          label: 'Recent Posts',
+          ComponentPath: '@/components/widgets/RecentPostsWidget#RecentPostsWidget',
+          minWidth: 'small',
+          maxWidth: 'large',
+        },
+        {
+          slug: 'posthog-views',
+          label: 'Page Views',
+          ComponentPath: '@/components/widgets/PostHogViewsWidget#PostHogViewsWidget',
+          minWidth: 'small',
+          maxWidth: 'large',
         },
       ],
+      defaultLayout: [
+        {
+          widgetSlug: 'getting-started',
+          width: 'full',
+        },
+        {
+          widgetSlug: 'recent-posts',
+          width: 'medium',
+        },
+        {
+          widgetSlug: 'posthog-views',
+          width: 'medium',
+        },
+      ],
+    },
+    components: {
       beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
