@@ -21,9 +21,6 @@ jobs:
           branch="${ref##refs/heads/}"
           clean_branch="${branch//[^a-z0-9\-]/x}"
 
-          # Truncate ref to a prefix + hash suffix to avoid collisions while maintaining readability
-          # and ensuring total database name stays within 58 character limit
-          # "payloadcms-preview-" is 19 characters, leaving 39 for the branch
           if [ ${#clean_branch} -gt 39 ]; then
             prefix="${clean_branch:0:31}"
             hash=$(echo -n "${clean_branch}" | sha256sum | cut -c1-7)
@@ -33,10 +30,8 @@ jobs:
           name="payloadcms-preview-${clean_branch}"
           echo "[INFO] Attempting to delete database ${name}"
 
-          # Switch to the correct organization
           /home/runner/.turso/turso org switch nwac
 
-          # Check if database exists before attempting to delete
           if /home/runner/.turso/turso db show "${name}" >/dev/null 2>&1; then
             echo "[INFO] Database ${name} exists, deleting..."
             /home/runner/.turso/turso db destroy --yes "${name}"
@@ -60,7 +55,6 @@ jobs:
           ref="${{ github.event.ref }}"
           branch="${ref##refs/heads/}"
 
-          # Safety check: never delete from production
           if [ "$branch" = "main" ] || [ "$branch" = "release" ]; then
             echo "[ERROR] Refusing to delete environment variables from production branch: ${branch}"
             exit 1
@@ -82,6 +76,7 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
       - name: Remove Vercel deployments and aliases
         run: |
@@ -92,35 +87,17 @@ jobs:
           BRANCH_NAME="${{ github.head_ref }}"
           echo "Cleaning up deployments and aliases for branch: $BRANCH_NAME"
 
-          # Get all deployments for the project
-          DEPLOYMENTS=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_ORG_ID" | jq '.deployments')
-
-          # Filter deployments by branch name
-          echo "$DEPLOYMENTS" | jq -r '.[] | select(.meta.githubCommitRef == "'"$BRANCH_NAME"'") | .uid' | while read -r DEPLOYMENT_ID; do
-            if [ ! -z "$DEPLOYMENT_ID" ]; then
-              echo "Found deployment: $DEPLOYMENT_ID"
+          # Get all deployments for the project filtered by branch
+          vercel list --meta githubCommitRef=$BRANCH_NAME --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | while read -r DEPLOYMENT_URL; do
+            if [ ! -z "$DEPLOYMENT_URL" ]; then
+              echo "Found deployment: $DEPLOYMENT_URL"
               
-              # Get aliases for this deployment
-              ALIASES=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
-                "https://api.vercel.com/v4/aliases?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_ORG_ID&limit=100" | jq -r '.aliases[] | select(.deploymentId == "'"$DEPLOYMENT_ID"'") | .alias')
-              
-              # Remove each alias
-              echo "$ALIASES" | while read -r ALIAS; do
-                if [ ! -z "$ALIAS" ]; then
-                  echo "Removing alias: $ALIAS"
-                  curl -s -X DELETE -H "Authorization: Bearer $VERCEL_TOKEN" \
-                    "https://api.vercel.com/v3/aliases/$ALIAS?teamId=$VERCEL_ORG_ID" || echo "Failed to remove alias: $ALIAS"
-                fi
-              done
-              
-              # Remove the deployment
-              echo "Removing deployment: $DEPLOYMENT_ID"
-              curl -s -X DELETE -H "Authorization: Bearer $VERCEL_TOKEN" \
-                "https://api.vercel.com/v13/deployments/$DEPLOYMENT_ID?teamId=$VERCEL_ORG_ID" || echo "Failed to remove deployment: $DEPLOYMENT_ID"
+              # Remove the deployment and its aliases
+              echo "Removing deployment: $DEPLOYMENT_URL"
+              vercel remove "$DEPLOYMENT_URL" --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_URL"
             fi
           done
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
