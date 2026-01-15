@@ -62,7 +62,8 @@ export async function Header({ center }: { center: string }) {
               loading="eager"
               priority={true}
               imgClassName="h-[80px] object-contain w-fit"
-              size="200px"
+              // Calculate width at max-height of 80px based on aspect ratio
+              size={`${Math.round((80 * (banner.width ?? 80)) / (banner.height ?? 80))}px`}
             />
             {usfsLogo && (
               <ImageMedia
@@ -70,7 +71,8 @@ export async function Header({ center }: { center: string }) {
                 loading="eager"
                 priority={true}
                 imgClassName="h-[80px] object-contain w-fit"
-                size="200px"
+                // Calculate width at max-height of 80px based on aspect ratio
+                size={`${Math.round((80 * (usfsLogo.width ?? 80)) / (usfsLogo.height ?? 80))}px`}
               />
             )}
           </Link>

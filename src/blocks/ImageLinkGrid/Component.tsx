@@ -3,12 +3,35 @@ import { cn } from '@/utilities/ui'
 import type { ImageLinkGrid as ImageLinkGridProps } from '@/payload-types'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
+import { cssVariables } from '@/cssVariables'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import Link from 'next/link'
+
+const { breakpoints, container } = cssVariables
 
 type Props = ImageLinkGridProps & {
   className?: string
   imgClassName?: string
+}
+
+/**
+ * Generates the sizes attribute for responsive images based on column count.
+ * The sizes attribute tells the browser how wide the image will display at each viewport,
+ * allowing it to select the optimal image size from srcset before downloading.
+ *
+ * Layout behavior:
+ * - Below sm breakpoint: single column layout, image takes full viewport width
+ * - sm and above: multi-column grid, image width = container width / numOfCols
+ */
+const getImageSizes = (numOfCols: number): string => {
+  return [
+    `(max-width: ${breakpoints.sm}px) 100vw`,
+    `(max-width: ${breakpoints.md}px) ${Math.round(container.sm / numOfCols)}px`,
+    `(max-width: ${breakpoints.lg}px) ${Math.round(container.md / numOfCols)}px`,
+    `(max-width: ${breakpoints.xl}px) ${Math.round(container.lg / numOfCols)}px`,
+    `(max-width: ${breakpoints['2xl']}px) ${Math.round(container.xl / numOfCols)}px`,
+    `${Math.round(container['2xl'] / numOfCols)}px`,
+  ].join(', ')
 }
 
 export const ImageLinkGrid = (props: Props) => {
@@ -22,6 +45,7 @@ export const ImageLinkGrid = (props: Props) => {
     4: 'sm:col-span-3',
   }
   const colsSpanClass = colsClasses[numOfCols]
+  const imageSizes = getImageSizes(numOfCols)
 
   return (
     <div className="container py-10">
@@ -45,7 +69,7 @@ export const ImageLinkGrid = (props: Props) => {
                           imgClassName,
                         )}
                         resource={image}
-                        size="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        size={imageSizes}
                       />
                     )}
                   </div>

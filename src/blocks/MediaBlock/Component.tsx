@@ -6,7 +6,10 @@ import { cn } from '@/utilities/ui'
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { cssVariables } from '@/cssVariables'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+
+const { breakpoints } = cssVariables
 
 type Props = MediaBlockProps & {
   captionClassName?: string
@@ -50,14 +53,15 @@ export const MediaBlock = (props: Props) => {
   }
 
   // sizes prop hints to browser what image width to request based on imageSize setting
+  // Uses breakpoints from cssVariables for consistency with other image components
   const getSizesForImageSize = () => {
     switch (imageSize) {
       case 'small':
-        return '(max-width: 768px) 100vw, 384px' // max-w-sm = 24rem = 384px
+        return `(max-width: ${breakpoints.md}px) 100vw, 384px` // max-w-sm = 24rem = 384px
       case 'medium':
-        return '(max-width: 768px) 100vw, 672px' // max-w-2xl = 42rem = 672px
+        return `(max-width: ${breakpoints.md}px) 100vw, 672px` // max-w-2xl = 42rem = 672px
       case 'large':
-        return '(max-width: 768px) 100vw, 896px' // max-w-4xl = 56rem = 896px
+        return `(max-width: ${breakpoints.md}px) 100vw, 896px` // max-w-4xl = 56rem = 896px
       case 'full':
         return '100vw'
       case 'original':

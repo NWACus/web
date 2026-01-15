@@ -82,12 +82,13 @@ export async function Footer({ center }: { center?: string }) {
           )}
         </div>
         <div>
-          {logo && (
+          {logo && typeof logo === 'object' && (
             <Link className="flex items-center justify-center" href="/">
               <ImageMedia
                 resource={logo}
                 imgClassName="max-h-[200px] object-contain"
-                size="200px"
+                // Calculate width at max-height of 200px based on aspect ratio
+                size={`${Math.round((200 * (logo.width ?? 200)) / (logo.height ?? 200))}px`}
               />
             </Link>
           )}
