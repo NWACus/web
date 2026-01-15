@@ -6,6 +6,7 @@ import { FormBlock } from '@/blocks/Form/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Icons } from '@/components/ui/icons'
+import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
 import { getPayload } from 'payload'
 
 export async function Footer({ center }: { center?: string }) {
@@ -87,8 +88,7 @@ export async function Footer({ center }: { center?: string }) {
               <ImageMedia
                 resource={logo}
                 imgClassName="max-h-[200px] object-contain"
-                // Calculate width at max-height of 200px based on aspect ratio
-                size={`${Math.round((200 * (logo.width ?? 200)) / (logo.height ?? 200))}px`}
+                size={getImageWidthFromMaxHeight(logo, 200)}
               />
             </Link>
           )}

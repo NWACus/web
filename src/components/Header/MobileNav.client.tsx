@@ -1,5 +1,6 @@
 'use client'
 import { Media } from '@/payload-types'
+import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
 import { cn } from '@/utilities/ui'
 import {
   Dialog,
@@ -95,6 +96,7 @@ export const MobileNav = ({
                 loading="eager"
                 priority={true}
                 imgClassName="h-[36px] object-contain w-fit"
+                size={getImageWidthFromMaxHeight(banner, 36)}
               />
               {usfsLogo && (
                 <ImageMedia
@@ -102,6 +104,7 @@ export const MobileNav = ({
                   loading="eager"
                   priority={true}
                   imgClassName="h-[36px] object-contain w-fit"
+                  size={getImageWidthFromMaxHeight(usfsLogo, 36)}
                 />
               )}
             </Link>
