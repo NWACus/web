@@ -49,6 +49,23 @@ export const MediaBlock = (props: Props) => {
     }
   }
 
+  // sizes prop hints to browser what image width to request based on imageSize setting
+  const getSizesForImageSize = () => {
+    switch (imageSize) {
+      case 'small':
+        return '(max-width: 768px) 100vw, 384px' // max-w-sm = 24rem = 384px
+      case 'medium':
+        return '(max-width: 768px) 100vw, 672px' // max-w-2xl = 42rem = 672px
+      case 'large':
+        return '(max-width: 768px) 100vw, 896px' // max-w-4xl = 56rem = 896px
+      case 'full':
+        return '100vw'
+      case 'original':
+      default:
+        return '100vw'
+    }
+  }
+
   return (
     <div className={cn(bgColorClass, textColor)}>
       <div
@@ -78,6 +95,7 @@ export const MediaBlock = (props: Props) => {
               )}
               resource={media}
               src={staticImage}
+              size={getSizesForImageSize()}
             />
             {caption && (
               <div className={captionClassName}>

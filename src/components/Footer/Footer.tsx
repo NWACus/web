@@ -84,7 +84,11 @@ export async function Footer({ center }: { center?: string }) {
         <div>
           {logo && (
             <Link className="flex items-center justify-center" href="/">
-              <ImageMedia resource={logo} imgClassName="max-h-[200px] object-contain" />
+              <ImageMedia
+                resource={logo}
+                imgClassName="max-h-[200px] object-contain"
+                size="200px"
+              />
             </Link>
           )}
         </div>

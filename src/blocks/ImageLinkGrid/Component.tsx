@@ -45,6 +45,7 @@ export const ImageLinkGrid = (props: Props) => {
                           imgClassName,
                         )}
                         resource={image}
+                        size="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
                     )}
                   </div>

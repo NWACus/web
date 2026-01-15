@@ -51,6 +51,7 @@ export const PostPreview = (props: {
               imgClassName="w-full object-cover transition-transform duration-300"
               resource={featuredImage}
               pictureClassName="w-full"
+              size="(max-width: 768px) 100vw, 320px"
             />
           )}
         </div>
