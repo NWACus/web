@@ -51,12 +51,6 @@ const { emailAdapter, emailWarning } = getEmailAdapter()
 export default buildConfig({
   admin: {
     components: {
-      beforeDashboard: [
-        {
-          clientProps: { showDevAction: process.env.NODE_ENV !== 'production' },
-          path: '@/components/BeforeDashboard',
-        },
-      ],
       beforeNavLinks: ['@/components/TenantSelector/TenantSelector'],
       providers: [
         {
@@ -97,6 +91,26 @@ export default buildConfig({
           path: '/embed-generator',
         },
       },
+    },
+    dashboard: {
+      widgets: [
+        {
+          slug: 'getting-started',
+          label: 'Getting Started',
+          ComponentPath: '@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget',
+          minWidth: 'full',
+        },
+      ],
+      defaultLayout: [
+        {
+          widgetSlug: 'getting-started',
+          width: 'full',
+        },
+        {
+          widgetSlug: 'collections',
+          width: 'full',
+        },
+      ],
     },
     meta: {
       title: 'Admin Panel',
