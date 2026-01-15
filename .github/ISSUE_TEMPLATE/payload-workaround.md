@@ -3,7 +3,7 @@ name: Payload workaround
 about: Keep track of Payload workaround bugs
 title: ''
 labels: payload
-assignees: ''
+milestone: 'Payload workarounds'
 ---
 
 **Describe the bug**
