@@ -23,6 +23,7 @@ export const Media: CollectionConfig = {
     group: 'Content',
     hidden: ({ user }) =>
       !hasGlobalOrTenantRolePermission({ method: 'read', collection: 'media', user }),
+    defaultColumns: ['fileName', 'alt', 'url', 'width', 'height'],
   },
   fields: [
     tenantField(),
