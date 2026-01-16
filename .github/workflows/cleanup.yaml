@@ -89,7 +89,9 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          branch="${{ github.head_ref }}"
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
+
           echo "Cleaning up deployments and aliases for branch: $branch"
 
           if [ "$branch" = "main" ] || [ "$branch" = "release" ]; then
