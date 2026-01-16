@@ -388,7 +388,7 @@ When triggered via GitHub Issues (with `@claude` mention):
 1. Create a new branch from `main` with a descriptive name
 2. Make focused changes that address the issue requirements
 3. Follow existing code patterns and styles in the codebase
-4. Run `pnpm tsc` and `pnpm lint` before committing
+4. Run `pnpm prettify`, `pnpm tsc`, and `pnpm lint` before committing
 
 ### Creating the PR
 
