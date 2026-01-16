@@ -148,3 +148,7 @@ You likely won't use `pnpm email:build` or `pnpm email:export`. The primary meth
 ## Incremental Static Regeneration (ISR)
 
 See our [revalidation docs](/docs/revalidation.md).
+
+## Using Claude via GitHub Issues
+
+Non-developers can request code changes by creating GitHub issues that mention `@claude`. See our [Claude GitHub Issues guide](/docs/claude-github-issues.md) for instructions and best practices.
