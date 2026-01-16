@@ -151,4 +151,4 @@ See our [revalidation docs](/docs/revalidation.md).
 
 ## Using Claude via GitHub Issues
 
-Non-developers can request code changes by creating GitHub issues that mention `@claude`. See our [Claude GitHub Issues guide](/docs/claude-github-issues.md) for instructions and best practices.
+Approved team members (part of the claude-users team) can request code changes by creating GitHub issues that mention `@claude`. See our [Claude GitHub Issues guide](/docs/claude-github-issues.md) for instructions and best practices.

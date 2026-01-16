@@ -21,7 +21,6 @@ You can trigger Claude in several ways:
 |--------|---------|
 | New issue with `@claude` in body | Create issue, include `@claude` in description |
 | Comment on existing issue | Add comment: `@claude please implement this` |
-| Assign Claude to an issue | Assign the `claude` user (if configured) |
 
 ## Writing Good Prompts
 

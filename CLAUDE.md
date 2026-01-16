@@ -393,9 +393,10 @@ When triggered via GitHub Issues (with `@claude` mention):
 ### Creating the PR
 
 1. Write a clear PR title summarizing the change
-2. Reference the issue number (e.g., "Fixes #123")
-3. Describe what was changed and why
-4. Note any decisions made or alternatives considered
+2. Follow the PR description template in .github/PULL_REQUEST_TEMPLATE.md
+3. Reference the issue number (e.g., "Fixes #123")
+4. Describe what was changed and why
+5. Note any decisions made or alternatives considered
 
 ### Quality Checklist
 
