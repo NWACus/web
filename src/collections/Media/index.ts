@@ -63,6 +63,7 @@ export const Media: CollectionConfig = {
       {
         name: 'thumbnail',
         width: 300,
+        withoutEnlargement: false, // we always want a thumbnail to be generated since we have adminThumbnail: 'thumbnail'
       },
     ],
   },
