@@ -97,7 +97,7 @@ export const ImageTextList = (props: Props) => {
                       )}
                       pictureClassName="overflow-hidden"
                       resource={image}
-                      size={imageSizes}
+                      sizes={imageSizes}
                     />
                   )}
                   <div className={`${isSideLayout ? 'col-span-3' : 'mt-4'}`}>

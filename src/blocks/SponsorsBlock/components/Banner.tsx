@@ -7,7 +7,7 @@ export const SponsorsBlockBanner = ({ sponsors }: { sponsors: Sponsor[] }) => {
       <ImageMedia
         imgClassName="w-full h-auto overflow-hidden"
         resource={sponsor.photo}
-        size="100vw"
+        sizes="100vw"
       />
     </a>
   ))

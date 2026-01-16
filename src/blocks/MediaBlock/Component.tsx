@@ -99,7 +99,7 @@ export const MediaBlock = (props: Props) => {
               )}
               resource={media}
               src={staticImage}
-              size={getSizesForImageSize()}
+              sizes={getSizesForImageSize()}
             />
             {caption && (
               <div className={captionClassName}>

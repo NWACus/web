@@ -69,7 +69,7 @@ export const ImageLinkGrid = (props: Props) => {
                           imgClassName,
                         )}
                         resource={image}
-                        size={imageSizes}
+                        sizes={imageSizes}
                       />
                     )}
                   </div>

@@ -24,7 +24,7 @@ export const ImageMedia = (props: MediaProps) => {
     priority,
     quality,
     resource,
-    size: sizeFromProps,
+    sizes: sizesFromProps,
     src: srcFromProps,
     loading: loadingFromProps,
   } = props
@@ -63,8 +63,8 @@ export const ImageMedia = (props: MediaProps) => {
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
 
   // sizes prop: list of breakpoint-based widths for browser to select appropriate image
-  const sizes = sizeFromProps
-    ? sizeFromProps
+  const sizes = sizesFromProps
+    ? sizesFromProps
     : Object.entries(breakpoints)
         .map(([, value]) => `(max-width: ${value}px) ${value}px`)
         .join(', ') + ', 100vw'

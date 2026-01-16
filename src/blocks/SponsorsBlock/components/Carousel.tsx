@@ -57,7 +57,7 @@ export const SponsorsBlockCarousel = ({
                 <ImageMedia
                   imgClassName="w-full h-auto max-h-[200px] overflow-hidden"
                   resource={sponsor.photo}
-                  size={getImageWidthFromMaxHeight(sponsor.photo, 200)}
+                  sizes={getImageWidthFromMaxHeight(sponsor.photo, 200)}
                 />
               </a>
             </CarouselItem>

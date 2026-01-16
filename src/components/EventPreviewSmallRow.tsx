@@ -60,7 +60,7 @@ export const EventPreviewSmallRow = (props: { className?: string; doc?: Event })
               imgClassName="w-28 max-h-28 object-cover transition-all duration-200"
               resource={thumbnailImage}
               pictureClassName="w-28 max-h-28 overflow-hidden rounded aspect-square"
-              size="112px"
+              sizes="112px"
             />
           ) : (
             <div className="w-28 h-20 bg-muted text-muted-foreground flex justify-center items-center rounded">

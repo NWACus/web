@@ -88,7 +88,7 @@ export async function Footer({ center }: { center?: string }) {
               <ImageMedia
                 resource={logo}
                 imgClassName="max-h-[200px] object-contain"
-                size={getImageWidthFromMaxHeight(logo, 200)}
+                sizes={getImageWidthFromMaxHeight(logo, 200)}
               />
             </Link>
           )}

@@ -44,7 +44,11 @@ export const ImageText = (props: Props) => {
             className={`items-center md:col-span-4 self-start ${imageLayout === 'right' && 'order-last'}`}
           >
             {image && (
-              <ImageMedia imgClassName={cn(imgClassName)} resource={image} size={getImageSizes()} />
+              <ImageMedia
+                imgClassName={cn(imgClassName)}
+                resource={image}
+                sizes={getImageSizes()}
+              />
             )}
           </div>
           <div className={`md:col-span-8 self-center ${textColor}`}>

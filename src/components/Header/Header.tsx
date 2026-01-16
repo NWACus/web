@@ -63,7 +63,7 @@ export async function Header({ center }: { center: string }) {
               loading="eager"
               priority={true}
               imgClassName="h-[80px] object-contain w-fit"
-              size={getImageWidthFromMaxHeight(banner, 80)}
+              sizes={getImageWidthFromMaxHeight(banner, 80)}
             />
             {usfsLogo && (
               <ImageMedia
@@ -71,7 +71,7 @@ export async function Header({ center }: { center: string }) {
                 loading="eager"
                 priority={true}
                 imgClassName="h-[80px] object-contain w-fit"
-                size={getImageWidthFromMaxHeight(usfsLogo, 80)}
+                sizes={getImageWidthFromMaxHeight(usfsLogo, 80)}
               />
             )}
           </Link>
