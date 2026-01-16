@@ -29,7 +29,7 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
 
   const { path, field } = props
   const { value, setValue } = useField<string>({ path })
-  const [currentValue, setCurrentValue] = useState(value || '1_1')
+  const [layoutSelection, setLayoutSelection] = useState(value || '1_1')
 
   const parentPath = path.split(`.${field.name}`)[0]
   const columnsPath = `${parentPath}.columns`
@@ -38,14 +38,14 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
 
   useEffect(() => {
     if (value) {
-      setCurrentValue(value)
+      setLayoutSelection(value)
     }
   }, [value])
 
   // Auto-select valid layout when columns change
   useEffect(() => {
     if (numColumns && numColumns > 0) {
-      const currentColCount = parseInt(currentValue.split('_')[0])
+      const currentColCount = parseInt(layoutSelection.split('_')[0])
       // If current selection doesn't match column count, find the first valid option
       if (currentColCount !== numColumns) {
         const validOption = layoutOptions.find(
@@ -53,11 +53,11 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
         )
         if (validOption) {
           setValue(validOption.value)
-          setCurrentValue(validOption.value)
+          setLayoutSelection(validOption.value)
         }
       }
     }
-  }, [numColumns, currentValue, setValue, layoutOptions])
+  }, [numColumns, layoutSelection, setValue, layoutOptions])
 
   if (numColumns === 0) return null
 
@@ -66,10 +66,10 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
       <FieldLabel htmlFor={path} label={field.label} required={field.required} />
       <ToggleGroup
         type="single"
-        value={currentValue}
+        value={layoutSelection}
         onValueChange={(newValue: string) => {
           if (newValue) {
-            setCurrentValue(newValue)
+            setLayoutSelection(newValue)
             setValue(newValue)
           }
         }}
