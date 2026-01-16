@@ -93,7 +93,7 @@ jobs:
           echo "Cleaning up deployments and aliases for branch: $branch"
 
           if [ "$branch" = "main" ] || [ "$branch" = "release" ]; then
-            echo "[ERROR] Refusing to delete environment variables from production branch: ${branch}"
+            echo "[ERROR] Refusing to delete deployments and aliases from production branch: ${branch}"
             exit 1
           fi
 
