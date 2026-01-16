@@ -100,13 +100,13 @@ jobs:
           fi
 
           # Get all deployments for the project filtered by branch
-          vercel list --meta githubCommitRef=$branch --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | while read -r DEPLOYMENT_URL; do
+          vercel list --scope=nwac --meta githubCommitRef=$branch --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | while read -r DEPLOYMENT_URL; do
             if [ ! -z "$DEPLOYMENT_URL" ]; then
               echo "Found deployment: $DEPLOYMENT_URL"
               
               # Remove the deployment and its aliases
               echo "Removing deployment: $DEPLOYMENT_URL"
-              vercel remove "$DEPLOYMENT_URL" --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_URL"
+              vercel remove --scope=nwac "$DEPLOYMENT_URL" --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_URL"
             fi
           done
         env:
