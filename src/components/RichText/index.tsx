@@ -11,7 +11,6 @@ import {
   RichText as RichTextLexical,
 } from '@payloadcms/richtext-lexical/react'
 
-import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonBlockComponent } from '@/blocks/Button/Component'
 import { CalloutBlock } from '@/blocks/Callout/Component'
@@ -24,7 +23,6 @@ import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
 import type {
-  BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
   ButtonBlock as ButtonBlockProps,
   CalloutBlock as CalloutBlockProps,
@@ -43,7 +41,6 @@ import { cn } from '@/utilities/ui'
 type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<
-      | BannerBlockProps
       | BlogListBlockProps
       | ButtonBlockProps
       | CalloutBlockProps
@@ -72,7 +69,6 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   // if block has two variants - to make TS happy we fallback to the default for the block variant
   blocks: {
-    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
     blogList: ({ node }) => (
       <BlogListBlockComponent
         {...node.fields}

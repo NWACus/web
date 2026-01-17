@@ -9,7 +9,6 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { ButtonBlock } from '@/blocks/Button/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
@@ -118,7 +117,6 @@ export const Posts: CollectionConfig<'posts'> = {
             BlocksFeature({
               blocks: [
                 ButtonBlock,
-                Banner,
                 BlogListBlockLexical,
                 DocumentBlock,
                 EventListBlockLexical,

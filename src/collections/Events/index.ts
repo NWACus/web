@@ -1,6 +1,5 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
-import { Banner } from '@/blocks/Banner/config'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { EventListBlockLexical } from '@/blocks/EventList/config'
@@ -147,7 +146,6 @@ export const Events: CollectionConfig = {
                 ...rootFeatures,
                 BlocksFeature({
                   blocks: [
-                    Banner,
                     BlogListBlockLexical,
                     DocumentBlock,
                     EventListBlockLexical,
