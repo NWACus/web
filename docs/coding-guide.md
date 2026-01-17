@@ -141,9 +141,10 @@ Use the `cn()` utility for conditional class names.
 Follow this example when creating new blocks:
 | | |
 |---|---|
-| Block folder name | `SingleButtonBlock` |
-| Block slug | `singleButton` |
+| Block folder name | `SingleButton` |
 | Block config name | `SingleButtonBlock` |
+| Block slug | `singleButton` |
+| Block interface name | `SingleButtonBlock` |
 | Associated UI component(s) for the block | `SingleButtonComponent` |
 | Config with `wrapInContainer` | `SingleBlogPostBlockLexical` |
 

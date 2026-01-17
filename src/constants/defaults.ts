@@ -1,4 +1,3 @@
-import { BiographyBlock } from '@/blocks/Biography/config'
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { Content } from '@/blocks/Content/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
@@ -19,7 +18,6 @@ import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
 export const DEFAULT_BLOCKS = [
-  BiographyBlock,
   BlogListBlock,
   SingleBlogPostBlock,
   Content,

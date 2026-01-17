@@ -3,7 +3,6 @@ import { Fragment } from 'react'
 import type { Page } from '@/payload-types'
 import { Payload } from 'payload'
 
-import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
@@ -50,8 +49,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   const { blockType } = block
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
   switch (blockType) {
-    case 'biography':
-      return <BiographyBlock {...block} payload={payload} />
     case 'blogList':
       return <BlogListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'content':
