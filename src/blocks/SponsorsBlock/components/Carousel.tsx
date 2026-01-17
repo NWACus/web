@@ -8,6 +8,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { Sponsor } from '@/payload-types'
+import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import Autoplay from 'embla-carousel-autoplay'
 
@@ -54,8 +55,9 @@ export const SponsorsBlockCarousel = ({
             >
               <a href={sponsor.link} target="_blank" rel="noopener noreferrer">
                 <ImageMedia
-                  imgClassName="w-full h-auto  max-h-[200px] overflow-hidden"
+                  imgClassName="w-full h-auto max-h-[200px] overflow-hidden"
                   resource={sponsor.photo}
+                  sizes={getImageWidthFromMaxHeight(sponsor.photo, 200)}
                 />
               </a>
             </CarouselItem>

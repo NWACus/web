@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
 import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import invariant from 'tiny-invariant'
@@ -62,6 +63,7 @@ export async function Header({ center }: { center: string }) {
               loading="eager"
               priority={true}
               imgClassName="h-[80px] object-contain w-fit"
+              sizes={getImageWidthFromMaxHeight(banner, 80)}
             />
             {usfsLogo && (
               <ImageMedia
@@ -69,6 +71,7 @@ export async function Header({ center }: { center: string }) {
                 loading="eager"
                 priority={true}
                 imgClassName="h-[80px] object-contain w-fit"
+                sizes={getImageWidthFromMaxHeight(usfsLogo, 80)}
               />
             )}
           </Link>

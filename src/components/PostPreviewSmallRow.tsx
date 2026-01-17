@@ -25,6 +25,7 @@ export const PostPreviewSmallRow = (props: { className?: string; doc?: Post }) =
               imgClassName="w-28 max-h-28 object-cover transition-all duration-200"
               resource={featuredImage}
               pictureClassName="w-28 max-h-28 overflow-hidden rounded aspect-square"
+              sizes="112px"
             />
           ) : (
             <div className="w-28 h-20 bg-muted text-muted-foreground flex justify-center items-center">

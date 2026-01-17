@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import { cssVariables } from './src/cssVariables.js'
+
+const { breakpoints, container } = cssVariables
+
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: [
@@ -15,6 +19,14 @@ const config = {
   ],
   prefix: '',
   theme: {
+    screens: {
+      sm: `${breakpoints.sm}px`,
+      md: `${breakpoints.md}px`,
+      lg: `${breakpoints.lg}px`,
+      xl: `${breakpoints.xl}px`,
+      '2xl': `${breakpoints['2xl']}px`,
+      '3xl': `${breakpoints['3xl']}px`,
+    },
     container: {
       center: true,
       padding: {
@@ -26,11 +38,11 @@ const config = {
         xl: '2rem',
       },
       screens: {
-        '2xl': '86rem',
-        lg: '64rem',
-        md: '48rem',
-        sm: '40rem',
-        xl: '80rem',
+        sm: `${container.sm / 16}rem`,
+        md: `${container.md / 16}rem`,
+        lg: `${container.lg / 16}rem`,
+        xl: `${container.xl / 16}rem`,
+        '2xl': `${container['2xl'] / 16}rem`,
       },
     },
     extend: {

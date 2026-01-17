@@ -22,8 +22,9 @@ export const ImageMedia = (props: MediaProps) => {
     pictureClassName,
     imgClassName,
     priority,
+    quality,
     resource,
-    size: sizeFromProps,
+    sizes: sizesFromProps,
     src: srcFromProps,
     loading: loadingFromProps,
   } = props
@@ -61,11 +62,12 @@ export const ImageMedia = (props: MediaProps) => {
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
 
-  const sizes = sizeFromProps
-    ? sizeFromProps
+  // sizes prop: list of breakpoint-based widths for browser to select appropriate image
+  const sizes = sizesFromProps
+    ? sizesFromProps
     : Object.entries(breakpoints)
-        .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
-        .join(', ')
+        .map(([, value]) => `(max-width: ${value}px) ${value}px`)
+        .join(', ') + ', 100vw'
 
   const handleError = () => {
     setImageError(true)
@@ -82,7 +84,7 @@ export const ImageMedia = (props: MediaProps) => {
             fill={fill}
             height={!fill ? height : undefined}
             priority={priority}
-            quality={100}
+            quality={quality ?? 80}
             loading={loading}
             sizes={sizes}
             src={blurDataURL}
@@ -106,7 +108,7 @@ export const ImageMedia = (props: MediaProps) => {
         placeholder={blurDataURL ? 'blur' : 'empty'}
         blurDataURL={blurDataURL || undefined}
         priority={priority}
-        quality={100}
+        quality={quality ?? 80}
         loading={loading}
         sizes={sizes}
         src={src}

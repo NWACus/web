@@ -6,6 +6,7 @@ import { FormBlock } from '@/blocks/Form/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Icons } from '@/components/ui/icons'
+import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
 import { getPayload } from 'payload'
 
 export async function Footer({ center }: { center?: string }) {
@@ -82,9 +83,13 @@ export async function Footer({ center }: { center?: string }) {
           )}
         </div>
         <div>
-          {logo && (
+          {logo && typeof logo === 'object' && (
             <Link className="flex items-center justify-center" href="/">
-              <ImageMedia resource={logo} imgClassName="max-h-[200px] object-contain" />
+              <ImageMedia
+                resource={logo}
+                imgClassName="max-h-[200px] object-contain"
+                sizes={getImageWidthFromMaxHeight(logo, 200)}
+              />
             </Link>
           )}
         </div>

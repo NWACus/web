@@ -1,9 +1,8 @@
+import { eventTypesData } from '@/constants/eventTypes'
+import { cssVariables } from '@/cssVariables'
+import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { cn } from '@/utilities/ui'
-
-import type { Event } from '@/payload-types'
-
-import { eventTypesData } from '@/constants/eventTypes'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { EventInfo } from '../EventInfo'
@@ -12,6 +11,21 @@ import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { LocationPopover } from './LocationPopover'
+
+const { breakpoints } = cssVariables
+
+/**
+ * Image sizes attribute for the thumbnail image.
+ *
+ * This component uses container queries (@lg, @xl, @2xl) to set image width,
+ * but the `sizes` attribute only supports viewport-based media queries.
+ * We approximate by assuming the container scales with the viewport.
+ *
+ * Actual CSS widths: w-full (mobile) -> w-48 (@lg) -> w-56 (@xl) -> w-64 (@2xl)
+ * We use 256px (w-64) as the fallback since it's the maximum display size,
+ * ensuring we never download an image larger than needed.
+ */
+const imageSizes = `(max-width: ${breakpoints.lg}px) 100vw, 256px`
 
 export const EventPreview = (props: {
   alignItems?: 'center'
@@ -155,6 +169,7 @@ export const EventPreview = (props: {
               imgClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               resource={thumbnailImage}
               pictureClassName="w-full h-full overflow-hidden rounded"
+              sizes={imageSizes}
             />
           )}
         </Link>

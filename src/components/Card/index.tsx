@@ -35,7 +35,7 @@ export const Card = (props: {
     >
       <div className="relative w-full">
         {featuredImage && typeof featuredImage !== 'number' && (
-          <Media imgClassName="w-full" resource={featuredImage} size="33vw" />
+          <Media imgClassName="w-full" resource={featuredImage} sizes="33vw" />
         )}
       </div>
       <div className="p-4">

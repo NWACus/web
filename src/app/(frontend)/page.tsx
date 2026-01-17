@@ -63,7 +63,7 @@ export default async function LandingPage() {
                   className="p-6 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition no-underline text-center"
                 >
                   <div className="aspect-square flex items-center justify-center w-48 mx-auto">
-                    <ImageMedia resource={logo} imgClassName="w-48" />
+                    <ImageMedia resource={logo} imgClassName="w-48" sizes="192px" />
                   </div>
                   <div className="text-xl mt-4 font-semibold">{tenant.name} ➡️</div>
                 </Link>

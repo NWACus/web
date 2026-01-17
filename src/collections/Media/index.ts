@@ -23,6 +23,7 @@ export const Media: CollectionConfig = {
     group: 'Content',
     hidden: ({ user }) =>
       !hasGlobalOrTenantRolePermission({ method: 'read', collection: 'media', user }),
+    defaultColumns: ['filename', 'alt', 'url', 'width', 'height'],
   },
   fields: [
     tenantField(),
@@ -62,33 +63,7 @@ export const Media: CollectionConfig = {
       {
         name: 'thumbnail',
         width: 300,
-      },
-      {
-        name: 'square',
-        width: 500,
-        height: 500,
-      },
-      {
-        name: 'small',
-        width: 600,
-      },
-      {
-        name: 'medium',
-        width: 900,
-      },
-      {
-        name: 'large',
-        width: 1400,
-      },
-      {
-        name: 'xlarge',
-        width: 1920,
-      },
-      {
-        name: 'og',
-        width: 1200,
-        height: 630,
-        crop: 'center',
+        withoutEnlargement: false, // we always want a thumbnail to be generated since we have adminThumbnail: 'thumbnail'
       },
     ],
   },

@@ -40,6 +40,7 @@ import * as migration_20251204_192406_add_bg_color_to_events_table from './20251
 import * as migration_20251211_062340_add_nac_media_widget from './20251211_062340_add_nac_media_widget'
 import * as migration_20251219_073149_remove_autosave from './20251219_073149_remove_autosave'
 import * as migration_20260111_205454_nav_item_standalone_label from './20260111_205454_nav_item_standalone_label'
+import * as migration_20260115_234107_remove_image_sizes from './20260115_234107_remove_image_sizes'
 
 export const migrations = [
   {
@@ -251,5 +252,10 @@ export const migrations = [
     up: migration_20260111_205454_nav_item_standalone_label.up,
     down: migration_20260111_205454_nav_item_standalone_label.down,
     name: '20260111_205454_nav_item_standalone_label',
+  },
+  {
+    up: migration_20260115_234107_remove_image_sizes.up,
+    down: migration_20260115_234107_remove_image_sizes.down,
+    name: '20260115_234107_remove_image_sizes',
   },
 ]
