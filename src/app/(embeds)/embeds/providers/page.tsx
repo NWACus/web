@@ -57,7 +57,12 @@ export default async function ProvidersEmbedPage({
     }
   })
 
-  const states = Object.keys(providersByState).sort()
+  // Sort states alphabetically, but always put International (INTL) last
+  const states = Object.keys(providersByState).sort((a, b) => {
+    if (a === 'INTL') return 1
+    if (b === 'INTL') return -1
+    return a.localeCompare(b)
+  })
 
   // Split states into two columns for vertical flow
   const midpoint = Math.ceil(states.length / 2)

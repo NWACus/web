@@ -31,12 +31,12 @@ export async function getCoursesStates(): Promise<GetCoursesStatesResults> {
       }
     })
 
-    // Move international to the bottom of the list
-    const intlIndex = states.findIndex((s) => s.value === 'INTL')
-    if (intlIndex !== -1) {
-      const [intlItem] = states.splice(intlIndex, 1)
-      states.push(intlItem)
-    }
+    // Sort states alphabetically, but always put International (INTL) last
+    states.sort((a, b) => {
+      if (a.value === 'INTL') return 1
+      if (b.value === 'INTL') return -1
+      return 0 // preserve existing alphabetical order from DB
+    })
 
     return { states }
   } catch (error) {
