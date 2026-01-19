@@ -1,0 +1,103 @@
+import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-sqlite'
+
+export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  await db.run(sql`DROP INDEX \`media_sizes_square_sizes_square_filename_idx\`;`)
+  await db.run(sql`DROP INDEX \`media_sizes_small_sizes_small_filename_idx\`;`)
+  await db.run(sql`DROP INDEX \`media_sizes_medium_sizes_medium_filename_idx\`;`)
+  await db.run(sql`DROP INDEX \`media_sizes_large_sizes_large_filename_idx\`;`)
+  await db.run(sql`DROP INDEX \`media_sizes_xlarge_sizes_xlarge_filename_idx\`;`)
+  await db.run(sql`DROP INDEX \`media_sizes_og_sizes_og_filename_idx\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_square_url\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_square_width\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_square_height\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_square_mime_type\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_square_filesize\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_square_filename\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_small_url\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_small_width\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_small_height\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_small_mime_type\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_small_filesize\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_small_filename\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_url\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_width\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_height\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_mime_type\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_filesize\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_filename\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_large_url\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_large_width\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_large_height\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_large_mime_type\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_large_filesize\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_large_filename\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_xlarge_url\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_xlarge_width\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_xlarge_height\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_xlarge_mime_type\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_xlarge_filesize\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_xlarge_filename\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_og_url\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_og_width\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_og_height\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_og_mime_type\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_og_filesize\`;`)
+  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_og_filename\`;`)
+}
+
+export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_square_url\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_square_width\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_square_height\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_square_mime_type\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_square_filesize\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_square_filename\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_small_url\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_small_width\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_small_height\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_small_mime_type\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_small_filesize\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_small_filename\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_url\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_width\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_height\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_mime_type\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_filesize\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_filename\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_large_url\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_large_width\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_large_height\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_large_mime_type\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_large_filesize\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_large_filename\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_xlarge_url\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_xlarge_width\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_xlarge_height\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_xlarge_mime_type\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_xlarge_filesize\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_xlarge_filename\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_og_url\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_og_width\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_og_height\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_og_mime_type\` text;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_og_filesize\` numeric;`)
+  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_og_filename\` text;`)
+  await db.run(
+    sql`CREATE INDEX \`media_sizes_square_sizes_square_filename_idx\` ON \`media\` (\`sizes_square_filename\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`media_sizes_small_sizes_small_filename_idx\` ON \`media\` (\`sizes_small_filename\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`media_sizes_medium_sizes_medium_filename_idx\` ON \`media\` (\`sizes_medium_filename\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`media_sizes_large_sizes_large_filename_idx\` ON \`media\` (\`sizes_large_filename\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`media_sizes_xlarge_sizes_xlarge_filename_idx\` ON \`media\` (\`sizes_xlarge_filename\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`media_sizes_og_sizes_og_filename_idx\` ON \`media\` (\`sizes_og_filename\`);`,
+  )
+}
