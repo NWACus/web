@@ -9,7 +9,7 @@ import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { FormBlock } from '@/blocks/Form/Component'
-import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/Component'
 import { ImageQuote } from '@/blocks/ImageQuote/Component'
@@ -62,7 +62,9 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'formBlock':
       return <FormBlock {...block} />
     case 'genericEmbed':
-      return <GenericEmbedBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+      return (
+        <GenericEmbedBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      )
     case 'headerBlock':
       return <HeaderBlockComponent {...block} />
     case 'imageLinkGrid':

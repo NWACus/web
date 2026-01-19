@@ -17,7 +17,7 @@ import { CalloutBlockComponent } from '@/blocks/Callout/Component'
 import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
-import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
@@ -97,7 +97,10 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       />
     ),
     genericEmbed: ({ node }) => (
-      <GenericEmbedBlock {...node.fields} wrapInContainer={node.fields.wrapInContainer || false} />
+      <GenericEmbedBlockComponent
+        {...node.fields}
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
     ),
     headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} />,
     mediaBlock: ({ node }) => (

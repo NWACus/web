@@ -4,7 +4,7 @@ import colorPickerField from '@/fields/color'
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlogListLexicalBlock } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
-import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { GenericEmbedLexicalBlock } from '../GenericEmbed/config'
 import { MediaLexicalBlock } from '../MediaBlock/config'
 import { SingleBlogPostLexicalBlock } from '../SingleBlogPost/config'
 
@@ -26,7 +26,7 @@ export const CalloutBlock: Block = {
               blocks: [
                 BlogListLexicalBlock,
                 ButtonBlock,
-                GenericEmbedLexical,
+                GenericEmbedLexicalBlock,
                 MediaLexicalBlock,
                 SingleBlogPostLexicalBlock,
               ],

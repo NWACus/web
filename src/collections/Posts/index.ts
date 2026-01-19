@@ -14,7 +14,7 @@ import { ButtonBlock } from '@/blocks/Button/config'
 import { DocumentBlock } from '@/blocks/Document/config'
 import { EventListLexicalBlock } from '@/blocks/EventList/config'
 import { EventTableLexicalBlock } from '@/blocks/EventTable/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { MediaLexicalBlock } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
@@ -121,7 +121,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 DocumentBlock,
                 EventListLexicalBlock,
                 EventTableLexicalBlock,
-                GenericEmbedLexical,
+                GenericEmbedLexicalBlock,
                 HeaderBlock,
                 MediaLexicalBlock,
                 SingleBlogPostLexicalBlock,

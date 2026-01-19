@@ -5,7 +5,7 @@ import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
 import { ButtonBlock } from '@/blocks/Button/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
 import { MediaLexicalBlock } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
@@ -129,7 +129,7 @@ export const HomePages: CollectionConfig = {
                       blocks: [
                         ButtonBlock,
                         DocumentBlock,
-                        GenericEmbedLexical,
+                        GenericEmbedLexicalBlock,
                         MediaLexicalBlock,
                         SingleBlogPostLexicalBlock,
                         SponsorsBlock,

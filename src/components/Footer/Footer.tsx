@@ -3,7 +3,7 @@ import Link from 'next/link'
 import invariant from 'tiny-invariant'
 
 import { FormBlock } from '@/blocks/Form/Component'
-import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Icons } from '@/components/ui/icons'
 import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
@@ -74,7 +74,7 @@ export async function Footer({ center }: { center?: string }) {
             />
           )}
           {footerForm?.type === 'embedded' && (
-            <GenericEmbedBlock
+            <GenericEmbedBlockComponent
               html={footerForm.html || ''}
               backgroundColor="transparent"
               blockType="genericEmbed"

@@ -13,7 +13,7 @@ import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../Document/config'
 import { EventListLexicalBlock } from '../EventList/config'
 import { EventTableLexicalBlock } from '../EventTable/config'
-import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { GenericEmbedLexicalBlock } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
 import { MediaLexicalBlock } from '../MediaBlock/config'
 import { SingleBlogPostLexicalBlock } from '../SingleBlogPost/config'
@@ -134,7 +134,7 @@ export const ContentBlock: Block = {
                     EventListLexicalBlock,
                     EventTableLexicalBlock,
                     SingleEventLexicalBlock,
-                    GenericEmbedLexical,
+                    GenericEmbedLexicalBlock,
                     HeaderBlock,
                     MediaLexicalBlock,
                     SingleBlogPostLexicalBlock,
