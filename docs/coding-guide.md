@@ -146,9 +146,9 @@ Follow this example when creating new blocks:
 | Block slug | `singleButton` |
 | Block interface name | `SingleButtonBlock` |
 | Associated UI component(s) for the block | `SingleButtonComponent` |
-| Config with `wrapInContainer` | `SingleBlogPostBlockLexical` |
+| Config with `wrapInContainer` | `SingleBlogPostLexicalBlock` |
 
-If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____BlockLexical` naming. This is to allow having slightly different configs where the Lexical variation will allow the user to change the `wrapInContainer` field on the block whereas the `blocks` type field variation will default to true since it should always be wrapped in a container as a full page width section.
+If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____LexicalBlock` naming. This is to allow having slightly different configs where the Lexical variation will allow the user to change the `wrapInContainer` field on the block whereas the `blocks` type field variation will default to true since it should always be wrapped in a container as a full page width section.
 
 See `src/blocks/GenericEmbed/config.ts` for a simple example of this.
 

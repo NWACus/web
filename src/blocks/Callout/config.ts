@@ -2,11 +2,11 @@ import type { Block } from 'payload'
 
 import colorPickerField from '@/fields/color'
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
-import { BlogListBlockLexical } from '../BlogList/config'
+import { BlogListLexicalBlock } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
-import { MediaBlockLexical } from '../MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
+import { MediaLexicalBlock } from '../MediaBlock/config'
+import { SingleBlogPostLexicalBlock } from '../SingleBlogPost/config'
 
 export const CalloutBlock: Block = {
   slug: 'calloutBlock',
@@ -24,11 +24,11 @@ export const CalloutBlock: Block = {
             ...rootFeatures,
             BlocksFeature({
               blocks: [
-                BlogListBlockLexical,
+                BlogListLexicalBlock,
                 ButtonBlock,
                 GenericEmbedLexical,
-                MediaBlockLexical,
-                SingleBlogPostBlockLexical,
+                MediaLexicalBlock,
+                SingleBlogPostLexicalBlock,
               ],
             }),
           ]

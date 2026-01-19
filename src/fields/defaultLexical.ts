@@ -1,6 +1,6 @@
-import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
+import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
 import {
   AlignFeature,
   BlocksFeature,
@@ -59,7 +59,7 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
         },
       }),
       BlocksFeature({
-        blocks: [GenericEmbedLexical, BlogListBlockLexical, SingleBlogPostBlockLexical],
+        blocks: [GenericEmbedLexical, BlogListLexicalBlock, SingleBlogPostLexicalBlock],
       }),
       FixedToolbarFeature(),
       OrderedListFeature(),

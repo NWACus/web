@@ -19,7 +19,7 @@ export const EventListBlock = eventListBlockWithFields([
   ...staticEventRelatedFields,
 ])
 
-export const EventListBlockLexical = eventListBlockWithFields([
+export const EventListLexicalBlock = eventListBlockWithFields([
   ...defaultStylingFields([colorPickerField('Background color')]),
   {
     name: 'wrapInContainer',

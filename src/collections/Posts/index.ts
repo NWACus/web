@@ -9,16 +9,16 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
 import { ButtonBlock } from '@/blocks/Button/config'
 import { DocumentBlock } from '@/blocks/Document/config'
-import { EventListBlockLexical } from '@/blocks/EventList/config'
-import { EventTableBlockLexical } from '@/blocks/EventTable/config'
+import { EventListLexicalBlock } from '@/blocks/EventList/config'
+import { EventTableLexicalBlock } from '@/blocks/EventTable/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
-import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
+import { MediaLexicalBlock } from '@/blocks/MediaBlock/config'
+import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { SingleEventLexicalBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
@@ -117,15 +117,15 @@ export const Posts: CollectionConfig<'posts'> = {
             BlocksFeature({
               blocks: [
                 ButtonBlock,
-                BlogListBlockLexical,
+                BlogListLexicalBlock,
                 DocumentBlock,
-                EventListBlockLexical,
-                EventTableBlockLexical,
+                EventListLexicalBlock,
+                EventTableLexicalBlock,
                 GenericEmbedLexical,
                 HeaderBlock,
-                MediaBlockLexical,
-                SingleBlogPostBlockLexical,
-                SingleEventBlockLexical,
+                MediaLexicalBlock,
+                SingleBlogPostLexicalBlock,
+                SingleEventLexicalBlock,
                 SponsorsBlock,
               ],
             }),

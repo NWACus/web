@@ -7,17 +7,17 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { BlogListBlockLexical } from '../BlogList/config'
+import { BlogListLexicalBlock } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
 import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../Document/config'
-import { EventListBlockLexical } from '../EventList/config'
-import { EventTableBlockLexical } from '../EventTable/config'
+import { EventListLexicalBlock } from '../EventList/config'
+import { EventTableLexicalBlock } from '../EventTable/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
-import { MediaBlockLexical } from '../MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
-import { SingleEventBlockLexical } from '../SingleEvent/config'
+import { MediaLexicalBlock } from '../MediaBlock/config'
+import { SingleBlogPostLexicalBlock } from '../SingleBlogPost/config'
+import { SingleEventLexicalBlock } from '../SingleEvent/config'
 import { SponsorsBlock } from '../SponsorsBlock/config'
 
 const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => {
@@ -127,17 +127,17 @@ export const ContentBlock: Block = {
                 ...rootFeatures,
                 BlocksFeature({
                   blocks: [
-                    BlogListBlockLexical,
+                    BlogListLexicalBlock,
                     ButtonBlock,
                     CalloutBlock,
                     DocumentBlock,
-                    EventListBlockLexical,
-                    EventTableBlockLexical,
-                    SingleEventBlockLexical,
+                    EventListLexicalBlock,
+                    EventTableLexicalBlock,
+                    SingleEventLexicalBlock,
                     GenericEmbedLexical,
                     HeaderBlock,
-                    MediaBlockLexical,
-                    SingleBlogPostBlockLexical,
+                    MediaLexicalBlock,
+                    SingleBlogPostLexicalBlock,
                     SponsorsBlock,
                   ],
                 }),

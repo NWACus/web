@@ -9,7 +9,7 @@ import {
 import type { Block, Field, FilterOptionsProps } from 'payload'
 import { ButtonBlock } from '../Button/config'
 import { GenericEmbedLexical } from '../GenericEmbed/config'
-import { MediaBlockLexical } from '../MediaBlock/config'
+import { MediaLexicalBlock } from '../MediaBlock/config'
 import { validateMaxPosts } from './hooks/validateMaxPosts'
 
 const defaultStylingFields: Field[] = [
@@ -22,7 +22,7 @@ const defaultStylingFields: Field[] = [
         return [
           ...rootFeatures,
           BlocksFeature({
-            blocks: [ButtonBlock, MediaBlockLexical, GenericEmbedLexical],
+            blocks: [ButtonBlock, MediaLexicalBlock, GenericEmbedLexical],
           }),
           HorizontalRuleFeature(),
           InlineToolbarFeature(),
@@ -148,7 +148,7 @@ export const BlogListBlock = blogListBlockWithFields([
   ...staticPostRelatedFields,
 ])
 
-export const BlogListBlockLexical = blogListBlockWithFields([
+export const BlogListLexicalBlock = blogListBlockWithFields([
   ...defaultStylingFields,
   {
     name: 'wrapInContainer',

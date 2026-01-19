@@ -2,7 +2,7 @@ import type { Field, FilterOptionsProps } from 'payload'
 
 import { ButtonBlock } from '@/blocks/Button/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
-import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
+import { MediaLexicalBlock } from '@/blocks/MediaBlock/config'
 import { eventTypesData } from '@/constants/eventTypes'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {
@@ -24,7 +24,7 @@ export const defaultStylingFields = (additionalFilters?: Field[]): Field[] => [
         return [
           ...rootFeatures,
           BlocksFeature({
-            blocks: [ButtonBlock, MediaBlockLexical, GenericEmbedLexical],
+            blocks: [ButtonBlock, MediaLexicalBlock, GenericEmbedLexical],
           }),
           HorizontalRuleFeature(),
           InlineToolbarFeature(),

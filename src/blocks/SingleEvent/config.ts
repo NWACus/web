@@ -25,7 +25,7 @@ const singleEventWithFields = (fields?: Field[]): Block => ({
 
 export const SingleEventBlock = singleEventWithFields()
 
-export const SingleEventBlockLexical = singleEventWithFields([
+export const SingleEventLexicalBlock = singleEventWithFields([
   {
     name: 'wrapInContainer',
     admin: {
