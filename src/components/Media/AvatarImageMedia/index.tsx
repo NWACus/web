@@ -24,7 +24,8 @@ export const MediaAvatarImage = forwardRef<HTMLImageElement, MediaAvatarImagePro
       resource,
       src: srcFromProps,
       alt: altFromProps,
-      size: sizeFromProps,
+      sizes: sizesFromProps,
+      quality,
       priority,
       loading: loadingFromProps,
       className,
@@ -51,11 +52,12 @@ export const MediaAvatarImage = forwardRef<HTMLImageElement, MediaAvatarImagePro
 
     const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
 
-    const sizes = sizeFromProps
-      ? sizeFromProps
+    // sizes prop: list of breakpoint-based widths for browser to select appropriate image
+    const sizes = sizesFromProps
+      ? sizesFromProps
       : Object.entries(breakpoints)
           .map(([, value]) => `(max-width: ${value}px) ${value}px`)
-          .join(', ')
+          .join(', ') + ', 100vw'
 
     return (
       <NextImage
@@ -67,7 +69,7 @@ export const MediaAvatarImage = forwardRef<HTMLImageElement, MediaAvatarImagePro
         placeholder={blurDataURL ? 'blur' : 'empty'}
         blurDataURL={blurDataURL || undefined}
         priority={priority}
-        quality={100}
+        quality={quality ?? 80}
         loading={loading}
         sizes={sizes}
         onError={onError}
@@ -137,7 +139,7 @@ export const MediaAvatar = ({
           resource={resource}
           src={src}
           alt={alt}
-          size={size}
+          sizes={size}
           priority={priority}
           loading={loading}
           className={imageClassName}

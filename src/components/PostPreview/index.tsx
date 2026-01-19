@@ -4,9 +4,25 @@ import Link from 'next/link'
 
 import type { Post } from '@/payload-types'
 
+import { cssVariables } from '@/cssVariables'
 import { AuthorAvatar } from '../AuthorAvatar'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Button } from '../ui/button'
+
+const { breakpoints } = cssVariables
+
+/**
+ * Image sizes attribute for the featured image.
+ *
+ * This component uses container queries (@md, @xl, @2xl) to set image width,
+ * but the `sizes` attribute only supports viewport-based media queries.
+ * We approximate by assuming the container scales with the viewport.
+ *
+ * Actual CSS widths: w-full (mobile) -> w-56 (@md) -> w-72 (@xl) -> w-80 (@2xl)
+ * We use 320px (w-80) as the fallback since it's the maximum display size,
+ * ensuring we never download an image larger than needed.
+ */
+const imageSizes = `(max-width: ${breakpoints.md}px) 100vw, 320px`
 
 export type PostPreviewData = Pick<
   Post,
@@ -51,6 +67,7 @@ export const PostPreview = (props: {
               imgClassName="w-full object-cover transition-transform duration-300"
               resource={featuredImage}
               pictureClassName="w-full"
+              sizes={imageSizes}
             />
           )}
         </div>
