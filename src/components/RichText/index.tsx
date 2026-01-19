@@ -13,7 +13,7 @@ import {
 
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonBlockComponent } from '@/blocks/Button/Component'
-import { CalloutBlock } from '@/blocks/Callout/Component'
+import { CalloutBlockComponent } from '@/blocks/Callout/Component'
 import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
@@ -76,7 +76,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       />
     ),
     buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
-    calloutBlock: ({ node }) => <CalloutBlock {...node.fields} />,
+    calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
     documentBlock: ({ node }) => (
       <DocumentBlock {...node.fields} wrapInContainer={node.fields.wrapInContainer || false} />
     ),

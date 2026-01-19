@@ -1,5 +1,5 @@
 import { BlogListBlock } from '@/blocks/BlogList/config'
-import { Content } from '@/blocks/Content/config'
+import { ContentBlock } from '@/blocks/Content/config'
 import { DocumentBlock } from '@/blocks/DocumentBlock/config'
 import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
@@ -20,7 +20,7 @@ import { TeamBlock } from '@/blocks/Team/config'
 export const DEFAULT_BLOCKS = [
   BlogListBlock,
   SingleBlogPostBlock,
-  Content,
+  ContentBlock,
   DocumentBlock,
   EventListBlock,
   SingleEventBlock,

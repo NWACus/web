@@ -62,7 +62,7 @@ const DEFAULT_LEXICAL_NODE = {
   },
 }
 
-export const Content: Block = {
+export const ContentBlock: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
   imageURL: '/thumbnail/ContentThumbnail.jpg',
