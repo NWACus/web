@@ -1,0 +1,83 @@
+name: Claude Code
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Check team membership
+        id: team-check
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
+          script: |
+            const org = context.repo.owner;
+            const team = 'claude-users';
+            const username = context.actor;
+
+            try {
+              await github.rest.teams.getMembershipForUserInOrg({
+                org,
+                team_slug: team,
+                username,
+              });
+              console.log(`✅ ${username} is a member of ${team}`);
+              return 'authorized';
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`❌ ${username} is not a member of ${team}`);
+                return 'unauthorized';
+              }
+              throw error;
+            }
+
+      - name: Post unauthorized comment
+        if: steps.team-check.outputs.result == 'unauthorized'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const username = context.actor;
+            const team = 'claude-users';
+            const issueNumber = context.issue?.number || context.payload.issue?.number || context.payload.pull_request?.number;
+
+            if (issueNumber) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `👋 @${username}, you're not currently authorized to use Claude on this repository.\n\nTo use Claude, you need to be a member of the \`${team}\` team. Please contact a repository administrator if you believe you should have access.`
+              });
+            }
+
+            core.setFailed(`User ${username} is not authorized to use Claude.`)
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          track_progress: true
+
+          # Limit tools to safe operations for this codebase
+          claude_args: |
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(pnpm prettify),Bash(pnpm tsc),Bash(pnpm lint),Bash(pnpm test),Bash(pnpm test:*),Bash(git status),Bash(git diff),Bash(git add),Bash(git commit),Bash(git checkout -b *),Bash(git push),Bash(gh pr create *),Bash(gh issue comment *),mcp__github_inline_comment__create_inline_comment"

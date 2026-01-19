@@ -370,3 +370,41 @@ if (!document || !isValidRelationship(document)) {
 - Include tests with PRs when possible
 - Client tests go in `__tests__/client/` (jsdom environment)
 - Server tests go in `__tests__/server/` (node environment)
+
+---
+
+## Working on GitHub Issues
+
+When triggered via GitHub Issues (with `@claude` mention):
+
+### Before Making Changes
+
+1. Read the full issue description and any linked context
+2. Identify which files need to be modified
+3. Understand existing patterns in nearby code
+
+### Making Changes
+
+1. Create a new branch from `main` with a descriptive name
+2. Make focused changes that address the issue requirements
+3. Follow existing code patterns and styles in the codebase
+4. Run `pnpm prettify`, `pnpm tsc`, and `pnpm lint` before committing
+
+### Creating the PR
+
+1. Write a clear PR title summarizing the change
+2. Follow the PR description template in .github/PULL_REQUEST_TEMPLATE.md
+3. Reference the issue number (e.g., "Fixes #123")
+4. Describe what was changed and why
+5. Note any decisions made or alternatives considered
+
+### Quality Checklist
+
+Before marking work complete, verify:
+
+- [ ] Changes address all requirements in the issue
+- [ ] Code follows existing patterns in the codebase
+- [ ] No TypeScript errors (`pnpm tsc`)
+- [ ] No lint errors (`pnpm lint`)
+- [ ] Tests pass if applicable (`pnpm test`)
+- [ ] No unrelated changes included
