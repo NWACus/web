@@ -1,6 +1,6 @@
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { ContentBlock } from '@/blocks/Content/config'
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { DocumentBlock } from '@/blocks/Document/config'
 import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
 import { FormBlock } from '@/blocks/Form/config'

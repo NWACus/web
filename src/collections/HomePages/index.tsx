@@ -10,7 +10,7 @@ import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
 import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
 
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { DocumentBlock } from '@/blocks/Document/config'
 import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'

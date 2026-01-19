@@ -10,7 +10,7 @@ type Props = DocumentBlockProps & {
   wrapInContainer?: boolean
 }
 
-export const DocumentBlock = (props: Props) => {
+export const DocumentBlockComponent = (props: Props) => {
   const { document, wrapInContainer = true } = props
   const { tenant } = useTenant()
 

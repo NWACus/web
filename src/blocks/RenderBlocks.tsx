@@ -5,7 +5,7 @@ import { Payload } from 'payload'
 
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ContentBlockComponent } from '@/blocks/Content/Component'
-import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
+import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { FormBlock } from '@/blocks/Form/Component'
@@ -54,7 +54,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'content':
       return <ContentBlockComponent {...block} />
     case 'documentBlock':
-      return <DocumentBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <DocumentBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'eventList':
       return <EventListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'eventTable':

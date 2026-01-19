@@ -14,7 +14,7 @@ import {
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonBlockComponent } from '@/blocks/Button/Component'
 import { CalloutBlockComponent } from '@/blocks/Callout/Component'
-import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
+import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
@@ -78,7 +78,10 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
     calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
     documentBlock: ({ node }) => (
-      <DocumentBlock {...node.fields} wrapInContainer={node.fields.wrapInContainer || false} />
+      <DocumentBlockComponent
+        {...node.fields}
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
     ),
     eventList: ({ node }) => (
       <EventListBlockComponent

@@ -1,7 +1,7 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { BlogListBlockLexical } from '@/blocks/BlogList/config'
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
+import { DocumentBlock } from '@/blocks/Document/config'
 import { EventListBlockLexical } from '@/blocks/EventList/config'
 import { EventTableBlockLexical } from '@/blocks/EventTable/config'
 import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
