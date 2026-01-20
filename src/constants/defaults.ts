@@ -9,10 +9,10 @@ import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGridBlock } from '@/blocks/ImageLinkGrid/config'
 import { ImageTextBlock } from '@/blocks/ImageText/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
-import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
 export const DEFAULT_BLOCKS = [

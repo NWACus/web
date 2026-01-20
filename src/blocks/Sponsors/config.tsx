@@ -1,6 +1,7 @@
 import colorPickerField from '@/fields/color'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { Block, RadioFieldValidation } from 'payload'
+
 const validateSponsorsLayout: RadioFieldValidation = async (val, { req, siblingData }) => {
   if (
     val === 'banner' &&
@@ -63,7 +64,7 @@ export const SponsorsBlock: Block = {
       admin: {
         components: {
           Description:
-            '@/blocks/SponsorsBlock/components/SponsorsLayoutDescription#SponsorsLayoutDescription',
+            '@/blocks/Sponsors/components/SponsorsLayoutDescription#SponsorsLayoutDescription',
         },
       },
       options: [

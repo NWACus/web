@@ -1,4 +1,4 @@
-import { MediaBlockComponent } from '@/blocks/MediaBlock/Component'
+import { MediaBlockComponent } from '@/blocks/Media/Component'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -21,7 +21,7 @@ import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
-import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
+import { SponsorsBlockComponent } from '@/blocks/Sponsors/Component'
 import type {
   BlogListBlock as BlogListBlockProps,
   ButtonBlock as ButtonBlockProps,

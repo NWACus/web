@@ -15,10 +15,10 @@ import { EventListLexicalBlock } from '../EventList/config'
 import { EventTableLexicalBlock } from '../EventTable/config'
 import { GenericEmbedLexicalBlock } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
-import { MediaLexicalBlock } from '../MediaBlock/config'
+import { MediaLexicalBlock } from '../Media/config'
 import { SingleBlogPostLexicalBlock } from '../SingleBlogPost/config'
 import { SingleEventLexicalBlock } from '../SingleEvent/config'
-import { SponsorsBlock } from '../SponsorsBlock/config'
+import { SponsorsBlock } from '../Sponsors/config'
 
 const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => {
   if (!value || typeof value !== 'string') return true
