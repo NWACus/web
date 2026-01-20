@@ -3,6 +3,7 @@ import type { Block } from 'payload'
 
 export const TeamBlock: Block = {
   slug: 'team',
+  interfaceName: 'TeamBlock',
   fields: [
     {
       name: 'team',
@@ -13,7 +14,6 @@ export const TeamBlock: Block = {
       filterOptions: getTenantFilter,
     },
   ],
-  interfaceName: 'TeamBlock',
   labels: {
     plural: 'Teams',
     singular: 'Team',

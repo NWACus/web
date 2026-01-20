@@ -16,7 +16,7 @@ import { filterValidRelationships, isValidRelationship } from '@/utilities/relat
 
 type Props = TeamBlockProps & { payload: Payload }
 
-export const TeamBlock = ({ team }: Props) => {
+export const TeamBlockComponent = ({ team }: Props) => {
   if (!isValidRelationship(team)) {
     return null
   }

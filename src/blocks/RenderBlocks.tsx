@@ -19,7 +19,7 @@ import { NACMediaBlockComponent } from '@/blocks/NACMediaBlock/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
-import { TeamBlock } from '@/blocks/Team/Team'
+import { TeamBlockComponent } from '@/blocks/Team/Component'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
   const { blocks } = props
@@ -86,6 +86,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'sponsorsBlock':
       return <SponsorsBlockComponent {...block} />
     case 'team':
-      return <TeamBlock {...block} payload={payload} />
+      return <TeamBlockComponent {...block} payload={payload} />
   }
 }
