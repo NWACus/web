@@ -121,7 +121,7 @@ jobs:
             --meta="githubRepo=${fullName##*/}" \
             --meta='githubCommitAuthorLogin=${{ github.event.pusher.name }}' \
             --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Clean up old deployments (keep last 2)
+      - name: Clean up Vercel deployments (keep last 2)
         run: |
           set -o errexit
           set -o nounset
@@ -137,12 +137,15 @@ jobs:
             exit 1
           fi
 
-          # Get all deployments for the project filtered by branch, sorted by creation date
-          deployments=$(vercel list --scope=nwac --meta githubCommitRef=$branch --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | tail -n +2)
+          # Get all deployments for the project filtered by branch
+          # Extract URLs (second column), skip header lines
+          deployments=$(vercel list --scope=nwac --meta githubCommitRef=$branch --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | awk 'NR>3 {print $2}')
 
           # Count total deployments
           total=$(echo "$deployments" | grep -c . || true)
           echo "Found $total deployments for branch: $branch"
+          echo "All deployments:"
+          echo "$deployments"
 
           # Keep the last 2, delete the rest
           if [ "$total" -gt 2 ]; then
