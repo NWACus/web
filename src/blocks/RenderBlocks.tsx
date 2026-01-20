@@ -14,7 +14,7 @@ import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageLinkGridBlockComponent } from '@/blocks/ImageLinkGrid/Component'
 import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
 import { LinkPreviewBlockComponent } from '@/blocks/LinkPreview/Component'
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { MediaBlockComponent } from '@/blocks/MediaBlock/Component'
 import { NACMediaBlockComponent } from '@/blocks/NACMediaBlock/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
@@ -72,7 +72,7 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'linkPreview':
       return <LinkPreviewBlockComponent {...block} />
     case 'mediaBlock':
-      return <MediaBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <MediaBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
     case 'singleBlogPost':
