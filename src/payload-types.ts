@@ -264,7 +264,7 @@ export interface HomePage {
     | FormBlock
     | GenericEmbedBlock
     | HeaderBlock
-    | ImageLinkGrid
+    | ImageLinkGridBlock
     | ImageQuote
     | ImageText
     | ImageTextList
@@ -331,7 +331,7 @@ export interface Page {
     | FormBlock
     | GenericEmbedBlock
     | HeaderBlock
-    | ImageLinkGrid
+    | ImageLinkGridBlock
     | ImageQuote
     | ImageText
     | ImageTextList
@@ -1176,9 +1176,9 @@ export interface HeaderBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageLinkGrid".
+ * via the `definition` "ImageLinkGridBlock".
  */
-export interface ImageLinkGrid {
+export interface ImageLinkGridBlock {
   columns?:
     | {
         image: number | Media;
@@ -2796,7 +2796,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
-        imageLinkGrid?: T | ImageLinkGridSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
@@ -2957,9 +2957,9 @@ export interface HeaderBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageLinkGrid_select".
+ * via the `definition` "ImageLinkGridBlock_select".
  */
-export interface ImageLinkGridSelect<T extends boolean = true> {
+export interface ImageLinkGridBlockSelect<T extends boolean = true> {
   columns?:
     | T
     | {
@@ -3141,7 +3141,7 @@ export interface PagesSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
-        imageLinkGrid?: T | ImageLinkGridSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
         imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;

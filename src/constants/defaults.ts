@@ -6,7 +6,7 @@ import { EventTableBlock } from '@/blocks/EventTable/config'
 import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
-import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/config'
+import { ImageLinkGridBlock } from '@/blocks/ImageLinkGrid/config'
 import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
@@ -28,7 +28,7 @@ export const DEFAULT_BLOCKS = [
   FormBlock,
   GenericEmbedBlock,
   HeaderBlock,
-  ImageLinkGrid,
+  ImageLinkGridBlock,
   ImageQuote,
   ImageText,
   ImageTextList,
