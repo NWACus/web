@@ -13,7 +13,6 @@ import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageLinkGridBlockComponent } from '@/blocks/ImageLinkGrid/Component'
 import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
-import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { NACMediaBlockComponent } from '@/blocks/NACMediaBlock/Component'
@@ -70,8 +69,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <ImageLinkGridBlockComponent {...block} />
     case 'imageText':
       return <ImageTextBlockComponent {...block} />
-    case 'imageTextList':
-      return <ImageTextList {...block} />
     case 'linkPreview':
       return <LinkPreviewBlock {...block} />
     case 'mediaBlock':

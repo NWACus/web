@@ -266,7 +266,6 @@ export interface HomePage {
     | HeaderBlock
     | ImageLinkGridBlock
     | ImageTextBlock
-    | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
@@ -332,7 +331,6 @@ export interface Page {
     | HeaderBlock
     | ImageLinkGridBlock
     | ImageTextBlock
-    | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
@@ -1248,38 +1246,6 @@ export interface ImageTextBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageText';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextList".
- */
-export interface ImageTextList {
-  layout: 'above' | 'side' | 'full';
-  columns?:
-    | {
-        image: number | Media;
-        title: string;
-        richText: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'imageTextList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2782,7 +2748,6 @@ export interface HomePagesSelect<T extends boolean = true> {
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
         imageText?: T | ImageTextBlockSelect<T>;
-        imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
@@ -2975,23 +2940,6 @@ export interface ImageTextBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextList_select".
- */
-export interface ImageTextListSelect<T extends boolean = true> {
-  layout?: T;
-  columns?:
-    | T
-    | {
-        image?: T;
-        title?: T;
-        richText?: T;
-        id?: T;
-      };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LinkPreviewBlock_select".
  */
 export interface LinkPreviewBlockSelect<T extends boolean = true> {
@@ -3113,7 +3061,6 @@ export interface PagesSelect<T extends boolean = true> {
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
         imageText?: T | ImageTextBlockSelect<T>;
-        imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
