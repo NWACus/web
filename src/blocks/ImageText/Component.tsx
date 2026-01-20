@@ -3,7 +3,7 @@ import { cn } from '@/utilities/ui'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { cssVariables } from '@/cssVariables'
-import type { ImageText as ImageTextProps } from '@/payload-types'
+import type { ImageTextBlock as ImageTextBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 
 const { breakpoints, container } = cssVariables
@@ -26,11 +26,11 @@ const getImageSizes = (): string => {
   ].join(', ')
 }
 
-type Props = ImageTextProps & {
+type Props = ImageTextBlockProps & {
   imgClassName?: string
 }
 
-export const ImageText = (props: Props) => {
+export const ImageTextBlockComponent = (props: Props) => {
   const { backgroundColor, imgClassName, imageLayout, image, richText } = props
 
   const bgColorClass = `bg-${backgroundColor}`

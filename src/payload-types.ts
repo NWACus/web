@@ -265,7 +265,7 @@ export interface HomePage {
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
-    | ImageText
+    | ImageTextBlock
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
@@ -331,7 +331,7 @@ export interface Page {
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
-    | ImageText
+    | ImageTextBlock
     | ImageTextList
     | LinkPreviewBlock
     | MediaBlock
@@ -1224,9 +1224,9 @@ export interface BuiltInPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageText".
+ * via the `definition` "ImageTextBlock".
  */
-export interface ImageText {
+export interface ImageTextBlock {
   backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
@@ -2781,7 +2781,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
-        imageText?: T | ImageTextSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -2963,9 +2963,9 @@ export interface ImageLinkGridBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageText_select".
+ * via the `definition` "ImageTextBlock_select".
  */
-export interface ImageTextSelect<T extends boolean = true> {
+export interface ImageTextBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   imageLayout?: T;
   image?: T;
@@ -3112,7 +3112,7 @@ export interface PagesSelect<T extends boolean = true> {
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
-        imageText?: T | ImageTextSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;

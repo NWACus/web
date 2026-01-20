@@ -4,9 +4,9 @@ import colorPickerField from '@/fields/color'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
-export const ImageText: Block = {
+export const ImageTextBlock: Block = {
   slug: 'imageText',
-  interfaceName: 'ImageText',
+  interfaceName: 'ImageTextBlock',
   imageURL: '/thumbnail/ImageTextThumbnail.jpg',
   fields: [
     colorPickerField('Background color'),
