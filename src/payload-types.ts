@@ -265,7 +265,6 @@ export interface HomePage {
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
-    | ImageQuote
     | ImageText
     | ImageTextList
     | LinkPreviewBlock
@@ -332,7 +331,6 @@ export interface Page {
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
-    | ImageQuote
     | ImageText
     | ImageTextList
     | LinkPreviewBlock
@@ -1223,20 +1221,6 @@ export interface BuiltInPage {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageQuote".
- */
-export interface ImageQuote {
-  backgroundColor: string;
-  imageLayout: 'left' | 'right';
-  image: number | Media;
-  quote: string;
-  author: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'imageQuote';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2797,7 +2781,6 @@ export interface HomePagesSelect<T extends boolean = true> {
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
-        imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
@@ -2980,19 +2963,6 @@ export interface ImageLinkGridBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageQuote_select".
- */
-export interface ImageQuoteSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  imageLayout?: T;
-  image?: T;
-  quote?: T;
-  author?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ImageText_select".
  */
 export interface ImageTextSelect<T extends boolean = true> {
@@ -3142,7 +3112,6 @@ export interface PagesSelect<T extends boolean = true> {
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
-        imageQuote?: T | ImageQuoteSelect<T>;
         imageText?: T | ImageTextSelect<T>;
         imageTextList?: T | ImageTextListSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;

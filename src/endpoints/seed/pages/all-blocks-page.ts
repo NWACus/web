@@ -5,7 +5,6 @@ import { contentWithCallout } from '../blocks/content-with-callout'
 import { eventListBlock } from '../blocks/event-list'
 import { genericEmbed } from '../blocks/generic-embed'
 import { imageLinkGrid } from '../blocks/image-link-grid'
-import { imageQuote } from '../blocks/image-quote'
 import { imageText } from '../blocks/image-text'
 import { imageTextList } from '../blocks/image-text-list'
 import { linkPreview } from '../blocks/link-preview'
@@ -32,7 +31,6 @@ export const allBlocksPage: (
     publishedAt: new Date().toISOString(),
     layout: [
       ...imageLinkGrid(image1),
-      ...imageQuote(image1),
       ...imageText(image1),
       ...imageTextList(image1),
       ...linkPreview(image1),

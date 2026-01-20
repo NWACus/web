@@ -7,7 +7,6 @@ import { FormBlock } from '@/blocks/Form/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGridBlock } from '@/blocks/ImageLinkGrid/config'
-import { ImageQuote } from '@/blocks/ImageQuote/config'
 import { ImageText } from '@/blocks/ImageText/config'
 import { ImageTextList } from '@/blocks/ImageTextList/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
@@ -29,7 +28,6 @@ export const DEFAULT_BLOCKS = [
   GenericEmbedBlock,
   HeaderBlock,
   ImageLinkGridBlock,
-  ImageQuote,
   ImageText,
   ImageTextList,
   LinkPreviewBlock,

@@ -12,7 +12,6 @@ import { FormBlock } from '@/blocks/Form/Component'
 import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageLinkGridBlockComponent } from '@/blocks/ImageLinkGrid/Component'
-import { ImageQuote } from '@/blocks/ImageQuote/Component'
 import { ImageText } from '@/blocks/ImageText/Component'
 import { ImageTextList } from '@/blocks/ImageTextList/Component'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
@@ -69,8 +68,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
       return <HeaderBlockComponent {...block} />
     case 'imageLinkGrid':
       return <ImageLinkGridBlockComponent {...block} />
-    case 'imageQuote':
-      return <ImageQuote {...block} />
     case 'imageText':
       return <ImageText {...block} />
     case 'imageTextList':
