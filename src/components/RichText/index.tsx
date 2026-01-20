@@ -21,7 +21,7 @@ import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
-import { SponsorsBlockComponent } from '@/blocks/Sponsors/Component'
+import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import type {
   BlogListBlock as BlogListBlockProps,
   ButtonBlock as ButtonBlockProps,

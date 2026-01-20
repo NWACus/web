@@ -3,9 +3,9 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { filterValidRelationships } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
-import { SponsorsBlockBanner } from './components/Banner'
-import { SponsorsBlockCarousel } from './components/Carousel'
-import { SponsorsBlockStatic } from './components/Static'
+import { SponsorsBlockBanner } from './Banner'
+import { SponsorsBlockCarousel } from './Carousel'
+import { SponsorsBlockStatic } from './Static'
 
 export const SponsorsBlockComponent = ({
   backgroundColor,

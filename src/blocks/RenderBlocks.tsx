@@ -18,7 +18,7 @@ import { MediaBlockComponent } from '@/blocks/Media/Component'
 import { NACMediaBlockComponent } from '@/blocks/NACMedia/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
-import { SponsorsBlockComponent } from '@/blocks/Sponsors/Component'
+import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import { TeamBlockComponent } from '@/blocks/Team/Component'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
