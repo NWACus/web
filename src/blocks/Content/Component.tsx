@@ -3,7 +3,7 @@ import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 
-export const ContentBlock = (props: ContentBlockProps) => {
+export const ContentBlockComponent = (props: ContentBlockProps) => {
   const { columns, backgroundColor, layout } = props
   const layoutCols = layout ? layout.split('_')[1] : '1'
 

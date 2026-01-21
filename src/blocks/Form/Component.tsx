@@ -28,7 +28,7 @@ export interface Data {
 
 type FormBlockTypeProps = { wrapInContainer?: boolean } & FormBlockType
 
-export const FormBlock = (props: FormBlockTypeProps) => {
+export const FormBlockComponent = (props: FormBlockTypeProps) => {
   const { enableIntro, introContent, wrapInContainer = true } = props
 
   const uniqueFormId = generateInstanceId()

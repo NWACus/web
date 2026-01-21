@@ -14,7 +14,7 @@ import type { LinkPreviewBlock as LinkPreviewBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 
-export const LinkPreviewBlock = (props: LinkPreviewBlockProps) => {
+export const LinkPreviewBlockComponent = (props: LinkPreviewBlockProps) => {
   const { backgroundColor, cards, header } = props
 
   const numOfCols = cards?.length ?? 2

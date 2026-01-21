@@ -1,8 +1,8 @@
 import type { Metadata, ResolvedMetadata } from 'next'
 
-import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { AuthorAvatar } from '@/components/AuthorAvatar'
 import { Redirects } from '@/components/Redirects'
+import { RelatedPosts } from '@/components/RelatedPosts/Component'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'

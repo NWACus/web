@@ -19,7 +19,7 @@ type Props = MediaBlockProps & {
   staticImage?: StaticImageData
 }
 
-export const MediaBlock = (props: Props) => {
+export const MediaBlockComponent = (props: Props) => {
   const {
     caption,
     captionClassName,

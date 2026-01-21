@@ -256,7 +256,6 @@ export interface HomePage {
    * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
    */
   layout: (
-    | BiographyBlock
     | BlogListBlock
     | ContentBlock
     | DocumentBlock
@@ -265,10 +264,8 @@ export interface HomePage {
     | FormBlock
     | GenericEmbedBlock
     | HeaderBlock
-    | ImageLinkGrid
-    | ImageQuote
-    | ImageText
-    | ImageTextList
+    | ImageLinkGridBlock
+    | ImageTextBlock
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
@@ -324,7 +321,6 @@ export interface Page {
    * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.
    */
   layout: (
-    | BiographyBlock
     | BlogListBlock
     | ContentBlock
     | DocumentBlock
@@ -333,10 +329,8 @@ export interface Page {
     | FormBlock
     | GenericEmbedBlock
     | HeaderBlock
-    | ImageLinkGrid
-    | ImageQuote
-    | ImageText
-    | ImageTextList
+    | ImageLinkGridBlock
+    | ImageTextBlock
     | LinkPreviewBlock
     | MediaBlock
     | NACMediaBlock
@@ -362,76 +356,6 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BiographyBlock".
- */
-export interface BiographyBlock {
-  backgroundColor: string;
-  biography: number | Biography;
-  imageLayout: 'left' | 'right';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'biography';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "biographies".
- */
-export interface Biography {
-  id: number;
-  tenant: number | Tenant;
-  name: string;
-  /**
-   * We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).
-   */
-  photo: number | Media;
-  title?: string | null;
-  /**
-   * Optional. We recommend either using them for everyone (on a specific team) or not at all.
-   */
-  start_date?: string | null;
-  biography?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  tenant: number | Tenant;
-  /**
-   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
-   */
-  alt: string;
-  contentHash?: string | null;
-  blurDataUrl?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -555,6 +479,64 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
+   */
+  alt: string;
+  contentHash?: string | null;
+  blurDataUrl?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "biographies".
+ */
+export interface Biography {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  /**
+   * We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).
+   */
+  photo: number | Media;
+  title?: string | null;
+  /**
+   * Optional. We recommend either using them for everyone (on a specific team) or not at all.
+   */
+  start_date?: string | null;
+  biography?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1190,9 +1172,9 @@ export interface HeaderBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageLinkGrid".
+ * via the `definition` "ImageLinkGridBlock".
  */
-export interface ImageLinkGrid {
+export interface ImageLinkGridBlock {
   columns?:
     | {
         image: number | Media;
@@ -1240,23 +1222,9 @@ export interface BuiltInPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageQuote".
+ * via the `definition` "ImageTextBlock".
  */
-export interface ImageQuote {
-  backgroundColor: string;
-  imageLayout: 'left' | 'right';
-  image: number | Media;
-  quote: string;
-  author: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'imageQuote';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageText".
- */
-export interface ImageText {
+export interface ImageTextBlock {
   backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
@@ -1278,38 +1246,6 @@ export interface ImageText {
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageText';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextList".
- */
-export interface ImageTextList {
-  layout: 'above' | 'side' | 'full';
-  columns?:
-    | {
-        image: number | Media;
-        title: string;
-        richText: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'imageTextList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2802,7 +2738,6 @@ export interface HomePagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        biography?: T | BiographyBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
@@ -2811,10 +2746,8 @@ export interface HomePagesSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
-        imageLinkGrid?: T | ImageLinkGridSelect<T>;
-        imageQuote?: T | ImageQuoteSelect<T>;
-        imageText?: T | ImageTextSelect<T>;
-        imageTextList?: T | ImageTextListSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
@@ -2836,17 +2769,6 @@ export interface HomePagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BiographyBlock_select".
- */
-export interface BiographyBlockSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  biography?: T;
-  imageLayout?: T;
-  id?: T;
-  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2983,9 +2905,9 @@ export interface HeaderBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageLinkGrid_select".
+ * via the `definition` "ImageLinkGridBlock_select".
  */
-export interface ImageLinkGridSelect<T extends boolean = true> {
+export interface ImageLinkGridBlockSelect<T extends boolean = true> {
   columns?:
     | T
     | {
@@ -3006,43 +2928,13 @@ export interface ImageLinkGridSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageQuote_select".
+ * via the `definition` "ImageTextBlock_select".
  */
-export interface ImageQuoteSelect<T extends boolean = true> {
-  backgroundColor?: T;
-  imageLayout?: T;
-  image?: T;
-  quote?: T;
-  author?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageText_select".
- */
-export interface ImageTextSelect<T extends boolean = true> {
+export interface ImageTextBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   imageLayout?: T;
   image?: T;
   richText?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextList_select".
- */
-export interface ImageTextListSelect<T extends boolean = true> {
-  layout?: T;
-  columns?:
-    | T
-    | {
-        image?: T;
-        title?: T;
-        richText?: T;
-        id?: T;
-      };
   id?: T;
   blockName?: T;
 }
@@ -3159,7 +3051,6 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        biography?: T | BiographyBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         documentBlock?: T | DocumentBlockSelect<T>;
@@ -3168,10 +3059,8 @@ export interface PagesSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
-        imageLinkGrid?: T | ImageLinkGridSelect<T>;
-        imageQuote?: T | ImageQuoteSelect<T>;
-        imageText?: T | ImageTextSelect<T>;
-        imageTextList?: T | ImageTextListSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
         linkPreview?: T | LinkPreviewBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         nacMediaBlock?: T | NACMediaBlockSelect<T>;
@@ -4321,31 +4210,6 @@ export interface CalloutBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'calloutBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

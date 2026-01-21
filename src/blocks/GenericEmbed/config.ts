@@ -25,9 +25,9 @@ const htmlField: TextareaField = {
   },
 }
 
-export const GenericEmbed = genericEmbedWithFields([htmlField, colorAndAlignmentRow])
+export const GenericEmbedBlock = genericEmbedWithFields([htmlField, colorAndAlignmentRow])
 
-export const GenericEmbedLexical = genericEmbedWithFields([
+export const GenericEmbedLexicalBlock = genericEmbedWithFields([
   htmlField,
   {
     name: 'wrapInContainer',

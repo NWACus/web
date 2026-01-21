@@ -61,7 +61,7 @@ const mediaBlockWithFields = (fields?: Field[]): Block => ({
 
 export const MediaBlock = mediaBlockWithFields()
 
-export const MediaBlockLexical = mediaBlockWithFields([
+export const MediaLexicalBlock = mediaBlockWithFields([
   {
     name: 'wrapInContainer',
     admin: {

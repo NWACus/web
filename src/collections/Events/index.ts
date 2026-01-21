@@ -1,16 +1,15 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
-import { Banner } from '@/blocks/Banner/config'
-import { BlogListBlockLexical } from '@/blocks/BlogList/config'
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
-import { EventListBlockLexical } from '@/blocks/EventList/config'
-import { EventTableBlockLexical } from '@/blocks/EventTable/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
+import { DocumentBlock } from '@/blocks/Document/config'
+import { EventListLexicalBlock } from '@/blocks/EventList/config'
+import { EventTableLexicalBlock } from '@/blocks/EventTable/config'
+import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
-import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { MediaLexicalBlock } from '@/blocks/Media/config'
+import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { SingleEventLexicalBlock } from '@/blocks/SingleEvent/config'
+import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { eventTypesData } from '@/constants/eventTypes'
 import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
@@ -147,16 +146,15 @@ export const Events: CollectionConfig = {
                 ...rootFeatures,
                 BlocksFeature({
                   blocks: [
-                    Banner,
-                    BlogListBlockLexical,
+                    BlogListLexicalBlock,
                     DocumentBlock,
-                    EventListBlockLexical,
-                    EventTableBlockLexical,
-                    GenericEmbedLexical,
+                    EventListLexicalBlock,
+                    EventTableLexicalBlock,
+                    GenericEmbedLexicalBlock,
                     HeaderBlock,
-                    MediaBlockLexical,
-                    SingleBlogPostBlockLexical,
-                    SingleEventBlockLexical,
+                    MediaLexicalBlock,
+                    SingleBlogPostLexicalBlock,
+                    SingleEventLexicalBlock,
                     SponsorsBlock,
                   ],
                 }),

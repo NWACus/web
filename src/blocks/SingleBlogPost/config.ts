@@ -25,7 +25,7 @@ const singleBlogPostWithFields = (fields?: Field[]): Block => ({
 
 export const SingleBlogPostBlock = singleBlogPostWithFields()
 
-export const SingleBlogPostBlockLexical = singleBlogPostWithFields([
+export const SingleBlogPostLexicalBlock = singleBlogPostWithFields([
   {
     name: 'wrapInContainer',
     admin: {

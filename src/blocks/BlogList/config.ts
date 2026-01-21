@@ -8,8 +8,8 @@ import {
 } from '@payloadcms/richtext-lexical'
 import type { Block, Field, FilterOptionsProps } from 'payload'
 import { ButtonBlock } from '../Button/config'
-import { GenericEmbedLexical } from '../GenericEmbed/config'
-import { MediaBlockLexical } from '../MediaBlock/config'
+import { GenericEmbedLexicalBlock } from '../GenericEmbed/config'
+import { MediaLexicalBlock } from '../Media/config'
 import { validateMaxPosts } from './hooks/validateMaxPosts'
 
 const defaultStylingFields: Field[] = [
@@ -22,7 +22,7 @@ const defaultStylingFields: Field[] = [
         return [
           ...rootFeatures,
           BlocksFeature({
-            blocks: [ButtonBlock, MediaBlockLexical, GenericEmbedLexical],
+            blocks: [ButtonBlock, MediaLexicalBlock, GenericEmbedLexicalBlock],
           }),
           HorizontalRuleFeature(),
           InlineToolbarFeature(),
@@ -148,7 +148,7 @@ export const BlogListBlock = blogListBlockWithFields([
   ...staticPostRelatedFields,
 ])
 
-export const BlogListBlockLexical = blogListBlockWithFields([
+export const BlogListLexicalBlock = blogListBlockWithFields([
   ...defaultStylingFields,
   {
     name: 'wrapInContainer',

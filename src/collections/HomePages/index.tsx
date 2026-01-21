@@ -5,13 +5,13 @@ import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
 import { ButtonBlock } from '@/blocks/Button/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
-import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
+import { MediaLexicalBlock } from '@/blocks/Media/config'
+import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlock } from '@/blocks/Sponsors/config'
 
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
-import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
+import { DocumentBlock } from '@/blocks/Document/config'
+import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
@@ -129,9 +129,9 @@ export const HomePages: CollectionConfig = {
                       blocks: [
                         ButtonBlock,
                         DocumentBlock,
-                        GenericEmbedLexical,
-                        MediaBlockLexical,
-                        SingleBlogPostBlockLexical,
+                        GenericEmbedLexicalBlock,
+                        MediaLexicalBlock,
+                        SingleBlogPostLexicalBlock,
                         SponsorsBlock,
                       ],
                     }),

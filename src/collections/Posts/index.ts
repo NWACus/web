@@ -9,18 +9,17 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-import { Banner } from '@/blocks/Banner/config'
-import { BlogListBlockLexical } from '@/blocks/BlogList/config'
+import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
 import { ButtonBlock } from '@/blocks/Button/config'
-import { DocumentBlock } from '@/blocks/DocumentBlock/config'
-import { EventListBlockLexical } from '@/blocks/EventList/config'
-import { EventTableBlockLexical } from '@/blocks/EventTable/config'
-import { GenericEmbedLexical } from '@/blocks/GenericEmbed/config'
+import { DocumentBlock } from '@/blocks/Document/config'
+import { EventListLexicalBlock } from '@/blocks/EventList/config'
+import { EventTableLexicalBlock } from '@/blocks/EventTable/config'
+import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
-import { MediaBlockLexical } from '@/blocks/MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '@/blocks/SingleBlogPost/config'
-import { SingleEventBlockLexical } from '@/blocks/SingleEvent/config'
-import { SponsorsBlock } from '@/blocks/SponsorsBlock/config'
+import { MediaLexicalBlock } from '@/blocks/Media/config'
+import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { SingleEventLexicalBlock } from '@/blocks/SingleEvent/config'
+import { SponsorsBlock } from '@/blocks/Sponsors/config'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
@@ -118,16 +117,15 @@ export const Posts: CollectionConfig<'posts'> = {
             BlocksFeature({
               blocks: [
                 ButtonBlock,
-                Banner,
-                BlogListBlockLexical,
+                BlogListLexicalBlock,
                 DocumentBlock,
-                EventListBlockLexical,
-                EventTableBlockLexical,
-                GenericEmbedLexical,
+                EventListLexicalBlock,
+                EventTableLexicalBlock,
+                GenericEmbedLexicalBlock,
                 HeaderBlock,
-                MediaBlockLexical,
-                SingleBlogPostBlockLexical,
-                SingleEventBlockLexical,
+                MediaLexicalBlock,
+                SingleBlogPostLexicalBlock,
+                SingleEventLexicalBlock,
                 SponsorsBlock,
               ],
             }),
