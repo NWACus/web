@@ -128,7 +128,7 @@ jobs:
             --meta="githubRepo=${fullName##*/}" \
             --meta='githubCommitAuthorLogin=${{ github.workflow }}' \
             --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Remove old Vercel deployments (keep last 2)
+      - name: Remove old Vercel deployments (keep latest 2)
         run: |
           set -o errexit
           set -o nounset
@@ -156,7 +156,7 @@ jobs:
             echo "$deployments" | tail -n +2 | while read -r DEPLOYMENT_URL; do
               if [ ! -z "$DEPLOYMENT_URL" ]; then
                 echo "Removing deployment: $DEPLOYMENT_URL"
-                vercel remove --scope=nwac "$DEPLOYMENT_URL" --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_URL"
+                vercel remove --scope=nwac "$DEPLOYMENT_URL" --safe --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_URL"
               fi
             done
           else
