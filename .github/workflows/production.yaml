@@ -88,3 +88,36 @@ jobs:
             --meta="githubRepo=${fullName##*/}" \
             --meta='githubCommitAuthorLogin=${{ github.event.pusher.name }}' \
             --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Remove old Vercel deployments (keep latest 2)
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          ref="${{ github.event.ref }}"
+          branch="${ref##refs/heads/}"
+
+          echo "Cleaning up deployments and aliases for branch: $branch"
+
+          # All deployments for branch
+          deployments=$(vercel list --scope=nwac --meta githubCommitRef=$branch --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null | tail -n +2)
+
+          # Count total deployments
+          total=$(echo "$deployments" | grep -c . || true)
+
+          # Keep the last 1, delete the rest
+          if [ "$total" -gt 1 ]; then
+            echo "Keeping last 1 deployment, deleting $(($total - 1))"
+            echo "$deployments" | tail -n +2 | while read -r DEPLOYMENT_URL; do
+              if [ ! -z "$DEPLOYMENT_URL" ]; then
+                echo "Removing deployment: $DEPLOYMENT_URL"
+                vercel remove --scope=nwac "$DEPLOYMENT_URL" --safe --yes --token=${{ secrets.VERCEL_TOKEN }} || echo "[WARN] Failed to remove deployment: $DEPLOYMENT_URL"
+              fi
+            done
+          else
+            echo "Only 1 deployment found, nothing to delete"
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
