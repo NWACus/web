@@ -6,7 +6,6 @@ import { cn } from '@/utilities/ui'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { EventInfo } from '../EventInfo'
-import { CMSLink } from '../Link'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -149,14 +148,14 @@ export const EventPreview = (props: {
                 </Link>
               </Button>
             ))}
-          <CMSLink
-            appearance="outline"
+          <Button
+            asChild
+            variant="outline"
             size="sm"
             className="group-hover:opacity-90 transition-opacity"
-            url={eventUrl}
           >
-            Learn More
-          </CMSLink>
+            <Link href={eventUrl}>Learn More</Link>
+          </Button>
         </div>
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">
