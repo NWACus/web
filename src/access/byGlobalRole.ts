@@ -11,8 +11,6 @@ export const byGlobalRole: (method: ruleMethod, collection: ruleCollection) => F
       return false
     }
 
-    payload.logger.debug(`evaluating access by ${user.id} for ${method} on ${collection}`)
-
     const assignments = globalRoleAssignmentsForUser(payload.logger, user)
     return assignments
       .map((assignment) => {
