@@ -3,7 +3,7 @@
 import type { RelationshipFieldClientProps } from 'payload'
 
 import { RelationshipField, useField, useFormInitializing, useFormModified } from '@payloadcms/ui'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import './index.scss'
@@ -22,7 +22,7 @@ export const TenantFieldComponent = (args: Props) => {
   const formInitializingContext = useFormInitializing()
   const {
     options,
-    selectedTenantID,
+    selectedTenantSlug,
     setEntityType: setEntityType,
     setModified,
     setTenant,
@@ -30,9 +30,37 @@ export const TenantFieldComponent = (args: Props) => {
 
   const isGlobalCollection = !!unique
   const hasSetValueRef = useRef(false)
+  // Cache tenant ID lookups by slug to avoid repeated API calls
+  const [tenantIdBySlug, setTenantIdBySlug] = useState<Record<string, number>>({})
 
   // Track whether form has finished initializing
   const formReady = !formInitializing && !formInitializingContext
+
+  // Look up tenant ID by slug
+  const lookupTenantId = useCallback(
+    async (slug: string): Promise<number | null> => {
+      if (tenantIdBySlug[slug]) {
+        return tenantIdBySlug[slug]
+      }
+
+      try {
+        const response = await fetch(
+          `/api/tenants?where[slug][equals]=${encodeURIComponent(slug)}&limit=1&depth=0`,
+          { credentials: 'include' },
+        )
+        const result = await response.json()
+        if (result.docs && result.docs.length > 0) {
+          const id = result.docs[0].id
+          setTenantIdBySlug((prev) => ({ ...prev, [slug]: id }))
+          return id
+        }
+      } catch (_) {
+        // Silent fail - tenant field hook will handle missing tenant
+      }
+      return null
+    },
+    [tenantIdBySlug],
+  )
 
   useEffect(() => {
     // Don't try to set values while the form is still initializing
@@ -40,29 +68,39 @@ export const TenantFieldComponent = (args: Props) => {
       return
     }
 
-    if (!hasSetValueRef.current && !isGlobalCollection) {
-      // set value on load
-      if (value && value !== selectedTenantID) {
-        setTenant({ id: value, refresh: unique })
-      } else {
-        // in the document view, the tenant field should always have a value
-        const defaultValue = selectedTenantID || options[0]?.value
-        setTenant({ id: defaultValue, refresh: unique })
-        // Also set the field value when form is ready if we have a tenant selected
-        // This handles the case where selectedTenantID is already correct from the cookie
-        // and setTenant won't trigger a re-render
-        if (defaultValue) {
-          setValue(defaultValue, true)
+    const syncTenantValue = async () => {
+      if (!hasSetValueRef.current && !isGlobalCollection) {
+        // Set value on load
+        if (value && typeof value === 'number') {
+          // If we have a numeric tenant ID but no slug selected, we need to sync
+          // The field already has a tenant, let it be
+          hasSetValueRef.current = true
+          return
+        }
+
+        // Get tenant ID for the selected slug
+        const slug = selectedTenantSlug || (options[0]?.value ? String(options[0].value) : null)
+        if (slug) {
+          setTenant({ slug, refresh: unique })
+          const tenantId = await lookupTenantId(slug)
+          if (tenantId) {
+            setValue(tenantId, true)
+          }
+        }
+        hasSetValueRef.current = true
+      } else if (selectedTenantSlug) {
+        // Update the field on the document value when the tenant is changed
+        const tenantId = await lookupTenantId(selectedTenantSlug)
+        if (tenantId && value !== tenantId) {
+          setValue(tenantId, !value || value === tenantId)
         }
       }
-      hasSetValueRef.current = true
-    } else if (!value || value !== selectedTenantID) {
-      // Update the field on the document value when the tenant is changed
-      setValue(selectedTenantID, !value || value === selectedTenantID)
     }
+
+    void syncTenantValue()
   }, [
     value,
-    selectedTenantID,
+    selectedTenantSlug,
     setTenant,
     setValue,
     options,
@@ -71,6 +109,7 @@ export const TenantFieldComponent = (args: Props) => {
     formReady,
     formInitializing,
     formInitializingContext,
+    lookupTenantId,
   ])
 
   useEffect(() => {
