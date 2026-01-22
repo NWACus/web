@@ -210,17 +210,10 @@ export default buildConfig({
     Settings,
     Redirects,
   ],
-  cors: [
-    'api.avalanche.org',
-    'api.snowobs.com',
-    getURL(),
-    ...(await getProductionTenantUrls()),
-  ].filter(Boolean),
-  csrf: [
-    getURL(),
-    ...(await getTenantSubdomainUrls()),
-    ...(await getProductionTenantUrls()),
-  ].filter(Boolean),
+  cors: ['api.avalanche.org', 'api.snowobs.com', getURL(), ...getProductionTenantUrls()].filter(
+    Boolean,
+  ),
+  csrf: [getURL(), ...getTenantSubdomainUrls(), ...getProductionTenantUrls()].filter(Boolean),
   globals: [NACWidgetsConfig, DiagnosticsConfig, A3Management],
   graphQL: {
     disable: true,

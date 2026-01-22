@@ -1,7 +1,10 @@
 import { PROTOCOL, ROOT_DOMAIN } from '../domain'
-import { getTenants } from './getTenants'
+import { VALID_TENANT_SLUGS } from './avalancheCenters'
 
-export async function getTenantSubdomainUrls() {
-  const tenants = await getTenants()
-  return tenants.map(({ slug }) => `${PROTOCOL}://${slug}.${ROOT_DOMAIN}`)
+/**
+ * Get all possible tenant subdomain URLs for CSRF configuration.
+ * Uses the hardcoded list of valid tenant slugs.
+ */
+export function getTenantSubdomainUrls(): string[] {
+  return VALID_TENANT_SLUGS.map((slug) => `${PROTOCOL}://${slug}.${ROOT_DOMAIN}`)
 }
