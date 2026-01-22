@@ -48,7 +48,7 @@ export const CMSLink = (props: CMSLinkType) => {
 
   if (!href) return null
 
-  const size = appearance === 'link' ? 'clear' : sizeFromProps
+  const size = sizeFromProps
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
   const linkDestination = href || url || ''
 

@@ -4180,7 +4180,7 @@ export interface ButtonBlock {
     /**
      * Choose the button style.
      */
-    appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
+    appearance?: ('default' | 'secondary' | 'ghost' | 'outline') | null;
   };
   id?: string | null;
   blockName?: string | null;

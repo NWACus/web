@@ -21,9 +21,7 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary-hover',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary-hover',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive-hover',
         ghost: 'hover:bg-card hover:text-accent-foreground',
-        link: 'text-primary items-start justify-start underline-offset-4 hover:underline',
         outline: 'border border-border bg-background hover:bg-card hover:text-accent-foreground',
         callout: 'bg-callout text-callout-foreground hover:bg-callout-hover',
       },
