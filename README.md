@@ -4,16 +4,7 @@ A Next.js-based multi-tenant platform powering avalanche center websites. Built 
 
 ## Quick Start
 
-Get up and running in seconds:
-
-```bash
-pnpm bootstrap
-pnpm dev
-```
-
-Then navigate to `localhost:3000/admin` and log in with the bootstrap credentials.
-
-For more detailed setup options, see [Getting Started](https://github.com/NWACus/web/wiki/Getting-Started).
+Get up and running in seconds. For more detailed setup options, see [Getting Started](https://github.com/NWACus/web/wiki/Getting-Started).
 
 ## About
 
@@ -30,15 +21,11 @@ This project serves multiple avalanche centers from a single codebase using Next
 
 ## Documentation
 
-All documentation has been moved to the **[Wiki](https://github.com/NWACus/web/wiki)** for better organization:
+Check out our **[Wiki](https://github.com/NWACus/web/wiki)** all documentation
 
+- **[Contributing](https://github.com/NWACus/web/wiki/Contributing)** - Start here! How to contribute to the project
 - **[Getting Started](https://github.com/NWACus/web/wiki/Getting-Started)** - First-time setup and local development
-- **[Database Setup](https://github.com/NWACus/web/wiki/Database-Setup)** - Creating and managing databases
-- **[Configuration](https://github.com/NWACus/web/wiki/Configuration)** - Environment variables and local subdomains
-- **[Development Guides](https://github.com/NWACus/web/wiki/Development-Guides)** - Frontend, emails, and schema development
-
 - **[Git Workflow](https://github.com/NWACus/web/wiki/Git-Workflow)** - Commit signing and best practices
-- **[Contributing](https://github.com/NWACus/web/wiki/Contributing)** - How to contribute to the project
 
 ## Contributing
 
