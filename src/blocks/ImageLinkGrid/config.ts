@@ -2,9 +2,9 @@ import { linkToPageOrPost } from '@/fields/linkToPageOrPost'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
-export const ImageLinkGrid: Block = {
+export const ImageLinkGridBlock: Block = {
   slug: 'imageLinkGrid',
-  interfaceName: 'ImageLinkGrid',
+  interfaceName: 'ImageLinkGridBlock',
   imageURL: '/thumbnail/ImageLinkGridThumbnail.jpg',
   fields: [
     {

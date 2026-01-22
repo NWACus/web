@@ -7,18 +7,18 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { BlogListBlockLexical } from '../BlogList/config'
+import { BlogListLexicalBlock } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
 import { CalloutBlock } from '../Callout/config'
-import { DocumentBlock } from '../DocumentBlock/config'
-import { EventListBlockLexical } from '../EventList/config'
-import { EventTableBlockLexical } from '../EventTable/config'
-import { GenericEmbedLexical } from '../GenericEmbed/config'
+import { DocumentBlock } from '../Document/config'
+import { EventListLexicalBlock } from '../EventList/config'
+import { EventTableLexicalBlock } from '../EventTable/config'
+import { GenericEmbedLexicalBlock } from '../GenericEmbed/config'
 import { HeaderBlock } from '../Header/config'
-import { MediaBlockLexical } from '../MediaBlock/config'
-import { SingleBlogPostBlockLexical } from '../SingleBlogPost/config'
-import { SingleEventBlockLexical } from '../SingleEvent/config'
-import { SponsorsBlock } from '../SponsorsBlock/config'
+import { MediaLexicalBlock } from '../Media/config'
+import { SingleBlogPostLexicalBlock } from '../SingleBlogPost/config'
+import { SingleEventLexicalBlock } from '../SingleEvent/config'
+import { SponsorsBlock } from '../Sponsors/config'
 
 const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => {
   if (!value || typeof value !== 'string') return true
@@ -62,7 +62,7 @@ const DEFAULT_LEXICAL_NODE = {
   },
 }
 
-export const Content: Block = {
+export const ContentBlock: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
   imageURL: '/thumbnail/ContentThumbnail.jpg',
@@ -127,17 +127,17 @@ export const Content: Block = {
                 ...rootFeatures,
                 BlocksFeature({
                   blocks: [
-                    BlogListBlockLexical,
+                    BlogListLexicalBlock,
                     ButtonBlock,
                     CalloutBlock,
                     DocumentBlock,
-                    EventListBlockLexical,
-                    EventTableBlockLexical,
-                    SingleEventBlockLexical,
-                    GenericEmbedLexical,
+                    EventListLexicalBlock,
+                    EventTableLexicalBlock,
+                    SingleEventLexicalBlock,
+                    GenericEmbedLexicalBlock,
                     HeaderBlock,
-                    MediaBlockLexical,
-                    SingleBlogPostBlockLexical,
+                    MediaLexicalBlock,
+                    SingleBlogPostLexicalBlock,
                     SponsorsBlock,
                   ],
                 }),

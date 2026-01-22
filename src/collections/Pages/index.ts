@@ -16,7 +16,7 @@ import { tenantField } from '@/fields/tenantField'
 
 import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePageToTenant'
 
-import { NACMediaBlock } from '@/blocks/NACMediaBlock/config'
+import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'

@@ -3,7 +3,7 @@ import type { CalloutBlock as CalloutBlockProps } from '@/payload-types'
 import RichText from '@/components/RichText'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 
-export const CalloutBlock = ({ backgroundColor, callout }: CalloutBlockProps) => {
+export const CalloutBlockComponent = ({ backgroundColor, callout }: CalloutBlockProps) => {
   if (!callout) return null
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)

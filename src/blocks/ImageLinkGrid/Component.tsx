@@ -1,6 +1,6 @@
 import { cn } from '@/utilities/ui'
 
-import type { ImageLinkGrid as ImageLinkGridProps } from '@/payload-types'
+import type { ImageLinkGridBlock as ImageLinkGridBlockProps } from '@/payload-types'
 
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { cssVariables } from '@/cssVariables'
@@ -9,7 +9,7 @@ import Link from 'next/link'
 
 const { breakpoints, container } = cssVariables
 
-type Props = ImageLinkGridProps & {
+type Props = ImageLinkGridBlockProps & {
   className?: string
   imgClassName?: string
 }
@@ -34,7 +34,7 @@ const getImageSizes = (numOfCols: number): string => {
   ].join(', ')
 }
 
-export const ImageLinkGrid = (props: Props) => {
+export const ImageLinkGridBlockComponent = (props: Props) => {
   const { columns, className, imgClassName } = props
   const numOfCols = columns?.length ?? 1
 

@@ -3,26 +3,23 @@ import { Fragment } from 'react'
 import type { Page } from '@/payload-types'
 import { Payload } from 'payload'
 
-import { BiographyBlock } from '@/blocks/Biography/Biography'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
-import { ContentBlock } from '@/blocks/Content/Component'
-import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
+import { ContentBlockComponent } from '@/blocks/Content/Component'
+import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
-import { FormBlock } from '@/blocks/Form/Component'
-import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { FormBlockComponent } from '@/blocks/Form/Component'
+import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
-import { ImageLinkGrid } from '@/blocks/ImageLinkGrid/Component'
-import { ImageQuote } from '@/blocks/ImageQuote/Component'
-import { ImageText } from '@/blocks/ImageText/Component'
-import { ImageTextList } from '@/blocks/ImageTextList/Component'
-import { LinkPreviewBlock } from '@/blocks/LinkPreview/Component'
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { NACMediaBlockComponent } from '@/blocks/NACMediaBlock/Component'
+import { ImageLinkGridBlockComponent } from '@/blocks/ImageLinkGrid/Component'
+import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
+import { LinkPreviewBlockComponent } from '@/blocks/LinkPreview/Component'
+import { MediaBlockComponent } from '@/blocks/Media/Component'
+import { NACMediaBlockComponent } from '@/blocks/NACMedia/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
-import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
-import { TeamBlock } from '@/blocks/Team/Team'
+import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
+import { TeamBlockComponent } from '@/blocks/Team/Component'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
   const { blocks } = props
@@ -50,36 +47,32 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   const { blockType } = block
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
   switch (blockType) {
-    case 'biography':
-      return <BiographyBlock {...block} payload={payload} />
     case 'blogList':
       return <BlogListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'content':
-      return <ContentBlock {...block} />
+      return <ContentBlockComponent {...block} />
     case 'documentBlock':
-      return <DocumentBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <DocumentBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'eventList':
       return <EventListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'eventTable':
       return <EventTableBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'formBlock':
-      return <FormBlock {...block} />
+      return <FormBlockComponent {...block} />
     case 'genericEmbed':
-      return <GenericEmbedBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+      return (
+        <GenericEmbedBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      )
     case 'headerBlock':
       return <HeaderBlockComponent {...block} />
     case 'imageLinkGrid':
-      return <ImageLinkGrid {...block} />
-    case 'imageQuote':
-      return <ImageQuote {...block} />
+      return <ImageLinkGridBlockComponent {...block} />
     case 'imageText':
-      return <ImageText {...block} />
-    case 'imageTextList':
-      return <ImageTextList {...block} />
+      return <ImageTextBlockComponent {...block} />
     case 'linkPreview':
-      return <LinkPreviewBlock {...block} />
+      return <LinkPreviewBlockComponent {...block} />
     case 'mediaBlock':
-      return <MediaBlock {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <MediaBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
     case 'singleBlogPost':
@@ -93,6 +86,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'sponsorsBlock':
       return <SponsorsBlockComponent {...block} />
     case 'team':
-      return <TeamBlock {...block} payload={payload} />
+      return <TeamBlockComponent {...block} payload={payload} />
   }
 }

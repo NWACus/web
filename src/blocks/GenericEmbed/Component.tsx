@@ -12,7 +12,7 @@ type Props = GenericEmbedBlockProps & {
   wrapInContainer?: boolean
 }
 
-export const GenericEmbedBlock = ({
+export const GenericEmbedBlockComponent = ({
   id,
   html,
   backgroundColor,

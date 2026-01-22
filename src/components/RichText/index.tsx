@@ -1,4 +1,4 @@
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { MediaBlockComponent } from '@/blocks/Media/Component'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -11,20 +11,18 @@ import {
   RichText as RichTextLexical,
 } from '@payloadcms/richtext-lexical/react'
 
-import { BannerBlock } from '@/blocks/Banner/Component'
 import { BlogListBlockComponent } from '@/blocks/BlogList/Component'
 import { ButtonBlockComponent } from '@/blocks/Button/Component'
-import { CalloutBlock } from '@/blocks/Callout/Component'
-import { DocumentBlock } from '@/blocks/DocumentBlock/Component'
+import { CalloutBlockComponent } from '@/blocks/Callout/Component'
+import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
-import { GenericEmbedBlock } from '@/blocks/GenericEmbed/Component'
+import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
-import { SponsorsBlockComponent } from '@/blocks/SponsorsBlock/Component'
+import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import type {
-  BannerBlock as BannerBlockProps,
   BlogListBlock as BlogListBlockProps,
   ButtonBlock as ButtonBlockProps,
   CalloutBlock as CalloutBlockProps,
@@ -43,7 +41,6 @@ import { cn } from '@/utilities/ui'
 type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<
-      | BannerBlockProps
       | BlogListBlockProps
       | ButtonBlockProps
       | CalloutBlockProps
@@ -72,7 +69,6 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   // if block has two variants - to make TS happy we fallback to the default for the block variant
   blocks: {
-    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
     blogList: ({ node }) => (
       <BlogListBlockComponent
         {...node.fields}
@@ -80,9 +76,12 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       />
     ),
     buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
-    calloutBlock: ({ node }) => <CalloutBlock {...node.fields} />,
+    calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
     documentBlock: ({ node }) => (
-      <DocumentBlock {...node.fields} wrapInContainer={node.fields.wrapInContainer || false} />
+      <DocumentBlockComponent
+        {...node.fields}
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
     ),
     eventList: ({ node }) => (
       <EventListBlockComponent
@@ -98,11 +97,14 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       />
     ),
     genericEmbed: ({ node }) => (
-      <GenericEmbedBlock {...node.fields} wrapInContainer={node.fields.wrapInContainer || false} />
+      <GenericEmbedBlockComponent
+        {...node.fields}
+        wrapInContainer={node.fields.wrapInContainer || false}
+      />
     ),
     headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} />,
     mediaBlock: ({ node }) => (
-      <MediaBlock
+      <MediaBlockComponent
         className="col-start-1 col-span-3"
         imgClassName="m-0"
         {...node.fields}
