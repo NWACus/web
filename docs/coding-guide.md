@@ -57,9 +57,9 @@ When adding new collections please make sure to review the following docs:
 Relationship fields in Payload can be in three states:
 - **Resolved object** (when populated) - `{ id: '123', name: 'Example', ... }`
 - **Unresolved ID** (when not populated) - `123`
-- **Deleted reference** (when related document was deleted or during live preview) - `null` or `undefined`
+- **Deleted reference** (when related document was deleted) - `null` or `undefined`
 
-If you don't handle all three cases, your code can break when a related document gets deleted or during live preview.
+If you don't handle all three cases, your code can break when a related document gets deleted.
 
 ### Solution
 

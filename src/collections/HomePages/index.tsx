@@ -40,22 +40,6 @@ export const HomePages: CollectionConfig = {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
     group: 'Content',
-    livePreview: {
-      url: async ({ data, req }) => {
-        let tenant: Partial<Tenant> | null = null
-
-        if (isTenantValue(data.tenant)) {
-          tenant = await resolveTenant(data.tenant)
-        }
-
-        return generatePreviewPath({
-          slug: '',
-          collection: 'pages',
-          tenant,
-          req,
-        })
-      },
-    },
     preview: async (data, { req }) => {
       let tenant: Partial<Tenant> | null = null
 

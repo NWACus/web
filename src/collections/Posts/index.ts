@@ -61,22 +61,6 @@ export const Posts: CollectionConfig<'posts'> = {
         beforeDocumentControls: ['@/collections/Posts/components/ViewPostButton#ViewPostButton'],
       },
     },
-    livePreview: {
-      url: async ({ data, req }) => {
-        let tenant: Partial<Tenant> | null = null
-
-        if (isTenantValue(data.tenant)) {
-          tenant = await resolveTenant(data.tenant)
-        }
-
-        return generatePreviewPath({
-          slug: typeof data?.slug === 'string' ? data.slug : '',
-          collection: 'posts',
-          tenant,
-          req,
-        })
-      },
-    },
     preview: async (data, { req }) => {
       let tenant: Partial<Tenant> | null = null
 

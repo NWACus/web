@@ -5,7 +5,6 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { EventInfo } from '@/components/EventInfo'
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
 import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/utilities/formatDateTime'
@@ -80,8 +79,6 @@ export default async function Event({ params: paramsPromise }: Args) {
 
   return (
     <article className={cn('pt-4 pb-16', { 'pt-8': !event.featuredImage })}>
-      {draft && <LivePreviewListener />}
-
       <div className="flex flex-col items-center gap-4">
         {event.featuredImage && (
           <Media

@@ -38,22 +38,6 @@ export const Pages: CollectionConfig<'pages'> = {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
-    livePreview: {
-      url: async ({ data, req }) => {
-        let tenant: Partial<Tenant> | null = null
-
-        if (isTenantValue(data.tenant)) {
-          tenant = await resolveTenant(data.tenant)
-        }
-
-        return generatePreviewPath({
-          slug: typeof data?.slug === 'string' ? data.slug : '',
-          collection: 'pages',
-          tenant,
-          req,
-        })
-      },
-    },
     preview: async (data, { req }) => {
       let tenant: Partial<Tenant> | null = null
 
