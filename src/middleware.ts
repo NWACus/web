@@ -1,7 +1,7 @@
 import { createClient } from '@vercel/edge-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { getURL } from './utilities/getURL'
-import { PRODUCTION_TENANTS } from './utilities/tenancy/tenants'
+import { isProductionTenant } from './utilities/tenancy/tenants'
 
 export const config = {
   matcher: [
@@ -104,7 +104,7 @@ export default async function middleware(req: NextRequest) {
   if (host && requestedHost && requestedHost !== host && !requestedHost.includes(`.${host}`)) {
     // Only handle tenants in PRODUCTION_TENANTS
     const customDomainTenant = TENANTS.find(
-      (tenant) => PRODUCTION_TENANTS.includes(tenant.slug) && tenant.customDomain === requestedHost,
+      (tenant) => isProductionTenant(tenant.slug) && tenant.customDomain === requestedHost,
     )
 
     if (customDomainTenant && !hasNextInPath) {
@@ -163,7 +163,7 @@ export default async function middleware(req: NextRequest) {
 
         // For production tenants: use custom domain if available, otherwise fall back to subdomain
         // For non-production tenants: always use subdomain
-        if (PRODUCTION_TENANTS.includes(tenant.slug)) {
+        if (isProductionTenant(tenant.slug)) {
           if (tenant.customDomain) {
             redirectUrl.host = tenant.customDomain
           } else {
@@ -190,8 +190,8 @@ export default async function middleware(req: NextRequest) {
   if (host && requestedHost && !isSeedEndpoint) {
     for (const { id, slug, customDomain } of TENANTS) {
       if (requestedHost === `${slug}.${host}`) {
-        // Redirect to custom domain if tenant is in PRODUCTION_TENANTS and has a custom domain configured
-        if (PRODUCTION_TENANTS.includes(slug) && customDomain) {
+        // Redirect to custom domain if tenant is a production tenant and has a custom domain configured
+        if (isProductionTenant(slug) && customDomain) {
           const redirectUrl = new URL(req.nextUrl.clone())
           redirectUrl.host = customDomain
 
