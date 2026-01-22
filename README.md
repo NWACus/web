@@ -41,6 +41,16 @@ We welcome contributions! Please see our [Contributing Guide](https://github.com
 
 Team members with access can request code changes via GitHub issues mentioning `@claude`. See [Contributing](https://github.com/NWACus/web/wiki/Contributing) for details.
 
+## License
+
+We use the **PolyForm Noncommercial** license for this project. This allows us to:
+
+- Keep the source code available for anyone to view and learn from
+- Accept contributions from the community
+- Prevent commercial use of the codebase
+
+For the full license text, see [LICENSE](./LICENSE).
+
 ## Questions?
 
 - Check the [Wiki](https://github.com/NWACus/web/wiki) for common questions
