@@ -216,10 +216,13 @@ export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
     payload.logger.info(
       `Creating ${collection}['${tenant}']['${key}'] with hash ${item.contentHash.slice(0, 8)}...`,
     )
+    // Clone the file object to prevent mutation issues when the same file is reused
+    // (e.g., the prefixFilenameWithTenant hook modifies file.name)
+    const fileToUse = file ? { ...file } : undefined
     const created = await payload.create({
       collection: collection,
       data: item,
-      file: file,
+      file: fileToUse,
       context: {
         disableRevalidate: true,
       },
