@@ -15,23 +15,3 @@ export function getTenantSlugFromCookie(headers: Headers): ValidTenantSlug | nul
 
   return null
 }
-
-/**
- * @deprecated Use getTenantSlugFromCookie instead. The cookie now stores slugs, not IDs.
- * This function remains for backwards compatibility during migration.
- */
-export function getTenantFromCookie(headers: Headers, idType: 'number'): number | null
-export function getTenantFromCookie(headers: Headers, idType: 'text'): string | null
-export function getTenantFromCookie(
-  headers: Headers,
-  idType: 'number' | 'text',
-): number | string | null
-export function getTenantFromCookie(
-  headers: Headers,
-  _idType: 'number' | 'text',
-): number | string | null {
-  // Cookie now stores slug strings, so numeric lookups will return null
-  // Use getTenantSlugFromCookie instead
-  const slug = getTenantSlugFromCookie(headers)
-  return slug
-}
