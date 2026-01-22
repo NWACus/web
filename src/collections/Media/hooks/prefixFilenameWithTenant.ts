@@ -31,11 +31,7 @@ export const prefixFilenameWithTenant: BeforeOperationHook = async ({ args, oper
   // Add tenant prefix if we have a slug and the filename doesn't already
   // start with the prefix or start with the slug (i.e. the file name is the slug)
   // Avoids file names like 'dvac-dvac-icon.png' and 'dvac-DVAC.webp'
-  if (
-    tenantSlug &&
-    !req.file.name.toLowerCase().startsWith(`${tenantSlug.toLowerCase()}-`) &&
-    !req.file.name.toLowerCase().startsWith(tenantSlug.toLowerCase())
-  ) {
+  if (tenantSlug) {
     req.file.name = `${tenantSlug}-` + req.file.name
   }
 }
