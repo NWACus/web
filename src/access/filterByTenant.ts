@@ -1,4 +1,4 @@
-import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
+import { getTenantSlugFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import { BaseListFilter } from 'payload'
 
 // filterByTenant implements per-tenant data filtering from the 'payload-tenant' cookie
@@ -6,12 +6,12 @@ import { BaseListFilter } from 'payload'
 // control defines the set of data to be filtered, so this filter is on-top and has no
 // risk of letting users see data they cannot access.
 export const filterByTenant: BaseListFilter = async ({ req }) => {
-  const selectedTenant = getTenantFromCookie(req.headers, 'number')
+  const tenantSlug = getTenantSlugFromCookie(req.headers)
 
-  if (selectedTenant) {
+  if (tenantSlug) {
     return {
-      tenant: {
-        equals: selectedTenant,
+      'tenant.slug': {
+        equals: tenantSlug,
       },
     }
   }
