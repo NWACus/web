@@ -7,6 +7,7 @@ import { normalizePath } from './path'
 import { resolveTenant } from './tenancy/resolveTenant'
 
 const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
+  homePages: '',
   posts: '/blog',
   pages: '',
 }
@@ -40,7 +41,7 @@ export const generatePreviewPath = async ({ collection, slug, tenant, req }: Pro
   // Exception for pages collection which has a concept of canonical urls based on their nesting in the navigation
   if (resolvedTenant?.slug && collection === 'pages') {
     const canonicalUrl = await getCanonicalUrlForSlug(resolvedTenant.slug, slug)
-
+    console.log('here', canonicalUrl)
     if (canonicalUrl) {
       canonicalSlug = normalizePath(canonicalUrl)
     }

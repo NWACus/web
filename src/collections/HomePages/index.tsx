@@ -40,7 +40,7 @@ export const HomePages: CollectionConfig = {
     preview: async (data, { req }) =>
       generatePreviewPath({
         slug: '',
-        collection: 'pages',
+        collection: 'homePages',
         tenant: data.tenant,
         req,
       }),
@@ -56,7 +56,7 @@ export const HomePages: CollectionConfig = {
       type: 'group',
       admin: {
         description:
-          'This section is displayed prominantly below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.',
+          'This section is displayed prominently below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.',
       },
       fields: [
         {
