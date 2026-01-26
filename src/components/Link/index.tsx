@@ -9,7 +9,7 @@ import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { useAnalytics } from '@/utilities/useAnalytics'
 
 type CMSLinkType = {
-  variant?: 'inline' | ButtonProps['variant']
+  variant?: ButtonProps['variant']
   children?: React.ReactNode
   className?: string
   label?: string | null
@@ -26,7 +26,7 @@ type CMSLinkType = {
 export const CMSLink = (props: CMSLinkType) => {
   const {
     type,
-    variant = 'inline',
+    variant,
     children,
     className,
     label,
@@ -59,21 +59,6 @@ export const CMSLink = (props: CMSLinkType) => {
       to_page: linkDestination,
       appearance: variant ?? '',
     })
-  }
-
-  /* Ensure we don't break any styles set by richText */
-  if (variant === 'inline') {
-    return (
-      <Link
-        className={cn(className)}
-        href={linkDestination}
-        onClick={onClickWithCapture}
-        {...newTabProps}
-      >
-        {buttonLabel}
-        {children && children}
-      </Link>
-    )
   }
 
   return (
