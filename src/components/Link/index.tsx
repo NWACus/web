@@ -9,7 +9,7 @@ import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { useAnalytics } from '@/utilities/useAnalytics'
 
 type CMSLinkType = {
-  appearance?: 'inline' | ButtonProps['variant']
+  variant?: 'inline' | ButtonProps['variant']
   children?: React.ReactNode
   className?: string
   label?: string | null
@@ -26,7 +26,7 @@ type CMSLinkType = {
 export const CMSLink = (props: CMSLinkType) => {
   const {
     type,
-    appearance = 'inline',
+    variant = 'inline',
     children,
     className,
     label,
@@ -57,12 +57,12 @@ export const CMSLink = (props: CMSLinkType) => {
       button_label: buttonLabel,
       from_page: window.location.pathname,
       to_page: linkDestination,
-      appearance: appearance ?? '',
+      appearance: variant ?? '',
     })
   }
 
   /* Ensure we don't break any styles set by richText */
-  if (appearance === 'inline') {
+  if (variant === 'inline') {
     return (
       <Link
         className={cn(className)}
@@ -77,7 +77,7 @@ export const CMSLink = (props: CMSLinkType) => {
   }
 
   return (
-    <Button asChild className={className} size={size} variant={appearance}>
+    <Button asChild className={className} size={size} variant={variant}>
       <Link
         className={cn(className)}
         href={linkDestination}

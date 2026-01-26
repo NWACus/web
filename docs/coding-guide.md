@@ -182,3 +182,60 @@ blocks
     └── config.ts
 ```
 
+## Button vs CMSLink
+
+### Button
+Interactive actions or buttons as link. A base component using Radix UI's Slot pattern.
+
+**Key features:**
+- `onClick` for client-side logic (toggles, handlers, form validation)
+- `asChild` + `<Link href>` for navigation without analytics
+- `asChild` + `<form action>` for server actions
+- Posthog events are autocaptured
+
+**Styles options**
+- Size: (`sm`, `default`, `lg`, `icon`, `clear`)
+- Variants: (`default`, `secondary`, `ghost`, `outline`, `callout`)
+
+**Examples:**
+
+```tsx
+// With onClick
+<Button onClick={handleClick}>Toggle</Button>
+
+// With link
+<Button asChild>
+  <Link href="/about">Learn More</Link>
+</Button>
+
+// With server action
+<Button asChild>
+  <form action={deleteItem}>
+    <button type="submit">Delete</button>
+  </form>
+</Button>
+```
+
+### CMSLink
+CMS-driven links intended to be used with the admin panel.
+
+**Key features:**
+- The link data comes from your CMS (Payload) like internal pages, posts, or built-in pages and automatically resolves internal/external URLs.
+- Intended for blocks or rich text editors use the `button` field
+- Posthog events are captured with event `button_click`
+
+**Styles options**
+- Size: (`sm`, `default`, `lg`, `icon`, `clear`)
+- Variants: (`default`, `secondary`, `ghost`, `outline`, `callout`)
+
+**Example:**
+```tsx
+<CMSLink
+  reference={{ relationTo: 'posts', value: postId }}
+  variant="default"
+  size="md"
+  newTab={false}
+>
+  Read More
+</CMSLink>
+```
