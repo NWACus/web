@@ -8,6 +8,7 @@ import { resolveTenant } from './tenancy/resolveTenant'
 
 const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
   homePages: '',
+  navigations: '',
   posts: '/blog',
   pages: '',
 }
