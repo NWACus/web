@@ -42,7 +42,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         headers: req.headers,
       })
     } catch (error) {
-      payload.logger.error({ err: error }, 'Error verifying token for live preview')
+      payload.logger.error({ err: error }, 'Error verifying token for draft preview')
       return new Response('You are not allowed to preview this page', { status: 403 })
     }
 
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest): Promise<Response> {
           return new Response('Document not found', { status: 404 })
         }
       } catch (error) {
-        payload.logger.error({ err: error }, 'Error verifying token for live preview')
+        payload.logger.error({ err: error }, 'Error verifying token for draft preview')
       }
     }
 

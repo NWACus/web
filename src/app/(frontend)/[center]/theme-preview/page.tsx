@@ -3,9 +3,6 @@ import type { Metadata } from 'next/types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { draftMode } from 'next/headers'
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -81,11 +78,9 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const { isEnabled: draft } = await draftMode()
   const { center } = await params
   return (
     <div className="pt-4">
-      {draft && <LivePreviewListener />}
       <div className="container mb-16 grid gap-14">
         <h1 className="text-3xl font-bold mb-6">Theme Preview for {center.toUpperCase()}</h1>
 

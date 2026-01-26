@@ -3,7 +3,6 @@ import { getPayload } from 'payload'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import HighlightedContent from '@/collections/HomePages/components/HighlightedContent'
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
@@ -76,7 +75,6 @@ export default async function Page({ params }: Args) {
         widgetsBaseUrl={baseUrl}
       />
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
-        {draft && <LivePreviewListener />}
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
           <div
             className="w-full"
