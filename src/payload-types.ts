@@ -318,7 +318,7 @@ export interface Page {
    */
   title: string;
   /**
-   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.
+   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab.
    */
   layout: (
     | BlogListBlock
