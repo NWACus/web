@@ -3,6 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { navLink } from '@/fields/navLink'
 import { tenantField } from '@/fields/tenantField'
+import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
 import { topLevelNavTab } from './fields/topLevelNavTab'
 import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
@@ -18,10 +19,18 @@ export const Navigations: CollectionConfig = {
     singular: 'Navigation',
     plural: 'Navigation',
   },
+
   admin: {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
     group: 'Settings',
+    preview: async (data, { req }) =>
+      generatePreviewPath({
+        slug: typeof data?.slug === 'string' ? data.slug : '',
+        collection: 'posts',
+        tenant: data.tenant,
+        req,
+      }),
   },
   fields: [
     tenantField({ unique: true }),
