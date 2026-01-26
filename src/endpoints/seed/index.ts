@@ -32,6 +32,7 @@ import { post3 } from './post-3'
 import { seedProviders } from './providers'
 import { sponsors } from './sponsors'
 
+// Collections to clear - tenants is separate due to FK constraints
 const collections: CollectionSlug[] = [
   'settings',
   'biographies',
@@ -50,10 +51,10 @@ const collections: CollectionSlug[] = [
   'tags',
   'teams',
   'builtInPages',
-  'tenants',
   'events',
   'eventGroups',
   'eventTags',
+  // Note: 'tenants' is deleted separately after these to avoid FK constraint violations
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -97,8 +98,13 @@ export const seed = async ({
         }),
       )
 
+      // Delete tenants after other collections to avoid FK constraint violations
+      payload.logger.info(`Deleting collection: tenants`)
+      await payload.db.deleteMany({ collection: 'tenants', req, where: {} })
+
+      const collectionsWithTenants: CollectionSlug[] = [...collections, 'tenants']
       await Promise.all(
-        collections
+        collectionsWithTenants
           .filter((collection) => Boolean(payload.collections[collection].config.versions))
           .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
       )
@@ -446,10 +452,9 @@ export const seed = async ({
         .flat(),
     ])
 
-    // Settings
-    const settingsData: Record<
-      Tenant['slug'],
-      Partial<RequiredDataFromCollectionSlug<'settings'>>
+    // Settings - only define data for seeded tenants, not all possible slugs
+    const settingsData: Partial<
+      Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'settings'>>>
     > = {
       dvac: {
         description:
@@ -502,23 +507,27 @@ export const seed = async ({
       incremental,
       tenantsById,
       (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
-      Object.values(tenants).map(
-        (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
+      Object.values(tenants).map((tenant): RequiredDataFromCollectionSlug<'settings'> => {
+        const data = settingsData[tenant.slug]
+        if (!data) {
+          throw new Error(`Missing settings data for tenant ${tenant.slug}`)
+        }
+        return {
           tenant: tenant.id,
-          description: settingsData[tenant.slug].description,
+          description: data.description,
           footerForm: {
             type: 'none',
           },
-          address: settingsData[tenant.slug].address,
-          phone: settingsData[tenant.slug].phone,
-          email: settingsData[tenant.slug].email,
-          socialMedia: settingsData[tenant.slug].socialMedia,
+          address: data.address,
+          phone: data.phone,
+          email: data.email,
+          socialMedia: data.socialMedia,
           logo: brandImages[tenant.slug]['logo'].id,
           icon: brandImages[tenant.slug]['icon'].id,
           banner: brandImages[tenant.slug]['banner'].id,
           usfsLogo: brandImages[tenant.slug]['usfs logo']?.id,
-        }),
-      ),
+        }
+      }),
     )
 
     if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {

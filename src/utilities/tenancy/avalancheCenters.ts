@@ -7,6 +7,8 @@
  */
 export const AVALANCHE_CENTERS = {
   aaic: { name: 'Alaska Avalanche Information Center', customDomain: 'alaskasnow.org' },
+  // Test tenant for local development and seeding - not a real avalanche center
+  dvac: { name: 'Death Valley Avalanche Center', customDomain: 'dvac.us' },
   bac: { name: 'Bridgeport Avalanche Center', customDomain: 'bridgeportavalanchecenter.org' },
   btac: { name: 'Bridger-Teton Avalanche Center', customDomain: 'bridgertetonavalanchecenter.org' },
   cac: { name: 'Cordova Avalanche Center', customDomain: 'alaskasnow.org' },
