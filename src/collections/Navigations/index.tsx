@@ -3,10 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { navLink } from '@/fields/navLink'
 import { tenantField } from '@/fields/tenantField'
-import { Tenant } from '@/payload-types'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { isTenantValue } from '@/utilities/isTenantValue'
-import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { CollectionConfig } from 'payload'
 import { topLevelNavTab } from './fields/topLevelNavTab'
 import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
@@ -22,26 +19,18 @@ export const Navigations: CollectionConfig = {
     singular: 'Navigation',
     plural: 'Navigation',
   },
+
   admin: {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
     group: 'Settings',
-    livePreview: {
-      url: async ({ data, req }) => {
-        let tenant: Partial<Tenant> | null = null
-
-        if (isTenantValue(data.tenant)) {
-          tenant = await resolveTenant(data.tenant)
-        }
-
-        return generatePreviewPath({
-          slug: '',
-          collection: 'pages',
-          tenant,
-          req,
-        })
-      },
-    },
+    preview: async (data, { req }) =>
+      generatePreviewPath({
+        slug: typeof data?.slug === 'string' ? data.slug : '',
+        collection: 'navigations',
+        tenant: data.tenant,
+        req,
+      }),
   },
   fields: [
     tenantField({ unique: true }),
