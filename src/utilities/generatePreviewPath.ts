@@ -2,7 +2,9 @@ import { getCanonicalUrlForSlug } from '@/components/Header/utils'
 import { Tenant } from '@/payload-types'
 import { CollectionSlug, PayloadRequest } from 'payload'
 import { getURL } from './getURL'
+import { isTenantValue } from './isTenantValue'
 import { normalizePath } from './path'
+import { resolveTenant } from './tenancy/resolveTenant'
 
 const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
   posts: '/blog',
@@ -12,31 +14,39 @@ const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
 type Props = {
   collection: keyof typeof collectionPrefixMap
   slug: string
-  tenant: Partial<Tenant> | null
+  tenant: unknown
   req: PayloadRequest
 }
 
 export const generatePreviewPath = async ({ collection, slug, tenant, req }: Props) => {
+  let resolvedTenant: Partial<Tenant> | null = null
+
+  if (isTenantValue(tenant)) {
+    resolvedTenant = await resolveTenant(tenant)
+  }
   // Check if current host is the tenant's domain
   const currentHost = req.headers.get('host') || req.host
-  const isTenantCustomDomain = tenant?.customDomain && currentHost === tenant.customDomain
-  const isTenantSubdomain = tenant?.slug && currentHost.startsWith(`${tenant.slug}.`)
+  const isTenantCustomDomain =
+    resolvedTenant?.customDomain && currentHost === resolvedTenant.customDomain
+  const isTenantSubdomain =
+    resolvedTenant?.slug && currentHost.startsWith(`${resolvedTenant.slug}.`)
 
   // Only include tenant slug in path if not already on tenant's domain or subdomain
-  const shouldIncludeTenantSlug = tenant?.slug && !isTenantCustomDomain && !isTenantSubdomain
+  const shouldIncludeTenantSlug =
+    resolvedTenant?.slug && !isTenantCustomDomain && !isTenantSubdomain
 
   let canonicalSlug = slug
 
   // Exception for pages collection which has a concept of canonical urls based on their nesting in the navigation
-  if (tenant?.slug && collection === 'pages') {
-    const canonicalUrl = await getCanonicalUrlForSlug(tenant.slug, slug)
+  if (resolvedTenant?.slug && collection === 'pages') {
+    const canonicalUrl = await getCanonicalUrlForSlug(resolvedTenant.slug, slug)
 
     if (canonicalUrl) {
       canonicalSlug = normalizePath(canonicalUrl)
     }
   }
 
-  const path = `${shouldIncludeTenantSlug && tenant ? `/${tenant.slug}` : ''}${collectionPrefixMap[collection]}${canonicalSlug ? `/${canonicalSlug}` : ''}`
+  const path = `${shouldIncludeTenantSlug && resolvedTenant ? `/${resolvedTenant.slug}` : ''}${collectionPrefixMap[collection]}${canonicalSlug ? `/${canonicalSlug}` : ''}`
 
   const params = {
     slug: canonicalSlug,
@@ -50,7 +60,7 @@ export const generatePreviewPath = async ({ collection, slug, tenant, req }: Pro
     encodedParams.append(key, value)
   })
 
-  const url = `${getURL(currentHost)}/${shouldIncludeTenantSlug ? `${tenant.slug}/` : ''}next/preview?${encodedParams.toString()}`
+  const url = `${getURL(currentHost)}/${shouldIncludeTenantSlug ? `${resolvedTenant?.slug}/` : ''}next/preview?${encodedParams.toString()}`
 
   return url
 }

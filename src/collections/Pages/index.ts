@@ -1,4 +1,3 @@
-import { Tenant } from '@/payload-types'
 import {
   MetaDescriptionField,
   MetaImageField,
@@ -21,8 +20,6 @@ import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { isTenantValue } from '@/utilities/isTenantValue'
-import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
 
 export const Pages: CollectionConfig<'pages'> = {
@@ -38,20 +35,13 @@ export const Pages: CollectionConfig<'pages'> = {
     group: 'Content',
     defaultColumns: ['title', 'slug', 'updatedAt'],
     baseListFilter: filterByTenant,
-    preview: async (data, { req }) => {
-      let tenant: Partial<Tenant> | null = null
-
-      if (isTenantValue(data.tenant)) {
-        tenant = await resolveTenant(data.tenant)
-      }
-
-      return generatePreviewPath({
+    preview: async (data, { req }) =>
+      generatePreviewPath({
         slug: typeof data.slug === 'string' ? data.slug : '',
         collection: 'pages',
-        tenant,
+        tenant: data.tenant,
         req,
-      })
-    },
+      }),
     useAsTitle: 'title',
     components: {
       edit: {

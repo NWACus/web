@@ -16,10 +16,7 @@ import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { Tenant } from '@/payload-types'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { isTenantValue } from '@/utilities/isTenantValue'
-import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import {
   BlocksFeature,
   HorizontalRuleFeature,
@@ -40,20 +37,13 @@ export const HomePages: CollectionConfig = {
     // the GlobalViewRedirect will never allow a user to visit the list view of this collection but including this list filter as a precaution
     baseListFilter: filterByTenant,
     group: 'Content',
-    preview: async (data, { req }) => {
-      let tenant: Partial<Tenant> | null = null
-
-      if (isTenantValue(data.tenant)) {
-        tenant = await resolveTenant(data.tenant)
-      }
-
-      return generatePreviewPath({
+    preview: async (data, { req }) =>
+      generatePreviewPath({
         slug: '',
         collection: 'pages',
-        tenant,
+        tenant: data.tenant,
         req,
-      })
-    },
+      }),
   },
   fields: [
     tenantField({ unique: true }),
