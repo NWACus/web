@@ -85,5 +85,3 @@ export const linkToPageOrPost = (includeLabel = false): Field[] => [
     fields: linkReferenceRow(includeLabel),
   },
 ]
-
-export const linkToPageOrPostWithLabel: Field[] = linkToPageOrPost(true)

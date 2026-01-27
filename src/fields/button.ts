@@ -1,5 +1,5 @@
 import type { Field, GroupField } from 'payload'
-import { linkToPageOrPostWithLabel } from './linkToPageOrPost'
+import { linkToPageOrPost } from './linkToPageOrPost'
 
 export type ButtonAppearances =
   | 'default'
@@ -48,7 +48,7 @@ export const button: ButtonType = (appearances) => {
         marginBottom: '0',
       },
     },
-    fields: [...linkToPageOrPostWithLabel],
+    fields: linkToPageOrPost(true),
   }
   if (appearances.length > 1) {
     const appearanceOptionsToUse = appearances.map((appearance) => appearanceOptions[appearance])
