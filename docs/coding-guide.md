@@ -134,9 +134,9 @@ Prefer using Tailwind utility classes over adding `.(s)css` files.
 
 Use the `cn()` utility for conditional class names.
 
-## Naming and Folder Structure
+## Blocks
 
-### Blocks
+### Naming and Folder Structure
 
 Follow this example when creating new block `SingleButton`:
 | | |
@@ -150,19 +150,7 @@ Follow this example when creating new block `SingleButton`:
 
 
 > [!NOTE]
-> If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____LexicalBlock` naming. This is to allow having slightly different configs where the Lexical variation will allow the user to change the `wrapInContainer` field on the block whereas the `blocks` type field variation will default to true since it should always be wrapped in a container as a full page width section.
-
-
-Not using `BackgroundColorWrapper`
-- `DocumentComponent`
-- `HeaderComponent`
-- `SponsorsComponent`
-
-Don't forget to add new blocks to:
-- `src/blocks/RenderBlocks.tsx`
-- `src/components/RichText/index.tsx` (if there is a Lexical variation of the block)
-- `src/constants/defaults.ts`
-- At least one `blocks` type field or `richText` `BlocksFeature` so Payload will generate types for the block
+> If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____LexicalBlock` naming. This is to allow having slightly different configs. See `Header` config
 
 **Simple**
 ```md
@@ -187,4 +175,57 @@ blocks
 │   │   └── ...
     └── config.ts
 ```
+
+### Adding New Blocks Checklist
+
+When creating a new block, you must register it in the following locations:
+
+1. **`src/blocks/RenderBlocks.tsx`** - For standalone page blocks
+   - Set `wrapInContainer={true}`
+
+2. **`src/components/RichText/index.tsx`** - For blocks used inline within rich text editors
+   - Set `wrapInContainer={false}` to avoid double-wrapping
+   - Only add blocks that should be available in Lexical editors
+
+3. **`src/constants/defaults.ts`** - Add the block to the defaults configuration
+
+4. **Type Generation** - automatically done but be sure to include the block in at least one of these:
+   - A field with `type: 'blocks'`
+   - A `richText` field's `BlocksFeature` configuration
+   - This ensures Payload generates TypeScript types for your block
+
+**Why the different `wrapInContainer` values?**
+- Standalone blocks (`RenderBlocks.tsx`) need their own container → `wrapInContainer={true}`
+- Inline Lexical blocks (`RichText/index.tsx`) are already inside a container → `wrapInContainer={false}`
+
+
+### BackgroundColorWrapper
+
+A reusable layout component that wraps content with configurable background colors and container styles. Use this component to maintain consistent spacing and background color application across blocks.
+
+**Props:**
+- `backgroundColor` - Tailwind background color class name
+- `wrapInContainer` - Whether to apply container and padding styles (`default: true`)
+- `containerClassName` - Optional - additional classes for the inner container div
+- `outerClassName` - Optional - additional classes for the outer wrapper div
+
+**Usage:**
+```tsx
+<BackgroundColorWrapper
+  backgroundColor={backgroundColor} // Intended for prop from colorPickerField prop
+  wrapInContainer={wrapInContainer} // Intended for prop from standalone or lexical block declaration
+  containerClassName="py-8"
+>
+  <YourContent />
+  ...
+</BackgroundColorWrapper>
+```
+
+Use this instead of manually creating nested divs with background colors and container classes to ensure consistency across block components.
+
+Not using `BackgroundColorWrapper`
+- `DocumentComponent`
+- `HeaderComponent`
+
+
 
