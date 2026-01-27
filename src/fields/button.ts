@@ -38,7 +38,7 @@ export const appearanceOptions: Record<ButtonAppearances, { label: string; value
 
 type ButtonType = (appearances: ButtonAppearances[]) => Field
 
-export const button: ButtonType = (appearances) => {
+export const buttonField: ButtonType = (appearances) => {
   const buttonResults: GroupField = linkField({ fieldName: 'button', includeLabel: true })
 
   if (appearances.length > 1) {
