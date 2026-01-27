@@ -134,15 +134,6 @@ Single-document globals (not collections).
 
 ---
 
-### Tenant-Optional Collection (if applicable)
-
-- [ ] Visiting a document without a tenant cookie set and with a tenant field value set should set the tenant cookie to that tenant field value
-- [ ] Visiting a document without a tenant cookie set and without the document's tenant field set should change neither the tenant selector nor the tenant field
-- [ ] Visiting a document with a tenant cookie set and with a matching tenant field value should leave both unchanged
-- [ ] Creating a document with no tenant selected should be allowed
-
----
-
 ## Role-Based Test Cases
 
 ### Super Admin
