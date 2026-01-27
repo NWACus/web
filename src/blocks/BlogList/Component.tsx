@@ -14,8 +14,8 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type BlogListComponentProps = BlogListBlockProps & {
+  wrapInContainer: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const BlogListBlockComponent = (args: BlogListComponentProps) => {

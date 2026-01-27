@@ -3,8 +3,8 @@ import type { SingleEventBlock as SingleEventBlockProps } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
 type SingleEventComponentProps = SingleEventBlockProps & {
+  wrapInContainer: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const SingleEventBlockComponent = ({

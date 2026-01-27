@@ -383,10 +383,6 @@ export interface BlogListBlock {
   } | null;
   backgroundColor: string;
   postOptions: 'dynamic' | 'static';
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   dynamicOptions?: {
     /**
      * Select how the list of posts will be sorted.
@@ -573,10 +569,6 @@ export interface ContentBlock {
  */
 export interface DocumentBlock {
   document: number | Document;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentBlock';
@@ -628,10 +620,6 @@ export interface EventListBlock {
     [k: string]: unknown;
   } | null;
   eventOptions: 'dynamic' | 'static';
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   /**
    * Use Preview ↗ to see how events will appear
    */
@@ -887,10 +875,6 @@ export interface EventTableBlock {
   } | null;
   eventOptions: 'dynamic' | 'static';
   /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
-  /**
    * Use Preview ↗ to see how events will appear
    */
   dynamicOpts?: {
@@ -1131,10 +1115,6 @@ export interface GenericEmbedBlock {
    * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
    */
   html: string;
-  /**
-   * Checking this will render the embed with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   backgroundColor: string;
   alignContent?: ('left' | 'center' | 'right') | null;
   id?: string | null;
@@ -1162,10 +1142,6 @@ export interface HeaderBlock {
     [k: string]: unknown;
   };
   backgroundColor: string;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'headerBlock';
@@ -1336,10 +1312,6 @@ export interface MediaBlock {
    * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
    */
   imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -1365,10 +1337,6 @@ export interface SingleBlogPostBlock {
    * Select a blog post to display
    */
   post: number | Post;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleBlogPost';
@@ -1383,10 +1351,6 @@ export interface SingleEventBlock {
    * Select an event to display
    */
   event: number | Event;
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleEvent';
@@ -1399,10 +1363,6 @@ export interface SponsorsBlock {
   backgroundColor: string;
   sponsorsLayout: 'static' | 'carousel' | 'banner';
   sponsors: (number | Sponsor)[];
-  /**
-   * Checking this will render the block with additional padding around it and using the background color you have selected.
-   */
-  wrapInContainer?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'sponsorsBlock';
@@ -2816,7 +2776,6 @@ export interface ContentBlockSelect<T extends boolean = true> {
  */
 export interface DocumentBlockSelect<T extends boolean = true> {
   document?: T;
-  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }
@@ -2899,7 +2858,6 @@ export interface GenericEmbedBlockSelect<T extends boolean = true> {
 export interface HeaderBlockSelect<T extends boolean = true> {
   richText?: T;
   backgroundColor?: T;
-  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }
@@ -3017,7 +2975,6 @@ export interface SponsorsBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   sponsorsLayout?: T;
   sponsors?: T;
-  wrapInContainer?: T;
   id?: T;
   blockName?: T;
 }

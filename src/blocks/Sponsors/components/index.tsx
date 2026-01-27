@@ -7,12 +7,16 @@ import { SponsorsBlockBanner } from './Banner'
 import { SponsorsBlockCarousel } from './Carousel'
 import { SponsorsBlockStatic } from './Static'
 
+type Props = SponsorsBlockProps & {
+  wrapInContainer: boolean
+}
+
 export const SponsorsBlockComponent = ({
   backgroundColor,
   sponsors,
   sponsorsLayout,
   wrapInContainer = false,
-}: SponsorsBlockProps) => {
+}: Props) => {
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
   const now = new Date()

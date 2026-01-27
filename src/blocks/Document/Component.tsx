@@ -7,7 +7,7 @@ import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant
 import { cn } from '@/utilities/ui'
 
 type Props = DocumentBlockProps & {
-  wrapInContainer?: boolean
+  wrapInContainer: boolean
 }
 
 export const DocumentBlockComponent = (props: Props) => {

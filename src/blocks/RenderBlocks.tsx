@@ -48,23 +48,21 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
   switch (blockType) {
     case 'blogList':
-      return <BlogListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <BlogListBlockComponent {...block} wrapInContainer={true} />
     case 'content':
       return <ContentBlockComponent {...block} />
     case 'documentBlock':
-      return <DocumentBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <DocumentBlockComponent {...block} wrapInContainer={true} />
     case 'eventList':
-      return <EventListBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <EventListBlockComponent {...block} wrapInContainer={true} />
     case 'eventTable':
-      return <EventTableBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <EventTableBlockComponent {...block} wrapInContainer={true} />
     case 'formBlock':
       return <FormBlockComponent {...block} />
     case 'genericEmbed':
-      return (
-        <GenericEmbedBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
-      )
+      return <GenericEmbedBlockComponent {...block} wrapInContainer={true} />
     case 'headerBlock':
-      return <HeaderBlockComponent {...block} />
+      return <HeaderBlockComponent {...block} wrapInContainer={true} />
     case 'imageLinkGrid':
       return <ImageLinkGridBlockComponent {...block} />
     case 'imageText':
@@ -72,19 +70,15 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'linkPreview':
       return <LinkPreviewBlockComponent {...block} />
     case 'mediaBlock':
-      return <MediaBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
+      return <MediaBlockComponent {...block} wrapInContainer={true} />
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
     case 'singleBlogPost':
-      return (
-        <SingleBlogPostBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
-      )
+      return <SingleBlogPostBlockComponent {...block} wrapInContainer={true} />
     case 'singleEvent':
-      return (
-        <SingleEventBlockComponent {...block} wrapInContainer={block.wrapInContainer || true} />
-      )
+      return <SingleEventBlockComponent {...block} wrapInContainer={true} />
     case 'sponsorsBlock':
-      return <SponsorsBlockComponent {...block} />
+      return <SponsorsBlockComponent {...block} wrapInContainer={true} />
     case 'team':
       return <TeamBlockComponent {...block} payload={payload} />
   }

@@ -4,8 +4,8 @@ import { isValidPublishedRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 
 type SingleBlogPostComponentProps = SingleBlogPostBlockProps & {
+  wrapInContainer: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const SingleBlogPostBlockComponent = ({

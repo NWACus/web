@@ -8,8 +8,8 @@ import { useEffect, useState } from 'react'
 import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
 
 type Props = GenericEmbedBlockProps & {
+  wrapInContainer: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const GenericEmbedBlockComponent = ({

@@ -12,9 +12,9 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 const { breakpoints } = cssVariables
 
 type Props = MediaBlockProps & {
+  wrapInContainer: boolean
   captionClassName?: string
   className?: string
-  wrapInContainer?: boolean
   imgClassName?: string
   staticImage?: StaticImageData
 }

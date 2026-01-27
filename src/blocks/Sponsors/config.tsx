@@ -92,14 +92,5 @@ export const SponsorsBlock: Block = {
       required: true,
       filterOptions: getTenantFilter,
     },
-    {
-      name: 'wrapInContainer',
-      admin: {
-        description:
-          'Checking this will render the block with additional padding around it and using the background color you have selected.',
-      },
-      type: 'checkbox',
-      defaultValue: true,
-    },
   ],
 }

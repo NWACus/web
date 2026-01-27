@@ -5,9 +5,9 @@ import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
 import { ButtonBlock } from '@/blocks/Button/config'
-import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
-import { MediaLexicalBlock } from '@/blocks/Media/config'
-import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
+import { MediaBlock } from '@/blocks/Media/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 
 import { DocumentBlock } from '@/blocks/Document/config'
@@ -103,9 +103,9 @@ export const HomePages: CollectionConfig = {
                       blocks: [
                         ButtonBlock,
                         DocumentBlock,
-                        GenericEmbedLexicalBlock,
-                        MediaLexicalBlock,
-                        SingleBlogPostLexicalBlock,
+                        GenericEmbedBlock,
+                        MediaBlock,
+                        SingleBlogPostBlock,
                         SponsorsBlock,
                       ],
                     }),

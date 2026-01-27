@@ -69,56 +69,36 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   // if block has two variants - to make TS happy we fallback to the default for the block variant
   blocks: {
-    blogList: ({ node }) => (
-      <BlogListBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
+    blogList: ({ node }) => <BlogListBlockComponent {...node.fields} wrapInContainer={false} />,
     buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
     calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
     documentBlock: ({ node }) => (
-      <DocumentBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
+      <DocumentBlockComponent {...node.fields} wrapInContainer={false} />
     ),
-    eventList: ({ node }) => (
-      <EventListBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
-    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} />,
+    eventList: ({ node }) => <EventListBlockComponent {...node.fields} wrapInContainer={false} />,
+    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} wrapInContainer={false} />,
     singleEvent: ({ node }) => (
-      <SingleEventBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
+      <SingleEventBlockComponent {...node.fields} wrapInContainer={false} />
     ),
     genericEmbed: ({ node }) => (
-      <GenericEmbedBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
+      <GenericEmbedBlockComponent {...node.fields} wrapInContainer={false} />
     ),
-    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} />,
+    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} wrapInContainer={false} />,
     mediaBlock: ({ node }) => (
       <MediaBlockComponent
         className="col-start-1 col-span-3"
         imgClassName="m-0"
         {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
+        wrapInContainer={false}
         captionClassName="mx-auto max-w-[48rem]"
       />
     ),
     singleBlogPost: ({ node }) => (
-      <SingleBlogPostBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
+      <SingleBlogPostBlockComponent {...node.fields} wrapInContainer={false} />
     ),
-    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} />,
+    sponsorsBlock: ({ node }) => (
+      <SponsorsBlockComponent {...node.fields} wrapInContainer={false} />
+    ),
   },
 })
 

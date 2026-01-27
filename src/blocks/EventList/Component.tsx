@@ -12,8 +12,8 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type EventListComponentProps = EventListBlockProps & {
+  wrapInContainer: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const EventListBlockComponent = (args: EventListComponentProps) => {
