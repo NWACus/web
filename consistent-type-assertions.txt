@@ -19,10 +19,7 @@ src/components/TenantSelector/TenantSelector.client.tsx
 src/endpoints/seed/index.ts
 src/endpoints/seed/upsert.ts
 src/fields/defaultLexical.ts
-src/fields/slug/SlugComponent.tsx
 src/globals/Diagnostics/actions/revalidateCache.ts
 src/middleware.ts
 src/services/vercel.ts
-src/utilities/findDocumentsWithBlockReferences.ts
 src/utilities/removeNonDeterministicKeys.ts
-src/utilities/useClickableCard.ts

@@ -33,21 +33,18 @@ function useClickableCard<T extends HTMLElement>({
 
   const handleMouseDown = useCallback(
     (e: MouseEvent) => {
-      if (e.target) {
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        const target = e.target as Element
+      if (!(e.target instanceof Element)) return
 
-        const timeNow = +new Date()
-        const parent = target?.closest('a')
+      const timeNow = +new Date()
+      const parent = e.target.closest('a')
 
-        pressedButton.current = e.button
+      pressedButton.current = e.button
 
-        if (!parent) {
-          hasActiveParent.current = false
-          timeDown.current = timeNow
-        } else {
-          hasActiveParent.current = true
-        }
+      if (!parent) {
+        hasActiveParent.current = false
+        timeDown.current = timeNow
+      } else {
+        hasActiveParent.current = true
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
