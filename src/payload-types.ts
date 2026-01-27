@@ -2858,6 +2858,7 @@ export interface GenericEmbedBlockSelect<T extends boolean = true> {
 export interface HeaderBlockSelect<T extends boolean = true> {
   richText?: T;
   backgroundColor?: T;
+  fullWidthColor?: T;
   id?: T;
   blockName?: T;
 }

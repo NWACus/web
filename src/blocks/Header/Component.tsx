@@ -5,19 +5,26 @@ import { cn } from '@/utilities/ui'
 
 type Props = HeaderBlockProps & {
   wrapInContainer: boolean
+  fullWidthColor?: boolean
 }
 
-// TODO - bg color unclear and make h2 default
 export const HeaderBlockComponent = (props: Props) => {
-  const { backgroundColor, richText, wrapInContainer } = props
+  const { backgroundColor, fullWidthColor, richText, wrapInContainer } = props
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
   return (
-    <div className={cn(!wrapInContainer && bgColorClass)}>
-      <div className={cn('py-4 w-full', textColor, wrapInContainer && `${bgColorClass} container`)}>
-        {richText && <RichText data={richText} enableGutter={false} />}
+    <div className={cn(fullWidthColor && bgColorClass)}>
+      <div
+        className={cn(
+          'py-4 w-full',
+          textColor,
+          { container: wrapInContainer },
+          !fullWidthColor && `${bgColorClass}`,
+        )}
+      >
+        <RichText data={richText} enableGutter={false} className={cn(!wrapInContainer && 'px-4')} />
       </div>
     </div>
   )

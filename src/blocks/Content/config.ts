@@ -14,7 +14,7 @@ import { DocumentBlock } from '../Document/config'
 import { EventListBlock } from '../EventList/config'
 import { EventTableBlock } from '../EventTable/config'
 import { GenericEmbedBlock } from '../GenericEmbed/config'
-import { HeaderBlock } from '../Header/config'
+import { HeaderLexicalBlock } from '../Header/config'
 import { MediaBlock } from '../Media/config'
 import { SingleBlogPostBlock } from '../SingleBlogPost/config'
 import { SingleEventBlock } from '../SingleEvent/config'
@@ -135,7 +135,7 @@ export const ContentBlock: Block = {
                     EventTableBlock,
                     SingleEventBlock,
                     GenericEmbedBlock,
-                    HeaderBlock,
+                    HeaderLexicalBlock,
                     MediaBlock,
                     SingleBlogPostBlock,
                     SponsorsBlock,

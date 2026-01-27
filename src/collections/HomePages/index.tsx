@@ -11,6 +11,7 @@ import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 
 import { DocumentBlock } from '@/blocks/Document/config'
+import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
@@ -104,6 +105,7 @@ export const HomePages: CollectionConfig = {
                         ButtonBlock,
                         DocumentBlock,
                         GenericEmbedBlock,
+                        HeaderLexicalBlock,
                         MediaBlock,
                         SingleBlogPostBlock,
                         SponsorsBlock,
