@@ -110,7 +110,6 @@ export const MobileNav = ({
             </Link>
           )}
           {donateNavItem && (
-            // TODO
             <RenderNavLink link={donateNavItem.link} onClick={() => setMobileNavOpen(false)}>
               <Button variant="callout">{donateNavItem.label}</Button>
             </RenderNavLink>

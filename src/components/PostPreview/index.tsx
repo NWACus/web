@@ -94,7 +94,6 @@ export const PostPreview = (props: {
               </p>
             )}
           </div>
-          {/* TODO */}
           <Button
             variant="outline"
             size="sm"
