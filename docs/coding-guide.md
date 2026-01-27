@@ -204,15 +204,10 @@ Interactive actions or buttons as link. A base component using Radix UI's Slot p
 <Button onClick={handleClick}>Toggle</Button>
 
 // With link
-<Button asChild>
-  <Link href="/about">Learn More</Link>
-</Button>
-
-// With server action
-<Button asChild>
-  <form action={deleteItem}>
-    <button type="submit">Delete</button>
-  </form>
+//   href - required
+//   newTab - optional
+<ButtonLink href='https://nwac.us' newTab>
+  Learn More
 </Button>
 ```
 

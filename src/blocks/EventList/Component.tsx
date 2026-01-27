@@ -1,14 +1,13 @@
 'use client'
 
+import { ButtonLink } from '@/components/ButtonLink'
 import { EventPreviewSmallRow } from '@/components/EventPreviewSmallRow'
 import RichText from '@/components/RichText'
-import { Button } from '@/components/ui/button'
 import type { Event, EventListBlock as EventListBlockProps } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import { filterValidPublishedRelationships } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import { format } from 'date-fns'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type EventListComponentProps = EventListBlockProps & {
@@ -128,9 +127,12 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
             )}
           </div>
           {eventOptions === 'dynamic' && (
-            <Button asChild className="not-prose md:self-start">
-              <Link href={`/events?${eventsPageParamsString}`}>View all {heading}</Link>
-            </Button>
+            <ButtonLink
+              href={`/events?${eventsPageParamsString}`}
+              className="not-prose md:self-start"
+            >
+              View all {heading}
+            </ButtonLink>
           )}
         </div>
       </div>

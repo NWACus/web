@@ -1,6 +1,4 @@
-import Link from 'next/link'
-
-import { Button } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ButtonLink'
 
 // Prevent caching 404 responses so new routes can take over when content is created
 export const dynamic = 'force-dynamic'
@@ -17,9 +15,9 @@ export default function NotFound() {
           </p>
         </div>
         <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-          <Button asChild size="lg">
-            <Link href="/">Find your local avalanche center</Link>
-          </Button>
+          <ButtonLink href="/" size="lg">
+            Find your local avalanche center
+          </ButtonLink>
         </div>
       </div>
     </div>

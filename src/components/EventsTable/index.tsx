@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Fragment, useCallback, useMemo, useState } from 'react'
+import { ButtonLink } from '../ButtonLink'
 
 // Move SortIcon outside the component to prevent re-renders
 const SortIcon = ({
@@ -272,20 +273,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   {/* Register button */}
                   <TableCell className="hidden @sm:table-cell text-right px-2">
                     {event.registrationUrl && !isPast && !isRegistrationClosed ? (
-                      <Button
+                      <ButtonLink
+                        href={event.registrationUrl}
                         variant="default"
                         size="sm"
                         className="group-hover:opacity-90 transition-opacity text-sm"
+                        newTab
                       >
-                        <Link
-                          href={event.registrationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Register
-                          <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted hidden @sm:inline" />
-                        </Link>
-                      </Button>
+                        Register
+                        <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted hidden @sm:inline" />
+                      </ButtonLink>
                     ) : isPast || isRegistrationClosed ? (
                       <Button variant="default" disabled={true}>
                         Closed
@@ -316,20 +313,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                         <div className="flex flex-col gap-2 text-right">
                           <div className="@sm:hidden">
                             {event.registrationUrl && !isPast && !isRegistrationClosed ? (
-                              <Button
+                              <ButtonLink
+                                href={event.registrationUrl}
                                 variant="default"
                                 size="sm"
                                 className="group-hover:opacity-90 transition-opacity text-sm"
+                                newTab
                               >
-                                <Link
-                                  href={event.registrationUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  Register
-                                  <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted" />
-                                </Link>
-                              </Button>
+                                Register
+                                <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted" />
+                              </ButtonLink>
                             ) : isPast || isRegistrationClosed ? (
                               <Button variant="default" disabled={true}>
                                 Closed
@@ -339,9 +332,9 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                             )}
                           </div>
 
-                          <Button variant="outline" size="sm">
-                            <Link href={eventUrl}>Learn More</Link>
-                          </Button>
+                          <ButtonLink href={eventUrl} variant="outline" size="sm">
+                            Learn More
+                          </ButtonLink>
                         </div>
                       </div>
                     </TableCell>
