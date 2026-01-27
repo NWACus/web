@@ -1,5 +1,6 @@
 'use client'
 
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
 import { EventTable } from '@/components/EventsTable'
 import RichText from '@/components/RichText'
 import type { Event, EventTableBlock as EventTableBlockProps } from '@/payload-types'
@@ -97,35 +98,35 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     return null
   }
 
-  const bgColorClass = `bg-${backgroundColor}`
-
   return (
-    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
-      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
-        <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>
-          <div className="flex flex-col justify-start gap-1">
-            {heading && (
-              <div className="prose md:prose-md dark:prose-invert">
-                <h2>{heading}</h2>
-              </div>
-            )}
-            {belowHeadingContent && (
-              <div className="mb-4">
-                <RichText data={belowHeadingContent} enableGutter={false} />
-              </div>
-            )}
-          </div>
-          <div>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                {loading && <p className="text-muted-foreground">Loading events...</p>}
-              </div>
-            ) : (
-              <EventTable events={displayEvents} />
-            )}
-          </div>
+    <BackgroundColorWrapper
+      backgroundColor={backgroundColor}
+      wrapInContainer={wrapInContainer}
+      containerClassName={className}
+    >
+      <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>
+        <div className="flex flex-col justify-start gap-1">
+          {heading && (
+            <div className="prose md:prose-md dark:prose-invert">
+              <h2>{heading}</h2>
+            </div>
+          )}
+          {belowHeadingContent && (
+            <div className="mb-4">
+              <RichText data={belowHeadingContent} enableGutter={false} />
+            </div>
+          )}
+        </div>
+        <div>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              {loading && <p className="text-muted-foreground">Loading events...</p>}
+            </div>
+          ) : (
+            <EventTable events={displayEvents} />
+          )}
         </div>
       </div>
-    </div>
+    </BackgroundColorWrapper>
   )
 }

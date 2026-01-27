@@ -1,3 +1,4 @@
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
 import { PostPreview } from '@/components/PostPreview'
 import type { SingleBlogPostBlock as SingleBlogPostBlockProps } from '@/payload-types'
 import { isValidPublishedRelationship } from '@/utilities/relationships'
@@ -18,13 +19,13 @@ export const SingleBlogPostBlockComponent = ({
     return null
   }
 
-  const bgColorClass = `bg-${backgroundColor}`
-
   return (
-    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
-      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
-        <PostPreview doc={post} className={cn('not-prose')} />
-      </div>
-    </div>
+    <BackgroundColorWrapper
+      backgroundColor={backgroundColor}
+      wrapInContainer={wrapInContainer}
+      containerClassName={className}
+    >
+      <PostPreview doc={post} className={cn('not-prose')} />
+    </BackgroundColorWrapper>
   )
 }

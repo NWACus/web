@@ -6,6 +6,8 @@ import { cn } from '@/utilities/ui'
 type Props = HeaderBlockProps & {
   wrapInContainer: boolean
 }
+
+// TODO - bg color unclear and make h2 default
 export const HeaderBlockComponent = (props: Props) => {
   const { backgroundColor, richText, wrapInContainer } = props
 

@@ -152,6 +152,12 @@ Follow this example when creating new block `SingleButton`:
 > [!NOTE]
 > If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____LexicalBlock` naming. This is to allow having slightly different configs where the Lexical variation will allow the user to change the `wrapInContainer` field on the block whereas the `blocks` type field variation will default to true since it should always be wrapped in a container as a full page width section.
 
+
+Not using `BackgroundColorWrapper`
+- `DocumentComponent`
+- `HeaderComponent`
+- `SponsorsComponent`
+
 Don't forget to add new blocks to:
 - `src/blocks/RenderBlocks.tsx`
 - `src/components/RichText/index.tsx` (if there is a Lexical variation of the block)

@@ -1,3 +1,4 @@
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
 import { EventPreview } from '@/components/EventPreview'
 import type { SingleEventBlock as SingleEventBlockProps } from '@/payload-types'
 import { cn } from '@/utilities/ui'
@@ -17,13 +18,13 @@ export const SingleEventBlockComponent = ({
     return null
   }
 
-  const bgColorClass = `bg-${backgroundColor}`
-
   return (
-    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
-      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
-        <EventPreview event={event} className={cn('not-prose')} />
-      </div>
-    </div>
+    <BackgroundColorWrapper
+      backgroundColor={backgroundColor}
+      wrapInContainer={wrapInContainer}
+      containerClassName={className}
+    >
+      <EventPreview event={event} className={cn('not-prose')} />
+    </BackgroundColorWrapper>
   )
 }

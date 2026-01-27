@@ -10,7 +10,6 @@ import { SponsorsBlockStatic } from './Static'
 type Props = SponsorsBlockProps & {
   wrapInContainer: boolean
 }
-
 export const SponsorsBlockComponent = ({
   backgroundColor,
   sponsors,
@@ -29,6 +28,7 @@ export const SponsorsBlockComponent = ({
 
   if (validSponsors.length === 0) return null
 
+  // TODO - figure out how bg color is being applied
   return (
     <div className={cn('py-10', bgColorClass, textColor, { container: wrapInContainer })}>
       <div className="flex flex-wrap justify-evenly items-center">
