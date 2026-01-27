@@ -32,7 +32,6 @@ import { post3 } from './post-3'
 import { seedProviders } from './providers'
 import { sponsors } from './sponsors'
 
-// Collections to clear - tenants is separate due to FK constraints
 const collections: CollectionSlug[] = [
   'settings',
   'biographies',
@@ -51,10 +50,10 @@ const collections: CollectionSlug[] = [
   'tags',
   'teams',
   'builtInPages',
+  'tenants',
   'events',
   'eventGroups',
   'eventTags',
-  // Note: 'tenants' is deleted separately after these to avoid FK constraint violations
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -98,13 +97,8 @@ export const seed = async ({
         }),
       )
 
-      // Delete tenants after other collections to avoid FK constraint violations
-      payload.logger.info(`Deleting collection: tenants`)
-      await payload.db.deleteMany({ collection: 'tenants', req, where: {} })
-
-      const collectionsWithTenants: CollectionSlug[] = [...collections, 'tenants']
       await Promise.all(
-        collectionsWithTenants
+        collections
           .filter((collection) => Boolean(payload.collections[collection].config.versions))
           .map((collection) => payload.db.deleteVersions({ collection, req, where: {} })),
       )
