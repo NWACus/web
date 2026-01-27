@@ -304,7 +304,6 @@ export interface Tenant {
    */
   slug:
     | 'aaic'
-    | 'dvac'
     | 'bac'
     | 'btac'
     | 'cac'
@@ -313,6 +312,7 @@ export interface Tenant {
     | 'cbac'
     | 'cnfaic'
     | 'coaa'
+    | 'dvac'
     | 'earac'
     | 'esac'
     | 'ewyaix'

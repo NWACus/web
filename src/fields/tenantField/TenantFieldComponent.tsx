@@ -36,8 +36,7 @@ export const TenantFieldComponent = (args: Props) => {
   // Track whether form has finished initializing
   const formReady = !formInitializing && !formInitializingContext
 
-  // Look up tenant ID by slug
-  const lookupTenantId = useCallback(
+  const lookupTenantIdBySlug = useCallback(
     async (slug: string): Promise<number | null> => {
       if (tenantIdBySlug[slug]) {
         return tenantIdBySlug[slug]
@@ -72,17 +71,16 @@ export const TenantFieldComponent = (args: Props) => {
       if (!hasSetValueRef.current && !isGlobalCollection) {
         // Set value on load
         if (value && typeof value === 'number') {
-          // If we have a numeric tenant ID but no slug selected, we need to sync
-          // The field already has a tenant, let it be
+          // Tenant field is already set as the tenant ID
           hasSetValueRef.current = true
           return
         }
 
         // Get tenant ID for the selected slug
-        const slug = selectedTenantSlug || (options[0]?.value ? String(options[0].value) : null)
+        const slug = selectedTenantSlug || (options[0]?.value ? options[0].value : null)
         if (slug) {
           setTenant({ slug, refresh: unique })
-          const tenantId = await lookupTenantId(slug)
+          const tenantId = await lookupTenantIdBySlug(slug)
           if (tenantId) {
             setValue(tenantId, true)
           }
@@ -90,14 +88,14 @@ export const TenantFieldComponent = (args: Props) => {
         hasSetValueRef.current = true
       } else if (selectedTenantSlug) {
         // Update the field on the document value when the tenant is changed
-        const tenantId = await lookupTenantId(selectedTenantSlug)
+        const tenantId = await lookupTenantIdBySlug(selectedTenantSlug)
         if (tenantId && value !== tenantId) {
           setValue(tenantId, !value || value === tenantId)
         }
       }
     }
 
-    void syncTenantValue()
+    syncTenantValue()
   }, [
     value,
     selectedTenantSlug,
@@ -109,7 +107,7 @@ export const TenantFieldComponent = (args: Props) => {
     formReady,
     formInitializing,
     formInitializingContext,
-    lookupTenantId,
+    lookupTenantIdBySlug,
   ])
 
   useEffect(() => {

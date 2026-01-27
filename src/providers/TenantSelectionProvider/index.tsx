@@ -53,7 +53,7 @@ export const TenantSelectionProvider = async ({
 
   // If no valid cookie or user doesn't have access to that tenant, auto-select if only one option
   if (!initialValue) {
-    initialValue = tenantOptions.length === 1 ? String(tenantOptions[0]?.value) : undefined
+    initialValue = tenantOptions.length === 1 ? tenantOptions[0]?.value : undefined
   }
 
   return (

@@ -28,7 +28,7 @@ export const config = {
 
 /**
  * Sets the payload-tenant cookie if needed and returns whether it was set.
- * Cookie stores the tenant SLUG (not numeric ID) for simpler lookups.
+ * Cookie stores the tenant slug.
  */
 function setCookieIfNeeded(
   response: NextResponse,

@@ -5,43 +5,50 @@
  * Custom domains are used for production routing - they should match
  * the actual domains configured in Vercel.
  */
+type AvalancheCenterInfo = {
+  readonly name: string
+  readonly customDomain: string
+}
+
 export const AVALANCHE_CENTERS = {
   aaic: { name: 'Alaska Avalanche Information Center', customDomain: 'alaskasnow.org' },
-  // Test tenant for local development and seeding - not a real avalanche center
-  dvac: { name: 'Death Valley Avalanche Center', customDomain: 'dvac.us' },
   bac: { name: 'Bridgeport Avalanche Center', customDomain: 'bridgeportavalanchecenter.org' },
   btac: { name: 'Bridger-Teton Avalanche Center', customDomain: 'bridgertetonavalanchecenter.org' },
   cac: { name: 'Cordova Avalanche Center', customDomain: 'alaskasnow.org' },
   caic: { name: 'Colorado Avalanche Information Center', customDomain: 'avalanche.state.co.us' },
   caac: { name: 'Coastal Alaska Avalanche Center', customDomain: 'coastalakavalanche.org' },
   cbac: { name: 'Crested Butte Avalanche Center', customDomain: 'cbavalanchecenter.org' },
-  cnfaic: { name: 'Chugach National Forest Avalanche Center', customDomain: 'cnfaic.org' },
-  coaa: { name: 'Central Oregon Avalanche Center', customDomain: 'coavalanche.org' },
+  cnfaic: { name: 'Chugach National Forest Avalanche Center', customDomain: 'www.cnfaic.org' },
+  coaa: { name: 'Central Oregon Avalanche Center', customDomain: 'www.coavalanche.org' },
+  dvac: { name: 'Death Valley Avalanche Center', customDomain: 'www.avy-fx-demo.org' }, // The "template tenant" - not a real avalanche center
   earac: { name: 'Eastern Alaska Range Avalanche Center', customDomain: 'alaskasnow.org' },
-  esac: { name: 'Eastern Sierra Avalanche Center', customDomain: 'esavalanche.org' },
+  esac: { name: 'Eastern Sierra Avalanche Center', customDomain: 'www.esavalanche.org' },
   ewyaix: { name: 'Eastern Wyoming Avalanche Info Exchange', customDomain: 'ewyoavalanche.org' },
-  fac: { name: 'Flathead Avalanche Center', customDomain: 'flatheadavalanche.org' },
-  gnfac: { name: 'Gallatin NF Avalanche Center', customDomain: 'mtavalanche.com' },
+  fac: { name: 'Flathead Avalanche Center', customDomain: 'www.flatheadavalanche.org' },
+  gnfac: { name: 'Gallatin NF Avalanche Center', customDomain: 'www.mtavalanche.com' },
   hac: { name: 'Haines Avalanche Center', customDomain: 'alaskasnow.org' },
   hpac: { name: 'Hatcher Pass Avalanche Center', customDomain: 'hpavalanche.org' },
-  ipac: { name: 'Idaho Panhandle Avalanche Center', customDomain: 'idahopanhandleavalanche.org' },
+  ipac: {
+    name: 'Idaho Panhandle Avalanche Center',
+    customDomain: 'www.idahopanhandleavalanche.org',
+  },
   kpac: { name: 'Kachina Peaks Avalanche Center', customDomain: 'kachinapeaks.org' },
-  msac: { name: 'Mount Shasta Avalanche Center', customDomain: 'shastaavalanche.org' },
+  msac: { name: 'Mount Shasta Avalanche Center', customDomain: 'www.shastaavalanche.org' },
   mwac: {
     name: 'Mount Washington Avalanche Center',
-    customDomain: 'mountwashingtonavalanchecenter.org',
+    customDomain: 'www.mountwashingtonavalanchecenter.org',
   },
   nwac: { name: 'Northwest Avalanche Center', customDomain: 'nwac.us' },
   pac: { name: 'Payette Avalanche Center', customDomain: 'payetteavalanche.org' },
-  sac: { name: 'Sierra Avalanche Center', customDomain: 'sierraavalanchecenter.org' },
-  snfac: { name: 'Sawtooth Avalanche Center', customDomain: 'sawtoothavalanche.com' },
+  sac: { name: 'Sierra Avalanche Center', customDomain: 'www.sierraavalanchecenter.org' },
+  snfac: { name: 'Sawtooth Avalanche Center', customDomain: 'www.sawtoothavalanche.com' },
   soaix: { name: 'Southern Oregon Avalanche Info Exchange', customDomain: 'oregonsnow.org' },
   tac: { name: 'Taos Avalanche Center', customDomain: 'taosavalanchecenter.org' },
   uac: { name: 'Utah Avalanche Center', customDomain: 'utahavalanchecenter.org' },
   vac: { name: 'Valdez Avalanche Center', customDomain: 'alaskasnow.org' },
   wac: { name: 'Wallowa Avalanche Center', customDomain: 'wallowaavalanchecenter.org' },
   wcmac: { name: 'West Central Montana Avalanche Center', customDomain: 'missoulaavalanche.org' },
-} as const
+} satisfies Record<string, AvalancheCenterInfo>
 
 export type ValidTenantSlug = keyof typeof AVALANCHE_CENTERS
 
@@ -54,7 +61,6 @@ export function isValidTenantSlug(slug: string): slug is ValidTenantSlug {
 
 /**
  * Array of all valid tenant slugs.
- * Note: Uses type guard filter to satisfy strict type checking.
  */
 export const VALID_TENANT_SLUGS: ValidTenantSlug[] =
   Object.keys(AVALANCHE_CENTERS).filter(isValidTenantSlug)
@@ -63,11 +69,13 @@ export const VALID_TENANT_SLUGS: ValidTenantSlug[] =
  * Lookup a center by its custom domain
  */
 export function findCenterByDomain(domain: string): ValidTenantSlug | undefined {
-  // Normalize the domain by removing www. prefix - regex matches 'www.' at start of string
-  const normalizedDomain = domain.replace(/^www\./, '')
+  // Normalize both input and stored domains by removing www. prefix
+  // Regex matches 'www.' at start of string
+  const normalizedInput = domain.replace(/^www\./, '')
 
   for (const slug of VALID_TENANT_SLUGS) {
-    if (AVALANCHE_CENTERS[slug].customDomain === normalizedDomain) {
+    const normalizedStored = AVALANCHE_CENTERS[slug].customDomain.replace(/^www\./, '')
+    if (normalizedStored === normalizedInput) {
       return slug
     }
   }
