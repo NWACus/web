@@ -20,6 +20,7 @@ import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
+import { blocks } from 'payload/shared'
 import { revalidatePage, revalidatePageDelete } from './hooks/revalidatePage'
 
 export const Pages: CollectionConfig<'pages'> = {
@@ -83,8 +84,8 @@ export const Pages: CollectionConfig<'pages'> = {
                 ).length
                 return nacMediaBlockCount >= 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
               },
-              validate: (value) => {
-                if (!value || !Array.isArray(value)) return true
+              validate: (value, args) => {
+                if (!value || !Array.isArray(value)) return blocks(value, args)
 
                 const nacMediaBlockCount = value.filter(
                   (block) => block.blockType === 'nacMediaBlock',
@@ -94,7 +95,7 @@ export const Pages: CollectionConfig<'pages'> = {
                   throw Error('Only one NACMediaBlock is allowed per page')
                 }
 
-                return true
+                return blocks(value, args)
               },
             },
           ],
