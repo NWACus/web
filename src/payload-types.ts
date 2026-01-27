@@ -222,7 +222,7 @@ export interface HomePage {
       }[]
     | null;
   /**
-   * This section is displayed prominantly below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
+   * This section is displayed prominently below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
    */
   highlightedContent: {
     /**
@@ -349,7 +349,7 @@ export interface Page {
    */
   title: string;
   /**
-   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab or try the Live Preview to see changes in real time.
+   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab.
    */
   layout: (
     | BlogListBlock

@@ -1,4 +1,3 @@
-import { Tenant } from '@/payload-types'
 import { MetaDescriptionField, MetaImageField } from '@payloadcms/plugin-seo/fields'
 import type { CollectionConfig } from 'payload'
 
@@ -35,8 +34,6 @@ import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
-import { isTenantValue } from '@/utilities/isTenantValue'
-import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -61,36 +58,13 @@ export const Posts: CollectionConfig<'posts'> = {
         beforeDocumentControls: ['@/collections/Posts/components/ViewPostButton#ViewPostButton'],
       },
     },
-    livePreview: {
-      url: async ({ data, req }) => {
-        let tenant: Partial<Tenant> | null = null
-
-        if (isTenantValue(data.tenant)) {
-          tenant = await resolveTenant(data.tenant)
-        }
-
-        return generatePreviewPath({
-          slug: typeof data?.slug === 'string' ? data.slug : '',
-          collection: 'posts',
-          tenant,
-          req,
-        })
-      },
-    },
-    preview: async (data, { req }) => {
-      let tenant: Partial<Tenant> | null = null
-
-      if (isTenantValue(data.tenant)) {
-        tenant = await resolveTenant(data.tenant)
-      }
-
-      return generatePreviewPath({
+    preview: async (data, { req }) =>
+      generatePreviewPath({
         slug: typeof data?.slug === 'string' ? data.slug : '',
         collection: 'posts',
-        tenant,
+        tenant: data.tenant,
         req,
-      })
-    },
+      }),
     useAsTitle: 'title',
   },
   fields: [

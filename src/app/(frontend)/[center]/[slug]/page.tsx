@@ -11,7 +11,6 @@ import { cache } from 'react'
 import type { Page as PageType } from '@/payload-types'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPage } from '@/utilities/generateMeta'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
@@ -64,7 +63,6 @@ type PathArgs = {
 
 export default async function Page({ params: paramsPromise }: Args) {
   const payload = await getPayload({ config: configPromise })
-  const { isEnabled: draft } = await draftMode()
   const { center, slug } = await paramsPromise
   const url = '/' + slug
 
@@ -87,8 +85,6 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   return (
     <article className="pt-4">
-      {draft && <LivePreviewListener />}
-
       <div className="container mb-4">
         <div className="prose dark:prose-invert max-w-none">
           <h1 className="font-bold">{page.title}</h1>

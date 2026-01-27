@@ -8,7 +8,6 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
 
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { generateMetaForPost } from '@/utilities/generateMeta'
 
 export const dynamic = 'force-static'
@@ -58,7 +57,6 @@ type PathArgs = {
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
-  const { isEnabled: draft } = await draftMode()
   const { center, slug } = await paramsPromise
   const url = '/blog/' + slug
   const post = await queryPostBySlug({ center: center, slug: slug })
@@ -67,8 +65,6 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   return (
     <article className="pt-4">
-      {draft && <LivePreviewListener />}
-
       <div className="flex flex-col items-center gap-4 py-8">
         <div className="container">
           <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
