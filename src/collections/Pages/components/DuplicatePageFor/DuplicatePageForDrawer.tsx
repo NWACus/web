@@ -1,6 +1,7 @@
 'use client'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
+import { useTenantLookup } from '@/utilities/useTenantLookup'
 import {
   Banner,
   Button,
@@ -15,13 +16,13 @@ import {
 } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation'
 import { formatAdminURL } from 'payload/shared'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 // TODOs
 // - Remove photos from blocks or use a global photo?
 
 export const DuplicatePageForDrawer = () => {
-  const { savedDocumentData: pageData } = useDocumentInfo()
+  const { data: pageData } = useDocumentInfo()
   const modified = useFormModified()
   const router = useRouter()
   const { options } = useTenantSelection()
@@ -31,9 +32,23 @@ export const DuplicatePageForDrawer = () => {
       routes: { admin: adminRoute },
     },
   } = useConfig()
+  const { lookupTenantSlugById } = useTenantLookup()
 
-  // All tenant options available - option values are now slugs
-  const tenantOptions = options
+  // Filter out the current page's tenant from options
+  const [currentTenantSlug, setCurrentTenantSlug] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchCurrentTenantSlug = async () => {
+      // pageData.tenant is an ID (number)
+      if (pageData?.tenant && typeof pageData.tenant === 'number') {
+        const slug = await lookupTenantSlugById(pageData.tenant)
+        setCurrentTenantSlug(slug)
+      }
+    }
+    fetchCurrentTenantSlug()
+  }, [pageData?.tenant, lookupTenantSlugById])
+
+  const tenantOptions = options.filter((option) => option.value !== currentTenantSlug)
 
   const drawerSlug = 'duplicate-page-drawer'
 
