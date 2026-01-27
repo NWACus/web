@@ -1,3 +1,4 @@
+import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 
@@ -17,9 +18,10 @@ export const BackgroundColorWrapper = ({
   outerClassName,
 }: BackgroundColorWrapperProps) => {
   const bgColorClass = backgroundColor ? `bg-${backgroundColor}` : ''
+  const textColor = getTextColorFromBgColor(backgroundColor)
 
   return (
-    <div className={cn(wrapInContainer && bgColorClass, outerClassName)}>
+    <div className={cn(wrapInContainer && bgColorClass, bgColorClass && textColor, outerClassName)}>
       <div className={cn(wrapInContainer && 'container py-10', '@container', containerClassName)}>
         {children}
       </div>
