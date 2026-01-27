@@ -148,12 +148,12 @@ export const TenantSelectionProviderClient = ({
           setTenantAndCookie({ slug: undefined, refresh })
         } else if (tenantOptions[0]) {
           // if there is only one tenant, auto-select that tenant
-          setTenantAndCookie({ slug: String(tenantOptions[0].value), refresh: true })
+          setTenantAndCookie({ slug: tenantOptions[0].value, refresh: true })
         }
       } else if (!tenantOptions.find((option) => option.value === slug)) {
         // if the tenant is invalid, set the first tenant as selected
         setTenantAndCookie({
-          slug: tenantOptions[0]?.value ? String(tenantOptions[0].value) : undefined,
+          slug: tenantOptions[0]?.value ? tenantOptions[0].value : undefined,
           refresh,
         })
       } else {
@@ -249,7 +249,7 @@ export const TenantSelectionProviderClient = ({
   useEffect(() => {
     if (!selectedTenantSlug && tenantOptions.length > 0 && entityType === 'global') {
       setTenant({
-        slug: tenantOptions[0]?.value ? String(tenantOptions[0].value) : undefined,
+        slug: tenantOptions[0]?.value ? tenantOptions[0].value : undefined,
         refresh: true,
       })
     }

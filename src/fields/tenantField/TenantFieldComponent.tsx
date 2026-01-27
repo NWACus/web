@@ -30,8 +30,9 @@ export const TenantFieldComponent = (args: Props) => {
 
   const isGlobalCollection = !!unique
   const hasSetValueRef = useRef(false)
-  // Cache tenant ID lookups by slug to avoid repeated API calls
+  // Cache tenant lookups to avoid repeated API calls
   const [tenantIdBySlug, setTenantIdBySlug] = useState<Record<string, number>>({})
+  const [tenantSlugById, setTenantSlugById] = useState<Record<number, string>>({})
 
   // Track whether form has finished initializing
   const formReady = !formInitializing && !formInitializingContext
@@ -61,6 +62,27 @@ export const TenantFieldComponent = (args: Props) => {
     [tenantIdBySlug],
   )
 
+  const lookupTenantSlugById = useCallback(
+    async (id: number): Promise<string | null> => {
+      if (tenantSlugById[id]) {
+        return tenantSlugById[id]
+      }
+
+      try {
+        const response = await fetch(`/api/tenants/${id}?depth=0`, { credentials: 'include' })
+        const result = await response.json()
+        if (result.slug) {
+          setTenantSlugById((prev) => ({ ...prev, [id]: result.slug }))
+          return result.slug
+        }
+      } catch (_) {
+        // Silent fail
+      }
+      return null
+    },
+    [tenantSlugById],
+  )
+
   useEffect(() => {
     // Don't try to set values while the form is still initializing
     if (!formReady) {
@@ -71,7 +93,11 @@ export const TenantFieldComponent = (args: Props) => {
       if (!hasSetValueRef.current && !isGlobalCollection) {
         // Set value on load
         if (value && typeof value === 'number') {
-          // Tenant field is already set as the tenant ID
+          // Tenant field is already set as the tenant ID - sync provider with document's tenant
+          const slug = await lookupTenantSlugById(value)
+          if (slug && slug !== selectedTenantSlug) {
+            setTenant({ slug, refresh: false })
+          }
           hasSetValueRef.current = true
           return
         }
@@ -108,6 +134,7 @@ export const TenantFieldComponent = (args: Props) => {
     formInitializing,
     formInitializingContext,
     lookupTenantIdBySlug,
+    lookupTenantSlugById,
   ])
 
   useEffect(() => {
