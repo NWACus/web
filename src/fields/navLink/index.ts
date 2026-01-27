@@ -1,15 +1,3 @@
-import { clearIrrelevantLinkValues } from '@/utilities/clearIrrelevantLinkValues'
-import { NamedGroupField } from 'payload'
-import { linkToPageOrPost } from '../linkToPageOrPost'
+import { linkField } from '../linkField'
 
-export const navLink: NamedGroupField = {
-  name: 'link',
-  type: 'group',
-  admin: {
-    hideGutter: true,
-  },
-  hooks: {
-    beforeChange: [clearIrrelevantLinkValues],
-  },
-  fields: linkToPageOrPost(true),
-}
+export const navLink = linkField({ includeLabel: true })

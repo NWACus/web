@@ -1,5 +1,5 @@
 import type { Field, GroupField } from 'payload'
-import { linkToPageOrPost } from './linkToPageOrPost'
+import { linkField } from './linkField'
 
 export type ButtonAppearances =
   | 'default'
@@ -39,17 +39,8 @@ export const appearanceOptions: Record<ButtonAppearances, { label: string; value
 type ButtonType = (appearances: ButtonAppearances[]) => Field
 
 export const button: ButtonType = (appearances) => {
-  const buttonResults: GroupField = {
-    name: 'button',
-    type: 'group',
-    admin: {
-      hideGutter: true,
-      style: {
-        marginBottom: '0',
-      },
-    },
-    fields: linkToPageOrPost(true),
-  }
+  const buttonResults: GroupField = linkField({ fieldName: 'button', includeLabel: true })
+
   if (appearances.length > 1) {
     const appearanceOptionsToUse = appearances.map((appearance) => appearanceOptions[appearance])
 

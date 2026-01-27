@@ -1,5 +1,5 @@
 import type { ArrayField } from 'payload'
-import { linkToPageOrPost } from './linkToPageOrPost'
+import { linkToPageOrPost } from './linkField'
 
 export const quickLinksField = ({ description }: { description?: string }): ArrayField => ({
   name: 'quickLinks',

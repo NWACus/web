@@ -1,6 +1,7 @@
+import { clearIrrelevantLinkValues } from '@/utilities/clearIrrelevantLinkValues'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
-import { Field, TextFieldSingleValidation } from 'payload'
+import { Field, NamedGroupField, TextFieldSingleValidation } from 'payload'
 
 const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
   if (siblingData && typeof siblingData === 'object' && 'type' in siblingData) {
@@ -85,3 +86,21 @@ export const linkToPageOrPost = (includeLabel = false): Field[] => [
     fields: linkReferenceRow(includeLabel),
   },
 ]
+
+export const linkField = ({
+  fieldName = 'link',
+  includeLabel = false,
+}: {
+  fieldName?: string
+  includeLabel?: boolean
+} = {}): NamedGroupField => ({
+  name: fieldName,
+  type: 'group',
+  admin: {
+    hideGutter: true,
+  },
+  hooks: {
+    beforeChange: [clearIrrelevantLinkValues],
+  },
+  fields: linkToPageOrPost(includeLabel),
+})
