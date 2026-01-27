@@ -39,7 +39,7 @@ export const Redirects: CollectionConfig = {
       admin: {
         hideGutter: true,
       },
-      fields: [...linkToPageOrPost],
+      fields: linkToPageOrPost(),
     },
     tenantField(),
     contentHashField(),

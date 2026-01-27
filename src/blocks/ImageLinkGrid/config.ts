@@ -28,7 +28,7 @@ export const ImageLinkGridBlock: Block = {
           admin: {
             hideGutter: true,
           },
-          fields: [...linkToPageOrPost],
+          fields: linkToPageOrPost(),
         },
         {
           name: 'caption',

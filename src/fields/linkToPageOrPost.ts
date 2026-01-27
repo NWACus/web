@@ -9,7 +9,46 @@ const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
   return Boolean(val) || 'You must define a label for an external link.'
 }
 
-export const linkChoiceRow: Field[] = [
+const linkReferenceRow = (includeLabel = false): Field[] => {
+  const fields: Field[] = [
+    {
+      name: 'reference',
+      type: 'relationship',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'internal',
+        width: '50%',
+      },
+      label: 'Select page or post',
+      relationTo: ['pages', 'builtInPages', 'posts'],
+      required: true,
+      filterOptions: getTenantFilter,
+    },
+    {
+      name: 'url',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'external',
+        width: '100%',
+      },
+      label: 'External URL',
+      validate: validateExternalUrl,
+    },
+  ]
+
+  if (includeLabel) {
+    fields.push({
+      name: 'label',
+      type: 'text',
+      admin: { width: '50%' },
+      label: 'Label',
+      validate: validateLabel,
+    })
+  }
+
+  return fields
+}
+
+export const linkToPageOrPost = (includeLabel = false): Field[] => [
   {
     type: 'row',
     fields: [
@@ -22,14 +61,8 @@ export const linkChoiceRow: Field[] = [
         },
         defaultValue: 'internal',
         options: [
-          {
-            label: 'Internal link',
-            value: 'internal',
-          },
-          {
-            label: 'External link',
-            value: 'external',
-          },
+          { label: 'Internal link', value: 'internal' },
+          { label: 'External link', value: 'external' },
         ],
       },
       {
@@ -47,55 +80,10 @@ export const linkChoiceRow: Field[] = [
       },
     ],
   },
-]
-export const linkDataRow: Field[] = [
   {
-    name: 'reference',
-    type: 'relationship',
-    admin: {
-      condition: (_, siblingData) => siblingData?.type === 'internal',
-      width: '50%',
-    },
-    label: 'Select page or post',
-    relationTo: ['pages', 'builtInPages', 'posts'],
-    required: true,
-    filterOptions: getTenantFilter,
-  },
-  {
-    name: 'url',
-    type: 'text',
-    admin: {
-      condition: (_, siblingData) => siblingData?.type === 'external',
-      width: '100%',
-    },
-    label: 'External URL',
-    validate: validateExternalUrl,
+    type: 'row',
+    fields: linkReferenceRow(includeLabel),
   },
 ]
 
-export const linkToPageOrPost: Field[] = [
-  ...linkChoiceRow,
-  {
-    type: 'row',
-    fields: [...linkDataRow],
-  },
-]
-
-export const linkToPageOrPostWithLabel: Field[] = [
-  ...linkChoiceRow,
-  {
-    type: 'row',
-    fields: [
-      ...linkDataRow,
-      {
-        name: 'label',
-        type: 'text',
-        admin: {
-          width: '50%',
-        },
-        label: 'Label',
-        validate: validateLabel,
-      },
-    ],
-  },
-]
+export const linkToPageOrPostWithLabel: Field[] = linkToPageOrPost(true)
