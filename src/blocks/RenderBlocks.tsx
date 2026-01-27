@@ -80,6 +80,6 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'sponsorsBlock':
       return <SponsorsBlockComponent {...block} wrapInContainer={true} />
     case 'team':
-      return <TeamBlockComponent {...block} payload={payload} />
+      return <TeamBlockComponent {...block} />
   }
 }
