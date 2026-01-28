@@ -4,7 +4,7 @@ import { getBlocksFromConfig } from './getBlocksFromConfig'
 import { DocumentForRevalidation, RevalidationReference } from './revalidateDocument'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
+  return typeof value === 'object' && value !== null
 }
 
 function hasId(value: unknown): value is { id: unknown } {
