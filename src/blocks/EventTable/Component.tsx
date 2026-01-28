@@ -86,7 +86,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     }
 
     fetchEvents()
-  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant, staticEvents, fetchedEvents])
+  }, [eventOptions, byTypes, byGroups, byTags, maxEvents, tenant])
 
   if (eventOptions === 'dynamic') {
     displayEvents = filterValidPublishedRelationships(fetchedEvents)
