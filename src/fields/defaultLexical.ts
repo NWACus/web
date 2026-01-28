@@ -17,13 +17,9 @@ import {
   UnderlineFeature,
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
-import { CollectionSlug, Config } from 'payload'
+import { Config } from 'payload'
 
-export const LINK_ENABLED_COLLECTIONS = [
-  'pages',
-  'builtInPages',
-  'posts',
-] satisfies CollectionSlug[]
+import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {

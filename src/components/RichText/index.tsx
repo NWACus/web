@@ -22,7 +22,7 @@ import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
-import { LINK_ENABLED_COLLECTIONS } from '@/fields/defaultLexical'
+import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 import type {
   BlogListBlock as BlogListBlockProps,
   BuiltInPage,
