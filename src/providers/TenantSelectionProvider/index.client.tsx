@@ -22,13 +22,13 @@ type ContextType = {
    */
   modified?: boolean
   /**
-   * Array of options to select from
+   * Array of options to select from (value is tenant slug)
    */
   options: OptionObject[]
   /**
-   * The currently selected tenant ID
+   * The currently selected tenant slug
    */
-  selectedTenantID: number | string | undefined
+  selectedTenantSlug: string | undefined
   /**
    * Sets the entityType when a document is loaded and sets it to undefined when the document unmounts.
    */
@@ -38,26 +38,26 @@ type ContextType = {
    */
   setModified: React.Dispatch<React.SetStateAction<boolean>>
   /**
-   * Sets the selected tenant ID
+   * Sets the selected tenant by slug
    *
-   * @param args.id - The ID of the tenant to select
+   * @param args.slug - The slug of the tenant to select
    * @param args.refresh - Whether to refresh the page after changing the tenant
    */
-  setTenant: (args: { id: number | string | undefined; refresh?: boolean }) => void
+  setTenant: (args: { slug: string | undefined; refresh?: boolean }) => void
   /**
    * Used to sync tenants displayed in the tenant selector when updates are made to the tenants collection.
    */
   syncTenants: () => Promise<void>
   /**
-   *
+   * Updates a tenant's label in the local options
    */
-  updateTenants: (args: { id: number | string; label: string }) => void
+  updateTenants: (args: { slug: string; label: string }) => void
 }
 
 const Context = createContext<ContextType>({
   entityType: undefined,
   options: [],
-  selectedTenantID: undefined,
+  selectedTenantSlug: undefined,
   setEntityType: () => undefined,
   setModified: () => undefined,
   setTenant: () => null,
@@ -107,12 +107,10 @@ export const TenantSelectionProviderClient = ({
 }: {
   children: React.ReactNode
   initialTenantOptions: OptionObject[]
-  initialValue?: number | string
+  initialValue?: string
   tenantsCollectionSlug: string
 }) => {
-  const [selectedTenantID, setSelectedTenantID] = useState<number | string | undefined>(
-    initialValue,
-  )
+  const [selectedTenantSlug, setSelectedTenantSlug] = useState<string | undefined>(initialValue)
   const [modified, setModified] = useState<boolean>(false)
   const [entityType, setEntityType] = useState<'document' | 'global' | undefined>(undefined)
   const { user } = useAuth()
@@ -123,15 +121,15 @@ export const TenantSelectionProviderClient = ({
   const userChanged = userID !== prevUserID.current
   const [tenantOptions, setTenantOptions] = useState<OptionObject[]>(() => initialTenantOptions)
   const selectedTenantLabel = useMemo(
-    () => tenantOptions.find((option) => option.value === selectedTenantID)?.label,
-    [selectedTenantID, tenantOptions],
+    () => tenantOptions.find((option) => option.value === selectedTenantSlug)?.label,
+    [selectedTenantSlug, tenantOptions],
   )
 
   const setTenantAndCookie = useCallback(
-    ({ id, refresh }: { id: number | string | undefined; refresh?: boolean }) => {
-      setSelectedTenantID(id)
-      if (id !== undefined) {
-        setTenantCookie({ value: String(id) })
+    ({ slug, refresh }: { slug: string | undefined; refresh?: boolean }) => {
+      setSelectedTenantSlug(slug)
+      if (slug !== undefined) {
+        setTenantCookie({ value: slug })
       } else {
         deleteTenantCookie()
       }
@@ -143,24 +141,24 @@ export const TenantSelectionProviderClient = ({
   )
 
   const setTenant = useCallback<ContextType['setTenant']>(
-    ({ id, refresh }) => {
-      if (id === undefined) {
+    ({ slug, refresh }) => {
+      if (slug === undefined) {
         if (tenantOptions.length > 1 || tenantOptions.length === 0) {
           // users with multiple tenants can clear the tenant selection
-          setTenantAndCookie({ id: undefined, refresh })
+          setTenantAndCookie({ slug: undefined, refresh })
         } else if (tenantOptions[0]) {
           // if there is only one tenant, auto-select that tenant
-          setTenantAndCookie({ id: tenantOptions[0].value, refresh: true })
+          setTenantAndCookie({ slug: tenantOptions[0].value, refresh: true })
         }
-      } else if (!tenantOptions.find((option) => option.value === id)) {
+      } else if (!tenantOptions.find((option) => option.value === slug)) {
         // if the tenant is invalid, set the first tenant as selected
         setTenantAndCookie({
-          id: tenantOptions[0]?.value,
+          slug: tenantOptions[0]?.value ? tenantOptions[0].value : undefined,
           refresh,
         })
       } else {
         // if the tenant is in the options, set it as selected
-        setTenantAndCookie({ id, refresh })
+        setTenantAndCookie({ slug, refresh })
       }
     },
     [tenantOptions, setTenantAndCookie],
@@ -169,7 +167,7 @@ export const TenantSelectionProviderClient = ({
   const syncTenants = useCallback(async () => {
     try {
       const req = await fetch(
-        `${config.serverURL}${config.routes.api}/${tenantsCollectionSlug}/?select[id]=true&select[name]=true&limit=0&depth=0&sort=name`,
+        `${config.serverURL}${config.routes.api}/${tenantsCollectionSlug}/?select[slug]=true&select[name]=true&limit=0&depth=0&sort=name`,
         {
           credentials: 'include',
           method: 'GET',
@@ -180,15 +178,16 @@ export const TenantSelectionProviderClient = ({
 
       if (result.docs && userID) {
         setTenantOptions(
-          result.docs.map((doc: Record<string, number | string>) => ({
+          result.docs.map((doc: Record<string, string>) => ({
             label: doc.name,
-            value: doc.id,
+            value: doc.slug,
           })),
         )
 
         if (result.docs.length === 1) {
-          setSelectedTenantID(result.docs[0].value)
-          setTenantCookie({ value: String(result.docs[0].value) })
+          const firstSlug = result.docs[0].slug
+          setSelectedTenantSlug(firstSlug)
+          setTenantCookie({ value: firstSlug })
         }
       }
     } catch (e) {
@@ -197,13 +196,13 @@ export const TenantSelectionProviderClient = ({
   }, [config.serverURL, config.routes.api, tenantsCollectionSlug, userID])
 
   const updateTenants = useCallback<ContextType['updateTenants']>(
-    ({ id, label }) => {
+    ({ slug, label }) => {
       setTenantOptions((prev) => {
         return prev.map((currentTenant) => {
-          if (id === currentTenant.value) {
+          if (slug === currentTenant.value) {
             return {
               label,
-              value: id,
+              value: slug,
             }
           }
           return currentTenant
@@ -216,13 +215,13 @@ export const TenantSelectionProviderClient = ({
   )
 
   useEffect(() => {
-    if (userChanged || (initialValue && String(initialValue) !== getTenantCookie())) {
+    if (userChanged || (initialValue && initialValue !== getTenantCookie())) {
       if (userID) {
         // user logging in
         void syncTenants()
       } else {
         // user logging out
-        setSelectedTenantID(undefined)
+        setSelectedTenantSlug(undefined)
         deleteTenantCookie()
         if (tenantOptions.length > 0) {
           setTenantOptions([])
@@ -235,30 +234,30 @@ export const TenantSelectionProviderClient = ({
 
   /**
    * If there is no initial value, clear the tenant and refresh the router.
-   * Needed for stale tenantIDs set as a cookie.
+   * Needed for stale tenant slugs set as a cookie.
    */
   useEffect(() => {
     if (!initialValue) {
-      setTenant({ id: undefined, refresh: true })
+      setTenant({ slug: undefined, refresh: true })
     }
   }, [initialValue, setTenant])
 
   /**
-   * If there is no selected tenant ID and the entity type is 'global', set the first tenant as selected.
+   * If there is no selected tenant slug and the entity type is 'global', set the first tenant as selected.
    * This ensures that the global tenant is always set when the component mounts.
    */
   useEffect(() => {
-    if (!selectedTenantID && tenantOptions.length > 0 && entityType === 'global') {
+    if (!selectedTenantSlug && tenantOptions.length > 0 && entityType === 'global') {
       setTenant({
-        id: tenantOptions[0]?.value,
+        slug: tenantOptions[0]?.value ? tenantOptions[0].value : undefined,
         refresh: true,
       })
     }
-  }, [selectedTenantID, tenantOptions, entityType, setTenant])
+  }, [selectedTenantSlug, tenantOptions, entityType, setTenant])
 
   return (
     <span
-      data-selected-tenant-id={selectedTenantID}
+      data-selected-tenant-slug={selectedTenantSlug}
       data-selected-tenant-title={selectedTenantLabel}
     >
       <Context
@@ -266,7 +265,7 @@ export const TenantSelectionProviderClient = ({
           entityType,
           modified,
           options: tenantOptions,
-          selectedTenantID,
+          selectedTenantSlug,
           setEntityType,
           setModified,
           setTenant,

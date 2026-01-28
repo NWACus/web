@@ -7,6 +7,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { select } from 'payload/shared'
 import { BlogListBlock } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
 import { CalloutBlock } from '../Callout/config'
@@ -20,8 +21,10 @@ import { SingleBlogPostBlock } from '../SingleBlogPost/config'
 import { SingleEventBlock } from '../SingleEvent/config'
 import { SponsorsBlock } from '../Sponsors/config'
 
-const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => {
-  if (!value || typeof value !== 'string') return true
+const validateColumnLayout: SelectFieldValidation = (value, args) => {
+  const { siblingData } = args
+  if (!value || typeof value !== 'string') return select(value, args)
+
   if (
     siblingData &&
     typeof siblingData === 'object' &&
@@ -37,7 +40,7 @@ const validateColumnLayout: SelectFieldValidation = (value, { siblingData }) => 
     }
   }
 
-  return true
+  return select(value, args)
 }
 
 const DEFAULT_LEXICAL_NODE = {

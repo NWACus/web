@@ -12,7 +12,8 @@ import { Course } from '@/payload-types'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { validateZipCode } from '@/utilities/validateZipCode'
-import { CollectionConfig } from 'payload'
+import { CollectionConfig, DateField, ValidateOptions } from 'payload'
+import { date } from 'payload/shared'
 import { accessByProviderOrProviderManager } from './access/byProviderOrProviderManager'
 
 export const Courses: CollectionConfig = {
@@ -111,8 +112,11 @@ export const Courses: CollectionConfig = {
         },
         description: 'Registration cutoff. Timezone will always be set to the startDate timezone.',
       },
-      validate: (value, { siblingData }: { siblingData: Partial<Course> }) => {
-        const data = siblingData
+      validate: (
+        value,
+        args: ValidateOptions<unknown, unknown, DateField, Date> & { siblingData: Partial<Course> },
+      ) => {
+        const { siblingData: data } = args
         if (value && data?.startDate) {
           const registrationDeadline = new Date(value)
           const startDate = new Date(data.startDate)
@@ -121,7 +125,7 @@ export const Courses: CollectionConfig = {
             return 'Registration deadline must be before start date.'
           }
         }
-        return true
+        return date(value, args)
       },
     },
     // Sidebar

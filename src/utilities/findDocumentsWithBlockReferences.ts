@@ -3,6 +3,14 @@ import { getPayload } from 'payload'
 import { getBlocksFromConfig } from './getBlocksFromConfig'
 import { DocumentForRevalidation, RevalidationReference } from './revalidateDocument'
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function hasId(value: unknown): value is { id: unknown } {
+  return typeof value === 'object' && value !== null && 'id' in value
+}
+
 /**
  * Recursively search for matching references in a block's data structure
  */
@@ -11,53 +19,39 @@ function hasMatchingReference(
   fieldName: string,
   referenceId: string | number,
 ): boolean {
-  if (!obj || typeof obj !== 'object') return false
+  if (!isRecord(obj)) return false
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const record = obj as Record<string, unknown>
+  if (fieldName in obj) {
+    const fieldValue = obj[fieldName]
 
-  // Check if this object has the field we're looking for
-  if (fieldName in record) {
-    const fieldValue = record[fieldName]
-
-    // Handle arrays
     if (Array.isArray(fieldValue)) {
-      // Array of primitive values (IDs)
       if (fieldValue.includes(referenceId)) {
         return true
       }
-      // Array of objects with id property
       for (const item of fieldValue) {
-        if (typeof item === 'object' && item && 'id' in item) {
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          if ((item as { id: unknown }).id === referenceId) {
-            return true
-          }
+        if (hasId(item) && item.id === referenceId) {
+          return true
         }
       }
     }
 
-    // Handle case where field value is an object with id
-    if (typeof fieldValue === 'object' && fieldValue && 'id' in fieldValue) {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      return (fieldValue as { id: unknown }).id === referenceId
+    if (hasId(fieldValue) && fieldValue.id === referenceId) {
+      return true
     }
 
-    // Handle direct id comparison
     if (fieldValue === referenceId) {
       return true
     }
   }
 
-  // Recursively search through arrays and nested objects
-  for (const value of Object.values(record)) {
+  for (const value of Object.values(obj)) {
     if (Array.isArray(value)) {
       for (const item of value) {
         if (hasMatchingReference(item, fieldName, referenceId)) {
           return true
         }
       }
-    } else if (value && typeof value === 'object') {
+    } else if (isRecord(value)) {
       if (hasMatchingReference(value, fieldName, referenceId)) {
         return true
       }
