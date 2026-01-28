@@ -70,7 +70,7 @@ export async function Footer({ center }: { center?: string }) {
             <FormBlockComponent
               form={footerForm.form?.value || 0}
               blockType={'formBlock'}
-              wrapInContainer={false}
+              isLexical={false}
             />
           )}
           {footerForm?.type === 'embedded' && (
@@ -78,7 +78,7 @@ export async function Footer({ center }: { center?: string }) {
               html={footerForm.html || ''}
               backgroundColor="transparent"
               blockType="genericEmbed"
-              wrapInContainer={false}
+              isLexical={false}
             />
           )}
         </div>

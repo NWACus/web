@@ -16,23 +16,9 @@ const defaultFields: Field[] = [
   },
 ]
 
-const singleEventWithFields = (fields?: Field[]): Block => ({
+export const SingleEventBlock: Block = {
   slug: 'singleEvent',
   interfaceName: 'SingleEventBlock',
   imageURL: '/thumbnail/SingleEventThumbnail.jpg',
-  fields: [...defaultFields, ...(fields ?? [])],
-})
-
-export const SingleEventBlock = singleEventWithFields()
-
-export const SingleEventLexicalBlock = singleEventWithFields([
-  {
-    name: 'wrapInContainer',
-    admin: {
-      description:
-        'Checking this will render the block with additional padding around it and using the background color you have selected.',
-    },
-    type: 'checkbox',
-    defaultValue: false,
-  },
-])
+  fields: [...defaultFields],
+}

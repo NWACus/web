@@ -1,5 +1,4 @@
 import { format, parseISO } from 'date-fns'
-import { Payload } from 'payload'
 import type { TeamBlock as TeamBlockProps } from 'src/payload-types'
 
 import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
@@ -14,9 +13,7 @@ import {
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
 import { filterValidRelationships, isValidRelationship } from '@/utilities/relationships'
 
-type Props = TeamBlockProps & { payload: Payload }
-
-export const TeamBlockComponent = ({ team }: Props) => {
+export const TeamBlockComponent = ({ team }: TeamBlockProps) => {
   if (!isValidRelationship(team)) {
     return null
   }

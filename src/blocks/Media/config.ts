@@ -52,23 +52,9 @@ const defaultFields: Field[] = [
   imageSizeField('Image size'),
 ]
 
-const mediaBlockWithFields = (fields?: Field[]): Block => ({
+export const MediaBlock: Block = {
   slug: 'mediaBlock',
   interfaceName: 'MediaBlock',
   imageURL: '/thumbnail/MediaThumbnail.jpg',
-  fields: [...defaultFields, ...(fields ?? [])],
-})
-
-export const MediaBlock = mediaBlockWithFields()
-
-export const MediaLexicalBlock = mediaBlockWithFields([
-  {
-    name: 'wrapInContainer',
-    admin: {
-      description:
-        'Checking this will render the block with additional padding around it and using the background color you have selected.',
-    },
-    type: 'checkbox',
-    defaultValue: false,
-  },
-])
+  fields: [...defaultFields],
+}

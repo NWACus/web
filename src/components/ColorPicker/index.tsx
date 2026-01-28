@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 
 const ColorPicker = (props: TextFieldClientProps) => {
   const brandShades = [100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
-  const colorOptions = ['white', ...brandShades.map((n) => `brand-${n}`), 'transparent']
+  const colorOptions = ['transparent', 'white', ...brandShades.map((n) => `brand-${n}`)]
   const { path, field } = props
   const { data } = useDocumentInfo()
   const { value, setValue } = useField({ path })

@@ -11,15 +11,5 @@ export const DocumentBlock: Block = {
       relationTo: 'documents',
       required: true,
     },
-    {
-      name: 'wrapInContainer',
-      admin: {
-        description:
-          'Checking this will render the block with additional padding around it and using the background color you have selected.',
-      },
-      type: 'checkbox',
-      defaultValue: false,
-      hidden: true,
-    },
   ],
 }

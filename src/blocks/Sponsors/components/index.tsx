@@ -1,20 +1,20 @@
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
 import { SponsorsBlock as SponsorsBlockProps } from '@/payload-types'
-import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { filterValidRelationships } from '@/utilities/relationships'
-import { cn } from '@/utilities/ui'
 import { endOfDay, startOfDay } from 'date-fns'
 import { SponsorsBlockBanner } from './Banner'
 import { SponsorsBlockCarousel } from './Carousel'
 import { SponsorsBlockStatic } from './Static'
 
+type Props = SponsorsBlockProps & {
+  isLexical: boolean
+}
 export const SponsorsBlockComponent = ({
   backgroundColor,
   sponsors,
   sponsorsLayout,
-  wrapInContainer = false,
-}: SponsorsBlockProps) => {
-  const bgColorClass = `bg-${backgroundColor}`
-  const textColor = getTextColorFromBgColor(backgroundColor)
+  isLexical = false,
+}: Props) => {
   const now = new Date()
 
   const validSponsors = filterValidRelationships(sponsors).filter(
@@ -26,14 +26,16 @@ export const SponsorsBlockComponent = ({
   if (validSponsors.length === 0) return null
 
   return (
-    <div className={cn('py-10', bgColorClass, textColor, { container: wrapInContainer })}>
+    <BackgroundColorWrapper backgroundColor={backgroundColor} isLexical={isLexical}>
       <div className="flex flex-wrap justify-evenly items-center">
         {(() => {
           switch (sponsorsLayout) {
             case 'banner':
               return <SponsorsBlockBanner sponsors={validSponsors} />
             case 'carousel':
-              return <SponsorsBlockCarousel bgColorClass={bgColorClass} sponsors={validSponsors} />
+              return (
+                <SponsorsBlockCarousel backgroundColor={backgroundColor} sponsors={validSponsors} />
+              )
             case 'static':
               return <SponsorsBlockStatic sponsors={validSponsors} />
             default:
@@ -41,6 +43,6 @@ export const SponsorsBlockComponent = ({
           }
         })()}
       </div>
-    </div>
+    </BackgroundColorWrapper>
   )
 }

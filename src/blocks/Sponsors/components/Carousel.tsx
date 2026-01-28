@@ -13,10 +13,10 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import Autoplay from 'embla-carousel-autoplay'
 
 export const SponsorsBlockCarousel = ({
-  bgColorClass,
+  backgroundColor,
   sponsors,
 }: {
-  bgColorClass: string
+  backgroundColor: string
   sponsors: Sponsor[]
 }) => {
   const carouselItemClasses: { [key: string]: string[] } = {
@@ -31,7 +31,9 @@ export const SponsorsBlockCarousel = ({
   }
 
   const carouselItemClass = carouselItemClasses[sponsors.length] || carouselItemClasses['default']
-  const borderColor = getTextColorFromBgColor(bgColorClass).replace('text-bg', 'border')
+  const bgColorClass = `bg-${backgroundColor}`
+  const textColor = getTextColorFromBgColor(backgroundColor)
+  const borderColor = textColor.replace('text', 'border')
   return (
     <div className="w-full">
       <Carousel
@@ -63,8 +65,8 @@ export const SponsorsBlockCarousel = ({
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className={`${bgColorClass} ${borderColor}`} />
-        <CarouselNext className={`${bgColorClass} ${borderColor}`} />
+        <CarouselPrevious className={`${bgColorClass} ${borderColor} ${textColor}`} />
+        <CarouselNext className={`${bgColorClass} ${borderColor} ${textColor}`} />
       </Carousel>
     </div>
   )

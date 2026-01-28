@@ -16,23 +16,9 @@ const defaultFields: Field[] = [
   },
 ]
 
-const singleBlogPostWithFields = (fields?: Field[]): Block => ({
+export const SingleBlogPostBlock: Block = {
   slug: 'singleBlogPost',
   interfaceName: 'SingleBlogPostBlock',
   imageURL: '/thumbnail/SingleBlogPostThumbnail.jpg',
-  fields: [...defaultFields, ...(fields ?? [])],
-})
-
-export const SingleBlogPostBlock = singleBlogPostWithFields()
-
-export const SingleBlogPostLexicalBlock = singleBlogPostWithFields([
-  {
-    name: 'wrapInContainer',
-    admin: {
-      description:
-        'Checking this will render the block with additional padding around it and using the background color you have selected.',
-    },
-    type: 'checkbox',
-    defaultValue: false,
-  },
-])
+  fields: [...defaultFields],
+}
