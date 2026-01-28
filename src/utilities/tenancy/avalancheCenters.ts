@@ -71,10 +71,13 @@ export const VALID_TENANT_SLUGS: ValidTenantSlug[] =
 export function findCenterByDomain(domain: string): ValidTenantSlug | undefined {
   // Normalize both input and stored domains by removing www. prefix
   // Regex matches 'www.' at start of string
-  const normalizedInput = domain.replace(/^www\./, '')
+  // .toLowerCase is just a precaution since modern browsers lowercase domains
+  const normalizedInput = domain.toLowerCase().replace(/^www\./, '')
 
   for (const slug of VALID_TENANT_SLUGS) {
-    const normalizedStored = AVALANCHE_CENTERS[slug].customDomain.replace(/^www\./, '')
+    const normalizedStored = AVALANCHE_CENTERS[slug].customDomain
+      .toLowerCase()
+      .replace(/^www\./, '')
     if (normalizedStored === normalizedInput) {
       return slug
     }
