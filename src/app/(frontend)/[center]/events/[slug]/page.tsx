@@ -4,15 +4,14 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
+import { ButtonLink } from '@/components/ButtonLink'
 import { EventInfo } from '@/components/EventInfo'
 import { Media } from '@/components/Media'
-import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { cn } from '@/utilities/ui'
 import { ExternalLink } from 'lucide-react'
 import { Metadata, ResolvedMetadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-static'
@@ -123,12 +122,15 @@ export default async function Event({ params: paramsPromise }: Args) {
                     </p>
                   )}
                   {!isPastEvent && !isRegistrationClosed ? (
-                    <Button asChild size="lg" className="w-full md:w-auto">
-                      <Link href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                        Register for Event
-                        <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-                      </Link>
-                    </Button>
+                    <ButtonLink
+                      href={event.registrationUrl}
+                      size="lg"
+                      className="w-full md:w-auto"
+                      newTab
+                    >
+                      Register for Event
+                      <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
+                    </ButtonLink>
                   ) : (
                     <p className="text-destructive font-medium">
                       {isPastEvent ? 'This event has passed' : 'Registration is closed'}

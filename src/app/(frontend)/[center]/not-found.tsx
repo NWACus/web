@@ -1,6 +1,4 @@
-import Link from 'next/link'
-
-import { Button } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ButtonLink'
 import NotFoundClient from './not-found.client'
 
 export default function NotFound() {
@@ -17,12 +15,12 @@ export default function NotFound() {
             </p>
           </div>
           <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-            <Button asChild size="lg">
-              <Link href="/">Back to home</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/forecasts/avalanche">Check the avalanche forecast</Link>
-            </Button>
+            <ButtonLink href="/" size="lg">
+              Back to home
+            </ButtonLink>
+            <ButtonLink href="/forecasts/avalanche" variant="outline" size="lg">
+              Check the avalanche forecast
+            </ButtonLink>
           </div>
         </div>
       </div>

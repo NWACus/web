@@ -1328,7 +1328,7 @@ export interface LinkPreviewBlock {
           /**
            * Choose the button style.
            */
-          appearance?: ('default' | 'secondary' | 'outline') | null;
+          variant?: ('default' | 'secondary' | 'outline') | null;
         };
         id?: string | null;
       }[]
@@ -2990,7 +2990,7 @@ export interface LinkPreviewBlockSelect<T extends boolean = true> {
               reference?: T;
               url?: T;
               label?: T;
-              appearance?: T;
+              variant?: T;
             };
         id?: T;
       };
@@ -4211,7 +4211,7 @@ export interface ButtonBlock {
     /**
      * Choose the button style.
      */
-    appearance?: ('default' | 'secondary' | 'destructive' | 'ghost' | 'link' | 'outline') | null;
+    variant?: ('default' | 'secondary' | 'ghost' | 'outline') | null;
   };
   id?: string | null;
   blockName?: string | null;

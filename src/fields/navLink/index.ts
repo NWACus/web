@@ -1,6 +1,7 @@
+import { clearIrrelevantLinkValues } from '@/utilities/clearIrrelevantLinkValues'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
-import { FieldHook, NamedGroupField, TextFieldSingleValidation } from 'payload'
+import { NamedGroupField, TextFieldSingleValidation } from 'payload'
 import { text } from 'payload/shared'
 
 const validateLabel: TextFieldSingleValidation = (val, args) => {
@@ -9,27 +10,6 @@ const validateLabel: TextFieldSingleValidation = (val, args) => {
     if (siblingData.type === 'internal') return text(val, args)
   }
   return Boolean(val) ? text(val, args) : 'You must define a label for an external link.'
-}
-
-const clearIrrelevantLinkValues: FieldHook = ({ value }) => {
-  // Skip if not a link object
-  if (value === null || typeof value !== 'object') return value
-
-  const { type } = value
-
-  if (type === 'internal') {
-    // Clear external-only fields when switching to internal
-    const { url: _url, newTab: _newTab, ...rest } = value
-    return rest
-  }
-
-  if (type === 'external') {
-    // Clear internal-only field when switching to external
-    const { reference: _reference, ...rest } = value
-    return rest
-  }
-
-  return value
 }
 
 export const navLink: NamedGroupField = {

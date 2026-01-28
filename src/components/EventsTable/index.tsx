@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Fragment, useCallback, useMemo, useState } from 'react'
-import { CMSLink } from '../Link'
+import { ButtonLink } from '../ButtonLink'
 
 // Move SortIcon outside the component to prevent re-renders
 const SortIcon = ({
@@ -273,17 +273,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                   {/* Register button */}
                   <TableCell className="hidden @sm:table-cell text-right px-2">
                     {event.registrationUrl && !isPast && !isRegistrationClosed ? (
-                      <>
-                        <CMSLink
-                          appearance="default"
-                          size="sm"
-                          className="group-hover:opacity-90 transition-opacity text-sm"
-                          url={event.registrationUrl}
-                        >
-                          Register
-                          <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted hidden @sm:inline" />
-                        </CMSLink>
-                      </>
+                      <ButtonLink
+                        href={event.registrationUrl}
+                        variant="default"
+                        size="sm"
+                        className="group-hover:opacity-90 transition-opacity text-sm"
+                        newTab
+                      >
+                        Register
+                        <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted hidden @sm:inline" />
+                      </ButtonLink>
                     ) : isPast || isRegistrationClosed ? (
                       <Button variant="default" disabled={true}>
                         Closed
@@ -314,16 +313,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                         <div className="flex flex-col gap-2 text-right">
                           <div className="@sm:hidden">
                             {event.registrationUrl && !isPast && !isRegistrationClosed ? (
-                              <CMSLink
-                                appearance="default"
+                              <ButtonLink
+                                href={event.registrationUrl}
+                                variant="default"
                                 size="sm"
                                 className="group-hover:opacity-90 transition-opacity text-sm"
-                                url={event.registrationUrl}
-                                newTab={true}
+                                newTab
                               >
                                 Register
                                 <ExternalLink className="w-3 h-3 @sm:w-4 @sm:h-4 flex-shrink-0 ml-1 @sm:ml-2 -mt-0.5 text-muted" />
-                              </CMSLink>
+                              </ButtonLink>
                             ) : isPast || isRegistrationClosed ? (
                               <Button variant="default" disabled={true}>
                                 Closed
@@ -333,9 +332,9 @@ export function EventTable({ events = [] }: { events: Event[] }) {
                             )}
                           </div>
 
-                          <CMSLink appearance="outline" size="sm" url={eventUrl}>
+                          <ButtonLink href={eventUrl} variant="outline" size="sm">
                             Learn More
-                          </CMSLink>
+                          </ButtonLink>
                         </div>
                       </div>
                     </TableCell>

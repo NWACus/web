@@ -1,4 +1,4 @@
-import { CMSLink } from '@/components/Link'
+import { ButtonLink } from '@/components/ButtonLink'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 import {
@@ -67,7 +67,7 @@ export const LinkPreviewBlockComponent = (props: LinkPreviewBlockProps) => {
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-between">
-                    <CMSLink {...button} />
+                    <ButtonLink {...button} />
                   </CardFooter>
                 </Card>
               )

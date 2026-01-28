@@ -182,3 +182,47 @@ blocks
     └── config.ts
 ```
 
+## ButtonLink
+Links styled as buttons with built-in analytics tracking. Supports both direct URLs and CMS-driven references.
+
+**Key features:**
+- Works with both simple `href` prop and CMS references (pages, posts, built-in pages)
+- Automatically resolves internal/external URLs from CMS data
+- Built-in Posthog analytics with `button_click` event tracking
+- Intended for blocks, rich text editors, or any CMS-driven navigation
+- Supports all Button styling options
+
+**Props:**
+- `href` - Direct URL (use this OR reference - not both)
+- `reference` - CMS reference object (use this OR href - not both)
+- `type` - `'internal'` or `'external'` (required if using `reference`)
+- `label` - Button text (falls back to reference title or children)
+- `newTab` - Opens in new tab
+- `url` - CMS custom URL option
+
+**Style props**
+- Size: (`sm`, `default`, `lg`, `icon`, `clear`)
+- Variants: (`default`, `secondary`, `ghost`, `outline`, `callout`)
+
+**Examples:**
+```tsx
+// Simple link with direct href
+<ButtonLink href="/about" variant="default">
+  Learn More
+</ButtonLink>
+
+// External link in new tab and external link icon
+<ButtonLink href="https://nwac.us" newTab>
+  Visit NWAC
+  <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+</ButtonLink>
+
+// CMS-driven link (internal page reference)
+<ButtonLink
+  reference={{ relationTo: 'pages', value: pageData }}
+  variant="outline"
+  size="lg"
+>
+  Read More
+</ButtonLink>
+```
