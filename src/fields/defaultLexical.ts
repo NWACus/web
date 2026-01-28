@@ -17,7 +17,13 @@ import {
   UnderlineFeature,
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
-import { Config } from 'payload'
+import { CollectionSlug, Config } from 'payload'
+
+export const LINK_ENABLED_COLLECTIONS = [
+  'pages',
+  'builtInPages',
+  'posts',
+] satisfies CollectionSlug[]
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
@@ -30,7 +36,7 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
       BoldFeature(),
       ItalicFeature(),
       LinkFeature({
-        enabledCollections: ['pages', 'builtInPages', 'posts'],
+        enabledCollections: LINK_ENABLED_COLLECTIONS,
         fields: ({ defaultFields }) => {
           const defaultFieldsWithoutUrl = defaultFields.filter(
             (field) => field.name !== 'url' && field.name !== 'doc',
@@ -46,7 +52,7 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
                 width: '50%',
               },
               label: 'Select page or post',
-              relationTo: ['pages', 'builtInPages', 'posts'],
+              relationTo: LINK_ENABLED_COLLECTIONS,
               required: true,
               filterOptions: getTenantFilter,
             },
