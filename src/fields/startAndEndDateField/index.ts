@@ -1,5 +1,6 @@
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
-import { RowField } from 'payload'
+import { DateField, RowField, ValidateOptions } from 'payload'
+import { date } from 'payload/shared'
 
 interface EventFormData {
   startDate?: string | Date
@@ -38,7 +39,13 @@ export const startAndEndDateField = (): RowField => ({
           'Optional end date for multi-day events. Timezone will always be set to the startDate timezone.',
         width: '50%',
       },
-      validate: (value, { siblingData }: { siblingData: Partial<EventFormData> }) => {
+      validate: (
+        value,
+        args: ValidateOptions<unknown, unknown, DateField, Date> & {
+          siblingData: Partial<EventFormData>
+        },
+      ) => {
+        const { siblingData } = args
         if (value && siblingData?.startDate) {
           const startDate = new Date(siblingData.startDate)
           const endDate = new Date(value)
@@ -48,7 +55,7 @@ export const startAndEndDateField = (): RowField => ({
           }
         }
 
-        return true
+        return date(value, args)
       },
     },
     {
