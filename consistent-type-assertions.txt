@@ -19,7 +19,6 @@ src/app/(frontend)/[center]/weather/forecast/page.tsx
 src/app/(frontend)/[center]/weather/stations/map/page.tsx
 src/collections/Pages/components/DuplicatePageFor/index.tsx
 src/collections/Pages/endpoints/duplicatePageToTenant.ts
-src/collections/Sponsors/index.ts
 src/collections/Users/components/InviteUser.tsx
 src/collections/Users/components/InviteUserDrawer.tsx
 src/collections/Users/components/inviteUserAction.ts
@@ -27,7 +26,6 @@ src/collections/Users/components/resendInviteActions.ts
 src/components/Header/utils.ts
 src/endpoints/seed/index.ts
 src/endpoints/seed/upsert.ts
-src/fields/defaultLexical.ts
 src/fields/slug/SlugComponent.tsx
 src/globals/Diagnostics/actions/revalidateCache.ts
 src/utilities/findDocumentsWithBlockReferences.ts

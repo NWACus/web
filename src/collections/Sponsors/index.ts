@@ -4,14 +4,17 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { Sponsor } from '@/payload-types'
 import { validateExternalUrl } from '@/utilities/validateUrl'
-import { CollectionConfig, DateFieldValidation } from 'payload'
+import { CollectionConfig, DateField, DateFieldValidation, ValidateOptions } from 'payload'
+import { date } from 'payload/shared'
 import { revalidateSponsors, revalidateSponsorsDelete } from './hooks/revalidateSponsors'
 
-const validateDate: DateFieldValidation = (value, { data }) => {
-  if (!value) return true
+const validateDate: DateFieldValidation = (
+  value,
+  args: ValidateOptions<unknown, unknown, DateField, Date> & { data: Partial<Sponsor> },
+) => {
+  if (!value) return date(value, args)
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const sponsorData = data as Partial<Sponsor>
+  const { data: sponsorData } = args
   const startDate = new Date(value)
   const endDate = sponsorData.endDate ? new Date(sponsorData.endDate) : null
 
@@ -19,7 +22,7 @@ const validateDate: DateFieldValidation = (value, { data }) => {
     return 'Start date cannot be after end date'
   }
 
-  return true
+  return date(value, args)
 }
 
 export const Sponsors: CollectionConfig = {

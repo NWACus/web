@@ -21,7 +21,7 @@ import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { validateEventDates } from '@/hooks/validateEventDates'
-import { Event } from '@/payload-types'
+import { Course } from '@/payload-types'
 import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateExternalUrl } from '@/utilities/validateUrl'
@@ -32,7 +32,8 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { CollectionConfig } from 'payload'
+import { CollectionConfig, DateField, ValidateOptions } from 'payload'
+import { date } from 'payload/shared'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
 import { revalidateEvent, revalidateEventDelete } from './hooks/revalidateEvent'
 
@@ -112,8 +113,13 @@ export const Events: CollectionConfig = {
             description:
               'Registration cutoff. Timezone will always be set to the startDate timezone.',
           },
-          validate: (value, { siblingData }: { siblingData: Partial<Event> }) => {
-            const data = siblingData
+          validate: (
+            value,
+            args: ValidateOptions<unknown, unknown, DateField, Date> & {
+              siblingData: Partial<Course>
+            },
+          ) => {
+            const { siblingData: data } = args
             if (value && data?.startDate) {
               const registrationDeadline = new Date(value)
               const startDate = new Date(data.startDate)
@@ -122,7 +128,7 @@ export const Events: CollectionConfig = {
                 return 'Registration deadline must be before start date.'
               }
             }
-            return true
+            return date(value, args)
           },
         },
       ],
