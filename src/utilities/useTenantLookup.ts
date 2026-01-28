@@ -1,5 +1,6 @@
 'use client'
 
+import * as Sentry from '@sentry/nextjs'
 import { useCallback, useState } from 'react'
 
 /**
@@ -27,8 +28,8 @@ export const useTenantLookup = () => {
           setTenantIdBySlug((prev) => ({ ...prev, [slug]: id }))
           return id
         }
-      } catch (_) {
-        // Silent fail - caller should handle missing tenant
+      } catch (error) {
+        Sentry.captureException(error, { extra: { slug } })
       }
       return null
     },
@@ -48,8 +49,8 @@ export const useTenantLookup = () => {
           setTenantSlugById((prev) => ({ ...prev, [id]: result.slug }))
           return result.slug
         }
-      } catch (_) {
-        // Silent fail - caller should handle missing tenant
+      } catch (error) {
+        Sentry.captureException(error, { extra: { id } })
       }
       return null
     },
