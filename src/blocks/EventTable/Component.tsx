@@ -11,7 +11,7 @@ import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
 type EventTableComponentProps = EventTableBlockProps & {
-  wrapInContainer: boolean
+  isLexical: boolean
   className?: string
 }
 
@@ -22,7 +22,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
     className,
     eventOptions,
     backgroundColor,
-    wrapInContainer = true,
+    isLexical = true,
   } = args
   const { byTypes, byGroups, byTags, maxEvents } = args.dynamicOpts || {}
   const { staticEvents } = args.staticOpts || {}
@@ -101,7 +101,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
   return (
     <BackgroundColorWrapper
       backgroundColor={backgroundColor}
-      wrapInContainer={wrapInContainer}
+      isLexical={isLexical}
       containerClassName={className}
     >
       <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>

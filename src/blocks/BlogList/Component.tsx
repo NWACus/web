@@ -15,7 +15,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type BlogListComponentProps = BlogListBlockProps & {
-  wrapInContainer: boolean
+  isLexical: boolean
   className?: string
 }
 
@@ -25,7 +25,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
     belowHeadingContent,
     backgroundColor,
     className,
-    wrapInContainer = true,
+    isLexical = true,
     postOptions,
   } = args
 
@@ -92,7 +92,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
   return (
     <BackgroundColorWrapper
       backgroundColor={backgroundColor}
-      wrapInContainer={wrapInContainer}
+      isLexical={isLexical}
       containerClassName={className}
     >
       <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">

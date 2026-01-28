@@ -12,7 +12,7 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 const { breakpoints } = cssVariables
 
 type Props = MediaBlockProps & {
-  wrapInContainer: boolean
+  isLexical: boolean
   captionClassName?: string
   className?: string
   imgClassName?: string
@@ -24,7 +24,7 @@ export const MediaBlockComponent = (props: Props) => {
     caption,
     captionClassName,
     className,
-    wrapInContainer = true,
+    isLexical = true,
     imgClassName,
     media,
     staticImage,
@@ -74,7 +74,7 @@ export const MediaBlockComponent = (props: Props) => {
     <div className={cn(bgColorClass, textColor)}>
       <div
         className={cn(
-          wrapInContainer && 'container py-10',
+          isLexical && 'container py-10',
           'flex flex-col',
           alignContent === 'left' && 'items-start',
           alignContent === 'center' && 'items-center',

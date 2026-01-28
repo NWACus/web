@@ -48,21 +48,21 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
   switch (blockType) {
     case 'blogList':
-      return <BlogListBlockComponent {...block} wrapInContainer={true} />
+      return <BlogListBlockComponent {...block} isLexical={true} />
     case 'content':
       return <ContentBlockComponent {...block} />
     case 'documentBlock':
-      return <DocumentBlockComponent {...block} wrapInContainer={true} />
+      return <DocumentBlockComponent {...block} isLexical={true} />
     case 'eventList':
-      return <EventListBlockComponent {...block} wrapInContainer={true} />
+      return <EventListBlockComponent {...block} isLexical={true} />
     case 'eventTable':
-      return <EventTableBlockComponent {...block} wrapInContainer={true} />
+      return <EventTableBlockComponent {...block} isLexical={true} />
     case 'formBlock':
       return <FormBlockComponent {...block} />
     case 'genericEmbed':
-      return <GenericEmbedBlockComponent {...block} wrapInContainer={true} />
+      return <GenericEmbedBlockComponent {...block} isLexical={true} />
     case 'headerBlock':
-      return <HeaderBlockComponent {...block} wrapInContainer={true} />
+      return <HeaderBlockComponent {...block} isLexical={true} />
     case 'imageLinkGrid':
       return <ImageLinkGridBlockComponent {...block} />
     case 'imageText':
@@ -70,15 +70,15 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'linkPreview':
       return <LinkPreviewBlockComponent {...block} />
     case 'mediaBlock':
-      return <MediaBlockComponent {...block} wrapInContainer={true} />
+      return <MediaBlockComponent {...block} isLexical={true} />
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
     case 'singleBlogPost':
-      return <SingleBlogPostBlockComponent {...block} wrapInContainer={true} />
+      return <SingleBlogPostBlockComponent {...block} isLexical={true} />
     case 'singleEvent':
-      return <SingleEventBlockComponent {...block} wrapInContainer={true} />
+      return <SingleEventBlockComponent {...block} isLexical={true} />
     case 'sponsorsBlock':
-      return <SponsorsBlockComponent {...block} wrapInContainer={true} />
+      return <SponsorsBlockComponent {...block} isLexical={true} />
     case 'team':
       return <TeamBlockComponent {...block} />
   }

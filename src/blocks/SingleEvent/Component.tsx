@@ -4,7 +4,7 @@ import type { SingleEventBlock as SingleEventBlockProps } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
 type SingleEventComponentProps = SingleEventBlockProps & {
-  wrapInContainer: boolean
+  isLexical: boolean
   className?: string
 }
 
@@ -12,7 +12,7 @@ export const SingleEventBlockComponent = ({
   event,
   backgroundColor,
   className,
-  wrapInContainer = true,
+  isLexical = true,
 }: SingleEventComponentProps) => {
   if (!event || typeof event !== 'object') {
     return null
@@ -21,7 +21,7 @@ export const SingleEventBlockComponent = ({
   return (
     <BackgroundColorWrapper
       backgroundColor={backgroundColor}
-      wrapInContainer={wrapInContainer}
+      isLexical={isLexical}
       containerClassName={className}
     >
       <EventPreview event={event} className={cn('not-prose')} />

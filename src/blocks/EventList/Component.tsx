@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type EventListComponentProps = EventListBlockProps & {
-  wrapInContainer: boolean
+  isLexical: boolean
   className?: string
 }
 
@@ -23,7 +23,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
     belowHeadingContent,
     backgroundColor,
     className,
-    wrapInContainer = true,
+    isLexical = true,
     eventOptions,
   } = args
 
@@ -99,7 +99,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
   return (
     <BackgroundColorWrapper
       backgroundColor={backgroundColor}
-      wrapInContainer={wrapInContainer}
+      isLexical={isLexical}
       containerClassName={className}
     >
       <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">

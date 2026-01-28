@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
 
 type Props = GenericEmbedBlockProps & {
-  wrapInContainer: boolean
+  isLexical: boolean
   className?: string
 }
 
@@ -18,7 +18,7 @@ export const GenericEmbedBlockComponent = ({
   backgroundColor,
   alignContent = 'left',
   className,
-  wrapInContainer = true,
+  isLexical = true,
 }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
 
@@ -73,7 +73,7 @@ export const GenericEmbedBlockComponent = ({
     <div className={cn(bgColorClass, textColor)}>
       <div
         className={cn(
-          wrapInContainer && 'container py-10',
+          isLexical && 'container py-10',
           'flex flex-col',
           alignContent === 'left' && 'items-start',
           alignContent === 'center' && 'items-center',
