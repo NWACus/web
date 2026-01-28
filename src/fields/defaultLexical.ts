@@ -1,6 +1,7 @@
 import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
 import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
 import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import {
   AlignFeature,
@@ -29,12 +30,26 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
       BoldFeature(),
       ItalicFeature(),
       LinkFeature({
-        enabledCollections: ['pages', 'posts', 'builtInPages'],
+        enabledCollections: ['pages', 'builtInPages', 'posts'],
         fields: ({ defaultFields }) => {
-          const defaultFieldsWithoutUrl = defaultFields.filter((field) => field.name !== 'url')
+          const defaultFieldsWithoutUrl = defaultFields.filter(
+            (field) => field.name !== 'url' && field.name !== 'doc',
+          )
 
           return [
             ...defaultFieldsWithoutUrl,
+            {
+              name: 'doc',
+              type: 'relationship',
+              admin: {
+                condition: (_, siblingData) => siblingData?.linkType === 'internal',
+                width: '50%',
+              },
+              label: 'Select page or post',
+              relationTo: ['pages', 'builtInPages', 'posts'],
+              required: true,
+              filterOptions: getTenantFilter,
+            },
             {
               name: 'url',
               type: 'text',

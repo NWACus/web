@@ -25,6 +25,7 @@ src/collections/Users/components/InviteUserDrawer.tsx
 src/collections/Users/components/inviteUserAction.ts
 src/collections/Users/components/resendInviteActions.ts
 src/components/Header/utils.ts
+src/components/RichText/index.tsx
 src/components/TenantSelector/TenantSelector.client.tsx
 src/endpoints/seed/index.ts
 src/endpoints/seed/upsert.ts

@@ -24,6 +24,7 @@ import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import type {
   BlogListBlock as BlogListBlockProps,
+  BuiltInPage,
   ButtonBlock as ButtonBlockProps,
   CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
@@ -32,10 +33,13 @@ import type {
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
   MediaBlock as MediaBlockProps,
+  Page,
+  Post,
   SingleBlogPostBlock as SingleBlogPostBlockProps,
   SingleEventBlock as SingleEventBlockProps,
   SponsorsBlock as SponsorsBlockProps,
 } from '@/payload-types'
+import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
 
 type NodeTypes =
@@ -56,12 +60,29 @@ type NodeTypes =
     >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
-  const { value, relationTo } = linkNode.fields.doc || {}
+  const { linkType, doc, url } = linkNode.fields
+  const { value, relationTo } = doc || {}
+
   if (typeof value !== 'object') {
     throw new Error('Expected value to be an object')
   }
-  const slug = value.slug
-  return relationTo === 'posts' ? `/blog/${slug}` : `/${slug}`
+
+  if (linkType === 'internal') {
+    return (
+      handleReferenceURL({
+        url,
+        type: linkType,
+        reference: {
+          // Need type assertion because of LinkFields types
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          relationTo: relationTo as 'builtInPages' | 'pages' | 'posts',
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          value: value as unknown as BuiltInPage | Page | Post | string | number,
+        },
+      }) || '/'
+    )
+  }
+  return url || '/'
 }
 
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
