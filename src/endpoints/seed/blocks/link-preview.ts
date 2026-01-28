@@ -17,7 +17,7 @@ export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
             newTab: true,
             url: 'https://www.google.com',
             label: 'Click me',
-            appearance: 'default',
+            variant: 'default',
           },
         },
 
@@ -27,7 +27,7 @@ export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
           text: 'Brooklyn fanny pack la croix gastropub normcore chia. Skateboard raw denim mixtape blog. Unicorn wayfarers pabst brunch retro DIY semiotics jianbing jean shorts blog ascot plaid beard.',
           button: {
             type: 'external',
-            appearance: 'default',
+            variant: 'default',
             label: 'Click here',
             url: 'https://nwac.us',
           },
@@ -40,7 +40,7 @@ export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
 
           button: {
             type: 'external',
-            appearance: 'default',
+            variant: 'default',
             label: 'Click here',
             url: 'https://nwac.us',
           },
@@ -60,7 +60,7 @@ export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
 
           button: {
             type: 'external',
-            appearance: 'default',
+            variant: 'default',
             label: 'Click here',
             url: 'https://nwac.us',
           },
@@ -72,7 +72,7 @@ export const linkPreview = (image: Media): RequiredDataFromCollectionSlug<'pages
           text: 'Brooklyn fanny pack la croix gastropub normcore chia. Skateboard raw denim mixtape blog. Unicorn wayfarers pabst brunch retro DIY semiotics jianbing jean shorts blog ascot plaid beard.',
           button: {
             type: 'external',
-            appearance: 'default',
+            variant: 'default',
             label: 'Click here',
             url: 'https://nwac.us',
           },
