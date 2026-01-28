@@ -10,11 +10,11 @@ import { revalidateSponsors, revalidateSponsorsDelete } from './hooks/revalidate
 
 const validateDate: DateFieldValidation = (
   value,
-  args: ValidateOptions<unknown, unknown, DateField, Date> & { siblingData: Partial<Sponsor> },
+  args: ValidateOptions<unknown, unknown, DateField, Date> & { data: Partial<Sponsor> },
 ) => {
   if (!value) return date(value, args)
 
-  const { siblingData: sponsorData } = args
+  const { data: sponsorData } = args
   const startDate = new Date(value)
   const endDate = sponsorData.endDate ? new Date(sponsorData.endDate) : null
 
