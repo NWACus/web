@@ -22,6 +22,7 @@ import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
+import { LINK_ENABLED_COLLECTIONS } from '@/fields/defaultLexical'
 import type {
   BlogListBlock as BlogListBlockProps,
   BuiltInPage,
@@ -42,6 +43,31 @@ import type {
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
 
+type LinkDocRelationTo = (typeof LINK_ENABLED_COLLECTIONS)[number]
+type LinkDocValue = BuiltInPage | Page | Post
+
+type ResolvedLinkDoc = {
+  relationTo: LinkDocRelationTo
+  value: LinkDocValue
+}
+
+// Type guard to validate and narrow link doc type
+function isResolvedLinkDoc(doc: unknown): doc is ResolvedLinkDoc {
+  if (!doc || typeof doc !== 'object') {
+    return false
+  }
+  if (!('relationTo' in doc) || !('value' in doc)) {
+    return false
+  }
+  const { relationTo, value } = doc
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+  // Check relationTo is one of the enabled collections
+  const enabledCollections: readonly string[] = LINK_ENABLED_COLLECTIONS
+  return typeof relationTo === 'string' && enabledCollections.includes(relationTo)
+}
+
 type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<
@@ -61,23 +87,18 @@ type NodeTypes =
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { linkType, doc, url } = linkNode.fields
-  const { value, relationTo } = doc || {}
-
-  if (typeof value !== 'object') {
-    throw new Error('Expected value to be an object')
-  }
 
   if (linkType === 'internal') {
+    if (!isResolvedLinkDoc(doc)) {
+      throw new Error('Expected doc to be a resolved link document')
+    }
     return (
       handleReferenceURL({
         url,
         type: linkType,
         reference: {
-          // Need type assertion because of LinkFields types
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          relationTo: relationTo as 'builtInPages' | 'pages' | 'posts',
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          value: value as unknown as BuiltInPage | Page | Post | string | number,
+          relationTo: doc.relationTo,
+          value: doc.value,
         },
       }) || '/'
     )
