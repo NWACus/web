@@ -70,28 +70,48 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
       )
     }
 
-    // Provider managers permissions for users with provider relationship(s) and themselves
-    const isManager = await isProviderManager(args.req.payload, args.req.user)
-    if (isManager) {
-      const orConditions: Where[] = [
-        {
+    // Provider managers can see all users with provider relationship(s) and themselves
+    if (method === 'read') {
+      const isManager = await isProviderManager(args.req.payload, args.req.user)
+      if (isManager) {
+        const orConditions: Where[] = [
+          {
+            providers: {
+              exists: true,
+            },
+          },
+        ]
+
+        if (args.req.user.id) {
+          orConditions.push({
+            id: {
+              equals: args.req.user.id,
+            },
+          })
+        }
+
+        conditions.push({
+          or: orConditions,
+        })
+      }
+    }
+
+    if (method === 'update' || method === 'delete') {
+      const isManager = await isProviderManager(args.req.payload, args.req.user)
+      if (isManager) {
+        const managerCondition: Where = {
           providers: {
             exists: true,
           },
-        },
-      ]
-
-      if (args.req.user.id) {
-        orConditions.push({
-          id: {
-            equals: args.req.user.id,
+          'roles.docs.0': {
+            exists: false,
           },
-        })
+          'globalRoleAssignments.docs.0': {
+            exists: false,
+          },
+        }
+        conditions.push(managerCondition)
       }
-
-      conditions.push({
-        or: orConditions,
-      })
     }
 
     if (conditions.length > 0) {
