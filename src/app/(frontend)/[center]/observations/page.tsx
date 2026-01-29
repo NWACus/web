@@ -77,8 +77,7 @@ export async function generateMetadata(
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const { center } = await props.params
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const parentMeta = (await parent) as Metadata
+  const parentMeta = await parent
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title

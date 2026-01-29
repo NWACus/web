@@ -25,8 +25,8 @@ export const SlugComponent = ({
 
   // Get the current value of the title field
   const targetFieldValue = useFormFields(([fields]) => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    return fields[fieldToUse]?.value as string
+    const value = fields[fieldToUse]?.value
+    return typeof value === 'string' ? value : ''
   })
 
   const handleGenerate = useCallback(

@@ -1,12 +1,14 @@
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { Field, TextFieldSingleValidation } from 'payload'
+import { text } from 'payload/shared'
 
-const validateLabel: TextFieldSingleValidation = (val, { siblingData }) => {
+const validateLabel: TextFieldSingleValidation = (val, args) => {
+  const { siblingData } = args
   if (siblingData && typeof siblingData === 'object' && 'type' in siblingData) {
-    if (siblingData.type === 'internal') return true
+    if (siblingData.type === 'internal') return text(val, args)
   }
-  return Boolean(val) || 'You must define a label for an external link.'
+  return Boolean(val) ? text(val, args) : 'You must define a label for an external link.'
 }
 
 export const linkChoiceRow: Field[] = [
