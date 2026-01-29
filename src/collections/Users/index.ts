@@ -120,5 +120,29 @@ export const Users: CollectionConfig = {
     afterLogin: [setLastLogin, posthogIdentifyAfterLogin],
     beforeLogin: [validateDomainAccessBeforeLogin],
     beforeValidate: [beforeValidatePassword],
+    beforeChange: [
+      async ({ data, operation }) => {
+        if (
+          ((data.globalRoleAssignments?.docs?.length ?? 0) > 0 ||
+            (data.roles?.docs?.length ?? 0) > 0) &&
+          operation === 'update'
+        )
+          throw new Error('Cannot edit users of avalanche center')
+      },
+    ],
+    beforeDelete: [
+      async ({ req, id }) => {
+        const userToDelete = await req.payload.findByID({
+          collection: 'users',
+          id,
+        })
+
+        if (
+          (userToDelete.globalRoleAssignments?.docs?.length ?? 0) > 0 ||
+          (userToDelete.roles?.docs?.length ?? 0) > 0
+        )
+          throw new Error('Cannot delete users of avalanche center')
+      },
+    ],
   },
 }
