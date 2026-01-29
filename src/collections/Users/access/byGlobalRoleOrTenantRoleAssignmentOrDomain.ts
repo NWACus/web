@@ -35,7 +35,7 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
         assignment.role.rules.some(ruleMatches(method, 'users')),
     )
 
-    const conditions = []
+    const conditions: Where[] = []
 
     // Tenant scoped role based access
     const userCollectionRoleAssignmentsTenants = userCollectionRoleAssignments
@@ -99,18 +99,25 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
     if (method === 'update' || method === 'delete') {
       const isManager = await isProviderManager(args.req.payload, args.req.user)
       if (isManager) {
-        const managerCondition: Where = {
-          providers: {
-            exists: true,
-          },
-          'roles.docs.0': {
-            exists: false,
-          },
-          'globalRoleAssignments.docs.0': {
-            exists: false,
-          },
-        }
-        conditions.push(managerCondition)
+        conditions.push({
+          and: [
+            {
+              providers: {
+                exists: true,
+              },
+            },
+            {
+              roles: {
+                exists: false,
+              },
+            },
+            {
+              globalRoleAssignments: {
+                exists: false,
+              },
+            },
+          ],
+        })
       }
     }
 
