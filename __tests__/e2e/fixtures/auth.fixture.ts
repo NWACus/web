@@ -15,8 +15,8 @@ async function performLogin(page: Page, email: string, password: string): Promis
   await page.fill('input[name="email"]', email)
   await page.fill('input[name="password"]', password)
   await page.click('button[type="submit"]')
-  // Wait for successful login - dashboard should be visible
-  await expect(page.locator('[class*="dashboard"], [class*="Dashboard"]')).toBeVisible({
+  // Wait for successful login - Payload uses class="dashboard" on the Gutter wrapper
+  await expect(page.locator('.dashboard')).toBeVisible({
     timeout: 10000,
   })
 }
