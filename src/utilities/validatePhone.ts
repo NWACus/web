@@ -1,4 +1,5 @@
 import { TextFieldSingleValidation } from 'payload'
+import { text } from 'payload/shared'
 import { z } from 'zod'
 
 // Zod schema for US phone numbers
@@ -11,14 +12,14 @@ export const phoneSchema = z
     'Phone number must be valid (e.g., (123) 456-7890, 123-456-7890, or 1234567890)',
   )
 
-export const validatePhone: TextFieldSingleValidation = (value) => {
+export const validatePhone: TextFieldSingleValidation = (value, args) => {
   if (value === null || value === undefined || value === '') {
-    return true // Allow empty values - add required: true to field if needed
+    return text(value, args) // Allow empty values - add required: true to field if needed
   }
 
   try {
     phoneSchema.parse(value)
-    return true
+    return text(value, args)
   } catch (error) {
     if (error instanceof z.ZodError) {
       return error.errors[0]?.message || 'Invalid phone number'

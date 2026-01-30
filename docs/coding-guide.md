@@ -182,55 +182,47 @@ blocks
     └── config.ts
 ```
 
-## Button vs CMSLink
-
-### Button
-Interactive actions or buttons as link. A base component using Radix UI's Slot pattern.
+## ButtonLink
+Links styled as buttons with built-in analytics tracking. Supports both direct URLs and CMS-driven references.
 
 **Key features:**
-- `onClick` for client-side logic (toggles, handlers, form validation)
-- `asChild` + `<Link href>` for navigation without analytics
-- `asChild` + `<form action>` for server actions
-- Posthog events are autocaptured
+- Works with both simple `href` prop and CMS references (pages, posts, built-in pages)
+- Automatically resolves internal/external URLs from CMS data
+- Built-in Posthog analytics with `button_click` event tracking
+- Intended for blocks, rich text editors, or any CMS-driven navigation
+- Supports all Button styling options
 
-**Styles options**
+**Props:**
+- `href` - Direct URL (use this OR reference - not both)
+- `reference` - CMS reference object (use this OR href - not both)
+- `type` - `'internal'` or `'external'` (required if using `reference`)
+- `label` - Button text (falls back to reference title or children)
+- `newTab` - Opens in new tab
+- `url` - CMS custom URL option
+
+**Style props**
 - Size: (`sm`, `default`, `lg`, `icon`, `clear`)
 - Variants: (`default`, `secondary`, `ghost`, `outline`, `callout`)
 
 **Examples:**
-
 ```tsx
-// With onClick
-<Button onClick={handleClick}>Toggle</Button>
-
-// With link
-//   href - required
-//   newTab - optional
-<ButtonLink href='https://nwac.us' newTab>
+// Simple link with direct href
+<ButtonLink href="/about" variant="default">
   Learn More
-</Button>
-```
+</ButtonLink>
 
-### CMSLink
-CMS-driven links intended to be used with the admin panel.
+// External link in new tab and external link icon
+<ButtonLink href="https://nwac.us" newTab>
+  Visit NWAC
+  <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+</ButtonLink>
 
-**Key features:**
-- The link data comes from your CMS (Payload) like internal pages, posts, or built-in pages and automatically resolves internal/external URLs.
-- Intended for blocks or rich text editors use the `button` field
-- Posthog events are captured with event `button_click`
-
-**Styles options**
-- Size: (`sm`, `default`, `lg`, `icon`, `clear`)
-- Variants: (`default`, `secondary`, `ghost`, `outline`, `callout`)
-
-**Example:**
-```tsx
-<CMSLink
-  reference={{ relationTo: 'posts', value: postId }}
-  variant="default"
-  size="md"
-  newTab={false}
+// CMS-driven link (internal page reference)
+<ButtonLink
+  reference={{ relationTo: 'pages', value: pageData }}
+  variant="outline"
+  size="lg"
 >
   Read More
-</CMSLink>
+</ButtonLink>
 ```

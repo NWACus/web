@@ -1,15 +1,11 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
-import { cachedPublicTenants } from '@/collections/Tenants/endpoints/cachedPublicTenants'
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
 } from '@/collections/Tenants/hooks/revalidateTenants'
-import {
-  updateEdgeConfigAfterChange,
-  updateEdgeConfigAfterDelete,
-} from '@/collections/Tenants/hooks/updateEdgeConfig'
 import { contentHashField } from '@/fields/contentHashField'
 import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
+import { AVALANCHE_CENTERS, VALID_TENANT_SLUGS } from '@/utilities/tenancy/avalancheCenters'
 import type { CollectionConfig } from 'payload'
 
 export const Tenants: CollectionConfig = {
@@ -29,16 +25,9 @@ export const Tenants: CollectionConfig = {
     slug: true,
     customDomain: true, // required for byGlobalRoleOrTenantRoleAssignment
   },
-  endpoints: [
-    {
-      path: '/cached-public',
-      method: 'get',
-      handler: cachedPublicTenants,
-    },
-  ],
   hooks: {
-    afterChange: [revalidateTenantsAfterChange, updateEdgeConfigAfterChange],
-    afterDelete: [revalidateTenantsAfterDelete, updateEdgeConfigAfterDelete],
+    afterChange: [revalidateTenantsAfterChange],
+    afterDelete: [revalidateTenantsAfterDelete],
   },
   fields: [
     {
@@ -53,11 +42,14 @@ export const Tenants: CollectionConfig = {
     },
     {
       name: 'slug',
-      type: 'text',
+      type: 'select',
       admin: {
-        description:
-          'Used for subdomains and url paths for previews. This is a unique identifier for a tenant.',
+        description: 'Avalanche center identifier. Used for subdomains and URL paths.',
       },
+      options: VALID_TENANT_SLUGS.map((slug) => ({
+        label: `${AVALANCHE_CENTERS[slug].name} (${slug})`,
+        value: slug,
+      })),
       index: true,
       required: true,
       unique: true,

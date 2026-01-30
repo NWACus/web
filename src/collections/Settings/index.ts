@@ -3,23 +3,16 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
+import { validatePhone } from '@/utilities/validatePhone'
 import { CollectionConfig, Field, TextFieldValidation } from 'payload'
+import { text } from 'payload/shared'
 import { revalidateSettings } from './hooks/revalidateSettings'
 
-const validateHashtag: TextFieldValidation = (value: string | null | undefined): string | true => {
+const validateHashtag: TextFieldValidation = (value, args) => {
   return value
     ? /^#[A-Za-z0-9_](?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}[A-Za-z0-9_]$/.test(value) ||
         `${value} is not a valid hashtag`
-    : true
-}
-
-const validateTelephone: TextFieldValidation = (
-  value: string | null | undefined,
-): string | true => {
-  return value
-    ? /^(\+1\s?|1\s?)?(\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value) ||
-        `${value} is not a valid phone number`
-    : true
+    : text(value, args)
 }
 
 const generalFields: Field[] = [
@@ -64,7 +57,7 @@ const generalFields: Field[] = [
   {
     name: 'phone',
     type: 'text',
-    validate: validateTelephone,
+    validate: validatePhone,
     admin: {
       description: 'Appears in your website footer.',
     },
@@ -85,7 +78,7 @@ const generalFields: Field[] = [
   {
     name: 'phoneSecondary',
     type: 'text',
-    validate: validateTelephone,
+    validate: validatePhone,
     admin: {
       description: 'Secondary phone appears in your website footer.',
     },
