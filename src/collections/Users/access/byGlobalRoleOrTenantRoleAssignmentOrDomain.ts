@@ -1,4 +1,5 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
+import { getDocumentById } from '@/utilities/getDocumentById'
 import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
@@ -35,7 +36,7 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
         assignment.role.rules.some(ruleMatches(method, 'users')),
     )
 
-    const conditions = []
+    const conditions: Where[] = []
 
     // Tenant scoped role based access
     const userCollectionRoleAssignmentsTenants = userCollectionRoleAssignments
@@ -94,6 +95,22 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
           or: orConditions,
         })
       }
+    }
+
+    if (method === 'update' || method === 'delete') {
+      const isManager = await isProviderManager(args.req.payload, args.req.user)
+      if (isManager) {
+        const selectedUserId = args.id
+        if (!selectedUserId) return false
+        const selectedUser = await getDocumentById('users', selectedUserId)
+        if (
+          selectedUser.globalRoleAssignments?.docs?.length == 0 &&
+          selectedUser.roles?.docs?.length == 0
+        ) {
+          return true
+        }
+      }
+      return false
     }
 
     if (conditions.length > 0) {
