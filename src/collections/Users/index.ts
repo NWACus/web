@@ -1,10 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
 import { byGlobalRole } from '@/access/byGlobalRole'
-import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { contentHashField } from '@/fields/contentHashField'
 import { generateForgotPasswordEmail } from '@/utilities/email/generateForgotPasswordEmail'
-import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { accessByGlobalRoleOrTenantRoleAssignmentOrDomain } from './access/byGlobalRoleOrTenantRoleAssignmentOrDomain'
 import { filterByTenantScopedDomain } from './access/filterByTenantScopedDomain'
 import { beforeValidatePassword } from './hooks/beforeValidatePassword'
@@ -122,43 +120,5 @@ export const Users: CollectionConfig = {
     afterLogin: [setLastLogin, posthogIdentifyAfterLogin],
     beforeLogin: [validateDomainAccessBeforeLogin],
     beforeValidate: [beforeValidatePassword],
-    beforeChange: [
-      async ({ data, operation, req }) => {
-        const user = req.user
-        if (!user) return
-        const isSuperAdmin = await hasSuperAdminPermissions({ req })
-        const loggedInAsManager =
-          (await isProviderManager(req.payload, user)) &&
-          !isSuperAdmin &&
-          user.roles?.docs?.length === 0
-        const isAvyUser =
-          (data.globalRoleAssignments?.docs?.length ?? 0) > 0 || (data.roles?.docs?.length ?? 0) > 0
-        if (operation === 'update' && loggedInAsManager && isAvyUser)
-          throw new Error('Cannot edit users of avalanche center')
-      },
-    ],
-    beforeDelete: [
-      async ({ req, id }) => {
-        const user = req.user
-        if (!user) return
-        const isSuperAdmin = await hasSuperAdminPermissions({ req })
-        const loggedInAsManager =
-          (await isProviderManager(req.payload, user)) &&
-          !isSuperAdmin &&
-          user.roles?.docs?.length === 0
-
-        const userToDelete = await req.payload.findByID({
-          collection: 'users',
-          id,
-        })
-
-        const isAvyUser =
-          (userToDelete.globalRoleAssignments?.docs?.length ?? 0) > 0 ||
-          (userToDelete.roles?.docs?.length ?? 0) > 0
-
-        if (loggedInAsManager && isAvyUser)
-          throw new Error('Cannot delete users of avalanche center')
-      },
-    ],
   },
 }
