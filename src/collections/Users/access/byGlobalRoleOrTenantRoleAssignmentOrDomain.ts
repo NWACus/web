@@ -96,31 +96,6 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
       }
     }
 
-    if (method === 'update' || method === 'delete') {
-      const isManager = await isProviderManager(args.req.payload, args.req.user)
-      if (isManager) {
-        conditions.push({
-          and: [
-            {
-              providers: {
-                exists: true,
-              },
-            },
-            {
-              roles: {
-                exists: false,
-              },
-            },
-            {
-              globalRoleAssignments: {
-                exists: false,
-              },
-            },
-          ],
-        })
-      }
-    }
-
     if (conditions.length > 0) {
       return {
         or: conditions,
