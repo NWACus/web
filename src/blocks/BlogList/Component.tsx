@@ -1,9 +1,9 @@
 'use client'
 
 import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
+import { ButtonLink } from '@/components/ButtonLink'
 import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
 import RichText from '@/components/RichText'
-import { Button } from '@/components/ui/button'
 import type { BlogListBlock as BlogListBlockProps, Post } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import {
@@ -11,7 +11,6 @@ import {
   filterValidRelationships,
 } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type BlogListComponentProps = BlogListBlockProps & {
@@ -123,9 +122,12 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
           )}
         </div>
         {postOptions === 'dynamic' && (
-          <Button asChild className="not-prose md:self-start">
-            <Link href={`/blog?${postsPageParams.toString()}`}>View all {heading}</Link>
-          </Button>
+          <ButtonLink
+            href={`/blog?${postsPageParams.toString()}`}
+            className="not-prose md:self-start"
+          >
+            View all {heading}
+          </ButtonLink>
         )}
       </div>
     </BackgroundColorWrapper>

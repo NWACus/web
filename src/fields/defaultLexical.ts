@@ -1,6 +1,7 @@
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import {
   AlignFeature,
@@ -18,6 +19,8 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { Config } from 'payload'
 
+import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
+
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
     return [
@@ -29,20 +32,31 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
       BoldFeature(),
       ItalicFeature(),
       LinkFeature({
-        enabledCollections: ['pages', 'posts'],
+        enabledCollections: LINK_ENABLED_COLLECTIONS,
         fields: ({ defaultFields }) => {
-          const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
-            if ('name' in field && field.name === 'url') return false
-            return true
-          })
+          const defaultFieldsWithoutUrl = defaultFields.filter(
+            (field) => field.name !== 'url' && field.name !== 'doc',
+          )
 
           return [
             ...defaultFieldsWithoutUrl,
             {
+              name: 'doc',
+              type: 'relationship',
+              admin: {
+                condition: (_, siblingData) => siblingData?.linkType === 'internal',
+                width: '50%',
+              },
+              label: 'Select page or post',
+              relationTo: LINK_ENABLED_COLLECTIONS,
+              required: true,
+              filterOptions: getTenantFilter,
+            },
+            {
               name: 'url',
               type: 'text',
               admin: {
-                condition: (_data, siblingData) => siblingData?.linkType !== 'internal',
+                condition: (_data, siblingData) => siblingData?.linkType === 'custom',
               },
               label: ({ t }) => t('fields:enterURL'),
               required: true,

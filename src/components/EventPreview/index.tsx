@@ -5,8 +5,8 @@ import { formatDateTime } from '@/utilities/formatDateTime'
 import { cn } from '@/utilities/ui'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { ButtonLink } from '../ButtonLink'
 import { EventInfo } from '../EventInfo'
-import { CMSLink } from '../Link'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -142,21 +142,24 @@ export const EventPreview = (props: {
                 <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
               </Button>
             ) : (
-              <Button asChild size="sm" className="group-hover:opacity-90 transition-opacity">
-                <Link href={registrationUrl} target="_blank" rel="noopener noreferrer">
-                  Register
-                  <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-                </Link>
-              </Button>
+              <ButtonLink
+                href={registrationUrl}
+                size="sm"
+                className="group-hover:opacity-90 transition-opacity"
+                newTab
+              >
+                Register
+                <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
+              </ButtonLink>
             ))}
-          <CMSLink
-            appearance="outline"
+          <ButtonLink
+            href={eventUrl}
+            variant="outline"
             size="sm"
             className="group-hover:opacity-90 transition-opacity"
-            url={eventUrl}
           >
             Learn More
-          </CMSLink>
+          </ButtonLink>
         </div>
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">

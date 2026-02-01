@@ -1,6 +1,6 @@
 import type { Block, Field } from 'payload'
 
-import { button } from '@/fields/button'
+import { buttonField } from '@/fields/button'
 import colorPickerField from '@/fields/color'
 import { titleField } from '@/fields/title'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
@@ -25,7 +25,7 @@ const cardFields: Field[] = [
     type: 'textarea',
     required: true,
   },
-  button(['default', 'secondary', 'outline']),
+  buttonField(['default', 'secondary', 'outline']),
 ]
 
 export const LinkPreviewBlock: Block = {

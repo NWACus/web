@@ -1,4 +1,4 @@
-import { linkToPageOrPost } from '@/fields/linkToPageOrPost'
+import { linkField } from '@/fields/linkField'
 import { getImageTypeFilter } from '@/utilities/collectionFilters'
 import type { Block } from 'payload'
 
@@ -22,14 +22,7 @@ export const ImageLinkGridBlock: Block = {
           required: true,
           filterOptions: getImageTypeFilter,
         },
-        {
-          name: 'link',
-          type: 'group',
-          admin: {
-            hideGutter: true,
-          },
-          fields: [...linkToPageOrPost],
-        },
+        linkField(),
         {
           name: 'caption',
           type: 'text',

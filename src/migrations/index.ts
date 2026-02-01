@@ -42,7 +42,8 @@ import * as migration_20251219_073149_remove_autosave from './20251219_073149_re
 import * as migration_20260111_205454_nav_item_standalone_label from './20260111_205454_nav_item_standalone_label'
 import * as migration_20260115_234107_remove_image_sizes from './20260115_234107_remove_image_sizes'
 import * as migration_20260120_194629_unify_block_naming from './20260120_194629_unify_block_naming'
-import * as migration_20260128_012456_remove_wrap_in_container from './20260128_012456_remove_wrap_in_container'
+import * as migration_20260128_213937_rename_appearance_to_variant from './20260128_213937_rename_appearance_to_variant'
+import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 
 export const migrations = [
   {
@@ -266,8 +267,13 @@ export const migrations = [
     name: '20260120_194629_unify_block_naming',
   },
   {
-    up: migration_20260128_012456_remove_wrap_in_container.up,
-    down: migration_20260128_012456_remove_wrap_in_container.down,
-    name: '20260128_012456_remove_wrap_in_container',
+    up: migration_20260128_213937_rename_appearance_to_variant.up,
+    down: migration_20260128_213937_rename_appearance_to_variant.down,
+    name: '20260128_213937_rename_appearance_to_variant',
+  },
+  {
+    up: migration_20260131_012456_remove_wrap_in_container.up,
+    down: migration_20260131_012456_remove_wrap_in_container.down,
+    name: '20260131_012456_remove_wrap_in_container',
   },
 ]
