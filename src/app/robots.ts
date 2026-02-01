@@ -15,6 +15,10 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
       {
+        userAgent: 'Twitterbot',
+        disallow: '/',
+      },
+      {
         userAgent: '*',
         allow: '/',
         disallow: ['/admin', '/admin/'],
