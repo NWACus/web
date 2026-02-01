@@ -1,4 +1,5 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
+import { getDocumentById } from '@/utilities/getDocumentById'
 import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
@@ -71,27 +72,45 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
     }
 
     // Provider managers can see all users with provider relationship(s) and themselves
-    const isManager = await isProviderManager(args.req.payload, args.req.user)
-    if (isManager) {
-      const orConditions: Where[] = [
-        {
-          providers: {
-            exists: true,
+    if (method === 'read') {
+      const isManager = await isProviderManager(args.req.payload, args.req.user)
+      if (isManager) {
+        const orConditions: Where[] = [
+          {
+            providers: {
+              exists: true,
+            },
           },
-        },
-      ]
+        ]
 
-      if (args.req.user.id) {
-        orConditions.push({
-          id: {
-            equals: args.req.user.id,
-          },
+        if (args.req.user.id) {
+          orConditions.push({
+            id: {
+              equals: args.req.user.id,
+            },
+          })
+        }
+
+        conditions.push({
+          or: orConditions,
         })
       }
+    }
 
-      conditions.push({
-        or: orConditions,
-      })
+    if (method === 'update' || method === 'delete') {
+      const isManager = await isProviderManager(args.req.payload, args.req.user)
+      if (isManager) {
+        const selectedUserId = args.id
+        if (!selectedUserId) return false
+        const selectedUser = await getDocumentById('users', selectedUserId)
+        if (
+          selectedUser.globalRoleAssignments?.docs?.length == 0 &&
+          selectedUser.roles?.docs?.length == 0
+        ) {
+          return true
+        }
+      }
+      return false
     }
 
     if (conditions.length > 0) {
