@@ -1,5 +1,6 @@
 'use client'
 
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
 import { ButtonLink } from '@/components/ButtonLink'
 import { EventPreviewSmallRow } from '@/components/EventPreviewSmallRow'
 import RichText from '@/components/RichText'
@@ -11,8 +12,8 @@ import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
 type EventListComponentProps = EventListBlockProps & {
+  isLexical: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const EventListBlockComponent = (args: EventListComponentProps) => {
@@ -21,7 +22,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
     belowHeadingContent,
     backgroundColor,
     className,
-    wrapInContainer = true,
+    isLexical = true,
     eventOptions,
   } = args
 
@@ -94,48 +95,48 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
     return null
   }
 
-  const bgColorClass = `bg-${backgroundColor}`
-
   return (
-    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
-      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
-        <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
-          <div className="flex flex-col justify-start gap-1">
-            {heading && (
-              <div className="prose md:prose-md dark:prose-invert">
-                <h2>{heading}</h2>
-              </div>
-            )}
-            {belowHeadingContent && (
-              <div>
-                <RichText data={belowHeadingContent} enableGutter={false} />
-              </div>
-            )}
-          </div>
-          <div
-            className={cn(
-              'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
-              displayEvents && displayEvents.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
-            )}
-          >
-            {displayEvents && displayEvents?.length > 0 ? (
-              displayEvents?.map((event, index) => (
-                <EventPreviewSmallRow doc={event} key={`${event.id}__${index}`} />
-              ))
-            ) : (
-              <h3>There are no events matching these results.</h3>
-            )}
-          </div>
-          {eventOptions === 'dynamic' && (
-            <ButtonLink
-              href={`/events?${eventsPageParamsString}`}
-              className="not-prose md:self-start"
-            >
-              View all {heading}
-            </ButtonLink>
+    <BackgroundColorWrapper
+      backgroundColor={backgroundColor}
+      isLexical={isLexical}
+      containerClassName={className}
+    >
+      <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
+        <div className="flex flex-col justify-start gap-1">
+          {heading && (
+            <div className="prose md:prose-md dark:prose-invert">
+              <h2>{heading}</h2>
+            </div>
+          )}
+          {belowHeadingContent && (
+            <div>
+              <RichText data={belowHeadingContent} enableGutter={false} />
+            </div>
           )}
         </div>
+        <div
+          className={cn(
+            'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
+            displayEvents && displayEvents.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
+          )}
+        >
+          {displayEvents && displayEvents?.length > 0 ? (
+            displayEvents?.map((event, index) => (
+              <EventPreviewSmallRow doc={event} key={`${event.id}__${index}`} />
+            ))
+          ) : (
+            <h3>There are no events matching these results.</h3>
+          )}
+        </div>
+        {eventOptions === 'dynamic' && (
+          <ButtonLink
+            href={`/events?${eventsPageParamsString}`}
+            className="not-prose md:self-start"
+          >
+            View all {heading}
+          </ButtonLink>
+        )}
       </div>
-    </div>
+    </BackgroundColorWrapper>
   )
 }
