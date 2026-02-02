@@ -1,7 +1,7 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
-import { linkToPageOrPost } from '@/fields/linkToPageOrPost'
+import { linkField } from '@/fields/linkField'
 import { tenantField } from '@/fields/tenantField'
 import { CollectionConfig } from 'payload'
 import { revalidateRedirect, revalidateRedirectDelete } from './hooks/revalidateRedirect'
@@ -33,14 +33,7 @@ export const Redirects: CollectionConfig = {
         beforeChange: [validateFrom],
       },
     },
-    {
-      name: 'to',
-      type: 'group',
-      admin: {
-        hideGutter: true,
-      },
-      fields: [...linkToPageOrPost],
-    },
+    linkField({ fieldName: 'to' }),
     tenantField(),
     contentHashField(),
   ],

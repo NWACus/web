@@ -1,8 +1,9 @@
 'use client'
 
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
+import { ButtonLink } from '@/components/ButtonLink'
 import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
 import RichText from '@/components/RichText'
-import { Button } from '@/components/ui/button'
 import type { BlogListBlock as BlogListBlockProps, Post } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
 import {
@@ -10,12 +11,11 @@ import {
   filterValidRelationships,
 } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 type BlogListComponentProps = BlogListBlockProps & {
+  isLexical: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const BlogListBlockComponent = (args: BlogListComponentProps) => {
@@ -24,7 +24,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
     belowHeadingContent,
     backgroundColor,
     className,
-    wrapInContainer = true,
+    isLexical = true,
     postOptions,
   } = args
 
@@ -33,8 +33,6 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
   const { tenant } = useTenant()
   const [fetchedPosts, setFetchedPosts] = useState<Post[]>([])
   const [postsPageParams, setPostsPageParams] = useState<string>('')
-
-  const bgColorClass = `bg-${backgroundColor}`
 
   useEffect(() => {
     if (postOptions !== 'dynamic') return
@@ -91,42 +89,47 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
   }
 
   return (
-    <div className={cn(wrapInContainer && bgColorClass && `${bgColorClass}`)}>
-      <div className={cn(wrapInContainer && 'container py-10', '@container', className)}>
-        <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
-          <div className="flex flex-col justify-start gap-1">
-            {heading && (
-              <div className="prose md:prose-md dark:prose-invert">
-                <h2>{heading}</h2>
-              </div>
-            )}
-            {belowHeadingContent && (
-              <div>
-                <RichText data={belowHeadingContent} enableGutter={false} />
-              </div>
-            )}
-          </div>
-          <div
-            className={cn(
-              'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
-              posts && posts.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
-            )}
-          >
-            {posts && posts?.length > 0 ? (
-              posts?.map((post, index) => (
-                <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
-              ))
-            ) : (
-              <h3>There are no posts matching these results.</h3>
-            )}
-          </div>
-          {postOptions === 'dynamic' && (
-            <Button asChild className="not-prose md:self-start">
-              <Link href={`/blog?${postsPageParams.toString()}`}>View all {heading}</Link>
-            </Button>
+    <BackgroundColorWrapper
+      backgroundColor={backgroundColor}
+      isLexical={isLexical}
+      containerClassName={className}
+    >
+      <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
+        <div className="flex flex-col justify-start gap-1">
+          {heading && (
+            <div className="prose md:prose-md dark:prose-invert">
+              <h2>{heading}</h2>
+            </div>
+          )}
+          {belowHeadingContent && (
+            <div>
+              <RichText data={belowHeadingContent} enableGutter={false} />
+            </div>
           )}
         </div>
+        <div
+          className={cn(
+            'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
+            posts && posts.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
+          )}
+        >
+          {posts && posts?.length > 0 ? (
+            posts?.map((post, index) => (
+              <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
+            ))
+          ) : (
+            <h3>There are no posts matching these results.</h3>
+          )}
+        </div>
+        {postOptions === 'dynamic' && (
+          <ButtonLink
+            href={`/blog?${postsPageParams.toString()}`}
+            className="not-prose md:self-start"
+          >
+            View all {heading}
+          </ButtonLink>
+        )}
       </div>
-    </div>
+    </BackgroundColorWrapper>
   )
 }

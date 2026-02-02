@@ -3,13 +3,12 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { ButtonLink } from '@/components/ButtonLink'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
-import { Button } from '@/components/ui/button'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ObservationLinkHijacker } from './ObservationLinkHijacker.client'
 
@@ -55,9 +54,9 @@ export default async function Page({ params }: Args) {
         <div className="container flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-4 prose dark:prose-invert max-w-none">
             <h1 className="font-bold">Observations</h1>
-            <Button asChild variant="secondary" className="no-underline">
-              <Link href="/observations/submit">Submit Observation</Link>
-            </Button>
+            <ButtonLink href="/observations/submit" variant="secondary">
+              Submit Observation
+            </ButtonLink>
           </div>
           <ObservationsDisclaimer />
         </div>
@@ -77,8 +76,7 @@ export async function generateMetadata(
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const { center } = await props.params
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const parentMeta = (await parent) as Metadata
+  const parentMeta = await parent
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title

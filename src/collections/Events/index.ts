@@ -1,14 +1,14 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
-import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
+import { BlogListBlock } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/Document/config'
-import { EventListLexicalBlock } from '@/blocks/EventList/config'
-import { EventTableLexicalBlock } from '@/blocks/EventTable/config'
-import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
-import { HeaderBlock } from '@/blocks/Header/config'
-import { MediaLexicalBlock } from '@/blocks/Media/config'
-import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
-import { SingleEventLexicalBlock } from '@/blocks/SingleEvent/config'
+import { EventListBlock } from '@/blocks/EventList/config'
+import { EventTableBlock } from '@/blocks/EventTable/config'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
+import { HeaderLexicalBlock } from '@/blocks/Header/config'
+import { MediaBlock } from '@/blocks/Media/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { eventTypesData } from '@/constants/eventTypes'
 import { contentHashField } from '@/fields/contentHashField'
@@ -21,7 +21,7 @@ import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { validateEventDates } from '@/hooks/validateEventDates'
-import { Event } from '@/payload-types'
+import { Course } from '@/payload-types'
 import { getImageTypeFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateExternalUrl } from '@/utilities/validateUrl'
@@ -32,7 +32,8 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { CollectionConfig } from 'payload'
+import { CollectionConfig, DateField, ValidateOptions } from 'payload'
+import { date } from 'payload/shared'
 import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
 import { revalidateEvent, revalidateEventDelete } from './hooks/revalidateEvent'
 
@@ -112,8 +113,13 @@ export const Events: CollectionConfig = {
             description:
               'Registration cutoff. Timezone will always be set to the startDate timezone.',
           },
-          validate: (value, { siblingData }: { siblingData: Partial<Event> }) => {
-            const data = siblingData
+          validate: (
+            value,
+            args: ValidateOptions<unknown, unknown, DateField, Date> & {
+              siblingData: Partial<Course>
+            },
+          ) => {
+            const { siblingData: data } = args
             if (value && data?.startDate) {
               const registrationDeadline = new Date(value)
               const startDate = new Date(data.startDate)
@@ -122,7 +128,7 @@ export const Events: CollectionConfig = {
                 return 'Registration deadline must be before start date.'
               }
             }
-            return true
+            return date(value, args)
           },
         },
       ],
@@ -146,15 +152,15 @@ export const Events: CollectionConfig = {
                 ...rootFeatures,
                 BlocksFeature({
                   blocks: [
-                    BlogListLexicalBlock,
+                    BlogListBlock,
                     DocumentBlock,
-                    EventListLexicalBlock,
-                    EventTableLexicalBlock,
-                    GenericEmbedLexicalBlock,
-                    HeaderBlock,
-                    MediaLexicalBlock,
-                    SingleBlogPostLexicalBlock,
-                    SingleEventLexicalBlock,
+                    EventListBlock,
+                    EventTableBlock,
+                    GenericEmbedBlock,
+                    HeaderLexicalBlock,
+                    MediaBlock,
+                    SingleBlogPostBlock,
+                    SingleEventBlock,
                     SponsorsBlock,
                   ],
                 }),

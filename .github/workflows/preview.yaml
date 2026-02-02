@@ -15,6 +15,8 @@ jobs:
     if: ${{ github.event_name != 'merge_group' }}
     runs-on: ubuntu-latest
     environment: Preview
+    env:
+      NODE_ENV: production
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
@@ -99,6 +101,12 @@ jobs:
         run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_ROOT_DOMAIN preview ${{ github.head_ref }} --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }} .env
+      - name: Run database migrations
+        run: pnpm migrate
+        env:
+          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
+          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Seed the database
         run: pnpm seed:standalone
         env:

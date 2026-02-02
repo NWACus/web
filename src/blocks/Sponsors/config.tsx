@@ -1,8 +1,10 @@
 import colorPickerField from '@/fields/color'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { Block, RadioFieldValidation } from 'payload'
+import { radio } from 'payload/shared'
 
-const validateSponsorsLayout: RadioFieldValidation = async (val, { req, siblingData }) => {
+const validateSponsorsLayout: RadioFieldValidation = async (val, args) => {
+  const { req, siblingData } = args
   if (
     val === 'banner' &&
     siblingData &&
@@ -37,7 +39,7 @@ const validateSponsorsLayout: RadioFieldValidation = async (val, { req, siblingD
         const minWidthRatio = 6
 
         if (ratio >= minWidthRatio) {
-          return true
+          return radio(val, args)
         } else {
           return 'Sponsor photo ratio is incorrect. Ideal size 1280x200'
         }
@@ -46,7 +48,7 @@ const validateSponsorsLayout: RadioFieldValidation = async (val, { req, siblingD
       return 'Only one sponsor with photo must be selected'
     }
   }
-  return true
+  return radio(val, args)
 }
 
 export const SponsorsBlock: Block = {
@@ -91,15 +93,6 @@ export const SponsorsBlock: Block = {
       hasMany: true,
       required: true,
       filterOptions: getTenantFilter,
-    },
-    {
-      name: 'wrapInContainer',
-      admin: {
-        description:
-          'Checking this will render the block with additional padding around it and using the background color you have selected.',
-      },
-      type: 'checkbox',
-      defaultValue: true,
     },
   ],
 }

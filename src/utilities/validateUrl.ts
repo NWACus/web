@@ -1,4 +1,5 @@
 import { TextFieldSingleValidation } from 'payload'
+import { text } from 'payload/shared'
 
 /**
  * Validates whether a string is a valid, full URL with protocol, host, and proper TLD
@@ -48,9 +49,9 @@ export const isValidFullUrl = (url?: string | null): boolean => {
   }
 }
 
-export const validateExternalUrl: TextFieldSingleValidation = (val) => {
+export const validateExternalUrl: TextFieldSingleValidation = (val, args) => {
   if (val == null || typeof val !== 'string' || val.trim() === '') {
-    return true // Allow empty values - add required: true to field if needed
+    return text(val, args) // Allow empty values - add required: true to field if needed
   }
 
   return (

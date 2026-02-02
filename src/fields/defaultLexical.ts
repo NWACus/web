@@ -1,6 +1,8 @@
-import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
-import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
-import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { BlogListBlock } from '@/blocks/BlogList/config'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { getTenantFilter } from '@/utilities/collectionFilters'
+import { validateExternalUrl } from '@/utilities/validateUrl'
 import {
   AlignFeature,
   BlocksFeature,
@@ -10,13 +12,14 @@ import {
   ItalicFeature,
   lexicalEditor,
   LinkFeature,
-  LinkFields,
   OrderedListFeature,
   ParagraphFeature,
   UnderlineFeature,
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical'
-import { Config, TextFieldSingleValidation } from 'payload'
+import { Config } from 'payload'
+
+import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: () => {
@@ -29,37 +32,41 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
       BoldFeature(),
       ItalicFeature(),
       LinkFeature({
-        enabledCollections: ['pages', 'posts'],
+        enabledCollections: LINK_ENABLED_COLLECTIONS,
         fields: ({ defaultFields }) => {
-          const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
-            if ('name' in field && field.name === 'url') return false
-            return true
-          })
+          const defaultFieldsWithoutUrl = defaultFields.filter(
+            (field) => field.name !== 'url' && field.name !== 'doc',
+          )
 
           return [
             ...defaultFieldsWithoutUrl,
             {
+              name: 'doc',
+              type: 'relationship',
+              admin: {
+                condition: (_, siblingData) => siblingData?.linkType === 'internal',
+                width: '50%',
+              },
+              label: 'Select page or post',
+              relationTo: LINK_ENABLED_COLLECTIONS,
+              required: true,
+              filterOptions: getTenantFilter,
+            },
+            {
               name: 'url',
               type: 'text',
               admin: {
-                condition: (_data, siblingData) => siblingData?.linkType !== 'internal',
+                condition: (_data, siblingData) => siblingData?.linkType === 'custom',
               },
               label: ({ t }) => t('fields:enterURL'),
               required: true,
-              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-              validate: ((value, options) => {
-                // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-                if ((options?.siblingData as LinkFields)?.linkType === 'internal') {
-                  return true // no validation needed, as no url should exist for internal links
-                }
-                return value ? true : 'URL is required'
-              }) as TextFieldSingleValidation,
+              validate: validateExternalUrl,
             },
           ]
         },
       }),
       BlocksFeature({
-        blocks: [GenericEmbedLexicalBlock, BlogListLexicalBlock, SingleBlogPostLexicalBlock],
+        blocks: [GenericEmbedBlock, BlogListBlock, SingleBlogPostBlock],
       }),
       FixedToolbarFeature(),
       OrderedListFeature(),
