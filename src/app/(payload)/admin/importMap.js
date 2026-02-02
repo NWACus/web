@@ -53,7 +53,7 @@ import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe76
 import { AcceptInvite as AcceptInvite_a090ee9cb5b31ae357daa74987d3109a } from '@/views/AcceptInvite'
 import { EmbedGenerator as EmbedGenerator_1b7ef53264c103176ad65c34c5002f79 } from '@/views/EmbedGenerator'
 import { GettingStartedWidget as GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd } from '@/components/dashboard-widgets/GettingStartedWidget'
-import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
   "@/fields/tenantField/TenantFieldComponent#TenantFieldComponent": TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6,
@@ -111,5 +111,5 @@ export const importMap = {
   "@/views/AcceptInvite#AcceptInvite": AcceptInvite_a090ee9cb5b31ae357daa74987d3109a,
   "@/views/EmbedGenerator#EmbedGenerator": EmbedGenerator_1b7ef53264c103176ad65c34c5002f79,
   "@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget": GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd,
-  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
