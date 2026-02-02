@@ -24,6 +24,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { blocks } from 'payload/shared'
 import { populateBlocksInHighlightedContent } from './hooks/populateBlocksInHighlightedContent'
 import { revalidateHomePage, revalidateHomePageDelete } from './hooks/revalidateHomePage'
 
@@ -140,7 +141,19 @@ export const HomePages: CollectionConfig = {
         const nacMediaBlockCount = layoutBlocks.filter(
           (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
         ).length
-        return nacMediaBlockCount > 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
+        return nacMediaBlockCount >= 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
+      },
+      validate: (value, args) => {
+        if (!value || !Array.isArray(value)) return blocks(value, args)
+
+        const nacMediaBlockCount = value.filter(
+          (block) => block.blockType === 'nacMediaBlock',
+        ).length
+
+        if (nacMediaBlockCount > 1) throw Error('Only one NACMediaBlock is allowed per page')
+
+        // Do not use default validation because of nacMediaBlock
+        return nacMediaBlockCount ? true : blocks(value, args)
       },
     },
     {
