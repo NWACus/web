@@ -78,7 +78,7 @@ jobs:
 
           fullName="${{ github.repository }}"
           vercel deploy --yes --prebuilt --target=production \
-            --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
+            --meta='githubCommitAuthorName=${{ github.event.head_commit.author.name || github.actor }} \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=release' \
             --meta="githubCommitRepo=${fullName##*/}" \
@@ -86,7 +86,7 @@ jobs:
             --meta='githubDeployment=1' \
             --meta='githubOrg=${{ github.repository_owner }}' \
             --meta="githubRepo=${fullName##*/}" \
-            --meta='githubCommitAuthorLogin=${{ github.event.pusher.name }}' \
+            --meta='githubCommitAuthorLogin=${{ github.event.head_commit.author.name || github.actor }} \
             --token=${{ secrets.VERCEL_TOKEN }}
       - name: Remove old Vercel deployments (keep latest 2)
         run: |
