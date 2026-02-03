@@ -133,16 +133,7 @@ export const HomePages: CollectionConfig = {
       type: 'blocks',
       blocks: [...DEFAULT_BLOCKS, NACMediaBlock].sort((a, b) => a.slug.localeCompare(b.slug)),
       required: true,
-      filterOptions: ({ data }) => {
-        const layoutBlocks = data?.layout
 
-        if (!layoutBlocks) return true
-
-        const nacMediaBlockCount = layoutBlocks.filter(
-          (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
-        ).length
-        return nacMediaBlockCount >= 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
-      },
       validate: (value, args) => {
         if (!value || !Array.isArray(value)) return blocks(value, args)
 
@@ -153,7 +144,7 @@ export const HomePages: CollectionConfig = {
         if (nacMediaBlockCount > 1) throw Error('Only one NACMediaBlock is allowed per page')
 
         // Do not use default validation because of nacMediaBlock
-        return nacMediaBlockCount ? true : blocks(value, args)
+        return blocks(value, args)
       },
     },
     {

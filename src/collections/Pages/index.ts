@@ -74,16 +74,7 @@ export const Pages: CollectionConfig<'pages'> = {
                 description:
                   'This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab.',
               },
-              filterOptions: ({ data }) => {
-                const layoutBlocks = data?.layout
 
-                if (!layoutBlocks) return true
-
-                const nacMediaBlockCount = layoutBlocks.filter(
-                  (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
-                ).length
-                return nacMediaBlockCount >= 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
-              },
               validate: (value, args) => {
                 if (!value || !Array.isArray(value)) return blocks(value, args)
 
@@ -95,7 +86,7 @@ export const Pages: CollectionConfig<'pages'> = {
                   throw Error('Only one NACMediaBlock is allowed per page')
 
                 // Do not use default validation because of nacMediaBlock
-                return nacMediaBlockCount ? true : blocks(value, args)
+                return blocks(value, args)
               },
             },
           ],
