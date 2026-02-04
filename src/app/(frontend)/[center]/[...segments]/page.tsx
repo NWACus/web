@@ -42,6 +42,13 @@ export async function generateStaticParams() {
     // Check if this slug exists in navigation
     // Generate params if slug exists in navigation
     const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
+
+    // DEBUG LOGGING
+    console.log('🔍 PAGE FOUND')
+    console.log('   Tenant:', pageTenant)
+    console.log('   Page slug:', page.slug)
+    console.log('   Canonical URL:', canonicalUrl)
+
     if (canonicalUrl) {
       params.push({ center: pageTenant.slug, segments: normalizePath(canonicalUrl).split('/') })
     }
@@ -66,7 +73,9 @@ export default async function Page({ params: paramsPromise }: Args) {
   // Check if this path exists in navigation and get canonical URL
   const fullPath = `/${segments.join('/')}`
   const canonicalUrl = await getCanonicalUrlForPath(center, fullPath)
-
+  console.log('🔍 PAGE')
+  console.log('   Full path:', fullPath)
+  console.log('   Canonical URL:', canonicalUrl)
   if (!canonicalUrl) {
     return <Redirects center={center} url={fullPath} />
   }
