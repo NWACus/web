@@ -12,7 +12,7 @@ import { draftMode } from 'next/headers'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
-export const dynamicParams = false
+export const dynamicParams = true
 
 const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 

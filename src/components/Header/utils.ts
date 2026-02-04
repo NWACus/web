@@ -427,10 +427,6 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         avalancheCenterPlatforms,
       })
     },
-    [`top-level-nav-items-${center}`],
-    {
-      tags: ['navigation', `navigation-${center}`],
-    },
   )
 
 export async function getCanonicalUrlForSlug(center: string, slug: string): Promise<string | null> {

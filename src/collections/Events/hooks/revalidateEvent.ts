@@ -1,7 +1,7 @@
 import type { BasePayload, CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Event } from '@/payload-types'
 import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
@@ -25,6 +25,10 @@ const revalidate = async ({
 
   revalidatePath(preRewritePath)
   revalidatePath(eventRewritePath)
+
+  // Revalidate cache tags
+  revalidateTag(`events-sitemap-${tenantSlug}`)
+  revalidateTag(`navigation-${tenantSlug}`)
 
   await revalidateBlockReferences({
     collection: 'events',

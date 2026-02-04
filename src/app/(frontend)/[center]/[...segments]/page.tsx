@@ -5,12 +5,12 @@ import { Redirects } from '@/components/Redirects'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
-import { cache } from 'react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { generateMetaForPage } from '@/utilities/generateMeta'
 import { normalizePath } from '@/utilities/path'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
+import { cache } from 'react'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -43,12 +43,6 @@ export async function generateStaticParams() {
     // Generate params if slug exists in navigation
     const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
 
-    // DEBUG LOGGING
-    console.log('🔍 PAGE FOUND')
-    console.log('   Tenant:', pageTenant)
-    console.log('   Page slug:', page.slug)
-    console.log('   Canonical URL:', canonicalUrl)
-
     if (canonicalUrl) {
       params.push({ center: pageTenant.slug, segments: normalizePath(canonicalUrl).split('/') })
     }
@@ -73,9 +67,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   // Check if this path exists in navigation and get canonical URL
   const fullPath = `/${segments.join('/')}`
   const canonicalUrl = await getCanonicalUrlForPath(center, fullPath)
-  console.log('🔍 PAGE')
-  console.log('   Full path:', fullPath)
-  console.log('   Canonical URL:', canonicalUrl)
+
   if (!canonicalUrl) {
     return <Redirects center={center} url={fullPath} />
   }
