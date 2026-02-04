@@ -44,12 +44,10 @@ export async function generateStaticParams() {
     const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
 
     // DEBUG LOGGING
-    if (page.slug === 'donate') {
-      console.log('🔍 DONATE PAGE FOUND')
-      console.log('   Tenant:', pageTenant)
-      console.log('   Page slug:', page.slug)
-      console.log('   Canonical URL:', canonicalUrl)
-    }
+    console.log('🔍 PAGE FOUND')
+    console.log('   Tenant:', pageTenant)
+    console.log('   Page slug:', page.slug)
+    console.log('   Canonical URL:', canonicalUrl)
 
     if (canonicalUrl) {
       params.push({ center: pageTenant.slug, segments: normalizePath(canonicalUrl).split('/') })
