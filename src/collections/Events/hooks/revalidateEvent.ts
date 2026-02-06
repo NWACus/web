@@ -25,8 +25,6 @@ const revalidate = async ({
 
   revalidatePath(preRewritePath)
   revalidatePath(eventRewritePath)
-
-  // Revalidate cache tags
   revalidateTag(`events-sitemap-${tenantSlug}`)
   revalidateTag(`navigation-${tenantSlug}`)
 
