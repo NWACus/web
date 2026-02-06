@@ -14,8 +14,6 @@ import { ExternalLink } from 'lucide-react'
 import { Metadata, ResolvedMetadata } from 'next'
 import { redirect } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const events = await payload.find({

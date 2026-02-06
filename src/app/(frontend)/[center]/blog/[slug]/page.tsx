@@ -10,9 +10,6 @@ import { getPayload, Where } from 'payload'
 
 import { generateMetaForPost } from '@/utilities/generateMeta'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
-
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const posts = await payload.find({
