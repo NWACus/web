@@ -1,11 +1,9 @@
 import { getURL } from '../getURL'
-import { AVALANCHE_CENTERS } from './avalancheCenters'
+import { getTenants } from './getTenants'
 import { PRODUCTION_TENANTS } from './tenants'
 
-/**
- * Get all production tenant custom domain URLs for CORS configuration.
- * Uses the hardcoded list of avalanche centers and production tenants.
- */
-export function getProductionTenantUrls(): string[] {
-  return PRODUCTION_TENANTS.map((slug) => getURL(AVALANCHE_CENTERS[slug].customDomain))
+export async function getProductionTenantUrls() {
+  const tenants = await getTenants()
+  const productionTenantDefs = tenants.filter((tenant) => PRODUCTION_TENANTS.includes(tenant.slug))
+  return productionTenantDefs.map(({ customDomain }) => getURL(customDomain))
 }

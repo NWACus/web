@@ -1,7 +1,6 @@
 'use client'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
-import { useTenantLookup } from '@/utilities/useTenantLookup'
 import {
   Banner,
   Button,
@@ -16,13 +15,13 @@ import {
 } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation'
 import { formatAdminURL } from 'payload/shared'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 // TODOs
 // - Remove photos from blocks or use a global photo?
 
 export const DuplicatePageForDrawer = () => {
-  const { data: pageData } = useDocumentInfo()
+  const { savedDocumentData: pageData } = useDocumentInfo()
   const modified = useFormModified()
   const router = useRouter()
   const { options } = useTenantSelection()
@@ -32,33 +31,18 @@ export const DuplicatePageForDrawer = () => {
       routes: { admin: adminRoute },
     },
   } = useConfig()
-  const { lookupTenantSlugById } = useTenantLookup()
 
-  // Filter out the current page's tenant from options
-  const [currentTenantSlug, setCurrentTenantSlug] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchCurrentTenantSlug = async () => {
-      // pageData.tenant is an ID (number)
-      if (pageData?.tenant && typeof pageData.tenant === 'number') {
-        const slug = await lookupTenantSlugById(pageData.tenant)
-        setCurrentTenantSlug(slug)
-      }
-    }
-    fetchCurrentTenantSlug()
-  }, [pageData?.tenant, lookupTenantSlugById])
-
-  const tenantOptions = options.filter((option) => option.value !== currentTenantSlug)
+  const tenantOptions = options.filter((option) => option.value !== pageData?.tenant)
 
   const drawerSlug = 'duplicate-page-drawer'
 
   const { openModal, closeModal } = useModal()
-  const [selectedTenantSlug, setSelectedTenantSlug] = useState('')
+  const [selectedTenantId, setSelectedTenantId] = useState('')
 
   const handleDuplicate = useCallback(
     async (e?: React.FormEvent) => {
       if (e) e.preventDefault()
-      if (!selectedTenantSlug) {
+      if (!selectedTenantId) {
         toast.error('Please select a tenant.')
         return
       }
@@ -66,14 +50,14 @@ export const DuplicatePageForDrawer = () => {
       try {
         const newPage = { layout: pageData?.layout, title: pageData?.title, slug: pageData?.slug }
 
-        const createRes = await fetch(`/api/pages/duplicate-to-tenant/${selectedTenantSlug}`, {
+        const createRes = await fetch(`/api/pages/duplicate-to-tenant/${selectedTenantId}`, {
           method: 'POST',
           body: JSON.stringify({ newPage }),
         })
 
         if (createRes.ok) {
           const { res } = await createRes.json()
-          setSelectedTenantSlug('')
+          setSelectedTenantId('')
           closeModal(drawerSlug)
           toast.success('Page duplicated to tenant!')
           return startRouteTransition(() =>
@@ -92,7 +76,7 @@ export const DuplicatePageForDrawer = () => {
         toast.error(err instanceof Error ? err.message : 'An unexpected error occurred.')
       }
     },
-    [adminRoute, closeModal, pageData, router, selectedTenantSlug, startRouteTransition],
+    [adminRoute, closeModal, pageData, router, selectedTenantId, startRouteTransition],
   )
 
   return (
@@ -122,8 +106,8 @@ export const DuplicatePageForDrawer = () => {
                     type="radio"
                     name="tenant"
                     value={option.value}
-                    checked={selectedTenantSlug === option.value}
-                    onChange={() => setSelectedTenantSlug(String(option.value))}
+                    checked={selectedTenantId === option.value}
+                    onChange={() => setSelectedTenantId(option.value)}
                   />
                   {String(option.label)}
                 </label>
@@ -133,7 +117,7 @@ export const DuplicatePageForDrawer = () => {
               <Button buttonStyle="subtle" type="button" onClick={() => closeModal(drawerSlug)}>
                 Cancel
               </Button>
-              <Button onClick={handleDuplicate} disabled={!selectedTenantSlug}>
+              <Button onClick={handleDuplicate} disabled={!selectedTenantId}>
                 Duplicate
               </Button>
             </div>

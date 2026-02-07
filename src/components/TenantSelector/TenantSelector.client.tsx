@@ -11,7 +11,7 @@ import './index.scss'
 const TenantSelectorClient = ({ label }: { label: string }) => {
   const { config } = useConfig()
   const params = useParams()
-  const { options, selectedTenantSlug, setTenant } = useTenantSelection()
+  const { options, selectedTenantID, setTenant } = useTenantSelection()
 
   const isGlobal = params.segments && params.segments[0] === 'globals'
   const isCollection = params.segments && params.segments[0] === 'collections'
@@ -34,9 +34,10 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
   const handleChange = useCallback(
     (option: ReactSelectOption | ReactSelectOption[]) => {
       if (option && 'value' in option) {
-        setTenant({ slug: String(option.value), refresh: true })
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        setTenant({ id: option.value as string, refresh: true })
       } else {
-        setTenant({ slug: undefined, refresh: true })
+        setTenant({ id: undefined, refresh: true })
       }
     },
     [setTenant],
@@ -62,7 +63,8 @@ const TenantSelectorClient = ({ label }: { label: string }) => {
         options={options}
         path="setTenant"
         readOnly={isReadOnly}
-        value={selectedTenantSlug}
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        value={selectedTenantID as string | undefined}
       />
     </div>
   )

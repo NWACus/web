@@ -1,4 +1,4 @@
-import { getTenantSlugFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
+import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import { APIError, RelationshipField } from 'payload'
 
 export const tenantField = ({
@@ -30,21 +30,11 @@ export const tenantField = ({
   maxDepth: 3,
   hooks: {
     beforeChange: [
-      async ({ req, value }) => {
+      ({ req, value }) => {
         if (!value) {
-          const tenantSlug = getTenantSlugFromCookie(req.headers)
-          if (tenantSlug) {
-            // Look up tenant ID by slug
-            const { docs } = await req.payload.find({
-              collection: 'tenants',
-              where: { slug: { equals: tenantSlug } },
-              limit: 1,
-              depth: 0,
-              req,
-            })
-            if (docs[0]) {
-              return docs[0].id
-            }
+          const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
+          if (tenantFromCookie) {
+            return tenantFromCookie
           }
           throw new APIError('You must select a tenant', 400, null, true)
         }

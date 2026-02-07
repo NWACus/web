@@ -7,7 +7,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
-import { getTenantSlugFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
+import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 
 export const BuiltInPages: CollectionConfig<'pages'> = {
   slug: 'builtInPages',
@@ -17,8 +17,8 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
   },
   access: {
     create: ({ req }) => {
-      const tenantSlug = getTenantSlugFromCookie(req.headers)
-      return tenantSlug ? byGlobalRole('create', 'builtInPages')({ req }) : false
+      const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
+      return tenantFromCookie ? byGlobalRole('create', 'builtInPages')({ req }) : false
     },
     read: byTenantRole('read', 'builtInPages'),
     update: byGlobalRole('update', 'builtInPages'),

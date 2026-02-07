@@ -446,9 +446,10 @@ export const seed = async ({
         .flat(),
     ])
 
-    // Settings - only define data for seeded tenants, not all possible slugs
-    const settingsData: Partial<
-      Record<Tenant['slug'], Partial<RequiredDataFromCollectionSlug<'settings'>>>
+    // Settings
+    const settingsData: Record<
+      Tenant['slug'],
+      Partial<RequiredDataFromCollectionSlug<'settings'>>
     > = {
       dvac: {
         description:
@@ -501,27 +502,23 @@ export const seed = async ({
       incremental,
       tenantsById,
       (obj) => (typeof obj.tenant === 'object' ? obj.tenant.slug : 'UNKNOWN'),
-      Object.values(tenants).map((tenant): RequiredDataFromCollectionSlug<'settings'> => {
-        const data = settingsData[tenant.slug]
-        if (!data) {
-          throw new Error(`Missing settings data for tenant ${tenant.slug}`)
-        }
-        return {
+      Object.values(tenants).map(
+        (tenant): RequiredDataFromCollectionSlug<'settings'> => ({
           tenant: tenant.id,
-          description: data.description,
+          description: settingsData[tenant.slug].description,
           footerForm: {
             type: 'none',
           },
-          address: data.address,
-          phone: data.phone,
-          email: data.email,
-          socialMedia: data.socialMedia,
+          address: settingsData[tenant.slug].address,
+          phone: settingsData[tenant.slug].phone,
+          email: settingsData[tenant.slug].email,
+          socialMedia: settingsData[tenant.slug].socialMedia,
           logo: brandImages[tenant.slug]['logo'].id,
           icon: brandImages[tenant.slug]['icon'].id,
           banner: brandImages[tenant.slug]['banner'].id,
           usfsLogo: brandImages[tenant.slug]['usfs logo']?.id,
-        }
-      }),
+        }),
+      ),
     )
 
     if (!process.env.PAYLOAD_SEED_PASSWORD && process.env.ALLOW_SIMPLE_PASSWORDS !== 'true') {
