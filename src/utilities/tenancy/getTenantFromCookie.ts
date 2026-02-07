@@ -1,17 +1,29 @@
-import { isValidTenantSlug, ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { parseCookies } from 'payload'
+import { isNumber } from 'payload/shared'
 
 /**
- * Returns the tenant slug from the 'payload-tenant' cookie.
- * The cookie stores a tenant slug string (e.g., 'nwac', 'sac').
+ * A function that takes request headers and an idType and returns the current tenant ID from the cookie
+ *
+ * @param headers Headers, usually derived from req.headers or next/headers
+ * @param idType can be 'number' | 'text', usually derived from payload.db.defaultIDType
+ * @returns number | null when idType is 'number', string | null when idType is 'text'
  */
-export function getTenantSlugFromCookie(headers: Headers): ValidTenantSlug | null {
+export function getTenantFromCookie(headers: Headers, idType: 'number'): number | null
+export function getTenantFromCookie(headers: Headers, idType: 'text'): string | null
+export function getTenantFromCookie(
+  headers: Headers,
+  idType: 'number' | 'text',
+): number | string | null
+export function getTenantFromCookie(
+  headers: Headers,
+  idType: 'number' | 'text',
+): number | string | null {
   const cookies = parseCookies(headers)
   const selectedTenant = cookies.get('payload-tenant') || null
-
-  if (selectedTenant && isValidTenantSlug(selectedTenant)) {
-    return selectedTenant
-  }
-
-  return null
+  const result = selectedTenant
+    ? idType === 'number' && isNumber(selectedTenant)
+      ? parseFloat(selectedTenant)
+      : selectedTenant
+    : null
+  return result
 }
