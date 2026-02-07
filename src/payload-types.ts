@@ -300,9 +300,40 @@ export interface Tenant {
   name: string;
   customDomain?: string | null;
   /**
-   * Used for subdomains and url paths for previews. This is a unique identifier for a tenant.
+   * Avalanche center identifier. Used for subdomains and URL paths.
    */
-  slug: string;
+  slug:
+    | 'aaic'
+    | 'bac'
+    | 'btac'
+    | 'cac'
+    | 'caic'
+    | 'caac'
+    | 'cbac'
+    | 'cnfaic'
+    | 'coaa'
+    | 'dvac'
+    | 'earac'
+    | 'esac'
+    | 'ewyaix'
+    | 'fac'
+    | 'gnfac'
+    | 'hac'
+    | 'hpac'
+    | 'ipac'
+    | 'kpac'
+    | 'msac'
+    | 'mwac'
+    | 'nwac'
+    | 'pac'
+    | 'sac'
+    | 'snfac'
+    | 'soaix'
+    | 'tac'
+    | 'uac'
+    | 'vac'
+    | 'wac'
+    | 'wcmac';
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
