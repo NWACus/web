@@ -31,7 +31,7 @@ export function WidgetRouterHandler({
   }
 
   useEffect(() => {
-    const hash = observedHash || window.location.hash
+    const hash = window.location.hash
     // Strip leading # from hash for path matching
     const hashSansHash = hash?.replace(/^#/, '') || ''
     // Ignore query parameters
