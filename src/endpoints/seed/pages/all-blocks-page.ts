@@ -1,6 +1,7 @@
 import type { Event, Media, Post, Tenant } from '@/payload-types'
 import { RequiredDataFromCollectionSlug } from 'payload'
 import { blogListBlock } from '../blocks/blog-list'
+import { contentColumns } from '../blocks/content-columns'
 import { contentWithCallout } from '../blocks/content-with-callout'
 import { eventListBlock } from '../blocks/event-list'
 import { genericEmbed } from '../blocks/generic-embed'
@@ -29,6 +30,7 @@ export const allBlocksPage: (
     _status: 'published',
     publishedAt: new Date().toISOString(),
     layout: [
+      ...contentColumns,
       ...imageLinkGrid(image1),
       ...imageText(image1),
       ...linkPreview(image1),
