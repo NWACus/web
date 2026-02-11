@@ -39,7 +39,6 @@ export const GenericEmbedBlockComponent = ({
         'allowpaymentrequest',
         'async',
         'campaign',
-        'defer',
         'enable-auto-scroll',
         'frameborder',
         'height',
