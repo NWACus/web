@@ -60,42 +60,49 @@ export async function Footer({ center }: { center?: string }) {
   )
 
   const currentYear = new Date().getFullYear()
+
   return (
     <footer className="mt-auto bg-footer text-footer-foreground">
-      <div className="container py-8 gap-8 grid md:grid-cols-3">
-        <div className="flex flex-col items-center md:items-start">
-          {footerForm?.title && <h4 className="font-medium text-xl mb-2">{footerForm.title}</h4>}
-          {footerForm?.subtitle && <p className="mb-2">{footerForm.subtitle}</p>}
-          {footerForm?.type === 'form' && (
-            <FormBlockComponent
-              form={footerForm.form?.value || 0}
-              blockType={'formBlock'}
-              isLexical={false}
-            />
-          )}
-          {footerForm?.type === 'embedded' && (
-            <GenericEmbedBlockComponent
-              html={footerForm.html || ''}
-              backgroundColor="transparent"
-              blockType="genericEmbed"
-              isLexical={false}
-            />
-          )}
-        </div>
-        <div>
+      <div className="container py-8 gap-8 flex flex-col sm:flex-row justify-between">
+        {footerForm.type != 'none' && (
+          <div className="flex flex-col items-center md:items-start">
+            {footerForm?.title && <h4 className="font-medium text-xl mb-2">{footerForm.title}</h4>}
+            {footerForm?.subtitle && <p className="mb-2">{footerForm.subtitle}</p>}
+            {footerForm?.type === 'form' && (
+              <FormBlockComponent
+                form={footerForm.form?.value || 0}
+                blockType={'formBlock'}
+                isLexical={false}
+              />
+            )}
+            {footerForm?.type === 'embedded' && (
+              <GenericEmbedBlockComponent
+                html={footerForm.html || ''}
+                backgroundColor="transparent"
+                blockType="genericEmbed"
+                isLexical={false}
+              />
+            )}
+          </div>
+        )}
+
+        <div className="sm:w-1/3">
           {logo && typeof logo === 'object' && (
             <Link className="flex items-center justify-center" href="/">
               <ImageMedia
                 resource={logo}
-                imgClassName="max-h-[200px] object-contain"
+                pictureClassName="max-w-36 w-full"
+                imgClassName="w-full"
                 sizes={getImageWidthFromMaxHeight(logo, 200)}
               />
             </Link>
           )}
         </div>
-        <div className="flex flex-col items-center md:items-start">
-          <h4 className="font-medium text-xl mb-2">{tenant.name}</h4>
-          {address && <div className="whitespace-pre-line text-center md:text-left">{address}</div>}
+        <div className="sm:w-1/3 flex flex-col items-center md:items-start gap-y-2">
+          <h4 className="font-medium text-xl">{tenant.name}</h4>
+          {address && (
+            <div className="mb-2 whitespace-pre-line text-center md:text-left">{address}</div>
+          )}
           {phone && (
             <div className="flex">
               {phoneLabel && <p className="capitalize">{phoneLabel}:&nbsp;</p>}
@@ -113,13 +120,13 @@ export async function Footer({ center }: { center?: string }) {
             </div>
           )}
           {email && (
-            <a className="mb-4 text-secondary underline" href={`mailto:${email}`}>
+            <a className="text-secondary underline" href={`mailto:${email}`}>
               {email}
             </a>
           )}
           {socialMedia && (
             // Icon colors controlled by color class
-            <div className="flex items-center gap-x-2 mb-2 text-secondary">
+            <div className="flex items-center gap-x-2 mt-2 text-secondary">
               {socialMedia.instagram && (
                 <a href={socialMedia.instagram} target="_blank" className="p-1">
                   <Icons.instagram />
@@ -152,7 +159,7 @@ export async function Footer({ center }: { center?: string }) {
           )}
         </div>
       </div>
-      <div className="container text-center pb-8">
+      <div className="container text-center text-xs pb-8">
         <p className="mb-2">
           All Content © {currentYear} {tenant.name}
         </p>
