@@ -40,7 +40,7 @@ export default async function Page({ params, searchParams }: Args) {
   return (
     <FiltersTotalProvider initialTotal={total}>
       <div className="pt-4">
-        <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
+        <div className="container md:max-xl:max-w-none mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
           <div className="grow">
             <div className="md:hidden mb-4">
               <PostsMobileFilters tags={tagsList} sort={sort} hasActiveFilters={hasActiveFilters} />

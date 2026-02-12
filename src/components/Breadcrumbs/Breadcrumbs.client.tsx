@@ -95,7 +95,7 @@ export function Breadcrumbs() {
   }
 
   return (
-    <Breadcrumb className="container py-4 md:py-6 flex-nowrap whitespace-nowrap overflow-hidden">
+    <Breadcrumb className="container md:max-xl:max-w-none py-4 md:py-6 flex-nowrap whitespace-nowrap overflow-hidden">
       <BreadcrumbList className="flex-nowrap">
         <BreadcrumbItem className="shrink-0">
           <BreadcrumbLink
