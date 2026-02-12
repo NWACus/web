@@ -228,6 +228,15 @@ Not using `BackgroundColorWrapper`
 - `HeaderComponent`
 
 
+## Theme Preview
+
+A dev-only page at `/{center}/theme-preview` that renders all UI components and semantic colors for a given tenant. Use this to visually verify theme changes across tenants.
+
+- **Not available in production** — gated by `disallowedEnvironments`
+- **Location:** `src/app/(frontend)/[center]/theme-preview/page.tsx`
+
+When adding a new shadcn UI component to `src/components/ui/`, add a demo section to the theme preview page to test styling across all tenant themes.
+
 ## ButtonLink
 Links styled as buttons with built-in analytics tracking. Supports both direct URLs and CMS-driven references.
 
