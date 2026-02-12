@@ -67,12 +67,12 @@ export const EventPreview = (props: {
   return (
     <article
       className={cn(
-        'flex flex-col @lg:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @lg:p-6',
+        'flex flex-col-reverse @lg:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @lg:p-6',
         className,
       )}
     >
       {startDate && (
-        <div className="hidden @md:flex flex-col min-w-[80px] gap-1 items-center text-center">
+        <div className="hidden @xl:flex flex-col min-w-[80px] gap-1 items-center text-center">
           <div
             className={cn('flex flex-col pt-4', {
               'text-muted-foreground italic': isPastEvent,
@@ -102,7 +102,7 @@ export const EventPreview = (props: {
                   {title}
                 </h3>
               </Link>
-              {subtitle && <p className="text-muted-foreground line-clamp-1">{subtitle}</p>}
+              {subtitle && <p className="text-muted-foreground line-clamp-2">{subtitle}</p>}
             </div>
           )}
           {description && (

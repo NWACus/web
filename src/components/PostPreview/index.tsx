@@ -61,12 +61,12 @@ export const PostPreview = (props: {
           className,
         )}
       >
-        <div className="w-full @md:w-56 @xl:w-72 @2xl:w-80 @md:flex-shrink-0 h-48 @md:h-auto overflow-hidden flex items-center">
+        <div className="w-full @md:w-48 @xl:w-72 @2xl:w-80 @md:flex-shrink-0 h-48 @md:h-auto overflow-hidden flex items-center">
           {featuredImage && typeof featuredImage !== 'number' && (
             <ImageMedia
-              imgClassName="w-full object-cover transition-transform duration-300"
+              imgClassName="w-full h-full object-cover transition-transform duration-300 "
               resource={featuredImage}
-              pictureClassName="w-full"
+              pictureClassName="w-full h-full"
               sizes={imageSizes}
             />
           )}

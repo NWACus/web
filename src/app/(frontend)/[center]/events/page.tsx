@@ -74,7 +74,7 @@ export default async function Page({ params, searchParams }: Args) {
   return (
     <FiltersTotalProvider initialTotal={total}>
       <div className="pt-4">
-        <div className="container md:max-lg:max-w-5xl mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
+        <div className="container md:max-xl:max-w-none mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
           <div className="md:hidden">
             <EventsMobileFilters
               types={eventTypes}
@@ -95,7 +95,7 @@ export default async function Page({ params, searchParams }: Args) {
             />
           </div>
 
-          <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] lg:w-[300px] order-1 md:order-2">
+          <div className="hidden md:flex flex-col shrink-0 justify-between md:justify-start md:w-[240px] xl:w-[300px] order-1 md:order-2">
             <EventsFilters
               startDate={startDate}
               endDate={endDate}

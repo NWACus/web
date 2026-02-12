@@ -160,6 +160,7 @@
   --brand-950: var(--oxford);
 }
 
+/* Sawtooth Avalanche Center */
 .snfac {
   --brand-50: hsl(0 0% 100%);
   --brand-100: hsl(178 100% 96%);
@@ -174,11 +175,11 @@
   --brand-950: hsl(210 4% 12%);
 
   --secondary: var(--brand-300);
-  --secondary-hover: hsla(var(--brand-300) / 0.8);
+  --secondary-hover: hsla(178 75% 42%/ 0.8);
   --secondary-foreground: var(--brand-50);
 
-  --callout: var(--brand-300);
-  --callout-hover: hsla(var(--brand-300) / 0.8);
+  --callout: var(--brand-200);
+  --callout-hover: hsla(178 83% 60%/ 0.6);
   --callout-foreground: var(--brand-50);
 
   --header: var(--brand-400);
