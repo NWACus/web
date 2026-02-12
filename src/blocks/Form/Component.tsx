@@ -3,12 +3,11 @@
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useId, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { FormBlock as FormBlockType } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
-import { generateInstanceId } from '@/utilities/generateInstanceId'
 import { getURL } from '@/utilities/getURL'
 import { isValidRelationship } from '@/utilities/relationships'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
@@ -31,7 +30,7 @@ type FormBlockTypeProps = { isLexical?: boolean } & FormBlockType
 export const FormBlockComponent = (props: FormBlockTypeProps) => {
   const { enableIntro, introContent, isLexical = true } = props
 
-  const uniqueFormId = generateInstanceId()
+  const uniqueFormId = useId()
 
   // Validate form has fields before initializing, use empty array as fallback for hooks
   const formFields = isValidRelationship(props.form) && props.form.fields ? props.form.fields : []
