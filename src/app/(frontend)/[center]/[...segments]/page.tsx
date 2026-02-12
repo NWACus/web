@@ -43,12 +43,6 @@ export async function generateStaticParams() {
     // Generate params if slug exists in navigation
     const canonicalUrl = await getCanonicalUrlForSlug(pageTenant.slug, page.slug)
 
-    // DEBUG LOGGING
-    console.log('🔍 PAGE FOUND')
-    console.log('   Tenant:', pageTenant)
-    console.log('   Page slug:', page.slug)
-    console.log('   Canonical URL:', canonicalUrl)
-
     if (canonicalUrl) {
       params.push({ center: pageTenant.slug, segments: normalizePath(canonicalUrl).split('/') })
     }
