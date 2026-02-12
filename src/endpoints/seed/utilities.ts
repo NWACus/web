@@ -1,4 +1,8 @@
-import { SerializedParagraphNode, SerializedTextNode } from '@payloadcms/richtext-lexical'
+import {
+  SerializedHeadingNode,
+  SerializedParagraphNode,
+  SerializedTextNode,
+} from '@payloadcms/richtext-lexical'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { File } from 'payload'
@@ -128,6 +132,29 @@ export const paragraphNode = (text: string): SerializedParagraphNode => ({
   indent: 0,
   textFormat: 0,
   version: 1,
+})
+
+type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+
+export const headingNode = (text: string, tag: HeadingTag = 'h2'): SerializedHeadingNode => ({
+  type: 'heading',
+  children: [textNode(text)],
+  direction: null,
+  format: '',
+  indent: 0,
+  tag,
+  version: 1,
+})
+
+export const headingContent = (text: string, tag: HeadingTag = 'h2') => ({
+  root: {
+    type: 'root' as const,
+    children: [headingNode(text, tag)],
+    direction: null,
+    format: '' as const,
+    indent: 0,
+    version: 1,
+  },
 })
 
 export const simpleContent = (...paragraphs: string[]) => ({

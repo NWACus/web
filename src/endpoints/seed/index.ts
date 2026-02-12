@@ -962,6 +962,19 @@ export const seed = async ({
         .flat(),
     )
 
+    payload.logger.info(`— Seeding sponsors...`)
+    const seededSponsors = await upsert(
+      'sponsors',
+      payload,
+      incremental,
+      tenantsById,
+      () => 'sponsors',
+      Object.values(tenants).map(
+        (tenant): RequiredDataFromCollectionSlug<'sponsors'> =>
+          sponsors(tenant, images[tenant.slug]['acmeCorp']),
+      ),
+    )
+
     const pages = await upsert(
       'pages',
       payload,
@@ -971,12 +984,15 @@ export const seed = async ({
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'pages'>[] => [
           contactPageData(tenant, contactForms[tenant.name]),
-          allBlocksPage(
+          allBlocksPage({
             tenant,
-            images[tenant.slug]['imageMountain'],
-            Object.values(posts[tenant.slug]),
-            Object.values(events[tenant.slug]),
-          ),
+            image1: images[tenant.slug]['imageMountain'],
+            posts: Object.values(posts[tenant.slug]),
+            events: Object.values(events[tenant.slug]),
+            contactForm: contactForms[tenant.name],
+            teams: teams[tenant.slug] || [],
+            sponsor: seededSponsors[tenant.slug]['sponsors'],
+          }),
           whoWeArePage(tenant, teams, images[tenant.slug]['image2']),
           page(
             tenant,
@@ -1142,19 +1158,6 @@ export const seed = async ({
           ),
         ])
         .flat(),
-    )
-
-    payload.logger.info(`— Seeding sponsors...`)
-    await upsert(
-      'sponsors',
-      payload,
-      incremental,
-      tenantsById,
-      () => 'sponsors',
-      Object.values(tenants).map(
-        (tenant): RequiredDataFromCollectionSlug<'sponsors'> =>
-          sponsors(tenant, images[tenant.slug]['acmeCorp']),
-      ),
     )
 
     payload.logger.info(`— Updating home page quick links...`)
