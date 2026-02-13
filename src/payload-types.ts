@@ -774,6 +774,9 @@ export interface Event {
      */
     extraInfo?: string | null;
   };
+  /**
+   * A large banner image displayed behind the event details at the top of the page
+   */
   featuredImage?: (number | null) | Media;
   thumbnailImage?: (number | null) | Media;
   /**

@@ -70,6 +70,8 @@ export const Events: CollectionConfig = {
       overrides: {
         admin: {
           allowCreate: true,
+          description:
+            'A large banner image displayed behind the event details at the top of the page',
         },
         name: 'featuredImage',
         label: 'Featured image',
