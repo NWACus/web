@@ -174,12 +174,12 @@
   --brand-900: hsl(210 4% 16%);
   --brand-950: hsl(210 4% 12%);
 
-  --secondary: var(--brand-300);
-  --secondary-hover: hsla(178 75% 42%/ 0.8);
+  --secondary: hsl(200 75% 42%);
+  --secondary-hover: hsl(200 75% 38%);
   --secondary-foreground: var(--brand-50);
 
-  --callout: var(--brand-200);
-  --callout-hover: hsla(178 83% 60%/ 0.6);
+  --callout: var(--brand-300);
+  --callout-hover: hsla(178 75% 38%);
   --callout-foreground: var(--brand-50);
 
   --header: var(--brand-400);
