@@ -1,0 +1,18 @@
+name: post-release
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  post_release:
+    permissions:
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: apexskier/github-release-commenter@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          comment-template: |
+            🚀 This is included in version {release_link}
