@@ -88,7 +88,7 @@ export const GenericEmbedBlockComponent = ({
           id={String(id)}
           title={`Embedded content ${id}`}
           srcDoc={sanitizedHtml}
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+          sandbox="allow-scripts allow-presentation allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           className="w-full border-none m-0 p-0 transition-[height] duration-200 ease-in-out"
           height={0} // This iframe will resize to it's content height - this initial height is to avoid the iframe rendering at the browser default 150px initially
         />
