@@ -1,15 +1,9 @@
 import type { Field, GroupField } from 'payload'
-import { linkToPageOrPostWithLabel } from './linkToPageOrPost'
+import { linkField } from './linkField'
 
-export type ButtonAppearances =
-  | 'default'
-  | 'destructive'
-  | 'ghost'
-  | 'link'
-  | 'outline'
-  | 'secondary'
+export type ButtonVatiants = 'default' | 'destructive' | 'ghost' | 'link' | 'outline' | 'secondary'
 
-export const appearanceOptions: Record<ButtonAppearances, { label: string; value: string }> = {
+export const variantOptions: Record<ButtonVatiants, { label: string; value: string }> = {
   default: {
     label: 'Default',
     value: 'default',
@@ -36,31 +30,22 @@ export const appearanceOptions: Record<ButtonAppearances, { label: string; value
   },
 }
 
-type ButtonType = (appearances: ButtonAppearances[]) => Field
+type ButtonType = (variants: ButtonVatiants[]) => Field
 
-export const button: ButtonType = (appearances) => {
-  const buttonResults: GroupField = {
-    name: 'button',
-    type: 'group',
-    admin: {
-      hideGutter: true,
-      style: {
-        marginBottom: '0',
-      },
-    },
-    fields: [...linkToPageOrPostWithLabel],
-  }
-  if (appearances.length > 1) {
-    const appearanceOptionsToUse = appearances.map((appearance) => appearanceOptions[appearance])
+export const buttonField: ButtonType = (variants) => {
+  const buttonResults: GroupField = linkField({ fieldName: 'button', includeLabel: true })
+
+  if (variants.length > 1) {
+    const variantOptionsToUse = variants.map((variant) => variantOptions[variant])
 
     buttonResults.fields.push({
-      name: 'appearance',
+      name: 'variant',
       type: 'select',
       admin: {
         description: 'Choose the button style.',
       },
-      defaultValue: appearanceOptionsToUse[0].value,
-      options: appearanceOptionsToUse,
+      defaultValue: variantOptionsToUse[0].value,
+      options: variantOptionsToUse,
     })
   }
 

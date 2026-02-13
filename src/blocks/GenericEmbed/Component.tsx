@@ -8,8 +8,8 @@ import { useEffect, useState } from 'react'
 import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
 
 type Props = GenericEmbedBlockProps & {
+  isLexical: boolean
   className?: string
-  wrapInContainer?: boolean
 }
 
 export const GenericEmbedBlockComponent = ({
@@ -18,7 +18,7 @@ export const GenericEmbedBlockComponent = ({
   backgroundColor,
   alignContent = 'left',
   className,
-  wrapInContainer = true,
+  isLexical = true,
 }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
 
@@ -32,22 +32,25 @@ export const GenericEmbedBlockComponent = ({
     const normalizedHTML = html.replaceAll('"', '"').replaceAll('"', '"')
 
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
-      ADD_TAGS: ['iframe', 'script', 'style'],
+      ADD_TAGS: ['iframe', 'script', 'style', 'dbox-widget'],
       ADD_ATTR: [
         'allow',
         'allowfullscreen',
+        'allowpaymentrequest',
+        'async',
+        'campaign',
+        'enable-auto-scroll',
         'frameborder',
-        'scrolling',
-        'sandbox',
-        'style',
-        'title',
-        'name',
-        'src',
         'height',
         'id',
+        'name',
+        'sandbox',
+        'scrolling',
+        'src',
+        'style',
+        'title',
         'type',
         'width',
-        'allowpaymentrequest',
       ],
       FORCE_BODY: true,
     })
@@ -73,7 +76,7 @@ export const GenericEmbedBlockComponent = ({
     <div className={cn(bgColorClass, textColor)}>
       <div
         className={cn(
-          wrapInContainer && 'container py-10',
+          isLexical && 'container py-10',
           'flex flex-col',
           alignContent === 'left' && 'items-start',
           alignContent === 'center' && 'items-center',
@@ -85,7 +88,7 @@ export const GenericEmbedBlockComponent = ({
           id={String(id)}
           title={`Embedded content ${id}`}
           srcDoc={sanitizedHtml}
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+          sandbox="allow-scripts allow-presentation allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           className="w-full border-none m-0 p-0 transition-[height] duration-200 ease-in-out"
           height={0} // This iframe will resize to it's content height - this initial height is to avoid the iframe rendering at the browser default 150px initially
         />

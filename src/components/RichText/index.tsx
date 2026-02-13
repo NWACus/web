@@ -22,8 +22,10 @@ import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
+import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 import type {
   BlogListBlock as BlogListBlockProps,
+  BuiltInPage,
   ButtonBlock as ButtonBlockProps,
   CalloutBlock as CalloutBlockProps,
   DocumentBlock as DocumentBlockProps,
@@ -32,11 +34,39 @@ import type {
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
   MediaBlock as MediaBlockProps,
+  Page,
+  Post,
   SingleBlogPostBlock as SingleBlogPostBlockProps,
   SingleEventBlock as SingleEventBlockProps,
   SponsorsBlock as SponsorsBlockProps,
 } from '@/payload-types'
+import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
+
+type LinkDocRelationTo = (typeof LINK_ENABLED_COLLECTIONS)[number]
+type LinkDocValue = BuiltInPage | Page | Post
+
+type ResolvedLinkDoc = {
+  relationTo: LinkDocRelationTo
+  value: LinkDocValue
+}
+
+// Type guard to validate and narrow link doc type
+function isResolvedLinkDoc(doc: unknown): doc is ResolvedLinkDoc {
+  if (!doc || typeof doc !== 'object') {
+    return false
+  }
+  if (!('relationTo' in doc) || !('value' in doc)) {
+    return false
+  }
+  const { relationTo, value } = doc
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+  // Check relationTo is one of the enabled collections
+  const enabledCollections: readonly string[] = LINK_ENABLED_COLLECTIONS
+  return typeof relationTo === 'string' && enabledCollections.includes(relationTo)
+}
 
 type NodeTypes =
   | DefaultNodeTypes
@@ -56,12 +86,24 @@ type NodeTypes =
     >
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
-  const { value, relationTo } = linkNode.fields.doc || {}
-  if (typeof value !== 'object') {
-    throw new Error('Expected value to be an object')
+  const { linkType, doc, url } = linkNode.fields
+
+  if (linkType === 'internal') {
+    if (!isResolvedLinkDoc(doc)) {
+      throw new Error('Expected doc to be a resolved link document')
+    }
+    return (
+      handleReferenceURL({
+        url,
+        type: linkType,
+        reference: {
+          relationTo: doc.relationTo,
+          value: doc.value,
+        },
+      }) || '/'
+    )
   }
-  const slug = value.slug
-  return relationTo === 'posts' ? `/blog/${slug}` : `/${slug}`
+  return url || '/'
 }
 
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
@@ -69,56 +111,28 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   // if block has two variants - to make TS happy we fallback to the default for the block variant
   blocks: {
-    blogList: ({ node }) => (
-      <BlogListBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
+    blogList: ({ node }) => <BlogListBlockComponent {...node.fields} isLexical={false} />,
     buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
     calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
-    documentBlock: ({ node }) => (
-      <DocumentBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
-    eventList: ({ node }) => (
-      <EventListBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
-    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} />,
-    singleEvent: ({ node }) => (
-      <SingleEventBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
-    genericEmbed: ({ node }) => (
-      <GenericEmbedBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
-    ),
-    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} />,
+    documentBlock: ({ node }) => <DocumentBlockComponent {...node.fields} isLexical={false} />,
+    eventList: ({ node }) => <EventListBlockComponent {...node.fields} isLexical={false} />,
+    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} isLexical={false} />,
+    singleEvent: ({ node }) => <SingleEventBlockComponent {...node.fields} isLexical={false} />,
+    genericEmbed: ({ node }) => <GenericEmbedBlockComponent {...node.fields} isLexical={false} />,
+    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLexical={false} />,
     mediaBlock: ({ node }) => (
       <MediaBlockComponent
         className="col-start-1 col-span-3"
         imgClassName="m-0"
         {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
+        isLexical={false}
         captionClassName="mx-auto max-w-[48rem]"
       />
     ),
     singleBlogPost: ({ node }) => (
-      <SingleBlogPostBlockComponent
-        {...node.fields}
-        wrapInContainer={node.fields.wrapInContainer || false}
-      />
+      <SingleBlogPostBlockComponent {...node.fields} isLexical={false} />
     ),
-    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} />,
+    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} isLexical={false} />,
   },
 })
 

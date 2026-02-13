@@ -5,8 +5,8 @@ import { formatDateTime } from '@/utilities/formatDateTime'
 import { cn } from '@/utilities/ui'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { ButtonLink } from '../ButtonLink'
 import { EventInfo } from '../EventInfo'
-import { CMSLink } from '../Link'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -67,12 +67,12 @@ export const EventPreview = (props: {
   return (
     <article
       className={cn(
-        'flex flex-col @lg:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @lg:p-6',
+        'flex flex-col-reverse @lg:flex-row gap-4 w-full bg-card text-card-foreground border rounded-lg shadow-sm overflow-hidden p-4 @lg:p-6',
         className,
       )}
     >
       {startDate && (
-        <div className="hidden @md:flex flex-col min-w-[80px] gap-1 items-center text-center">
+        <div className="hidden @xl:flex flex-col min-w-[80px] gap-1 items-center text-center">
           <div
             className={cn('flex flex-col pt-4', {
               'text-muted-foreground italic': isPastEvent,
@@ -102,7 +102,7 @@ export const EventPreview = (props: {
                   {title}
                 </h3>
               </Link>
-              {subtitle && <p className="text-muted-foreground line-clamp-1">{subtitle}</p>}
+              {subtitle && <p className="text-muted-foreground line-clamp-2">{subtitle}</p>}
             </div>
           )}
           {description && (
@@ -142,21 +142,24 @@ export const EventPreview = (props: {
                 <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
               </Button>
             ) : (
-              <Button asChild size="sm" className="group-hover:opacity-90 transition-opacity">
-                <Link href={registrationUrl} target="_blank" rel="noopener noreferrer">
-                  Register
-                  <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-                </Link>
-              </Button>
+              <ButtonLink
+                href={registrationUrl}
+                size="sm"
+                className="group-hover:opacity-90 transition-opacity"
+                newTab
+              >
+                Register
+                <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
+              </ButtonLink>
             ))}
-          <CMSLink
-            appearance="outline"
+          <ButtonLink
+            href={eventUrl}
+            variant="outline"
             size="sm"
             className="group-hover:opacity-90 transition-opacity"
-            url={eventUrl}
           >
             Learn More
-          </CMSLink>
+          </ButtonLink>
         </div>
       </div>
       <div className="flex flex-col @lg:items-end gap-1 mb-2 @lg:mb-0">

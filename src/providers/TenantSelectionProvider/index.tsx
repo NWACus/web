@@ -2,7 +2,6 @@ import type { CollectionSlug, OptionObject, Payload, TypedUser } from 'payload'
 
 import { cookies as getCookies } from 'next/headers.js'
 
-import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { getTenantOptions } from '@/utilities/tenancy/getTenantOptions'
 import { TenantSelectionProviderClient } from './index.client'
 
@@ -33,27 +32,32 @@ export const TenantSelectionProvider = async ({
     })
     tenantOptions = docs.map((doc) => ({
       label: String(doc[useAsTitle]),
-      value: doc.slug,
+      value: doc.id,
     }))
   } catch (_) {
     // user likely does not have access
   }
 
   const cookies = await getCookies()
-  const tenantCookie = cookies.get('payload-tenant')?.value
-  let initialValue: string | undefined = undefined
+  let tenantCookie = cookies.get('payload-tenant')?.value
+  let initialValue = undefined
 
-  // Validate the cookie contains a valid tenant slug that the user has access to
-  if (tenantCookie && isValidTenantSlug(tenantCookie)) {
-    const matchingOption = tenantOptions.find((option) => option.value === tenantCookie)
+  /**
+   * Ensure the cookie is a valid tenant
+   */
+  if (tenantCookie) {
+    const matchingOption = tenantOptions.find((option) => String(option.value) === tenantCookie)
     if (matchingOption) {
-      initialValue = tenantCookie
+      initialValue = matchingOption.value
     }
   }
 
-  // If no valid cookie or user doesn't have access to that tenant, auto-select if only one option
+  /**
+   * If the there was no cookie or the cookie was an invalid tenantID set intialValue
+   */
   if (!initialValue) {
-    initialValue = tenantOptions.length === 1 ? tenantOptions[0]?.value : undefined
+    tenantCookie = undefined
+    initialValue = tenantOptions.length > 1 ? undefined : tenantOptions[0]?.value
   }
 
   return (

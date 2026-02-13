@@ -1,14 +1,14 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
-import { BlogListLexicalBlock } from '@/blocks/BlogList/config'
+import { BlogListBlock } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/Document/config'
-import { EventListLexicalBlock } from '@/blocks/EventList/config'
-import { EventTableLexicalBlock } from '@/blocks/EventTable/config'
-import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
-import { HeaderBlock } from '@/blocks/Header/config'
-import { MediaLexicalBlock } from '@/blocks/Media/config'
-import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
-import { SingleEventLexicalBlock } from '@/blocks/SingleEvent/config'
+import { EventListBlock } from '@/blocks/EventList/config'
+import { EventTableBlock } from '@/blocks/EventTable/config'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
+import { HeaderLexicalBlock } from '@/blocks/Header/config'
+import { MediaBlock } from '@/blocks/Media/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { eventTypesData } from '@/constants/eventTypes'
 import { contentHashField } from '@/fields/contentHashField'
@@ -70,6 +70,8 @@ export const Events: CollectionConfig = {
       overrides: {
         admin: {
           allowCreate: true,
+          description:
+            'A large banner image displayed behind the event details at the top of the page',
         },
         name: 'featuredImage',
         label: 'Featured image',
@@ -152,15 +154,15 @@ export const Events: CollectionConfig = {
                 ...rootFeatures,
                 BlocksFeature({
                   blocks: [
-                    BlogListLexicalBlock,
+                    BlogListBlock,
                     DocumentBlock,
-                    EventListLexicalBlock,
-                    EventTableLexicalBlock,
-                    GenericEmbedLexicalBlock,
-                    HeaderBlock,
-                    MediaLexicalBlock,
-                    SingleBlogPostLexicalBlock,
-                    SingleEventLexicalBlock,
+                    EventListBlock,
+                    EventTableBlock,
+                    GenericEmbedBlock,
+                    HeaderLexicalBlock,
+                    MediaBlock,
+                    SingleBlogPostBlock,
+                    SingleEventBlock,
                     SponsorsBlock,
                   ],
                 }),

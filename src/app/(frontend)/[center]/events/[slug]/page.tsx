@@ -4,15 +4,14 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
+import { ButtonLink } from '@/components/ButtonLink'
 import { EventInfo } from '@/components/EventInfo'
 import { Media } from '@/components/Media'
-import { Button } from '@/components/ui/button'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { cn } from '@/utilities/ui'
 import { ExternalLink } from 'lucide-react'
 import { Metadata, ResolvedMetadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-static'
@@ -78,75 +77,74 @@ export default async function Event({ params: paramsPromise }: Args) {
     event.registrationDeadline && new Date(event.registrationDeadline) < new Date()
 
   return (
-    <article className={cn('pt-4 pb-16', { 'pt-8': !event.featuredImage })}>
-      <div className="flex flex-col items-center gap-4">
-        {event.featuredImage && (
-          <Media
-            resource={event.featuredImage}
-            className="w-full absolute"
-            imgClassName="w-full h-[35vh] object-cover"
-          />
-        )}
-        <div className={cn('container z-10', { 'mt-40': event.featuredImage })}>
-          <div className="max-w-[48rem] mx-auto mb-8">
-            <div className="bg-card border rounded-lg p-6 shadow-sm">
-              <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
-                <h1 className="font-bold mb-2">{event.title}</h1>
-                {event.subtitle && (
-                  <p className="text-xl text-muted-foreground mt-0">{event.subtitle}</p>
-                )}
-              </div>
+    <article className="pb-16">
+      {event.featuredImage && (
+        <Media resource={event.featuredImage} imgClassName="w-full h-[35vh] object-cover" />
+      )}
 
-              <EventInfo
-                startDate={event.startDate}
-                startDate_tz={event.startDate_tz}
-                endDate={event.endDate}
-                endDate_tz={event.endDate_tz}
-                location={event.location}
-                skillLevel={event.skillLevel}
-                showLabels={true}
-                className="columns-1 sm:columns-2"
-                itemsClassName="break-inside-avoid mb-4"
-              />
-
-              {/* Registration Information */}
-              {event.registrationUrl && (
-                <div className="mt-4 pt-4 border-t">
-                  {event.registrationDeadline && (
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Registration Deadline:{' '}
-                      {formatDateTime(
-                        event.registrationDeadline,
-                        event.registrationDeadline_tz,
-                        'MMM d, yyyy',
-                      )}
-                    </p>
-                  )}
-                  {!isPastEvent && !isRegistrationClosed ? (
-                    <Button asChild size="lg" className="w-full md:w-auto">
-                      <Link href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                        Register for Event
-                        <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
-                      </Link>
-                    </Button>
-                  ) : (
-                    <p className="text-destructive font-medium">
-                      {isPastEvent ? 'This event has passed' : 'Registration is closed'}
-                    </p>
-                  )}
-                </div>
+      <div
+        className={cn('container', { '-mt-24': event.featuredImage, 'pt-8': !event.featuredImage })}
+      >
+        <div className="relative z-10 max-w-[48rem] mx-auto mb-8">
+          <div className="bg-card border rounded-lg p-6 shadow-sm">
+            <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-4">
+              <h1 className="font-bold mb-2">{event.title}</h1>
+              {event.subtitle && (
+                <p className="text-xl text-muted-foreground mt-0">{event.subtitle}</p>
               )}
             </div>
-          </div>
 
-          {event.content && (
-            <RichText
-              className="prose max-w-[48rem] mx-auto"
-              data={event.content}
-              enableGutter={false}
+            <EventInfo
+              startDate={event.startDate}
+              startDate_tz={event.startDate_tz}
+              endDate={event.endDate}
+              endDate_tz={event.endDate_tz}
+              location={event.location}
+              skillLevel={event.skillLevel}
+              showLabels={true}
+              className="columns-1 sm:columns-2"
+              itemsClassName="break-inside-avoid mb-4"
             />
-          )}
+
+            {event.registrationUrl && (
+              <div className="mt-4 pt-4 border-t">
+                {event.registrationDeadline && (
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Registration Deadline:{' '}
+                    {formatDateTime(
+                      event.registrationDeadline,
+                      event.registrationDeadline_tz,
+                      'MMM d, yyyy',
+                    )}
+                  </p>
+                )}
+                {!isPastEvent && !isRegistrationClosed ? (
+                  <ButtonLink
+                    href={event.registrationUrl}
+                    size="lg"
+                    className="w-full md:w-auto"
+                    newTab
+                  >
+                    Register for Event
+                    <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-muted" />
+                  </ButtonLink>
+                ) : (
+                  <p className="text-destructive font-medium">
+                    {isPastEvent ? 'This event has passed' : 'Registration is closed'}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
+
+        {event.content && (
+          <RichText
+            className="prose max-w-[48rem] mx-auto"
+            data={event.content}
+            enableGutter={false}
+          />
+        )}
       </div>
     </article>
   )

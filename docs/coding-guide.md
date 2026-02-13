@@ -134,9 +134,9 @@ Prefer using Tailwind utility classes over adding `.(s)css` files.
 
 Use the `cn()` utility for conditional class names.
 
-## Naming and Folder Structure
+## Blocks
 
-### Blocks
+### Naming and Folder Structure
 
 Follow this example when creating new block `SingleButton`:
 | | |
@@ -150,13 +150,7 @@ Follow this example when creating new block `SingleButton`:
 
 
 > [!NOTE]
-> If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____LexicalBlock` naming. This is to allow having slightly different configs where the Lexical variation will allow the user to change the `wrapInContainer` field on the block whereas the `blocks` type field variation will default to true since it should always be wrapped in a container as a full page width section.
-
-Don't forget to add new blocks to:
-- `src/blocks/RenderBlocks.tsx`
-- `src/components/RichText/index.tsx` (if there is a Lexical variation of the block)
-- `src/constants/defaults.ts`
-- At least one `blocks` type field or `richText` `BlocksFeature` so Payload will generate types for the block
+> If a block is going to be allowed to be embedded in a `blocks` type field and in a `richText` Lexical `BlocksFeature` than you will typically want to use the `____Block` + `____LexicalBlock` naming. This is to allow having slightly different configs. See `Header` config
 
 **Simple**
 ```md
@@ -182,3 +176,108 @@ blocks
     └── config.ts
 ```
 
+### Adding New Blocks Checklist
+
+When creating a new block, you must register it in the following locations:
+
+1. **`src/blocks/RenderBlocks.tsx`** - For standalone page blocks
+   - Set `isLexical={false}`
+
+2. **`src/components/RichText/index.tsx`** - For blocks used inline within rich text editors
+   - Set `isLexical={true}` to avoid double-wrapping
+   - Only add blocks that should be available in Lexical editors
+
+3. **`src/constants/defaults.ts`** - Add the block to the defaults configuration
+
+4. **Type Generation** - automatically done but be sure to include the block in at least one of these:
+   - A field with `type: 'blocks'`
+   - A `richText` field's `BlocksFeature` configuration
+   - This ensures Payload generates TypeScript types for your block
+
+**Why the different `isLexical` values?**
+- Standalone blocks (`RenderBlocks.tsx`) are not rendered by a Lexical editor → `isLexical={false}`
+- Inline Lexical blocks (`RichText/index.tsx`) are rendered inside a Lexical editor → `isLexical={true}`
+
+
+### BackgroundColorWrapper
+
+A reusable layout component that wraps content with configurable background colors and container styles. Use this component to maintain consistent spacing and background color application across blocks.
+
+**Props:**
+- `backgroundColor` - Tailwind background color class name
+- `isLexical` - Whether the block is rendered within a Lexical editor (`default: false`)
+- `containerClassName` - Optional - additional classes for the inner container div
+- `outerClassName` - Optional - additional classes for the outer wrapper div
+
+**Usage:**
+```tsx
+<BackgroundColorWrapper
+  backgroundColor={backgroundColor} // Intended for prop from colorPickerField prop
+  isLexical={isLexical} // Intended for prop from standalone or lexical block declaration
+  containerClassName="py-8"
+>
+  <YourContent />
+  ...
+</BackgroundColorWrapper>
+```
+
+Use this instead of manually creating nested divs with background colors and container classes to ensure consistency across block components.
+
+Not using `BackgroundColorWrapper`
+- `DocumentComponent`
+- `HeaderComponent`
+
+
+## Theme Preview
+
+A dev-only page at `/{center}/theme-preview` that renders all UI components and semantic colors for a given tenant. Use this to visually verify theme changes across tenants.
+
+- **Not available in production** — gated by `disallowedEnvironments`
+- **Location:** `src/app/(frontend)/[center]/theme-preview/page.tsx`
+
+When adding a new shadcn UI component to `src/components/ui/`, add a demo section to the theme preview page to test styling across all tenant themes.
+
+## ButtonLink
+Links styled as buttons with built-in analytics tracking. Supports both direct URLs and CMS-driven references.
+
+**Key features:**
+- Works with both simple `href` prop and CMS references (pages, posts, built-in pages)
+- Automatically resolves internal/external URLs from CMS data
+- Built-in Posthog analytics with `button_click` event tracking
+- Intended for blocks, rich text editors, or any CMS-driven navigation
+- Supports all Button styling options
+
+**Props:**
+- `href` - Direct URL (use this OR reference - not both)
+- `reference` - CMS reference object (use this OR href - not both)
+- `type` - `'internal'` or `'external'` (required if using `reference`)
+- `label` - Button text (falls back to reference title or children)
+- `newTab` - Opens in new tab
+- `url` - CMS custom URL option
+
+**Style props**
+- Size: (`sm`, `default`, `lg`, `icon`, `clear`)
+- Variants: (`default`, `secondary`, `ghost`, `outline`, `callout`)
+
+**Examples:**
+```tsx
+// Simple link with direct href
+<ButtonLink href="/about" variant="default">
+  Learn More
+</ButtonLink>
+
+// External link in new tab and external link icon
+<ButtonLink href="https://nwac.us" newTab>
+  Visit NWAC
+  <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+</ButtonLink>
+
+// CMS-driven link (internal page reference)
+<ButtonLink
+  reference={{ relationTo: 'pages', value: pageData }}
+  variant="outline"
+  size="lg"
+>
+  Read More
+</ButtonLink>
+```

@@ -8,8 +8,8 @@ import {
 } from '@payloadcms/richtext-lexical'
 import type { Block, Field, FilterOptionsProps } from 'payload'
 import { ButtonBlock } from '../Button/config'
-import { GenericEmbedLexicalBlock } from '../GenericEmbed/config'
-import { MediaLexicalBlock } from '../Media/config'
+import { GenericEmbedBlock } from '../GenericEmbed/config'
+import { MediaBlock } from '../Media/config'
 import { validateMaxPosts } from './hooks/validateMaxPosts'
 
 const defaultStylingFields: Field[] = [
@@ -22,7 +22,7 @@ const defaultStylingFields: Field[] = [
         return [
           ...rootFeatures,
           BlocksFeature({
-            blocks: [ButtonBlock, MediaLexicalBlock, GenericEmbedLexicalBlock],
+            blocks: [ButtonBlock, MediaBlock, GenericEmbedBlock],
           }),
           HorizontalRuleFeature(),
           InlineToolbarFeature(),
@@ -135,30 +135,9 @@ const staticPostRelatedFields: Field[] = [
   },
 ]
 
-const blogListBlockWithFields = (fields: Field[]): Block => ({
+export const BlogListBlock: Block = {
   slug: 'blogList',
   interfaceName: 'BlogListBlock',
   imageURL: '/thumbnail/BlogListThumbnail.jpg',
-  fields,
-})
-
-export const BlogListBlock = blogListBlockWithFields([
-  ...defaultStylingFields,
-  ...dynamicPostRelatedFields,
-  ...staticPostRelatedFields,
-])
-
-export const BlogListLexicalBlock = blogListBlockWithFields([
-  ...defaultStylingFields,
-  {
-    name: 'wrapInContainer',
-    admin: {
-      description:
-        'Checking this will render the block with additional padding around it and using the background color you have selected.',
-    },
-    type: 'checkbox',
-    defaultValue: false,
-  },
-  ...dynamicPostRelatedFields,
-  ...staticPostRelatedFields,
-])
+  fields: [...defaultStylingFields, ...dynamicPostRelatedFields, ...staticPostRelatedFields],
+}

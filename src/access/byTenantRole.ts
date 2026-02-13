@@ -1,7 +1,7 @@
 import { globalRoleAssignmentsForUser } from '@/utilities/rbac/globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleCollection, ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
-import { getTenantSlugFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
+import { getTenantFromCookie } from '@/utilities/tenancy/getTenantFromCookie'
 import { Access, CollectionConfig } from 'payload'
 
 // byTenantRole walks the roles bound to the user to determine if they have permissions
@@ -30,7 +30,7 @@ export const byTenantRole: (method: ruleMethod, collection: ruleCollection) => A
     }
 
     const roleAssignments = roleAssignmentsForUser(payload.logger, user)
-    const matchingTenants = roleAssignments
+    const matchingTenantIds = roleAssignments
       .filter(
         (assignment) =>
           assignment.role &&
@@ -39,15 +39,13 @@ export const byTenantRole: (method: ruleMethod, collection: ruleCollection) => A
       )
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number') // captured in the getter
-
-    const matchingTenantIds = matchingTenants.map((tenant) => tenant.id)
-    const matchingTenantSlugs = matchingTenants.map((tenant) => tenant.slug)
+      .map((tenant) => tenant.id)
 
     if (matchingTenantIds.length > 0) {
-      const tenantSlug = getTenantSlugFromCookie(headers)
+      const tenantFromCookie = getTenantFromCookie(headers, 'number')
 
-      if (tenantSlug) {
-        return matchingTenantSlugs.includes(tenantSlug)
+      if (tenantFromCookie) {
+        return matchingTenantIds.includes(tenantFromCookie)
       } else {
         return {
           tenant: {
@@ -65,8 +63,8 @@ export const accessByTenantRole: (collection: ruleCollection) => CollectionConfi
 ) => {
   return {
     create: ({ req }) => {
-      const tenantSlug = getTenantSlugFromCookie(req.headers)
-      return tenantSlug ? byTenantRole('create', collection)({ req }) : false
+      const tenantFromCookie = getTenantFromCookie(req.headers, 'number')
+      return tenantFromCookie ? byTenantRole('create', collection)({ req }) : false
     },
     read: byTenantRole('read', collection),
     update: byTenantRole('update', collection),

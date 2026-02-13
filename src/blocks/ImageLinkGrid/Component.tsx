@@ -42,7 +42,7 @@ export const ImageLinkGridBlockComponent = (props: Props) => {
     1: 'sm:col-span-12',
     2: 'sm:col-span-6',
     3: 'sm:col-span-4',
-    4: 'sm:col-span-3',
+    4: 'sm:col-span-6 md:col-span-3',
   }
   const colsSpanClass = colsClasses[numOfCols]
   const imageSizes = getImageSizes(numOfCols)

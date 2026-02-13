@@ -5,12 +5,13 @@ import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
 import { ButtonBlock } from '@/blocks/Button/config'
-import { GenericEmbedLexicalBlock } from '@/blocks/GenericEmbed/config'
-import { MediaLexicalBlock } from '@/blocks/Media/config'
-import { SingleBlogPostLexicalBlock } from '@/blocks/SingleBlogPost/config'
+import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
+import { MediaBlock } from '@/blocks/Media/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 
 import { DocumentBlock } from '@/blocks/Document/config'
+import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
@@ -23,6 +24,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { blocks } from 'payload/shared'
 import { populateBlocksInHighlightedContent } from './hooks/populateBlocksInHighlightedContent'
 import { revalidateHomePage, revalidateHomePageDelete } from './hooks/revalidateHomePage'
 
@@ -103,9 +105,10 @@ export const HomePages: CollectionConfig = {
                       blocks: [
                         ButtonBlock,
                         DocumentBlock,
-                        GenericEmbedLexicalBlock,
-                        MediaLexicalBlock,
-                        SingleBlogPostLexicalBlock,
+                        GenericEmbedBlock,
+                        HeaderLexicalBlock,
+                        MediaBlock,
+                        SingleBlogPostBlock,
                         SponsorsBlock,
                       ],
                     }),
@@ -130,15 +133,18 @@ export const HomePages: CollectionConfig = {
       type: 'blocks',
       blocks: [...DEFAULT_BLOCKS, NACMediaBlock].sort((a, b) => a.slug.localeCompare(b.slug)),
       required: true,
-      filterOptions: ({ data }) => {
-        const layoutBlocks = data?.layout
 
-        if (!layoutBlocks) return true
+      validate: (value, args) => {
+        if (!value || !Array.isArray(value)) return blocks(value, args)
 
-        const nacMediaBlockCount = layoutBlocks.filter(
-          (block: { blockType: string }) => block.blockType === 'nacMediaBlock',
+        const nacMediaBlockCount = value.filter(
+          (block) => block.blockType === 'nacMediaBlock',
         ).length
-        return nacMediaBlockCount > 1 ? DEFAULT_BLOCKS.map((block) => block.slug) : true
+
+        if (nacMediaBlockCount > 1) throw Error('Only one NACMediaBlock is allowed per page')
+
+        // Do not use default validation because of nacMediaBlock
+        return blocks(value, args)
       },
     },
     {

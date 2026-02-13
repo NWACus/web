@@ -49,13 +49,55 @@ export const isValidFullUrl = (url?: string | null): boolean => {
   }
 }
 
+/**
+ * Validates URLs that don't require a hostname (mailto:, tel:, sms:)
+ */
+const isValidSchemeUrl = (url: string): boolean => {
+  const schemeOnlyProtocols = ['mailto:', 'tel:', 'sms:']
+
+  for (const protocol of schemeOnlyProtocols) {
+    if (url.toLowerCase().startsWith(protocol)) {
+      const value = url.slice(protocol.length)
+
+      // Must have something after the protocol
+      if (!value || value.trim() === '') {
+        return false
+      }
+
+      // Basic validation for common cases
+      if (protocol === 'mailto:') {
+        // Simple email pattern check
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+/.test(value)
+      }
+
+      if (protocol === 'tel:' || protocol === 'sms:') {
+        // Allow digits, spaces, hyphens, parentheses, plus sign
+        return /^[\d\s\-\(\)\+]+$/.test(value)
+      }
+
+      return true
+    }
+  }
+
+  return false
+}
+
 export const validateExternalUrl: TextFieldSingleValidation = (val, args) => {
   if (val == null || typeof val !== 'string' || val.trim() === '') {
     return text(val, args) // Allow empty values - add required: true to field if needed
   }
 
-  return (
-    isValidFullUrl(val) ||
-    'URL must be a valid, full URL with http/https protocol. I.e. https://www.example.com.'
-  )
+  const trimmedVal = val.trim()
+
+  // Check for http/https
+  if (isValidFullUrl(trimmedVal)) {
+    return true
+  }
+
+  // Check for scheme-only URLs (mailto, tel, sms)
+  if (isValidSchemeUrl(trimmedVal)) {
+    return true
+  }
+
+  return 'URL must be a valid http://, https://, mailto:, tel:, or sms: URL'
 }

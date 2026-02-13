@@ -60,7 +60,7 @@ export const DesktopNav = ({
                     e.preventDefault()
                   }
                 }}
-                className="data-[state=open]:text-header-foreground-highlight font-medium"
+                className="data-[state=open]:text-header-foreground-highlight font-medium lg:px-1.5 xl:px-3.5"
               >
                 {label}
               </NavigationMenuTrigger>

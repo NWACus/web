@@ -3,12 +3,11 @@
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useId, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { FormBlock as FormBlockType } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
-import { generateInstanceId } from '@/utilities/generateInstanceId'
 import { getURL } from '@/utilities/getURL'
 import { isValidRelationship } from '@/utilities/relationships'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
@@ -26,12 +25,12 @@ export interface Data {
   [key: string]: Property | Property[]
 }
 
-type FormBlockTypeProps = { wrapInContainer?: boolean } & FormBlockType
+type FormBlockTypeProps = { isLexical?: boolean } & FormBlockType
 
 export const FormBlockComponent = (props: FormBlockTypeProps) => {
-  const { enableIntro, introContent, wrapInContainer = true } = props
+  const { enableIntro, introContent, isLexical = true } = props
 
-  const uniqueFormId = generateInstanceId()
+  const uniqueFormId = useId()
 
   // Validate form has fields before initializing, use empty array as fallback for hooks
   const formFields = isValidRelationship(props.form) && props.form.fields ? props.form.fields : []
@@ -130,7 +129,7 @@ export const FormBlockComponent = (props: FormBlockTypeProps) => {
   }
 
   return (
-    <div className={cn('lg:max-w-[48rem]', wrapInContainer && 'container')}>
+    <div className={cn('lg:max-w-[48rem]', isLexical && 'container')}>
       {enableIntro && introContent && !hasSubmitted && (
         <RichText className="mb-8 lg:mb-12" data={introContent} enableGutter={false} />
       )}
