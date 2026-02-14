@@ -122,7 +122,7 @@ export const CollectionSlugs = {
  * Payload global slugs (single-document globals, not collections)
  */
 export const GlobalSlugs = {
-  a3Management: 'a3-management',
-  nacWidgetsConfig: 'nac-widgets-config',
+  a3Management: 'a3Management',
+  nacWidgetsConfig: 'nacWidgetsConfig',
   diagnostics: 'diagnostics',
 } as const
