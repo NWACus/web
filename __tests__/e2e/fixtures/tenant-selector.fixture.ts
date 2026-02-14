@@ -6,6 +6,7 @@ import {
   isSelectReadOnly,
   selectInput,
   setTenantCookieFromPage,
+  TenantNames,
   TenantSlugs,
   waitForTenantCookie,
   type TenantSlug,
@@ -68,14 +69,12 @@ type TenantSelectorFixtures = {
 }
 
 async function performLogin(page: Page, email: string, password: string): Promise<void> {
-  await page.goto('/admin')
+  await page.goto('/admin/login')
+  await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
   await page.fill('input[name="email"]', email)
   await page.fill('input[name="password"]', password)
-  await page.click('button[type="submit"]')
-  // Wait for successful login - Payload uses class="dashboard" on the Gutter wrapper
-  await expect(page.locator('.dashboard')).toBeVisible({
-    timeout: 10000,
-  })
+  await page.locator('button[type="submit"]').click()
+  await page.locator('.template-default--nav-hydrated').waitFor({ timeout: 30000 })
 }
 
 /**
@@ -208,4 +207,4 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
 })
 
 export { expect } from '@playwright/test'
-export { TenantSlugs }
+export { TenantNames, TenantSlugs }

@@ -22,6 +22,7 @@ export { AdminUrlUtil, CollectionSlugs, GlobalSlugs } from './admin-url'
 // Tenant cookie management
 export {
   TENANT_COOKIE_NAME,
+  TenantNames,
   TenantSlugs,
   clearTenantCookie,
   clearTenantCookieFromPage,

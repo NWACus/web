@@ -125,10 +125,29 @@ export async function waitForTenantCookie(
  * These match the seeded tenants in the database.
  */
 export const TenantSlugs = {
-  nwac: 'nwac',
   dvac: 'dvac',
+  nwac: 'nwac',
   sac: 'sac',
   snfac: 'snfac',
 } as const
 
 export type TenantSlug = (typeof TenantSlugs)[keyof typeof TenantSlugs]
+
+/**
+ * Display names for tenants as shown in the admin tenant selector dropdown.
+ * These match the seeded tenant names in the database.
+ */
+export const TenantNames = {
+  dvac: 'Death Valley Avalanche Center',
+  nwac: 'Northwest Avalanche Center',
+  sac: 'Sierra Avalanche Center',
+  snfac: 'Sawtooth Avalanche Center',
+} as const
+
+// Hopefully remove soon
+export const TenantIds = {
+  dvac: '1',
+  nwac: '2',
+  sac: '3',
+  snfac: '4',
+} as const
