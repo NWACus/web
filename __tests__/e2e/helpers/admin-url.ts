@@ -106,7 +106,7 @@ export const CollectionSlugs = {
   // Global collections (unique: true - one per tenant)
   settings: 'settings',
   navigations: 'navigations',
-  homePages: 'home-pages',
+  homePages: 'homePages',
 
   // Non-tenant collections (shared across all tenants)
   users: 'users',
