@@ -111,8 +111,8 @@ export const CollectionSlugs = {
   // Non-tenant collections (shared across all tenants)
   users: 'users',
   tenants: 'tenants',
-  globalRoles: 'global-roles',
-  globalRoleAssignments: 'global-role-assignments',
+  globalRoles: 'globalRoles',
+  globalRoleAssignments: 'globalRoleAssignments',
   roles: 'roles',
   courses: 'courses',
   providers: 'providers',

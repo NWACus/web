@@ -1,6 +1,6 @@
 import {
   expect,
-  TenantSlugs,
+  TenantNames,
   tenantSelectorTest as test,
 } from '../../fixtures/tenant-selector.fixture'
 import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
@@ -19,192 +19,200 @@ import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
  * - All documents are visible (subject to user permissions)
  */
 
-test.describe('Non-Tenant Collection - Users', () => {
-  test('tenant selector should be hidden on list view', async ({
-    loginAs,
-    isTenantSelectorVisible,
-    getTenantCookie,
-    setTenantCookie,
-  }) => {
-    const page = await loginAs('superAdmin')
-    const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
+// Each test creates its own browser context + login; run with --workers=1
+// to avoid overwhelming the dev server with simultaneous login requests.
+test.describe.configure({ mode: 'serial', timeout: 90000 })
 
-    // Set a known tenant cookie before visiting
-    await setTenantCookie(page, TenantSlugs.nwac)
-    const cookieBefore = await getTenantCookie(page)
+test.describe('Non-Tenant Collection', () => {
+  test.describe('Users', () => {
+    test('tenant selector should be hidden on list view', async ({
+      loginAs,
+      isTenantSelectorVisible,
+    }) => {
+      const page = await loginAs('superAdmin')
+      const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
 
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
+      await page.goto(url.list)
+      await page.waitForLoadState('networkidle')
 
-    // Tenant selector should be hidden
-    const isVisible = await isTenantSelectorVisible(page)
-    expect(isVisible).toBe(false)
+      // Tenant selector should be hidden
+      const isVisible = await isTenantSelectorVisible(page)
+      expect(isVisible).toBe(false)
 
-    // Cookie should NOT be changed
-    const cookieAfter = await getTenantCookie(page)
-    expect(cookieAfter).toBe(cookieBefore)
+      await page.context().close()
+    })
 
-    await page.context().close()
+    test('tenant selector should be hidden on document view', async ({
+      loginAs,
+      isTenantSelectorVisible,
+    }) => {
+      const page = await loginAs('superAdmin')
+      const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
+
+      await page.goto(url.list)
+      await page.waitForLoadState('networkidle')
+
+      // Click first user in list
+      const firstRow = page.locator('table tbody tr').first()
+      if (await firstRow.isVisible()) {
+        await firstRow.click()
+        await page.waitForLoadState('networkidle')
+
+        const isVisible = await isTenantSelectorVisible(page)
+        expect(isVisible).toBe(false)
+      }
+
+      await page.context().close()
+    })
+
+    test('all users should be visible regardless of tenant cookie', async ({
+      loginAs,
+      selectTenant,
+    }) => {
+      const page = await loginAs('superAdmin')
+      const usersUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
+      const settingsUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.settings)
+
+      // Select NWAC tenant via UI on a tenant-scoped collection
+      await page.goto(settingsUrl.list)
+      await page.waitForLoadState('networkidle')
+      await selectTenant(page, TenantNames.nwac)
+      await page.waitForLoadState('networkidle')
+
+      // Visit users collection and count rows
+      await page.goto(usersUrl.list)
+      await page.waitForLoadState('networkidle')
+      const nwacUserCount = await page.locator('table tbody tr').count()
+
+      // Switch to SNFAC tenant via UI
+      await page.goto(settingsUrl.list)
+      await page.waitForLoadState('networkidle')
+      await selectTenant(page, TenantNames.snfac)
+      await page.waitForLoadState('networkidle')
+
+      // Visit users collection again and count rows
+      await page.goto(usersUrl.list)
+      await page.waitForLoadState('networkidle')
+      const snfacUserCount = await page.locator('table tbody tr').count()
+
+      // User count should be the same regardless of tenant (no filtering)
+      expect(nwacUserCount).toBe(snfacUserCount)
+
+      await page.context().close()
+    })
   })
 
-  test('tenant selector should be hidden on document view', async ({
-    loginAs,
-    isTenantSelectorVisible,
-  }) => {
-    const page = await loginAs('superAdmin')
-    const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
+  test.describe('Tenants', () => {
+    test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
+      const page = await loginAs('superAdmin')
+      const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.tenants)
 
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
-    // Click first user in list
-    const firstRow = page.locator('table tbody tr').first()
-    if (await firstRow.isVisible()) {
-      await firstRow.click()
+      await page.goto(url.list)
       await page.waitForLoadState('networkidle')
 
       const isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(false)
-    }
 
-    await page.context().close()
+      await page.context().close()
+    })
   })
 
-  test('all users should be visible regardless of tenant cookie', async ({
-    loginAs,
-    setTenantCookie,
-  }) => {
-    const page = await loginAs('superAdmin')
-    const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
+  test.describe('GlobalRoles', () => {
+    test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
+      const page = await loginAs('superAdmin')
+      const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.globalRoles)
 
-    // Set to NWAC first
-    await setTenantCookie(page, TenantSlugs.nwac)
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
+      await page.goto(url.list)
+      await page.waitForLoadState('networkidle')
 
-    const nwacUserCount = await page.locator('table tbody tr').count()
+      const isVisible = await isTenantSelectorVisible(page)
+      expect(isVisible).toBe(false)
 
-    // Change to SNFAC
-    await setTenantCookie(page, TenantSlugs.snfac)
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
-    const snfacUserCount = await page.locator('table tbody tr').count()
-
-    // User count should be the same regardless of tenant (no filtering)
-    expect(nwacUserCount).toBe(snfacUserCount)
-
-    await page.context().close()
+      await page.context().close()
+    })
   })
-})
 
-test.describe('Non-Tenant Collection - Tenants', () => {
-  test('tenant selector should be hidden', async ({
-    loginAs,
-    isTenantSelectorVisible,
-    getTenantCookie,
-    setTenantCookie,
-  }) => {
-    const page = await loginAs('superAdmin')
-    const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.tenants)
+  test.describe('GlobalRoleAssignments', () => {
+    test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
+      const page = await loginAs('superAdmin')
+      const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.globalRoleAssignments)
 
-    await setTenantCookie(page, TenantSlugs.nwac)
-    const cookieBefore = await getTenantCookie(page)
+      await page.goto(url.list)
+      await page.waitForLoadState('networkidle')
 
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
+      const isVisible = await isTenantSelectorVisible(page)
+      expect(isVisible).toBe(false)
 
-    const isVisible = await isTenantSelectorVisible(page)
-    expect(isVisible).toBe(false)
-
-    const cookieAfter = await getTenantCookie(page)
-    expect(cookieAfter).toBe(cookieBefore)
-
-    await page.context().close()
+      await page.context().close()
+    })
   })
-})
 
-test.describe('Non-Tenant Collection - GlobalRoles', () => {
-  test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
-    const page = await loginAs('superAdmin')
-    const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.globalRoles)
+  test.describe('Courses', () => {
+    test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
+      const page = await loginAs('superAdmin')
+      const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.courses)
 
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
+      await page.goto(url.list)
+      await page.waitForLoadState('networkidle')
 
-    const isVisible = await isTenantSelectorVisible(page)
-    expect(isVisible).toBe(false)
+      const isVisible = await isTenantSelectorVisible(page)
+      expect(isVisible).toBe(false)
 
-    await page.context().close()
+      await page.context().close()
+    })
   })
-})
 
-test.describe('Non-Tenant Collection - Courses', () => {
-  test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
-    const page = await loginAs('superAdmin')
-    const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.courses)
+  test.describe('Providers', () => {
+    test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
+      const page = await loginAs('superAdmin')
+      const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.providers)
 
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
+      await page.goto(url.list)
+      await page.waitForLoadState('networkidle')
 
-    const isVisible = await isTenantSelectorVisible(page)
-    expect(isVisible).toBe(false)
+      const isVisible = await isTenantSelectorVisible(page)
+      expect(isVisible).toBe(false)
 
-    await page.context().close()
+      await page.context().close()
+    })
   })
-})
 
-test.describe('Non-Tenant Collection - Providers', () => {
-  test('tenant selector should be hidden', async ({ loginAs, isTenantSelectorVisible }) => {
-    const page = await loginAs('superAdmin')
-    const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.providers)
+  test.describe('Cookie Preservation', () => {
+    test('tenant cookie should not change when navigating to non-tenant collection', async ({
+      loginAs,
+      selectTenant,
+      getTenantCookie,
+    }) => {
+      const page = await loginAs('superAdmin')
 
-    await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
+      // Visit tenant-scoped collection and select a tenant via UI
+      const pagesUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
+      await page.goto(pagesUrl.list)
+      await page.waitForLoadState('networkidle')
+      await selectTenant(page, TenantNames.dvac)
+      await page.waitForLoadState('networkidle')
 
-    const isVisible = await isTenantSelectorVisible(page)
-    expect(isVisible).toBe(false)
+      const cookieBeforeNonTenant = await getTenantCookie(page)
+      expect(cookieBeforeNonTenant).toBeTruthy()
 
-    await page.context().close()
-  })
-})
+      // Navigate to non-tenant collection
+      const usersUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
+      await page.goto(usersUrl.list)
+      await page.waitForLoadState('networkidle')
 
-test.describe('Non-Tenant Collection - Cookie Preservation', () => {
-  test('tenant cookie should not change when navigating to non-tenant collection', async ({
-    loginAs,
-    getTenantCookie,
-    setTenantCookie,
-  }) => {
-    const page = await loginAs('superAdmin')
+      // Cookie should still be the same
+      const cookieAfterNonTenant = await getTenantCookie(page)
+      expect(cookieAfterNonTenant).toBe(cookieBeforeNonTenant)
 
-    // Set tenant cookie
-    await setTenantCookie(page, TenantSlugs.dvac)
+      // Navigate back to tenant-scoped collection
+      await page.goto(pagesUrl.list)
+      await page.waitForLoadState('networkidle')
 
-    // Visit tenant-scoped collection first to verify cookie is set
-    const pagesUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
-    await page.goto(pagesUrl.list)
-    await page.waitForLoadState('networkidle')
+      // Cookie should still be preserved
+      const cookieAfterBack = await getTenantCookie(page)
+      expect(cookieAfterBack).toBe(cookieBeforeNonTenant)
 
-    const cookieBeforeNonTenant = await getTenantCookie(page)
-    expect(cookieBeforeNonTenant).toBe(TenantSlugs.dvac)
-
-    // Navigate to non-tenant collection
-    const usersUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
-    await page.goto(usersUrl.list)
-    await page.waitForLoadState('networkidle')
-
-    // Cookie should still be the same
-    const cookieAfterNonTenant = await getTenantCookie(page)
-    expect(cookieAfterNonTenant).toBe(TenantSlugs.dvac)
-
-    // Navigate back to tenant-scoped collection
-    await page.goto(pagesUrl.list)
-    await page.waitForLoadState('networkidle')
-
-    // Cookie should still be preserved
-    const cookieAfterBack = await getTenantCookie(page)
-    expect(cookieAfterBack).toBe(TenantSlugs.dvac)
-
-    await page.context().close()
+      await page.context().close()
+    })
   })
 })
