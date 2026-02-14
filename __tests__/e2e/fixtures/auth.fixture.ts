@@ -1,4 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook */
 import { test as base, Page } from '@playwright/test'
+import { performLogin } from '../helpers'
 import { testUsers, UserRole } from './test-users'
 
 type AuthFixtures = {
@@ -8,15 +10,6 @@ type AuthFixtures = {
   loginWithCredentials: (email: string, password: string) => Promise<Page>
   /** Get a pre-authenticated page for the super admin */
   adminPage: Page
-}
-
-async function performLogin(page: Page, email: string, password: string): Promise<void> {
-  await page.goto('/admin/login')
-  await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
-  await page.fill('input[name="email"]', email)
-  await page.fill('input[name="password"]', password)
-  await page.locator('button[type="submit"]').click()
-  await page.locator('.template-default--nav-hydrated').waitFor({ timeout: 30000 })
 }
 
 export const authTest = base.extend<AuthFixtures>({

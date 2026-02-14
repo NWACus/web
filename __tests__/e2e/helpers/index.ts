@@ -34,6 +34,9 @@ export {
   type TenantSlug,
 } from './tenant-cookie'
 
+// Login
+export { performLogin } from './login'
+
 // Document save operations
 export {
   closeAllToasts,

@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook */
 import { test as base, expect, Page } from '@playwright/test'
 import {
   getSelectInputOptions,
   getSelectInputValue,
   getTenantCookieFromPage,
   isSelectReadOnly,
+  performLogin,
   selectInput,
   setTenantCookieFromPage,
   TenantNames,
@@ -66,15 +68,6 @@ type TenantSelectorFixtures = {
    * Wait for the tenant cookie to be set to a specific value.
    */
   waitForTenantCookie: (page: Page, expectedSlug: string) => Promise<void>
-}
-
-async function performLogin(page: Page, email: string, password: string): Promise<void> {
-  await page.goto('/admin/login')
-  await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
-  await page.fill('input[name="email"]', email)
-  await page.fill('input[name="password"]', password)
-  await page.locator('button[type="submit"]').click()
-  await page.locator('.template-default--nav-hydrated').waitFor({ timeout: 30000 })
 }
 
 /**
