@@ -69,7 +69,7 @@ test.describe('Payload CMS Login', () => {
   })
 
   // Does not work locally - possible edge config error
-  test.fixme('logs out via direct navigation', async ({ page }) => {
+  test('logs out via direct navigation', async ({ page }) => {
     await submitLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
     await page.locator('.template-default--nav-hydrated').waitFor({ timeout: 30000 })
     // Wait for nav to hydrate and verify login
