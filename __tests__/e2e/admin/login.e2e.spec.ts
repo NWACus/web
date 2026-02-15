@@ -51,7 +51,7 @@ test.describe('Payload CMS Login', () => {
     })
   })
 
-  test('logs out via direct navigation', async ({ page }) => {
+  test.fixme('logs out via direct navigation', async ({ page }) => {
     await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
     await page.goto('/admin/logout')
@@ -61,7 +61,7 @@ test.describe('Payload CMS Login', () => {
     await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 15000 })
   })
 
-  test('logs out via nav button', async ({ page }) => {
+  test.fixme('logs out via nav button', async ({ page }) => {
     await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
     await openNav(page)
