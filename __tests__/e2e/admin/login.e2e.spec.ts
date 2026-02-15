@@ -4,16 +4,22 @@ import { testUsers } from '../fixtures/test-users'
 
 /**
  * Fill and submit the login form, waiting for the API response before continuing.
+ * Verifies fields weren't cleared by a React re-render before submitting.
  * Uses Promise.all to ensure the response listener is set up before triggering submit.
  */
 async function submitLogin(page: Page, email: string, password: string): Promise<void> {
-  await page.fill('input[name="email"]', email)
-  await page.fill('input[name="password"]', password)
+  const emailInput = page.locator('input[name="email"]')
+  const passwordInput = page.locator('input[name="password"]')
+
+  await emailInput.fill(email)
+  await passwordInput.fill(password)
+
+  // Verify fields weren't cleared by a React re-render before submitting
+  await expect(emailInput).toHaveValue(email, { timeout: 5000 })
+  await expect(passwordInput).not.toHaveValue('', { timeout: 5000 })
 
   await Promise.all([
-    page.waitForResponse(
-      (resp) => resp.url().includes('/api/users/login') && resp.status() === 200,
-    ),
+    page.waitForResponse((resp) => resp.url().includes('/api/users/login')),
     page.locator('button[type="submit"]').click(),
   ])
 }
