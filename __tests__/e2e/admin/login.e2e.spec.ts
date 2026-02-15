@@ -51,26 +51,24 @@ test.describe('Payload CMS Login', () => {
     })
   })
 
-  // /admin/logout doesn't redirect to login without Edge Config (local + CI)
-  test.fixme('logs out via direct navigation', async ({ page }) => {
+  test('logs out via direct navigation', async ({ page }) => {
     await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
-    // Navigate directly to logout route (same approach as Payload's test helpers)
     await page.goto('/admin/logout')
 
-    // Should redirect to login page - wait for email input to be visible
+    // Wait for redirect to login page
+    await page.waitForURL('**/admin/login', { timeout: 30000 })
     await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 15000 })
   })
 
   test('logs out via nav button', async ({ page }) => {
     await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
-    // Open nav and click the logout button (calls logOut() directly, not a link)
     await openNav(page)
     await page.getByRole('button', { name: 'Log out' }).click()
 
-    // Wait for redirect back to login page after logout completes
-    await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 30000 })
-    await expect(page.locator('input[name="email"]')).toBeVisible()
+    // Wait for redirect to login page
+    await page.waitForURL('**/admin/login', { timeout: 30000 })
+    await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 15000 })
   })
 })
