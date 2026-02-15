@@ -29,7 +29,7 @@ export default defineConfig({
   webServer: {
     command: 'pnpm dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 300000, // 5 minutes - Next.js + Payload takes a while to compile
   },
 })

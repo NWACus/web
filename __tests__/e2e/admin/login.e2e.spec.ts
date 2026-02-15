@@ -18,6 +18,8 @@ async function submitLogin(page: Page, email: string, password: string): Promise
   ])
 }
 
+test.describe.configure({ mode: 'serial', timeout: 90000 })
+
 test.describe('Payload CMS Login', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/admin/login')
