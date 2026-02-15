@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook */
 import { test as base, expect, Page } from '@playwright/test'
 import {
   getSelectInputOptions,
@@ -83,6 +82,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
       await performLogin(page, user.email, user.password)
       return page
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(loginAsRole)
   },
 
@@ -100,6 +100,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
       }
       return null
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(getTenantSelector)
   },
 
@@ -120,6 +121,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
 
       return value === false ? undefined : value
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(getSelectedTenant)
   },
 
@@ -135,6 +137,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
 
       return getSelectInputOptions({ selectLocator: selector })
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(getTenantOptions)
   },
 
@@ -151,6 +154,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
         option: tenantName,
       })
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(doSelectTenant)
   },
 
@@ -162,6 +166,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
       const selector = page.locator('.tenant-selector')
       return selector.isVisible()
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(checkVisibility)
   },
 
@@ -177,10 +182,12 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
 
       return isSelectReadOnly({ selectLocator: selector })
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(checkReadOnly)
   },
 
   getTenantCookie: async ({}, use) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(getTenantCookieFromPage)
   },
 
@@ -188,6 +195,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
     const setCookie = async (page: Page, slug: TenantSlug | undefined): Promise<void> => {
       await setTenantCookieFromPage(page, slug)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(setCookie)
   },
 
@@ -195,6 +203,7 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
     const waitForCookie = async (page: Page, expectedSlug: string): Promise<void> => {
       await waitForTenantCookie(page, expectedSlug)
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(waitForCookie)
   },
 })

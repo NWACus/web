@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook */
 import { test as base, Page } from '@playwright/test'
 import { performLogin } from '../helpers'
 import { testUsers, UserRole } from './test-users'
@@ -21,6 +20,7 @@ export const authTest = base.extend<AuthFixtures>({
       await performLogin(page, user.email, user.password)
       return page
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(loginAsRole)
   },
 
@@ -31,6 +31,7 @@ export const authTest = base.extend<AuthFixtures>({
       await performLogin(page, email, password)
       return page
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(login)
   },
 
@@ -39,6 +40,7 @@ export const authTest = base.extend<AuthFixtures>({
     const context = await browser.newContext()
     const page = await context.newPage()
     await performLogin(page, user.email, user.password)
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(page)
     await context.close()
   },

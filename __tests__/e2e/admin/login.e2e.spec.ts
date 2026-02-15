@@ -1,6 +1,6 @@
 import { Page, expect, test } from '@playwright/test'
 import { openNav } from '../fixtures/nav.fixture'
-import { allUserRoles, testUsers } from '../fixtures/test-users'
+import { testUsers } from '../fixtures/test-users'
 
 /**
  * Fill and submit the login form, waiting for the API response before continuing.
@@ -32,9 +32,7 @@ test.describe('Payload CMS Login', () => {
   })
 
   // Test login for each user type
-  for (const role of allUserRoles) {
-    const user = testUsers[role]
-
+  for (const [role, user] of Object.entries(testUsers)) {
     test(`logs in successfully as ${role} (${user.email})`, async ({ page }) => {
       await submitLogin(page, user.email, user.password)
 

@@ -170,30 +170,36 @@ export async function selectInput({
   }
 }
 
-type GetSelectInputValueResult<TMultiSelect> = TMultiSelect extends true
-  ? string[]
-  : string | false | undefined
-
 /**
  * Gets the current value(s) from a react-select component.
  *
  * @returns For single select: the selected value string, or false/undefined if none
  * @returns For multi select: array of selected value strings
  */
-export async function getSelectInputValue<TMultiSelect extends boolean = false>({
+export async function getSelectInputValue(params: {
+  selectLocator: Locator
+  multiSelect: true
+  selectType?: 'relationship' | 'select'
+}): Promise<string[]>
+export async function getSelectInputValue(params: {
+  selectLocator: Locator
+  multiSelect?: false
+  selectType?: 'relationship' | 'select'
+}): Promise<string | false | undefined>
+export async function getSelectInputValue({
   selectLocator,
-  multiSelect = false as TMultiSelect,
+  multiSelect = false,
   selectType = 'select',
 }: {
   selectLocator: Locator
-  multiSelect?: TMultiSelect
+  multiSelect?: boolean
   selectType?: 'relationship' | 'select'
-}): Promise<GetSelectInputValueResult<TMultiSelect>> {
+}): Promise<string[] | string | false | undefined> {
   if (multiSelect) {
     const selectedOptions = await selectLocator
       .locator(selectors.hasMany[selectType])
       .allTextContents()
-    return (selectedOptions || []) as GetSelectInputValueResult<TMultiSelect>
+    return selectedOptions || []
   }
 
   await expect(selectLocator).toBeVisible()
@@ -201,10 +207,10 @@ export async function getSelectInputValue<TMultiSelect extends boolean = false>(
   const valueLocator = selectLocator.locator(selectors.hasOne[selectType])
   const count = await valueLocator.count()
   if (count === 0) {
-    return false as GetSelectInputValueResult<TMultiSelect>
+    return false
   }
   const singleValue = await valueLocator.textContent()
-  return (singleValue ?? undefined) as GetSelectInputValueResult<TMultiSelect>
+  return singleValue ?? undefined
 }
 
 /**

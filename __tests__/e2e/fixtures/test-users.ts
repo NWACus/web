@@ -92,4 +92,4 @@ export function getTestUser(role: UserRole): TestUser {
 }
 
 /** All user roles for parameterized tests */
-export const allUserRoles = Object.keys(testUsers) as UserRole[]
+export const allUserRoles = Object.keys(testUsers)

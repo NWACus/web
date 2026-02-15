@@ -12,6 +12,7 @@ export const tenantTest = base.extend<{
       await page.goto(`http://${tenant}.localhost:3000`)
       return page
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(createTenantPage)
   },
 })
