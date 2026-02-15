@@ -1,28 +1,7 @@
-import { Page, expect, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { openNav } from '../fixtures/nav.fixture'
 import { testUsers } from '../fixtures/test-users'
-
-/**
- * Fill and submit the login form, waiting for the API response before continuing.
- * Verifies fields weren't cleared by a React re-render before submitting.
- * Uses Promise.all to ensure the response listener is set up before triggering submit.
- */
-async function submitLogin(page: Page, email: string, password: string): Promise<void> {
-  const emailInput = page.locator('input[name="email"]')
-  const passwordInput = page.locator('input[name="password"]')
-
-  await emailInput.fill(email)
-  await passwordInput.fill(password)
-
-  // Verify fields weren't cleared by a React re-render before submitting
-  await expect(emailInput).toHaveValue(email, { timeout: 5000 })
-  await expect(passwordInput).not.toHaveValue('', { timeout: 5000 })
-
-  await Promise.all([
-    page.waitForResponse((resp) => resp.url().includes('/api/users/login')),
-    page.locator('button[type="submit"]').click(),
-  ])
-}
+import { performLogin } from '../helpers'
 
 test.describe.configure({ mode: 'serial', timeout: 90000 })
 
@@ -42,10 +21,8 @@ test.describe('Payload CMS Login', () => {
   // Test login for each user type
   for (const [role, user] of Object.entries(testUsers)) {
     test(`logs in successfully as ${role} (${user.email})`, async ({ page }) => {
-      await submitLogin(page, user.email, user.password)
+      await performLogin(page, user.email, user.password)
 
-      // Wait for admin dashboard nav to hydrate (confirms redirect succeeded)
-      await page.locator('.template-default--nav-hydrated').waitFor({ timeout: 30000 })
       await openNav(page)
       await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible({ timeout: 10000 })
     })
@@ -76,10 +53,7 @@ test.describe('Payload CMS Login', () => {
 
   // Does not work locally - possible edge config error
   test('logs out via direct navigation', async ({ page }) => {
-    await submitLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
-    await page.locator('.template-default--nav-hydrated').waitFor({ timeout: 30000 })
-    // Wait for nav to hydrate and verify login
-    await openNav(page)
+    await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
     // Navigate directly to logout route (same approach as Payload's test helpers)
     await page.goto('/admin/logout')
@@ -89,8 +63,7 @@ test.describe('Payload CMS Login', () => {
   })
 
   test('logs out via nav button', async ({ page }) => {
-    await submitLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
-    await page.locator('.template-default--nav-hydrated').waitFor({ timeout: 30000 })
+    await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
     // Open nav and click the logout button (calls logOut() directly, not a link)
     await openNav(page)
