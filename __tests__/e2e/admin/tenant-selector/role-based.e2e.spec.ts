@@ -1,9 +1,10 @@
 import {
   expect,
-  TenantSlugs,
+  TenantNames,
   tenantSelectorTest as test,
 } from '../../fixtures/tenant-selector.fixture'
 import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
+import { TenantIds } from '../../helpers/tenant-cookie'
 
 /**
  * Role-Based Test Cases
@@ -13,6 +14,10 @@ import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
  * - Multi-Center Admin: sees only assigned tenants
  * - Single-Center Admin: tenant selector hidden (only 1 option)
  */
+
+// Each test creates its own browser context + login; run serially to avoid
+// overwhelming the dev server with simultaneous login requests.
+test.describe.configure({ mode: 'serial', timeout: 90000 })
 
 test.describe('Super Admin', () => {
   test('should see all tenants in dropdown', async ({ loginAs, getTenantOptions }) => {
@@ -25,10 +30,10 @@ test.describe('Super Admin', () => {
     const options = await getTenantOptions(page)
 
     // Super admin should see all seeded tenants
-    expect(options).toContain('NWAC')
-    expect(options).toContain('SNFAC')
-    expect(options).toContain('DVAC')
-    expect(options).toContain('SAC')
+    expect(options).toContain(TenantNames.nwac)
+    expect(options).toContain(TenantNames.snfac)
+    expect(options).toContain(TenantNames.dvac)
+    expect(options).toContain(TenantNames.sac)
     expect(options.length).toBeGreaterThanOrEqual(4)
 
     await page.context().close()
@@ -46,22 +51,22 @@ test.describe('Super Admin', () => {
     await page.waitForLoadState('networkidle')
 
     // Switch to NWAC
-    await selectTenant(page, 'NWAC')
+    await selectTenant(page, TenantNames.nwac)
     await page.waitForLoadState('networkidle')
     let selected = await getSelectedTenant(page)
-    expect(selected).toBe('NWAC')
+    expect(selected).toBe(TenantNames.nwac)
 
     // Switch to SNFAC
-    await selectTenant(page, 'SNFAC')
+    await selectTenant(page, TenantNames.snfac)
     await page.waitForLoadState('networkidle')
     selected = await getSelectedTenant(page)
-    expect(selected).toBe('SNFAC')
+    expect(selected).toBe(TenantNames.snfac)
 
     // Switch to DVAC
-    await selectTenant(page, 'DVAC')
+    await selectTenant(page, TenantNames.dvac)
     await page.waitForLoadState('networkidle')
     selected = await getSelectedTenant(page)
-    expect(selected).toBe('DVAC')
+    expect(selected).toBe(TenantNames.dvac)
 
     await page.context().close()
   })
@@ -109,12 +114,12 @@ test.describe('Multi-Center Admin', () => {
     const options = await getTenantOptions(page)
 
     // Should see NWAC and SNFAC
-    expect(options).toContain('NWAC')
-    expect(options).toContain('SNFAC')
+    expect(options).toContain(TenantNames.nwac)
+    expect(options).toContain(TenantNames.snfac)
 
     // Should NOT see DVAC or SAC
-    expect(options).not.toContain('DVAC')
-    expect(options).not.toContain('SAC')
+    expect(options).not.toContain(TenantNames.dvac)
+    expect(options).not.toContain(TenantNames.sac)
 
     await page.context().close()
   })
@@ -131,16 +136,16 @@ test.describe('Multi-Center Admin', () => {
     await page.waitForLoadState('networkidle')
 
     // Switch to NWAC
-    await selectTenant(page, 'NWAC')
+    await selectTenant(page, TenantNames.nwac)
     await page.waitForLoadState('networkidle')
     let selected = await getSelectedTenant(page)
-    expect(selected).toBe('NWAC')
+    expect(selected).toBe(TenantNames.nwac)
 
     // Switch to SNFAC
-    await selectTenant(page, 'SNFAC')
+    await selectTenant(page, TenantNames.snfac)
     await page.waitForLoadState('networkidle')
     selected = await getSelectedTenant(page)
-    expect(selected).toBe('SNFAC')
+    expect(selected).toBe(TenantNames.snfac)
 
     await page.context().close()
   })
@@ -177,7 +182,7 @@ test.describe('Single-Center Admin', () => {
 
     // Cookie should be set to their tenant (nwac)
     const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantSlugs.nwac)
+    expect(cookie).toBe(TenantIds.nwac)
 
     await page.context().close()
   })
@@ -197,7 +202,7 @@ test.describe('Single-Center Admin', () => {
       await page.waitForLoadState('networkidle')
 
       const cookie = await getTenantCookie(page)
-      expect(cookie).toBe(TenantSlugs.nwac)
+      expect(cookie).toBe(TenantIds.nwac)
     }
 
     await page.context().close()
@@ -223,7 +228,7 @@ test.describe('Forecaster Role', () => {
 
     // Cookie should be set to NWAC
     const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantSlugs.nwac)
+    expect(cookie).toBe(TenantIds.nwac)
 
     await page.context().close()
   })
@@ -248,7 +253,7 @@ test.describe('Staff Role', () => {
 
     // Cookie should be set to NWAC
     const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantSlugs.nwac)
+    expect(cookie).toBe(TenantIds.nwac)
 
     await page.context().close()
   })
