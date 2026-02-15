@@ -51,8 +51,8 @@ test.describe('Payload CMS Login', () => {
     })
   })
 
-  // Does not work locally - possible edge config error
-  test('logs out via direct navigation', async ({ page }) => {
+  // /admin/logout doesn't redirect to login without Edge Config (local + CI)
+  test.fixme('logs out via direct navigation', async ({ page }) => {
     await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
     // Navigate directly to logout route (same approach as Payload's test helpers)
