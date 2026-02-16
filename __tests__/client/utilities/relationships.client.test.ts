@@ -91,8 +91,8 @@ describe('filterValidRelationships', () => {
 describe('filterValidPublishedRelationships', () => {
   it('filters out drafts, numbers, nulls, and undefineds', () => {
     const input = [
-      { id: 1, _status: 'published' as const },
-      { id: 2, _status: 'draft' as const },
+      { id: 1, _status: 'published' },
+      { id: 2, _status: 'draft' },
       42,
       null,
       { id: 3 },
