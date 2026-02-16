@@ -135,6 +135,51 @@ jobs:
       - name: 🧪 Run tests
         run: pnpm test
 
+  e2e:
+    name: e2e
+    if: github.event_name == 'merge_group'
+    environment: Preview
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URI: 'file:./dev.db'
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      ALLOW_SIMPLE_PASSWORDS: 'true'
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 🎭 Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: 📦 Opt out of image optimization
+        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
+        shell: bash
+      - name: 🌱 Seed database
+        run: pnpm seed:standalone
+      - name: 🔨 Build
+        run: pnpm build
+      - name: 🚀 Start server
+        run: pnpm start &
+      - name: ⏳ Wait for server
+        run: timeout 120 bash -c 'until curl -sf http://localhost:3000/admin/login > /dev/null; do sleep 2; done'
+      - name: 🧪 Run E2E tests
+        run: pnpm test:e2e
+      - name: 📤 Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
   migrations-check:
     name: migrations-check
     runs-on: ubuntu-latest
