@@ -13,30 +13,39 @@ describe('formatAuthors', () => {
   })
 
   it('returns the name for a single author', () => {
-    expect(formatAuthors([author('Alice')])).toBe('Alice')
+    expect(formatAuthors([author('Alice Smith')])).toBe('Alice Smith')
   })
 
-  it('joins two authors with "and"', () => {
-    expect(formatAuthors([author('Alice'), author('Bob')])).toBe('Alice and Bob')
-  })
-
-  it('joins three authors with commas and "and"', () => {
-    expect(formatAuthors([author('Alice'), author('Bob'), author('Charlie')])).toBe(
-      'Alice, Bob and Charlie',
+  it('joins two authors with "&"', () => {
+    expect(formatAuthors([author('Alice Smith'), author('Bob Jones')])).toBe(
+      'Alice Smith & Bob Jones',
     )
   })
 
-  it('joins four authors with commas and "and"', () => {
+  it('joins three authors with commas and "&"', () => {
     expect(
-      formatAuthors([author('Alice'), author('Bob'), author('Charlie'), author('Diana')]),
-    ).toBe('Alice, Bob, Charlie and Diana')
+      formatAuthors([author('Alice Smith'), author('Bob Jones'), author('Charlie Brown')]),
+    ).toBe('Alice Smith, Bob Jones & Charlie Brown')
+  })
+
+  it('joins four authors with commas and "&"', () => {
+    expect(
+      formatAuthors([
+        author('Alice Smith'),
+        author('Bob Jones'),
+        author('Charlie Brown'),
+        author('Diana Prince'),
+      ]),
+    ).toBe('Alice Smith, Bob Jones, Charlie Brown & Diana Prince')
   })
 
   it('filters out authors without names before formatting', () => {
-    expect(formatAuthors([author('Alice'), noName(), author('Bob')])).toBe('Alice and Bob')
+    expect(formatAuthors([author('Alice Smith'), noName(), author('Bob Jones')])).toBe(
+      'Alice Smith & Bob Jones',
+    )
   })
 
   it('returns single author when filtering leaves only one', () => {
-    expect(formatAuthors([noName(), author('Alice'), noName()])).toBe('Alice')
+    expect(formatAuthors([noName(), author('Alice Smith'), noName()])).toBe('Alice Smith')
   })
 })
