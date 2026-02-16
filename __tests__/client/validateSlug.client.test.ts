@@ -1,9 +1,9 @@
 import { validateSlug } from '@/utilities/validateSlug'
-
-// validateSlug is a Payload field validator - it takes (value, args) but
+// validateSlug is a Payload field validator - it takes (value, options) but
 // we only need to test the value parameter for format validation
-const validate = (value: string | null | undefined) =>
-  validateSlug(value, {} as Parameters<typeof validateSlug>[1])
+const validate = (value: Parameters<typeof validateSlug>[0]) =>
+  // @ts-expect-error - only testing value validation; options arg is unused by validateSlug
+  validateSlug(value, {})
 
 describe('validateSlug', () => {
   it('accepts a simple slug', () => {
