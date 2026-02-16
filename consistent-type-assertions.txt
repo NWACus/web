@@ -1,3 +1,4 @@
+__tests__/e2e/auth.setup.ts
 src/app/(frontend)/[center]/[...segments]/page.tsx
 src/app/(frontend)/[center]/[slug]/page.tsx
 src/app/(frontend)/[center]/blog/[slug]/page.tsx
