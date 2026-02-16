@@ -17,9 +17,7 @@ import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
  * - Cookie cleared manually
  */
 
-// Each test creates its own browser context + login; run serially to avoid
-// overwhelming the dev server with simultaneous login requests.
-test.describe.configure({ mode: 'serial', timeout: 60000 })
+test.describe.configure({ timeout: 60000 })
 
 test.describe('Tenant Cookie Edge Cases', () => {
   test('no cookie initially - page loads without crashing', async ({

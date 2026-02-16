@@ -19,9 +19,7 @@ import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
  * - Changing tenant in document view redirects to that tenant's document
  */
 
-// Each test creates its own browser context + login; run serially to avoid
-// overwhelming the dev server with simultaneous login requests.
-test.describe.configure({ mode: 'serial', timeout: 90000 })
+test.describe.configure({ timeout: 90000 })
 
 test.describe('Global Collection', () => {
   test.describe('List View', () => {

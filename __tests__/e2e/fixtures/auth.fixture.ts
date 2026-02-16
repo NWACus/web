@@ -1,6 +1,7 @@
 import { test as base, Page } from '@playwright/test'
 import { performLogin } from '../helpers'
-import { testUsers, UserRole } from './test-users'
+import { authFile } from '../helpers/auth-state'
+import { UserRole } from './test-users'
 
 type AuthFixtures = {
   /** Login as a specific user role and return the authenticated page */
@@ -14,10 +15,8 @@ type AuthFixtures = {
 export const authTest = base.extend<AuthFixtures>({
   loginAs: async ({ browser }, use) => {
     const loginAsRole = async (role: UserRole): Promise<Page> => {
-      const user = testUsers[role]
-      const context = await browser.newContext()
+      const context = await browser.newContext({ storageState: authFile(role) })
       const page = await context.newPage()
-      await performLogin(page, user.email, user.password)
       return page
     }
     // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
@@ -36,10 +35,8 @@ export const authTest = base.extend<AuthFixtures>({
   },
 
   adminPage: async ({ browser }, use) => {
-    const user = testUsers.superAdmin
-    const context = await browser.newContext()
+    const context = await browser.newContext({ storageState: authFile('superAdmin') })
     const page = await context.newPage()
-    await performLogin(page, user.email, user.password)
     // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(page)
     await context.close()

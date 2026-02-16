@@ -16,13 +16,19 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
       name: 'admin',
       testMatch: '**/admin/**/*.e2e.spec.ts',
+      dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'frontend',
       testMatch: '**/frontend/**/*.e2e.spec.ts',
+      dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'] },
     },
   ],

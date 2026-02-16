@@ -4,7 +4,6 @@ import {
   getSelectInputValue,
   getTenantCookieFromPage,
   isSelectReadOnly,
-  performLogin,
   selectInput,
   setTenantCookieFromPage,
   TenantNames,
@@ -12,8 +11,9 @@ import {
   waitForTenantCookie,
   type TenantSlug,
 } from '../helpers'
+import { authFile } from '../helpers/auth-state'
 import { openNav } from './nav.fixture'
-import { testUsers, UserRole } from './test-users'
+import { UserRole } from './test-users'
 
 type TenantSelectorFixtures = {
   /**
@@ -76,10 +76,8 @@ type TenantSelectorFixtures = {
 export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
   loginAs: async ({ browser }, use) => {
     const loginAsRole = async (role: UserRole): Promise<Page> => {
-      const user = testUsers[role]
-      const context = await browser.newContext()
+      const context = await browser.newContext({ storageState: authFile(role) })
       const page = await context.newPage()
-      await performLogin(page, user.email, user.password)
       return page
     }
     // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
