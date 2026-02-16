@@ -55,12 +55,12 @@ test.describe('Payload CMS Login', () => {
     await performLogin(page, testUsers.superAdmin.email, testUsers.superAdmin.password)
 
     await page.goto('/admin/logout')
-    await expect(page.locator('.toast-success')).toBeVisible({
+    await expect(page.locator('.toast-success').first()).toBeVisible({
       timeout: 5000,
     })
     // Wait for redirect to login page
-    // await page.waitForURL('**/admin/login', { timeout: 30000 })
-    // await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 15000 })
+    await page.waitForURL('**/admin/login', { timeout: 100000 })
+    await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 15000 })
   })
 
   test('logs out via nav button', async ({ page }) => {
