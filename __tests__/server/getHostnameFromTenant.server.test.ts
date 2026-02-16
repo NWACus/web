@@ -28,58 +28,60 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   })
 
   it('returns custom domain for production tenants', () => {
+    // Use a valid tenant slug from AVALANCHE_CENTERS
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('production-tenant')
+    PRODUCTION_TENANTS.push('nwac')
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant = {
-      slug: 'production-tenant',
-      customDomain: 'productiondomain.com',
+      slug: 'nwac',
+      customDomain: 'nwac.us',
     } as Tenant
 
     const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('productiondomain.com')
+    expect(result).toBe('nwac.us')
   })
 
   it('returns subdomain format for non-production tenants', () => {
+    // Only nwac is a production tenant; sac is valid but not in PRODUCTION_TENANTS
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('production-tenant')
+    PRODUCTION_TENANTS.push('nwac')
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant = {
-      slug: 'development-tenant',
-      customDomain: 'productiondomain.com',
+      slug: 'sac',
+      customDomain: 'sierraavalanchecenter.org',
     } as Tenant
 
     const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('development-tenant.envvar.localhost:3000')
+    expect(result).toBe('sac.envvar.localhost:3000')
   })
 
   it('handles multiple production tenants correctly', () => {
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('tenant1', 'tenant2', 'tenant3')
+    PRODUCTION_TENANTS.push('nwac', 'sac', 'uac')
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant1: Tenant = {
-      slug: 'tenant1',
-      customDomain: 'tenant1productiondomain.com',
+      slug: 'nwac',
+      customDomain: 'nwac.us',
     } as Tenant
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant2: Tenant = {
-      slug: 'tenant2',
-      customDomain: 'tenant2productiondomain.com',
+      slug: 'sac',
+      customDomain: 'sierraavalanchecenter.org',
     } as Tenant
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const nonProductionTenant: Tenant = {
-      slug: 'non-production',
-      customDomain: 'tenant3productiondomain.com',
+      slug: 'btac',
+      customDomain: 'bridgertetonavalanchecenter.org',
     } as Tenant
 
-    expect(getHostnameFromTenant(tenant1)).toBe('tenant1productiondomain.com')
-    expect(getHostnameFromTenant(tenant2)).toBe('tenant2productiondomain.com')
-    expect(getHostnameFromTenant(nonProductionTenant)).toBe('non-production.envvar.localhost:3000')
+    expect(getHostnameFromTenant(tenant1)).toBe('nwac.us')
+    expect(getHostnameFromTenant(tenant2)).toBe('sierraavalanchecenter.org')
+    expect(getHostnameFromTenant(nonProductionTenant)).toBe('btac.envvar.localhost:3000')
   })
 
   it('handles empty production tenants list', () => {
@@ -87,25 +89,25 @@ describe('server-side utilities: getHostnameFromTenant', () => {
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant: Tenant = {
-      slug: 'any-tenant',
-      customDomain: 'custom.example.com',
+      slug: 'nwac',
+      customDomain: 'nwac.us',
     } as Tenant
 
     const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('any-tenant.envvar.localhost:3000')
+    expect(result).toBe('nwac.envvar.localhost:3000')
   })
 
   it('handles tenant with empty custom domain by falling back to tenant subdomain', () => {
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('production-tenant')
+    PRODUCTION_TENANTS.push('nwac')
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const tenant: Tenant = {
-      slug: 'production-tenant',
+      slug: 'nwac',
       customDomain: '',
     } as Tenant
 
     const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('production-tenant.envvar.localhost:3000')
+    expect(result).toBe('nwac.envvar.localhost:3000')
   })
 })
