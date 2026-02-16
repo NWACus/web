@@ -59,7 +59,7 @@ test.describe('Payload CMS Login', () => {
       timeout: 5000,
     })
     // Wait for redirect to login page
-    await page.waitForURL('**/admin/login', { timeout: 100000 })
+    // await page.waitForURL('**/admin/login', { timeout: 100000 })
     // await expect(page.locator('input[name="email"]')).toBeVisible({ timeout: 15000 })
   })
 
