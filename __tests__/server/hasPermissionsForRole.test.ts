@@ -2,18 +2,21 @@ import { Role } from '@/payload-types'
 import { hasPermissionsForRole } from '@/utilities/rbac/escalationCheck'
 import { Logger } from 'pino'
 
+function buildMockLogger(): jest.Mocked<Logger> {
+  // @ts-expect-error - partial mock of pino Logger; only methods used in tests are provided
+  return {
+    warn: jest.fn(),
+    info: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  }
+}
+
 describe('hasPermissionsForRole', () => {
   let mockLogger: jest.Mocked<Logger>
 
   beforeEach(() => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    mockLogger = {
-      warn: jest.fn(),
-      info: jest.fn(),
-      error: jest.fn(),
-      debug: jest.fn(),
-    } as unknown as jest.Mocked<Logger>
-
+    mockLogger = buildMockLogger()
     jest.clearAllMocks()
   })
 
