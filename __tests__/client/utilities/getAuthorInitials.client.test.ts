@@ -2,7 +2,7 @@ import { getAuthorInitials } from '@/utilities/getAuthorInitials'
 
 describe('getAuthorInitials', () => {
   it('returns initials for a two-part name', () => {
-    expect(getAuthorInitials('John Doe')).toBe('J D')
+    expect(getAuthorInitials('John Doe')).toBe('JD')
   })
 
   it('returns initial for a single name', () => {
@@ -10,10 +10,10 @@ describe('getAuthorInitials', () => {
   })
 
   it('returns initials for a three-part name', () => {
-    expect(getAuthorInitials('Mary Jane Watson')).toBe('M J W')
+    expect(getAuthorInitials('Mary Jane Watson')).toBe('MJW')
   })
 
   it('handles single character names', () => {
-    expect(getAuthorInitials('A B')).toBe('A B')
+    expect(getAuthorInitials('A B')).toBe('AB')
   })
 })
