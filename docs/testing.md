@@ -75,10 +75,10 @@ pnpm test:e2e -- --workers=1 --headed __tests__/e2e/admin/tenant-selector/non-te
 __tests__/e2e/
 ├── admin/             # Admin panel tests (project: admin)
 │   └── ...
-├── fixtures/          # Playwright test fixtures
-│   └── ...            # Test user credentials by role
+├── fixtures/          # Reusable setup/teardown logic
+│   └── ...
 └── helpers/           # Shared utilities
-    └── ...            # Cookie management, TenantNames, TenantSlugs
+    └── ...
 ```
 
 ### Writing Tests

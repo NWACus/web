@@ -1,7 +1,3 @@
-__tests__/client/Breadcrumbs.client.test.tsx
-__tests__/client/handleURL.client.test.ts
-__tests__/server/getHostnameFromTenant.server.test.ts
-__tests__/server/hasPermissionsForRole.test.ts
 src/app/(frontend)/[center]/[...segments]/page.tsx
 src/app/(frontend)/[center]/[slug]/page.tsx
 src/app/(frontend)/[center]/blog/[slug]/page.tsx
