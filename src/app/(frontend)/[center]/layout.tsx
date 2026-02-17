@@ -23,7 +23,7 @@ import invariant from 'tiny-invariant'
 import './nac-widgets.css'
 import ThemeSetter from './theme'
 
-export const dynamicParams = false
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
