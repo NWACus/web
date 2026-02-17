@@ -137,6 +137,7 @@ jobs:
 
   e2e:
     name: e2e
+    if: github.event_name == 'merge_group'
     environment: Preview
     runs-on: ubuntu-latest
     env:
