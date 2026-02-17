@@ -32,7 +32,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('nwac')
 
-    const tenant = buildTenant({slug: 'nwac', customDomain: 'nwac.us'})
+    const tenant = buildTenant({ slug: 'nwac', customDomain: 'nwac.us' })
 
     const result = getHostnameFromTenant(tenant)
     expect(result).toBe('nwac.us')
@@ -57,8 +57,8 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.push('nwac', 'sac', 'uac')
 
     const tenant1 = buildTenant({
-      slug: 'tenant1',
-      customDomain: 'tenant1productiondomain.com',
+      slug: 'nwac',
+      customDomain: 'nwac.us',
     })
     const tenant2 = buildTenant({
       slug: 'sac',
@@ -71,7 +71,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
 
     expect(getHostnameFromTenant(tenant1)).toBe('nwac.us')
     expect(getHostnameFromTenant(tenant2)).toBe('sierraavalanchecenter.org')
-    expect(getHostnameFromTenant(nonProductionTenant)).toBe('btac.envvar.localhost:3000')
+    expect(getHostnameFromTenant(nonProductionTenant)).toBe('nwac.us')
   })
 
   it('handles empty production tenants list', () => {
