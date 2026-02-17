@@ -144,6 +144,7 @@ jobs:
       DATABASE_URI: 'file:./dev.db'
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
       ALLOW_SIMPLE_PASSWORDS: 'true'
+      LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS: 'true'
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
