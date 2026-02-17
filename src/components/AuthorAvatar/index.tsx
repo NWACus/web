@@ -2,6 +2,7 @@
 import { Media, Post } from '@/payload-types'
 import { useEffect, useState } from 'react'
 
+import { formatAuthors } from '@/utilities/formatAuthors'
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
 import { getDocumentById } from '@/utilities/getDocumentById'
 import { cn } from '@/utilities/ui'
@@ -74,9 +75,7 @@ export const AuthorAvatar = (props: {
         <div className="flex flex-col">
           {showAuthors && (
             <p className="text-sm text-brand-600">
-              {combinedAuthorsNames.length > 1
-                ? combinedAuthorsNames.join(', ')
-                : combinedAuthorsNames[0]}
+              {formatAuthors(combinedAuthorsNames.map((name) => ({ name })))}
             </p>
           )}
           {showDate && date && (

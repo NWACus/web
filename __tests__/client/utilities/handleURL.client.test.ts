@@ -1,5 +1,5 @@
-import { BuiltInPage, Page, Post } from '@/payload-types'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { buildBuiltInPage, buildPage, buildPost } from '../../builders'
 
 describe('handleReferenceURL', () => {
   describe('when type is external', () => {
@@ -19,8 +19,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'builtInPages',
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          value: { url: '/built-in-page' } as BuiltInPage,
+          value: buildBuiltInPage({ url: '/built-in-page' }),
         },
       })
 
@@ -32,8 +31,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'pages',
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          value: { slug: 'test-page' } as Page,
+          value: buildPage({ slug: 'test-page' }),
         },
       })
 
@@ -45,8 +43,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'posts',
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          value: { slug: 'my-blog-post' } as Post,
+          value: buildPost({ slug: 'my-blog-post' }),
         },
       })
 
@@ -61,8 +58,7 @@ describe('handleReferenceURL', () => {
         type: 'internal',
         reference: {
           relationTo: 'pages',
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          value: { slug: '' } as Page,
+          value: buildPage({ slug: '' }),
         },
       })
 

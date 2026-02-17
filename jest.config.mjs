@@ -8,7 +8,7 @@ const clientTestConfig = {
   displayName: 'client',
   testEnvironment: 'jsdom',
   clearMocks: true,
-  testMatch: ['**/__tests__/client/*.[jt]s?(x)'],
+  testMatch: ['**/__tests__/client/**/*.[jt]s?(x)'],
 }
 
 const serverTestConfig = {

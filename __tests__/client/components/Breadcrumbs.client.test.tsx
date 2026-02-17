@@ -4,17 +4,13 @@ import { BreadcrumbProvider } from '@/providers/BreadcrumbProvider'
 import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
+import { useSelectedLayoutSegments } from 'next/navigation'
 
 jest.mock('next/navigation', () => ({
   useSelectedLayoutSegments: jest.fn(),
 }))
 
-import { useSelectedLayoutSegments } from 'next/navigation'
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-const mockUseSelectedLayoutSegments = useSelectedLayoutSegments as jest.MockedFunction<
-  typeof useSelectedLayoutSegments
->
+const mockUseSelectedLayoutSegments = jest.mocked(useSelectedLayoutSegments)
 
 describe('Breadcrumbs', () => {
   afterEach(() => {

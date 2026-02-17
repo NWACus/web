@@ -18,11 +18,10 @@ export const formatAuthors = (
 
   if (filteredAuthors.length === 0) return ''
   if (filteredAuthors.length === 1) return filteredAuthors[0].name
-  if (filteredAuthors.length === 2)
-    return `${filteredAuthors[0].name} and ${filteredAuthors[1].name}`
+  if (filteredAuthors.length === 2) return `${filteredAuthors[0].name} & ${filteredAuthors[1].name}`
 
   return `${filteredAuthors
     .slice(0, -1)
     .map((author) => author?.name)
-    .join(', ')} and ${filteredAuthors[authors.length - 1].name}`
+    .join(', ')} & ${filteredAuthors[authors.length - 1].name}`
 }
