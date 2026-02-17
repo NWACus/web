@@ -14,12 +14,13 @@ import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { getMediaURL, getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
+import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
-import invariant from 'tiny-invariant'
 import './nac-widgets.css'
 import ThemeSetter from './theme'
 
@@ -51,6 +52,10 @@ type PathArgs = {
 export default async function RootLayout({ children, params }: Args) {
   const { center } = await params
 
+  if (!isValidTenantSlug(center)) {
+    notFound()
+  }
+
   const payload = await getPayload({ config: configPromise })
   const tenantsRes = await payload.find({
     collection: 'tenants',
@@ -61,13 +66,20 @@ export default async function RootLayout({ children, params }: Args) {
     },
   })
   const tenant = tenantsRes.docs.length >= 1 ? tenantsRes.docs[0] : null
-  invariant(tenant, `Could not determine tenant for center value: ${center}`)
+
+  if (!tenant) {
+    notFound()
+  }
 
   const platforms = await getAvalancheCenterPlatforms(center)
-  invariant(platforms, 'Could not determine avalanche center platforms')
+  if (!platforms) {
+    notFound()
+  }
 
   const metadata = await getAvalancheCenterMetadata(center)
-  invariant(metadata, 'Could not determine avalanche center metadata')
+  if (!metadata) {
+    notFound()
+  }
 
   return (
     <NotFoundProvider>
@@ -113,11 +125,19 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
 
   const settings = settingsRes.docs[0]
+  if (!settings) {
+    return {}
+  }
+
   const tenant = await resolveTenant(settings.tenant, {
     select: {
       name: true,
     },
   })
+
+  if (!tenant) {
+    return {}
+  }
 
   const hostname = getHostnameFromTenant(tenant)
   const serverURL = getURL(hostname)
