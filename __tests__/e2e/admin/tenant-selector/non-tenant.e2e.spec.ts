@@ -19,9 +19,7 @@ import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
  * - All documents are visible (subject to user permissions)
  */
 
-// Each test creates its own browser context + login; run with --workers=1
-// to avoid overwhelming the dev server with simultaneous login requests.
-test.describe.configure({ mode: 'serial', timeout: 90000 })
+test.describe.configure({ timeout: 90000 })
 
 test.describe('Non-Tenant Collection', () => {
   test.describe('Users', () => {

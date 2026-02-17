@@ -15,9 +15,7 @@ import { TenantIds } from '../../helpers/tenant-cookie'
  * - Single-Center Admin: tenant selector hidden (only 1 option)
  */
 
-// Each test creates its own browser context + login; run serially to avoid
-// overwhelming the dev server with simultaneous login requests.
-test.describe.configure({ mode: 'serial', timeout: 90000 })
+test.describe.configure({ timeout: 90000 })
 
 test.describe('Super Admin', () => {
   test('should see all tenants in dropdown', async ({ loginAs, getTenantOptions }) => {

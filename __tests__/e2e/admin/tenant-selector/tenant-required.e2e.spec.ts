@@ -20,9 +20,7 @@ import { TenantIds } from '../../helpers/tenant-cookie'
  * - Document view (create): Tenant selector visible but read-only, pre-populated with cookie value
  */
 
-// Each test creates its own browser context + login; run serially to avoid
-// overwhelming the dev server with simultaneous login requests.
-test.describe.configure({ mode: 'serial', timeout: 90000 })
+test.describe.configure({ timeout: 90000 })
 
 test.describe('Tenant-Required Collection', () => {
   test.describe('List View', () => {

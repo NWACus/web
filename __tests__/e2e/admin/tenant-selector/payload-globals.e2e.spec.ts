@@ -19,9 +19,7 @@ import { AdminUrlUtil, CollectionSlugs, GlobalSlugs } from '../../helpers'
  * - Document is accessible regardless of current tenant cookie
  */
 
-// Each test creates its own browser context + login; run serially to avoid
-// overwhelming the dev server with simultaneous login requests.
-test.describe.configure({ mode: 'serial', timeout: 90000 })
+test.describe.configure({ timeout: 90000 })
 
 test.describe('Payload Global', () => {
   test.describe('A3Management', () => {

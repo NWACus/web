@@ -6,7 +6,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   reporter: process.env.CI ? 'github' : 'html',
   timeout: 30000,
   use: {
@@ -16,13 +16,19 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
       name: 'admin',
       testMatch: '**/admin/**/*.e2e.spec.ts',
+      dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'frontend',
       testMatch: '**/frontend/**/*.e2e.spec.ts',
+      dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'] },
     },
   ],

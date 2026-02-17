@@ -56,7 +56,7 @@ pnpm test:e2e -- __tests__/e2e/admin/tenant-selector/non-tenant.e2e.spec.ts
 Useful Playwright CLI flags:
 
 ```bash
---workers=1          # Run tests sequentially (helps with login flakiness)
+--workers=1          # Run tests sequentially (useful for debugging)
 --headed             # Show the browser window while tests run
 --debug              # Step through tests with Playwright Inspector
 --retries=2          # Retry failed tests
@@ -73,12 +73,14 @@ pnpm test:e2e -- --workers=1 --headed __tests__/e2e/admin/tenant-selector/non-te
 
 ```
 __tests__/e2e/
+├── auth.setup.ts      # Logs in as each test user and caches browser state
 ├── admin/             # Admin panel tests (project: admin)
 │   └── ...
 ├── fixtures/          # Reusable setup/teardown logic
 │   └── ...
-└── helpers/           # Shared utilities
-    └── ...
+├── helpers/           # Shared utilities
+│   └── ...
+└── .auth/             # Cached storageState files (gitignored)
 ```
 
 ### Writing Tests
@@ -93,7 +95,7 @@ import { expect, TenantNames, tenantSelectorTest as test } from '../../fixtures/
 import { authTest as test, expect } from '../../fixtures/auth.fixture'
 ```
 
-Each test creates its own browser context via `loginAs()`, so tests are fully isolated. Close the context at the end:
+Each test creates its own browser context via `loginAs()`, so tests are fully isolated. `loginAs()` uses cached `storageState` files created during the setup phase, so there's no UI login overhead per test. Close the context at the end:
 
 ```typescript
 test('example', async ({ loginAs, isTenantSelectorVisible }) => {
@@ -103,9 +105,15 @@ test('example', async ({ loginAs, isTenantSelectorVisible }) => {
 })
 ```
 
+### Authentication Caching
+
+The `auth.setup.ts` file runs before all test projects. It logs in as each user role defined in `test-users.ts` via the UI once and saves the browser state (cookies/storage) to `__tests__/e2e/.auth/<role>.json`. Test fixtures then load these files via `storageState` instead of repeating the login flow, saving ~5-15 seconds per test.
+
+If you add a new test user role to `test-users.ts`, it will automatically be included in the setup.
+
 ### Known Issues
 
-- **Login flakiness**: `performLogin` retries up to 3 times if the dev server is slow to respond (common on the first request of a test run). Tests also configure `mode: 'serial'` with a 90-second timeout to avoid overwhelming the dev server with simultaneous logins. If you still see intermittent login failures, try `--workers=1`.
+- **Login flakiness in setup**: `performLogin` retries up to 3 times if the dev server is slow to respond (common on the first request of a test run). The auth setup runs serially with a 60-second timeout to avoid overwhelming the dev server. If you see intermittent setup failures, try `--workers=1`.
 - **Tenant cookie stores IDs, not slugs**: The admin UI stores tenant IDs (e.g., `"1"`) in the `payload-tenant` cookie, not slugs (e.g., `"dvac"`). Use `selectTenant(page, TenantNames.xxx)` via the UI instead of `setTenantCookie(page, TenantSlugs.xxx)` when cookie values need to be valid.
 
 ## Future Plans

@@ -38,3 +38,4 @@ plans/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+__tests__/e2e/.auth/
