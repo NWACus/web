@@ -67,9 +67,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   // Check if this path exists in navigation and get canonical URL
   const fullPath = `/${segments.join('/')}`
   const canonicalUrl = await getCanonicalUrlForPath(center, fullPath)
-  console.log('🔍 PAGE')
-  console.log('   Full path:', fullPath)
-  console.log('   Canonical URL:', canonicalUrl)
+
   if (!canonicalUrl) {
     return <Redirects center={center} url={fullPath} />
   }
