@@ -38,6 +38,15 @@ jobs:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify release branch is up to date
+        run: |
+          git fetch origin release
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/release)" ]; then
+            echo "::error::Tag commit doesn't match release branch. Did you forget 'git push origin'?"
+            exit 1
+          fi
       - name: 🏗 Setup pnpm
         uses: pnpm/action-setup@v4
       - name: 🏗 Setup Node
