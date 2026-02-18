@@ -55,13 +55,15 @@ export const GenericEmbedBlockComponent = ({
       FORCE_BODY: true,
     })
 
-    // Convert external module scripts to dynamic imports inside inline classic scripts.
-    // Chrome does not re-execute <script type="module" src="..."> in srcDoc iframes
-    // after client-side navigation. Inline classic scripts always execute, and dynamic
-    // import() bypasses Chrome's per-URL module evaluation cache.
+    // Replace static module script tags with inline scripts that programmatically
+    // create and inject the script element. Chrome does not re-execute static
+    // <script type="module" src="..."> in srcDoc iframes after client-side navigation
+    // because it considers the script already loaded. Using document.createElement
+    // forces the browser to treat it as a fresh script load every time.
     const withDynamicScripts = sanitized.replace(
       /<script[^>]*\btype="module"[^>]*\bsrc="([^"]+)"[^>]*><\/script>/gi,
-      (_, url) => `<script>import(${JSON.stringify(url)});<\/script>`,
+      (_, url) =>
+        `<script>var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(url)};s.async=true;document.head.appendChild(s);<\/script>`,
     )
 
     const styleOverrides = `
