@@ -1,11 +1,12 @@
 name: production
+run-name: 'Deploy ${{ github.ref_name }}'
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
   push:
-    branches:
-      - 'release'
+    tags:
+      - 'v*'
   # Allow manual triggering
   workflow_dispatch:
     inputs:
@@ -94,8 +95,7 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          ref="${{ github.event.ref }}"
-          branch="${ref##refs/heads/}"
+          branch="release"
 
           echo "Cleaning up deployments and aliases for branch: $branch"
 
