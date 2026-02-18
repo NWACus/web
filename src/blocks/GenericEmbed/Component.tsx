@@ -31,22 +31,6 @@ export const GenericEmbedBlockComponent = ({
     // Normalize problematic quotes that are parsed incorrectly by DOMParser and DOMPurify
     const normalizedHTML = html.replaceAll('"', '"').replaceAll('"', '"')
 
-    // Convert external module scripts to dynamic imports inside inline classic scripts.
-    // Chrome does not re-execute <script type="module" src="..."> in srcDoc iframes
-    // after client-side navigation. Inline classic scripts always execute, and dynamic
-    // import() bypasses Chrome's per-URL module evaluation cache.
-    DOMPurify.addHook('uponSanitizeElement', (node, data) => {
-      if (data.tagName === 'script' && node instanceof Element) {
-        const src = node.getAttribute('src')
-        if (node.getAttribute('type') === 'module' && src) {
-          node.removeAttribute('type')
-          node.removeAttribute('src')
-          node.removeAttribute('async')
-          node.textContent = `import(${JSON.stringify(src)});`
-        }
-      }
-    })
-
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
       ADD_TAGS: ['iframe', 'script', 'style', 'dbox-widget'],
       ADD_ATTR: [
@@ -71,7 +55,14 @@ export const GenericEmbedBlockComponent = ({
       FORCE_BODY: true,
     })
 
-    DOMPurify.removeHook('uponSanitizeElement')
+    // Convert external module scripts to dynamic imports inside inline classic scripts.
+    // Chrome does not re-execute <script type="module" src="..."> in srcDoc iframes
+    // after client-side navigation. Inline classic scripts always execute, and dynamic
+    // import() bypasses Chrome's per-URL module evaluation cache.
+    const withDynamicScripts = sanitized.replace(
+      /<script[^>]*\btype="module"[^>]*\bsrc="([^"]+)"[^>]*><\/script>/gi,
+      (_, url) => `<script>import(${JSON.stringify(url)});<\/script>`,
+    )
 
     const styleOverrides = `
       <style>
@@ -85,7 +76,7 @@ export const GenericEmbedBlockComponent = ({
       </style>
     `
 
-    setSanitizedHtml(sanitized + styleOverrides)
+    setSanitizedHtml(withDynamicScripts + styleOverrides)
   }, [html])
 
   if (sanitizedHtml === null) return null
