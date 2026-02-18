@@ -21,9 +21,6 @@ export const GenericEmbedBlockComponent = ({
   isLexical = true,
 }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
-  // Unique key per mount forces a new iframe browsing context, ensuring scripts
-  // (especially type="module") re-execute after client-side navigation in Chrome.
-  const [iframeKey] = useState(() => Date.now())
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -33,6 +30,17 @@ export const GenericEmbedBlockComponent = ({
 
     // Normalize problematic quotes that are parsed incorrectly by DOMParser and DOMPurify
     const normalizedHTML = html.replaceAll('"', '"').replaceAll('"', '"')
+
+    // Add cache-busting parameter to module script URLs to force re-evaluation.
+    // Chrome caches module scripts by URL and skips re-evaluation on client-side
+    // navigation, which prevents widgets from loading when revisiting a page.
+    DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+      const src = node.getAttribute('src')
+      if (node.tagName === 'SCRIPT' && node.getAttribute('type') === 'module' && src) {
+        const separator = src.includes('?') ? '&' : '?'
+        node.setAttribute('src', `${src}${separator}_cb=${Date.now()}`)
+      }
+    })
 
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
       ADD_TAGS: ['iframe', 'script', 'style', 'dbox-widget'],
@@ -57,6 +65,8 @@ export const GenericEmbedBlockComponent = ({
       ],
       FORCE_BODY: true,
     })
+
+    DOMPurify.removeHook('afterSanitizeAttributes')
 
     const styleOverrides = `
       <style>
@@ -88,7 +98,6 @@ export const GenericEmbedBlockComponent = ({
         )}
       >
         <IframeResizer
-          key={iframeKey}
           id={String(id)}
           title={`Embedded content ${id}`}
           srcDoc={sanitizedHtml}
