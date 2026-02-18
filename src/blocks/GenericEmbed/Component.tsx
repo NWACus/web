@@ -55,22 +55,22 @@ export const GenericEmbedBlockComponent = ({
       FORCE_BODY: true,
     })
 
-    // Replace static module script tags with inline scripts that programmatically
-    // create and inject the script element with a cache-busted URL.
-    // Chrome's renderer-process-level MemoryCache is shared across same-site
-    // documents, including about:srcdoc iframes. In an SPA, client-side navigation
-    // doesn't create a new renderer process, so the MemoryCache persists and
-    // causes Chrome to skip module evaluation on subsequent iframe loads.
-    // A unique URL misses the MemoryCache entirely, and createElement ensures
-    // the script is treated as a fresh insertion.
+    // Cache-bust external script URLs to bypass Chrome's renderer-process-level
+    // MemoryCache, which is shared across same-site documents including srcdoc
+    // iframes. In an SPA, the MemoryCache persists across client-side navigations
+    // and causes Chrome to skip module re-evaluation on subsequent iframe loads.
     const cacheBuster = Date.now()
     const withDynamicScripts = sanitized.replace(
-      /<script[^>]*\btype="module"[^>]*\bsrc="([^"]+)"[^>]*><\/script>/gi,
-      (_, url) => {
-        const bustUrl = url + (url.includes('?') ? '&' : '?') + '_v=' + cacheBuster
-        return `<script>var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(bustUrl)};s.async=true;document.head.appendChild(s);<\/script>`
+      /(<script\b[^>]*\bsrc=")([^"]+)("[^>]*>)/gi,
+      (_match, before, url, after) => {
+        const separator = url.includes('?') ? '&' : '?'
+        return `${before}${url}${separator}_v=${cacheBuster}${after}`
       },
     )
+
+    // TODO: remove debug logging
+    console.log('[GenericEmbed] original:', sanitized.substring(0, 100))
+    console.log('[GenericEmbed] replaced:', withDynamicScripts.substring(0, 100))
 
     const styleOverrides = `
       <style>
