@@ -21,6 +21,9 @@ export const GenericEmbedBlockComponent = ({
   isLexical = true,
 }: Props) => {
   const [sanitizedHtml, setSanitizedHtml] = useState<string | null>(null)
+  // Unique key per mount forces a new iframe browsing context, ensuring scripts
+  // (especially type="module") re-execute after client-side navigation in Chrome.
+  const [iframeKey] = useState(() => Date.now())
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -85,6 +88,7 @@ export const GenericEmbedBlockComponent = ({
         )}
       >
         <IframeResizer
+          key={iframeKey}
           id={String(id)}
           title={`Embedded content ${id}`}
           srcDoc={sanitizedHtml}
