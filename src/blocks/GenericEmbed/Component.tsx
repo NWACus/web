@@ -56,14 +56,20 @@ export const GenericEmbedBlockComponent = ({
     })
 
     // Replace static module script tags with inline scripts that programmatically
-    // create and inject the script element. Chrome does not re-execute static
-    // <script type="module" src="..."> in srcDoc iframes after client-side navigation
-    // because it considers the script already loaded. Using document.createElement
-    // forces the browser to treat it as a fresh script load every time.
+    // create and inject the script element with a cache-busted URL.
+    // Chrome's renderer-process-level MemoryCache is shared across same-site
+    // documents, including about:srcdoc iframes. In an SPA, client-side navigation
+    // doesn't create a new renderer process, so the MemoryCache persists and
+    // causes Chrome to skip module evaluation on subsequent iframe loads.
+    // A unique URL misses the MemoryCache entirely, and createElement ensures
+    // the script is treated as a fresh insertion.
+    const cacheBuster = Date.now()
     const withDynamicScripts = sanitized.replace(
       /<script[^>]*\btype="module"[^>]*\bsrc="([^"]+)"[^>]*><\/script>/gi,
-      (_, url) =>
-        `<script>var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(url)};s.async=true;document.head.appendChild(s);<\/script>`,
+      (_, url) => {
+        const bustUrl = url + (url.includes('?') ? '&' : '?') + '_v=' + cacheBuster
+        return `<script>var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(bustUrl)};s.async=true;document.head.appendChild(s);<\/script>`
+      },
     )
 
     const styleOverrides = `
