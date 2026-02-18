@@ -25,19 +25,27 @@ export const GenericEmbedBlockComponent = ({
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  // TODO: remove debug logging
-  console.log('[GenericEmbed] component rendered, sanitizedHtml:', sanitizedHtml ? 'set' : 'null')
-
   useEffect(() => {
-    console.log('[GenericEmbed] useEffect fired, html:', html ? 'present' : 'missing')
     if (typeof window === 'undefined' || !html) return
 
     // Normalize problematic quotes that are parsed incorrectly by DOMParser and DOMPurify
     const normalizedHTML = html.replaceAll('"', '"').replaceAll('"', '"')
-    console.log(
-      '[GenericEmbed] normalizedHTML contains script:',
-      normalizedHTML.includes('<script'),
-    )
+
+    // Convert external module scripts to dynamic imports inside inline classic scripts.
+    // Chrome does not re-execute <script type="module" src="..."> in srcDoc iframes
+    // after client-side navigation. Inline classic scripts always execute, and dynamic
+    // import() bypasses Chrome's per-URL module evaluation cache.
+    DOMPurify.addHook('uponSanitizeElement', (node, data) => {
+      if (data.tagName === 'script' && node instanceof Element) {
+        const src = node.getAttribute('src')
+        if (node.getAttribute('type') === 'module' && src) {
+          node.removeAttribute('type')
+          node.removeAttribute('src')
+          node.removeAttribute('async')
+          node.textContent = `import(${JSON.stringify(src)});`
+        }
+      }
+    })
 
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
       ADD_TAGS: ['iframe', 'script', 'style', 'dbox-widget'],
@@ -63,8 +71,7 @@ export const GenericEmbedBlockComponent = ({
       FORCE_BODY: true,
     })
 
-    console.log('[GenericEmbed] sanitized contains script:', sanitized.includes('<script'))
-    console.log('[GenericEmbed] sanitized output:', sanitized)
+    DOMPurify.removeHook('uponSanitizeElement')
 
     const styleOverrides = `
       <style>
