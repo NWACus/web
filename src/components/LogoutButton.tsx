@@ -1,20 +1,30 @@
 'use client'
 
-import { Button, useConfig, useTranslation } from '@payloadcms/ui'
+import { Button, useAuth, useConfig, useTranslation } from '@payloadcms/ui'
 import { HelpCircle, LogOut } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { formatAdminURL } from 'payload/shared'
 
 export function LogoutButton() {
   const { t } = useTranslation()
+  const { logOut } = useAuth()
   const { config } = useConfig()
+  const router = useRouter()
 
   const {
-    admin: {
-      routes: { logout: logoutRoute },
-    },
     routes: { admin: adminRoute },
   } = config
+
+  async function handleLogout() {
+    await logOut()
+    router.push(
+      formatAdminURL({
+        adminRoute,
+        path: '/login',
+      }),
+    )
+  }
 
   return (
     <div className="flex flex-col">
@@ -32,24 +42,16 @@ export function LogoutButton() {
           Help
         </Button>
       </Link>
-      <Link
+      <Button
         aria-label={t('authentication:logOut')}
-        href={formatAdminURL({
-          adminRoute,
-          path: logoutRoute,
-        })}
-        prefetch={false}
-        title={t('authentication:logOut')}
+        buttonStyle="icon-label"
+        iconPosition="left"
+        icon={<LogOut className="w-5 h-5 flex-shrink-0" />}
+        className="mt-4"
+        onClick={handleLogout}
       >
-        <Button
-          buttonStyle="icon-label"
-          iconPosition="left"
-          icon={<LogOut className="w-5 h-5 flex-shrink-0" />}
-          className="mt-4"
-        >
-          Log out
-        </Button>
-      </Link>
+        Log out
+      </Button>
     </div>
   )
 }
