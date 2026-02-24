@@ -107,7 +107,7 @@
     "nextjs-toploader": "^3.9.17",
     "nuqs": "^2.7.3",
     "path-to-regexp": "^8.3.0",
-    "payload": "3.74.0",
+    "payload": "3.75.0",
     "pino": "9.14.0",
     "pino-pretty": "13.1.2",
     "pluralize": "^8.0.0",
