@@ -29,7 +29,7 @@ export const GenericEmbedBlockComponent = ({
     if (typeof window === 'undefined' || !html) return
 
     // Normalize problematic quotes that are parsed incorrectly by DOMParser and DOMPurify
-    const normalizedHTML = html.replaceAll('\u201C', '"').replaceAll('\u201D', '"')
+    const normalizedHTML = html.replaceAll('"', '"').replaceAll('"', '"')
 
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
       ADD_TAGS: ['iframe', 'script', 'style', 'dbox-widget'],
