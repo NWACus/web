@@ -12,13 +12,14 @@ export const config = {
     /*
      * Match all paths except for:
      * 1. /api routes
-     * 2. /_next (Next.js internals)
-     * 3. /_static (inside /public)
-     * 4. all root files inside /public (e.g. /favicon.ico)
-     * 5. /media, /thumbnail, /assets (inside /public)
-     * 6. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
+     * 2. /ingest (PostHog analytics proxy)
+     * 3. /_next (Next.js internals)
+     * 4. /_static (inside /public)
+     * 5. all root files inside /public (e.g. /favicon.ico)
+     * 6. /media, /thumbnail, /assets (inside /public)
+     * 7. sitemap.xml, robots.txt, pages-sitemap.xml, posts-sitemap.xml
      */
-    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
+    '/((?!api|ingest|_next|_static|_vercel|[\\w-]+\\.\\w+|media|thumbnail|assets).*)',
     '/sitemap.xml',
     '/robots.txt',
     '/pages-sitemap.xml',

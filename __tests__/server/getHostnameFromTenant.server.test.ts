@@ -1,6 +1,6 @@
-import { Tenant } from '@/payload-types'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import { PRODUCTION_TENANTS } from '@/utilities/tenancy/tenants'
+import { buildTenant } from '../builders'
 
 const originalProductionTenants = [...PRODUCTION_TENANTS]
 
@@ -32,11 +32,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('nwac')
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const tenant = {
-      slug: 'nwac',
-      customDomain: 'nwac.us',
-    } as Tenant
+    const tenant = buildTenant({ slug: 'nwac', customDomain: 'nwac.us' })
 
     const result = getHostnameFromTenant(tenant)
     expect(result).toBe('nwac.us')
@@ -47,11 +43,10 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('nwac')
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const tenant = {
+    const tenant = buildTenant({
       slug: 'sac',
       customDomain: 'sierraavalanchecenter.org',
-    } as Tenant
+    })
 
     const result = getHostnameFromTenant(tenant)
     expect(result).toBe('sac.envvar.localhost:3000')
@@ -61,23 +56,18 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('nwac', 'sac', 'uac')
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const tenant1: Tenant = {
+    const tenant1 = buildTenant({
       slug: 'nwac',
       customDomain: 'nwac.us',
-    } as Tenant
-
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const tenant2: Tenant = {
+    })
+    const tenant2 = buildTenant({
       slug: 'sac',
       customDomain: 'sierraavalanchecenter.org',
-    } as Tenant
-
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const nonProductionTenant: Tenant = {
+    })
+    const nonProductionTenant = buildTenant({
       slug: 'btac',
       customDomain: 'bridgertetonavalanchecenter.org',
-    } as Tenant
+    })
 
     expect(getHostnameFromTenant(tenant1)).toBe('nwac.us')
     expect(getHostnameFromTenant(tenant2)).toBe('sierraavalanchecenter.org')
@@ -87,11 +77,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
   it('handles empty production tenants list', () => {
     PRODUCTION_TENANTS.length = 0
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const tenant: Tenant = {
-      slug: 'nwac',
-      customDomain: 'nwac.us',
-    } as Tenant
+    const tenant = buildTenant({ slug: 'nwac', customDomain: 'nwac.us' })
 
     const result = getHostnameFromTenant(tenant)
     expect(result).toBe('nwac.envvar.localhost:3000')
@@ -101,11 +87,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     PRODUCTION_TENANTS.length = 0
     PRODUCTION_TENANTS.push('nwac')
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const tenant: Tenant = {
-      slug: 'nwac',
-      customDomain: '',
-    } as Tenant
+    const tenant = buildTenant({ slug: 'nwac', customDomain: '' })
 
     const result = getHostnameFromTenant(tenant)
     expect(result).toBe('nwac.envvar.localhost:3000')
