@@ -1,10 +1,10 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
 import { isTenantDomainScoped } from '@/utilities/tenancy/isTenantDomainScoped'
-import { BaseListFilter, Where } from 'payload'
+import { BaseFilter, Where } from 'payload'
 
 // filterByTenantScopedDomain filters the users collection if the current domain is a tenant-scoped
 // subdomain or custom domain.
-export const filterByTenantScopedDomain: BaseListFilter = async ({ req }) => {
+export const filterByTenantScopedDomain: BaseFilter = async ({ req }) => {
   const { tenant } = await isTenantDomainScoped()
 
   if (!tenant) {

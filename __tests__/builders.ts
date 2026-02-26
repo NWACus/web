@@ -23,7 +23,7 @@ export function buildPage(fields: Partial<Page>): Page {
 }
 
 export function buildTenant(fields: Partial<Tenant>): Tenant {
-  return { id: 0, name: '', slug: '', updatedAt: '', createdAt: '', ...fields }
+  return { id: 0, name: '', slug: 'dvac', updatedAt: '', createdAt: '', ...fields }
 }
 
 export function buildPost(fields: Partial<Post>): Post {
