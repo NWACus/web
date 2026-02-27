@@ -21,6 +21,7 @@ import { cn } from '@/utilities/ui'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
+import invariant from 'tiny-invariant'
 import './nac-widgets.css'
 import ThemeSetter from './theme'
 
@@ -72,14 +73,10 @@ export default async function RootLayout({ children, params }: Args) {
   }
 
   const platforms = await getAvalancheCenterPlatforms(center)
-  if (!platforms) {
-    notFound()
-  }
+  invariant(platforms, 'Could not determine avalanche center platforms')
 
   const metadata = await getAvalancheCenterMetadata(center)
-  if (!metadata) {
-    notFound()
-  }
+  invariant(metadata, 'Could not determine avalanche center metadata')
 
   return (
     <NotFoundProvider>
