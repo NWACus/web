@@ -1490,8 +1490,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "button_appearance": {
-          "name": "button_appearance",
+        "button_variant": {
+          "name": "button_variant",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -4222,8 +4222,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "button_appearance": {
-          "name": "button_appearance",
+        "button_variant": {
+          "name": "button_variant",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -6923,8 +6923,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "button_appearance": {
-          "name": "button_appearance",
+        "button_variant": {
+          "name": "button_variant",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -9452,8 +9452,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "button_appearance": {
-          "name": "button_appearance",
+        "button_variant": {
+          "name": "button_variant",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
