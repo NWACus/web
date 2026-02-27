@@ -71,7 +71,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
 
     expect(getHostnameFromTenant(tenant1)).toBe('nwac.us')
     expect(getHostnameFromTenant(tenant2)).toBe('sierraavalanchecenter.org')
-    expect(getHostnameFromTenant(nonProductionTenant)).toBe('nwac.us')
+    expect(getHostnameFromTenant(nonProductionTenant)).toBe('btac.envvar.localhost:3000')
   })
 
   it('handles empty production tenants list', () => {
