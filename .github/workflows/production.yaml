@@ -1,11 +1,12 @@
 name: production
+run-name: 'Deploy ${{ github.ref_name }}'
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
   push:
-    branches:
-      - 'release'
+    tags:
+      - 'v*'
   # Allow manual triggering
   workflow_dispatch:
     inputs:
@@ -37,6 +38,15 @@ jobs:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify release branch is up to date
+        run: |
+          git fetch origin release
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/release)" ]; then
+            echo "::error::Tag commit doesn't match release branch. Did you forget 'git push origin'?"
+            exit 1
+          fi
       - name: 🏗 Setup pnpm
         uses: pnpm/action-setup@v4
       - name: 🏗 Setup Node
@@ -77,8 +87,9 @@ jobs:
           set -o pipefail
 
           fullName="${{ github.repository }}"
+          author="${{ github.event.pusher.name || github.actor }}"
           vercel deploy --yes --prebuilt --target=production \
-            --meta='githubCommitAuthorName=${{ github.event.pusher.name }}' \
+            --meta="githubCommitAuthorName=${author}" \
             --meta='githubCommitOrg=${{ github.repository_owner }}' \
             --meta='githubCommitRef=release' \
             --meta="githubCommitRepo=${fullName##*/}" \
@@ -86,7 +97,7 @@ jobs:
             --meta='githubDeployment=1' \
             --meta='githubOrg=${{ github.repository_owner }}' \
             --meta="githubRepo=${fullName##*/}" \
-            --meta='githubCommitAuthorLogin=${{ github.event.pusher.name }}' \
+            --meta="githubCommitAuthorLogin=${author}" \
             --token=${{ secrets.VERCEL_TOKEN }}
       - name: Remove old Vercel deployments (keep latest 2)
         run: |
@@ -94,8 +105,7 @@ jobs:
           set -o nounset
           set -o pipefail
 
-          ref="${{ github.event.ref }}"
-          branch="${ref##refs/heads/}"
+          branch="release"
 
           echo "Cleaning up deployments and aliases for branch: $branch"
 
