@@ -1,6 +1,7 @@
 import RichText from '@/components/RichText'
 import { cn } from '@/utilities/ui'
 
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { cssVariables } from '@/cssVariables'
 import type { ImageTextBlock as ImageTextBlockProps } from '@/payload-types'
@@ -27,35 +28,30 @@ const getImageSizes = (): string => {
 }
 
 type Props = ImageTextBlockProps & {
+  isLayoutBlock: boolean
   imgClassName?: string
 }
 
 export const ImageTextBlockComponent = (props: Props) => {
-  const { backgroundColor, imgClassName, imageLayout, image, richText } = props
+  const { backgroundColor, imgClassName, imageLayout, image, richText, textWrap, isLayoutBlock } =
+    props
 
-  const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
   return (
-    <div className={`${bgColorClass}`}>
-      <div className="container py-10">
-        <div className="grid md:grid-cols-12 gap-x-6 gap-y-6 justify-items-center-safe">
-          <div
-            className={`items-center md:col-span-4 self-start ${imageLayout === 'right' && 'order-last'}`}
-          >
-            {image && (
-              <ImageMedia
-                imgClassName={cn(imgClassName)}
-                resource={image}
-                sizes={getImageSizes()}
-              />
-            )}
-          </div>
-          <div className={`md:col-span-8 self-center ${textColor}`}>
-            <RichText data={richText} enableGutter={false} />
-          </div>
+    <BackgroundColorWrapper backgroundColor={backgroundColor} isLayoutBlock={isLayoutBlock}>
+      <div className="grid md:grid-cols-12 gap-x-6 gap-y-6 justify-items-center-safe">
+        <div
+          className={`items-center md:col-span-4 self-start ${imageLayout === 'right' && 'order-last'}`}
+        >
+          {image && (
+            <ImageMedia imgClassName={cn(imgClassName)} resource={image} sizes={getImageSizes()} />
+          )}
+        </div>
+        <div className={`md:col-span-8 self-center ${textColor}`}>
+          <RichText data={richText} enableGutter={false} />
         </div>
       </div>
-    </div>
+    </BackgroundColorWrapper>
   )
 }
