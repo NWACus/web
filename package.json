@@ -164,7 +164,7 @@
     "typescript": "5.7.2"
   },
   "engines": {
-    "node": "22.x"
+    "node": "22.x || 24.x"
   },
   "packageManager": "pnpm@10.28.0",
   "pnpm": {
