@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
 
-# Check for new or modified migration files
-MIGRATION_FILES=$(git diff --cached --name-only --diff-filter=AM | grep "^src/migrations/.*\.ts$" | grep -v "index.ts")
+# Check for new or modified migration .ts files
+MIGRATION_TS_FILES=$(git diff --cached --name-only --diff-filter=AM | grep "^src/migrations/.*\.ts$" | grep -v "index.ts")
 
-if [ -n "$MIGRATION_FILES" ]; then
-  echo "🔍 Migration files detected in commit, running safety checks..."
+if [ -n "$MIGRATION_TS_FILES" ]; then
+  echo "🔍 Migration .ts files detected in commit, running safety checks..."
 
-  for file in $MIGRATION_FILES; do
+  for file in $MIGRATION_TS_FILES; do
     echo "\nChecking: $file"
     pnpm run migrate:check -- "$(basename $file)"
 
@@ -18,4 +18,13 @@ if [ -n "$MIGRATION_FILES" ]; then
   done
 
   echo "\n✅ Migration safety checks passed"
+fi
+
+# Check for new or modified migration .json snapshot files
+MIGRATION_JSON_FILES=$(git diff --cached --name-only --diff-filter=AM | grep "^src/migrations/.*\.json$")
+
+if [ -n "$MIGRATION_JSON_FILES" ]; then
+  echo "\n🔍 Migration snapshot files detected, checking for regressions..."
+  pnpm run migrate:check-snapshots
+  echo "\n✅ Snapshot consistency check complete"
 fi

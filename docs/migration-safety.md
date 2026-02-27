@@ -42,6 +42,42 @@ Potentially dangerous patterns it detects:
 - Column type changes
 - Constraint drops
 
+## Snapshot Consistency Check
+
+Detects when a migration's JSON snapshot regresses changes from a prior snapshot. This typically happens when two PRs with migrations are developed in parallel — whichever merges second may have a snapshot that doesn't include the first PR's changes.
+
+Runs on `git commit` via Husky pre-commit hook (when `.json` migration files are staged).
+
+Runs in CI: PRs with new or modified migration snapshots.
+
+Run locally:
+```bash
+pnpm migrate:check-snapshots
+```
+
+### How it works
+
+The check compares the last 3 JSON snapshots (S(k-2), S(k-1), S(k)):
+1. Computes what changed between S(k-2) and S(k-1) (columns/tables added or removed)
+2. Checks if S(k) reverts any of those changes
+
+Types of regressions detected:
+- A column **added** in S(k-1) is missing from S(k)
+- A column **removed** in S(k-1) reappears in S(k)
+- A table **added** in S(k-1) is missing from S(k)
+- A table **removed** in S(k-1) reappears in S(k)
+
+### When a regression is detected
+
+If the regression is **unintentional** (parallel PR problem):
+1. Rebase your branch on top of `main` (which now contains the prior migration)
+2. Delete your migration files (both `.ts` and `.json`)
+3. Regenerate: `pnpm payload migrate:create`
+4. Verify: `pnpm migrate:check-snapshots`
+
+If the regression is **intentional** (e.g., reverting a change):
+- The warning can be safely ignored
+
 ## Workflow
 
 ### Creating a new migration
@@ -175,3 +211,4 @@ Keep the old schema and mark fields as `hidden: true` (see "The fix: keep old at
 - CI Job: `.github/workflows/ci.yaml` (migration-safety job)
 - Migration check script: `src/scripts/check-migrations.ts`
 - Migration diff script: `src/scripts/analyze-migration-diff.ts`
+- Snapshot consistency script: `src/scripts/check-snapshot-consistency.ts`

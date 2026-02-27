@@ -40,6 +40,7 @@
     "migrate": "payload migrate",
     "migrate:check": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-migrations.ts",
     "migrate:diff": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/analyze-migration-diff.ts",
+    "migrate:check-snapshots": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-snapshot-consistency.ts",
     "email:build": "email build",
     "email:dev": "email dev --dir ./src/emails --port 3001",
     "email:export": "email export",
