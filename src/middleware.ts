@@ -182,10 +182,13 @@ export default function middleware(req: NextRequest) {
       return NextResponse.rewrite(rewrite)
     }
 
-    // No tenant matched this subdomain, — return 404
+    // No tenant matched this subdomain — rewrite to invalid slug so the app renders a styled 404
     if (requestedHost !== host && requestedHost.endsWith(`.${host}`)) {
+      const rewrite = req.nextUrl.clone()
+      rewrite.host = host
+      rewrite.pathname = `/${subdomain}${rewrite.pathname}`
       logCompletion('unknown-subdomain-404')
-      return new NextResponse('Not Found', { status: 404 })
+      return NextResponse.rewrite(rewrite)
     }
   }
 
