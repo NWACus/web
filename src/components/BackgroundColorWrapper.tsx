@@ -23,13 +23,13 @@ export const BackgroundColorWrapper = ({
   return (
     <div
       className={cn(
-        bgColorClass !== 'transparent' && `${bgColorClass} ${textColor}`,
+        bgColorClass !== 'bg-transparent' && `${bgColorClass} ${textColor}`,
         outerClassName,
       )}
     >
       <div
         className={cn(
-          (!isLayoutBlock || bgColorClass !== 'transparent') && 'container py-10',
+          (isLayoutBlock || bgColorClass !== 'bg-transparent') && 'container py-10',
           '@container',
           containerClassName,
         )}

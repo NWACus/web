@@ -104,7 +104,7 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
       isLayoutBlock={isLayoutBlock}
       containerClassName={className}
     >
-      <div className={cn('container bg-card text-card-foreground p-6 rounded-lg', className)}>
+      <div className={cn('bg-card text-card-foreground', className)}>
         <div className="flex flex-col justify-start gap-1">
           {heading && (
             <div className="prose md:prose-md dark:prose-invert">
