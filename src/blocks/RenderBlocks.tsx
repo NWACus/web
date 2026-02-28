@@ -32,7 +32,7 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payl
         {blocks.map((block) => {
           return (
             <div key={`${block.id}__${block.blockType}`}>
-              <RenderBlock block={block} payload={props.payload} />
+              <RenderBlock block={block} />
             </div>
           )
         })}
@@ -43,7 +43,7 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payl
   return null
 }
 
-export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payload: Payload }) => {
+export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
   const { blockType } = block
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
   switch (blockType) {
