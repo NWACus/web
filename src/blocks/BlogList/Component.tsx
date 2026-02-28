@@ -14,7 +14,7 @@ import { cn } from '@/utilities/ui'
 import { useEffect, useState } from 'react'
 
 type BlogListComponentProps = BlogListBlockProps & {
-  isLexical: boolean
+  isLayoutBlock: boolean
   className?: string
 }
 
@@ -24,7 +24,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
     belowHeadingContent,
     backgroundColor,
     className,
-    isLexical = true,
+    isLayoutBlock = true,
     postOptions,
   } = args
 
@@ -91,7 +91,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
   return (
     <BackgroundColorWrapper
       backgroundColor={backgroundColor}
-      isLexical={isLexical}
+      isLayoutBlock={isLayoutBlock}
       containerClassName={className}
     >
       <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">

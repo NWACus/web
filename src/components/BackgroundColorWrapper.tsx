@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 type BackgroundColorWrapperProps = {
   backgroundColor: string
   children: ReactNode
-  isLexical: boolean
+  isLayoutBlock: boolean
   containerClassName?: string
   outerClassName?: string
 }
@@ -13,7 +13,7 @@ type BackgroundColorWrapperProps = {
 export const BackgroundColorWrapper = ({
   children,
   backgroundColor,
-  isLexical = false,
+  isLayoutBlock = false,
   containerClassName,
   outerClassName,
 }: BackgroundColorWrapperProps) => {
@@ -29,7 +29,7 @@ export const BackgroundColorWrapper = ({
     >
       <div
         className={cn(
-          (!isLexical || bgColorClass !== 'transparent') && 'container py-10',
+          (!isLayoutBlock || bgColorClass !== 'transparent') && 'container py-10',
           '@container',
           containerClassName,
         )}

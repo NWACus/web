@@ -12,7 +12,7 @@ import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
 type EventListComponentProps = EventListBlockProps & {
-  isLexical: boolean
+  isLayoutBlock: boolean
   className?: string
 }
 
@@ -22,7 +22,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
     belowHeadingContent,
     backgroundColor,
     className,
-    isLexical = true,
+    isLayoutBlock = true,
     eventOptions,
   } = args
 
@@ -98,7 +98,7 @@ export const EventListBlockComponent = (args: EventListComponentProps) => {
   return (
     <BackgroundColorWrapper
       backgroundColor={backgroundColor}
-      isLexical={isLexical}
+      isLayoutBlock={isLayoutBlock}
       containerClassName={className}
     >
       <div className="bg-card text-card-foreground p-6 border shadow rounded-lg flex flex-col gap-6">
