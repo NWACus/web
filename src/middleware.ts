@@ -181,6 +181,12 @@ export default function middleware(req: NextRequest) {
       logCompletion('rewrite')
       return NextResponse.rewrite(rewrite)
     }
+
+    // No tenant matched this subdomain, — return 404
+    if (requestedHost !== host && requestedHost.endsWith(`.${host}`)) {
+      logCompletion('unknown-subdomain-404')
+      return new NextResponse('Not Found', { status: 404 })
+    }
   }
 
   logCompletion('passthrough')
