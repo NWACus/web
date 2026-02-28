@@ -181,10 +181,10 @@ blocks
 When creating a new block, you must register it in the following locations:
 
 1. **`src/blocks/RenderBlocks.tsx`** - For standalone page blocks
-   - Set `isLayoutBlock={false}`
+   - Set `isLayoutBlock={true}` so the block gets its own `container` wrapper
 
 2. **`src/components/RichText/index.tsx`** - For blocks used inline within rich text editors
-   - Set `isLayoutBlock={true}` to avoid double-wrapping
+   - Set `isLayoutBlock={false}` to avoid double-wrapping (the RichText component already provides a container)
    - Only add blocks that should be available in Lexical editors
 
 3. **`src/constants/defaults.ts`** - Add the block to the defaults configuration
@@ -195,8 +195,8 @@ When creating a new block, you must register it in the following locations:
    - This ensures Payload generates TypeScript types for your block
 
 **Why the different `isLayoutBlock` values?**
-- Standalone blocks (`RenderBlocks.tsx`) are not rendered by a Lexical editor → `isLayoutBlock={false}`
-- Inline Lexical blocks (`RichText/index.tsx`) are rendered inside a Lexical editor → `isLayoutBlock={true}`
+- Standalone blocks (`RenderBlocks.tsx`) are top-level page layout blocks that need their own container → `isLayoutBlock={true}`
+- Inline Lexical blocks (`RichText/index.tsx`) are embedded inside a rich text field that already provides a container → `isLayoutBlock={false}`
 
 
 ### BackgroundColorWrapper
@@ -205,7 +205,7 @@ A reusable layout component that wraps content with configurable background colo
 
 **Props:**
 - `backgroundColor` - Tailwind background color class name
-- `isLayoutBlock` - Whether the block is rendered within a Lexical editor (`default: false`)
+- `isLayoutBlock` - Whether the block is a standalone page layout block that needs its own container (`default: false`)
 - `containerClassName` - Optional - additional classes for the inner container div
 - `outerClassName` - Optional - additional classes for the outer wrapper div
 
