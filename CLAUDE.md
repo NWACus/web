@@ -49,6 +49,11 @@ The code is readable ES modules with source maps. This matches the exact Payload
 - `pnpm tsc` - TypeScript type checking
 - `pnpm prettify` - Format code with Prettier
 
+### Changesets
+
+- `pnpm changeset` - Create a new changeset for your PR
+- `pnpm changeset:version` - Bump version and update CHANGELOG.md (CI only)
+
 ### Email Development
 
 - `pnpm email:dev` - Start React Email preview server on port 3001
@@ -329,6 +334,10 @@ import {
 ```
 
 Never cast relationship fields - they can be resolved objects, unresolved IDs, or null/undefined.
+
+### Changesets
+
+Every PR requires a changeset unless it only changes CI, docs, or dependencies. Run `pnpm changeset` before pushing your PR. If the PR does not need a changeset, add the `skip-changeset` label.
 
 ### When Modifying Collection Schemas
 

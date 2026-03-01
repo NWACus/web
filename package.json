@@ -1,6 +1,6 @@
 {
   "name": "web",
-  "version": "1.0.0",
+  "version": "1.9.1",
   "description": "AvyFx admin panel and AvyWeb avalanche center websites",
   "license": "MIT",
   "type": "module",
@@ -45,7 +45,9 @@
     "email:export": "email export",
     "unreleased": "./unreleased-prs.sh",
     "update-type-assertions": "./verify-type-assertions.sh",
-    "verify-type-assertions": "VALIDATE=1 ./verify-type-assertions.sh"
+    "verify-type-assertions": "VALIDATE=1 ./verify-type-assertions.sh",
+    "changeset": "changeset",
+    "changeset:version": "changeset version"
   },
   "lint-staged": {
     "**/*": "pnpm run prettify"
@@ -129,6 +131,7 @@
     "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@eslint/eslintrc": "^3.2.0",
     "@next/eslint-plugin-next": "^15.3.3",
     "@playwright/test": "^1.58.0",

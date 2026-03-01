@@ -216,6 +216,39 @@ jobs:
           DATABASE_URI: 'file:./dev.db'
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
+  changeset:
+    name: changeset
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 🏗 Setup pnpm
+        if: github.event_name == 'pull_request'
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        if: github.event_name == 'pull_request'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        if: github.event_name == 'pull_request'
+        run: pnpm ii
+        shell: bash
+      - name: 📝 Check for changeset
+        if: >-
+          github.event_name == 'pull_request' &&
+          contains(github.event.pull_request.labels.*.name, 'skip-changeset') == false
+        run: pnpm changeset status --since=origin/main
+      - name: ⏭️ Changeset skipped
+        if: >-
+          github.event_name != 'pull_request' ||
+          contains(github.event.pull_request.labels.*.name, 'skip-changeset')
+        run: echo "Changeset check skipped"
+
   migration-safety:
     name: migration-safety
     runs-on: ubuntu-latest
