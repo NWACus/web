@@ -1,6 +1,7 @@
 import RichText from '@/components/RichText'
 import { cn } from '@/utilities/ui'
 
+import { BackgroundColorWrapper } from '@/components/BackgroundColorWrapper'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { cssVariables } from '@/cssVariables'
 import type { ImageTextBlock as ImageTextBlockProps } from '@/payload-types'
@@ -27,18 +28,35 @@ const getImageSizes = (): string => {
 }
 
 type Props = ImageTextBlockProps & {
+  isLayoutBlock: boolean
   imgClassName?: string
 }
 
 export const ImageTextBlockComponent = (props: Props) => {
-  const { backgroundColor, imgClassName, imageLayout, image, richText } = props
+  const { backgroundColor, imgClassName, imageLayout, image, richText, textWrap, isLayoutBlock } =
+    props
 
-  const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
   return (
-    <div className={`${bgColorClass}`}>
-      <div className="container py-10">
+    <BackgroundColorWrapper backgroundColor={backgroundColor} isLayoutBlock={isLayoutBlock}>
+      {textWrap ? (
+        <>
+          {image && (
+            <ImageMedia
+              imgClassName={cn(imgClassName)}
+              pictureClassName={cn(
+                'mb-4 md:mb-2 md:w-1/3',
+                imageLayout === 'right' ? 'md:float-right md:ml-6' : 'md:float-left md:mr-6',
+              )}
+              resource={image}
+              sizes={getImageSizes()}
+            />
+          )}
+          <RichText data={richText} enableGutter={false} />
+          <div className="clear-both" />
+        </>
+      ) : (
         <div className="grid md:grid-cols-12 gap-x-6 gap-y-6 justify-items-center-safe">
           <div
             className={`items-center md:col-span-4 self-start ${imageLayout === 'right' && 'order-last'}`}
@@ -55,7 +73,7 @@ export const ImageTextBlockComponent = (props: Props) => {
             <RichText data={richText} enableGutter={false} />
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </BackgroundColorWrapper>
   )
 }
