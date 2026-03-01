@@ -32,7 +32,7 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payl
         {blocks.map((block) => {
           return (
             <div key={`${block.id}__${block.blockType}`}>
-              <RenderBlock block={block} payload={props.payload} />
+              <RenderBlock block={block} />
             </div>
           )
         })}
@@ -43,26 +43,26 @@ export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payl
   return null
 }
 
-export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payload: Payload }) => {
+export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
   const { blockType } = block
   // if a block has two variants - to make TS happy we fallback to the default for the block variant
   switch (blockType) {
     case 'blogList':
-      return <BlogListBlockComponent {...block} isLexical={true} />
+      return <BlogListBlockComponent {...block} isLayoutBlock={true} />
     case 'content':
       return <ContentBlockComponent {...block} />
     case 'documentBlock':
-      return <DocumentBlockComponent {...block} isLexical={true} />
+      return <DocumentBlockComponent {...block} isLayoutBlock={true} />
     case 'eventList':
-      return <EventListBlockComponent {...block} isLexical={true} />
+      return <EventListBlockComponent {...block} isLayoutBlock={true} />
     case 'eventTable':
-      return <EventTableBlockComponent {...block} isLexical={true} />
+      return <EventTableBlockComponent {...block} isLayoutBlock={true} />
     case 'formBlock':
       return <FormBlockComponent {...block} />
     case 'genericEmbed':
-      return <GenericEmbedBlockComponent {...block} isLexical={true} />
+      return <GenericEmbedBlockComponent {...block} isLayoutBlock={true} />
     case 'headerBlock':
-      return <HeaderBlockComponent {...block} isLexical={true} />
+      return <HeaderBlockComponent {...block} isLayoutBlock={true} />
     case 'imageLinkGrid':
       return <ImageLinkGridBlockComponent {...block} />
     case 'imageText':
@@ -70,15 +70,15 @@ export const RenderBlock = ({ block, payload }: { block: Page['layout'][0]; payl
     case 'linkPreview':
       return <LinkPreviewBlockComponent {...block} />
     case 'mediaBlock':
-      return <MediaBlockComponent {...block} isLexical={true} />
+      return <MediaBlockComponent {...block} isLayoutBlock={true} />
     case 'nacMediaBlock':
       return <NACMediaBlockComponent {...block} />
     case 'singleBlogPost':
-      return <SingleBlogPostBlockComponent {...block} isLexical={true} />
+      return <SingleBlogPostBlockComponent {...block} isLayoutBlock={true} />
     case 'singleEvent':
-      return <SingleEventBlockComponent {...block} isLexical={true} />
+      return <SingleEventBlockComponent {...block} isLayoutBlock={true} />
     case 'sponsorsBlock':
-      return <SponsorsBlockComponent {...block} isLexical={true} />
+      return <SponsorsBlockComponent {...block} isLayoutBlock={true} />
     case 'team':
       return <TeamBlockComponent {...block} />
   }

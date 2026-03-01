@@ -4,12 +4,12 @@ import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 
 type Props = HeaderBlockProps & {
-  isLexical: boolean
+  isLayoutBlock: boolean
   fullWidthColor?: boolean
 }
 
 export const HeaderBlockComponent = (props: Props) => {
-  const { backgroundColor, fullWidthColor, richText, isLexical } = props
+  const { backgroundColor, fullWidthColor, richText, isLayoutBlock } = props
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -20,11 +20,11 @@ export const HeaderBlockComponent = (props: Props) => {
         className={cn(
           'py-4 w-full',
           textColor,
-          { container: isLexical },
+          { container: isLayoutBlock },
           !fullWidthColor && `${bgColorClass}`,
         )}
       >
-        <RichText data={richText} enableGutter={false} className={cn(!isLexical && 'px-4')} />
+        <RichText data={richText} enableGutter={false} className={cn(!isLayoutBlock && 'px-4')} />
       </div>
     </div>
   )

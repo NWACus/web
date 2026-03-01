@@ -7,11 +7,11 @@ import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant
 import { cn } from '@/utilities/ui'
 
 type Props = DocumentBlockProps & {
-  isLexical: boolean
+  isLayoutBlock: boolean
 }
 
 export const DocumentBlockComponent = (props: Props) => {
-  const { document, isLexical = true } = props
+  const { document, isLayoutBlock = true } = props
   const { tenant } = useTenant()
 
   if (!isValidRelationship(document) || !document.url) {
@@ -21,7 +21,7 @@ export const DocumentBlockComponent = (props: Props) => {
   const src = getMediaURL(document.url, null, getHostnameFromTenant(tenant))
 
   return (
-    <div className={cn('my-4', { container: isLexical })}>
+    <div className={cn('my-4', { container: isLayoutBlock })}>
       <iframe src={src} width="100%" height="600px" title="Document PDF" />
     </div>
   )

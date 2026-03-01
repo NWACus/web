@@ -111,28 +111,30 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...LinkJSXConverter({ internalDocToHref }),
   // if block has two variants - to make TS happy we fallback to the default for the block variant
   blocks: {
-    blogList: ({ node }) => <BlogListBlockComponent {...node.fields} isLexical={false} />,
+    blogList: ({ node }) => <BlogListBlockComponent {...node.fields} isLayoutBlock={false} />,
     buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
     calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
-    documentBlock: ({ node }) => <DocumentBlockComponent {...node.fields} isLexical={false} />,
-    eventList: ({ node }) => <EventListBlockComponent {...node.fields} isLexical={false} />,
-    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} isLexical={false} />,
-    singleEvent: ({ node }) => <SingleEventBlockComponent {...node.fields} isLexical={false} />,
-    genericEmbed: ({ node }) => <GenericEmbedBlockComponent {...node.fields} isLexical={false} />,
-    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLexical={false} />,
+    documentBlock: ({ node }) => <DocumentBlockComponent {...node.fields} isLayoutBlock={false} />,
+    eventList: ({ node }) => <EventListBlockComponent {...node.fields} isLayoutBlock={false} />,
+    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} isLayoutBlock={false} />,
+    singleEvent: ({ node }) => <SingleEventBlockComponent {...node.fields} isLayoutBlock={false} />,
+    genericEmbed: ({ node }) => (
+      <GenericEmbedBlockComponent {...node.fields} isLayoutBlock={false} />
+    ),
+    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLayoutBlock={false} />,
     mediaBlock: ({ node }) => (
       <MediaBlockComponent
         className="col-start-1 col-span-3"
         imgClassName="m-0"
         {...node.fields}
-        isLexical={false}
+        isLayoutBlock={false}
         captionClassName="mx-auto max-w-[48rem]"
       />
     ),
     singleBlogPost: ({ node }) => (
-      <SingleBlogPostBlockComponent {...node.fields} isLexical={false} />
+      <SingleBlogPostBlockComponent {...node.fields} isLayoutBlock={false} />
     ),
-    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} isLexical={false} />,
+    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} isLayoutBlock={false} />,
   },
 })
 
