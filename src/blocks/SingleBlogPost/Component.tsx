@@ -5,7 +5,7 @@ import { isValidPublishedRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 
 type SingleBlogPostComponentProps = SingleBlogPostBlockProps & {
-  isLexical: boolean
+  isLayoutBlock: boolean
   className?: string
 }
 
@@ -13,7 +13,7 @@ export const SingleBlogPostBlockComponent = ({
   post,
   backgroundColor,
   className,
-  isLexical = true,
+  isLayoutBlock = true,
 }: SingleBlogPostComponentProps) => {
   if (!isValidPublishedRelationship(post)) {
     return null
@@ -22,7 +22,7 @@ export const SingleBlogPostBlockComponent = ({
   return (
     <BackgroundColorWrapper
       backgroundColor={backgroundColor}
-      isLexical={isLexical}
+      isLayoutBlock={isLayoutBlock}
       containerClassName={className}
     >
       <PostPreview doc={post} className={cn('not-prose')} />

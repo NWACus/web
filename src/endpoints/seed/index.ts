@@ -26,6 +26,7 @@ import { imageMountain } from './image-mountain'
 import { navigationSeed } from './navigation'
 import { allBlocksPage } from './pages/all-blocks-page'
 import { contact as contactPageData } from './pages/contact-page'
+import { lexicalBlocksPage } from './pages/lexical-blocks-page'
 import { post1 } from './post-1'
 import { post2 } from './post-2'
 import { post3 } from './post-3'
@@ -991,6 +992,13 @@ export const seed = async ({
             events: Object.values(events[tenant.slug]),
             contactForm: contactForms[tenant.name],
             teams: teams[tenant.slug] || [],
+            sponsor: seededSponsors[tenant.slug]['sponsors'],
+          }),
+          lexicalBlocksPage({
+            tenant,
+            image1: images[tenant.slug]['imageMountain'],
+            posts: Object.values(posts[tenant.slug]),
+            events: Object.values(events[tenant.slug]),
             sponsor: seededSponsors[tenant.slug]['sponsors'],
           }),
           whoWeArePage(tenant, teams, images[tenant.slug]['image2']),

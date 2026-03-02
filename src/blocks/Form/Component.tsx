@@ -25,10 +25,10 @@ export interface Data {
   [key: string]: Property | Property[]
 }
 
-type FormBlockTypeProps = { isLexical?: boolean } & FormBlockType
+type FormBlockTypeProps = { isLayoutBlock?: boolean } & FormBlockType
 
 export const FormBlockComponent = (props: FormBlockTypeProps) => {
-  const { enableIntro, introContent, isLexical = true } = props
+  const { enableIntro, introContent, isLayoutBlock = true } = props
 
   const uniqueFormId = useId()
 
@@ -129,7 +129,7 @@ export const FormBlockComponent = (props: FormBlockTypeProps) => {
   }
 
   return (
-    <div className={cn('lg:max-w-[48rem]', isLexical && 'container')}>
+    <div className={cn('lg:max-w-[48rem]', isLayoutBlock && 'container')}>
       {enableIntro && introContent && !hasSubmitted && (
         <RichText className="mb-8 lg:mb-12" data={introContent} enableGutter={false} />
       )}

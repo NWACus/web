@@ -390,6 +390,10 @@ When triggered via GitHub Issues (with `@claude` mention):
 3. Follow existing code patterns and styles in the codebase
 4. Run `pnpm prettify`, `pnpm tsc`, and `pnpm lint` before committing
 
+### Pull Request Descriptions
+
+When asked to write a PR description, follow the template in `.github/PULL_REQUEST_TEMPLATE.md` and return the description in markdown.
+
 ### Creating the PR
 
 1. Write a clear PR title summarizing the change
