@@ -7,13 +7,13 @@ import { SponsorsBlockCarousel } from './Carousel'
 import { SponsorsBlockStatic } from './Static'
 
 type Props = SponsorsBlockProps & {
-  isLexical: boolean
+  isLayoutBlock: boolean
 }
 export const SponsorsBlockComponent = ({
   backgroundColor,
   sponsors,
   sponsorsLayout,
-  isLexical = false,
+  isLayoutBlock = false,
 }: Props) => {
   const now = new Date()
 
@@ -26,7 +26,7 @@ export const SponsorsBlockComponent = ({
   if (validSponsors.length === 0) return null
 
   return (
-    <BackgroundColorWrapper backgroundColor={backgroundColor} isLexical={isLexical}>
+    <BackgroundColorWrapper backgroundColor={backgroundColor} isLayoutBlock={isLayoutBlock}>
       <div className="flex flex-wrap justify-evenly items-center">
         {(() => {
           switch (sponsorsLayout) {
