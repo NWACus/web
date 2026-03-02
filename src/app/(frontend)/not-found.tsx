@@ -1,4 +1,5 @@
 import { ButtonLink } from '@/components/ButtonLink'
+import { getURL } from '@/utilities/getURL'
 
 export default function NotFound() {
   return (
@@ -12,7 +13,7 @@ export default function NotFound() {
           </p>
         </div>
         <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-          <ButtonLink href="/" size="lg">
+          <ButtonLink href={getURL()} size="lg">
             Find your local avalanche center
           </ButtonLink>
         </div>
