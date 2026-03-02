@@ -68,31 +68,40 @@ export default function middleware(req: NextRequest) {
     // Look up tenant by custom domain from hardcoded list
     const tenantSlug = findCenterByDomain(requestedHost)
 
-    if (tenantSlug && isProductionTenant(tenantSlug) && !hasNextInPath) {
-      const pathname = req.nextUrl.pathname
+    if (tenantSlug && !hasNextInPath) {
+      if (isProductionTenant(tenantSlug)) {
+        const pathname = req.nextUrl.pathname
 
-      if (pathname.startsWith('/admin')) {
-        const response = NextResponse.next()
+        if (pathname.startsWith('/admin')) {
+          const response = NextResponse.next()
+          if (setCookieIfNeeded(response, tenantSlug, existingCookieValue)) {
+            logCompletion('custom-domain-admin-cookie-set')
+            return response
+          }
+
+          logCompletion('custom-domain-admin-passthrough')
+          return
+        }
+
+        const rewrite = req.nextUrl.clone()
+        rewrite.pathname = `/${tenantSlug}${rewrite.pathname}`
+        console.log(`rewrote custom domain ${req.nextUrl.toString()} to ${rewrite.toString()}`)
+
+        const response = NextResponse.rewrite(rewrite)
         if (setCookieIfNeeded(response, tenantSlug, existingCookieValue)) {
-          logCompletion('custom-domain-admin-cookie-set')
+          logCompletion('custom-domain-rewrite-with-cookie')
           return response
         }
 
-        logCompletion('custom-domain-admin-passthrough')
-        return
+        logCompletion('custom-domain-rewrite')
+        return NextResponse.rewrite(rewrite)
       }
 
+      // Custom domain maps to a tenant in avalancheCenters.ts but not a production tenant —
+      // rewrite so the layout can check the DB and render a styled 404 if needed
       const rewrite = req.nextUrl.clone()
       rewrite.pathname = `/${tenantSlug}${rewrite.pathname}`
-      console.log(`rewrote custom domain ${req.nextUrl.toString()} to ${rewrite.toString()}`)
-
-      const response = NextResponse.rewrite(rewrite)
-      if (setCookieIfNeeded(response, tenantSlug, existingCookieValue)) {
-        logCompletion('custom-domain-rewrite-with-cookie')
-        return response
-      }
-
-      logCompletion('custom-domain-rewrite')
+      logCompletion('rewrite-non-production-custom-domain')
       return NextResponse.rewrite(rewrite)
     }
   }
@@ -141,53 +150,55 @@ export default function middleware(req: NextRequest) {
     )
     const subdomain = subdomainMatch?.[1]
 
-    if (subdomain && isValidTenantSlug(subdomain)) {
-      const slug = subdomain
-      const customDomain = getProductionCustomDomain(slug)
+    if (subdomain) {
+      if (isValidTenantSlug(subdomain)) {
+        const slug = subdomain
+        const customDomain = getProductionCustomDomain(slug)
 
-      // Redirect to custom domain if tenant is a production tenant and has a custom domain configured
-      if (customDomain) {
-        const redirectUrl = new URL(req.nextUrl.clone())
-        redirectUrl.host = customDomain
+        // Redirect to custom domain if tenant is a production tenant and has a custom domain configured
+        if (customDomain) {
+          const redirectUrl = new URL(req.nextUrl.clone())
+          redirectUrl.host = customDomain
 
-        console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
-        logCompletion('custom-domain-redirect')
-        return NextResponse.redirect(redirectUrl, process.env.NODE_ENV === 'production' ? 308 : 302)
-      }
+          console.log(`redirecting ${req.nextUrl.toString()} to ${redirectUrl.toString()}`)
+          logCompletion('custom-domain-redirect')
+          return NextResponse.redirect(
+            redirectUrl,
+            process.env.NODE_ENV === 'production' ? 308 : 302,
+          )
+        }
 
-      if (req.nextUrl.pathname.startsWith('/admin')) {
-        const response = NextResponse.next()
+        if (req.nextUrl.pathname.startsWith('/admin')) {
+          const response = NextResponse.next()
+          if (setCookieIfNeeded(response, slug, existingCookieValue)) {
+            logCompletion('admin-cookie-set')
+            return response
+          }
+
+          logCompletion('admin-passthrough')
+          return
+        }
+
+        const original = req.nextUrl.clone()
+        original.host = requestedHost
+        const rewrite = req.nextUrl.clone()
+        rewrite.pathname = `/${slug}${rewrite.pathname}`
+        console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
+
+        const response = NextResponse.rewrite(rewrite)
         if (setCookieIfNeeded(response, slug, existingCookieValue)) {
-          logCompletion('admin-cookie-set')
+          logCompletion('rewrite-with-cookie')
           return response
         }
 
-        logCompletion('admin-passthrough')
-        return
+        logCompletion('rewrite')
+        return NextResponse.rewrite(rewrite)
       }
 
-      const original = req.nextUrl.clone()
-      original.host = requestedHost
+      // Subdomain extracted but not a valid tenant — rewrite so the layout renders a styled 404
       const rewrite = req.nextUrl.clone()
-      rewrite.pathname = `/${slug}${rewrite.pathname}`
-      console.log(`rewrote ${original.toString()} to ${rewrite.toString()}`)
-
-      const response = NextResponse.rewrite(rewrite)
-      if (setCookieIfNeeded(response, slug, existingCookieValue)) {
-        logCompletion('rewrite-with-cookie')
-        return response
-      }
-
-      logCompletion('rewrite')
-      return NextResponse.rewrite(rewrite)
-    }
-
-    // No tenant matched this subdomain — rewrite to invalid slug so the app renders a styled 404
-    if (requestedHost !== host && requestedHost.endsWith(`.${host}`)) {
-      const rewrite = req.nextUrl.clone()
-      rewrite.host = host
       rewrite.pathname = `/${subdomain}${rewrite.pathname}`
-      logCompletion('unknown-subdomain-404')
+      logCompletion('rewrite-unrecognized-subdomain')
       return NextResponse.rewrite(rewrite)
     }
   }
