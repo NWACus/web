@@ -123,7 +123,9 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   const settings = settingsRes.docs[0]
   if (!settings) {
-    return {}
+    return {
+      title: 'Not found',
+    }
   }
 
   const tenant = await resolveTenant(settings.tenant, {
@@ -133,7 +135,9 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
 
   if (!tenant) {
-    return {}
+    return {
+      title: 'Not found',
+    }
   }
 
   const hostname = getHostnameFromTenant(tenant)
