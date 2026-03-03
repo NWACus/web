@@ -12,6 +12,8 @@ type Props = GenericEmbedBlockProps & {
   className?: string
 }
 
+type IframeContent = { type: 'srcDoc'; value: string } | { type: 'src'; value: string }
+
 export const GenericEmbedBlockComponent = ({
   id,
   html,
@@ -20,7 +22,7 @@ export const GenericEmbedBlockComponent = ({
   className,
   isLayoutBlock = true,
 }: Props) => {
-  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [iframeContent, setIframeContent] = useState<IframeContent | null>(null)
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
@@ -29,7 +31,7 @@ export const GenericEmbedBlockComponent = ({
     if (typeof window === 'undefined' || !html) return
 
     // Normalize problematic quotes that are parsed incorrectly by DOMParser and DOMPurify
-    const normalizedHTML = html.replaceAll('"', '"').replaceAll('"', '"')
+    const normalizedHTML = html.replaceAll('\u201C', '"').replaceAll('\u201D', '"')
 
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
       ADD_TAGS: ['iframe', 'script', 'style', 'dbox-widget'],
@@ -67,17 +69,23 @@ export const GenericEmbedBlockComponent = ({
       </style>
     `
 
-    // Use a blob URL instead of srcDoc because Chromium doesn't re-execute
-    // scripts in srcDoc iframes after SPA client-side navigation.
     const fullHtml = `<!DOCTYPE html><html><head></head><body>${sanitized}${styleOverrides}</body></html>`
-    const blob = new Blob([fullHtml], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    setBlobUrl(url)
 
-    return () => URL.revokeObjectURL(url)
+    // Use a blob URL for embeds with <script> tags because Chromium doesn't re-execute
+    // scripts in srcDoc iframes after SPA client-side navigation (renderer-process MemoryCache).
+    // Use srcDoc for script-free embeds (e.g. YouTube iframes) so the embedding context is
+    // preserved — blob: URLs can cause third-party players to fail their origin/referrer checks.
+    if (/<script/i.test(sanitized)) {
+      const blob = new Blob([fullHtml], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      setIframeContent({ type: 'src', value: url })
+      return () => URL.revokeObjectURL(url)
+    } else {
+      setIframeContent({ type: 'srcDoc', value: fullHtml })
+    }
   }, [html])
 
-  if (blobUrl === null) return null
+  if (iframeContent === null) return null
 
   return (
     <div className={cn(bgColorClass, textColor)}>
@@ -94,10 +102,12 @@ export const GenericEmbedBlockComponent = ({
         <IframeResizer
           id={String(id)}
           title={`Embedded content ${id}`}
-          src={blobUrl}
+          {...(iframeContent.type === 'src'
+            ? { src: iframeContent.value }
+            : { srcDoc: iframeContent.value })}
           sandbox="allow-scripts allow-presentation allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           className="w-full border-none m-0 p-0 transition-[height] duration-200 ease-in-out"
-          height={0} // This iframe will resize to it's content height - this initial height is to avoid the iframe rendering at the browser default 150px initially
+          height={0} // This iframe will resize to its content height - this initial height avoids the browser default 150px
         />
       </div>
     </div>
