@@ -167,3 +167,28 @@ export const simpleContent = (...paragraphs: string[]) => ({
     version: 1,
   },
 })
+
+// Wraps block field data as a Lexical block node for embedding inside rich text
+export const blockNode = (fields: Record<string, unknown>) => ({
+  type: 'block' as const,
+  version: 2,
+  format: '' as const,
+  fields: {
+    blockName: '',
+    ...fields,
+  },
+})
+
+// Wraps an array of Lexical child nodes (paragraphs, headings, block nodes, etc.) in a root
+export const richTextRoot = (
+  ...children: { type: string; version: number; [k: string]: unknown }[]
+) => ({
+  root: {
+    type: 'root' as const,
+    children,
+    direction: null,
+    format: '' as const,
+    indent: 0,
+    version: 1,
+  },
+})
