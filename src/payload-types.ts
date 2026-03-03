@@ -4187,9 +4187,13 @@ export interface InlineMediaBlock {
    */
   verticalAlign?: ('middle' | 'top' | 'bottom' | 'baseline') | null;
   /**
-   * Controls the maximum size of the image. When inline, this sets max height. When floating, this sets max width.
+   * Original uses the natural image size. Percentage widths are relative to the containing block. Fixed height lets you specify an exact pixel height.
    */
-  size?: ('small' | 'medium' | 'large' | 'full') | null;
+  size?: ('original' | '25' | '50' | '75' | '100' | 'fixed-height') | null;
+  /**
+   * Height in pixels.
+   */
+  fixedHeight?: number | null;
   /**
    * Optional text shown as a tooltip on hover.
    */

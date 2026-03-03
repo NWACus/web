@@ -42,16 +42,27 @@ export const InlineMediaBlock: Block = {
     {
       name: 'size',
       type: 'select',
-      defaultValue: 'small',
+      defaultValue: 'original',
       options: [
-        { label: 'Small', value: 'small' },
-        { label: 'Medium', value: 'medium' },
-        { label: 'Large', value: 'large' },
-        { label: 'Full', value: 'full' },
+        { label: 'Original (natural size)', value: 'original' },
+        { label: '25% width', value: '25' },
+        { label: '50% width', value: '50' },
+        { label: '75% width', value: '75' },
+        { label: '100% width', value: '100' },
+        { label: 'Fixed height', value: 'fixed-height' },
       ],
       admin: {
         description:
-          'Controls the maximum size of the image. When inline, this sets max height. When floating, this sets max width.',
+          'Original uses the natural image size. Percentage widths are relative to the containing block. Fixed height lets you specify an exact pixel height.',
+      },
+    },
+    {
+      name: 'fixedHeight',
+      type: 'number',
+      min: 1,
+      admin: {
+        description: 'Height in pixels.',
+        condition: (_, siblingData) => siblingData?.size === 'fixed-height',
       },
     },
     {
