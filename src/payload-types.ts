@@ -4174,6 +4174,32 @@ export interface CalloutBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InlineMediaBlock".
+ */
+export interface InlineMediaBlock {
+  media: number | Media;
+  /**
+   * Inline renders the image within the text flow. Float positions the image to one side with text wrapping around it.
+   */
+  position?: ('inline' | 'float-left' | 'float-right') | null;
+  /**
+   * Vertical alignment relative to the surrounding text.
+   */
+  verticalAlign?: ('middle' | 'top' | 'bottom' | 'baseline') | null;
+  /**
+   * Controls the maximum size of the image. When inline, this sets max height. When floating, this sets max width.
+   */
+  size?: ('small' | 'medium' | 'large' | 'full') | null;
+  /**
+   * Optional text shown as a tooltip on hover.
+   */
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'inlineMedia';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
