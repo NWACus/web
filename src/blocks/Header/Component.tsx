@@ -5,7 +5,7 @@ import { cn } from '@/utilities/ui'
 
 type Props = HeaderBlockProps & {
   isLayoutBlock: boolean
-  fullWidthColor?: boolean
+  fullWidthColor?: boolean | null
 }
 
 export const HeaderBlockComponent = (props: Props) => {
