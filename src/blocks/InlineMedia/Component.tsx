@@ -10,14 +10,14 @@ const widthClasses = {
   '50': 'w-1/2',
   '75': 'w-3/4',
   '100': 'w-full',
-} as const
+}
 
 const verticalAlignClasses = {
   top: 'align-top',
   middle: 'align-middle',
   bottom: 'align-bottom',
   baseline: 'align-baseline',
-} as const
+}
 
 type WidthSize = keyof typeof widthClasses
 
