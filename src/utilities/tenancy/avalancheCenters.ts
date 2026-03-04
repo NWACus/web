@@ -68,6 +68,17 @@ export const VALID_TENANT_SLUGS: ValidTenantSlug[] =
 /**
  * Lookup a center by its custom domain
  */
+/** Derive an email-safe domain from the custom domain by stripping www. prefix and port */
+export function getEmailDomain(slug: ValidTenantSlug): string {
+  return AVALANCHE_CENTERS[slug].customDomain
+    .toLowerCase()
+    .replace(/^www\./, '') // strip www. prefix
+    .replace(/:\d+$/, '') // strip port number (e.g., :3000 for local testing)
+}
+
+/**
+ * Lookup a center by its custom domain
+ */
 export function findCenterByDomain(domain: string): ValidTenantSlug | undefined {
   // Normalize both input and stored domains by removing www. prefix
   // Regex matches 'www.' at start of string
