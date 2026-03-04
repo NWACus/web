@@ -6,7 +6,7 @@ import { RenderNavLink } from './RenderNavLink'
 import { NavItem } from './utils'
 
 const underlineHoverClassName =
-  "relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-callout after:transition-all after:duration-300 hover:after:w-full hover:text-header-foreground-highlight"
+  "relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-nav-underline after:transition-all after:duration-300 hover:after:w-full hover:text-header-foreground-highlight"
 
 type MobileNavItemProps = {
   label: string
