@@ -16,5 +16,9 @@ export async function getNACWidgetsConfig() {
     'Could not determine NAC widgets base url. Ensure this is set in the NAC Widgets Config global.',
   )
 
-  return { version, baseUrl }
+  // In production, always force devMode off regardless of the admin setting
+  const devMode =
+    process.env.NODE_ENV === 'production' ? false : (nacWidgetsConfig?.devMode ?? false)
+
+  return { version, baseUrl, devMode }
 }
