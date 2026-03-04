@@ -36,7 +36,8 @@ const removeIdKey = <T>(obj: T): T => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     return Object.fromEntries(
       Object.entries(obj)
-        .filter(([k]) => !k.toLowerCase().includes('id'))
+        // Only strip the exact 'id' key (Payload's auto-generated row IDs), not fields like 'videoId'
+        .filter(([k]) => k !== 'id')
         .map(([k, v]) => [k, removeIdKey(v)]),
     ) as T
   }

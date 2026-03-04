@@ -14,9 +14,9 @@ This outlines steps required when a new center (tenant) comes on board. This doc
   </thead>
   <tbody>
     <tr>
-      <td>Create the new tenant in the production admin panel</td>
-      <td>Manual</td>
-      <td>—</td>
+      <td>Create and provision new tenant</td>
+      <td>Automatic</td>
+      <td><code>POST /api/tenants/provision</code> — creates tenant + all default data. See <a href="#provision-endpoint">Provision Endpoint</a> below.</td>
     </tr>
     <tr>
       <td rowspan="2">Confirm tenant is added to Vercel Edge Config</td>
@@ -37,19 +37,9 @@ This outlines steps required when a new center (tenant) comes on board. This doc
       <td>Use <code>syncTenants</code></td>
     </tr>
     <tr>
-      <td>Create documents for Global Collections <ul><li>Website Settings</><li>Navigation</li><li>Home Pages</li></ul></td>
+      <td>Create Website Settings</td>
       <td>Manual</td>
-      <td>Visit each global collection to create <br/>→ Fill out required information and save</td>
-    </tr>
-    <tr>
-      <td>Create Built-In pages</td>
-      <td>Manual</td>
-      <td>See <a href="#built-in-pages">Built-In Pages</a> below</td>
-    </tr>
-    <tr>
-      <td>Copy pages from template tenant to new tenant</td>
-      <td>Manual</td>
-      <td>Use "Duplicate to..." (page document view → three dot menu)</td>
+      <td>Requires uploading brand assets (logo, icon, banner). Visit Website Settings in admin panel.</td>
     </tr>
   </tbody>
 </table>
@@ -70,6 +60,32 @@ This outlines steps required when a new center (tenant) comes on board. This doc
 
 > [!NOTE]
 > ** Mountain Weather page only exists on select avalanche centers. Check `getAllAvalancheCenterCapabilities` > `platforms > weather`
+
+## Provision Endpoint
+
+This endpoint creates a new tenant and provisions it with all default data in one call:
+
+```
+POST /api/tenants/provision
+Content-Type: application/json
+
+{ "name": "Example Avalanche Center", "slug": "eac", "customDomain": "eac.org" }
+```
+
+Requires super admin authentication. This endpoint:
+
+1. **Creates the tenant** record
+2. Creates the 4 standard **built-in pages** (All Forecasts, Weather Stations, Recent Observations, Submit Observations)
+3. Copies all published **pages from the template tenant** (DVAC) to the new tenant
+4. Creates a default **home page** with welcome content and quick links
+5. Creates the **navigation** linked to the new pages and built-in pages
+
+**Not automated** (must be done manually):
+- **Website Settings** — requires brand asset uploads (logo, icon, banner)
+- **Theme creation** — see [Creating the center's theme](#creating-the-centers-theme) below
+- **Custom domain configuration** — see [Configuring a custom domain](#configuring-a-custom-domain-in-production) below
+
+The endpoint is idempotent — it checks for existing data before creating and skips anything that already exists.
 
 ## Creating the center's theme
 
