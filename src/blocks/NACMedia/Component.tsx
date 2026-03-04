@@ -62,6 +62,7 @@ export const NACMediaBlockComponent = (props: NACMediaBlockProps) => {
             widget={'media'}
             widgetsVersion={data.version}
             widgetsBaseUrl={data.baseUrl}
+            widgetsDevMode={data.devMode}
             mediaMode={mode}
           />
         )}

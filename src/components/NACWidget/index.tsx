@@ -87,12 +87,14 @@ export function NACWidget({
   widget,
   widgetsVersion,
   widgetsBaseUrl,
+  widgetsDevMode = false,
   mediaMode,
 }: {
   center: string
   widget: Widget
   widgetsVersion: string
   widgetsBaseUrl: string
+  widgetsDevMode?: boolean
   mediaMode?: 'carousel' | 'grid'
 }) {
   const widgetId = `nac-widget-${widget}`
@@ -120,7 +122,7 @@ export function NACWidget({
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
       centerId: fallbackCenter.toUpperCase(),
-      devMode: false,
+      devMode: widgetsDevMode,
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,

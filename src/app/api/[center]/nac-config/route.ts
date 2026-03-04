@@ -9,11 +9,12 @@ export async function GET(
   const { center } = await params
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
-  const { version, baseUrl } = await getNACWidgetsConfig()
+  const { version, baseUrl, devMode } = await getNACWidgetsConfig()
 
   return NextResponse.json({
     avalancheCenterPlatforms,
     version,
     baseUrl,
+    devMode,
   })
 }

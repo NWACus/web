@@ -25,7 +25,7 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const { version, baseUrl } = await getNACWidgetsConfig()
+  const { version, baseUrl, devMode } = await getNACWidgetsConfig()
 
   return (
     <>
@@ -36,6 +36,7 @@ export default async function Page({ params }: Args) {
         center={center}
         widgetsVersion={version}
         widgetsBaseUrl={baseUrl}
+        widgetsDevMode={devMode}
       />
     </>
   )
