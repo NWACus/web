@@ -78,6 +78,29 @@ This is optional. Our default theme will work but a center will likely want thei
 - [ ] Create center's theme in `src/app/(frontend)/colors.css`
 - [ ] Copy relevant theme colors to the `centerColorMap` in `src/utilities/generateOGImage.tsx`. We've been using the header colors.
 
+### Required colors
+
+Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend)/colors.css`. All variables have defaults in `:root`, so you only need to override what differs from the defaults.
+
+| Variable | Purpose |
+|----------|---------|
+| `--primary` | Primary brand color (buttons, links) |
+| `--primary-hover` | Hover state for primary |
+| `--secondary` | Secondary brand color |
+| `--secondary-hover` | Hover state for secondary |
+| `--header` | Header background |
+| `--header-foreground` | Header text color |
+| `--header-foreground-highlight` | Header highlighted/active text |
+| `--footer` | Footer background |
+| `--footer-foreground` | Footer text color |
+| `--footer-foreground-highlight` | Footer highlighted/active text |
+| `--callout` | Callout/CTA background |
+| `--callout-hover` | Hover state for callout |
+| `--callout-foreground` | Callout text color |
+| `--nav-underline` | Active navigation underline color |
+| `--brand-50` through `--brand-950` | Brand color range used for block backgrounds |
+| `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background |
+
 ## Configuring a custom domain in production
 
 1. Update the `PRODUCTION_TENANTS` env var to include the tenant's slug. This should be a comma separated list of slugs (see `src/utilities/tenancy/tenants.ts`).
