@@ -25,9 +25,9 @@ function ChecklistItem({
     <div className="flex items-center justify-between gap-4 py-2">
       <div className="flex items-center gap-3">
         {done ? (
-          <CheckCircle2 size={20} className="shrink-0 text-theme-success-500" />
+          <CheckCircle2 size={20} className="shrink-0 text-success" />
         ) : (
-          <Circle size={20} className="shrink-0 text-theme-elevation-400" />
+          <Circle size={20} className="shrink-0 text-muted-foreground" />
         )}
         <span className={done ? 'opacity-70' : ''}>{label}</span>
         {detail && <span className="text-sm opacity-50">{detail}</span>}
@@ -98,7 +98,7 @@ export function OnboardingChecklist() {
 
   if (isLoading && !status) {
     return (
-      <div className="mt-8 rounded border border-theme-elevation-150 p-6">
+      <div className="mt-8 rounded border-solid border-[var(--theme-border-color)] p-6">
         <h3 className="mt-0 mb-4">Onboarding Checklist</h3>
         <p className="opacity-50">Loading...</p>
       </div>
@@ -116,10 +116,10 @@ export function OnboardingChecklist() {
   const allComplete = automatedComplete && status.settings && status.hasTheme
 
   return (
-    <div className="mt-8 rounded border border-theme-elevation-150 p-6">
+    <div className="mt-8 rounded-lg border-solid border-[var(--theme-border-color)] p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="m-0">Onboarding Checklist</h3>
-        {allComplete && <span className="text-sm text-theme-success-500">All steps complete</span>}
+        {allComplete && <span className="text-sm text-success">All steps complete</span>}
       </div>
 
       <ChecklistItem
@@ -133,7 +133,7 @@ export function OnboardingChecklist() {
         detail={`(${status.pages.count} pages${failedPages.length > 0 ? `, ${failedPages.length} failed` : ''})`}
       />
       {failedPages.length > 0 && (
-        <div className="ml-8 text-sm text-theme-error-500">Failed: {failedPages.join(', ')}</div>
+        <div className="ml-8 text-sm text-error">Failed: {failedPages.join(', ')}</div>
       )}
       <ChecklistItem done={status.homePage} label="Home page" />
       <ChecklistItem done={status.navigation} label="Navigation" />
@@ -146,7 +146,7 @@ export function OnboardingChecklist() {
         </div>
       )}
 
-      <div className="mt-3 border-t border-theme-elevation-150 pt-3">
+      <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
         <ChecklistItem
           done={status.settings}
           label="Website Settings"
