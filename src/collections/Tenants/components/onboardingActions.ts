@@ -16,7 +16,7 @@ export type ProvisioningStatus = {
 }
 
 export async function checkProvisioningStatusAction(
-  tenantId: number,
+  tenantId: number | string,
 ): Promise<{ status: ProvisioningStatus } | { error: string }> {
   try {
     const payload = await getPayload({ config })
@@ -36,17 +36,17 @@ export async function checkProvisioningStatusAction(
         payload.find({
           collection: 'homePages',
           where: { tenant: { equals: tenantId } },
-          limit: 1,
+          limit: 0,
         }),
         payload.find({
           collection: 'navigations',
           where: { tenant: { equals: tenantId } },
-          limit: 1,
+          limit: 0,
         }),
         payload.find({
           collection: 'settings',
           where: { tenant: { equals: tenantId } },
-          limit: 1,
+          limit: 0,
         }),
         payload.findByID({
           collection: 'tenants',
@@ -61,11 +61,11 @@ export async function checkProvisioningStatusAction(
       status: {
         builtInPages: { count: builtInPages.totalDocs, expected: 4 },
         pages: { count: pages.totalDocs },
-        homePage: homePages.docs.length > 0,
-        navigation: navigations.docs.length > 0,
-        settings: settings.docs.length > 0,
-        // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".nwac {")
-        hasTheme: new RegExp(`\\.${tenant.slug}\\s*\\{`).test(colorsCSS),
+        homePage: homePages.totalDocs > 0,
+        navigation: navigations.totalDocs > 0,
+        settings: settings.totalDocs > 0,
+        // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
+        hasTheme: colorsCSS.includes(`.${tenant.slug} {`),
       },
     }
   } catch (err) {
@@ -74,11 +74,10 @@ export async function checkProvisioningStatusAction(
 }
 
 export async function runProvisionAction(
-  tenantId: number,
+  tenantId: number | string,
 ): Promise<{ success: true; failedPages: string[] } | { error: string }> {
+  const payload = await getPayload({ config })
   try {
-    const payload = await getPayload({ config })
-
     const tenant = await payload.findByID({
       collection: 'tenants',
       id: tenantId,
@@ -88,7 +87,6 @@ export async function runProvisionAction(
 
     return { success: true, failedPages: result.failedPages }
   } catch (err) {
-    const payload = await getPayload({ config })
     payload.logger.error({ err }, 'Provisioning failed')
     return { error: err instanceof Error ? err.message : 'Failed to run provisioning' }
   }
