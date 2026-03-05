@@ -12,7 +12,6 @@ export type ProvisioningStatus = {
   homePage: boolean
   navigation: boolean
   settings: boolean
-  hasCustomDomain: boolean
   hasTheme: boolean
 }
 
@@ -65,7 +64,6 @@ export async function checkProvisioningStatusAction(
         homePage: homePages.docs.length > 0,
         navigation: navigations.docs.length > 0,
         settings: settings.docs.length > 0,
-        hasCustomDomain: Boolean(tenant.customDomain),
         // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".nwac {")
         hasTheme: new RegExp(`\\.${tenant.slug}\\s*\\{`).test(colorsCSS),
       },

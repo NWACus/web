@@ -186,15 +186,6 @@ export function OnboardingChecklist() {
           label="Theme"
           detail={status.hasTheme ? '(found in colors.css)' : '(manual — see docs/onboarding.md)'}
         />
-        <ChecklistItem
-          done={status.hasCustomDomain}
-          label="Custom domain"
-          detail={
-            status.hasCustomDomain
-              ? `(${savedDocumentData?.customDomain})`
-              : '(manual — see docs/onboarding.md)'
-          }
-        />
       </div>
     </div>
   )
