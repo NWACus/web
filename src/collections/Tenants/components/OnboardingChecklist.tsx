@@ -13,12 +13,12 @@ import {
 function ChecklistItem({
   done,
   label,
-  detail,
+  children,
   action,
 }: {
   done: boolean
   label: string
-  detail?: string
+  children?: React.ReactNode
   action?: React.ReactNode
 }) {
   return (
@@ -30,7 +30,7 @@ function ChecklistItem({
           <Circle size={20} className="shrink-0 text-muted-foreground" />
         )}
         <span className={done ? 'opacity-70' : ''}>{label}</span>
-        {detail && <span className="text-sm opacity-50">{detail}</span>}
+        {children && <span className="text-sm opacity-50">{children}</span>}
       </div>
       {action && <div>{action}</div>}
     </div>
@@ -42,7 +42,6 @@ export function OnboardingChecklist() {
   const [status, setStatus] = useState<ProvisioningStatus | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isProvisioning, setIsProvisioning] = useState(false)
-  const [failedPages, setFailedPages] = useState<string[]>([])
 
   const tenantId = data?.id
 
@@ -75,15 +74,7 @@ export function OnboardingChecklist() {
       if ('error' in result) {
         toast.error(result.error)
       } else {
-        if (result.failedPages.length > 0) {
-          setFailedPages(result.failedPages)
-          toast.info(
-            `Provisioning complete with ${result.failedPages.length} page(s) that failed to copy`,
-          )
-        } else {
-          setFailedPages([])
-          toast.success('Provisioning complete')
-        }
+        toast.success('Provisioning complete')
         await checkStatus()
       }
     } catch (err) {
@@ -109,7 +100,8 @@ export function OnboardingChecklist() {
 
   const automatedComplete =
     status.builtInPages.count >= status.builtInPages.expected &&
-    status.pages.count > 0 &&
+    status.pages.count >= status.pages.expected &&
+    status.pages.expected > 0 &&
     status.homePage &&
     status.navigation
 
@@ -125,16 +117,17 @@ export function OnboardingChecklist() {
       <ChecklistItem
         done={status.builtInPages.count >= status.builtInPages.expected}
         label="Built-in pages"
-        detail={`(${status.builtInPages.count}/${status.builtInPages.expected})`}
-      />
+      >
+        ({status.builtInPages.count}/{status.builtInPages.expected})
+      </ChecklistItem>
       <ChecklistItem
-        done={status.pages.count > 0}
+        done={status.pages.count >= status.pages.expected && status.pages.expected > 0}
         label="Template pages copied"
-        detail={`(${status.pages.count} pages${failedPages.length > 0 ? `, ${failedPages.length} failed` : ''})`}
-      />
-      {failedPages.length > 0 && (
-        <div className="ml-8 text-sm text-error">Failed: {failedPages.join(', ')}</div>
-      )}
+      >
+        ({status.pages.count}/{status.pages.expected})
+        {status.pages.failed.length > 0 && ` — failed: ${status.pages.failed.join(', ')}`}
+      </ChecklistItem>
+
       <ChecklistItem done={status.homePage} label="Home page" />
       <ChecklistItem done={status.navigation} label="Navigation" />
 
@@ -158,11 +151,9 @@ export function OnboardingChecklist() {
             ) : undefined
           }
         />
-        <ChecklistItem
-          done={status.hasTheme}
-          label="Theme"
-          detail={status.hasTheme ? '(found in colors.css)' : '(manual — see docs/onboarding.md)'}
-        />
+        <ChecklistItem done={status.hasTheme} label="Theme">
+          {status.hasTheme ? '(found in colors.css)' : '(manual — see docs/onboarding.md)'}
+        </ChecklistItem>
       </div>
     </div>
   )

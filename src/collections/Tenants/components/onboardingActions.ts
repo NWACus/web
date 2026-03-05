@@ -8,7 +8,7 @@ import { getPayload } from 'payload'
 
 export type ProvisioningStatus = {
   builtInPages: { count: number; expected: number }
-  pages: { count: number }
+  pages: { count: number; expected: number; failed: string[] }
   homePage: boolean
   navigation: boolean
   settings: boolean
@@ -21,6 +21,9 @@ export async function checkProvisioningStatusAction(
   try {
     const payload = await getPayload({ config })
 
+    // Template tenant slug must match TEMPLATE_TENANT_SLUG in provisionTenant.ts
+    const templateTenantSlug = 'dvac'
+
     const [builtInPages, pages, homePages, navigations, settings, tenant, colorsCSS] =
       await Promise.all([
         payload.find({
@@ -31,7 +34,8 @@ export async function checkProvisioningStatusAction(
         payload.find({
           collection: 'pages',
           where: { tenant: { equals: tenantId } },
-          limit: 0,
+          limit: 500,
+          select: { slug: true, title: true },
         }),
         payload.find({
           collection: 'homePages',
@@ -57,10 +61,42 @@ export async function checkProvisioningStatusAction(
         ),
       ])
 
+    // Fetch template tenant pages separately to compare slugs
+    const templateTenant = await payload
+      .find({
+        collection: 'tenants',
+        where: { slug: { equals: templateTenantSlug } },
+        limit: 1,
+      })
+      .then((res) => res.docs[0])
+
+    let templatePageSlugs: { slug: string; title: string }[] = []
+    if (templateTenant) {
+      const templatePages = await payload.find({
+        collection: 'pages',
+        where: {
+          tenant: { equals: templateTenant.id },
+          _status: { equals: 'published' },
+        },
+        limit: 500,
+        select: { slug: true, title: true },
+      })
+      templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
+    }
+
+    const tenantSlugs = new Set(pages.docs.map((p) => p.slug))
+    const failedPages = templatePageSlugs
+      .filter((p) => !tenantSlugs.has(p.slug))
+      .map((p) => p.title)
+
     return {
       status: {
         builtInPages: { count: builtInPages.totalDocs, expected: 4 },
-        pages: { count: pages.totalDocs },
+        pages: {
+          count: pages.totalDocs,
+          expected: templatePageSlugs.length,
+          failed: failedPages,
+        },
         homePage: homePages.totalDocs > 0,
         navigation: navigations.totalDocs > 0,
         settings: settings.totalDocs > 0,
