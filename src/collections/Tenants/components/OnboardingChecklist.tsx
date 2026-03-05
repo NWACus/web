@@ -42,6 +42,7 @@ export function OnboardingChecklist() {
   const [status, setStatus] = useState<ProvisioningStatus | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isProvisioning, setIsProvisioning] = useState(false)
+  const [failedPages, setFailedPages] = useState<string[]>([])
 
   const tenantId = savedDocumentData?.id
 
@@ -74,7 +75,15 @@ export function OnboardingChecklist() {
       if ('error' in result) {
         toast.error(result.error)
       } else {
-        toast.success('Provisioning complete')
+        if (result.failedPages.length > 0) {
+          setFailedPages(result.failedPages)
+          toast.info(
+            `Provisioning complete with ${result.failedPages.length} page(s) that failed to copy`,
+          )
+        } else {
+          setFailedPages([])
+          toast.success('Provisioning complete')
+        }
         await checkStatus()
       }
     } catch (err) {

@@ -75,7 +75,7 @@ export async function checkProvisioningStatusAction(
 
 export async function runProvisionAction(
   tenantId: number,
-): Promise<{ success: true } | { error: string }> {
+): Promise<{ success: true; failedPages: string[] } | { error: string }> {
   try {
     const payload = await getPayload({ config })
 
@@ -84,9 +84,9 @@ export async function runProvisionAction(
       id: tenantId,
     })
 
-    await provision(payload, tenant)
+    const result = await provision(payload, tenant)
 
-    return { success: true }
+    return { success: true, failedPages: result.failedPages }
   } catch (err) {
     const payload = await getPayload({ config })
     payload.logger.error({ err }, 'Provisioning failed')

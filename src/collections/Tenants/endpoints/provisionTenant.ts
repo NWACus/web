@@ -168,6 +168,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     .then((res) => res.docs[0])
 
   const copiedPages: Page[] = []
+  const failedPages: string[] = []
   // Maps template page slug to new page for navigation linking
   const pagesBySlug: Record<string, Page> = {}
 
@@ -237,6 +238,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
         log.error(
           `[${tenant.slug}] Failed to copy page "${templatePage.title}" (slug: ${templatePage.slug}): ${err instanceof Error ? err.message : 'Unknown error'}`,
         )
+        failedPages.push(templatePage.title)
       }
     }
   } else {
@@ -284,100 +286,106 @@ export async function provision(payload: Payload, tenant: Tenant) {
       })
     }
 
-    await payload.create({
-      collection: 'homePages',
-      data: {
-        tenant: tenant.id,
-        quickLinks,
-        highlightedContent: {
-          enabled: true,
-          heading: 'Welcome to ' + tenant.name,
-          backgroundColor: 'brand-700',
-          columns: [
-            {
-              richText: {
-                root: {
-                  type: 'root',
-                  format: '',
-                  indent: 0,
-                  version: 1,
-                  children: [
-                    {
-                      type: 'paragraph',
-                      format: '',
-                      indent: 0,
-                      version: 1,
-                      children: [
-                        {
-                          mode: 'normal',
-                          text: 'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.',
-                          type: 'text',
-                          style: '',
-                          detail: 0,
-                          format: 0,
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      textStyle: '',
-                      textFormat: 0,
-                    },
-                  ],
-                  direction: 'ltr',
+    try {
+      await payload.create({
+        collection: 'homePages',
+        data: {
+          tenant: tenant.id,
+          quickLinks,
+          highlightedContent: {
+            enabled: true,
+            heading: 'Welcome to ' + tenant.name,
+            backgroundColor: 'brand-700',
+            columns: [
+              {
+                richText: {
+                  root: {
+                    type: 'root',
+                    format: '',
+                    indent: 0,
+                    version: 1,
+                    children: [
+                      {
+                        type: 'paragraph',
+                        format: '',
+                        indent: 0,
+                        version: 1,
+                        children: [
+                          {
+                            mode: 'normal',
+                            text: 'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.',
+                            type: 'text',
+                            style: '',
+                            detail: 0,
+                            format: 0,
+                            version: 1,
+                          },
+                        ],
+                        direction: 'ltr',
+                        textStyle: '',
+                        textFormat: 0,
+                      },
+                    ],
+                    direction: 'ltr',
+                  },
                 },
               },
-            },
-            {
-              richText: {
-                root: {
-                  type: 'root',
-                  format: '',
-                  indent: 0,
-                  version: 1,
-                  children: [
-                    {
-                      type: 'paragraph',
-                      format: '',
-                      indent: 0,
-                      version: 1,
-                      children: [
-                        {
-                          mode: 'normal',
-                          text: 'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.',
-                          type: 'text',
-                          style: '',
-                          detail: 0,
-                          format: 0,
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      textStyle: '',
-                      textFormat: 0,
-                    },
-                  ],
-                  direction: 'ltr',
+              {
+                richText: {
+                  root: {
+                    type: 'root',
+                    format: '',
+                    indent: 0,
+                    version: 1,
+                    children: [
+                      {
+                        type: 'paragraph',
+                        format: '',
+                        indent: 0,
+                        version: 1,
+                        children: [
+                          {
+                            mode: 'normal',
+                            text: 'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.',
+                            type: 'text',
+                            style: '',
+                            detail: 0,
+                            format: 0,
+                            version: 1,
+                          },
+                        ],
+                        direction: 'ltr',
+                        textStyle: '',
+                        textFormat: 0,
+                      },
+                    ],
+                    direction: 'ltr',
+                  },
                 },
+              },
+            ],
+          },
+          layout: [
+            {
+              blockType: 'eventList',
+              heading: 'Upcoming Events',
+              backgroundColor: 'transparent',
+              eventOptions: 'dynamic',
+              dynamicOpts: {
+                maxEvents: 4,
               },
             },
           ],
+          _status: 'published',
+          publishedAt: new Date().toISOString(),
         },
-        layout: [
-          {
-            blockType: 'eventList',
-            heading: 'Upcoming Events',
-            backgroundColor: 'transparent',
-            eventOptions: 'dynamic',
-            dynamicOpts: {
-              maxEvents: 4,
-            },
-          },
-        ],
-        _status: 'published',
-        publishedAt: new Date().toISOString(),
-      },
-    })
-    homePageCreated = true
+      })
+      homePageCreated = true
+    } catch (err) {
+      log.error(
+        `[${tenant.slug}] Failed to create home page: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      )
+    }
   } else {
     log.info(`[${tenant.slug}] Home page already exists, skipping`)
   }
@@ -426,72 +434,78 @@ export async function provision(payload: Payload, tenant: Tenant) {
     const filterNulls = <T>(items: (T | null)[]): T[] =>
       items.filter((item): item is T => item !== null)
 
-    await payload.create({
-      collection: 'navigations',
-      data: {
-        _status: 'published',
-        tenant: tenant.id,
-        forecasts: { items: [] },
-        observations: { items: [] },
-        weather: {
-          items: filterNulls([
-            navBuiltInPageItem('/weather/stations/map', 'Weather Stations'),
-            navPageItem('weather-tools'),
-          ]),
-        },
-        education: {
-          items: [
-            ...filterNulls([navPageItem('learn')]),
-            {
-              label: 'Classes',
-              items: filterNulls([
-                navPageItem('field-classes'),
-                navPageItem('avalanche-awareness-classes'),
-                navPageItem('courses-by-external-providers'),
-                navPageItem('workshops'),
-                navPageItem('request-a-class'),
-              ]),
-            },
-            ...filterNulls([
-              navPageItem('scholarships'),
-              navPageItem('mentorship'),
-              navPageItem('beacon-parks'),
+    try {
+      await payload.create({
+        collection: 'navigations',
+        data: {
+          _status: 'published',
+          tenant: tenant.id,
+          forecasts: { items: [] },
+          observations: { items: [] },
+          weather: {
+            items: filterNulls([
+              navBuiltInPageItem('/weather/stations/map', 'Weather Stations'),
+              navPageItem('weather-tools'),
             ]),
-          ],
+          },
+          education: {
+            items: [
+              ...filterNulls([navPageItem('learn')]),
+              {
+                label: 'Classes',
+                items: filterNulls([
+                  navPageItem('field-classes'),
+                  navPageItem('avalanche-awareness-classes'),
+                  navPageItem('courses-by-external-providers'),
+                  navPageItem('workshops'),
+                  navPageItem('request-a-class'),
+                ]),
+              },
+              ...filterNulls([
+                navPageItem('scholarships'),
+                navPageItem('mentorship'),
+                navPageItem('beacon-parks'),
+              ]),
+            ],
+          },
+          about: {
+            items: filterNulls([
+              navPageItem('about-us'),
+              navPageItem('agency-partners'),
+              navPageItem('who-we-are'),
+              navPageItem('annual-report-minutes'),
+              navPageItem('employment'),
+            ]),
+          },
+          support: {
+            items: filterNulls([
+              navPageItem('donate-membership'),
+              navPageItem('workplace-giving'),
+              navPageItem('other-ways-to-give'),
+              navPageItem('corporate-sponsorship'),
+              navPageItem('volunteer'),
+            ]),
+          },
+          accidents: {
+            items: filterNulls([
+              navPageItem('local-accident-reports'),
+              navPageItem('avalanche-accident-statistics'),
+              navPageItem('us-avalanche-accidents'),
+              navPageItem('grief-and-loss-resources'),
+              navPageItem('avalanche-accident-map'),
+            ]),
+          },
+          donate: {
+            link: navPageItem('donate-membership', 'Donate')?.link,
+          },
         },
-        about: {
-          items: filterNulls([
-            navPageItem('about-us'),
-            navPageItem('agency-partners'),
-            navPageItem('who-we-are'),
-            navPageItem('annual-report-minutes'),
-            navPageItem('employment'),
-          ]),
-        },
-        support: {
-          items: filterNulls([
-            navPageItem('donate-membership'),
-            navPageItem('workplace-giving'),
-            navPageItem('other-ways-to-give'),
-            navPageItem('corporate-sponsorship'),
-            navPageItem('volunteer'),
-          ]),
-        },
-        accidents: {
-          items: filterNulls([
-            navPageItem('local-accident-reports'),
-            navPageItem('avalanche-accident-statistics'),
-            navPageItem('us-avalanche-accidents'),
-            navPageItem('grief-and-loss-resources'),
-            navPageItem('avalanche-accident-map'),
-          ]),
-        },
-        donate: {
-          link: navPageItem('donate-membership', 'Donate')?.link,
-        },
-      },
-    })
-    navigationCreated = true
+      })
+      navigationCreated = true
+    } catch (err) {
+      log.error(
+        `[${tenant.slug}] Failed to create navigation: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      )
+    }
   } else {
     log.info(`[${tenant.slug}] Navigation already exists, skipping`)
   }
@@ -501,6 +515,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     settingsCreated,
     builtInPagesCreated: createdBuiltInPages.length - existingBuiltInPages.docs.length,
     pagesCopied: copiedPages.length,
+    failedPages,
     homePageCreated,
     navigationCreated,
     // TODO: Brand assets (logo, icon, banner) must be uploaded manually in Website Settings.
