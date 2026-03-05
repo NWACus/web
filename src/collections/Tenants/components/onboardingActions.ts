@@ -24,51 +24,55 @@ export async function checkProvisioningStatusAction(
     // Template tenant slug must match TEMPLATE_TENANT_SLUG in provisionTenant.ts
     const templateTenantSlug = 'dvac'
 
-    const [builtInPages, pages, homePages, navigations, settings, tenant, colorsCSS] =
-      await Promise.all([
-        payload.find({
-          collection: 'builtInPages',
-          where: { tenant: { equals: tenantId } },
-          limit: 0,
-        }),
-        payload.find({
-          collection: 'pages',
-          where: { tenant: { equals: tenantId } },
-          limit: 500,
-          select: { slug: true, title: true },
-        }),
-        payload.find({
-          collection: 'homePages',
-          where: { tenant: { equals: tenantId } },
-          limit: 0,
-        }),
-        payload.find({
-          collection: 'navigations',
-          where: { tenant: { equals: tenantId } },
-          limit: 0,
-        }),
-        payload.find({
-          collection: 'settings',
-          where: { tenant: { equals: tenantId } },
-          limit: 0,
-        }),
-        payload.findByID({
-          collection: 'tenants',
-          id: tenantId,
-        }),
-        fs.readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8').catch(
-          () => '', // Return empty string if file can't be read
-        ),
-      ])
-
-    // Fetch template tenant pages separately to compare slugs
-    const templateTenant = await payload
-      .find({
+    const [
+      builtInPages,
+      pages,
+      homePages,
+      navigations,
+      settings,
+      tenant,
+      colorsCSS,
+      templateTenantResult,
+    ] = await Promise.all([
+      payload.find({
+        collection: 'builtInPages',
+        where: { tenant: { equals: tenantId } },
+        limit: 0,
+      }),
+      payload.find({
+        collection: 'pages',
+        where: { tenant: { equals: tenantId } },
+        limit: 500,
+        select: { slug: true, title: true, _status: true },
+      }),
+      payload.find({
+        collection: 'homePages',
+        where: { tenant: { equals: tenantId } },
+        limit: 0,
+      }),
+      payload.find({
+        collection: 'navigations',
+        where: { tenant: { equals: tenantId } },
+        limit: 0,
+      }),
+      payload.find({
+        collection: 'settings',
+        where: { tenant: { equals: tenantId } },
+        limit: 0,
+      }),
+      payload.findByID({
+        collection: 'tenants',
+        id: tenantId,
+      }),
+      fs.readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8').catch(
+        () => '', // Return empty string if file can't be read
+      ),
+      payload.find({
         collection: 'tenants',
         where: { slug: { equals: templateTenantSlug } },
         limit: 1,
-      })
-      .then((res) => res.docs[0])
+      }),
+    ])
 
     let templatePageSlugs: { slug: string; title: string }[] = []
     if (templateTenant) {
