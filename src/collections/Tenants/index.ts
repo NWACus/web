@@ -75,5 +75,14 @@ export const Tenants: CollectionConfig = {
       },
     },
     contentHashField(),
+    {
+      type: 'ui',
+      name: 'onboardingChecklist',
+      admin: {
+        components: {
+          Field: '@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist',
+        },
+      },
+    },
   ],
 }

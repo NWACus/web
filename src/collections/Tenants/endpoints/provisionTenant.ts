@@ -218,20 +218,26 @@ export async function provision(payload: Payload, tenant: Tenant) {
               !block.blockType || !TENANT_SCOPED_BLOCK_TYPES.has(block.blockType),
           )
         : cleanedPage.layout
-      const newPage = await payload.create({
-        collection: 'pages',
-        data: {
-          ...cleanedPage,
-          layout,
-          tenant: tenant.id,
-          title: templatePage.title,
-          slug: templatePage.slug,
-          _status: 'published',
-          publishedAt: new Date().toISOString(),
-        },
-      })
-      copiedPages.push(newPage)
-      pagesBySlug[newPage.slug] = newPage
+      try {
+        const newPage = await payload.create({
+          collection: 'pages',
+          data: {
+            ...cleanedPage,
+            layout,
+            tenant: tenant.id,
+            title: templatePage.title,
+            slug: templatePage.slug,
+            _status: 'published',
+            publishedAt: new Date().toISOString(),
+          },
+        })
+        copiedPages.push(newPage)
+        pagesBySlug[newPage.slug] = newPage
+      } catch (err) {
+        log.error(
+          `[${tenant.slug}] Failed to copy page "${templatePage.title}" (slug: ${templatePage.slug}): ${err instanceof Error ? err.message : 'Unknown error'}`,
+        )
+      }
     }
   } else {
     log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Skipping page copy.`)
@@ -358,67 +364,6 @@ export async function provision(payload: Payload, tenant: Tenant) {
         },
         layout: [
           {
-            backgroundColor: 'brand-200',
-            layout: '1_1',
-            columns: [
-              {
-                richText: {
-                  root: {
-                    type: 'root',
-                    format: '',
-                    indent: 0,
-                    version: 1,
-                    children: [
-                      {
-                        type: 'heading',
-                        format: '',
-                        indent: 0,
-                        version: 1,
-                        children: [
-                          {
-                            mode: 'normal',
-                            text: 'Avalanche Safety Information',
-                            type: 'text',
-                            style: '',
-                            detail: 0,
-                            format: 0,
-                            version: 1,
-                          },
-                        ],
-                        direction: 'ltr',
-                        tag: 'h2',
-                        textStyle: '',
-                        textFormat: 0,
-                      },
-                      {
-                        type: 'paragraph',
-                        format: '',
-                        indent: 0,
-                        version: 1,
-                        children: [
-                          {
-                            mode: 'normal',
-                            text: 'Access current avalanche forecasts, weather data, and safety resources to make informed decisions in the backcountry. Our team of professional forecasters provides detailed analysis of snow and weather conditions throughout our forecast area.',
-                            type: 'text',
-                            style: '',
-                            detail: 0,
-                            format: 0,
-                            version: 1,
-                          },
-                        ],
-                        direction: 'ltr',
-                        textStyle: '',
-                        textFormat: 0,
-                      },
-                    ],
-                    direction: 'ltr',
-                  },
-                },
-              },
-            ],
-            blockType: 'content',
-          },
-          {
             blockType: 'eventList',
             heading: 'Upcoming Events',
             backgroundColor: 'transparent',
@@ -446,39 +391,40 @@ export async function provision(payload: Payload, tenant: Tenant) {
   })
   let navigationCreated = false
   if (existingNavigation.docs.length === 0) {
-    const navPageLink = (slug: string, label?: string) => {
+    // Build a nav link item, returning null if the page doesn't exist
+    const navPageItem = (slug: string, label?: string) => {
       const page = pagesBySlug[slug]
       if (!page) {
-        log.warn(`[${tenant.slug}] Page "${slug}" not found for navigation link`)
-        return {
-          type: 'internal' as const,
-          label: label || 'Missing Page',
-          url: '/',
-        }
+        log.warn(`[${tenant.slug}] Page "${slug}" not found for navigation link, skipping`)
+        return null
       }
       return {
-        type: 'internal' as const,
-        reference: { value: page.id, relationTo: 'pages' as const },
-        label: label || page.title,
+        link: {
+          type: 'internal' as const,
+          reference: { value: page.id, relationTo: 'pages' as const },
+          label: label || page.title,
+        },
       }
     }
 
-    const navBuiltInPageLink = (url: string, label?: string) => {
+    const navBuiltInPageItem = (url: string, label?: string) => {
       const bip = builtInPagesByUrl[url]
       if (!bip) {
-        log.warn(`[${tenant.slug}] Built-in page "${url}" not found for navigation link`)
-        return {
-          type: 'internal' as const,
-          label: label || 'Missing Page',
-          url: '/',
-        }
+        log.warn(`[${tenant.slug}] Built-in page "${url}" not found for navigation link, skipping`)
+        return null
       }
       return {
-        type: 'internal' as const,
-        reference: { value: bip.id, relationTo: 'builtInPages' as const },
-        label: label || bip.title,
+        link: {
+          type: 'internal' as const,
+          reference: { value: bip.id, relationTo: 'builtInPages' as const },
+          label: label || bip.title,
+        },
       }
     }
+
+    // Filter out null entries from nav item arrays
+    const filterNulls = <T>(items: (T | null)[]): T[] =>
+      items.filter((item): item is T => item !== null)
 
     await payload.create({
       collection: 'navigations',
@@ -488,58 +434,60 @@ export async function provision(payload: Payload, tenant: Tenant) {
         forecasts: { items: [] },
         observations: { items: [] },
         weather: {
-          items: [
-            { link: navBuiltInPageLink('/weather/stations/map', 'Weather Stations') },
-            { link: navPageLink('weather-tools') },
-          ],
+          items: filterNulls([
+            navBuiltInPageItem('/weather/stations/map', 'Weather Stations'),
+            navPageItem('weather-tools'),
+          ]),
         },
         education: {
           items: [
-            { link: navPageLink('learn') },
+            ...filterNulls([navPageItem('learn')]),
             {
               label: 'Classes',
-              items: [
-                { link: navPageLink('field-classes') },
-                { link: navPageLink('avalanche-awareness-classes') },
-                { link: navPageLink('courses-by-external-providers') },
-                { link: navPageLink('workshops') },
-                { link: navPageLink('request-a-class') },
-              ],
+              items: filterNulls([
+                navPageItem('field-classes'),
+                navPageItem('avalanche-awareness-classes'),
+                navPageItem('courses-by-external-providers'),
+                navPageItem('workshops'),
+                navPageItem('request-a-class'),
+              ]),
             },
-            { link: navPageLink('scholarships') },
-            { link: navPageLink('mentorship') },
-            { link: navPageLink('beacon-parks') },
+            ...filterNulls([
+              navPageItem('scholarships'),
+              navPageItem('mentorship'),
+              navPageItem('beacon-parks'),
+            ]),
           ],
         },
         about: {
-          items: [
-            { link: navPageLink('about-us') },
-            { link: navPageLink('agency-partners') },
-            { link: navPageLink('who-we-are') },
-            { link: navPageLink('annual-report-minutes') },
-            { link: navPageLink('employment') },
-          ],
+          items: filterNulls([
+            navPageItem('about-us'),
+            navPageItem('agency-partners'),
+            navPageItem('who-we-are'),
+            navPageItem('annual-report-minutes'),
+            navPageItem('employment'),
+          ]),
         },
         support: {
-          items: [
-            { link: navPageLink('donate-membership') },
-            { link: navPageLink('workplace-giving') },
-            { link: navPageLink('other-ways-to-give') },
-            { link: navPageLink('corporate-sponsorship') },
-            { link: navPageLink('volunteer') },
-          ],
+          items: filterNulls([
+            navPageItem('donate-membership'),
+            navPageItem('workplace-giving'),
+            navPageItem('other-ways-to-give'),
+            navPageItem('corporate-sponsorship'),
+            navPageItem('volunteer'),
+          ]),
         },
         accidents: {
-          items: [
-            { link: navPageLink('local-accident-reports') },
-            { link: navPageLink('avalanche-accident-statistics') },
-            { link: navPageLink('us-avalanche-accidents') },
-            { link: navPageLink('grief-and-loss-resources') },
-            { link: navPageLink('avalanche-accident-map') },
-          ],
+          items: filterNulls([
+            navPageItem('local-accident-reports'),
+            navPageItem('avalanche-accident-statistics'),
+            navPageItem('us-avalanche-accidents'),
+            navPageItem('grief-and-loss-resources'),
+            navPageItem('avalanche-accident-map'),
+          ]),
         },
         donate: {
-          link: navPageLink('donate-membership', 'Donate'),
+          link: navPageItem('donate-membership', 'Donate')?.link,
         },
       },
     })
@@ -555,9 +503,9 @@ export async function provision(payload: Payload, tenant: Tenant) {
     pagesCopied: copiedPages.length,
     homePageCreated,
     navigationCreated,
+    // TODO: Brand assets (logo, icon, banner) must be uploaded manually in Website Settings.
     // TODO: Theme creation (colors.css, centerColorMap in generateOGImage.tsx) requires manual steps.
     // TODO: Custom domain configuration requires manual Vercel and DNS setup.
-    // TODO: Brand assets (logo, icon, banner) must be uploaded manually in Website Settings.
   }
 
   log.info(`Provisioning complete for ${tenant.name}: ${JSON.stringify(summary)}`)
