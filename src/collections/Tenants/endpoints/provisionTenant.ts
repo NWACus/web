@@ -1,4 +1,5 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
+import { getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Page, Tenant } from '@/payload-types'
 import { removeIdKey } from '@/utilities/removeIdKey'
 import type { Payload, PayloadHandler } from 'payload'
@@ -89,7 +90,7 @@ export const provisionTenant: PayloadHandler = async (req) => {
 
 /**
  * Provisions a tenant with all default data:
- * 1. Website Settings (requires brand assets - logged as manual step)
+ * 1. Website Settings with placeholder brand assets (logo, icon, banner)
  * 2. Built-in pages (forecasts, weather stations, observations)
  * 3. Pages copied from the template tenant (DVAC)
  * 4. Home page with default content
@@ -102,35 +103,50 @@ export async function provision(payload: Payload, tenant: Tenant) {
 
   log.info(`Provisioning tenant: ${tenant.name} (${tenant.slug})`)
 
-  // 1. Create Website Settings
-  // TODO: The Settings collection requires brand asset uploads (logo, icon, banner).
-  // Either provide placeholder images here or find a way to create settings without them.
-  // For now, this will fail if those required fields aren't provided.
+  // 1. Create Website Settings with placeholder brand assets
   log.info(`[${tenant.slug}] Creating website settings...`)
   const existingSettings = await payload.find({
     collection: 'settings',
     where: { tenant: { equals: tenant.id } },
     limit: 1,
   })
-  const settingsCreated = false
+  let settingsCreated = false
   if (existingSettings.docs.length === 0) {
-    // TODO: Add logo, icon, and banner (required upload fields) to make this work.
-    // await payload.create({
-    //   collection: 'settings',
-    //   data: {
-    //     tenant: tenant.id,
-    //     description: tenant.name,
-    //     footerForm: { type: 'none' },
-    //     socialMedia: {},
-    //     logo: ???,
-    //     icon: ???,
-    //     banner: ???,
-    //   },
-    // })
-    // settingsCreated = true
-    log.warn(
-      `[${tenant.slug}] Website Settings requires brand assets (logo, icon, banner). Create manually in admin panel.`,
-    )
+    const [logoFile, iconFile, bannerFile] = await Promise.all([
+      getSeedImageByFilename('placeholder-logo.png', log),
+      getSeedImageByFilename('placeholder-icon.png', log),
+      getSeedImageByFilename('placeholder-banner.png', log),
+    ])
+    const [logo, icon, banner] = await Promise.all([
+      payload.create({
+        collection: 'media',
+        data: { tenant: tenant.id, alt: 'logo' },
+        file: logoFile,
+      }),
+      payload.create({
+        collection: 'media',
+        data: { tenant: tenant.id, alt: 'icon' },
+        file: iconFile,
+      }),
+      payload.create({
+        collection: 'media',
+        data: { tenant: tenant.id, alt: 'banner' },
+        file: bannerFile,
+      }),
+    ])
+    await payload.create({
+      collection: 'settings',
+      data: {
+        tenant: tenant.id,
+        description: tenant.name,
+        footerForm: { type: 'none' },
+        socialMedia: {},
+        logo: logo.id,
+        icon: icon.id,
+        banner: banner.id,
+      },
+    })
+    settingsCreated = true
   } else {
     log.info(`[${tenant.slug}] Website settings already exist, skipping`)
   }
@@ -538,7 +554,6 @@ export async function provision(payload: Payload, tenant: Tenant) {
     failedPages,
     homePageCreated,
     navigationCreated,
-    // TODO: Brand assets (logo, icon, banner) must be uploaded manually in Website Settings.
     // TODO: Theme creation (colors.css, centerColorMap in generateOGImage.tsx) requires manual steps.
     // TODO: Custom domain configuration requires manual Vercel and DNS setup.
   }

@@ -11,7 +11,7 @@ export type ProvisioningStatus = {
   pages: { copied: number; expected: number; missing: string[]; skipped: string[] }
   homePage: boolean
   navigation: boolean
-  settings: boolean
+  settings: { exists: boolean; id?: number | string }
   hasTheme: boolean
 }
 
@@ -58,7 +58,8 @@ export async function checkProvisioningStatusAction(
       payload.find({
         collection: 'settings',
         where: { tenant: { equals: tenantId } },
-        limit: 0,
+        limit: 1,
+        select: {},
       }),
       payload.findByID({
         collection: 'tenants',
@@ -116,7 +117,10 @@ export async function checkProvisioningStatusAction(
         },
         homePage: homePages.totalDocs > 0,
         navigation: navigations.totalDocs > 0,
-        settings: settings.totalDocs > 0,
+        settings: {
+          exists: settings.totalDocs > 0,
+          id: settings.docs[0]?.id,
+        },
         // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
         hasTheme: colorsCSS.includes(`.${tenant.slug} {`),
       },

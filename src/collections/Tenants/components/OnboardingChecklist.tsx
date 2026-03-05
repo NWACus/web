@@ -25,7 +25,7 @@ function ChecklistItem({
 }) {
   return (
     <div className="py-2">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
           {done ? (
             <CheckCircle2 size={20} className="shrink-0 text-success" />
@@ -108,9 +108,10 @@ export function OnboardingChecklist() {
     status.pages.copied >= status.pages.expected &&
     status.pages.expected > 0 &&
     status.homePage &&
-    status.navigation
+    status.navigation &&
+    status.settings.exists
 
-  const allComplete = automatedComplete && status.settings && status.hasTheme
+  const allComplete = automatedComplete && status.hasTheme
 
   return (
     <div className="mt-8 rounded-lg border-solid border-[var(--theme-border-color)] p-6">
@@ -137,6 +138,17 @@ export function OnboardingChecklist() {
 
       <ChecklistItem done={status.homePage} label="Home page" />
       <ChecklistItem done={status.navigation} label="Navigation" />
+      <ChecklistItem
+        done={status.settings.exists}
+        label="Website Settings"
+        action={
+          status.settings.id ? (
+            <Link href={`/admin/collections/settings/${status.settings.id}`} className="text-sm">
+              Update Brand Assets
+            </Link>
+          ) : undefined
+        }
+      />
 
       {!automatedComplete && (
         <div className="my-3">
@@ -147,17 +159,8 @@ export function OnboardingChecklist() {
       )}
 
       <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
-        <ChecklistItem
-          done={status.settings}
-          label="Website Settings"
-          action={
-            !status.settings ? (
-              <Link href="/admin/collections/settings/create" className="text-sm">
-                Create
-              </Link>
-            ) : undefined
-          }
-        />
+        <h4 className="mb-2">Needs action</h4>
+
         <ChecklistItem done={status.hasTheme} label="Theme">
           {status.hasTheme ? '(found in colors.css)' : '(manual — see docs/onboarding.md)'}
         </ChecklistItem>
