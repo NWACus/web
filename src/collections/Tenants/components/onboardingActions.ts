@@ -2,6 +2,8 @@
 
 import { provision } from '@/collections/Tenants/endpoints/provisionTenant'
 import config from '@payload-config'
+import fs from 'fs/promises'
+import path from 'path'
 import { getPayload } from 'payload'
 
 export type ProvisioningStatus = {
@@ -11,6 +13,7 @@ export type ProvisioningStatus = {
   navigation: boolean
   settings: boolean
   hasCustomDomain: boolean
+  hasTheme: boolean
 }
 
 export async function checkProvisioningStatusAction(
@@ -19,37 +22,41 @@ export async function checkProvisioningStatusAction(
   try {
     const payload = await getPayload({ config })
 
-    const [builtInPages, pages, homePages, navigations, settings, tenant] = await Promise.all([
-      payload.find({
-        collection: 'builtInPages',
-        where: { tenant: { equals: tenantId } },
-        limit: 0,
-      }),
-      payload.find({
-        collection: 'pages',
-        where: { tenant: { equals: tenantId } },
-        limit: 0,
-      }),
-      payload.find({
-        collection: 'homePages',
-        where: { tenant: { equals: tenantId } },
-        limit: 1,
-      }),
-      payload.find({
-        collection: 'navigations',
-        where: { tenant: { equals: tenantId } },
-        limit: 1,
-      }),
-      payload.find({
-        collection: 'settings',
-        where: { tenant: { equals: tenantId } },
-        limit: 1,
-      }),
-      payload.findByID({
-        collection: 'tenants',
-        id: tenantId,
-      }),
-    ])
+    const [builtInPages, pages, homePages, navigations, settings, tenant, colorsCSS] =
+      await Promise.all([
+        payload.find({
+          collection: 'builtInPages',
+          where: { tenant: { equals: tenantId } },
+          limit: 0,
+        }),
+        payload.find({
+          collection: 'pages',
+          where: { tenant: { equals: tenantId } },
+          limit: 0,
+        }),
+        payload.find({
+          collection: 'homePages',
+          where: { tenant: { equals: tenantId } },
+          limit: 1,
+        }),
+        payload.find({
+          collection: 'navigations',
+          where: { tenant: { equals: tenantId } },
+          limit: 1,
+        }),
+        payload.find({
+          collection: 'settings',
+          where: { tenant: { equals: tenantId } },
+          limit: 1,
+        }),
+        payload.findByID({
+          collection: 'tenants',
+          id: tenantId,
+        }),
+        fs.readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8').catch(
+          () => '', // Return empty string if file can't be read
+        ),
+      ])
 
     return {
       status: {
@@ -59,6 +66,8 @@ export async function checkProvisioningStatusAction(
         navigation: navigations.docs.length > 0,
         settings: settings.docs.length > 0,
         hasCustomDomain: Boolean(tenant.customDomain),
+        // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".nwac {")
+        hasTheme: new RegExp(`\\.${tenant.slug}\\s*\\{`).test(colorsCSS),
       },
     }
   } catch (err) {

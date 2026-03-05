@@ -122,7 +122,7 @@ export function OnboardingChecklist() {
     status.homePage &&
     status.navigation
 
-  const allComplete = automatedComplete && status.settings
+  const allComplete = automatedComplete && status.settings && status.hasTheme
 
   return (
     <div
@@ -181,7 +181,11 @@ export function OnboardingChecklist() {
             ) : undefined
           }
         />
-        <ChecklistItem done={false} label="Theme" detail="(manual — see docs/onboarding.md)" />
+        <ChecklistItem
+          done={status.hasTheme}
+          label="Theme"
+          detail={status.hasTheme ? '(found in colors.css)' : '(manual — see docs/onboarding.md)'}
+        />
         <ChecklistItem
           done={status.hasCustomDomain}
           label="Custom domain"
