@@ -38,13 +38,13 @@ function ChecklistItem({
 }
 
 export function OnboardingChecklist() {
-  const { savedDocumentData } = useDocumentInfo()
+  const { data } = useDocumentInfo()
   const [status, setStatus] = useState<ProvisioningStatus | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isProvisioning, setIsProvisioning] = useState(false)
   const [failedPages, setFailedPages] = useState<string[]>([])
 
-  const tenantId = savedDocumentData?.id
+  const tenantId = data?.id
 
   const checkStatus = useCallback(async () => {
     if (!tenantId) return
