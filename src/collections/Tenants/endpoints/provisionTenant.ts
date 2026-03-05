@@ -1,5 +1,6 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import type { BuiltInPage, Page, Tenant } from '@/payload-types'
+import { removeIdKey } from '@/utilities/removeIdKey'
 import type { Payload, PayloadHandler } from 'payload'
 
 const TEMPLATE_TENANT_SLUG = 'dvac'
@@ -525,25 +526,4 @@ export async function provision(payload: Payload, tenant: Tenant) {
 
   log.info(`Provisioning complete for ${tenant.name}: ${JSON.stringify(summary)}`)
   return summary
-}
-
-/**
- * Recursively removes `id` keys from an object to prepare it for duplication.
- * Matches the pattern used in duplicatePageToTenant.
- */
-const removeIdKey = <T>(obj: T): T => {
-  if (Array.isArray(obj)) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    return obj.map(removeIdKey) as T
-  }
-  if (obj && typeof obj === 'object') {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    return Object.fromEntries(
-      Object.entries(obj)
-        // Only strip the exact 'id' key (Payload's auto-generated row IDs), not fields like 'videoId'
-        .filter(([k]) => k !== 'id')
-        .map(([k, v]) => [k, removeIdKey(v)]),
-    ) as T
-  }
-  return obj
 }
