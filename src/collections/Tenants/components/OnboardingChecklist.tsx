@@ -1,29 +1,14 @@
 'use client'
 
 import { Button, toast, useDocumentInfo } from '@payloadcms/ui'
+import { CheckCircle2, Circle } from 'lucide-react'
+import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import {
   checkProvisioningStatusAction,
   type ProvisioningStatus,
   runProvisionAction,
 } from './onboardingActions'
-
-function CheckIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="10" fill="var(--theme-success-500)" />
-      <path d="M6 10l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function EmptyCircle() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="9" stroke="var(--theme-elevation-400)" strokeWidth="2" />
-    </svg>
-  )
-}
 
 function ChecklistItem({
   done,
@@ -39,9 +24,13 @@ function ChecklistItem({
   return (
     <div className="flex items-center justify-between gap-4 py-2">
       <div className="flex items-center gap-3">
-        {done ? <CheckIcon /> : <EmptyCircle />}
-        <span style={{ opacity: done ? 0.7 : 1 }}>{label}</span>
-        {detail && <span style={{ fontSize: '0.85em', opacity: 0.5 }}>{detail}</span>}
+        {done ? (
+          <CheckCircle2 size={20} className="shrink-0 text-theme-success-500" />
+        ) : (
+          <Circle size={20} className="shrink-0 text-theme-elevation-400" />
+        )}
+        <span className={done ? 'opacity-70' : ''}>{label}</span>
+        {detail && <span className="text-sm opacity-50">{detail}</span>}
       </div>
       {action && <div>{action}</div>}
     </div>
@@ -100,16 +89,9 @@ export function OnboardingChecklist() {
 
   if (isLoading && !status) {
     return (
-      <div
-        style={{
-          marginTop: '2rem',
-          padding: '1.5rem',
-          border: '1px solid var(--theme-elevation-150)',
-          borderRadius: '4px',
-        }}
-      >
-        <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Onboarding Checklist</h3>
-        <p style={{ opacity: 0.5 }}>Loading...</p>
+      <div className="mt-8 rounded border border-theme-elevation-150 p-6">
+        <h3 className="mt-0 mb-4">Onboarding Checklist</h3>
+        <p className="opacity-50">Loading...</p>
       </div>
     )
   }
@@ -125,21 +107,10 @@ export function OnboardingChecklist() {
   const allComplete = automatedComplete && status.settings && status.hasTheme
 
   return (
-    <div
-      style={{
-        marginTop: '2rem',
-        padding: '1.5rem',
-        border: '1px solid var(--theme-elevation-150)',
-        borderRadius: '4px',
-      }}
-    >
-      <div className="flex items-center justify-between" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ margin: 0 }}>Onboarding Checklist</h3>
-        {allComplete && (
-          <span style={{ color: 'var(--theme-success-500)', fontSize: '0.9em' }}>
-            All steps complete
-          </span>
-        )}
+    <div className="mt-8 rounded border border-theme-elevation-150 p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="m-0">Onboarding Checklist</h3>
+        {allComplete && <span className="text-sm text-theme-success-500">All steps complete</span>}
       </div>
 
       <ChecklistItem
@@ -150,34 +121,31 @@ export function OnboardingChecklist() {
       <ChecklistItem
         done={status.pages.count > 0}
         label="Template pages copied"
-        detail={`(${status.pages.count} pages)`}
+        detail={`(${status.pages.count} pages${failedPages.length > 0 ? `, ${failedPages.length} failed` : ''})`}
       />
+      {failedPages.length > 0 && (
+        <div className="ml-8 text-sm text-theme-error-500">Failed: {failedPages.join(', ')}</div>
+      )}
       <ChecklistItem done={status.homePage} label="Home page" />
       <ChecklistItem done={status.navigation} label="Navigation" />
 
       {!automatedComplete && (
-        <div style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>
+        <div className="my-3">
           <Button onClick={handleProvision} disabled={isProvisioning} size="small">
             {isProvisioning ? 'Provisioning...' : 'Run Provisioning'}
           </Button>
         </div>
       )}
 
-      <div
-        style={{
-          borderTop: '1px solid var(--theme-elevation-150)',
-          marginTop: '0.75rem',
-          paddingTop: '0.75rem',
-        }}
-      >
+      <div className="mt-3 border-t border-theme-elevation-150 pt-3">
         <ChecklistItem
           done={status.settings}
           label="Website Settings"
           action={
             !status.settings ? (
-              <a href={`/admin/collections/settings/create`} style={{ fontSize: '0.85em' }}>
+              <Link href="/admin/collections/settings/create" className="text-sm">
                 Create
-              </a>
+              </Link>
             ) : undefined
           }
         />
