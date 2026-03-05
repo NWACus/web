@@ -13,26 +13,31 @@ import {
 function ChecklistItem({
   done,
   label,
+  details,
   children,
   action,
 }: {
   done: boolean
   label: string
+  details?: React.ReactNode
   children?: React.ReactNode
   action?: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-2">
-      <div className="flex items-center gap-3">
-        {done ? (
-          <CheckCircle2 size={20} className="shrink-0 text-success" />
-        ) : (
-          <Circle size={20} className="shrink-0 text-muted-foreground" />
-        )}
-        <span className={done ? 'opacity-70' : ''}>{label}</span>
-        {children && <span className="text-sm opacity-50">{children}</span>}
+    <div className="py-2">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {done ? (
+            <CheckCircle2 size={20} className="shrink-0 text-success" />
+          ) : (
+            <Circle size={20} className="shrink-0 text-muted-foreground" />
+          )}
+          <span className={done ? 'opacity-70' : ''}>{label}</span>
+          {details && <span className="text-sm opacity-50">{details}</span>}
+        </div>
+        {action && <div>{action}</div>}
       </div>
-      {action && <div>{action}</div>}
+      {children && <div className="ml-9 mt-1 text-sm opacity-50">{children}</div>}
     </div>
   )
 }
@@ -100,7 +105,7 @@ export function OnboardingChecklist() {
 
   const automatedComplete =
     status.builtInPages.count >= status.builtInPages.expected &&
-    status.pages.count >= status.pages.expected &&
+    status.pages.copied >= status.pages.expected &&
     status.pages.expected > 0 &&
     status.homePage &&
     status.navigation
@@ -117,15 +122,17 @@ export function OnboardingChecklist() {
       <ChecklistItem
         done={status.builtInPages.count >= status.builtInPages.expected}
         label="Built-in pages"
-      >
-        ({status.builtInPages.count}/{status.builtInPages.expected})
-      </ChecklistItem>
+        details={`(${status.builtInPages.count}/${status.builtInPages.expected})`}
+      />
       <ChecklistItem
-        done={status.pages.count >= status.pages.expected && status.pages.expected > 0}
-        label="Template pages copied"
+        done={status.pages.copied >= status.pages.expected && status.pages.expected > 0}
+        label="Template pages"
+        details={`(${status.pages.copied}/${status.pages.expected})`}
       >
-        ({status.pages.count}/{status.pages.expected})
-        {status.pages.failed.length > 0 && ` — failed: ${status.pages.failed.join(', ')}`}
+        {status.pages.missing.length > 0 && <div>Missing: {status.pages.missing.join(', ')}</div>}
+        {status.pages.skipped.length > 0 && (
+          <div>Skipped (demo pages): {status.pages.skipped.join(', ')}</div>
+        )}
       </ChecklistItem>
 
       <ChecklistItem done={status.homePage} label="Home page" />

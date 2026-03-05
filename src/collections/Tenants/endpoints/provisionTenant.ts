@@ -7,7 +7,16 @@ const TEMPLATE_TENANT_SLUG = 'dvac'
 
 // Block types that reference tenant-scoped data (teams, sponsors, events) and can't
 // be copied to a new tenant without the corresponding records existing.
-const TENANT_SCOPED_BLOCK_TYPES = new Set(['team', 'sponsors', 'singleEvent'])
+export const TENANT_SCOPED_BLOCK_TYPES = new Set([
+  'team',
+  'sponsors',
+  'singleEvent',
+  'singleBlogPost',
+  'formBlock',
+])
+
+// Page slugs that should not be copied during provisioning (e.g. demo/showcase pages)
+export const SKIP_PAGE_SLUGS = new Set(['blocks', 'lexical-blocks'])
 
 const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
   { title: 'All Forecasts', url: '/forecasts/avalanche' },
@@ -184,42 +193,57 @@ export async function provision(payload: Payload, tenant: Tenant) {
       depth: 0,
     })
 
-    // Check which pages already exist for this tenant
+    // Check which pages already exist for this tenant (full objects for nav linking)
     const existingPages = await payload.find({
       collection: 'pages',
       where: { tenant: { equals: tenant.id } },
       limit: 500,
       depth: 0,
-      select: { slug: true },
     })
-    const existingSlugs = new Set(existingPages.docs.map((p) => p.slug))
+    const existingPagesBySlug = new Map(existingPages.docs.map((p) => [p.slug, p]))
 
     for (const templatePage of templatePages.docs) {
-      if (existingSlugs.has(templatePage.slug)) {
-        log.info(`[${tenant.slug}] Page "${templatePage.title}" already exists, skipping copy`)
-        // Still index the existing page for navigation linking
-        const existing = existingPages.docs.find((p) => p.slug === templatePage.slug)
-        if (existing) {
-          // Fetch the full page since we only selected slug
-          const fullPage = await payload.findByID({
-            collection: 'pages',
-            id: existing.id,
-            depth: 0,
-          })
-          pagesBySlug[fullPage.slug] = fullPage
-        }
+      if (SKIP_PAGE_SLUGS.has(templatePage.slug)) {
+        log.info(`[${tenant.slug}] Skipping "${templatePage.title}" (demo page)`)
         continue
+      }
+      const existing = existingPagesBySlug.get(templatePage.slug)
+      if (existing) {
+        // If the existing page is a draft (e.g. from a previous failed copy), delete and retry
+        if (existing._status === 'draft') {
+          log.info(
+            `[${tenant.slug}] Page "${templatePage.title}" exists as draft, deleting to retry`,
+          )
+          await payload.delete({ collection: 'pages', id: existing.id })
+        } else {
+          log.info(`[${tenant.slug}] Page "${templatePage.title}" already exists, skipping copy`)
+          pagesBySlug[existing.slug] = existing
+          continue
+        }
       }
 
       const cleanedPage = removeIdKey(templatePage)
-      // Filter out blocks that reference tenant-scoped data (teams, sponsors, events)
-      // since those records won't exist for the new tenant
+      // Filter out blocks that reference tenant-scoped data (teams, sponsors, events, forms)
+      // since those records won't exist for the new tenant.
+      // For blocks with optional static references (blogList, eventList), convert to dynamic mode.
       const layout = Array.isArray(cleanedPage.layout)
-        ? cleanedPage.layout.filter(
-            (block: { blockType?: string }) =>
-              !block.blockType || !TENANT_SCOPED_BLOCK_TYPES.has(block.blockType),
-          )
+        ? cleanedPage.layout
+            .filter(
+              (block: { blockType?: string }) =>
+                !block.blockType || !TENANT_SCOPED_BLOCK_TYPES.has(block.blockType),
+            )
+            .map((block) => {
+              if (block.blockType === 'blogList' && block.postOptions === 'static') {
+                return { ...block, postOptions: 'dynamic' as const, staticOptions: undefined }
+              }
+              if (block.blockType === 'eventList' && block.eventOptions === 'static') {
+                return { ...block, eventOptions: 'dynamic' as const, staticOpts: undefined }
+              }
+              return block
+            })
         : cleanedPage.layout
+      // If all blocks were stripped, create as draft since layout is required
+      const hasContent = Array.isArray(layout) && layout.length > 0
       try {
         const newPage = await payload.create({
           collection: 'pages',
@@ -229,9 +253,10 @@ export async function provision(payload: Payload, tenant: Tenant) {
             tenant: tenant.id,
             title: templatePage.title,
             slug: templatePage.slug,
-            _status: 'published',
-            publishedAt: new Date().toISOString(),
+            _status: hasContent ? 'published' : 'draft',
+            publishedAt: hasContent ? new Date().toISOString() : undefined,
           },
+          draft: !hasContent,
         })
         copiedPages.push(newPage)
         pagesBySlug[newPage.slug] = newPage
@@ -242,21 +267,15 @@ export async function provision(payload: Payload, tenant: Tenant) {
         failedPages.push(templatePage.title)
       }
     }
+
+    // Also index any pre-existing pages we didn't copy (from the initial query)
+    for (const p of existingPages.docs) {
+      if (!pagesBySlug[p.slug]) {
+        pagesBySlug[p.slug] = p
+      }
+    }
   } else {
     log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Skipping page copy.`)
-  }
-
-  // Also index any pre-existing pages we didn't copy
-  const allTenantPages = await payload.find({
-    collection: 'pages',
-    where: { tenant: { equals: tenant.id } },
-    limit: 500,
-    depth: 0,
-  })
-  for (const p of allTenantPages.docs) {
-    if (!pagesBySlug[p.slug]) {
-      pagesBySlug[p.slug] = p
-    }
   }
 
   // 4. Create Home Page

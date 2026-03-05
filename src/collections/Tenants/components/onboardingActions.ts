@@ -1,6 +1,6 @@
 'use server'
 
-import { provision } from '@/collections/Tenants/endpoints/provisionTenant'
+import { provision, SKIP_PAGE_SLUGS } from '@/collections/Tenants/endpoints/provisionTenant'
 import config from '@payload-config'
 import fs from 'fs/promises'
 import path from 'path'
@@ -8,7 +8,7 @@ import { getPayload } from 'payload'
 
 export type ProvisioningStatus = {
   builtInPages: { count: number; expected: number }
-  pages: { count: number; expected: number; failed: string[] }
+  pages: { copied: number; expected: number; missing: string[]; skipped: string[] }
   homePage: boolean
   navigation: boolean
   settings: boolean
@@ -74,7 +74,10 @@ export async function checkProvisioningStatusAction(
       }),
     ])
 
+    const templateTenant = templateTenantResult.docs[0]
+
     let templatePageSlugs: { slug: string; title: string }[] = []
+    const skippedPages: string[] = []
     if (templateTenant) {
       const templatePages = await payload.find({
         collection: 'pages',
@@ -85,21 +88,31 @@ export async function checkProvisioningStatusAction(
         limit: 500,
         select: { slug: true, title: true },
       })
-      templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
+      // Only exclude demo/showcase pages — pages with all tenant-scoped blocks
+      // are still copied as blank drafts by the provisioner
+      templatePageSlugs = templatePages.docs
+        .filter((p) => {
+          if (SKIP_PAGE_SLUGS.has(p.slug)) {
+            skippedPages.push(p.title)
+            return false
+          }
+          return true
+        })
+        .map((p) => ({ slug: p.slug, title: p.title }))
     }
 
-    const tenantSlugs = new Set(pages.docs.map((p) => p.slug))
-    const failedPages = templatePageSlugs
-      .filter((p) => !tenantSlugs.has(p.slug))
-      .map((p) => p.title)
+    const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
+    const copiedPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
+    const missing = templatePageSlugs.filter((p) => !tenantPagesBySlug.has(p.slug))
 
     return {
       status: {
         builtInPages: { count: builtInPages.totalDocs, expected: 4 },
         pages: {
-          count: pages.totalDocs,
+          copied: copiedPages.length,
           expected: templatePageSlugs.length,
-          failed: failedPages,
+          missing: missing.map((p) => p.title),
+          skipped: skippedPages,
         },
         homePage: homePages.totalDocs > 0,
         navigation: navigations.totalDocs > 0,
