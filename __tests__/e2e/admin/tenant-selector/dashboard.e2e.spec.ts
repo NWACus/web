@@ -49,7 +49,7 @@ test.describe('Tenant selector on dashboard', () => {
     expect(isVisible).toBe(true)
 
     const options = await getTenantOptions(page)
-    expect(options.length).toBeGreaterThanOrEqual(4)
+    expect(options.length).toBe(2) // NWAC and SNFAC
 
     await page.context().close()
   })
