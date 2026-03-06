@@ -114,24 +114,28 @@ export function OnboardingChecklist() {
   const allComplete = automatedComplete && status.hasTheme
 
   return (
-    <div className="mt-8 rounded-lg border-solid border-[var(--theme-border-color)] p-6">
-      <h3 className="mb-4">Onboarding Checklist</h3>
-      <div className="flex items-center justify-between">
-        <h4 className="mb-2">Automated</h4>
-
-        {automatedComplete ? (
-          <div className="flex items-center gap-2 rounded border border-solid border-success/30 bg-success/10 px-3 py-1.5">
+    <div className="mt-8 w-fit rounded-lg border-solid border-[var(--theme-border-color)] p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3>Onboarding Checklist</h3>
+        {automatedComplete && (
+          <div className="flex items-center gap-2 ml-36">
             <CheckCircle2 size={16} className="shrink-0 text-success" />
             <span className="text-sm text-success">
               {allComplete ? 'All steps complete' : 'Automation successful'}
             </span>
           </div>
-        ) : (
-          <Button onClick={handleProvision} disabled={isProvisioning} size="small">
-            {isProvisioning ? 'Provisioning...' : 'Run Provisioning'}
+        )}
+      </div>
+
+      <div className="flex items-center justify-between mb-2">
+        <h4>Automated</h4>
+        {!automatedComplete && (
+          <Button className="m-0" onClick={handleProvision} disabled={isProvisioning} size="medium">
+            {isProvisioning ? 'Provisioning...' : 'Rerun Provisioning'}
           </Button>
         )}
       </div>
+
       <ChecklistItem
         done={status.builtInPages.count >= status.builtInPages.expected}
         label="Built-in pages"
@@ -139,7 +143,7 @@ export function OnboardingChecklist() {
       />
       <ChecklistItem
         done={status.pages.copied >= status.pages.expected && status.pages.expected > 0}
-        label="Template pages"
+        label="Pages - copied from DVAC"
         details={`(${status.pages.copied}/${status.pages.expected})`}
       >
         {status.pages.missing.length > 0 && <div>Missing: {status.pages.missing.join(', ')}</div>}
@@ -165,8 +169,22 @@ export function OnboardingChecklist() {
       <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
         <h4 className="mb-2">Needs action</h4>
 
-        <ChecklistItem done={status.hasTheme} label="Theme">
-          {status.hasTheme ? '(found in colors.css)' : '(manual — see docs/onboarding.md)'}
+        <ChecklistItem
+          done={status.hasTheme}
+          label="Theme"
+          details={status.hasTheme && '(found in colors.css)'}
+        >
+          {!status.hasTheme && (
+            <span>
+              Need to add slug to colors.css — see{' '}
+              <Link
+                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md"
+                target="_blank"
+              >
+                docs/onboarding.md
+              </Link>
+            </span>
+          )}
         </ChecklistItem>
       </div>
     </div>
