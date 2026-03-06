@@ -89,19 +89,16 @@ export function OnboardingChecklist() {
     }
   }
 
-  // Only show on edit (existing document), not create
-  if (!tenantId) return null
-
-  if (isLoading && !status) {
+  if (!status) {
     return (
       <div className="mt-8 rounded border-solid border-[var(--theme-border-color)] p-6">
         <h3 className="mt-0 mb-4">Onboarding Checklist</h3>
-        <p className="opacity-50">Loading...</p>
+        <p className="opacity-50">
+          {isLoading ? 'Loading...' : 'Save tenant to see checklist status'}
+        </p>
       </div>
     )
   }
-
-  if (!status) return null
 
   const automatedComplete =
     status.builtInPages.count >= status.builtInPages.expected &&
