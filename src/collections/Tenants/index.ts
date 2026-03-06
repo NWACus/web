@@ -1,7 +1,6 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
 import { cachedPublicTenants } from '@/collections/Tenants/endpoints/cachedPublicTenants'
 import { provisionTenant } from '@/collections/Tenants/endpoints/provisionTenant'
-import { deprovisionBeforeDelete } from '@/collections/Tenants/hooks/deprovisionBeforeDelete'
 import { provisionAfterChange } from '@/collections/Tenants/hooks/provisionAfterChange'
 import {
   revalidateTenantsAfterChange,
@@ -46,7 +45,6 @@ export const Tenants: CollectionConfig = {
   ],
   hooks: {
     afterChange: [provisionAfterChange, revalidateTenantsAfterChange, updateEdgeConfigAfterChange],
-    beforeDelete: [deprovisionBeforeDelete],
     afterDelete: [revalidateTenantsAfterDelete, updateEdgeConfigAfterDelete],
   },
   fields: [
