@@ -27,14 +27,41 @@ Optional — the default theme works but centers will likely want their brand co
 - [ ] Add center's theme to `src/app/(frontend)/colors.css`
 - [ ] Add center's colors to `centerColorMap` in `src/app/api/[center]/og/route.tsx` (use header colors)
 
+
+#### Required colors
+
+Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend)/colors.css`. All variables have defaults in `:root`, so you only need to override what differs from the defaults.
+
+| Variable | Purpose |
+|----------|---------|
+| `--primary` | Primary brand color (buttons, links) |
+| `--primary-hover` | Hover state for primary |
+| `--secondary` | Secondary brand color |
+| `--secondary-hover` | Hover state for secondary |
+| `--header` | Header background |
+| `--header-foreground` | Header text color |
+| `--header-foreground-highlight` | Header highlighted/active text |
+| `--footer` | Footer background |
+| `--footer-foreground` | Footer text color |
+| `--footer-foreground-highlight` | Footer highlighted/active text |
+| `--callout` | Callout/CTA background |
+| `--callout-hover` | Hover state for callout |
+| `--callout-foreground` | Callout text color |
+| `--nav-underline` | Active navigation underline color |
+| `--brand-50` through `--brand-950` | Brand color range used for block backgrounds |
+| `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background |
+
 ### Custom domain
 
-1. Add slug to `PRODUCTION_TENANTS` env var (see `src/utilities/tenancy/tenants.ts`)
-2. Set `customDomain` field on tenant (e.g. `www.example-avalanche.com`). Confirm it matches production Edge Config.
-3. Add domain to `remotePatterns` in `next.config.js`:
-   ```
-   { hostname: 'www.example-avalanche.com', protocol: PROTOCOL }
-   ```
-4. Add domain in [Vercel domains settings](https://vercel.com/nwac/avy/settings/domains)
-5. For non-Vercel-managed domains: coordinate DNS records with the avalanche center. Include apex → www redirect.
-6. Add domain to authorized web analytics URLs in PostHog (Settings → Environment)
+1. Update the `PRODUCTION_TENANTS` env var to include the tenant's slug. This should be a comma separated list of slugs (see `src/utilities/tenancy/tenants.ts`).
+2. Set the `customDomain` field for the tenant. This should be the host (i.e. `www.deathvalleyavalanchecenter.com`). Confirm that the `customDomain` in the production Edge Config for the tenant matches this.
+3. Add this domain to `remotePatterns` in `next.config.js`. Example:
+```
+{
+  hostname: 'www.avy-fx-demo.org',
+  protocol: PROTOCOL,
+},
+```
+4. Add this domain to our [list of domains](https://vercel.com/nwac/avy/settings/domains) for avy in Vercel.
+5. For domains not managed on Vercel, we'll need to coordinate with the avalanche center to set the appropriate DNS record in their DNS provider's console. Adding a non-Vercel-managed domain will display the records to add and once verified Vercel will automatically generate an SSL certificate. We should include the apex domain -> www. redirect for these custom domains.
+6. Add the tenant's custom domain to the list of authorized web analytics urls in PostHog under Settings -> Environment (/settings/environment#web-analytics-authorized-urls)
