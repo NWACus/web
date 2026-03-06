@@ -111,7 +111,8 @@ export function OnboardingChecklist() {
     status.navigation &&
     status.settings.exists
 
-  const allComplete = automatedComplete && status.hasTheme
+  const themeComplete = status.theme.brandColors && status.theme.ogColors
+  const allComplete = automatedComplete && themeComplete
 
   return (
     <div className="mt-8 w-fit rounded-lg border-solid border-[var(--theme-border-color)] p-6">
@@ -170,13 +171,30 @@ export function OnboardingChecklist() {
         <h4 className="mb-2">Needs action</h4>
 
         <ChecklistItem
-          done={status.hasTheme}
-          label="Theme"
-          details={status.hasTheme && '(found in colors.css)'}
+          done={status.theme.brandColors}
+          label="Add brand colors"
+          details={status.theme.brandColors && '(slug found)'}
         >
-          {!status.hasTheme && (
+          {!status.theme.brandColors && (
             <span>
-              Need to add slug to colors.css — see{' '}
+              Add slug to <code>colors.css</code> — see{' '}
+              <Link
+                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md"
+                target="_blank"
+              >
+                docs/onboarding.md
+              </Link>
+            </span>
+          )}
+        </ChecklistItem>
+        <ChecklistItem
+          done={status.theme.ogColors}
+          label="Add OG image colors"
+          details={status.theme.ogColors && '(slug found in centerColorMap)'}
+        >
+          {!status.theme.ogColors && (
+            <span>
+              Add slug to <code>centerColorMap</code> — see{' '}
               <Link
                 href="https://github.com/NWACus/web/blob/main/docs/onboarding.md"
                 target="_blank"

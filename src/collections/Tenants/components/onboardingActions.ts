@@ -12,7 +12,7 @@ export type ProvisioningStatus = {
   homePage: boolean
   navigation: boolean
   settings: { exists: boolean; id?: number | string }
-  hasTheme: boolean
+  theme: { brandColors: boolean; ogColors: boolean }
 }
 
 export async function checkProvisioningStatusAction(
@@ -31,7 +31,8 @@ export async function checkProvisioningStatusAction(
       navigations,
       settings,
       tenant,
-      colorsCSS,
+      brandColors,
+      ogRouteFile,
       templateTenantResult,
     ] = await Promise.all([
       payload.find({
@@ -65,9 +66,12 @@ export async function checkProvisioningStatusAction(
         collection: 'tenants',
         id: tenantId,
       }),
-      fs.readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8').catch(
-        () => '', // Return empty string if file can't be read
-      ),
+      fs
+        .readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8')
+        .catch(() => ''),
+      fs
+        .readFile(path.join(process.cwd(), 'src/app/api/[center]/og/route.tsx'), 'utf-8')
+        .catch(() => ''),
       payload.find({
         collection: 'tenants',
         where: { slug: { equals: templateTenantSlug } },
@@ -121,8 +125,12 @@ export async function checkProvisioningStatusAction(
           exists: settings.totalDocs > 0,
           id: settings.docs[0]?.id,
         },
-        // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
-        hasTheme: colorsCSS.includes(`.${tenant.slug} {`),
+        theme: {
+          // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
+          brandColors: brandColors.includes(`.${tenant.slug} {`),
+          // Check if the tenant slug exists as a key in centerColorMap in the OG route
+          ogColors: ogRouteFile.includes(`${tenant.slug}:`),
+        },
       },
     }
   } catch (err) {
