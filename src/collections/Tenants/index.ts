@@ -1,5 +1,7 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
 import { cachedPublicTenants } from '@/collections/Tenants/endpoints/cachedPublicTenants'
+import { provisionTenant } from '@/collections/Tenants/endpoints/provisionTenant'
+import { provisionAfterChange } from '@/collections/Tenants/hooks/provisionAfterChange'
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
@@ -35,9 +37,14 @@ export const Tenants: CollectionConfig = {
       method: 'get',
       handler: cachedPublicTenants,
     },
+    {
+      path: '/provision',
+      method: 'post',
+      handler: provisionTenant,
+    },
   ],
   hooks: {
-    afterChange: [revalidateTenantsAfterChange, updateEdgeConfigAfterChange],
+    afterChange: [provisionAfterChange, revalidateTenantsAfterChange, updateEdgeConfigAfterChange],
     afterDelete: [revalidateTenantsAfterDelete, updateEdgeConfigAfterDelete],
   },
   fields: [
@@ -66,5 +73,15 @@ export const Tenants: CollectionConfig = {
       },
     },
     contentHashField(),
+    {
+      type: 'ui',
+      name: 'onboardingChecklist',
+      admin: {
+        components: {
+          Field: '@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist',
+        },
+        position: 'sidebar',
+      },
+    },
   ],
 }

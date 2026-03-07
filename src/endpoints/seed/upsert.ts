@@ -86,6 +86,7 @@ export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(
       data: item,
       context: {
         disableRevalidate: true,
+        skipProvision: true,
       },
     })
 
