@@ -3,7 +3,7 @@ import { TenantIds } from '../helpers/tenant-cookie'
 
 test.describe.configure({ mode: 'serial', timeout: 60000 })
 
-/** Waits for the onboarding checklist to fully load and returns a scoped locator. */
+/** Returns a scoped locator for the onboarding checklist. */
 async function getChecklist(page: import('@playwright/test').Page) {
   await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
 
@@ -13,9 +13,6 @@ async function getChecklist(page: import('@playwright/test').Page) {
   // Scope to the checklist's outermost container (the rounded-lg border div)
   const checklist = page.locator('.rounded-lg', { has: heading })
   await expect(checklist).toBeVisible({ timeout: 10000 })
-
-  // Wait for async status fetch to finish
-  await expect(checklist.getByText('Loading...')).not.toBeVisible({ timeout: 10000 })
 
   return checklist
 }
@@ -54,16 +51,18 @@ test.describe('Onboarding Checklist', () => {
     await page.goto(`/admin/collections/tenants/${TenantIds.nwac}`)
     const checklist = await getChecklist(page)
 
-    // NWAC is fully provisioned with theme — expect "All steps complete"
-    await expect(checklist.getByText('All steps complete')).toBeVisible({ timeout: 5000 })
-    await expect(checklist.getByText('Rerun Provisioning')).not.toBeVisible()
+    // NWAC is fully provisioned — "Rerun Provisioning" button should not appear
+    await expect(checklist.getByText('Rerun Provisioning')).not.toBeVisible({ timeout: 5000 })
+
+    // All automated items should show count details (indicating loaded status)
+    await expect(checklist.getByText(/\(\d+\/\d+\)/).first()).toBeVisible({ timeout: 5000 })
   })
 
-  test('does not show checklist on tenant create page', async ({ adminPage: page }) => {
+  test('shows empty checklist on tenant create page', async ({ adminPage: page }) => {
     await page.goto('/admin/collections/tenants/create')
-    await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
+    const checklist = await getChecklist(page)
 
-    // Checklist should not appear on create (no tenantId yet)
-    await expect(page.getByText('Onboarding Checklist')).not.toBeVisible({ timeout: 3000 })
+    // No tenantId yet, so status never loads — button should not appear
+    await expect(checklist.getByText('Rerun Provisioning')).not.toBeVisible({ timeout: 3000 })
   })
 })

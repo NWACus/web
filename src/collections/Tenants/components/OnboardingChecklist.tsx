@@ -3,12 +3,22 @@
 import { Button, toast, useDocumentInfo } from '@payloadcms/ui'
 import { CheckCircle2, Circle } from 'lucide-react'
 import Link from 'next/link'
+
 import { useCallback, useEffect, useState } from 'react'
 import {
   checkProvisioningStatusAction,
   type ProvisioningStatus,
   runProvisionAction,
 } from './onboardingActions'
+
+const DEFAULT_STATUS: ProvisioningStatus = {
+  builtInPages: { count: 0, expected: 0 },
+  pages: { copied: 0, expected: 0, missing: [], skipped: [] },
+  homePage: false,
+  navigation: false,
+  settings: { exists: false, id: undefined },
+  theme: { brandColors: false, ogColors: false },
+}
 
 function ChecklistItem({
   done,
@@ -44,26 +54,24 @@ function ChecklistItem({
 
 export function OnboardingChecklist() {
   const { data } = useDocumentInfo()
-  const [status, setStatus] = useState<ProvisioningStatus | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [status, setStatus] = useState<ProvisioningStatus>(DEFAULT_STATUS)
+  const [loaded, setLoaded] = useState(false)
   const [isProvisioning, setIsProvisioning] = useState(false)
 
   const tenantId = data?.id
 
   const checkStatus = useCallback(async () => {
     if (!tenantId) return
-    setIsLoading(true)
     try {
       const result = await checkProvisioningStatusAction(tenantId)
       if ('error' in result) {
         toast.error(result.error)
       } else {
         setStatus(result.status)
+        setLoaded(true)
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to check status')
-    } finally {
-      setIsLoading(false)
     }
   }, [tenantId])
 
@@ -80,54 +88,32 @@ export function OnboardingChecklist() {
         toast.error(result.error)
       } else {
         toast.success('Provisioning complete')
-        await checkStatus()
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to provision')
     } finally {
+      await checkStatus()
       setIsProvisioning(false)
     }
   }
 
-  if (!status) {
-    return (
-      <div className="mt-8 rounded border-solid border-[var(--theme-border-color)] p-6">
-        <h3 className="mt-0 mb-4">Onboarding Checklist</h3>
-        <p className="opacity-50">
-          {isLoading ? 'Loading...' : 'Save tenant to see checklist status'}
-        </p>
-      </div>
-    )
-  }
+  const { builtInPages, pages, homePage, navigation, settings, theme } = status
 
   const automatedComplete =
-    status.builtInPages.count >= status.builtInPages.expected &&
-    status.pages.copied >= status.pages.expected &&
-    status.pages.expected > 0 &&
-    status.homePage &&
-    status.navigation &&
-    status.settings.exists
-
-  const themeComplete = status.theme.brandColors && status.theme.ogColors
-  const allComplete = automatedComplete && themeComplete
+    builtInPages.count >= builtInPages.expected &&
+    pages.copied >= pages.expected &&
+    pages.expected > 0 &&
+    homePage &&
+    navigation &&
+    settings.exists
 
   return (
-    <div className="mt-8 w-fit rounded-lg border-solid border-[var(--theme-border-color)] p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3>Onboarding Checklist</h3>
-        {automatedComplete && (
-          <div className="flex items-center gap-2 ml-36">
-            <CheckCircle2 size={16} className="shrink-0 text-success" />
-            <span className="text-sm text-success">
-              {allComplete ? 'All steps complete' : 'Automation successful'}
-            </span>
-          </div>
-        )}
-      </div>
+    <div className="rounded-lg border-solid border-[var(--theme-border-color)] p-6">
+      <h3 className="mb-4">Onboarding Checklist</h3>
 
       <div className="flex items-center justify-between mb-2">
         <h4>Automated</h4>
-        {!automatedComplete && (
+        {loaded && !automatedComplete && (
           <Button className="m-0" onClick={handleProvision} disabled={isProvisioning} size="medium">
             {isProvisioning ? 'Provisioning...' : 'Rerun Provisioning'}
           </Button>
@@ -135,44 +121,38 @@ export function OnboardingChecklist() {
       </div>
 
       <ChecklistItem
-        done={status.builtInPages.count >= status.builtInPages.expected}
+        done={loaded && builtInPages.count >= builtInPages.expected}
         label="Built-in pages"
-        details={`(${status.builtInPages.count}/${status.builtInPages.expected})`}
+        details={loaded && `(${builtInPages.count}/${builtInPages.expected})`}
       />
       <ChecklistItem
-        done={status.pages.copied >= status.pages.expected && status.pages.expected > 0}
+        done={loaded && pages.copied >= pages.expected && pages.expected > 0}
         label="Pages - copied from DVAC"
-        details={`(${status.pages.copied}/${status.pages.expected})`}
+        details={loaded && `(${pages.copied}/${pages.expected})`}
       >
-        {status.pages.missing.length > 0 && <div>Missing: {status.pages.missing.join(', ')}</div>}
-        {status.pages.skipped.length > 0 && (
-          <div>Skipped (demo pages): {status.pages.skipped.join(', ')}</div>
-        )}
+        {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
+        {pages.skipped.length > 0 && <div>Skipped (demo pages): {pages.skipped.join(', ')}</div>}
       </ChecklistItem>
 
-      <ChecklistItem done={status.homePage} label="Home page" />
-      <ChecklistItem done={status.navigation} label="Navigation" />
+      <ChecklistItem done={homePage} label="Home page" />
+      <ChecklistItem done={navigation} label="Navigation" />
       <ChecklistItem
-        done={status.settings.exists}
+        done={settings.exists}
         label="Website Settings"
         action={
-          status.settings.id ? (
-            <Link href={`/admin/collections/settings/${status.settings.id}`} className="text-sm">
+          settings.id && (
+            <Link href={`/admin/collections/settings/${settings.id}`} className="text-sm">
               Update Brand Assets
             </Link>
-          ) : undefined
+          )
         }
       />
 
       <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
         <h4 className="mb-2">Needs action</h4>
 
-        <ChecklistItem
-          done={status.theme.brandColors}
-          label="Add brand colors"
-          details={status.theme.brandColors && '(slug found)'}
-        >
-          {!status.theme.brandColors && (
+        <ChecklistItem done={theme.brandColors} label="Add brand colors">
+          {loaded && !theme.brandColors && (
             <span>
               Add slug to <code>colors.css</code> — see{' '}
               <Link
@@ -184,12 +164,8 @@ export function OnboardingChecklist() {
             </span>
           )}
         </ChecklistItem>
-        <ChecklistItem
-          done={status.theme.ogColors}
-          label="Add OG image colors"
-          details={status.theme.ogColors && '(slug found in centerColorMap)'}
-        >
-          {!status.theme.ogColors && (
+        <ChecklistItem done={theme.ogColors} label="Add OG image colors">
+          {loaded && !theme.ogColors && (
             <span>
               Add slug to <code>centerColorMap</code> — see{' '}
               <Link
