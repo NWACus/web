@@ -19,6 +19,7 @@ import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
+import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
@@ -33,6 +34,7 @@ import type {
   EventTableBlock as EventTableBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
+  ImageTextBlock as ImageTextBlockProps,
   MediaBlock as MediaBlockProps,
   Page,
   Post,
@@ -79,6 +81,7 @@ type NodeTypes =
       | EventTableBlockProps
       | GenericEmbedBlockProps
       | HeaderBlockProps
+      | ImageTextBlockProps
       | MediaBlockProps
       | SingleBlogPostBlockProps
       | SingleEventBlockProps
@@ -122,6 +125,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       <GenericEmbedBlockComponent {...node.fields} isLayoutBlock={false} />
     ),
     headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLayoutBlock={false} />,
+    imageText: ({ node }) => <ImageTextBlockComponent {...node.fields} isLayoutBlock={false} />,
     mediaBlock: ({ node }) => (
       <MediaBlockComponent
         className="col-start-1 col-span-3"
