@@ -80,6 +80,7 @@ export const Tenants: CollectionConfig = {
         components: {
           Field: '@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist',
         },
+        position: 'sidebar',
       },
     },
   ],
