@@ -2,6 +2,7 @@ import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import { Form, Tenant } from '@/payload-types'
+import { getEmailDomain, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import fs from 'fs'
 import { headers } from 'next/headers'
 import type {
@@ -201,22 +202,18 @@ export const seed = async ({
       {
         name: 'Death Valley Avalanche Center',
         slug: 'dvac',
-        customDomain: 'dvac.us',
       },
       {
         name: 'Northwest Avalanche Center',
         slug: 'nwac',
-        customDomain: 'nwac.us',
       },
       {
         name: 'Sierra Avalanche Center',
         slug: 'sac',
-        customDomain: 'sierraavalanchecenter.org',
       },
       {
         name: 'Sawtooth Avalanche Center',
         slug: 'snfac',
-        customDomain: 'sawtoothavalanche.com',
       },
     ])
     const tenantsById: Record<number, Tenant> = {}
@@ -540,26 +537,27 @@ export const seed = async ({
         password: password,
       },
       ...Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => [
-          {
-            name: tenant.slug.toUpperCase() + ' Admin',
-            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-            email: 'admin@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
-            password: password,
-          },
-          {
-            name: tenant.slug.toUpperCase() + ' Forecaster',
-            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-            email: 'forecaster@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
-            password: password,
-          },
-          {
-            name: tenant.slug.toUpperCase() + ' Non-Profit Staff',
-            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-            email: 'staff@' + (tenant.customDomain as NonNullable<Tenant['customDomain']>),
-            password: password,
-          },
-        ])
+        .filter((tenant) => isValidTenantSlug(tenant.slug))
+        .map((tenant): RequiredDataFromCollectionSlug<'users'>[] => {
+          const emailDomain = getEmailDomain(tenant.slug)
+          return [
+            {
+              name: tenant.slug.toUpperCase() + ' Admin',
+              email: 'admin@' + emailDomain,
+              password: password,
+            },
+            {
+              name: tenant.slug.toUpperCase() + ' Forecaster',
+              email: 'forecaster@' + emailDomain,
+              password: password,
+            },
+            {
+              name: tenant.slug.toUpperCase() + ' Non-Profit Staff',
+              email: 'staff@' + emailDomain,
+              password: password,
+            },
+          ]
+        })
         .flat(),
       {
         name: 'Multi-center Admin',
@@ -1221,18 +1219,6 @@ export const seed = async ({
           navigationSeed(payload, pages, builtInPages, tenant),
       ),
     )
-
-    payload.logger.info(`Remove custom domain from dvac...`)
-    await payload.update({
-      id: tenants['dvac'].id,
-      collection: 'tenants',
-      data: {
-        customDomain: '',
-      },
-      context: {
-        disableRevalidate: true,
-      },
-    })
 
     payload.logger.info(`— Seeding redirects...`)
     for (const tenant of Object.values(tenants)) {

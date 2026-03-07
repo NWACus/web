@@ -23,7 +23,6 @@ export const Tenants: CollectionConfig = {
   // update src/utilities/isTenantValue.ts if this changes
   defaultPopulate: {
     slug: true,
-    customDomain: true, // required for byGlobalRoleOrTenantRoleAssignment
   },
   hooks: {
     afterChange: [revalidateTenantsAfterChange],
@@ -34,11 +33,6 @@ export const Tenants: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
-    },
-    {
-      name: 'customDomain',
-      type: 'text',
-      label: 'Custom Domain',
     },
     {
       name: 'slug',

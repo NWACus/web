@@ -21,21 +21,14 @@ export const revalidateTenantsAfterChange: CollectionAfterChangeHook = async ({
   }
 
   const nameChange = doc.name !== previousDoc.name
-  const customDomainChange = doc.customDomain !== previousDoc.customDomain
 
-  if (nameChange || customDomainChange) {
-    const changedFields = [nameChange && 'name', customDomainChange && 'customDomain'].filter(
-      Boolean,
-    )
-
-    payload.logger.info(
-      `Revalidating all paths for tenant ${doc.slug} due to ${changedFields.join(', ')} change`,
-    )
+  if (nameChange) {
+    payload.logger.info(`Revalidating all paths for tenant ${doc.slug} due to name change`)
 
     // Revalidate the tenant's root path and all nested paths
     revalidatePath(`/${doc.slug}`, 'layout')
 
-    // Tenant name and customDomain are used at the root for tenant listings
+    // Tenant name is used at the root for tenant listings
     revalidatePath('/', 'layout')
   }
 }

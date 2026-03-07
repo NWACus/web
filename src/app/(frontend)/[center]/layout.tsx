@@ -115,7 +115,6 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
     populate: {
       tenants: {
         slug: true,
-        customDomain: true,
         name: true,
       },
     },
