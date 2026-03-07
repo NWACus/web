@@ -2,6 +2,7 @@ import { MediaBlockComponent } from '@/blocks/Media/Component'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
+  SerializedInlineBlockNode,
   SerializedLinkNode,
 } from '@payloadcms/richtext-lexical'
 import { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
@@ -19,6 +20,7 @@ import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
+import { InlineMediaComponent } from '@/blocks/InlineMedia/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
@@ -33,6 +35,7 @@ import type {
   EventTableBlock as EventTableBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
+  InlineMediaBlock as InlineMediaBlockProps,
   MediaBlock as MediaBlockProps,
   Page,
   Post,
@@ -84,6 +87,7 @@ type NodeTypes =
       | SingleEventBlockProps
       | SponsorsBlockProps
     >
+  | SerializedInlineBlockNode<InlineMediaBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { linkType, doc, url } = linkNode.fields
@@ -135,6 +139,9 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
       <SingleBlogPostBlockComponent {...node.fields} isLayoutBlock={false} />
     ),
     sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} isLayoutBlock={false} />,
+  },
+  inlineBlocks: {
+    inlineMedia: ({ node }) => <InlineMediaComponent {...node.fields} />,
   },
 })
 

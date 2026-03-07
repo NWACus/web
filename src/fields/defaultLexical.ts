@@ -1,5 +1,6 @@
 import { BlogListBlock } from '@/blocks/BlogList/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
+import { InlineMediaBlock } from '@/blocks/InlineMedia/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
@@ -67,6 +68,7 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
       }),
       BlocksFeature({
         blocks: [GenericEmbedBlock, BlogListBlock, SingleBlogPostBlock],
+        inlineBlocks: [InlineMediaBlock],
       }),
       FixedToolbarFeature(),
       OrderedListFeature(),
