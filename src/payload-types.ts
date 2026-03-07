@@ -4422,6 +4422,10 @@ export interface NacWidgetsConfig {
   id: number;
   version: string;
   baseUrl: string;
+  /**
+   * When enabled, widgets use a staging base URL instead of production. Always forced to false in production.
+   */
+  devMode: boolean;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4455,6 +4459,7 @@ export interface A3Management {
 export interface NacWidgetsConfigSelect<T extends boolean = true> {
   version?: T;
   baseUrl?: T;
+  devMode?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
