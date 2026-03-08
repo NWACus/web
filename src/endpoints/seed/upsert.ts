@@ -15,7 +15,7 @@ import type {
 
 type GlobalCollectionWithHash = Extract<
   CollectionSlug,
-  'users' | 'tenants' | 'roles' | 'globalRoles' | 'providers' | 'courses'
+  'users' | 'tenants' | 'roles' | 'globalRoles' | 'globalPages' | 'providers' | 'courses'
 >
 
 export async function upsertGlobals<TSlug extends GlobalCollectionWithHash>(

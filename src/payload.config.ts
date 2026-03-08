@@ -13,6 +13,7 @@ import { Documents } from '@/collections/Documents'
 import { EventGroups } from '@/collections/EventGroups'
 import { Events } from '@/collections/Events'
 import { EventTags } from '@/collections/EventTags'
+import { GlobalPages } from '@/collections/GlobalPages'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { HomePages } from '@/collections/HomePages'
@@ -161,6 +162,7 @@ export default buildConfig({
     HomePages,
     BuiltInPages,
     Pages,
+    GlobalPages,
     Posts,
     Media,
     Documents,

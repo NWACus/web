@@ -70,6 +70,7 @@ export interface Config {
     homePages: HomePage;
     builtInPages: BuiltInPage;
     pages: Page;
+    globalPages: GlobalPage;
     posts: Post;
     media: Media;
     documents: Document;
@@ -120,6 +121,7 @@ export interface Config {
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    globalPages: GlobalPagesSelect<false> | GlobalPagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
@@ -209,6 +211,10 @@ export interface HomePage {
           | ({
               relationTo: 'pages';
               value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'globalPages';
+              value: number | GlobalPage;
             } | null)
           | ({
               relationTo: 'builtInPages';
@@ -512,6 +518,10 @@ export interface HomePage {
                       value: number | Page;
                     } | null)
                   | ({
+                      relationTo: 'globalPages';
+                      value: number | GlobalPage;
+                    } | null)
+                  | ({
                       relationTo: 'builtInPages';
                       value: number | BuiltInPage;
                     } | null)
@@ -587,6 +597,10 @@ export interface HomePage {
                   | ({
                       relationTo: 'pages';
                       value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'globalPages';
+                      value: number | GlobalPage;
                     } | null)
                   | ({
                       relationTo: 'builtInPages';
@@ -723,6 +737,987 @@ export interface Page {
   id: number;
   /**
    * The main heading for this page. This appears in the browser tab, search results, and as the page heading. Keep it descriptive and under 60 characters for best SEO results.
+   */
+  title: string;
+  /**
+   * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab.
+   */
+  layout: (
+    | {
+        heading?: string | null;
+        /**
+         * Optional content to display below the heading and above the blog list.
+         */
+        belowHeadingContent?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        backgroundColor: string;
+        postOptions: 'dynamic' | 'static';
+        dynamicOptions?: {
+          /**
+           * Select how the list of posts will be sorted.
+           */
+          sortBy: '-publishedAt' | 'publishedAt';
+          /**
+           * Optionally select tags to filter posts in this list by.
+           */
+          filterByTags?: (number | Tag)[] | null;
+          /**
+           * Maximum number of posts that will be displayed. Must be an integer.
+           */
+          maxPosts?: number | null;
+        };
+        staticOptions?: {
+          /**
+           * Choose new post from dropdown and/or drag and drop to change order
+           */
+          staticPosts?: (number | Post)[] | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'blogList';
+      }
+    | {
+        backgroundColor: string;
+        layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
+        columns: {
+          richText?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'content';
+      }
+    | {
+        document: number | Document;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'documentBlock';
+      }
+    | {
+        backgroundColor: string;
+        heading?: string | null;
+        /**
+         * Optional content to display below the heading and above the event content.
+         */
+        belowHeadingContent?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        eventOptions: 'dynamic' | 'static';
+        /**
+         * Use Preview ↗ to see how events will appear
+         */
+        dynamicOpts?: {
+          /**
+           * Optionally select event types to filter events.
+           */
+          byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+          /**
+           * Optionally select event group to filter events.
+           */
+          byGroups?: (number | EventGroup)[] | null;
+          /**
+           * Optionally select event tags to filter events.
+           */
+          byTags?: (number | EventTag)[] | null;
+          /**
+           * Maximum number of events that will be displayed. Must be an integer.
+           */
+          maxEvents?: number | null;
+        };
+        staticOpts?: {
+          /**
+           * Choose new event from dropdown and/or drag and drop to change order
+           */
+          staticEvents?: (number | Event)[] | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'eventList';
+      }
+    | {
+        backgroundColor: string;
+        heading?: string | null;
+        /**
+         * Optional content to display below the heading and above the event content.
+         */
+        belowHeadingContent?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        eventOptions: 'dynamic' | 'static';
+        /**
+         * Use Preview ↗ to see how events will appear
+         */
+        dynamicOpts?: {
+          /**
+           * Optionally select event types to filter events.
+           */
+          byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+          /**
+           * Optionally select event group to filter events.
+           */
+          byGroups?: (number | EventGroup)[] | null;
+          /**
+           * Optionally select event tags to filter events.
+           */
+          byTags?: (number | EventTag)[] | null;
+          /**
+           * Maximum number of events that will be displayed. Must be an integer.
+           */
+          maxEvents?: number | null;
+        };
+        staticOpts?: {
+          /**
+           * Choose new event from dropdown and/or drag and drop to change order
+           */
+          staticEvents?: (number | Event)[] | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'eventTable';
+      }
+    | {
+        form: number | Form;
+        enableIntro?: boolean | null;
+        introContent?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'formBlock';
+      }
+    | {
+        /**
+         * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+         */
+        html: string;
+        backgroundColor: string;
+        alignContent?: ('left' | 'center' | 'right') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'genericEmbed';
+      }
+    | {
+        richText: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        backgroundColor: string;
+        /**
+         * Makes background color the full width of the page
+         */
+        fullWidthColor?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'headerBlock';
+      }
+    | {
+        columns?:
+          | {
+              image: number | Media;
+              link?: {
+                type?: ('internal' | 'external') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'globalPages';
+                      value: number | GlobalPage;
+                    } | null)
+                  | ({
+                      relationTo: 'builtInPages';
+                      value: number | BuiltInPage;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null);
+                url?: string | null;
+              };
+              /**
+               * Insert text that will overlay the image
+               */
+              caption: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageLinkGrid';
+      }
+    | {
+        backgroundColor: string;
+        imageLayout: 'left' | 'right';
+        image: number | Media;
+        richText: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageText';
+      }
+    | {
+        /**
+         * Leave blank if you do not want a title
+         */
+        header?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        backgroundColor: string;
+        cards?:
+          | {
+              image: number | Media;
+              title: string;
+              text: string;
+              button?: {
+                type?: ('internal' | 'external') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'globalPages';
+                      value: number | GlobalPage;
+                    } | null)
+                  | ({
+                      relationTo: 'builtInPages';
+                      value: number | BuiltInPage;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null);
+                url?: string | null;
+                label?: string | null;
+                /**
+                 * Choose the button style.
+                 */
+                variant?: ('default' | 'secondary' | 'outline') | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'linkPreview';
+      }
+    | {
+        media: number | Media;
+        /**
+         * Optional text that appears below the image to provide additional context or information about the image content.
+         */
+        caption?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        backgroundColor: string;
+        alignContent?: ('left' | 'center' | 'right') | null;
+        /**
+         * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
+         */
+        imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'mediaBlock';
+      }
+    | NACMediaBlock
+    | {
+        backgroundColor: string;
+        /**
+         * Select a blog post to display
+         */
+        post: number | Post;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'singleBlogPost';
+      }
+    | {
+        backgroundColor: string;
+        /**
+         * Select an event to display
+         */
+        event: number | Event;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'singleEvent';
+      }
+    | {
+        backgroundColor: string;
+        sponsorsLayout: 'static' | 'carousel' | 'banner';
+        sponsors: (number | Sponsor)[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'sponsorsBlock';
+      }
+    | {
+        team: number | Team;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'team';
+      }
+  )[];
+  meta?: {
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  /**
+   * Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.
+   */
+  publishedAt?: string | null;
+  slug: string;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  posts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  featuredImage?: (number | null) | Media;
+  description?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  authors?: (number | Biography)[] | null;
+  showAuthors?: boolean | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  publishedAt?: string | null;
+  showDate?: boolean | null;
+  tags?: (number | Tag)[] | null;
+  relatedPosts?: (number | Post)[] | null;
+  blocksInContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        docId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
+   */
+  alt: string;
+  contentHash?: string | null;
+  blurDataUrl?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "biographies".
+ */
+export interface Biography {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  /**
+   * We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).
+   */
+  photo: number | Media;
+  title?: string | null;
+  /**
+   * Optional. We recommend either using them for everyone (on a specific team) or not at all.
+   */
+  start_date?: string | null;
+  biography?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventGroups".
+ */
+export interface EventGroup {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  /**
+   * Optional subtitle/tagline for the event
+   */
+  subtitle?: string | null;
+  /**
+   * Short description/summary for event previews
+   */
+  description?: string | null;
+  startDate: string;
+  startDate_tz:
+    | 'America/New_York'
+    | 'America/Denver'
+    | 'America/Los_Angeles'
+    | 'America/Anchorage'
+    | 'Pacific/Honolulu';
+  /**
+   * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
+   */
+  endDate?: string | null;
+  endDate_tz: 'America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu';
+  location?: {
+    /**
+     * Check if this is a virtual event
+     */
+    isVirtual?: boolean | null;
+    /**
+     * Name of the place or venue
+     */
+    placeName?: string | null;
+    address?: string | null;
+    city?: string | null;
+    state?:
+      | (
+          | 'AL'
+          | 'AK'
+          | 'AZ'
+          | 'AR'
+          | 'CA'
+          | 'CO'
+          | 'CT'
+          | 'DE'
+          | 'FL'
+          | 'GA'
+          | 'HI'
+          | 'ID'
+          | 'IL'
+          | 'IN'
+          | 'IA'
+          | 'KS'
+          | 'KY'
+          | 'LA'
+          | 'ME'
+          | 'MD'
+          | 'MA'
+          | 'MI'
+          | 'MN'
+          | 'MS'
+          | 'MO'
+          | 'MT'
+          | 'NE'
+          | 'NV'
+          | 'NH'
+          | 'NJ'
+          | 'NM'
+          | 'NY'
+          | 'NC'
+          | 'ND'
+          | 'OH'
+          | 'OK'
+          | 'OR'
+          | 'PA'
+          | 'RI'
+          | 'SC'
+          | 'SD'
+          | 'TN'
+          | 'TX'
+          | 'UT'
+          | 'VT'
+          | 'VA'
+          | 'WA'
+          | 'WV'
+          | 'WI'
+          | 'WY'
+          | 'DC'
+        )
+      | null;
+    zip?: string | null;
+    country?: 'US' | null;
+    /**
+     * URL for virtual event (Zoom, Teams, etc.)
+     */
+    virtualUrl?: string | null;
+    /**
+     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
+     */
+    extraInfo?: string | null;
+  };
+  /**
+   * A large banner image displayed behind the event details at the top of the page
+   */
+  featuredImage?: (number | null) | Media;
+  thumbnailImage?: (number | null) | Media;
+  /**
+   * External registration link
+   */
+  registrationUrl?: string | null;
+  /**
+   * Optional external landing page (takes precedence over event page)
+   */
+  externalEventUrl?: string | null;
+  /**
+   * Registration cutoff. Timezone will always be set to the startDate timezone.
+   */
+  registrationDeadline?: string | null;
+  registrationDeadline_tz?:
+    | ('America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu')
+    | null;
+  /**
+   * Skill level required for this event
+   */
+  skillLevel?: ('beginner' | 'pre-req' | 'professional') | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  blocksInContent?:
+    | {
+        blockType?: string | null;
+        collection?: string | null;
+        docId?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  slug: string;
+  type: 'event' | 'awareness' | 'field-class';
+  eventGroups?: (number | EventGroup)[] | null;
+  eventTags?: (number | EventTag)[] | null;
+  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "eventTags".
+ */
+export interface EventTag {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  description?: string | null;
+  events?: {
+    docs?: (number | Event)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  slug: string;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms".
+ */
+export interface Form {
+  id: number;
+  title: string;
+  fields?:
+    | (
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            defaultValue?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'checkbox';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'country';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'email';
+          }
+        | {
+            message?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'message';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'number';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            placeholder?: string | null;
+            options?:
+              | {
+                  label: string;
+                  value: string;
+                  id?: string | null;
+                }[]
+              | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'select';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'state';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'text';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textarea';
+          }
+      )[]
+    | null;
+  submitButtonLabel?: string | null;
+  /**
+   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
+   */
+  confirmationType?: ('message' | 'redirect') | null;
+  confirmationMessage?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  redirect?: {
+    url: string;
+  };
+  /**
+   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
+   */
+  emails?:
+    | {
+        emailTo?: string | null;
+        cc?: string | null;
+        bcc?: string | null;
+        replyTo?: string | null;
+        emailFrom?: string | null;
+        subject: string;
+        /**
+         * Enter the message that should be sent in this email.
+         */
+        message?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
+  tenant: number | Tenant;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalPages".
+ */
+export interface GlobalPage {
+  id: number;
+  /**
+   * The main heading for this global page. This page will be available across all avalanche center sites.
    */
   title: string;
   /**
@@ -958,7 +1953,6 @@ export interface Page {
         blockName?: string | null;
         blockType: 'mediaBlock';
       }
-    | NACMediaBlock
     | {
         backgroundColor: string;
         /**
@@ -1001,138 +1995,10 @@ export interface Page {
    */
   publishedAt?: string | null;
   slug: string;
-  tenant: number | Tenant;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
- */
-export interface Tag {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  posts?: {
-    docs?: (number | Post)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  featuredImage?: (number | null) | Media;
-  description?: string | null;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  authors?: (number | Biography)[] | null;
-  showAuthors?: boolean | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
-  publishedAt?: string | null;
-  showDate?: boolean | null;
-  tags?: (number | Tag)[] | null;
-  relatedPosts?: (number | Post)[] | null;
-  blocksInContent?:
-    | {
-        blockType?: string | null;
-        collection?: string | null;
-        docId?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  tenant: number | Tenant;
-  /**
-   * Alternative text that describes the image for screen readers and when the image cannot be displayed. This is important for accessibility and SEO.
-   */
-  alt: string;
-  contentHash?: string | null;
-  blurDataUrl?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "biographies".
- */
-export interface Biography {
-  id: number;
-  tenant: number | Tenant;
-  name: string;
-  /**
-   * We recommend using a headshot. Photos currently show up where the biography/author is displayed (like blog posts).
-   */
-  photo: number | Media;
-  title?: string | null;
-  /**
-   * Optional. We recommend either using them for everyone (on a specific team) or not at all.
-   */
-  start_date?: string | null;
-  biography?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1165,227 +2031,6 @@ export interface ContentBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: number;
-  tenant: number | Tenant;
-  contentHash?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventGroups".
- */
-export interface EventGroup {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  description?: string | null;
-  events?: {
-    docs?: (number | Event)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events".
- */
-export interface Event {
-  id: number;
-  title: string;
-  /**
-   * Optional subtitle/tagline for the event
-   */
-  subtitle?: string | null;
-  /**
-   * Short description/summary for event previews
-   */
-  description?: string | null;
-  startDate: string;
-  startDate_tz:
-    | 'America/New_York'
-    | 'America/Denver'
-    | 'America/Los_Angeles'
-    | 'America/Anchorage'
-    | 'Pacific/Honolulu';
-  /**
-   * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
-   */
-  endDate?: string | null;
-  endDate_tz: 'America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu';
-  location?: {
-    /**
-     * Check if this is a virtual event
-     */
-    isVirtual?: boolean | null;
-    /**
-     * Name of the place or venue
-     */
-    placeName?: string | null;
-    address?: string | null;
-    city?: string | null;
-    state?:
-      | (
-          | 'AL'
-          | 'AK'
-          | 'AZ'
-          | 'AR'
-          | 'CA'
-          | 'CO'
-          | 'CT'
-          | 'DE'
-          | 'FL'
-          | 'GA'
-          | 'HI'
-          | 'ID'
-          | 'IL'
-          | 'IN'
-          | 'IA'
-          | 'KS'
-          | 'KY'
-          | 'LA'
-          | 'ME'
-          | 'MD'
-          | 'MA'
-          | 'MI'
-          | 'MN'
-          | 'MS'
-          | 'MO'
-          | 'MT'
-          | 'NE'
-          | 'NV'
-          | 'NH'
-          | 'NJ'
-          | 'NM'
-          | 'NY'
-          | 'NC'
-          | 'ND'
-          | 'OH'
-          | 'OK'
-          | 'OR'
-          | 'PA'
-          | 'RI'
-          | 'SC'
-          | 'SD'
-          | 'TN'
-          | 'TX'
-          | 'UT'
-          | 'VT'
-          | 'VA'
-          | 'WA'
-          | 'WV'
-          | 'WI'
-          | 'WY'
-          | 'DC'
-        )
-      | null;
-    zip?: string | null;
-    country?: 'US' | null;
-    /**
-     * URL for virtual event (Zoom, Teams, etc.)
-     */
-    virtualUrl?: string | null;
-    /**
-     * Extra details (e.g., "Meet in parking lot 4", "Look for the blue tent")
-     */
-    extraInfo?: string | null;
-  };
-  /**
-   * A large banner image displayed behind the event details at the top of the page
-   */
-  featuredImage?: (number | null) | Media;
-  thumbnailImage?: (number | null) | Media;
-  /**
-   * External registration link
-   */
-  registrationUrl?: string | null;
-  /**
-   * Optional external landing page (takes precedence over event page)
-   */
-  externalEventUrl?: string | null;
-  /**
-   * Registration cutoff. Timezone will always be set to the startDate timezone.
-   */
-  registrationDeadline?: string | null;
-  registrationDeadline_tz?:
-    | ('America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu')
-    | null;
-  /**
-   * Skill level required for this event
-   */
-  skillLevel?: ('beginner' | 'pre-req' | 'professional') | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  blocksInContent?:
-    | {
-        blockType?: string | null;
-        collection?: string | null;
-        docId?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  slug: string;
-  type: 'event' | 'awareness' | 'field-class';
-  eventGroups?: (number | EventGroup)[] | null;
-  eventTags?: (number | EventTag)[] | null;
-  modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
-  tenant: number | Tenant;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "eventTags".
- */
-export interface EventTag {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  description?: string | null;
-  events?: {
-    docs?: (number | Event)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  slug: string;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock".
  */
 export interface FormBlock {
@@ -1412,181 +2057,6 @@ export interface FormBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "forms".
- */
-export interface Form {
-  id: number;
-  title: string;
-  fields?:
-    | (
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            defaultValue?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checkbox';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'country';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'email';
-          }
-        | {
-            message?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'message';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'number';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            placeholder?: string | null;
-            options?:
-              | {
-                  label: string;
-                  value: string;
-                  id?: string | null;
-                }[]
-              | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'select';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'state';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'text';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'textarea';
-          }
-      )[]
-    | null;
-  submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
-  confirmationType?: ('message' | 'redirect') | null;
-  confirmationMessage?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  redirect?: {
-    url: string;
-  };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
-  emails?:
-    | {
-        emailTo?: string | null;
-        cc?: string | null;
-        bcc?: string | null;
-        replyTo?: string | null;
-        emailFrom?: string | null;
-        subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
-        message?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        id?: string | null;
-      }[]
-    | null;
-  tenant: number | Tenant;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ImageLinkGridBlock".
  */
 export interface ImageLinkGridBlock {
@@ -1600,6 +2070,10 @@ export interface ImageLinkGridBlock {
             | ({
                 relationTo: 'pages';
                 value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'globalPages';
+                value: number | GlobalPage;
               } | null)
             | ({
                 relationTo: 'builtInPages';
@@ -1700,6 +2174,10 @@ export interface LinkPreviewBlock {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'globalPages';
+                value: number | GlobalPage;
+              } | null)
+            | ({
                 relationTo: 'builtInPages';
                 value: number | BuiltInPage;
               } | null)
@@ -1720,17 +2198,6 @@ export interface LinkPreviewBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'linkPreview';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "NACMediaBlock".
- */
-export interface NACMediaBlock {
-  backgroundColor: string;
-  mode: 'carousel' | 'grid';
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'nacMediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1776,6 +2243,17 @@ export interface Team {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NACMediaBlock".
+ */
+export interface NACMediaBlock {
+  backgroundColor: string;
+  mode: 'carousel' | 'grid';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'nacMediaBlock';
 }
 /**
  * Note: This information will be displayed on your public provider listing.
@@ -2167,6 +2645,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2186,6 +2668,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2224,6 +2710,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2243,6 +2733,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2287,6 +2781,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2306,6 +2804,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2350,6 +2852,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2369,6 +2875,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2413,6 +2923,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2432,6 +2946,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2476,6 +2994,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2495,6 +3017,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2539,6 +3065,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2558,6 +3088,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2602,6 +3136,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2621,6 +3159,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2665,6 +3207,10 @@ export interface Navigation {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'globalPages';
+                  value: number | GlobalPage;
+                } | null)
+              | ({
                   relationTo: 'builtInPages';
                   value: number | BuiltInPage;
                 } | null)
@@ -2684,6 +3230,10 @@ export interface Navigation {
                     | ({
                         relationTo: 'pages';
                         value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'globalPages';
+                        value: number | GlobalPage;
                       } | null)
                     | ({
                         relationTo: 'builtInPages';
@@ -2714,6 +3264,10 @@ export interface Navigation {
         | ({
             relationTo: 'pages';
             value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'globalPages';
+            value: number | GlobalPage;
           } | null)
         | ({
             relationTo: 'builtInPages';
@@ -2830,6 +3384,10 @@ export interface Redirect {
           value: number | Page;
         } | null)
       | ({
+          relationTo: 'globalPages';
+          value: number | GlobalPage;
+        } | null)
+      | ({
           relationTo: 'builtInPages';
           value: number | BuiltInPage;
         } | null)
@@ -2897,6 +3455,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'globalPages';
+        value: number | GlobalPage;
       } | null)
     | ({
         relationTo: 'posts';
@@ -3402,6 +3964,45 @@ export interface PagesSelect<T extends boolean = true> {
   publishedAt?: T;
   slug?: T;
   tenant?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalPages_select".
+ */
+export interface GlobalPagesSelect<T extends boolean = true> {
+  title?: T;
+  layout?:
+    | T
+    | {
+        blogList?: T | BlogListBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        documentBlock?: T | DocumentBlockSelect<T>;
+        eventList?: T | EventListBlockSelect<T>;
+        eventTable?: T | EventTableBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        genericEmbed?: T | GenericEmbedBlockSelect<T>;
+        headerBlock?: T | HeaderBlockSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
+        linkPreview?: T | LinkPreviewBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
+        sponsorsBlock?: T | SponsorsBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+      };
+  meta?:
+    | T
+    | {
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  slug?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -4510,6 +5111,10 @@ export interface ButtonBlock {
       | ({
           relationTo: 'pages';
           value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'globalPages';
+          value: number | GlobalPage;
         } | null)
       | ({
           relationTo: 'builtInPages';
