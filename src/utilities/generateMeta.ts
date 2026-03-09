@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import type { Event, Page, Post, Tenant } from '@/payload-types'
+import type { Event, GlobalPage, Page, Post, Tenant } from '@/payload-types'
 
 import { getURL } from './getURL'
 import { mergeOpenGraph } from './mergeOpenGraph'
@@ -14,16 +14,20 @@ function cloneParentMeta(parentMeta?: Metadata) {
 export const generateMetaForPage = async (args: {
   customTitle?: string
   center: string
-  doc: Partial<Page>
+  doc: Partial<Page> | Partial<GlobalPage> | null
   slugs?: string[]
   parentMeta?: Metadata
 }): Promise<Metadata> => {
   const { doc, slugs, parentMeta } = args
 
+  if (!doc) {
+    return cloneParentMeta(parentMeta)
+  }
+
   let tenant: Tenant | undefined
   let hostname
 
-  if (doc.tenant) {
+  if ('tenant' in doc && doc.tenant) {
     tenant = await resolveTenant(doc.tenant)
     hostname = getHostnameFromTenant(tenant)
   }

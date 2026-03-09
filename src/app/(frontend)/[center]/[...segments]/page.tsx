@@ -167,5 +167,22 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
     },
   })
 
-  return result.docs?.[0] || null
+  if (result.docs?.[0]) return result.docs[0]
+
+  // Fall back to global pages when no tenant-scoped page is found
+  const globalConditions: Where[] = [{ slug: { equals: slug } }]
+  if (!draft) {
+    globalConditions.push({ _status: { equals: 'published' } })
+  }
+
+  const globalResult = await payload.find({
+    collection: 'globalPages',
+    draft,
+    limit: 1,
+    pagination: false,
+    depth: 99,
+    where: { and: globalConditions },
+  })
+
+  return globalResult.docs?.[0] || null
 })

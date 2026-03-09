@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation'
 import { getPayload, Where } from 'payload'
 import { cache } from 'react'
 
-import type { Page as PageType } from '@/payload-types'
+import type { GlobalPage as GlobalPageType, Page as PageType } from '@/payload-types'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { generateMetaForPage } from '@/utilities/generateMeta'
@@ -49,6 +49,36 @@ export async function generateStaticParams() {
     }
   }
 
+  // Generate params for global pages across all tenants
+  const [globalPagesRes, tenantsRes] = await Promise.all([
+    payload.find({
+      collection: 'globalPages',
+      limit: 1000,
+      pagination: false,
+      select: { slug: true },
+      where: { _status: { equals: 'published' } },
+    }),
+    payload.find({
+      collection: 'tenants',
+      limit: 100,
+      pagination: false,
+      select: { slug: true },
+    }),
+  ])
+
+  for (const globalPage of globalPagesRes.docs) {
+    for (const tenant of tenantsRes.docs) {
+      // Only add if no tenant-scoped page with the same slug exists
+      const hasTenantPage = pagesRes.docs.some((p) => {
+        const pTenant = typeof p.tenant === 'object' && p.tenant !== null ? p.tenant.slug : null
+        return pTenant === tenant.slug && p.slug === globalPage.slug
+      })
+      if (!hasTenantPage) {
+        params.push({ center: tenant.slug, slug: globalPage.slug })
+      }
+    }
+  }
+
   return params
 }
 
@@ -72,7 +102,7 @@ export default async function Page({ params: paramsPromise }: Args) {
     redirect(canonicalUrl)
   }
 
-  const page: PageType | null = await queryPageBySlug({
+  const page: PageType | GlobalPageType | null = await queryPageBySlug({
     center: center,
     slug: slug,
   })
@@ -121,49 +151,74 @@ export async function generateMetadata(
   return generateMetaForPage({ center, doc: page, parentMeta })
 }
 
-const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
+const queryPageBySlug = cache(
+  async ({
+    center,
+    slug,
+  }: {
+    center: string
+    slug: string
+  }): Promise<PageType | GlobalPageType | null> => {
+    const { isEnabled: draft } = await draftMode()
 
-  const payload = await getPayload({ config: configPromise })
+    const payload = await getPayload({ config: configPromise })
 
-  const conditions: Where[] = [
-    {
-      'tenant.slug': {
-        equals: center,
+    const conditions: Where[] = [
+      {
+        'tenant.slug': {
+          equals: center,
+        },
       },
-    },
-    {
-      slug: {
-        equals: slug,
+      {
+        slug: {
+          equals: slug,
+        },
       },
-    },
-  ]
+    ]
 
-  if (!draft) {
-    conditions.push({
-      _status: {
-        equals: 'published',
+    if (!draft) {
+      conditions.push({
+        _status: {
+          equals: 'published',
+        },
+      })
+    }
+
+    const result = await payload.find({
+      collection: 'pages',
+      draft,
+      limit: 1,
+      pagination: false,
+      depth: 99,
+      populate: {
+        tenants: {
+          slug: true,
+          name: true,
+          customDomain: true,
+        },
+      },
+      where: {
+        and: conditions,
       },
     })
-  }
 
-  const result = await payload.find({
-    collection: 'pages',
-    draft,
-    limit: 1,
-    pagination: false,
-    depth: 99,
-    populate: {
-      tenants: {
-        slug: true,
-        name: true,
-        customDomain: true,
-      },
-    },
-    where: {
-      and: conditions,
-    },
-  })
+    if (result.docs?.[0]) return result.docs[0]
 
-  return result.docs?.[0] || null
-})
+    // If no tenant-scoped page is found, fall back to global pages
+    const globalConditions: Where[] = [{ slug: { equals: slug } }]
+    if (!draft) {
+      globalConditions.push({ _status: { equals: 'published' } })
+    }
+
+    const globalResult = await payload.find({
+      collection: 'globalPages',
+      draft,
+      limit: 1,
+      pagination: false,
+      depth: 99,
+      where: { and: globalConditions },
+    })
+
+    return globalResult.docs?.[0] || null
+  },
+)
