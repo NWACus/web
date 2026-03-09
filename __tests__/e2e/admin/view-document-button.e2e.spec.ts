@@ -12,15 +12,14 @@ authTest.describe('ViewDocumentButton on published documents', () => {
     const postsUrl = new AdminUrlUtil(SERVER_URL, 'posts')
 
     await setTenantCookie(adminPage.context(), TenantIds.nwac)
-    // Filter to only published posts so we know the button should appear
     await adminPage.goto(`${postsUrl.list}?where[_status][equals]=published`)
 
-    // Click the first post's title link to open it
+    // Use the first published post
     const firstLink = adminPage.locator('table tbody tr td a').first()
     await firstLink.waitFor({ timeout: 15000 })
     await firstLink.click()
 
-    // Wait for the document edit view to load (match URL with numeric ID)
+    // Wait for the document edit view to load
     await adminPage.waitForURL(/\/collections\/posts\/\d+/)
 
     // The live document button should be visible for published posts
@@ -31,18 +30,15 @@ authTest.describe('ViewDocumentButton on published documents', () => {
     const pagesUrl = new AdminUrlUtil(SERVER_URL, 'pages')
 
     await setTenantCookie(adminPage.context(), TenantIds.nwac)
-    // Filter to only published pages so we know the button should appear
     await adminPage.goto(`${pagesUrl.list}?where[_status][equals]=published`)
 
-    // Click the first page's title link to open it
+    // Use the first published post
     const firstLink = adminPage.locator('table tbody tr td a').first()
     await firstLink.waitFor({ timeout: 15000 })
     await firstLink.click()
 
-    // Wait for the document edit view to load (match URL with numeric ID)
     await adminPage.waitForURL(/\/collections\/pages\/\d+/)
 
-    // The live document button should be visible for published pages
     await expect(adminPage.locator('#view-document-button')).toBeVisible({ timeout: 10000 })
   })
 })
@@ -58,13 +54,12 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
       await setTenantCookie(adminPage.context(), TenantIds.nwac)
       await adminPage.goto(`${postsUrl.list}?where[_status][equals]=published`)
 
-      // Click the first post's title link to open it
+      // Use the first published post
       const firstLink = adminPage.locator('table tbody tr td a').first()
       await firstLink.waitFor({ timeout: 15000 })
       await firstLink.click()
       await adminPage.waitForURL(/\/collections\/posts\/\d+/)
 
-      // Verify the button is visible while published
       await expect(adminPage.locator('#view-document-button')).toBeVisible({ timeout: 10000 })
 
       // Unpublish: open the doc controls popup (three dots menu) and click unpublish
@@ -74,7 +69,6 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
       await unpublishButton.waitFor({ timeout: 5000 })
       await unpublishButton.click()
 
-      // Confirm the unpublish in the modal
       await adminPage.locator('#confirm-action').click()
 
       // Wait for the unpublish success toast
@@ -88,7 +82,6 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
       await adminPage.reload()
       await adminPage.waitForLoadState('networkidle')
 
-      // The live document button should NOT be visible on a draft post
       await expect(adminPage.locator('#view-document-button')).not.toBeVisible({ timeout: 10000 })
 
       // Re-publish the post to restore original state
@@ -104,13 +97,12 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
       await setTenantCookie(adminPage.context(), TenantIds.nwac)
       await adminPage.goto(`${pagesUrl.list}?where[_status][equals]=published`)
 
-      // Click the first page's title link to open it
+      // Use the first published post
       const firstLink = adminPage.locator('table tbody tr td a').first()
       await firstLink.waitFor({ timeout: 15000 })
       await firstLink.click()
       await adminPage.waitForURL(/\/collections\/pages\/\d+/)
 
-      // Verify the button is visible while published
       await expect(adminPage.locator('#view-document-button')).toBeVisible({ timeout: 10000 })
 
       // Unpublish: open the doc controls popup (three dots menu) and click unpublish
@@ -120,10 +112,8 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
       await unpublishButton.waitFor({ timeout: 5000 })
       await unpublishButton.click()
 
-      // Confirm the unpublish in the modal
       await adminPage.locator('#confirm-action').click()
 
-      // Wait for the unpublish success toast
       await expect(
         adminPage.locator(
           '.toast-success, .Toastify__toast--success, [data-sonner-toast][data-type="success"]',
@@ -134,7 +124,6 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
       await adminPage.reload()
       await adminPage.waitForLoadState('networkidle')
 
-      // The live document button should NOT be visible on a draft page
       await expect(adminPage.locator('#view-document-button')).not.toBeVisible({ timeout: 10000 })
 
       // Re-publish the page to restore original state
