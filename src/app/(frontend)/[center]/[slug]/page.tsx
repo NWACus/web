@@ -113,6 +113,16 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   const { layout } = page
 
+  // If this is a global page with local content for this tenant, extract it
+  const avyContentLayout =
+    'avyContentTenant' in page &&
+    typeof page.avyContentTenant === 'object' &&
+    page.avyContentTenant !== null &&
+    'slug' in page.avyContentTenant &&
+    page.avyContentTenant.slug === center
+      ? page.avyContentLayout
+      : undefined
+
   return (
     <article className="pt-4">
       <div className="container mb-4">
@@ -121,6 +131,7 @@ export default async function Page({ params: paramsPromise }: Args) {
         </div>
       </div>
       <RenderBlocks blocks={layout} payload={payload} />
+      {avyContentLayout && <RenderBlocks blocks={avyContentLayout} payload={payload} />}
     </article>
   )
 }

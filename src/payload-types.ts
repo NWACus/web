@@ -1770,7 +1770,31 @@ export interface GlobalPage {
         blockName?: string | null;
         blockType: 'blogList';
       }
-    | ContentBlock
+    | {
+        backgroundColor: string;
+        layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
+        columns: {
+          richText?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'content';
+      }
     | {
         document: number | Document;
         id?: string | null;
@@ -1883,7 +1907,28 @@ export interface GlobalPage {
         blockName?: string | null;
         blockType: 'eventTable';
       }
-    | FormBlock
+    | {
+        form: number | Form;
+        enableIntro?: boolean | null;
+        introContent?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'formBlock';
+      }
     | {
         /**
          * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
@@ -1920,9 +1965,125 @@ export interface GlobalPage {
         blockName?: string | null;
         blockType: 'headerBlock';
       }
-    | ImageLinkGridBlock
-    | ImageTextBlock
-    | LinkPreviewBlock
+    | {
+        columns?:
+          | {
+              image: number | Media;
+              link?: {
+                type?: ('internal' | 'external') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'globalPages';
+                      value: number | GlobalPage;
+                    } | null)
+                  | ({
+                      relationTo: 'builtInPages';
+                      value: number | BuiltInPage;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null);
+                url?: string | null;
+              };
+              /**
+               * Insert text that will overlay the image
+               */
+              caption: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageLinkGrid';
+      }
+    | {
+        backgroundColor: string;
+        imageLayout: 'left' | 'right';
+        image: number | Media;
+        richText: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageText';
+      }
+    | {
+        /**
+         * Leave blank if you do not want a title
+         */
+        header?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        backgroundColor: string;
+        cards?:
+          | {
+              image: number | Media;
+              title: string;
+              text: string;
+              button?: {
+                type?: ('internal' | 'external') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'globalPages';
+                      value: number | GlobalPage;
+                    } | null)
+                  | ({
+                      relationTo: 'builtInPages';
+                      value: number | BuiltInPage;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null);
+                url?: string | null;
+                label?: string | null;
+                /**
+                 * Choose the button style.
+                 */
+                variant?: ('default' | 'secondary' | 'outline') | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'linkPreview';
+      }
     | {
         media: number | Media;
         /**
@@ -1981,8 +2142,282 @@ export interface GlobalPage {
         blockName?: string | null;
         blockType: 'sponsorsBlock';
       }
-    | TeamBlock
+    | {
+        team: number | Team;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'team';
+      }
   )[];
+  /**
+   * Select which avalanche center this local content is for.
+   */
+  avyContentTenant?: (number | null) | Tenant;
+  /**
+   * Content blocks that appear below the global content for the selected center.
+   */
+  avyContentLayout?:
+    | (
+        | {
+            heading?: string | null;
+            /**
+             * Optional content to display below the heading and above the blog list.
+             */
+            belowHeadingContent?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            backgroundColor: string;
+            postOptions: 'dynamic' | 'static';
+            dynamicOptions?: {
+              /**
+               * Select how the list of posts will be sorted.
+               */
+              sortBy: '-publishedAt' | 'publishedAt';
+              /**
+               * Optionally select tags to filter posts in this list by.
+               */
+              filterByTags?: (number | Tag)[] | null;
+              /**
+               * Maximum number of posts that will be displayed. Must be an integer.
+               */
+              maxPosts?: number | null;
+            };
+            staticOptions?: {
+              /**
+               * Choose new post from dropdown and/or drag and drop to change order
+               */
+              staticPosts?: (number | Post)[] | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'blogList';
+          }
+        | ContentBlock
+        | {
+            document: number | Document;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'documentBlock';
+          }
+        | {
+            backgroundColor: string;
+            heading?: string | null;
+            /**
+             * Optional content to display below the heading and above the event content.
+             */
+            belowHeadingContent?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            eventOptions: 'dynamic' | 'static';
+            /**
+             * Use Preview ↗ to see how events will appear
+             */
+            dynamicOpts?: {
+              /**
+               * Optionally select event types to filter events.
+               */
+              byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+              /**
+               * Optionally select event group to filter events.
+               */
+              byGroups?: (number | EventGroup)[] | null;
+              /**
+               * Optionally select event tags to filter events.
+               */
+              byTags?: (number | EventTag)[] | null;
+              /**
+               * Maximum number of events that will be displayed. Must be an integer.
+               */
+              maxEvents?: number | null;
+            };
+            staticOpts?: {
+              /**
+               * Choose new event from dropdown and/or drag and drop to change order
+               */
+              staticEvents?: (number | Event)[] | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'eventList';
+          }
+        | {
+            backgroundColor: string;
+            heading?: string | null;
+            /**
+             * Optional content to display below the heading and above the event content.
+             */
+            belowHeadingContent?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            eventOptions: 'dynamic' | 'static';
+            /**
+             * Use Preview ↗ to see how events will appear
+             */
+            dynamicOpts?: {
+              /**
+               * Optionally select event types to filter events.
+               */
+              byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+              /**
+               * Optionally select event group to filter events.
+               */
+              byGroups?: (number | EventGroup)[] | null;
+              /**
+               * Optionally select event tags to filter events.
+               */
+              byTags?: (number | EventTag)[] | null;
+              /**
+               * Maximum number of events that will be displayed. Must be an integer.
+               */
+              maxEvents?: number | null;
+            };
+            staticOpts?: {
+              /**
+               * Choose new event from dropdown and/or drag and drop to change order
+               */
+              staticEvents?: (number | Event)[] | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'eventTable';
+          }
+        | FormBlock
+        | {
+            /**
+             * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+             */
+            html: string;
+            backgroundColor: string;
+            alignContent?: ('left' | 'center' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'genericEmbed';
+          }
+        | {
+            richText: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            backgroundColor: string;
+            /**
+             * Makes background color the full width of the page
+             */
+            fullWidthColor?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'headerBlock';
+          }
+        | ImageLinkGridBlock
+        | ImageTextBlock
+        | LinkPreviewBlock
+        | {
+            media: number | Media;
+            /**
+             * Optional text that appears below the image to provide additional context or information about the image content.
+             */
+            caption?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            backgroundColor: string;
+            alignContent?: ('left' | 'center' | 'right') | null;
+            /**
+             * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
+             */
+            imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'mediaBlock';
+          }
+        | {
+            backgroundColor: string;
+            /**
+             * Select a blog post to display
+             */
+            post: number | Post;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'singleBlogPost';
+          }
+        | {
+            backgroundColor: string;
+            /**
+             * Select an event to display
+             */
+            event: number | Event;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'singleEvent';
+          }
+        | {
+            backgroundColor: string;
+            sponsorsLayout: 'static' | 'carousel' | 'banner';
+            sponsors: (number | Sponsor)[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'sponsorsBlock';
+          }
+        | TeamBlock
+      )[]
+    | null;
   meta?: {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
@@ -1999,6 +2434,54 @@ export interface GlobalPage {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builtInPages".
+ */
+export interface BuiltInPage {
+  id: number;
+  title: string;
+  url: string;
+  tenant: number | Tenant;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sponsors".
+ */
+export interface Sponsor {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  photo: number | Media;
+  link: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams".
+ */
+export interface Team {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * This will display anywhere you add the Team block (ie. on the Who We Are page).
+   */
+  name: string;
+  /**
+   * Add members to the team and drag/drop to reorder how they display on the page.
+   */
+  members: (number | Biography)[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2098,19 +2581,6 @@ export interface ImageLinkGridBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "builtInPages".
- */
-export interface BuiltInPage {
-  id: number;
-  title: string;
-  url: string;
-  tenant: number | Tenant;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ImageTextBlock".
  */
 export interface ImageTextBlock {
@@ -2201,22 +2671,6 @@ export interface LinkPreviewBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sponsors".
- */
-export interface Sponsor {
-  id: number;
-  tenant: number | Tenant;
-  name: string;
-  photo: number | Media;
-  link: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TeamBlock".
  */
 export interface TeamBlock {
@@ -2224,25 +2678,6 @@ export interface TeamBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'team';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teams".
- */
-export interface Team {
-  id: number;
-  tenant: number | Tenant;
-  /**
-   * This will display anywhere you add the Team block (ie. on the Who We Are page).
-   */
-  name: string;
-  /**
-   * Add members to the team and drag/drop to reorder how they display on the page.
-   */
-  members: (number | Biography)[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3976,6 +4411,27 @@ export interface PagesSelect<T extends boolean = true> {
 export interface GlobalPagesSelect<T extends boolean = true> {
   title?: T;
   layout?:
+    | T
+    | {
+        blogList?: T | BlogListBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        documentBlock?: T | DocumentBlockSelect<T>;
+        eventList?: T | EventListBlockSelect<T>;
+        eventTable?: T | EventTableBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        genericEmbed?: T | GenericEmbedBlockSelect<T>;
+        headerBlock?: T | HeaderBlockSelect<T>;
+        imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
+        linkPreview?: T | LinkPreviewBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        singleBlogPost?: T | SingleBlogPostBlockSelect<T>;
+        singleEvent?: T | SingleEventBlockSelect<T>;
+        sponsorsBlock?: T | SponsorsBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+      };
+  avyContentTenant?: T;
+  avyContentLayout?:
     | T
     | {
         blogList?: T | BlogListBlockSelect<T>;

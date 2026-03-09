@@ -62,6 +62,33 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
           ],
         },
         {
+          label: 'Avy Content',
+          description:
+            "Add center-specific content that appears below the global content on this center's site.",
+          fields: [
+            {
+              name: 'avyContentTenant',
+              type: 'relationship',
+              relationTo: 'tenants',
+              required: false,
+              label: 'Avalanche Center',
+              admin: {
+                description: 'Select which avalanche center this local content is for.',
+              },
+            },
+            {
+              name: 'avyContentLayout',
+              label: 'Layout',
+              type: 'blocks',
+              blocks: [...DEFAULT_BLOCKS].sort((a, b) => a.slug.localeCompare(b.slug)),
+              admin: {
+                description:
+                  'Content blocks that appear below the global content for the selected center.',
+              },
+            },
+          ],
+        },
+        {
           name: 'meta',
           label: 'SEO',
           fields: [
