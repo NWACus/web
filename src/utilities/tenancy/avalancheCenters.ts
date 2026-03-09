@@ -80,10 +80,13 @@ export function getEmailDomain(slug: ValidTenantSlug): string {
  * Lookup a center by its custom domain
  */
 export function findCenterByDomain(domain: string): ValidTenantSlug | undefined {
-  // Normalize both input and stored domains by removing www. prefix
+  // Normalize input: trim whitespace, lowercase, remove www. prefix
   // Regex matches 'www.' at start of string
   // .toLowerCase is just a precaution since modern browsers lowercase domains
-  const normalizedInput = domain.toLowerCase().replace(/^www\./, '')
+  const normalizedInput = domain
+    .trim()
+    .toLowerCase()
+    .replace(/^www\./, '')
 
   for (const slug of VALID_TENANT_SLUGS) {
     const normalizedStored = AVALANCHE_CENTERS[slug].customDomain
