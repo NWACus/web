@@ -31,7 +31,9 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
   const { value, setValue } = useField<string>({ path })
   const [layoutSelection, setLayoutSelection] = useState(value || '1_1')
 
-  const parentPath = path.split(`.${field.name}`)[0]
+  // Get the parent block path by removing the last ".layout" segment (the select field's own name)
+  const lastDotIndex = path.lastIndexOf(`.${field.name}`)
+  const parentPath = lastDotIndex !== -1 ? path.substring(0, lastDotIndex) : path
   const columnsPath = `${parentPath}.columns`
 
   const { value: numColumns } = useField<number>({ path: columnsPath })

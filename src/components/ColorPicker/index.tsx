@@ -14,6 +14,8 @@ const ColorPicker = (props: TextFieldClientProps) => {
   const { value, setValue } = useField({ path })
   const [tenantSlug, setTenantSlug] = useState<string | null>(null)
 
+  // TODO - account for global pages
+
   useEffect(() => {
     async function fetchTenantSlug() {
       const slug = await getSlugFromTenantId(data?.tenant)
@@ -21,6 +23,8 @@ const ColorPicker = (props: TextFieldClientProps) => {
     }
     fetchTenantSlug()
   }, [data?.tenant])
+
+  if (!tenantSlug) return null
 
   return (
     <div className={cn('flex flex-col mb-6', tenantSlug)}>

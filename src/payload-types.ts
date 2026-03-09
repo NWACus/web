@@ -1711,53 +1711,53 @@ export interface GlobalPage {
         blockType: 'headerBlock';
       }
   )[];
-  /**
-   * Select which avalanche center this local content is for.
-   */
-  avyContentTenant?: (number | null) | Tenant;
-  /**
-   * Content blocks that appear below the global content for the selected center.
-   */
-  avyContentLayout?:
-    | (
-        | ContentBlock
-        | {
-            /**
-             * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
-             */
-            html: string;
-            backgroundColor: string;
-            alignContent?: ('left' | 'center' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'genericEmbed';
-          }
-        | {
-            richText: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
+  avyContent?:
+    | {
+        tenant: number | Tenant;
+        /**
+         * Content blocks that appear below the global content for this center.
+         */
+        layout: (
+          | ContentBlock
+          | {
+              /**
+               * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+               */
+              html: string;
+              backgroundColor: string;
+              alignContent?: ('left' | 'center' | 'right') | null;
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'genericEmbed';
+            }
+          | {
+              richText: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
                   version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
+                };
+                [k: string]: unknown;
               };
-              [k: string]: unknown;
-            };
-            backgroundColor: string;
-            /**
-             * Makes background color the full width of the page
-             */
-            fullWidthColor?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'headerBlock';
-          }
-      )[]
+              backgroundColor: string;
+              /**
+               * Makes background color the full width of the page
+               */
+              fullWidthColor?: boolean | null;
+              id?: string | null;
+              blockName?: string | null;
+              blockType: 'headerBlock';
+            }
+        )[];
+        id?: string | null;
+      }[]
     | null;
   meta?: {
     /**
@@ -3691,13 +3691,18 @@ export interface GlobalPagesSelect<T extends boolean = true> {
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
       };
-  avyContentTenant?: T;
-  avyContentLayout?:
+  avyContent?:
     | T
     | {
-        content?: T | ContentBlockSelect<T>;
-        genericEmbed?: T | GenericEmbedBlockSelect<T>;
-        headerBlock?: T | HeaderBlockSelect<T>;
+        tenant?: T;
+        layout?:
+          | T
+          | {
+              content?: T | ContentBlockSelect<T>;
+              genericEmbed?: T | GenericEmbedBlockSelect<T>;
+              headerBlock?: T | HeaderBlockSelect<T>;
+            };
+        id?: T;
       };
   meta?:
     | T

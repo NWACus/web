@@ -113,14 +113,13 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   const { layout } = page
 
-  // If this is a global page with local content for this tenant, extract it
+  // If this is a global page, find local content for this tenant
   const avyContentLayout =
-    'avyContentTenant' in page &&
-    typeof page.avyContentTenant === 'object' &&
-    page.avyContentTenant !== null &&
-    'slug' in page.avyContentTenant &&
-    page.avyContentTenant.slug === center
-      ? page.avyContentLayout
+    'avyContent' in page && Array.isArray(page.avyContent)
+      ? page.avyContent.find((entry) => {
+          const tenant = entry.tenant
+          return typeof tenant === 'object' && tenant !== null && tenant.slug === center
+        })?.layout
       : undefined
 
   return (

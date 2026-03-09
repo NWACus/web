@@ -4,7 +4,7 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-import type { CollectionConfig } from 'payload'
+import { type CollectionConfig } from 'payload'
 
 import { accessByGlobalRoleOrReadPublished } from '@/access/byGlobalRoleOrPublished'
 import { GLOBAL_BLOCKS } from '@/constants/defaults'
@@ -67,24 +67,36 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
             "Add center-specific content that appears below the global content on this center's site.",
           fields: [
             {
-              name: 'avyContentTenant',
-              type: 'relationship',
-              relationTo: 'tenants',
-              required: false,
-              label: 'Avalanche Center',
+              name: 'avyContent',
+              type: 'array',
               admin: {
-                description: 'Select which avalanche center this local content is for.',
+                components: {
+                  Field: '@/collections/GlobalPages/components/AvyContentField#AvyContentField',
+                },
               },
-            },
-            {
-              name: 'avyContentLayout',
-              label: 'Layout',
-              type: 'blocks',
-              blocks: GLOBAL_BLOCKS,
-              admin: {
-                description:
-                  'Content blocks that appear below the global content for the selected center.',
-              },
+              fields: [
+                {
+                  name: 'tenant',
+                  type: 'relationship',
+                  relationTo: 'tenants',
+                  required: true,
+                  label: 'Avalanche Center',
+                  admin: {
+                    allowCreate: false,
+                    allowEdit: false,
+                  },
+                },
+                {
+                  name: 'layout',
+                  type: 'blocks',
+                  blocks: GLOBAL_BLOCKS,
+                  required: true,
+                  admin: {
+                    description:
+                      'Content blocks that appear below the global content for this center.',
+                  },
+                },
+              ],
             },
           ],
         },
