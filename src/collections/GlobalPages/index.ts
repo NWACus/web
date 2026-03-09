@@ -7,7 +7,7 @@ import {
 import type { CollectionConfig } from 'payload'
 
 import { accessByGlobalRoleOrReadPublished } from '@/access/byGlobalRoleOrPublished'
-import { DEFAULT_BLOCKS } from '@/constants/defaults'
+import { GLOBAL_BLOCKS } from '@/constants/defaults'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { titleField } from '@/fields/title'
@@ -47,7 +47,7 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [...DEFAULT_BLOCKS].sort((a, b) => a.slug.localeCompare(b.slug)),
+              blocks: GLOBAL_BLOCKS,
               required: true,
               admin: {
                 initCollapsed: false,
@@ -80,7 +80,7 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
               name: 'avyContentLayout',
               label: 'Layout',
               type: 'blocks',
-              blocks: [...DEFAULT_BLOCKS].sort((a, b) => a.slug.localeCompare(b.slug)),
+              blocks: GLOBAL_BLOCKS,
               admin: {
                 description:
                   'Content blocks that appear below the global content for the selected center.',

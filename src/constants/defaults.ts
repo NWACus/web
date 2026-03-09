@@ -15,6 +15,9 @@ import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { TeamBlock } from '@/blocks/Team/config'
 
+// Blocks that don't reference tenant-scoped collections (no getTenantFilter usage)
+export const GLOBAL_BLOCKS = [ContentBlock, GenericEmbedBlock, HeaderBlock]
+
 export const DEFAULT_BLOCKS = [
   BlogListBlock,
   SingleBlogPostBlock,
