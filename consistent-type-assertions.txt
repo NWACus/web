@@ -11,7 +11,6 @@ src/collections/Users/components/InviteUserDrawer.tsx
 src/collections/Users/components/inviteUserAction.ts
 src/collections/Users/components/resendInviteActions.ts
 src/components/Header/utils.ts
-src/endpoints/seed/index.ts
 src/endpoints/seed/upsert.ts
 src/globals/Diagnostics/actions/revalidateCache.ts
 src/utilities/removeNonDeterministicKeys.ts
