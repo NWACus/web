@@ -62,9 +62,13 @@ const buildLinkFields = ({
       width: '50%',
     },
     label: 'Select page or post',
-    relationTo: ['pages', 'builtInPages', 'posts'],
+    relationTo: ['pages', 'globalPages', 'builtInPages', 'posts'],
     required: true,
-    filterOptions: getTenantFilter,
+    filterOptions: ({ relationTo, ...rest }) => {
+      // Global pages have no tenant field, so skip tenant filtering for them
+      if (relationTo === 'globalPages') return true
+      return getTenantFilter({ relationTo, ...rest })
+    },
   }
 
   const urlField: Field = {

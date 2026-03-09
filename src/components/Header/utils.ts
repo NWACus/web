@@ -1,4 +1,4 @@
-import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
+import { BuiltInPage, GlobalPage, Navigation, Page, Post } from '@/payload-types'
 import {
   ActiveForecastZoneWithSlug,
   getActiveForecastZones,
@@ -155,6 +155,10 @@ export function convertToNavLink(
           value: number | BuiltInPage
         } | null)
       | ({
+          relationTo: 'globalPages'
+          value: number | GlobalPage
+        } | null)
+      | ({
           relationTo: 'pages'
           value: number | Page
         } | null)
@@ -206,14 +210,18 @@ export function convertToNavLink(
       `Could not determine label for link with reference ${JSON.stringify(reference)}`,
     )
 
-    if (reference.relationTo === 'pages' || reference.relationTo === 'posts') {
+    if (
+      reference.relationTo === 'pages' ||
+      reference.relationTo === 'globalPages' ||
+      reference.relationTo === 'posts'
+    ) {
       // Do not render documents in draft state
       if ('_status' in reference.value && reference.value._status === 'draft') {
         return undefined
       }
 
       let url =
-        link.reference.relationTo === 'pages'
+        link.reference.relationTo === 'pages' || link.reference.relationTo === 'globalPages'
           ? `/${reference.value.slug}`
           : `/blog/${reference.value.slug}`
 

@@ -1,6 +1,6 @@
 'use client'
 import { Button, type ButtonProps } from '@/components/ui/button'
-import type { BuiltInPage, Page, Post } from '@/payload-types'
+import type { BuiltInPage, GlobalPage, Page, Post } from '@/payload-types'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { useAnalytics } from '@/utilities/useAnalytics'
 import Link from 'next/link'
@@ -12,8 +12,8 @@ export interface ButtonLinkProps extends Omit<ButtonProps, 'type'> {
   newTab?: boolean | null
   label?: string | null
   reference?: {
-    relationTo: 'builtInPages' | 'pages' | 'posts'
-    value: BuiltInPage | Page | Post | number
+    relationTo: 'builtInPages' | 'globalPages' | 'pages' | 'posts'
+    value: BuiltInPage | GlobalPage | Page | Post | number
   } | null
   type?: 'internal' | 'external' | null
   url?: string | null
