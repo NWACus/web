@@ -13,6 +13,7 @@ import type {
 } from 'payload'
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
+import { globalPage } from '@/endpoints/seed/pages/globalPage'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
@@ -975,6 +976,11 @@ export const seed = async ({
           sponsors(tenant, images[tenant.slug]['acmeCorp']),
       ),
     )
+
+    const allTenants = Object.values(tenants)
+    await upsertGlobals('globalPages', payload, incremental, (obj) => obj.slug, [
+      globalPage('Avalanche Safety', 'avalanche-safety', allTenants),
+    ])
 
     const pages = await upsert(
       'pages',

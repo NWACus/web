@@ -6,14 +6,29 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 import { type CollectionConfig } from 'payload'
 
+import { byGlobalRole } from '@/access/byGlobalRole'
 import { accessByGlobalRoleOrReadPublished } from '@/access/byGlobalRoleOrPublished'
 import { GLOBAL_BLOCKS } from '@/constants/defaults'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
+import { ruleMatches } from '@/utilities/rbac/ruleMatches'
+import type { FieldAccess } from 'payload'
 import { blocks } from 'payload/shared'
 import { revalidateGlobalPage, revalidateGlobalPageDelete } from './hooks/revalidateGlobalPage'
+
+// Super admins via global role, or tenant editors who can manage pages
+const avyContentAccess: FieldAccess = (args) => {
+  if (!args.req.user) return false
+  if (byGlobalRole('update', 'globalPages')(args)) return true
+  const assignments = roleAssignmentsForUser(args.req.payload.logger, args.req.user)
+  return assignments.some(
+    (a) =>
+      a.role && typeof a.role !== 'number' && a.role.rules.some(ruleMatches('update', 'pages')),
+  )
+}
 
 export const GlobalPages: CollectionConfig<'globalPages'> = {
   slug: 'globalPages',
@@ -21,7 +36,11 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
     singular: 'Global Page',
     plural: 'Global Pages',
   },
-  access: accessByGlobalRoleOrReadPublished('globalPages'),
+  access: {
+    ...accessByGlobalRoleOrReadPublished('globalPages'),
+    // Also allow tenant editors who can manage pages to update (for avyContent)
+    update: avyContentAccess,
+  },
   defaultPopulate: {
     title: true,
     slug: true,
@@ -34,10 +53,13 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
     useAsTitle: 'title',
   },
   fields: [
-    titleField({
-      description:
-        'The main heading for this global page. This page will be available across all avalanche center sites.',
-    }),
+    {
+      ...titleField({
+        description:
+          'The main heading for this global page. This page will be available across all avalanche center sites.',
+      }),
+      access: { update: byGlobalRole('update', 'globalPages') },
+    },
     {
       type: 'tabs',
       tabs: [
@@ -49,6 +71,7 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
               type: 'blocks',
               blocks: GLOBAL_BLOCKS,
               required: true,
+              access: { update: byGlobalRole('update', 'globalPages') },
               admin: {
                 initCollapsed: false,
                 description:
@@ -69,6 +92,13 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
             {
               name: 'avyContent',
               type: 'array',
+              access: {
+                // Anyone who can read the global page can see avy content
+                read: () => true,
+                // Super admins via global role, or tenant editors who can manage pages
+                create: avyContentAccess,
+                update: avyContentAccess,
+              },
               admin: {
                 components: {
                   Field: '@/collections/GlobalPages/components/AvyContentField#AvyContentField',
@@ -125,13 +155,14 @@ export const GlobalPages: CollectionConfig<'globalPages'> = {
     {
       name: 'publishedAt',
       type: 'date',
+      access: { update: byGlobalRole('update', 'globalPages') },
       admin: {
         position: 'sidebar',
         description:
           "Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.",
       },
     },
-    slugField(),
+    { ...slugField(), access: { update: byGlobalRole('update', 'globalPages') } },
     contentHashField(),
   ],
   hooks: {
