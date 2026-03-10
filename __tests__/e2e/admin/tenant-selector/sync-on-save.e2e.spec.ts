@@ -1,12 +1,6 @@
 import { openNav } from '../../fixtures/nav.fixture'
 import { expect, tenantSelectorTest as test } from '../../fixtures/tenant-selector.fixture'
-import {
-  AdminUrlUtil,
-  CollectionSlugs,
-  saveDocAndAssert,
-  TenantNames,
-  waitForFormReady,
-} from '../../helpers'
+import { AdminUrlUtil, CollectionSlugs, saveDocAndAssert, waitForFormReady } from '../../helpers'
 
 /**
  * Sync on Save Tests
@@ -18,48 +12,34 @@ import {
  * and calls syncTenants() when it changes.
  */
 
-const DVAC_ORIGINAL_NAME = TenantNames.dvac
-const TEMP_NAME = 'DVAC Renamed Test'
+const TEMP_TENANT_SLUG_CREATE = 'e2e-sync-create'
+const TEMP_TENANT_NAME_CREATE = 'E2E Sync Create Center'
+
+const TEMP_TENANT_SLUG_EDIT = 'e2e-sync-edit'
+const TEMP_TENANT_NAME_EDIT = 'E2E Sync Edit Center'
+const UPDATED_TENANT_NAME = 'E2E Sync Edit Renamed'
 
 test.describe.configure({ timeout: 90000 })
 
 test.describe('Tenant selector syncs on save', () => {
-  test('should update tenant name in selector after renaming a tenant', async ({
+  test('should show new tenant in selector after creation', async ({
     loginAs,
     getTenantOptions,
   }) => {
     const page = await loginAs('superAdmin')
     const tenantsUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.tenants)
 
-    // Find the DVAC tenant by slug (resilient to name changes from prior failed runs)
-    const response = await page.request.get(
-      'http://localhost:3000/api/tenants?where[slug][equals]=dvac&limit=1',
-    )
-    const data = await response.json()
-    const tenantId = data.docs[0].id
-
-    // Ensure DVAC has its canonical name before starting (cleanup from prior failed runs)
-    if (data.docs[0].name !== DVAC_ORIGINAL_NAME) {
-      await page.request.patch(`http://localhost:3000/api/tenants/${tenantId}`, {
-        data: { name: DVAC_ORIGINAL_NAME },
-      })
-    }
-
     try {
-      // Navigate to the tenant edit page
-      await page.goto(tenantsUrl.edit(tenantId))
+      // Navigate to create a new tenant
+      await page.goto(tenantsUrl.create)
       await page.waitForLoadState('networkidle')
       await waitForFormReady(page)
 
-      // Change the name
-      const nameField = page.locator('#field-name')
-      await nameField.fill(TEMP_NAME)
-
-      // Save - SyncTenantsOnSave should refresh the selector without a page reload
+      await page.locator('#field-name').fill(TEMP_TENANT_NAME_CREATE)
+      await page.locator('#field-slug').fill(TEMP_TENANT_SLUG_CREATE)
       await saveDocAndAssert(page)
 
       // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
-      // so we stay in the same SPA session and verify the synced React state
       await openNav(page)
       await Promise.all([
         page.waitForURL('**/admin/collections/pages'),
@@ -67,15 +47,59 @@ test.describe('Tenant selector syncs on save', () => {
       ])
       await page.waitForLoadState('networkidle')
 
-      // The tenant selector should show the updated name without a full page reload
+      // The tenant selector should show the new tenant without a full page reload
       const options = await getTenantOptions(page)
-      expect(options).toContain(TEMP_NAME)
-      expect(options).not.toContain(DVAC_ORIGINAL_NAME)
+      expect(options).toContain(TEMP_TENANT_NAME_CREATE)
     } finally {
-      // Always restore the original name, even if the test fails mid-way
-      await page.request.patch(`http://localhost:3000/api/tenants/${tenantId}`, {
-        data: { name: DVAC_ORIGINAL_NAME },
-      })
+      // Clean up: delete the temporary tenant
+      const response = await page.request.get(
+        `http://localhost:3000/api/tenants?where[slug][equals]=${TEMP_TENANT_SLUG_CREATE}&limit=1`,
+      )
+      const data = await response.json()
+      if (data.docs?.[0]) {
+        await page.request.delete(`http://localhost:3000/api/tenants/${data.docs[0].id}`)
+      }
+      await page.context().close()
+    }
+  })
+
+  test('should update tenant name in selector after editing', async ({
+    loginAs,
+    getTenantOptions,
+  }) => {
+    const page = await loginAs('superAdmin')
+    const tenantsUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.tenants)
+
+    // Create a temporary tenant via API
+    const createResponse = await page.request.post('http://localhost:3000/api/tenants', {
+      data: { name: TEMP_TENANT_NAME_EDIT, slug: TEMP_TENANT_SLUG_EDIT },
+    })
+    const { doc: tenant } = await createResponse.json()
+
+    try {
+      // Navigate to the tenant edit page
+      await page.goto(tenantsUrl.edit(tenant.id))
+      await page.waitForLoadState('networkidle')
+      await waitForFormReady(page)
+
+      // Rename the tenant
+      await page.locator('#field-name').fill(UPDATED_TENANT_NAME)
+      await saveDocAndAssert(page)
+
+      // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
+      await openNav(page)
+      await Promise.all([
+        page.waitForURL('**/admin/collections/pages'),
+        page.locator('nav a[href="/admin/collections/pages"]').click(),
+      ])
+      await page.waitForLoadState('networkidle')
+
+      const options = await getTenantOptions(page)
+      expect(options).toContain(UPDATED_TENANT_NAME)
+      expect(options).not.toContain(TEMP_TENANT_NAME_EDIT)
+    } finally {
+      // Clean up: delete the temporary tenant
+      await page.request.delete(`http://localhost:3000/api/tenants/${tenant.id}`)
       await page.context().close()
     }
   })
