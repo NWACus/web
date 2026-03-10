@@ -12,7 +12,14 @@ const redirects = async () => {
     source: '/:path((?!ie-incompatible.html$).*)', // all pages except the incompatibility page
   }
 
-  const redirects = [internetExplorerRedirect]
+  // Strip duplicate path segments after URL-encoded space (e.g. "/foo,%20foo" -> "/foo")
+  const trailingDuplicateRedirect = {
+    destination: '/:path',
+    permanent: false,
+    source: '/:path(.*),%20:dup(.*)',
+  }
+
+  const redirects = [internetExplorerRedirect, trailingDuplicateRedirect]
 
   return redirects
 }

@@ -89,6 +89,9 @@ const config = {
           foreground: 'var(--destructive-foreground)',
           hover: 'var(--destructive-hover)',
         },
+        nav: {
+          underline: 'var(--nav-underline)',
+        },
         border: 'var(--border)',
         input: 'var(--input)',
         ring: 'var(--ring)',
