@@ -926,7 +926,29 @@ export interface Page {
         blockType: 'headerBlock';
       }
     | ImageLinkGridBlock
-    | ImageTextBlock
+    | {
+        backgroundColor: string;
+        imageLayout: 'left' | 'right';
+        image: number | Media;
+        richText: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageText';
+      }
     | LinkPreviewBlock
     | {
         media: number | Media;
@@ -1634,37 +1656,6 @@ export interface BuiltInPage {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextBlock".
- */
-export interface ImageTextBlock {
-  backgroundColor: string;
-  imageLayout: 'left' | 'right';
-  image: number | Media;
-  /**
-   * Text will flow around the image instead of being in a separate column
-   */
-  textWrap?: boolean | null;
-  richText: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4846,6 +4837,33 @@ export interface SingleEventBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleEvent';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock".
+ */
+export interface ImageTextBlock {
+  backgroundColor: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
