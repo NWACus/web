@@ -2900,7 +2900,6 @@ export interface ImageTextBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   imageLayout?: T;
   image?: T;
-  textWrap?: T;
   richText?: T;
   id?: T;
   blockName?: T;
