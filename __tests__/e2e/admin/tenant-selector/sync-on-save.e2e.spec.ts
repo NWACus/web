@@ -19,6 +19,7 @@ import {
  */
 
 const DVAC_ORIGINAL_NAME = TenantNames.dvac
+const TEMP_NAME = 'DVAC Renamed Test'
 
 test.describe.configure({ timeout: 90000 })
 
@@ -44,38 +45,38 @@ test.describe('Tenant selector syncs on save', () => {
       })
     }
 
-    // Navigate to the tenant edit page
-    await page.goto(tenantsUrl.edit(tenantId))
-    await page.waitForLoadState('networkidle')
-    await waitForFormReady(page)
+    try {
+      // Navigate to the tenant edit page
+      await page.goto(tenantsUrl.edit(tenantId))
+      await page.waitForLoadState('networkidle')
+      await waitForFormReady(page)
 
-    // Change the name
-    const tempName = 'DVAC Renamed Test'
-    const nameField = page.locator('#field-name')
-    await nameField.fill(tempName)
+      // Change the name
+      const nameField = page.locator('#field-name')
+      await nameField.fill(TEMP_NAME)
 
-    // Save - SyncTenantsOnSave should refresh the selector without a page reload
-    await saveDocAndAssert(page)
+      // Save - SyncTenantsOnSave should refresh the selector without a page reload
+      await saveDocAndAssert(page)
 
-    // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
-    // so we stay in the same SPA session and verify the synced React state
-    await openNav(page)
-    await Promise.all([
-      page.waitForURL('**/admin/collections/pages'),
-      page.locator('nav a[href="/admin/collections/pages"]').click(),
-    ])
-    await page.waitForLoadState('networkidle')
+      // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
+      // so we stay in the same SPA session and verify the synced React state
+      await openNav(page)
+      await Promise.all([
+        page.waitForURL('**/admin/collections/pages'),
+        page.locator('nav a[href="/admin/collections/pages"]').click(),
+      ])
+      await page.waitForLoadState('networkidle')
 
-    // The tenant selector should show the updated name without a full page reload
-    const options = await getTenantOptions(page)
-    expect(options).toContain(tempName)
-    expect(options).not.toContain(DVAC_ORIGINAL_NAME)
-
-    // Restore the original name via API (reliable cleanup)
-    await page.request.patch(`http://localhost:3000/api/tenants/${tenantId}`, {
-      data: { name: DVAC_ORIGINAL_NAME },
-    })
-
-    await page.context().close()
+      // The tenant selector should show the updated name without a full page reload
+      const options = await getTenantOptions(page)
+      expect(options).toContain(TEMP_NAME)
+      expect(options).not.toContain(DVAC_ORIGINAL_NAME)
+    } finally {
+      // Always restore the original name, even if the test fails mid-way
+      await page.request.patch(`http://localhost:3000/api/tenants/${tenantId}`, {
+        data: { name: DVAC_ORIGINAL_NAME },
+      })
+      await page.context().close()
+    }
   })
 })
