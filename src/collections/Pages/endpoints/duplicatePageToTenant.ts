@@ -1,6 +1,6 @@
 'use server'
 
-import { removeIdKey } from '@/utilities/removeIdKey'
+import { clearLayoutRelationships } from '@/utilities/clearLayoutRelationships'
 import configPromise from '@payload-config'
 import { getPayload, PayloadRequest } from 'payload'
 
@@ -18,12 +18,13 @@ export async function duplicatePageToTenant(req: PayloadRequest) {
     throw new Error(`Tenant not found: ${tenantSlug}`)
   }
 
-  const newPageSansIds = removeIdKey(newPage)
+  const newPageSansRefs = clearLayoutRelationships(newPage.layout ?? [])
 
   return await payload.create({
     collection: 'pages',
+    draft: true,
     data: {
-      ...newPageSansIds,
+      ...newPageSansRefs,
       tenant,
       title: `${newPage.title} - Copy`,
       slug: `${newPage.slug}-copy`,
