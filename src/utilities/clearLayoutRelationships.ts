@@ -1,123 +1,104 @@
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
+import type { Page } from '@/payload-types'
 import type { Field } from 'payload'
 
 type DataObject = Record<string, unknown>
 
-interface LexicalNode {
-  type?: string
-  children?: LexicalNode[]
-  fields?: DataObject
-}
 const allBlocksMap = new Map([...DEFAULT_BLOCKS, NACMediaBlock].map((b) => [b.slug, b]))
 
 function isDataObject(value: unknown): value is DataObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function isLexicalNode(value: unknown): value is LexicalNode {
-  return typeof value === 'object' && value !== null
-}
-
-function clearFieldValues(data: DataObject, fields: Field[]): DataObject {
-  const result = { ...data }
-
-  // Strip the exact 'id' key (not fields like 'videoId') so new IDs are assigned on create
-  Reflect.deleteProperty(result, 'id')
+function clearFieldValuesInPlace(data: DataObject, fields: Field[]): void {
+  // Strip 'id' (not fields like 'videoId') so new IDs are assigned on create
+  Reflect.deleteProperty(data, 'id')
 
   for (const field of fields) {
     if (field.type === 'relationship' || field.type === 'upload') {
-      Reflect.deleteProperty(result, field.name)
+      Reflect.deleteProperty(data, field.name)
     } else if (field.type === 'group') {
       if ('name' in field) {
-        const groupData = result[field.name]
+        const groupData = data[field.name]
         if (isDataObject(groupData)) {
-          result[field.name] = clearFieldValues(groupData, field.fields)
+          clearFieldValuesInPlace(groupData, field.fields)
         }
       } else {
-        // Unnamed group: fields live at the same data level
-        const updated = clearFieldValues(result, field.fields)
-        Object.assign(result, updated)
+        // Unnamed group — fields are at the same level
+        clearFieldValuesInPlace(data, field.fields)
       }
     } else if (field.type === 'array') {
-      const arrayData = result[field.name]
+      const arrayData = data[field.name]
       if (Array.isArray(arrayData)) {
-        result[field.name] = arrayData.map((item) =>
-          isDataObject(item) ? clearFieldValues(item, field.fields) : item,
-        )
+        arrayData.forEach((item) => {
+          if (isDataObject(item)) {
+            clearFieldValuesInPlace(item, field.fields)
+          }
+        })
       }
     } else if (field.type === 'richText') {
-      const richTextData = result[field.name]
+      const richTextData = data[field.name]
       if (isDataObject(richTextData)) {
-        result[field.name] = clearLexicalBlockRelationships(richTextData)
+        clearLexicalBlockRelationshipsInPlace(richTextData)
       }
     } else if (field.type === 'row' || field.type === 'collapsible') {
-      // row/collapsible are layout-only containers — their sub-fields live at the same data level
-      const updated = clearFieldValues(result, field.fields)
-      Object.assign(result, updated)
+      // Layout-only containers — fields are at the same level
+      clearFieldValuesInPlace(data, field.fields)
     } else if (field.type === 'tabs') {
       for (const tab of field.tabs) {
         if ('name' in tab) {
-          // Named tab: data is nested under tab.name
-          const tabData = result[tab.name]
+          const tabData = data[tab.name]
           if (isDataObject(tabData)) {
-            result[tab.name] = clearFieldValues(tabData, tab.fields)
+            clearFieldValuesInPlace(tabData, tab.fields)
           }
         } else {
-          // Unnamed tab: data is at the same level as the parent
-          const updated = clearFieldValues(result, tab.fields)
-          Object.assign(result, updated)
+          clearFieldValuesInPlace(data, tab.fields)
         }
       }
     }
   }
-
-  return result
 }
 
-function clearLexicalBlockRelationships(lexicalData: DataObject): DataObject {
-  function walkNode(node: LexicalNode): LexicalNode {
-    const result: LexicalNode = { ...node }
-
+function clearLexicalBlockRelationshipsInPlace(lexicalData: DataObject): void {
+  function walkNode(node: DataObject): void {
     if (node.type === 'block' && isDataObject(node.fields)) {
       const blockType = node.fields.blockType
       if (typeof blockType === 'string') {
         const blockConfig = allBlocksMap.get(blockType)
         if (blockConfig) {
-          result.fields = clearFieldValues(node.fields, blockConfig.fields ?? [])
+          clearFieldValuesInPlace(node.fields, blockConfig.fields ?? [])
         }
       }
     }
-
-    if (node.children) {
-      result.children = node.children.map(walkNode)
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child) => {
+        if (isDataObject(child)) {
+          walkNode(child)
+        }
+      })
     }
-
-    return result
   }
 
-  const root = lexicalData.root
-  if (isLexicalNode(root)) {
-    return { ...lexicalData, root: walkNode(root) }
+  if (isDataObject(lexicalData.root)) {
+    walkNode(lexicalData.root)
   }
-
-  return lexicalData
 }
 
 /**
- * Clears all relationship and upload field values from a page layout.
- * Used when duplicating a page to another tenant so that tenant-scoped
- * relationships must be repopulated by the user in the new page.
+ * Clears relationship and upload fields from a page layout so
+ * tenant-scoped references can be repopulated after duplication.
  */
-export function clearLayoutRelationships(layout: unknown[]): DataObject[] {
+export function clearLayoutRelationships(layout: Page['layout']): Page['layout'] {
+  if (!Array.isArray(layout)) return layout
   return layout.map((block) => {
-    if (!isDataObject(block)) return {}
-    const blockType = block.blockType
-    if (typeof blockType !== 'string') return block
-
-    const blockConfig = allBlocksMap.get(blockType)
-    if (!blockConfig) return block
-
-    return clearFieldValues(block, blockConfig.fields ?? [])
+    const result = { ...block }
+    // Downcast for dynamic field access — specific → general is always valid without assertion
+    const mutable: DataObject = result
+    const blockConfig = allBlocksMap.get(block.blockType)
+    if (blockConfig) {
+      clearFieldValuesInPlace(mutable, blockConfig.fields ?? [])
+    }
+    return result
   })
 }
