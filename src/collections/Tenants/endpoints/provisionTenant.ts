@@ -1,20 +1,10 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Page, Tenant } from '@/payload-types'
-import { removeIdKey } from '@/utilities/removeIdKey'
+import { clearLayoutRelationships } from '@/utilities/clearLayoutRelationships'
 import type { Payload, PayloadHandler } from 'payload'
 
 const TEMPLATE_TENANT_SLUG = 'dvac'
-
-// Block types that reference tenant-scoped data (teams, sponsors, events) and can't
-// be copied to a new tenant without the corresponding records existing.
-export const TENANT_SCOPED_BLOCK_TYPES = new Set([
-  'team',
-  'sponsors',
-  'singleEvent',
-  'singleBlogPost',
-  'formBlock',
-])
 
 // Page slugs that should not be copied during provisioning (e.g. demo/showcase pages)
 export const SKIP_PAGE_SLUGS = new Set(['blocks', 'lexical-blocks'])
@@ -239,41 +229,17 @@ export async function provision(payload: Payload, tenant: Tenant) {
         }
       }
 
-      const cleanedPage = removeIdKey(templatePage)
-      // Filter out blocks that reference tenant-scoped data (teams, sponsors, events, forms)
-      // since those records won't exist for the new tenant.
-      // For blocks with optional static references (blogList, eventList), convert to dynamic mode.
-      const layout = Array.isArray(cleanedPage.layout)
-        ? cleanedPage.layout
-            .filter(
-              (block: { blockType?: string }) =>
-                !block.blockType || !TENANT_SCOPED_BLOCK_TYPES.has(block.blockType),
-            )
-            .map((block) => {
-              if (block.blockType === 'blogList' && block.postOptions === 'static') {
-                return { ...block, postOptions: 'dynamic' as const, staticOptions: undefined }
-              }
-              if (block.blockType === 'eventList' && block.eventOptions === 'static') {
-                return { ...block, eventOptions: 'dynamic' as const, staticOpts: undefined }
-              }
-              return block
-            })
-        : cleanedPage.layout
-      // If all blocks were stripped, create as draft since layout is required
-      const hasContent = Array.isArray(layout) && layout.length > 0
+      const layout = clearLayoutRelationships(templatePage.layout)
       try {
         const newPage = await payload.create({
           collection: 'pages',
+          draft: true,
           data: {
-            ...cleanedPage,
             layout,
             tenant: tenant.id,
             title: templatePage.title,
             slug: templatePage.slug,
-            _status: hasContent ? 'published' : 'draft',
-            publishedAt: hasContent ? new Date().toISOString() : undefined,
           },
-          draft: !hasContent,
         })
         copiedPages.push(newPage)
         pagesBySlug[newPage.slug] = newPage
@@ -474,8 +440,8 @@ export async function provision(payload: Payload, tenant: Tenant) {
     try {
       await payload.create({
         collection: 'navigations',
+        draft: true,
         data: {
-          _status: 'published',
           tenant: tenant.id,
           forecasts: { items: [] },
           observations: { items: [] },
