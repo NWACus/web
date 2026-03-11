@@ -14,7 +14,7 @@ export async function GettingStartedWidget({ req }: WidgetServerProps) {
       </div>
       <div className="flex items-center gap-2">
         <Link
-          href="https://avy-fx.notion.site/23b5af40f1988035a071e397e3780103?v=23b5af40f19880dcae89000c75417e41"
+          href="https://avy-fx.notion.site/Avy-3205af40f19880efb0a5f5910a9cbdb4"
           title="Help"
           target="_blank"
         >
