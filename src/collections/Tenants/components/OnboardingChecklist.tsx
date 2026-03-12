@@ -188,7 +188,7 @@ export function OnboardingChecklist() {
       >
         {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
         {pages.skipped.length > 0 && <div>Skipped (demo pages): {pages.skipped.join(', ')}</div>}
-        <div>Copied as drafts — review and publish</div>
+        {loaded && <div>Created as a draft — review and publish</div>}
       </ChecklistItem>
 
       <ChecklistItem loading={isProvisioning} done={homePage} label="Home page" />
