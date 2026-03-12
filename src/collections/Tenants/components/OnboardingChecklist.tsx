@@ -168,6 +168,12 @@ export function OnboardingChecklist() {
         )}
       </div>
 
+      {automatedComplete && (
+        <p className="mt-2 text-sm opacity-70">
+          Pages and navigation are saved as drafts — review and publish.
+        </p>
+      )}
+
       <ChecklistItem
         loading={isProvisioning}
         done={loaded && builtInPages.count >= builtInPages.expected}
@@ -182,10 +188,13 @@ export function OnboardingChecklist() {
       >
         {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
         {pages.skipped.length > 0 && <div>Skipped (demo pages): {pages.skipped.join(', ')}</div>}
+        <div>Copied as drafts — review and publish</div>
       </ChecklistItem>
 
       <ChecklistItem loading={isProvisioning} done={homePage} label="Home page" />
-      <ChecklistItem loading={isProvisioning} done={navigation} label="Navigation" />
+      <ChecklistItem loading={isProvisioning} done={navigation} label="Navigation">
+        {navigation && <div>Created as a draft — review and publish</div>}
+      </ChecklistItem>
       <ChecklistItem
         loading={isProvisioning}
         done={settings.exists}
