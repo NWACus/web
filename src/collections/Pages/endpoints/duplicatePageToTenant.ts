@@ -18,13 +18,13 @@ export async function duplicatePageToTenant(req: PayloadRequest) {
     throw new Error(`Tenant not found: ${tenantSlug}`)
   }
 
-  const newPageSansRefs = clearLayoutRelationships(newPage.layout ?? [])
+  const layoutWithoutRefs = clearLayoutRelationships(newPage.layout ?? [])
 
   return await payload.create({
     collection: 'pages',
     draft: true,
     data: {
-      ...newPageSansRefs,
+      layout: layoutWithoutRefs,
       tenant,
       title: `${newPage.title} - Copy`,
       slug: `${newPage.slug}-copy`,
