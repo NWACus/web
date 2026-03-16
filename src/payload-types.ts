@@ -706,7 +706,6 @@ export interface HomePage {
 export interface Tenant {
   id: number;
   name: string;
-  customDomain?: string | null;
   /**
    * Avalanche center identifier. Used for subdomains and URL paths.
    */
@@ -3824,7 +3823,6 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
  */
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  customDomain?: T;
   slug?: T;
   contentHash?: T;
   updatedAt?: T;

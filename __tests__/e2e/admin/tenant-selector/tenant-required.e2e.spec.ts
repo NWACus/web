@@ -4,7 +4,7 @@ import {
   tenantSelectorTest as test,
 } from '../../fixtures/tenant-selector.fixture'
 import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
-import { TenantIds } from '../../helpers/tenant-cookie'
+import { TenantSlugs } from '../../helpers/tenant-cookie'
 
 /**
  * Tenant-Required Collection Tests
@@ -68,7 +68,7 @@ test.describe('Tenant-Required Collection', () => {
 
       // Verify cookie was updated
       const cookie = await getTenantCookie(page)
-      expect(cookie).toBe(TenantIds.nwac)
+      expect(cookie).toBe(TenantSlugs.nwac)
 
       await page.context().close()
     })
