@@ -45,7 +45,7 @@ import * as migration_20260120_194629_unify_block_naming from './20260120_194629
 import * as migration_20260128_213937_rename_appearance_to_variant from './20260128_213937_rename_appearance_to_variant'
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
-import * as migration_20260304_201458_add_dev_mode from './20260304_201458_add_dev_mode'
+import * as migration_20260318_204443_add_dev_mode from './20260318_204443_add_dev_mode'
 
 export const migrations = [
   {
@@ -279,13 +279,13 @@ export const migrations = [
     name: '20260131_012456_remove_wrap_in_container',
   },
   {
-    up: migration_20260304_201458_add_dev_mode.up,
-    down: migration_20260304_201458_add_dev_mode.down,
-    name: '20260304_201458_add_dev_mode',
-  },
-  {
     up: migration_20260303_233752_remove_custom_domain_from_tenants.up,
     down: migration_20260303_233752_remove_custom_domain_from_tenants.down,
     name: '20260303_233752_remove_custom_domain_from_tenants',
+  },
+  {
+    up: migration_20260318_204443_add_dev_mode.up,
+    down: migration_20260318_204443_add_dev_mode.down,
+    name: '20260318_204443_add_dev_mode',
   },
 ]

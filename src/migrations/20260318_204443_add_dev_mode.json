@@ -16098,13 +16098,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "custom_domain": {
-          "name": "custom_domain",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "slug": {
           "name": "slug",
           "type": "text",
@@ -22352,6 +22345,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "3144c20d-1242-4caf-932e-37a57cc411d9",
+  "id": "533ac594-a47f-4988-b72f-12f6f7e95acd",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
