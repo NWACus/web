@@ -1,4 +1,5 @@
 import { Tenant } from '@/payload-types'
+import { findCenterByDomain, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import configPromise from '@payload-config'
 import { cookies, headers } from 'next/headers'
 import { getPayload } from 'payload'
@@ -19,37 +20,42 @@ export async function isTenantDomainScoped(): Promise<TenantDomainScopeResult> {
   const cookieStore = await cookies()
   const payloadTenantCookie = cookieStore.get('payload-tenant')
 
-  const payload = await getPayload({ config: configPromise })
-  const tenantsRes = await payload.find({
-    collection: 'tenants',
-    limit: 1000,
-    select: {
-      id: true,
-      slug: true,
-      customDomain: true,
-    },
-  })
+  if (!host || !payloadTenantCookie) {
+    return { isDomainScoped: false, tenant: null }
+  }
 
-  // Find the tenant that matches the current domain
-  const domainScopedTenant = host
-    ? tenantsRes.docs.find((tenant) => {
-        const isTenantCustomDomain = tenant?.customDomain && host === tenant.customDomain
-        const isTenantSubdomain = tenant?.slug && host.startsWith(`${tenant.slug}.`)
-        return isTenantCustomDomain || isTenantSubdomain
-      })
-    : null
+  // Try to find a matching slug via custom domain or subdomain
+  let matchedSlug: string | undefined = findCenterByDomain(host)
 
-  const isDomainScoped = !!domainScopedTenant && !!payloadTenantCookie
-
-  if (!isDomainScoped) {
-    return {
-      isDomainScoped,
-      tenant: null,
+  if (!matchedSlug) {
+    // Extract subdomain from host (e.g., "nwac" from "nwac.localhost:3000")
+    const subdomain = host.split('.')[0]
+    if (isValidTenantSlug(subdomain)) {
+      matchedSlug = subdomain
     }
   }
 
+  if (!matchedSlug) {
+    return { isDomainScoped: false, tenant: null }
+  }
+
+  const payload = await getPayload({ config: configPromise })
+  const tenantsRes = await payload.find({
+    collection: 'tenants',
+    limit: 1,
+    where: {
+      slug: { equals: matchedSlug },
+    },
+  })
+
+  const domainScopedTenant = tenantsRes.docs[0] ?? null
+
+  if (!domainScopedTenant) {
+    return { isDomainScoped: false, tenant: null }
+  }
+
   return {
-    isDomainScoped,
+    isDomainScoped: true,
     tenant: domainScopedTenant,
   }
 }

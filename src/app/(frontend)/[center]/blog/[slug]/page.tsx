@@ -146,7 +146,6 @@ const queryPostBySlug = async ({ center, slug }: { center: string; slug: string 
       tenants: {
         slug: true,
         name: true,
-        customDomain: true,
       },
     },
     where: { and: conditions },

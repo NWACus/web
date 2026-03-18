@@ -4,10 +4,6 @@ import { Tenant } from '@/payload-types'
 export const isTenantValue = (value: unknown): value is number | Tenant => {
   return (
     typeof value === 'number' ||
-    (typeof value === 'object' &&
-      value !== null &&
-      'id' in value &&
-      'slug' in value && // included by Tenants collection's defaultPopulate
-      'customDomain' in value) // included by Tenants collection's defaultPopulate
+    (typeof value === 'object' && value !== null && 'id' in value && 'slug' in value) // included by Tenants collection's defaultPopulate
   )
 }

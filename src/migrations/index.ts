@@ -44,6 +44,7 @@ import * as migration_20260115_234107_remove_image_sizes from './20260115_234107
 import * as migration_20260120_194629_unify_block_naming from './20260120_194629_unify_block_naming'
 import * as migration_20260128_213937_rename_appearance_to_variant from './20260128_213937_rename_appearance_to_variant'
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
+import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
 
 export const migrations = [
   {
@@ -275,5 +276,10 @@ export const migrations = [
     up: migration_20260131_012456_remove_wrap_in_container.up,
     down: migration_20260131_012456_remove_wrap_in_container.down,
     name: '20260131_012456_remove_wrap_in_container',
+  },
+  {
+    up: migration_20260303_233752_remove_custom_domain_from_tenants.up,
+    down: migration_20260303_233752_remove_custom_domain_from_tenants.down,
+    name: '20260303_233752_remove_custom_domain_from_tenants',
   },
 ]
