@@ -1,4 +1,3 @@
-import { getCanonicalUrlForSlug } from '@/components/Header/utils'
 import { ViewDocumentButton } from '@/components/ViewDocumentButton'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import type { BeforeDocumentControlsServerProps } from 'payload'
@@ -12,7 +11,7 @@ export const ViewPostButton = async (props: BeforeDocumentControlsServerProps) =
     collection: 'posts',
     limit: 1,
     pagination: false,
-    depth: 2,
+    depth: 0,
     where: {
       id: {
         equals: id,
@@ -23,10 +22,10 @@ export const ViewPostButton = async (props: BeforeDocumentControlsServerProps) =
   if (!postRes.docs.length) return null
 
   const post = postRes.docs[0]
+
+  if (post._status !== 'published') return null
+
   const postTenant = await resolveTenant(post.tenant)
-  const canonicalUrl = await getCanonicalUrlForSlug(postTenant.slug, post.slug)
 
-  if (!canonicalUrl || post._status !== 'published') return null
-
-  return <ViewDocumentButton url={`/${postTenant.slug}/${canonicalUrl}`} />
+  return <ViewDocumentButton url={`/${postTenant.slug}/blog/${post.slug}`} />
 }

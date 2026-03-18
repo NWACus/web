@@ -27,67 +27,45 @@ describe('server-side utilities: getHostnameFromTenant', () => {
     expect(result).toBe('envvar.localhost:3000')
   })
 
-  it('returns custom domain for production tenants', () => {
+  it('returns custom domain from AVALANCHE_CENTERS for production tenants', () => {
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('production-tenant')
+    PRODUCTION_TENANTS.push('nwac')
 
-    const tenant = buildTenant({ slug: 'production-tenant', customDomain: 'productiondomain.com' })
+    const tenant = buildTenant({ slug: 'nwac' })
 
     const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('productiondomain.com')
+    expect(result).toBe('nwac.us')
   })
 
   it('returns subdomain format for non-production tenants', () => {
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('production-tenant')
+    PRODUCTION_TENANTS.push('nwac')
 
-    const tenant = buildTenant({
-      slug: 'development-tenant',
-      customDomain: 'productiondomain.com',
-    })
+    const tenant = buildTenant({ slug: 'sac' })
 
     const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('development-tenant.envvar.localhost:3000')
+    expect(result).toBe('sac.envvar.localhost:3000')
   })
 
   it('handles multiple production tenants correctly', () => {
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('tenant1', 'tenant2', 'tenant3')
+    PRODUCTION_TENANTS.push('nwac', 'sac', 'uac')
 
-    const tenant1 = buildTenant({
-      slug: 'tenant1',
-      customDomain: 'tenant1productiondomain.com',
-    })
-    const tenant2 = buildTenant({
-      slug: 'tenant2',
-      customDomain: 'tenant2productiondomain.com',
-    })
-    const nonProductionTenant = buildTenant({
-      slug: 'non-production',
-      customDomain: 'tenant3productiondomain.com',
-    })
+    const tenant1 = buildTenant({ slug: 'nwac' })
+    const tenant2 = buildTenant({ slug: 'sac' })
+    const nonProductionTenant = buildTenant({ slug: 'btac' })
 
-    expect(getHostnameFromTenant(tenant1)).toBe('tenant1productiondomain.com')
-    expect(getHostnameFromTenant(tenant2)).toBe('tenant2productiondomain.com')
-    expect(getHostnameFromTenant(nonProductionTenant)).toBe('non-production.envvar.localhost:3000')
+    expect(getHostnameFromTenant(tenant1)).toBe('nwac.us')
+    expect(getHostnameFromTenant(tenant2)).toBe('www.sierraavalanchecenter.org')
+    expect(getHostnameFromTenant(nonProductionTenant)).toBe('btac.envvar.localhost:3000')
   })
 
   it('handles empty production tenants list', () => {
     PRODUCTION_TENANTS.length = 0
 
-    const tenant = buildTenant({ slug: 'any-tenant', customDomain: 'custom.example.com' })
+    const tenant = buildTenant({ slug: 'nwac' })
 
     const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('any-tenant.envvar.localhost:3000')
-  })
-
-  it('handles tenant with empty custom domain by falling back to tenant subdomain', () => {
-    PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('production-tenant')
-
-    const tenant = buildTenant({ slug: 'production-tenant', customDomain: '' })
-
-    const result = getHostnameFromTenant(tenant)
-    expect(result).toBe('production-tenant.envvar.localhost:3000')
+    expect(result).toBe('nwac.envvar.localhost:3000')
   })
 })

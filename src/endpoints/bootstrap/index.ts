@@ -63,22 +63,18 @@ export const bootstrap = async ({
     {
       name: 'Death Valley Avalanche Center',
       slug: 'dvac',
-      customDomain: 'dvac.us',
     },
     {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
-      customDomain: 'nwac.us',
     },
     {
       name: 'Sierra Avalanche Center',
       slug: 'sac',
-      customDomain: 'sierraavalanchecenter.org',
     },
     {
       name: 'Sawtooth Avalanche Center',
       slug: 'snfac',
-      customDomain: 'sawtoothavalanche.com',
     },
   ]
   for (const data of tenantData) {
