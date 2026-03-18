@@ -1,7 +1,7 @@
 import { authTest, expect } from '../fixtures/auth.fixture'
 import { AdminUrlUtil } from '../helpers/admin-url'
 import { saveDocAndAssert } from '../helpers/save-doc'
-import { setTenantCookie, TenantIds } from '../helpers/tenant-cookie'
+import { setTenantCookie, TenantSlugs } from '../helpers/tenant-cookie'
 
 const SERVER_URL = 'http://localhost:3000'
 
@@ -11,7 +11,7 @@ authTest.describe('ViewDocumentButton on published documents', () => {
   authTest('shows live document button on a published post', async ({ adminPage }) => {
     const postsUrl = new AdminUrlUtil(SERVER_URL, 'posts')
 
-    await setTenantCookie(adminPage.context(), TenantIds.nwac)
+    await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
     await adminPage.goto(`${postsUrl.list}?where[_status][equals]=published`)
 
     // Use the first published post
@@ -29,7 +29,7 @@ authTest.describe('ViewDocumentButton on published documents', () => {
   authTest('shows live document button on a published page', async ({ adminPage }) => {
     const pagesUrl = new AdminUrlUtil(SERVER_URL, 'pages')
 
-    await setTenantCookie(adminPage.context(), TenantIds.nwac)
+    await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
     await adminPage.goto(`${pagesUrl.list}?where[_status][equals]=published`)
 
     // Use the first published post
@@ -61,7 +61,7 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
   authTest('hides live document button on a draft post', async ({ adminPage }) => {
     const postsUrl = new AdminUrlUtil(SERVER_URL, 'posts')
 
-    await setTenantCookie(adminPage.context(), TenantIds.nwac)
+    await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
     await adminPage.goto(`${postsUrl.list}?where[_status][equals]=published`)
 
     // Use the first published post
@@ -101,7 +101,7 @@ authTest.describe('ViewDocumentButton hidden on draft documents', () => {
   authTest('hides live document button on a draft page', async ({ adminPage }) => {
     const pagesUrl = new AdminUrlUtil(SERVER_URL, 'pages')
 
-    await setTenantCookie(adminPage.context(), TenantIds.nwac)
+    await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
     await adminPage.goto(`${pagesUrl.list}?where[_status][equals]=published`)
 
     // Use the first published page
