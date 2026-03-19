@@ -385,6 +385,19 @@ export const getTopLevelNavItems = async ({
     const link = convertToNavLink(navigation.donate.link)
 
     if (link) {
+      // For internal page links, resolve the canonical (navigation-nested) URL
+      // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
+      // see https://github.com/NWACus/web/pull/981 for more context
+      if (link.type === 'internal') {
+        const slug = link.url.split('/').filter(Boolean).pop()
+        if (slug) {
+          const navItem = findNavigationItemBySlug(topLevelNavItems, slug)
+          if (navItem?.link?.type === 'internal') {
+            link.url = navItem.link.url
+          }
+        }
+      }
+
       donateNavItem = {
         label: link.label,
         link,
