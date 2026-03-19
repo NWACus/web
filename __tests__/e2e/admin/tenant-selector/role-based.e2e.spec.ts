@@ -4,7 +4,7 @@ import {
   tenantSelectorTest as test,
 } from '../../fixtures/tenant-selector.fixture'
 import { AdminUrlUtil, CollectionSlugs } from '../../helpers'
-import { TenantIds } from '../../helpers/tenant-cookie'
+import { TenantSlugs } from '../../helpers/tenant-cookie'
 
 /**
  * Role-Based Test Cases
@@ -180,7 +180,7 @@ test.describe('Single-Center Admin', () => {
 
     // Cookie should be set to their tenant (nwac)
     const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantIds.nwac)
+    expect(cookie).toBe(TenantSlugs.nwac)
 
     await page.context().close()
   })
@@ -200,7 +200,7 @@ test.describe('Single-Center Admin', () => {
       await page.waitForLoadState('networkidle')
 
       const cookie = await getTenantCookie(page)
-      expect(cookie).toBe(TenantIds.nwac)
+      expect(cookie).toBe(TenantSlugs.nwac)
     }
 
     await page.context().close()
@@ -226,7 +226,7 @@ test.describe('Forecaster Role', () => {
 
     // Cookie should be set to NWAC
     const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantIds.nwac)
+    expect(cookie).toBe(TenantSlugs.nwac)
 
     await page.context().close()
   })
@@ -251,7 +251,7 @@ test.describe('Staff Role', () => {
 
     // Cookie should be set to NWAC
     const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantIds.nwac)
+    expect(cookie).toBe(TenantSlugs.nwac)
 
     await page.context().close()
   })

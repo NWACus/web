@@ -143,11 +143,3 @@ export const TenantNames = {
   sac: 'Sierra Avalanche Center',
   snfac: 'Sawtooth Avalanche Center',
 } as const
-
-// Hopefully remove soon
-export const TenantIds = {
-  dvac: '1',
-  nwac: '2',
-  sac: '3',
-  snfac: '4',
-} as const

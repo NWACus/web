@@ -263,10 +263,12 @@ export const getTopLevelNavItems = async ({
   navigation,
   activeForecastZones,
   avalancheCenterPlatforms,
+  center,
 }: {
   navigation: Navigation
   activeForecastZones?: ActiveForecastZoneWithSlug[]
   avalancheCenterPlatforms: AvalancheCenterPlatforms
+  center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
   let forecastsNavItem: TopLevelNavItem = {
     link: {
@@ -344,6 +346,18 @@ export const getTopLevelNavItems = async ({
         },
       },
     ],
+  }
+
+  // SAC-specific observations archive link — revert this block when no longer needed
+  if (center === 'sac') {
+    observationsNavItem.items?.push({
+      id: 'archive',
+      link: {
+        type: 'internal',
+        label: 'Observations Archive',
+        url: '/observations-archive',
+      },
+    })
   }
 
   const blogNavItem: TopLevelNavItem = {
@@ -438,6 +452,7 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         navigation,
         activeForecastZones,
         avalancheCenterPlatforms,
+        center,
       })
     },
     [`top-level-nav-items-${center}`],

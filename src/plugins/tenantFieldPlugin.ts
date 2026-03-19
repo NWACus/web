@@ -1,10 +1,10 @@
 import { filterByTenant } from '@/access/filterByTenant'
 import { tenantField } from '@/fields/tenantField'
-import { BaseListFilter, Config, Where } from 'payload'
+import { BaseFilter, Config, Where } from 'payload'
 
 type Args = {
-  baseListFilter?: BaseListFilter
-  customFilter: BaseListFilter
+  baseListFilter?: BaseFilter
+  customFilter: BaseFilter
 }
 /**
  * Combines a base list filter with a tenant list filter
@@ -12,7 +12,7 @@ type Args = {
  * Combines where constraints inside of an AND operator
  */
 export const combineListFilters =
-  ({ baseListFilter, customFilter }: Args): BaseListFilter =>
+  ({ baseListFilter, customFilter }: Args): BaseFilter =>
   async (args) => {
     const filterConstraints: Where[] = []
 

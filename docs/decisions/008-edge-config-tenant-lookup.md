@@ -2,7 +2,7 @@
 
 Date: 2025-07-26
 
-Status: accepted
+Status: superseded by [013-hardcoded-tenant-lookup.md](./013-hardcoded-tenant-lookup.md)
 
 Supersedes: [007-dynamic-tenants-middleware.md](./007-dynamic-tenants-middleware.md)
 

@@ -1,5 +1,6 @@
 import { globalRoleAssignmentsForUser } from '@/utilities/rbac/globalRoleAssignmentsForUser'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
+import { getEmailDomain, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { isTenantDomainScoped } from '@/utilities/tenancy/isTenantDomainScoped'
 import configPromise from '@payload-config'
 import { CollectionBeforeLoginHook, getPayload } from 'payload'
@@ -47,9 +48,12 @@ export const validateDomainAccessBeforeLogin: CollectionBeforeLoginHook = async 
     }
   }
 
-  // if a user has an email domain matching the domain scoped tenant's customDomain, let em through
-  if (user.email.endsWith('@' + domainScopedTenant.customDomain)) {
-    return user
+  // if a user has an email domain matching the domain scoped tenant's email domain, let em through
+  if (isValidTenantSlug(domainScopedTenant.slug)) {
+    const emailDomain = getEmailDomain(domainScopedTenant.slug)
+    if (user.email.endsWith('@' + emailDomain)) {
+      return user
+    }
   }
 
   // otherwise, block em
