@@ -536,6 +536,10 @@ export interface HomePage {
         backgroundColor: string;
         imageLayout: 'left' | 'right';
         image: number | Media;
+        /**
+         * Text will flow around the image instead of being in a separate column
+         */
+        textWrap?: boolean | null;
         richText: {
           root: {
             type: string;
@@ -930,6 +934,10 @@ export interface Page {
         backgroundColor: string;
         imageLayout: 'left' | 'right';
         image: number | Media;
+        /**
+         * Text will flow around the image instead of being in a separate column
+         */
+        textWrap?: boolean | null;
         richText: {
           root: {
             type: string;
@@ -3254,6 +3262,7 @@ export interface ImageTextBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   imageLayout?: T;
   image?: T;
+  textWrap?: T;
   richText?: T;
   id?: T;
   blockName?: T;
@@ -4846,6 +4855,10 @@ export interface ImageTextBlock {
   backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
+  /**
+   * Text will flow around the image instead of being in a separate column
+   */
+  textWrap?: boolean | null;
   richText: {
     root: {
       type: string;

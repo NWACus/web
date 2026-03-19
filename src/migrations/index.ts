@@ -1,49 +1,50 @@
-import * as migration_20250720_214829_init from './20250720_214829_init'
-import * as migration_20250725_165619_rename_color_to_background_color from './20250725_165619_rename_color_to_background_color'
-import * as migration_20250727_005201_add_background_color_to_link_preview from './20250727_005201_add_background_color_to_link_preview'
-import * as migration_20250807_175342_blocks_in_content_field from './20250807_175342_blocks_in_content_field'
-import * as migration_20250814_191230_diagnostics_global from './20250814_191230_diagnostics_global'
-import * as migration_20250814_223446_update_slug_field from './20250814_223446_update_slug_field'
-import * as migration_20250815_201139_add_secondary_phone_to_footer from './20250815_201139_add_secondary_phone_to_footer'
-import * as migration_20250818_061729_generic_embed_block from './20250818_061729_generic_embed_block'
-import * as migration_20250820_004406_home_page_global_collection from './20250820_004406_home_page_global_collection'
-import * as migration_20250821_205336_blog_list_block from './20250821_205336_blog_list_block'
-import * as migration_20250823_200437_add_single_blog_post_block from './20250823_200437_add_single_blog_post_block'
-import * as migration_20250824_200244_add_footer_form from './20250824_200244_add_footer_form'
-import * as migration_20250828_211035_add_sponsors from './20250828_211035_add_sponsors'
-import * as migration_20250828_230246_add_header_block from './20250828_230246_add_header_block'
-import * as migration_20250829_035904_update_payload_version from './20250829_035904_update_payload_version'
-import * as migration_20250904_014605_create_documents from './20250904_014605_create_documents'
-import * as migration_20250904_233214_add_bg_color_and_layout_for_biography_blocks from './20250904_233214_add_bg_color_and_layout_for_biography_blocks'
-import * as migration_20250905_042615_add_header_to_link_preview from './20250905_042615_add_header_to_link_preview'
-import * as migration_20250906_203111_add_columns_to_content from './20250906_203111_add_columns_to_content'
-import * as migration_20250909_012609_add_columns_to_content_default from './20250909_012609_add_columns_to_content_default'
-import * as migration_20250909_033830_update_for_prod_content_bugs from './20250909_033830_update_for_prod_content_bugs'
-import * as migration_20250915_230438_update_blog_list from './20250915_230438_update_blog_list'
-import * as migration_20250920_185913_add_blocks_to_home_pages from './20250920_185913_add_blocks_to_home_pages'
-import * as migration_20250922_185258_add_built_in_pages from './20250922_185258_add_built_in_pages'
-import * as migration_20250925_144212_remove_meta_title from './20250925_144212_remove_meta_title'
-import * as migration_20250926_145234_remove_embed_block_height from './20250926_145234_remove_embed_block_height'
-import * as migration_20250930_184740_media_block_updates from './20250930_184740_media_block_updates'
-import * as migration_20251001_012534_update_sponsors_block from './20251001_012534_update_sponsors_block'
-import * as migration_20251001_171654_redirects_plugin_to_collection from './20251001_171654_redirects_plugin_to_collection'
-import * as migration_20251001_180603_nav_items_with_enabled_toggle from './20251001_180603_nav_items_with_enabled_toggle'
-import * as migration_20251001_221006_update_bios from './20251001_221006_update_bios'
-import * as migration_20251016_001620_update_post_authors_date from './20251016_001620_update_post_authors_date'
-import * as migration_20251020_222917_blocks_in_highlighted_content from './20251020_222917_blocks_in_highlighted_content'
-import * as migration_20251023_195638_rename_indexes from './20251023_195638_rename_indexes'
-import * as migration_20251024_203935_content_block_default_value from './20251024_203935_content_block_default_value'
-import * as migration_20251029_173505_upgrade_payload_3_61_1 from './20251029_173505_upgrade_payload_3_61_1'
-import * as migration_20251117_210840_kv from './20251117_210840_kv'
-import * as migration_20251203_015551_add_courses_and_events from './20251203_015551_add_courses_and_events'
-import * as migration_20251204_192406_add_bg_color_to_events_table from './20251204_192406_add_bg_color_to_events_table'
-import * as migration_20251211_062340_add_nac_media_widget from './20251211_062340_add_nac_media_widget'
-import * as migration_20251219_073149_remove_autosave from './20251219_073149_remove_autosave'
-import * as migration_20260111_205454_nav_item_standalone_label from './20260111_205454_nav_item_standalone_label'
-import * as migration_20260115_234107_remove_image_sizes from './20260115_234107_remove_image_sizes'
-import * as migration_20260120_194629_unify_block_naming from './20260120_194629_unify_block_naming'
-import * as migration_20260128_213937_rename_appearance_to_variant from './20260128_213937_rename_appearance_to_variant'
-import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
+import * as migration_20250720_214829_init from './20250720_214829_init';
+import * as migration_20250725_165619_rename_color_to_background_color from './20250725_165619_rename_color_to_background_color';
+import * as migration_20250727_005201_add_background_color_to_link_preview from './20250727_005201_add_background_color_to_link_preview';
+import * as migration_20250807_175342_blocks_in_content_field from './20250807_175342_blocks_in_content_field';
+import * as migration_20250814_191230_diagnostics_global from './20250814_191230_diagnostics_global';
+import * as migration_20250814_223446_update_slug_field from './20250814_223446_update_slug_field';
+import * as migration_20250815_201139_add_secondary_phone_to_footer from './20250815_201139_add_secondary_phone_to_footer';
+import * as migration_20250818_061729_generic_embed_block from './20250818_061729_generic_embed_block';
+import * as migration_20250820_004406_home_page_global_collection from './20250820_004406_home_page_global_collection';
+import * as migration_20250821_205336_blog_list_block from './20250821_205336_blog_list_block';
+import * as migration_20250823_200437_add_single_blog_post_block from './20250823_200437_add_single_blog_post_block';
+import * as migration_20250824_200244_add_footer_form from './20250824_200244_add_footer_form';
+import * as migration_20250828_211035_add_sponsors from './20250828_211035_add_sponsors';
+import * as migration_20250828_230246_add_header_block from './20250828_230246_add_header_block';
+import * as migration_20250829_035904_update_payload_version from './20250829_035904_update_payload_version';
+import * as migration_20250904_014605_create_documents from './20250904_014605_create_documents';
+import * as migration_20250904_233214_add_bg_color_and_layout_for_biography_blocks from './20250904_233214_add_bg_color_and_layout_for_biography_blocks';
+import * as migration_20250905_042615_add_header_to_link_preview from './20250905_042615_add_header_to_link_preview';
+import * as migration_20250906_203111_add_columns_to_content from './20250906_203111_add_columns_to_content';
+import * as migration_20250909_012609_add_columns_to_content_default from './20250909_012609_add_columns_to_content_default';
+import * as migration_20250909_033830_update_for_prod_content_bugs from './20250909_033830_update_for_prod_content_bugs';
+import * as migration_20250915_230438_update_blog_list from './20250915_230438_update_blog_list';
+import * as migration_20250920_185913_add_blocks_to_home_pages from './20250920_185913_add_blocks_to_home_pages';
+import * as migration_20250922_185258_add_built_in_pages from './20250922_185258_add_built_in_pages';
+import * as migration_20250925_144212_remove_meta_title from './20250925_144212_remove_meta_title';
+import * as migration_20250926_145234_remove_embed_block_height from './20250926_145234_remove_embed_block_height';
+import * as migration_20250930_184740_media_block_updates from './20250930_184740_media_block_updates';
+import * as migration_20251001_012534_update_sponsors_block from './20251001_012534_update_sponsors_block';
+import * as migration_20251001_171654_redirects_plugin_to_collection from './20251001_171654_redirects_plugin_to_collection';
+import * as migration_20251001_180603_nav_items_with_enabled_toggle from './20251001_180603_nav_items_with_enabled_toggle';
+import * as migration_20251001_221006_update_bios from './20251001_221006_update_bios';
+import * as migration_20251016_001620_update_post_authors_date from './20251016_001620_update_post_authors_date';
+import * as migration_20251020_222917_blocks_in_highlighted_content from './20251020_222917_blocks_in_highlighted_content';
+import * as migration_20251023_195638_rename_indexes from './20251023_195638_rename_indexes';
+import * as migration_20251024_203935_content_block_default_value from './20251024_203935_content_block_default_value';
+import * as migration_20251029_173505_upgrade_payload_3_61_1 from './20251029_173505_upgrade_payload_3_61_1';
+import * as migration_20251117_210840_kv from './20251117_210840_kv';
+import * as migration_20251203_015551_add_courses_and_events from './20251203_015551_add_courses_and_events';
+import * as migration_20251204_192406_add_bg_color_to_events_table from './20251204_192406_add_bg_color_to_events_table';
+import * as migration_20251211_062340_add_nac_media_widget from './20251211_062340_add_nac_media_widget';
+import * as migration_20251219_073149_remove_autosave from './20251219_073149_remove_autosave';
+import * as migration_20260111_205454_nav_item_standalone_label from './20260111_205454_nav_item_standalone_label';
+import * as migration_20260115_234107_remove_image_sizes from './20260115_234107_remove_image_sizes';
+import * as migration_20260120_194629_unify_block_naming from './20260120_194629_unify_block_naming';
+import * as migration_20260128_213937_rename_appearance_to_variant from './20260128_213937_rename_appearance_to_variant';
+import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container';
+import * as migration_20260319_151002_add_text_wrap_to_image_text_block from './20260319_151002_add_text_wrap_to_image_text_block';
 
 export const migrations = [
   {
@@ -276,4 +277,9 @@ export const migrations = [
     down: migration_20260131_012456_remove_wrap_in_container.down,
     name: '20260131_012456_remove_wrap_in_container',
   },
-]
+  {
+    up: migration_20260319_151002_add_text_wrap_to_image_text_block.up,
+    down: migration_20260319_151002_add_text_wrap_to_image_text_block.down,
+    name: '20260319_151002_add_text_wrap_to_image_text_block'
+  },
+];

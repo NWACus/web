@@ -36,6 +36,15 @@ export const ImageTextBlock: Block = {
     },
 
     {
+      name: 'textWrap',
+      type: 'checkbox',
+      label: 'Wrap text around image',
+      admin: {
+        description: 'Text will flow around the image instead of being in a separate column',
+      },
+      defaultValue: false,
+    },
+    {
       name: 'richText',
       type: 'richText',
       editor: lexicalEditor({
