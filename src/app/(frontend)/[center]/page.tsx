@@ -8,11 +8,14 @@ import QuickLinkButton from '@/components/QuickLinkButton'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { draftMode } from 'next/headers'
+import { notFound } from 'next/navigation'
+import invariant from 'tiny-invariant'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
-export const dynamicParams = false
+export const dynamicParams = true
 
 const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 
@@ -42,11 +45,17 @@ export default async function Page({ params }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { center } = await params
 
+  if (!isValidTenantSlug(center)) {
+    notFound()
+  }
+
   const { version, baseUrl } = await getNACWidgetsConfig()
   const { quickLinks, highlightedContent, layout } =
     (await getCachedHomePage(center, draft)()) ?? {}
 
   const metadata = await getAvalancheCenterMetadata(center)
+  invariant(metadata, 'Could not determine avalanche center metadata')
+
   const configuredMapHeight = metadata.widget_config?.danger_map?.height
 
   let parsedConfiguredMapHeight: number | null = null

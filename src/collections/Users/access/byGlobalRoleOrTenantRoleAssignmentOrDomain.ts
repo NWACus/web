@@ -3,12 +3,13 @@ import { getDocumentById } from '@/utilities/getDocumentById'
 import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { roleAssignmentsForUser } from '@/utilities/rbac/roleAssignmentsForUser'
 import { ruleMatches, ruleMethod } from '@/utilities/rbac/ruleMatches'
+import { getEmailDomain, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { Access, CollectionConfig, Where } from 'payload'
 
 // byGlobalRoleOrTenantRoleAssignmentOrDomain combines both tenant domain matching and role-based access
 // Users will have their tenant scoped role assignments for the users collection apply if they either:
 // 1. Have a role assignment for the same tenant, OR
-// 2. Have a matching email domain to the tenant's customDomain
+// 2. Have a matching email domain (derived from AVALANCHE_CENTERS)
 export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) => Access =
   (method: ruleMethod): Access =>
   async (args) => {
@@ -57,9 +58,8 @@ export const byGlobalRoleOrTenantRoleAssignmentOrDomain: (method: ruleMethod) =>
     const matchingTenantDomains = userCollectionRoleAssignments
       .map((assignment) => assignment.tenant)
       .filter((tenant) => typeof tenant !== 'number')
-      .map((tenant) => tenant.customDomain)
+      .map((tenant) => (isValidTenantSlug(tenant.slug) ? getEmailDomain(tenant.slug) : null))
       .filter(Boolean)
-      .flat()
 
     if (matchingTenantDomains.length > 0) {
       conditions.push(

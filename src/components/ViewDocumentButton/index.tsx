@@ -18,7 +18,7 @@ export const ViewDocumentButton = (props: { url: string }) => {
     <button
       aria-label="View published"
       className="view-page-btn"
-      id="preview-button"
+      id="view-document-button"
       onClick={openNewTab}
       title="View published"
       type="button"
