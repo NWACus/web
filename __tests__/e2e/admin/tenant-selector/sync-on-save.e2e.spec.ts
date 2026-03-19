@@ -36,7 +36,7 @@ test.describe('Tenant selector syncs on save', () => {
       await waitForFormReady(page)
 
       await page.locator('#field-name').fill(TEMP_TENANT_NAME_CREATE)
-      await page.locator('#field-slug').fill(TEMP_TENANT_SLUG_CREATE)
+      await page.locator('#field-slug input').fill(TEMP_TENANT_SLUG_CREATE)
       await saveDocAndAssert(page)
 
       // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
