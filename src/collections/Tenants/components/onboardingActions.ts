@@ -72,10 +72,20 @@ export async function checkProvisioningStatusAction(
       }),
       fs
         .readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8')
-        .catch(() => ''),
+        .catch((err) => {
+          payload.logger.warn(
+            `Failed to read colors.css: ${err instanceof Error ? err.message : err}`,
+          )
+          return ''
+        }),
       fs
         .readFile(path.join(process.cwd(), 'src/app/api/[center]/og/route.tsx'), 'utf-8')
-        .catch(() => ''),
+        .catch((err) => {
+          payload.logger.warn(
+            `Failed to read og/route.tsx: ${err instanceof Error ? err.message : err}`,
+          )
+          return ''
+        }),
       payload.find({
         collection: 'tenants',
         where: { slug: { equals: templateTenantSlug } },
