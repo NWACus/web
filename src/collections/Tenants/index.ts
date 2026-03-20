@@ -15,6 +15,13 @@ export const Tenants: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Permissions',
     hidden: ({ user }) => hasReadOnlyAccess(user, 'tenants'),
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          '@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave',
+        ],
+      },
+    },
   },
   labels: {
     plural: 'Avalanche Centers',

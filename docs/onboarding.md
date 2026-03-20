@@ -28,15 +28,6 @@ This outlines steps required when a new center (tenant) comes on board. This doc
       <td>Troubleshoot: <br />In Vercel, go to the project → Storage → production Edge Config and edit file</td>
     </tr>
     <tr>
-      <td rowspan="2">New tenant option shown in <code>TenantSelectionProvider</code></td>
-      <td>Manual</td>
-      <td>Refresh page</td>
-    </tr>
-    <tr>
-      <td>Future automation</td>
-      <td>Use <code>syncTenants</code></td>
-    </tr>
-    <tr>
       <td>Create documents for Global Collections <ul><li>Website Settings</><li>Navigation</li><li>Home Pages</li></ul></td>
       <td>Manual</td>
       <td>Visit each global collection to create <br/>→ Fill out required information and save</td>
