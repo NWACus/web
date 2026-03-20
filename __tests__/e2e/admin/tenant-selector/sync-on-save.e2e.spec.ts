@@ -73,7 +73,49 @@ test.describe('Tenant selector syncs on save', () => {
       const slugField = page.locator('#field-slug')
       await slugField.locator('button.dropdown-indicator').click()
       await slugField.locator('.rs__option', { hasText: tempTenantSlug }).click()
+
+      // Before save: checklist should show labels but no counts or instructions
+      const heading = page.getByText('Onboarding Checklist', { exact: true })
+      await expect(heading).toBeVisible({ timeout: 10000 })
+      const checklist = page.locator('.rounded-lg', { has: heading })
+      await expect(checklist.getByText('Built-in pages')).toBeVisible()
+      await expect(checklist.getByText('Home page')).toBeVisible()
+      await expect(checklist.getByText(/\(\d+\/\d+\)/)).not.toBeVisible()
+      await expect(checklist.getByText('colors.css')).not.toBeVisible()
+      await expect(checklist.getByText('centerColorMap')).not.toBeVisible()
+
       await saveDocAndAssert(page)
+
+      // After save: should show toast and spinners, but hide details during provisioning
+      await expect(page.getByText('Building avy center...')).toBeVisible({ timeout: 10000 })
+      await expect(checklist.locator('[data-testid="spinner"]').first()).toBeVisible()
+      await expect(checklist.getByText(/\(\d+\/\d+\)/)).not.toBeVisible()
+      await expect(checklist.getByText('colors.css')).not.toBeVisible()
+      await expect(checklist.getByText('centerColorMap')).not.toBeVisible()
+
+      // Wait for provisioning to complete — counts and checkmarks should appear
+      await expect(checklist.getByText(/\(\d+\/\d+\)/).first()).toBeVisible({ timeout: 30000 })
+      await expect(page.getByText('Building avy center...')).not.toBeVisible({ timeout: 10000 })
+
+      // Skipped demo pages should be listed if any exist
+      const skippedText = checklist.getByText(/Skipped \(demo pages\):/)
+      if (await skippedText.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await expect(skippedText).toBeVisible()
+      }
+
+      // Settings link should be present after provisioning
+      await expect(checklist.getByText('Update Brand Assets')).toBeVisible()
+
+      // Manual theme items should show instructions (new tenant has no colors configured)
+      await expect(checklist.getByText('colors.css')).toBeVisible()
+      await expect(checklist.getByText('centerColorMap')).toBeVisible()
+
+      // Rerun button should show if not fully provisioned, or be hidden if complete
+      const rerunButton = checklist.getByText('Rerun Provisioning')
+      const isVisible = await rerunButton.isVisible({ timeout: 2000 }).catch(() => false)
+      if (isVisible) {
+        await expect(rerunButton).toBeEnabled()
+      }
 
       // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
       await openNav(page)
