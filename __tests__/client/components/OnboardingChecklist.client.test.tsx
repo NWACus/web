@@ -66,23 +66,13 @@ describe('OnboardingChecklist', () => {
     mockCheckStatus.mockResolvedValue({ status: fullyProvisioned })
   })
 
-  describe('smoke tests', () => {
-    it('renders without crashing', async () => {
-      render(<OnboardingChecklist />)
-      await flushAsync()
-    })
-
-    it('renders the heading', async () => {
-      render(<OnboardingChecklist />)
-      await flushAsync()
-      expect(screen.getByText('Onboarding Checklist')).toBeInTheDocument()
-    })
-  })
-
-  describe('checklist states', () => {
-    it('shows empty circles before status loads', () => {
+  describe('on load', () => {
+    beforeEach(() => {
       // Make checkStatus hang so we stay in the unloaded state
       mockCheckStatus.mockReturnValue(new Promise(() => {}))
+    })
+
+    it('shows empty circles and labels', () => {
       render(<OnboardingChecklist />)
 
       expect(screen.getByText('Built-in pages')).toBeInTheDocument()
@@ -91,6 +81,69 @@ describe('OnboardingChecklist', () => {
       expect(screen.getByText('Website Settings')).toBeInTheDocument()
     })
 
+    it('hides details and instructions', () => {
+      render(<OnboardingChecklist />)
+
+      expect(screen.queryByText('colors.css')).not.toBeInTheDocument()
+      expect(screen.queryByText('centerColorMap')).not.toBeInTheDocument()
+      expect(screen.queryByText('(0/7)')).not.toBeInTheDocument()
+      expect(screen.queryByText('(0/5)')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('provisioning', () => {
+    beforeEach(() => {
+      mockCheckStatus.mockResolvedValue({ status: buildStatus() })
+      mockRunProvision.mockReturnValue(new Promise(() => {}))
+    })
+
+    it('shows spinners', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(screen.getAllByTestId('spinner').length).toBeGreaterThan(0)
+    })
+
+    it('hides details', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(screen.queryByText('(0/7)')).not.toBeInTheDocument()
+      expect(screen.queryByText('(0/5)')).not.toBeInTheDocument()
+      expect(screen.queryByText('colors.css')).not.toBeInTheDocument()
+      expect(screen.queryByText('centerColorMap')).not.toBeInTheDocument()
+    })
+
+    it('updates button text when rerunning', async () => {
+      // Automated items complete but pages incomplete — needsProvisioning returns false,
+      // so auto-provision doesn't run but the button shows
+      const incompleteStatus = buildStatus({
+        builtInPages: { count: 7, expected: 7 },
+        pages: { copied: 3, expected: 5, missing: ['about-us', 'donate'], skipped: [] },
+        homePage: true,
+        navigation: true,
+        settings: { exists: true, id: 1 },
+      })
+      mockCheckStatus.mockResolvedValue({ status: incompleteStatus })
+
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      const button = screen.getByText('Rerun Provisioning')
+      expect(button).toBeInTheDocument()
+
+      // Click rerun — provision hangs so we stay in provisioning state
+      mockRunProvision.mockReturnValue(new Promise(() => {}))
+      await act(async () => {
+        button.click()
+      })
+
+      expect(screen.getByText('Provisioning...')).toBeInTheDocument()
+      expect(screen.queryByText('Rerun Provisioning')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('loaded', () => {
     it('shows checkmarks when fully provisioned', async () => {
       render(<OnboardingChecklist />)
       await flushAsync()
@@ -125,22 +178,7 @@ describe('OnboardingChecklist', () => {
       expect(screen.queryByText('Rerun Provisioning')).not.toBeInTheDocument()
     })
 
-    it('hides details while provisioning', async () => {
-      // Status needs provisioning so it auto-runs
-      mockCheckStatus.mockResolvedValue({ status: buildStatus() })
-      mockRunProvision.mockReturnValue(new Promise(() => {}))
-
-      render(<OnboardingChecklist />)
-      await flushAsync()
-
-      expect(screen.queryByText('(0/7)')).not.toBeInTheDocument()
-      expect(screen.queryByText('(0/5)')).not.toBeInTheDocument()
-      expect(screen.getByText('Built-in pages')).toBeInTheDocument()
-    })
-  })
-
-  describe('manual theme items', () => {
-    it('shows instructions when brand colors are missing', async () => {
+    it('shows theme instructions when brand colors are missing', async () => {
       mockCheckStatus.mockResolvedValue({
         status: buildStatus({
           builtInPages: { count: 7, expected: 7 },
@@ -161,7 +199,7 @@ describe('OnboardingChecklist', () => {
       expect(screen.getByText('centerColorMap')).toBeInTheDocument()
     })
 
-    it('hides instructions when theme is complete', async () => {
+    it('hides theme instructions when complete', async () => {
       render(<OnboardingChecklist />)
       await flushAsync()
 
@@ -169,9 +207,7 @@ describe('OnboardingChecklist', () => {
       expect(screen.queryByText('colors.css')).not.toBeInTheDocument()
       expect(screen.queryByText('centerColorMap')).not.toBeInTheDocument()
     })
-  })
 
-  describe('settings link', () => {
     it('shows link to settings when settings exist', async () => {
       render(<OnboardingChecklist />)
       await flushAsync()

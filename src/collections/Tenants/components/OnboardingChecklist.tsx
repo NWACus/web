@@ -42,6 +42,7 @@ function ChecklistItem({
         <div className="flex items-center gap-3">
           {loading ? (
             <Loader2
+              data-testid="spinner"
               size={20}
               className="shrink-0"
               style={{ animation: 'spin 1s linear infinite', color: 'var(--theme-text)' }}
@@ -198,7 +199,7 @@ export function OnboardingChecklist() {
         <h4 className="mb-2">Needs action</h4>
 
         <ChecklistItem loading={isProvisioning} done={theme.brandColors} label="Add brand colors">
-          {!theme.brandColors && (
+          {loaded && !theme.brandColors && (
             <span>
               Add slug to <code>colors.css</code> — see{' '}
               <Link
@@ -211,7 +212,7 @@ export function OnboardingChecklist() {
           )}
         </ChecklistItem>
         <ChecklistItem loading={isProvisioning} done={theme.ogColors} label="Add OG image colors">
-          {!theme.ogColors && (
+          {loaded && !theme.ogColors && (
             <span>
               Add slug to <code>centerColorMap</code> — see{' '}
               <Link
