@@ -1,9 +1,20 @@
 /**
- * Hardcoded list of all US avalanche centers
+ * US avalanche centers with valid NAC API configurations
  *
  * This serves as the single source of truth for valid tenant slugs.
+ * Only centers that return a complete config from the NAC API
+ * (/v2/public/avalanche-center/{CENTER}) are included here.
  * Custom domains are used for production routing - they should match
  * the actual domains configured in Vercel.
+ *
+ * Excluded centers (missing required config fields in NAC API):
+ * - AAIC (Alaska Avalanche Information Center) — no config fields returned
+ * - CAC (Cordova Avalanche Center) — only blog_title returned
+ * - CAIC (Colorado Avalanche Information Center) — no config fields returned
+ * - EARAC (Eastern Alaska Range Avalanche Center) — only blog_title returned
+ * - EWYAIX (Eastern Wyoming Avalanche Info Exchange) — no config object at all
+ * - SOAIX (Southern Oregon Avalanche Info Exchange) — no config object at all
+ * - UAC (Utah Avalanche Center) — no config object at all
  */
 type AvalancheCenterInfo = {
   readonly name: string
