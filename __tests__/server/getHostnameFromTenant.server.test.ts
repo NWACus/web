@@ -49,7 +49,7 @@ describe('server-side utilities: getHostnameFromTenant', () => {
 
   it('handles multiple production tenants correctly', () => {
     PRODUCTION_TENANTS.length = 0
-    PRODUCTION_TENANTS.push('nwac', 'sac', 'uac')
+    PRODUCTION_TENANTS.push('nwac', 'sac', 'snfac')
 
     const tenant1 = buildTenant({ slug: 'nwac' })
     const tenant2 = buildTenant({ slug: 'sac' })

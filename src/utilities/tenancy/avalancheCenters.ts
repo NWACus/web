@@ -11,19 +11,14 @@ type AvalancheCenterInfo = {
 }
 
 export const AVALANCHE_CENTERS = {
-  aaic: { name: 'Alaska Avalanche Information Center', customDomain: 'alaskasnow.org' },
   bac: { name: 'Bridgeport Avalanche Center', customDomain: 'bridgeportavalanchecenter.org' },
   btac: { name: 'Bridger-Teton Avalanche Center', customDomain: 'bridgertetonavalanchecenter.org' },
-  cac: { name: 'Cordova Avalanche Center', customDomain: 'alaskasnow.org' },
-  caic: { name: 'Colorado Avalanche Information Center', customDomain: 'avalanche.state.co.us' },
   caac: { name: 'Coastal Alaska Avalanche Center', customDomain: 'coastalakavalanche.org' },
   cbac: { name: 'Crested Butte Avalanche Center', customDomain: 'cbavalanchecenter.org' },
   cnfaic: { name: 'Chugach National Forest Avalanche Center', customDomain: 'www.cnfaic.org' },
   coaa: { name: 'Central Oregon Avalanche Center', customDomain: 'www.coavalanche.org' },
   dvac: { name: 'Death Valley Avalanche Center', customDomain: 'www.avy-fx-demo.org' }, // The "template tenant" - not a real avalanche center
-  earac: { name: 'Eastern Alaska Range Avalanche Center', customDomain: 'alaskasnow.org' },
   esac: { name: 'Eastern Sierra Avalanche Center', customDomain: 'www.esavalanche.org' },
-  ewyaix: { name: 'Eastern Wyoming Avalanche Info Exchange', customDomain: 'ewyoavalanche.org' },
   fac: { name: 'Flathead Avalanche Center', customDomain: 'www.flatheadavalanche.org' },
   gnfac: { name: 'Gallatin NF Avalanche Center', customDomain: 'www.mtavalanche.com' },
   hac: { name: 'Haines Avalanche Center', customDomain: 'alaskasnow.org' },
@@ -42,9 +37,7 @@ export const AVALANCHE_CENTERS = {
   pac: { name: 'Payette Avalanche Center', customDomain: 'payetteavalanche.org' },
   sac: { name: 'Sierra Avalanche Center', customDomain: 'www.sierraavalanchecenter.org' },
   snfac: { name: 'Sawtooth Avalanche Center', customDomain: 'www.sawtoothavalanche.com' },
-  soaix: { name: 'Southern Oregon Avalanche Info Exchange', customDomain: 'oregonsnow.org' },
   tac: { name: 'Taos Avalanche Center', customDomain: 'taosavalanchecenter.org' },
-  uac: { name: 'Utah Avalanche Center', customDomain: 'utahavalanchecenter.org' },
   vac: { name: 'Valdez Avalanche Center', customDomain: 'alaskasnow.org' },
   wac: { name: 'Wallowa Avalanche Center', customDomain: 'wallowaavalanchecenter.org' },
   wcmac: { name: 'West Central Montana Avalanche Center', customDomain: 'missoulaavalanche.org' },

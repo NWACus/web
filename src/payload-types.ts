@@ -710,19 +710,14 @@ export interface Tenant {
    * Avalanche center identifier. Used for subdomains and URL paths.
    */
   slug:
-    | 'aaic'
     | 'bac'
     | 'btac'
-    | 'cac'
-    | 'caic'
     | 'caac'
     | 'cbac'
     | 'cnfaic'
     | 'coaa'
     | 'dvac'
-    | 'earac'
     | 'esac'
-    | 'ewyaix'
     | 'fac'
     | 'gnfac'
     | 'hac'
@@ -735,9 +730,7 @@ export interface Tenant {
     | 'pac'
     | 'sac'
     | 'snfac'
-    | 'soaix'
     | 'tac'
-    | 'uac'
     | 'vac'
     | 'wac'
     | 'wcmac';
