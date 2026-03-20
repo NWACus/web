@@ -1,3 +1,7 @@
+import {
+  VALID_TENANT_SLUGS,
+  type ValidTenantSlug,
+} from '../../../../src/utilities/tenancy/avalancheCenters'
 import { openNav } from '../../fixtures/nav.fixture'
 import { expect, tenantSelectorTest as test } from '../../fixtures/tenant-selector.fixture'
 import { AdminUrlUtil, CollectionSlugs, saveDocAndAssert, waitForFormReady } from '../../helpers'
@@ -10,18 +14,32 @@ import { AdminUrlUtil, CollectionSlugs, saveDocAndAssert, waitForFormReady } fro
  *
  * The SyncTenantsOnSave component watches useDocumentInfo().lastUpdateTime
  * and calls syncTenants() when it changes.
+ *
+ * These tests run in serial order: test 1 creates a tenant, test 2 edits
+ * and then cleans it up.
  */
 
-const TEMP_TENANT_SLUG_CREATE = 'e2e-sync-create'
-const TEMP_TENANT_NAME_CREATE = 'E2E Sync Create Center'
+const TEMP_TENANT_NAME = 'E2E Sync Test Center'
+const UPDATED_TENANT_NAME = 'E2E Sync Test Renamed'
 
-const TEMP_TENANT_SLUG_EDIT = 'e2e-sync-edit'
-const TEMP_TENANT_NAME_EDIT = 'E2E Sync Edit Center'
-const UPDATED_TENANT_NAME = 'E2E Sync Edit Renamed'
+test.describe.configure({ timeout: 90000, mode: 'serial' })
 
-test.describe.configure({ timeout: 90000 })
+/** Find the first valid tenant slug that doesn't already exist in the database */
+async function findUnusedTenantSlug(
+  page: import('@playwright/test').Page,
+): Promise<ValidTenantSlug> {
+  const response = await page.request.get('http://localhost:3000/api/tenants?limit=100')
+  const data = await response.json()
+  const usedSlugs = new Set(data.docs?.map((doc: { slug: string }) => doc.slug))
 
-/** Delete a tenant by slug if it exists (cleanup from previous runs) */
+  const unused = VALID_TENANT_SLUGS.find((slug) => !usedSlugs.has(slug))
+  if (!unused) {
+    throw new Error('No unused tenant slugs available')
+  }
+  return unused
+}
+
+/** Delete a tenant by slug if it exists */
 async function deleteTenantBySlug(page: import('@playwright/test').Page, slug: string) {
   const response = await page.request.get(
     `http://localhost:3000/api/tenants?where[slug][equals]=${slug}&limit=1`,
@@ -32,20 +50,9 @@ async function deleteTenantBySlug(page: import('@playwright/test').Page, slug: s
   }
 }
 
-/** Create a tenant via the REST API, returning its ID */
-async function createTenantViaApi(
-  page: import('@playwright/test').Page,
-  name: string,
-  slug: string,
-): Promise<number> {
-  const response = await page.request.post('http://localhost:3000/api/tenants', {
-    data: { name, slug },
-  })
-  const data = await response.json()
-  return data.doc.id
-}
-
 test.describe('Tenant selector syncs on save', () => {
+  let tempTenantSlug: ValidTenantSlug
+
   test('should show new tenant in selector after creation', async ({
     loginAs,
     getTenantOptions,
@@ -53,8 +60,7 @@ test.describe('Tenant selector syncs on save', () => {
     const page = await loginAs('superAdmin')
     const tenantsUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.tenants)
 
-    // Clean up leftover tenants from previous failed runs
-    await deleteTenantBySlug(page, TEMP_TENANT_SLUG_CREATE)
+    tempTenantSlug = await findUnusedTenantSlug(page)
 
     try {
       // Navigate to create a new tenant
@@ -62,8 +68,11 @@ test.describe('Tenant selector syncs on save', () => {
       await page.waitForLoadState('networkidle')
       await waitForFormReady(page)
 
-      await page.locator('#field-name').fill(TEMP_TENANT_NAME_CREATE)
-      await page.locator('#field-slug').fill(TEMP_TENANT_SLUG_CREATE)
+      await page.locator('#field-name').fill(TEMP_TENANT_NAME)
+      // Slug is a select dropdown — open it, filter, and click the matching option
+      const slugField = page.locator('#field-slug')
+      await slugField.locator('button.dropdown-indicator').click()
+      await slugField.locator('.rs__option', { hasText: tempTenantSlug }).click()
       await saveDocAndAssert(page)
 
       // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
@@ -76,9 +85,8 @@ test.describe('Tenant selector syncs on save', () => {
 
       // The tenant selector should show the new tenant without a full page reload
       const options = await getTenantOptions(page)
-      expect(options).toContain(TEMP_TENANT_NAME_CREATE)
+      expect(options).toContain(TEMP_TENANT_NAME)
     } finally {
-      await deleteTenantBySlug(page, TEMP_TENANT_SLUG_CREATE)
       await page.context().close()
     }
   })
@@ -90,12 +98,16 @@ test.describe('Tenant selector syncs on save', () => {
     const page = await loginAs('superAdmin')
     const tenantsUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.tenants)
 
-    // Clean up leftover tenants from previous failed runs
-    await deleteTenantBySlug(page, TEMP_TENANT_SLUG_EDIT)
-
     try {
-      // Create a tenant via API so we can edit it in the UI
-      const tenantId = await createTenantViaApi(page, TEMP_TENANT_NAME_EDIT, TEMP_TENANT_SLUG_EDIT)
+      // Find the tenant created by the previous test
+      const response = await page.request.get(
+        `http://localhost:3000/api/tenants?where[slug][equals]=${tempTenantSlug}&limit=1`,
+      )
+      const data = await response.json()
+      const tenantId = data.docs?.[0]?.id
+      if (!tenantId) {
+        throw new Error(`Tenant with slug "${tempTenantSlug}" not found — test 1 may have failed`)
+      }
 
       // Navigate to the tenant edit page
       await page.goto(tenantsUrl.edit(tenantId))
@@ -116,9 +128,9 @@ test.describe('Tenant selector syncs on save', () => {
 
       const options = await getTenantOptions(page)
       expect(options).toContain(UPDATED_TENANT_NAME)
-      expect(options).not.toContain(TEMP_TENANT_NAME_EDIT)
+      expect(options).not.toContain(TEMP_TENANT_NAME)
     } finally {
-      await deleteTenantBySlug(page, TEMP_TENANT_SLUG_EDIT)
+      await deleteTenantBySlug(page, tempTenantSlug)
       await page.context().close()
     }
   })
