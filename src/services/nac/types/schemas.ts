@@ -44,14 +44,16 @@ export const avalancheCenterConfigurationSchema = z.object({
   expires_time: z
     .number()
     .nullable()
+    .optional()
     .transform((n) => n ?? 0),
   published_time: z
     .number()
     .nullable()
+    .optional()
     .transform((n) => n ?? 0),
-  blog: z.boolean(),
-  blog_title: z.string(),
-  weather_table: z.array(avalancheCenterWeatherConfigurationSchema),
+  blog: z.boolean().optional(),
+  blog_title: z.string().optional(),
+  weather_table: z.array(avalancheCenterWeatherConfigurationSchema).optional().default([]),
   zone_order: z.array(z.number()).optional(),
 })
 
