@@ -156,7 +156,7 @@ export function OnboardingChecklist() {
             <span>
               Add slug to <code>colors.css</code> — see{' '}
               <Link
-                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md"
+                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
                 target="_blank"
               >
                 docs/onboarding.md
@@ -169,7 +169,7 @@ export function OnboardingChecklist() {
             <span>
               Add slug to <code>centerColorMap</code> — see{' '}
               <Link
-                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md"
+                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
                 target="_blank"
               >
                 docs/onboarding.md
