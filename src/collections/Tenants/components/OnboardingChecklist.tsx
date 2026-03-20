@@ -1,10 +1,11 @@
 'use client'
 
-import { Button, toast, useDocumentInfo } from '@payloadcms/ui'
-import { CheckCircle2, Circle } from 'lucide-react'
+import { Button, toast, useDocumentInfo, useForm } from '@payloadcms/ui'
+import { CheckCircle2, Circle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 import { useCallback, useEffect, useState } from 'react'
+import { needsProvisioning } from './needsProvisioning'
 import {
   checkProvisioningStatusAction,
   type ProvisioningStatus,
@@ -21,12 +22,14 @@ const DEFAULT_STATUS: ProvisioningStatus = {
 }
 
 function ChecklistItem({
+  loading,
   done,
   label,
   details,
   children,
   action,
 }: {
+  loading?: boolean
   done: boolean
   label: string
   details?: React.ReactNode
@@ -37,23 +40,30 @@ function ChecklistItem({
     <div className="py-2">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
-          {done ? (
+          {loading ? (
+            <Loader2
+              size={20}
+              className="shrink-0"
+              style={{ animation: 'spin 1s linear infinite', color: 'var(--theme-text)' }}
+            />
+          ) : done ? (
             <CheckCircle2 size={20} className="shrink-0 text-success" />
           ) : (
             <Circle size={20} className="shrink-0 text-muted-foreground" />
           )}
-          <span className={done ? 'opacity-70' : ''}>{label}</span>
-          {details && <span className="text-sm opacity-50">{details}</span>}
+          <span className={done && !loading ? 'opacity-70' : ''}>{label}</span>
+          {!loading && details && <span className="text-sm opacity-50">{details}</span>}
         </div>
-        {action && <div>{action}</div>}
+        {!loading && action && <div>{action}</div>}
       </div>
-      {children && <div className="ml-9 mt-1 text-sm opacity-50">{children}</div>}
+      {!loading && children && <div className="ml-9 mt-1 text-sm opacity-50">{children}</div>}
     </div>
   )
 }
 
 export function OnboardingChecklist() {
   const { data } = useDocumentInfo()
+  const { setProcessing } = useForm()
   const [status, setStatus] = useState<ProvisioningStatus>(DEFAULT_STATUS)
   const [loaded, setLoaded] = useState(false)
   const [isProvisioning, setIsProvisioning] = useState(false)
@@ -61,41 +71,74 @@ export function OnboardingChecklist() {
   const tenantId = data?.id
 
   const checkStatus = useCallback(async () => {
-    if (!tenantId) return
+    if (!tenantId) return null
     try {
       const result = await checkProvisioningStatusAction(tenantId)
       if ('error' in result) {
         toast.error(result.error)
+        return null
+      }
+      setStatus(result.status)
+      setLoaded(true)
+      return result.status
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to check status')
+      return null
+    }
+  }, [tenantId])
+
+  const handleProvision = useCallback(async () => {
+    if (!tenantId || isProvisioning) return
+
+    setIsProvisioning(true)
+    setProcessing(true)
+
+    toast.promise(
+      new Promise((resolve, reject) => {
+        runProvisionAction(tenantId)
+          .then(async (result) => {
+            if ('error' in result) {
+              reject(result.error)
+              return
+            }
+            await checkStatus()
+            setIsProvisioning(false)
+            setProcessing(false)
+            resolve(result)
+          })
+          .catch((err) => {
+            setIsProvisioning(false)
+            setProcessing(false)
+            reject(err)
+          })
+      }),
+      {
+        loading: 'Building avy center...',
+        success: 'Provisioning complete',
+        error: 'Provisioning failed',
+      },
+    )
+  }, [tenantId, isProvisioning, checkStatus, setProcessing])
+
+  // On mount: check status, auto-provision if needed
+  useEffect(() => {
+    if (!tenantId) return
+
+    checkProvisioningStatusAction(tenantId).then((result) => {
+      if ('error' in result) {
+        toast.error(result.error)
+        return
+      }
+
+      if (needsProvisioning(result.status)) {
+        setIsProvisioning(true)
+        handleProvision()
       } else {
         setStatus(result.status)
         setLoaded(true)
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to check status')
-    }
-  }, [tenantId])
-
-  useEffect(() => {
-    checkStatus()
-  }, [checkStatus])
-
-  const handleProvision = async () => {
-    if (!tenantId) return
-    setIsProvisioning(true)
-    try {
-      const result = await runProvisionAction(tenantId)
-      if ('error' in result) {
-        toast.error(result.error)
-      } else {
-        toast.success('Provisioning complete')
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to provision')
-    } finally {
-      await checkStatus()
-      setIsProvisioning(false)
-    }
-  }
+    })
+  }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { builtInPages, pages, homePage, navigation, settings, theme } = status
 
@@ -121,12 +164,14 @@ export function OnboardingChecklist() {
       </div>
 
       <ChecklistItem
+        loading={isProvisioning}
         done={loaded && builtInPages.count >= builtInPages.expected}
         label="Built-in pages"
         details={loaded && `(${builtInPages.count}/${builtInPages.expected})`}
       />
       <ChecklistItem
-        done={loaded && pages.copied >= pages.expected && pages.expected > 0}
+        loading={isProvisioning}
+        done={pages.copied >= pages.expected && pages.expected > 0}
         label="Pages - copied from DVAC"
         details={loaded && `(${pages.copied}/${pages.expected})`}
       >
@@ -134,9 +179,10 @@ export function OnboardingChecklist() {
         {pages.skipped.length > 0 && <div>Skipped (demo pages): {pages.skipped.join(', ')}</div>}
       </ChecklistItem>
 
-      <ChecklistItem done={homePage} label="Home page" />
-      <ChecklistItem done={navigation} label="Navigation" />
+      <ChecklistItem loading={isProvisioning} done={homePage} label="Home page" />
+      <ChecklistItem loading={isProvisioning} done={navigation} label="Navigation" />
       <ChecklistItem
+        loading={isProvisioning}
         done={settings.exists}
         label="Website Settings"
         action={
@@ -151,8 +197,8 @@ export function OnboardingChecklist() {
       <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
         <h4 className="mb-2">Needs action</h4>
 
-        <ChecklistItem done={theme.brandColors} label="Add brand colors">
-          {loaded && !theme.brandColors && (
+        <ChecklistItem loading={isProvisioning} done={theme.brandColors} label="Add brand colors">
+          {!theme.brandColors && (
             <span>
               Add slug to <code>colors.css</code> — see{' '}
               <Link
@@ -164,8 +210,8 @@ export function OnboardingChecklist() {
             </span>
           )}
         </ChecklistItem>
-        <ChecklistItem done={theme.ogColors} label="Add OG image colors">
-          {loaded && !theme.ogColors && (
+        <ChecklistItem loading={isProvisioning} done={theme.ogColors} label="Add OG image colors">
+          {!theme.ogColors && (
             <span>
               Add slug to <code>centerColorMap</code> — see{' '}
               <Link

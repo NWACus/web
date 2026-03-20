@@ -1,6 +1,5 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
 import { provisionTenant } from '@/collections/Tenants/endpoints/provisionTenant'
-import { provisionAfterChange } from '@/collections/Tenants/hooks/provisionAfterChange'
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
@@ -21,7 +20,6 @@ export const Tenants: CollectionConfig = {
       edit: {
         beforeDocumentControls: [
           '@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave',
-          '@/collections/Tenants/components/ProvisioningIndicator#ProvisioningIndicator',
         ],
       },
     },
@@ -42,7 +40,7 @@ export const Tenants: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [provisionAfterChange, revalidateTenantsAfterChange],
+    afterChange: [revalidateTenantsAfterChange],
     afterDelete: [revalidateTenantsAfterDelete],
   },
   fields: [
@@ -72,6 +70,7 @@ export const Tenants: CollectionConfig = {
     {
       type: 'ui',
       name: 'onboardingChecklist',
+      label: 'Onboarding Status',
       admin: {
         components: {
           Cell: '@/collections/Tenants/components/OnboardingStatusCell#OnboardingStatusCell',

@@ -71,7 +71,6 @@ export const provisionTenant: PayloadHandler = async (req) => {
         name: body.name,
         slug: body.slug,
       },
-      context: { skipProvision: true },
     })
 
     payload.logger.info(`Created tenant: ${tenant.name} (${tenant.slug})`)
