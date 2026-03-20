@@ -38,6 +38,7 @@ import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/colle
 import { OnboardingStatusCell as OnboardingStatusCell_132cf100d66efa575804a025c9c1c699 } from '@/collections/Tenants/components/OnboardingStatusCell'
 import { OnboardingChecklist as OnboardingChecklist_e43d4b78209dd849b6f9ccc557d93063 } from '@/collections/Tenants/components/OnboardingChecklist'
 import { SyncTenantsOnSave as SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1 } from '@/collections/Tenants/components/SyncTenantsOnSave'
+import { ProvisioningIndicator as ProvisioningIndicator_7241e2b1134d3b2de52974a065dc8e21 } from '@/collections/Tenants/components/ProvisioningIndicator'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
@@ -99,6 +100,7 @@ export const importMap = {
   "@/collections/Tenants/components/OnboardingStatusCell#OnboardingStatusCell": OnboardingStatusCell_132cf100d66efa575804a025c9c1c699,
   "@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist": OnboardingChecklist_e43d4b78209dd849b6f9ccc557d93063,
   "@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave": SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1,
+  "@/collections/Tenants/components/ProvisioningIndicator#ProvisioningIndicator": ProvisioningIndicator_7241e2b1134d3b2de52974a065dc8e21,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   "@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription": USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
