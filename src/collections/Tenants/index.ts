@@ -73,6 +73,7 @@ export const Tenants: CollectionConfig = {
       name: 'onboardingChecklist',
       admin: {
         components: {
+          Cell: '@/collections/Tenants/components/OnboardingStatusCell#OnboardingStatusCell',
           Field: '@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist',
         },
         position: 'sidebar',

@@ -1,6 +1,10 @@
 'use server'
 
-import { provision, SKIP_PAGE_SLUGS } from '@/collections/Tenants/endpoints/provisionTenant'
+import {
+  BUILT_IN_PAGES,
+  provision,
+  SKIP_PAGE_SLUGS,
+} from '@/collections/Tenants/endpoints/provisionTenant'
 import config from '@payload-config'
 import fs from 'fs/promises'
 import path from 'path'
@@ -112,7 +116,7 @@ export async function checkProvisioningStatusAction(
 
     return {
       status: {
-        builtInPages: { count: builtInPages.totalDocs, expected: 4 },
+        builtInPages: { count: builtInPages.totalDocs, expected: BUILT_IN_PAGES.length },
         pages: {
           copied: copiedPages.length,
           expected: templatePageSlugs.length,
