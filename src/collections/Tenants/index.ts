@@ -19,6 +19,7 @@ export const Tenants: CollectionConfig = {
       edit: {
         beforeDocumentControls: [
           '@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave',
+          '@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug',
         ],
       },
     },
@@ -37,11 +38,6 @@ export const Tenants: CollectionConfig = {
   },
   fields: [
     {
-      name: 'name',
-      type: 'text',
-      required: true,
-    },
-    {
       name: 'slug',
       type: 'select',
       admin: {
@@ -57,6 +53,11 @@ export const Tenants: CollectionConfig = {
       access: {
         update: () => false, // we should never change this after initial creation
       },
+    },
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
     },
     contentHashField(),
   ],

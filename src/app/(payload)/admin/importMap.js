@@ -36,6 +36,7 @@ import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de7
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
 import { SyncTenantsOnSave as SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1 } from '@/collections/Tenants/components/SyncTenantsOnSave'
+import { AutoFillNameFromSlug as AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10 } from '@/collections/Tenants/components/AutoFillNameFromSlug'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
@@ -95,6 +96,7 @@ export const importMap = {
   "@/collections/Roles/components/CollectionsField#CollectionsField": CollectionsField_49c0311020325b59204cc21d2f536b8d,
   "@/collections/Roles/components/RulesCell#RulesCell": RulesCell_649699f5b285e7a5429592dc58fd6f0c,
   "@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave": SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1,
+  "@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug": AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   "@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription": USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
