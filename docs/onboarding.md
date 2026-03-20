@@ -11,12 +11,29 @@ Provisioning is idempotent and can be rerun safely.
 | Step | Details |
 |------|---------|
 | Website Settings | Created with placeholder brand assets (logo, icon, banner). Replace with real assets via the checklist link. |
-| Built-in pages | Creates 4 standard pages: All Forecasts, Weather Stations, Recent Observations, Submit Observations. |
+| Built-in pages | Creates standard pages per the table below. |
 | Template pages | Copies all published pages from the template tenant (DVAC). Pages whose blocks all reference tenant-scoped data (teams, sponsors, events, forms) are copied as empty drafts. Demo pages (`blocks`, `lexical-blocks`) are skipped. Static blog/event list blocks are converted to dynamic mode. |
 | Home page | Creates a home page with welcome content and quick links to About Us and Donate. |
 | Navigation | Creates navigation menus linked to all copied pages and built-in pages. |
 | Edge Config | The `updateEdgeConfigAfterChange` hook automatically adds the tenant to Vercel Edge Config. |
 
+#### Built-In Pages
+
+\* If a center has a single forecast zone, it gets an "Avalanche Forecast" page pointing to that zone. Multi-zone centers get an "All Forecasts" page plus individual zone pages.
+
+| Title | URL | For AC with single or multi zone* |
+|-------|-----|-----------------------------------|
+| All Forecasts | `/forecasts/avalanche` | multi |
+| _ZONE NAME_ | `/forecasts/avalanche/ZONE` | multi |
+| Avalanche Forecast | `/forecasts/avalanche/ZONE` | single |
+| Mountain Weather** | `/weather/forecast` | both |
+| Weather Stations | `/weather/stations/map` | both |
+| Recent Observations | `/observations` | both |
+| Submit Observations | `/observations/submit` | both |
+| Blog | `/blog` | both |
+| Events | `/events` | both |
+
+\*\* Mountain Weather is only available for centers that have a weather forecast configured.
 
 ## Manual steps
 
@@ -51,7 +68,7 @@ Add a new CSS class using the tenant's slug (e.g. `.dvac`) in `src/app/(frontend
 | `--brand-50` through `--brand-950` | Brand color range used for block backgrounds |
 | `--brand-foreground-50` through `--brand-foreground-950` | Text colors for each brand background |
 
-### Custom domain
+### Configuring a custom domain in production
 
 1. Update the `PRODUCTION_TENANTS` env var to include the tenant's slug. This should be a comma separated list of slugs (see `src/utilities/tenancy/tenants.ts`).
 2. Set the `customDomain` field for the tenant. This should be the host (i.e. `www.deathvalleyavalanchecenter.com`). Confirm that the `customDomain` in the production Edge Config for the tenant matches this.

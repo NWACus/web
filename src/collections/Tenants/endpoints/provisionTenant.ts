@@ -19,11 +19,14 @@ export const TENANT_SCOPED_BLOCK_TYPES = new Set([
 // Page slugs that should not be copied during provisioning (e.g. demo/showcase pages)
 export const SKIP_PAGE_SLUGS = new Set(['blocks', 'lexical-blocks'])
 
-const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
+export const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
   { title: 'All Forecasts', url: '/forecasts/avalanche' },
+  { title: 'Mountain Weather', url: '/weather/forecast' },
   { title: 'Weather Stations', url: '/weather/stations/map' },
   { title: 'Recent Observations', url: '/observations' },
   { title: 'Submit Observations', url: '/observations/submit' },
+  { title: 'Blog', url: '/blog' },
+  { title: 'Events', url: '/events' },
 ]
 
 /**
@@ -61,7 +64,7 @@ export const provisionTenant: PayloadHandler = async (req) => {
   }
 
   try {
-    // Create the tenant (allowDirectCreate bypasses the beforeChange guard)
+    // Create the tenant
     const tenant = await payload.create({
       collection: 'tenants',
       data: {
