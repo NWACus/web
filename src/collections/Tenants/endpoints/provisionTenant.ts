@@ -30,7 +30,7 @@ const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
  * Creates a new tenant and provisions it with all default data.
  *
  * POST /api/tenants/provision
- * Body: { name: string, slug: string, customDomain?: string }
+ * Body: { name: string, slug: string}
  * Requires super admin permissions.
  *
  * This replaces the manual workflow of creating a tenant then separately
@@ -67,7 +67,6 @@ export const provisionTenant: PayloadHandler = async (req) => {
       data: {
         name: body.name,
         slug: body.slug,
-        customDomain: body.customDomain || '',
       },
       context: { skipProvision: true },
     })
@@ -555,7 +554,6 @@ export async function provision(payload: Payload, tenant: Tenant) {
     homePageCreated,
     navigationCreated,
     // TODO: Theme creation (colors.css, centerColorMap in generateOGImage.tsx) requires manual steps.
-    // TODO: Custom domain configuration requires manual Vercel and DNS setup.
   }
 
   log.info(`Provisioning complete for ${tenant.name}: ${JSON.stringify(summary)}`)

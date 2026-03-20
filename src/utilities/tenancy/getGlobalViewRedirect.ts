@@ -3,8 +3,7 @@ import type { CollectionSlug, Payload, TypedUser, ViewTypes } from 'payload'
 
 import { formatAdminURL } from 'payload/shared'
 
-import { getCollectionIDType } from './getCollectionIDType'
-import { getTenantFromCookie } from './getTenantFromCookie'
+import { getTenantSlugFromCookie } from './getTenantFromCookie'
 import { getTenantOptions } from './getTenantOptions'
 
 type Args = {
@@ -31,14 +30,21 @@ export async function getGlobalViewRedirect({
   user,
   view,
 }: Args): Promise<string | void> {
-  const idType = getCollectionIDType({
-    collectionSlug: tenantsCollectionSlug,
-    payload,
-  })
-  let tenant = getTenantFromCookie(headers, idType)
-  let redirectRoute: `/${string}` | void = undefined
+  // Get tenant slug from cookie and look up tenant ID
+  const tenantSlug = getTenantSlugFromCookie(headers)
+  let tenantId: number | string | null = null
 
-  if (!tenant) {
+  if (tenantSlug) {
+    const { docs } = await payload.find({
+      collection: tenantsCollectionSlug,
+      where: { slug: { equals: tenantSlug } },
+      limit: 1,
+      depth: 0,
+    })
+    tenantId = docs[0]?.id ?? null
+  }
+
+  if (!tenantId) {
     const tenantsQuery = await getTenantOptions({
       limit: 1,
       payload,
@@ -47,8 +53,10 @@ export async function getGlobalViewRedirect({
       user,
     })
 
-    tenant = tenantsQuery.docs[0]?.id || null
+    tenantId = tenantsQuery.docs[0]?.id || null
   }
+
+  let redirectRoute: `/${string}` | void = undefined
 
   try {
     const { docs } = await payload.find({
@@ -60,7 +68,7 @@ export async function getGlobalViewRedirect({
       user,
       where: {
         [tenantFieldName]: {
-          equals: tenant,
+          equals: tenantId,
         },
       },
     })

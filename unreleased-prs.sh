@@ -20,7 +20,7 @@ echo -e "\n${GREEN}PRs in main that haven't been released yet:${NC}\n"
 REPO_URL=$(git config --get remote.origin.url | sed 's/\.git$//' | sed 's/git@github.com:/https:\/\/github.com\//')
 
 # Get commits in main but not in release, with dates
-git log release..main --first-parent --pretty=format:"%h|%ad|%s" --date=short | while IFS='|' read -r hash date message; do
+git log release..main --first-parent --pretty=tformat:"%h|%ad|%s" --date=short | while IFS='|' read -r hash date message; do
   # Extract PR number from commit message using regex
   if [[ $message =~ Merge\ pull\ request\ \#([0-9]+) ]]; then
     PR_NUMBER="${BASH_REMATCH[1]}"

@@ -1,5 +1,6 @@
 import { getCanonicalUrlForSlug } from '@/components/Header/utils'
 import { Tenant } from '@/payload-types'
+import { findCenterByDomain } from '@/utilities/tenancy/avalancheCenters'
 import { CollectionSlug, PayloadRequest } from 'payload'
 import { getURL } from './getURL'
 import { isTenantValue } from './isTenantValue'
@@ -28,8 +29,8 @@ export const generatePreviewPath = async ({ collection, slug, tenant, req }: Pro
   }
   // Check if current host is the tenant's domain
   const currentHost = req.headers.get('host') || req.host
-  const isTenantCustomDomain =
-    resolvedTenant?.customDomain && currentHost === resolvedTenant.customDomain
+  const matchedSlug = findCenterByDomain(currentHost)
+  const isTenantCustomDomain = !!matchedSlug && matchedSlug === resolvedTenant?.slug
   const isTenantSubdomain =
     resolvedTenant?.slug && currentHost.startsWith(`${resolvedTenant.slug}.`)
 

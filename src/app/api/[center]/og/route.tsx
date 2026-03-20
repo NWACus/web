@@ -58,7 +58,6 @@ export async function GET(
       populate: {
         tenants: {
           slug: true,
-          customDomain: true,
           name: true,
         },
       },

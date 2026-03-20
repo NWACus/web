@@ -144,7 +144,7 @@ export const TenantNames = {
   snfac: 'Sawtooth Avalanche Center',
 } as const
 
-// Hopefully remove soon
+// Needed to access Avalanche Center collection pages
 export const TenantIds = {
   dvac: '1',
   nwac: '2',
