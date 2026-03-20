@@ -35,6 +35,7 @@ import { InviteUser as InviteUser_6042b6804e11048cd4fbe6206cbc2b0f } from '@/col
 import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735 } from '@/collections/Users/components/ResendInviteButton'
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
+import { SlugField as SlugField_4e2330fe5e18c09104e972074c9b8949 } from '@/collections/Tenants/components/SlugField'
 import { SyncTenantsOnSave as SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1 } from '@/collections/Tenants/components/SyncTenantsOnSave'
 import { AutoFillNameFromSlug as AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10 } from '@/collections/Tenants/components/AutoFillNameFromSlug'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
@@ -95,6 +96,7 @@ export const importMap = {
   "@/collections/Users/components/ResendInviteButton#ResendInviteButton": ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735,
   "@/collections/Roles/components/CollectionsField#CollectionsField": CollectionsField_49c0311020325b59204cc21d2f536b8d,
   "@/collections/Roles/components/RulesCell#RulesCell": RulesCell_649699f5b285e7a5429592dc58fd6f0c,
+  "@/collections/Tenants/components/SlugField#SlugField": SlugField_4e2330fe5e18c09104e972074c9b8949,
   "@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave": SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1,
   "@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug": AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,

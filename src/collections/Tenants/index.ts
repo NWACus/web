@@ -41,6 +41,9 @@ export const Tenants: CollectionConfig = {
       name: 'slug',
       type: 'select',
       admin: {
+        components: {
+          Field: '@/collections/Tenants/components/SlugField#SlugField',
+        },
         description: 'Avalanche center identifier. Used for subdomains and URL paths.',
       },
       options: VALID_TENANT_SLUGS.map((slug) => ({
