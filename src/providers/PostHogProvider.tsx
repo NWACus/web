@@ -29,6 +29,9 @@ export function PostHogProvider({
           defaults: '2025-05-24',
           debug: process.env.NODE_ENV !== 'production',
           persistence, // localStorage+cookie is the PostHog default
+          advanced_disable_feature_flags_on_first_load: true,
+          advanced_disable_feature_flags: true,
+          disable_surveys: true,
         })
       }
     },
