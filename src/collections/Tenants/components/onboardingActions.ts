@@ -1,5 +1,6 @@
 'use server'
 
+import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
 import {
   BUILT_IN_PAGES,
   provision,
@@ -36,7 +37,6 @@ export async function checkProvisioningStatusAction(
       settings,
       tenant,
       brandColors,
-      ogRouteFile,
       templateTenantResult,
     ] = await Promise.all([
       payload.find({
@@ -75,14 +75,6 @@ export async function checkProvisioningStatusAction(
         .catch((err) => {
           payload.logger.warn(
             `Failed to read colors.css: ${err instanceof Error ? err.message : err}`,
-          )
-          return ''
-        }),
-      fs
-        .readFile(path.join(process.cwd(), 'src/app/api/[center]/og/route.tsx'), 'utf-8')
-        .catch((err) => {
-          payload.logger.warn(
-            `Failed to read og/route.tsx: ${err instanceof Error ? err.message : err}`,
           )
           return ''
         }),
@@ -143,7 +135,7 @@ export async function checkProvisioningStatusAction(
           // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
           brandColors: brandColors.includes(`.${tenant.slug} {`),
           // Check if the tenant slug exists as a key in centerColorMap in the OG route
-          ogColors: ogRouteFile.includes(`${tenant.slug}:`),
+          ogColors: tenant.slug in centerColorMap,
         },
       },
     }

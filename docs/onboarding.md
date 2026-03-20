@@ -42,7 +42,7 @@ Provisioning is idempotent and can be rerun safely.
 Optional — the default theme works but centers will likely want their brand colors.
 
 - [ ] Add center's theme to `src/app/(frontend)/colors.css`
-- [ ] Add center's colors to `centerColorMap` in `src/app/api/[center]/og/route.tsx` (use header colors)
+- [ ] Add center's colors to `centerColorMap` in `src/app/api/[center]/og/centerColorMap.ts` (use header colors)
 
 
 #### Required colors
