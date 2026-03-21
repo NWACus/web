@@ -58,12 +58,9 @@ test.describe('Onboarding Checklist', () => {
     await expect(checklist.getByText(/\(\d+\/\d+\)/).first()).toBeVisible({ timeout: 5000 })
 
     // Settings link should point to the tenant's settings document
-    const settingsLink = checklist.getByText('Update Brand Assets')
+    const settingsLink = checklist.locator('a', { hasText: 'Update Brand Assets' })
     await expect(settingsLink).toBeVisible()
-    await expect(settingsLink.locator('xpath=ancestor::a')).toHaveAttribute(
-      'href',
-      /\/admin\/collections\/settings\/\d+/,
-    )
+    await expect(settingsLink).toHaveAttribute('href', /\/admin\/collections\/settings\/\d+/)
   })
 
   test('shows empty checklist on tenant create page', async ({ adminPage: page }) => {

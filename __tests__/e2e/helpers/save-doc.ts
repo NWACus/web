@@ -27,12 +27,12 @@ export async function saveDocAndAssert(
 
   if (expectation === 'success') {
     // Wait for success toast
-    await expect(page.locator('.toast-success, .Toastify__toast--success')).toBeVisible({
+    await expect(page.locator('.toast-success, .Toastify__toast--success').first()).toBeVisible({
       timeout,
     })
   } else {
     // Wait for error toast
-    await expect(page.locator('.toast-error, .Toastify__toast--error')).toBeVisible({
+    await expect(page.locator('.toast-error, .Toastify__toast--error').first()).toBeVisible({
       timeout,
     })
   }
@@ -60,11 +60,11 @@ export async function saveDocHotkeyAndAssert(
   await page.keyboard.press(`${modifier}+s`)
 
   if (expectation === 'success') {
-    await expect(page.locator('.toast-success, .Toastify__toast--success')).toBeVisible({
+    await expect(page.locator('.toast-success, .Toastify__toast--success').first()).toBeVisible({
       timeout,
     })
   } else {
-    await expect(page.locator('.toast-error, .Toastify__toast--error')).toBeVisible({
+    await expect(page.locator('.toast-error, .Toastify__toast--error').first()).toBeVisible({
       timeout,
     })
   }
