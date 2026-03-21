@@ -22,20 +22,19 @@ export async function saveDocAndAssert(
 ): Promise<void> {
   const timeout = options?.timeout ?? 10000
 
+  const toastSelector =
+    expectation === 'success'
+      ? '.toast-success, [data-type="success"]'
+      : '.toast-error, [data-type="error"]'
+
+  // Start waiting for the toast before clicking save to avoid race conditions
+  const toastPromise = page.locator(toastSelector).first().waitFor({ state: 'visible', timeout })
+
   // Click the save button
   await page.click(selector)
 
-  if (expectation === 'success') {
-    // Wait for success toast
-    await expect(page.locator('.toast-success, .Toastify__toast--success').first()).toBeVisible({
-      timeout,
-    })
-  } else {
-    // Wait for error toast
-    await expect(page.locator('.toast-error, .Toastify__toast--error').first()).toBeVisible({
-      timeout,
-    })
-  }
+  // Wait for the toast to appear
+  await toastPromise
 
   // Dismiss toasts unless disabled
   if (!options?.disableDismissAllToasts) {
@@ -59,15 +58,12 @@ export async function saveDocHotkeyAndAssert(
 
   await page.keyboard.press(`${modifier}+s`)
 
-  if (expectation === 'success') {
-    await expect(page.locator('.toast-success, .Toastify__toast--success').first()).toBeVisible({
-      timeout,
-    })
-  } else {
-    await expect(page.locator('.toast-error, .Toastify__toast--error').first()).toBeVisible({
-      timeout,
-    })
-  }
+  const hotkeyToastSelector =
+    expectation === 'success'
+      ? '.toast-success, [data-type="success"]'
+      : '.toast-error, [data-type="error"]'
+
+  await expect(page.locator(hotkeyToastSelector).first()).toBeVisible({ timeout })
 
   if (!options?.disableDismissAllToasts) {
     await closeAllToasts(page)
