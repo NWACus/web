@@ -3,7 +3,9 @@ import type { DefaultServerCellComponentProps } from 'payload'
 
 import { checkProvisioningStatusAction } from './onboardingActions'
 
-export async function OnboardingStatusCell({ rowData }: DefaultServerCellComponentProps) {
+export async function OnboardingStatusCell({
+  rowData,
+}: Pick<DefaultServerCellComponentProps, 'rowData'>) {
   if (!rowData?.id) {
     return null
   }
@@ -22,7 +24,9 @@ export async function OnboardingStatusCell({ rowData }: DefaultServerCellCompone
     pages.expected > 0 &&
     homePage &&
     navigation &&
-    settings.exists
+    settings.exists &&
+    result.status.theme.brandColors &&
+    result.status.theme.ogColors
 
   return allComplete ? (
     <Pill size="small">Complete</Pill>
