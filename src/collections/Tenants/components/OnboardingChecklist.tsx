@@ -121,7 +121,7 @@ export function OnboardingChecklist() {
     )
   }, [tenantId, isProvisioning, checkStatus, setProcessing])
 
-  // On mount: check status, auto-provision if needed
+  // On mount: check status and auto-provision only for brand new tenants
   useEffect(() => {
     if (!tenantId) return
 

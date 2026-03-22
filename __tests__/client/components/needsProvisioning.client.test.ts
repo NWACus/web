@@ -29,7 +29,7 @@ describe('needsProvisioning', () => {
     ).toBe(false)
   })
 
-  it('returns true when built-in pages are incomplete', () => {
+  it('returns false when partially provisioned (only built-in pages missing)', () => {
     expect(
       needsProvisioning(
         buildStatus({
@@ -39,10 +39,10 @@ describe('needsProvisioning', () => {
           settings: { exists: true },
         }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
-  it('returns true when home page is missing', () => {
+  it('returns false when partially provisioned (only home page missing)', () => {
     expect(
       needsProvisioning(
         buildStatus({
@@ -52,10 +52,10 @@ describe('needsProvisioning', () => {
           settings: { exists: true },
         }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
-  it('returns true when navigation is missing', () => {
+  it('returns false when partially provisioned (only navigation missing)', () => {
     expect(
       needsProvisioning(
         buildStatus({
@@ -65,10 +65,10 @@ describe('needsProvisioning', () => {
           settings: { exists: true },
         }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
-  it('returns true when settings are missing', () => {
+  it('returns false when partially provisioned (only settings missing)', () => {
     expect(
       needsProvisioning(
         buildStatus({
@@ -78,7 +78,7 @@ describe('needsProvisioning', () => {
           settings: { exists: false },
         }),
       ),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   it('ignores theme status (manual step)', () => {
@@ -90,19 +90,6 @@ describe('needsProvisioning', () => {
           navigation: true,
           settings: { exists: true },
           theme: { brandColors: false, ogColors: false },
-        }),
-      ),
-    ).toBe(false)
-  })
-
-  it('returns false when built-in pages exceed expected count', () => {
-    expect(
-      needsProvisioning(
-        buildStatus({
-          builtInPages: { count: 10, expected: 7 },
-          homePage: true,
-          navigation: true,
-          settings: { exists: true },
         }),
       ),
     ).toBe(false)
