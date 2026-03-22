@@ -35,10 +35,10 @@ describe('deprovisionBeforeDelete', () => {
     const mockPayload = buildMockPayload(findResults)
     const mockReq = { payload: mockPayload }
 
-    await deprovisionBeforeDelete({
-      id: 42,
-      req: mockReq,
-    } as never)
+    await deprovisionBeforeDelete(
+      // @ts-expect-error - partial mock; only id and req.payload are used by the hook
+      { id: 42, req: mockReq },
+    )
 
     // Should query every tenant-scoped collection
     expect(mockPayload.find).toHaveBeenCalledTimes(TENANT_SCOPED_COLLECTIONS.length)
@@ -75,10 +75,10 @@ describe('deprovisionBeforeDelete', () => {
     const mockPayload = buildMockPayload({})
     const mockReq = { payload: mockPayload }
 
-    await deprovisionBeforeDelete({
-      id: 1,
-      req: mockReq,
-    } as never)
+    await deprovisionBeforeDelete(
+      // @ts-expect-error - partial mock; only id and req.payload are used by the hook
+      { id: 1, req: mockReq },
+    )
 
     expect(mockPayload.find).toHaveBeenCalledTimes(TENANT_SCOPED_COLLECTIONS.length)
     expect(mockPayload.delete).not.toHaveBeenCalled()
@@ -88,10 +88,10 @@ describe('deprovisionBeforeDelete', () => {
     const mockPayload = buildMockPayload({ settings: 1 })
     const mockReq = { payload: mockPayload }
 
-    await deprovisionBeforeDelete({
-      id: 7,
-      req: mockReq,
-    } as never)
+    await deprovisionBeforeDelete(
+      // @ts-expect-error - partial mock; only id and req.payload are used by the hook
+      { id: 7, req: mockReq },
+    )
 
     expect(mockPayload.delete).toHaveBeenCalledWith(expect.objectContaining({ req: mockReq }))
   })
@@ -100,10 +100,10 @@ describe('deprovisionBeforeDelete', () => {
     const mockPayload = buildMockPayload({})
     const mockReq = { payload: mockPayload }
 
-    await deprovisionBeforeDelete({
-      id: 99,
-      req: mockReq,
-    } as never)
+    await deprovisionBeforeDelete(
+      // @ts-expect-error - partial mock; only id and req.payload are used by the hook
+      { id: 99, req: mockReq },
+    )
 
     expect(mockPayload.logger.info).toHaveBeenCalledWith(
       expect.stringContaining('Cleaning up data for tenant 99'),
