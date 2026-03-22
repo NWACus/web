@@ -20,6 +20,7 @@ export const Tenants: CollectionConfig = {
       edit: {
         beforeDocumentControls: [
           '@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave',
+          '@/collections/Tenants/components/DeleteTenantModal#DeleteTenantModal',
         ],
       },
     },
