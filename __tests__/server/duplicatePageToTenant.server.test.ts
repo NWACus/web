@@ -28,7 +28,11 @@ beforeEach(() => {
     .mocked(getPayload)
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     .mockResolvedValue({ find: mockFind, create: mockCreate } as unknown as Payload)
-  mockFind.mockReset().mockResolvedValue({ docs: [mockTenant] })
+  // First find call: tenant lookup. Second find call: slug existence check (no conflict by default).
+  mockFind
+    .mockReset()
+    .mockResolvedValueOnce({ docs: [mockTenant] })
+    .mockResolvedValueOnce({ docs: [] })
   mockCreate.mockReset().mockResolvedValue({ id: 99 })
 })
 
@@ -52,7 +56,12 @@ describe('duplicatePageToTenant', () => {
     expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ draft: true }))
   })
 
-  it('appends " - Copy" to the title and "-copy" to the slug', async () => {
+  it('appends " - Copy" when a page with the same slug exists', async () => {
+    // Slug existence check returns a match
+    mockFind
+      .mockReset()
+      .mockResolvedValueOnce({ docs: [mockTenant] })
+      .mockResolvedValueOnce({ docs: [{ id: 1, slug: 'about-us' }] })
     const req = buildRequest('42', {
       newPage: { title: 'About Us', slug: 'about-us', layout: [] },
     })
@@ -60,6 +69,18 @@ describe('duplicatePageToTenant', () => {
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ title: 'About Us - Copy', slug: 'about-us-copy' }),
+      }),
+    )
+  })
+
+  it('keeps original title and slug when no conflict exists', async () => {
+    const req = buildRequest('42', {
+      newPage: { title: 'About Us', slug: 'about-us', layout: [] },
+    })
+    await duplicatePageToTenant(req)
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ title: 'About Us', slug: 'about-us' }),
       }),
     )
   })
