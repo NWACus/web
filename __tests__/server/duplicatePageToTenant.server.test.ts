@@ -33,12 +33,12 @@ beforeEach(() => {
 })
 
 function buildRequest(
-  selectedTenantId: string | undefined,
+  tenantSlug: string | undefined,
   body: Record<string, unknown>,
 ): PayloadRequest {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return {
-    routeParams: selectedTenantId !== undefined ? { selectedTenantId } : undefined,
+    routeParams: tenantSlug !== undefined ? { tenantSlug } : undefined,
     json: async () => body,
   } as unknown as PayloadRequest
 }
@@ -98,15 +98,15 @@ describe('duplicatePageToTenant', () => {
     )
   })
 
-  it('looks up the tenant by selectedTenantId', async () => {
-    const req = buildRequest('99', {
+  it('looks up the tenant using tenantSlug from route param', async () => {
+    const req = buildRequest('tac', {
       newPage: { title: 'About', slug: 'about', layout: [] },
     })
     await duplicatePageToTenant(req)
     expect(mockFind).toHaveBeenCalledWith(
       expect.objectContaining({
         collection: 'tenants',
-        where: { id: { equals: '99' } },
+        where: { slug: { equals: 'tac' } },
       }),
     )
   })
