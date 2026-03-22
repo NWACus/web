@@ -1,3 +1,5 @@
+import { ButtonBlock } from '@/blocks/Button/config'
+import { CalloutBlock } from '@/blocks/Callout/config'
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import type { Page } from '@/payload-types'
@@ -5,7 +7,10 @@ import type { Field } from 'payload'
 
 type DataObject = Record<string, unknown>
 
-const allBlocksMap = new Map([...DEFAULT_BLOCKS, NACMediaBlock].map((b) => [b.slug, b]))
+// Includes both top-level page layout blocks AND Lexical-embedded blocks (e.g. ButtonBlock inside richText)
+const allBlocksMap = new Map(
+  [...DEFAULT_BLOCKS, NACMediaBlock, ButtonBlock, CalloutBlock].map((b) => [b.slug, b]),
+)
 
 function isDataObject(value: unknown): value is DataObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value)

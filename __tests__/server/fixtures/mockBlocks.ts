@@ -53,3 +53,40 @@ export const DEFAULT_BLOCKS = [
 ]
 
 export const NACMediaBlock = { slug: 'nacMedia', fields: [] }
+
+// Lexical-embedded blocks (used inside richText BlocksFeature, not in DEFAULT_BLOCKS)
+export const ButtonBlock = {
+  slug: 'buttonBlock',
+  fields: [
+    {
+      type: 'group',
+      name: 'button',
+      fields: [
+        {
+          type: 'row',
+          fields: [{ type: 'radio', name: 'type' }],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              type: 'relationship',
+              name: 'reference',
+              relationTo: ['pages', 'builtInPages', 'posts'],
+            },
+            { type: 'text', name: 'url' },
+            { type: 'text', name: 'label' },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
+export const CalloutBlock = {
+  slug: 'calloutBlock',
+  fields: [
+    { type: 'richText', name: 'richText' },
+    { type: 'text', name: 'style' },
+  ],
+}

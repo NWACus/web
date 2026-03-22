@@ -8,6 +8,16 @@ jest.mock('../../src/blocks/NACMedia/config', () => ({
   NACMediaBlock: require('./fixtures/mockBlocks').NACMediaBlock,
 }))
 
+jest.mock('../../src/blocks/Button/config', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  ButtonBlock: require('./fixtures/mockBlocks').ButtonBlock,
+}))
+
+jest.mock('../../src/blocks/Callout/config', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  CalloutBlock: require('./fixtures/mockBlocks').CalloutBlock,
+}))
+
 jest.mock('../../src/payload.config', () => ({}))
 
 jest.mock('payload', () => ({
