@@ -14,7 +14,7 @@ import {
 
 const DEFAULT_STATUS: ProvisioningStatus = {
   builtInPages: { count: 0, expected: 0 },
-  pages: { copied: 0, expected: 0, missing: [], skipped: [] },
+  pages: { created: 0, expected: 0, missing: [], skipped: [] },
   homePage: false,
   navigation: false,
   settings: { exists: false, id: undefined },
@@ -149,7 +149,7 @@ export function OnboardingChecklist() {
 
   const automatedComplete =
     builtInPages.count >= builtInPages.expected &&
-    pages.copied >= pages.expected &&
+    pages.created >= pages.expected &&
     pages.expected > 0 &&
     homePage &&
     navigation &&
@@ -170,7 +170,7 @@ export function OnboardingChecklist() {
 
       {automatedComplete && (
         <p className="mt-2 text-sm opacity-70">
-          Pages and navigation are saved as drafts — review and publish.
+          Pages and navigation structures are copied from DVAC
         </p>
       )}
 
@@ -182,19 +182,16 @@ export function OnboardingChecklist() {
       />
       <ChecklistItem
         loading={isProvisioning}
-        done={pages.copied >= pages.expected && pages.expected > 0}
-        label="Pages - copied from DVAC"
-        details={loaded && `(${pages.copied}/${pages.expected})`}
+        done={pages.created >= pages.expected && pages.expected > 0}
+        label="Pages"
+        details={loaded && `(${pages.created}/${pages.expected})`}
       >
         {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
         {pages.skipped.length > 0 && <div>Skipped (demo pages): {pages.skipped.join(', ')}</div>}
-        {loaded && <div>Created as a draft — review and publish</div>}
       </ChecklistItem>
 
       <ChecklistItem loading={isProvisioning} done={homePage} label="Home page" />
-      <ChecklistItem loading={isProvisioning} done={navigation} label="Navigation">
-        {navigation && <div>Created as a draft — review and publish</div>}
-      </ChecklistItem>
+      <ChecklistItem loading={isProvisioning} done={navigation} label="Navigation" />
       <ChecklistItem
         loading={isProvisioning}
         done={settings.exists}

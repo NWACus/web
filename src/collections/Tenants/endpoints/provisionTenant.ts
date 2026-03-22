@@ -1,7 +1,6 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
-import { getSeedImageByFilename } from '@/endpoints/seed/utilities'
+import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Page, Tenant } from '@/payload-types'
-import { clearLayoutRelationships } from '@/utilities/clearLayoutRelationships'
 import type { Payload, PayloadHandler } from 'payload'
 
 const TEMPLATE_TENANT_SLUG = 'dvac'
@@ -83,7 +82,7 @@ export const provisionTenant: PayloadHandler = async (req) => {
  * Provisions a tenant with all default data:
  * 1. Website Settings with placeholder brand assets (logo, icon, banner)
  * 2. Built-in pages (forecasts, weather stations, observations)
- * 3. Pages copied from the template tenant (DVAC)
+ * 3. Blank pages matching the template tenant's (DVAC) page structure
  * 4. Home page with default content
  * 5. Navigation linked to the new pages and built-in pages
  *
@@ -174,8 +173,10 @@ export async function provision(payload: Payload, tenant: Tenant) {
     builtInPagesByUrl[bip.url] = bip
   }
 
-  // 3. Copy pages from template tenant (DVAC)
-  log.info(`[${tenant.slug}] Copying pages from template tenant (${TEMPLATE_TENANT_SLUG})...`)
+  // 3. Create blank pages from template tenant (DVAC) page structure
+  log.info(
+    `[${tenant.slug}] Creating blank pages from template tenant (${TEMPLATE_TENANT_SLUG})...`,
+  )
   const templateTenant = await payload
     .find({
       collection: 'tenants',
@@ -184,9 +185,9 @@ export async function provision(payload: Payload, tenant: Tenant) {
     })
     .then((res) => res.docs[0])
 
-  const copiedPages: Page[] = []
+  const createdPages: Page[] = []
   const failedPages: string[] = []
-  // Maps template page slug to new page for navigation linking
+  // Maps page slug to new page for navigation linking
   const pagesBySlug: Record<string, Page> = {}
 
   if (templateTenant) {
@@ -216,49 +217,48 @@ export async function provision(payload: Payload, tenant: Tenant) {
       }
       const existing = existingPagesBySlug.get(templatePage.slug)
       if (existing) {
-        // If the existing page is a draft (e.g. from a previous failed copy), delete and retry
-        if (existing._status === 'draft') {
-          log.info(
-            `[${tenant.slug}] Page "${templatePage.title}" exists as draft, deleting to retry`,
-          )
-          await payload.delete({ collection: 'pages', id: existing.id })
-        } else {
-          log.info(`[${tenant.slug}] Page "${templatePage.title}" already exists, skipping copy`)
-          pagesBySlug[existing.slug] = existing
-          continue
-        }
+        log.info(`[${tenant.slug}] Page "${templatePage.title}" already exists, skipping`)
+        pagesBySlug[existing.slug] = existing
+        continue
       }
 
-      const layout = clearLayoutRelationships(templatePage.layout)
       try {
         const newPage = await payload.create({
           collection: 'pages',
-          draft: true,
           data: {
-            layout,
+            layout: [
+              {
+                blockType: 'content',
+                backgroundColor: 'transparent',
+                layout: '1_1',
+                columns: [{ richText: simpleContent('') }],
+              },
+            ],
             tenant: tenant.id,
             title: templatePage.title,
             slug: templatePage.slug,
+            _status: 'published',
+            publishedAt: new Date().toISOString(),
           },
         })
-        copiedPages.push(newPage)
+        createdPages.push(newPage)
         pagesBySlug[newPage.slug] = newPage
       } catch (err) {
         log.error(
-          `[${tenant.slug}] Failed to copy page "${templatePage.title}" (slug: ${templatePage.slug}): ${err instanceof Error ? err.message : 'Unknown error'}`,
+          `[${tenant.slug}] Failed to create page "${templatePage.title}" (slug: ${templatePage.slug}): ${err instanceof Error ? err.message : 'Unknown error'}`,
         )
         failedPages.push(templatePage.title)
       }
     }
 
-    // Also index any pre-existing pages we didn't copy (from the initial query)
+    // Also index any pre-existing pages we didn't create (from the initial query)
     for (const p of existingPages.docs) {
       if (!pagesBySlug[p.slug]) {
         pagesBySlug[p.slug] = p
       }
     }
   } else {
-    log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Skipping page copy.`)
+    log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Skipping page creation.`)
   }
 
   // 4. Create Home Page
@@ -301,70 +301,14 @@ export async function provision(payload: Payload, tenant: Tenant) {
             backgroundColor: 'brand-700',
             columns: [
               {
-                richText: {
-                  root: {
-                    type: 'root',
-                    format: '',
-                    indent: 0,
-                    version: 1,
-                    children: [
-                      {
-                        type: 'paragraph',
-                        format: '',
-                        indent: 0,
-                        version: 1,
-                        children: [
-                          {
-                            mode: 'normal',
-                            text: 'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.',
-                            type: 'text',
-                            style: '',
-                            detail: 0,
-                            format: 0,
-                            version: 1,
-                          },
-                        ],
-                        direction: 'ltr',
-                        textStyle: '',
-                        textFormat: 0,
-                      },
-                    ],
-                    direction: 'ltr',
-                  },
-                },
+                richText: simpleContent(
+                  'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.',
+                ),
               },
               {
-                richText: {
-                  root: {
-                    type: 'root',
-                    format: '',
-                    indent: 0,
-                    version: 1,
-                    children: [
-                      {
-                        type: 'paragraph',
-                        format: '',
-                        indent: 0,
-                        version: 1,
-                        children: [
-                          {
-                            mode: 'normal',
-                            text: 'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.',
-                            type: 'text',
-                            style: '',
-                            detail: 0,
-                            format: 0,
-                            version: 1,
-                          },
-                        ],
-                        direction: 'ltr',
-                        textStyle: '',
-                        textFormat: 0,
-                      },
-                    ],
-                    direction: 'ltr',
-                  },
-                },
+                richText: simpleContent(
+                  'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.',
+                ),
               },
             ],
           },
@@ -440,7 +384,6 @@ export async function provision(payload: Payload, tenant: Tenant) {
     try {
       await payload.create({
         collection: 'navigations',
-        draft: true,
         data: {
           tenant: tenant.id,
           forecasts: { items: [] },
@@ -501,6 +444,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
           donate: {
             link: navPageItem('donate-membership', 'Donate')?.link,
           },
+          _status: 'published',
         },
       })
       navigationCreated = true
@@ -517,7 +461,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     tenant: { id: tenant.id, name: tenant.name, slug: tenant.slug },
     settingsCreated,
     builtInPagesCreated: createdBuiltInPages.length - existingBuiltInPages.docs.length,
-    pagesCopied: copiedPages.length,
+    pagesCreated: createdPages.length,
     failedPages,
     homePageCreated,
     navigationCreated,

@@ -20,7 +20,7 @@ export async function OnboardingStatusCell({
 
   const allComplete =
     builtInPages.count >= builtInPages.expected &&
-    pages.copied >= pages.expected &&
+    pages.created >= pages.expected &&
     pages.expected > 0 &&
     homePage &&
     navigation &&

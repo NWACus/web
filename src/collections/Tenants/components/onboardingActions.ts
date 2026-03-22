@@ -13,7 +13,7 @@ import { getPayload } from 'payload'
 
 export type ProvisioningStatus = {
   builtInPages: { count: number; expected: number }
-  pages: { copied: number; expected: number; missing: string[]; skipped: string[] }
+  pages: { created: number; expected: number; missing: string[]; skipped: string[] }
   homePage: boolean
   navigation: boolean
   settings: { exists: boolean; id?: number | string }
@@ -99,8 +99,7 @@ export async function checkProvisioningStatusAction(
         limit: 500,
         select: { slug: true, title: true },
       })
-      // Only exclude demo/showcase pages — pages with all tenant-scoped blocks
-      // are still copied as blank drafts by the provisioner
+      // Only exclude demo/showcase pages
       templatePageSlugs = templatePages.docs
         .filter((p) => {
           if (SKIP_PAGE_SLUGS.has(p.slug)) {
@@ -113,14 +112,14 @@ export async function checkProvisioningStatusAction(
     }
 
     const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
-    const copiedPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
+    const createdPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
     const missing = templatePageSlugs.filter((p) => !tenantPagesBySlug.has(p.slug))
 
     return {
       status: {
         builtInPages: { count: builtInPages.totalDocs, expected: BUILT_IN_PAGES.length },
         pages: {
-          copied: copiedPages.length,
+          created: createdPages.length,
           expected: templatePageSlugs.length,
           missing: missing.map((p) => p.title),
           skipped: skippedPages,
