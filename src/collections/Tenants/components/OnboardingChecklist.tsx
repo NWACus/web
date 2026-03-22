@@ -36,11 +36,13 @@ function ChecklistItem({
   children?: React.ReactNode
   action?: React.ReactNode
 }) {
+  const isRunning = loading && !done
+
   return (
     <div className="py-2">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
-          {loading ? (
+          {isRunning ? (
             <Loader2
               data-testid="spinner"
               size={20}
@@ -52,12 +54,12 @@ function ChecklistItem({
           ) : (
             <Circle size={20} className="shrink-0 text-muted-foreground" />
           )}
-          <span className={done && !loading ? 'opacity-70' : ''}>{label}</span>
-          {!loading && details && <span className="text-sm opacity-50">{details}</span>}
+          <span className={done ? 'opacity-70' : ''}>{label}</span>
+          {!isRunning && details && <span className="text-sm opacity-50">{details}</span>}
         </div>
-        {!loading && action && <div>{action}</div>}
+        {!isRunning && action && <div>{action}</div>}
       </div>
-      {!loading && children && <div className="ml-9 mt-1 text-sm opacity-50">{children}</div>}
+      {!isRunning && children && <div className="ml-9 mt-1 text-sm opacity-50">{children}</div>}
     </div>
   )
 }
@@ -99,6 +101,8 @@ export function OnboardingChecklist() {
         runProvisionAction(tenantId)
           .then(async (result) => {
             if ('error' in result) {
+              setIsProvisioning(false)
+              setProcessing(false)
               reject(result.error)
               return
             }
