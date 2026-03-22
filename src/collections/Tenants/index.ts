@@ -1,4 +1,5 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
+import { deprovisionBeforeDelete } from '@/collections/Tenants/hooks/deprovisionBeforeDelete'
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
@@ -33,6 +34,7 @@ export const Tenants: CollectionConfig = {
   },
   hooks: {
     afterChange: [revalidateTenantsAfterChange],
+    beforeDelete: [deprovisionBeforeDelete],
     afterDelete: [revalidateTenantsAfterDelete],
   },
   fields: [
