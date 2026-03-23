@@ -75,8 +75,22 @@ export const Navigations: CollectionConfig = {
         topLevelNavTab({ name: 'support' }),
         {
           name: 'donate',
-          description: 'This nav item is styled as a button.',
           fields: [
+            {
+              type: 'ui',
+              name: 'donateDescription',
+              admin: {
+                components: {
+                  Field: {
+                    path: '@/components/BannerDescription#BannerDescription',
+                    clientProps: {
+                      message: 'This nav item is styled as a button.',
+                      type: 'info',
+                    },
+                  },
+                },
+              },
+            },
             {
               type: 'group',
               name: 'options',

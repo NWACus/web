@@ -26,6 +26,25 @@ export const topLevelNavTab = ({
     }),
   ]
 
+  if (description) {
+    const descriptionField: Field = {
+      type: 'ui',
+      name: `${name}Description`,
+      admin: {
+        components: {
+          Field: {
+            path: '@/components/BannerDescription#BannerDescription',
+            clientProps: {
+              message: description,
+              type: 'info',
+            },
+          },
+        },
+      },
+    }
+    fields = [descriptionField, ...fields]
+  }
+
   if (hasEnabledToggle) {
     const enabledToggleField: Field = {
       type: 'group',
@@ -48,7 +67,6 @@ export const topLevelNavTab = ({
 
   return {
     name,
-    description,
     virtual: !hasConfigurableNavItems && !hasEnabledToggle,
     fields,
   }
