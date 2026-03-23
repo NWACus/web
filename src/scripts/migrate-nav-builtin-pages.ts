@@ -4,13 +4,21 @@
  * - Creates missing built-in pages: blog, events, and per-zone forecast pages
  * - Updates only forecasts.link, blog.link, events.link, and observations.items
  *   on each tenant's navigation record, leaving all other nav data untouched
+ *
+ * Uses direct SQL to bypass Payload's document-level validation, which would
+ * otherwise fail on pre-existing invalid fields in other tabs (e.g. broken
+ * page references in support/education items).
  */
 
-import { getActiveForecastZones } from '@/services/nac/nac'
+import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import configPromise from '@payload-config'
+import { sql } from '@payloadcms/db-sqlite'
+import { randomUUID } from 'crypto'
 import { getPayload } from 'payload'
 
 const payload = await getPayload({ config: configPromise })
+
+const db = payload.db.drizzle
 
 const tenants = await payload.find({ collection: 'tenants', limit: 100, depth: 0 })
 
@@ -18,9 +26,12 @@ for (const tenant of tenants.docs) {
   payload.logger.info(`Processing tenant: ${tenant.slug}`)
 
   // --- Built-in pages ---
-  const zones = (await getActiveForecastZones(tenant.slug)).sort(
-    (a, b) => (a.zone.rank ?? Infinity) - (b.zone.rank ?? Infinity),
-  )
+  const [zones, platforms] = await Promise.all([
+    getActiveForecastZones(tenant.slug).then((z) =>
+      z.sort((a, b) => (a.zone.rank ?? Infinity) - (b.zone.rank ?? Infinity)),
+    ),
+    getAvalancheCenterPlatforms(tenant.slug),
+  ])
 
   const pagesToEnsure: { title: string; url: string }[] =
     zones.length === 1
@@ -33,23 +44,31 @@ for (const tenant of tenants.docs) {
           })),
         ]
 
-  pagesToEnsure.push({ title: 'Blog', url: '/blog' }, { title: 'Events', url: '/events' })
+  pagesToEnsure.push(
+    { title: 'Weather Stations', url: '/weather/stations/map' },
+    { title: 'Recent Observations', url: '/observations' },
+    { title: 'Submit Observations', url: '/observations/submit' },
+    { title: 'Blog', url: '/blog' },
+    { title: 'Events', url: '/events' },
+  )
 
-  // Fetch all existing built-in pages for this tenant up front
+  if (platforms.weather) {
+    pagesToEnsure.push({ title: 'Mountain Weather', url: '/weather/forecast' })
+  }
+
   const allExisting = await payload.find({
     collection: 'builtInPages',
     where: { tenant: { equals: tenant.id } },
     limit: 1000,
     depth: 0,
   })
-  const builtInPageByUrl: Record<string, number> = {}
+  const pageByUrl: Record<string, number> = {}
   for (const page of allExisting.docs) {
-    builtInPageByUrl[page.url] = page.id
+    pageByUrl[page.url] = page.id
   }
 
-  // Create any missing pages
   for (const { title, url } of pagesToEnsure) {
-    if (builtInPageByUrl[url]) {
+    if (pageByUrl[url]) {
       payload.logger.info(`  Built-in page already exists: ${url}`)
     } else {
       const created = await payload.create({
@@ -58,7 +77,7 @@ for (const tenant of tenants.docs) {
         context: { disableRevalidate: true },
       })
       payload.logger.info(`  Created built-in page: ${url}`)
-      builtInPageByUrl[url] = created.id
+      pageByUrl[url] = created.id
     }
   }
 
@@ -76,90 +95,87 @@ for (const tenant of tenants.docs) {
     continue
   }
 
-  const nav = navResult.docs[0]
+  const navId = navResult.docs[0].id
 
-  const forecastLink =
+  const forecastLinkLabel = zones.length === 1 ? 'Avalanche Forecast' : 'All Forecasts'
+  const forecastLinkPageId =
     zones.length === 1
-      ? {
-          type: 'internal' as const,
-          reference: {
-            relationTo: 'builtInPages' as const,
-            value: builtInPageByUrl[`/forecasts/avalanche/${zones[0].slug}`],
-          },
-          label: 'Avalanche Forecast',
-        }
-      : {
-          type: 'internal' as const,
-          reference: {
-            relationTo: 'builtInPages' as const,
-            value: builtInPageByUrl['/forecasts/avalanche'],
-          },
-          label: 'All Forecasts',
-        }
+      ? pageByUrl[`/forecasts/avalanche/${zones[0].slug}`]
+      : pageByUrl['/forecasts/avalanche']
 
-  const forecastItems =
-    zones.length === 1
-      ? []
-      : zones.map(({ zone, slug }) => ({
-          link: {
-            type: 'internal' as const,
-            reference: {
-              relationTo: 'builtInPages' as const,
-              value: builtInPageByUrl[`/forecasts/avalanche/${slug}`],
-            },
-            label: zone.name,
-          },
-        }))
+  // Update link label/type columns on the navigations row
+  await db.run(sql`
+    UPDATE navigations SET
+      forecasts_link_type = 'internal',
+      forecasts_link_label = ${forecastLinkLabel},
+      blog_link_type = 'internal',
+      blog_link_label = 'Blog',
+      events_link_type = 'internal',
+      events_link_label = 'Events'
+    WHERE id = ${navId}
+  `)
 
-  await payload.update({
-    collection: 'navigations',
-    id: nav.id,
-    data: {
-      forecasts: {
-        link: forecastLink,
-        items: forecastItems,
-      },
-      observations: {
-        items: [
-          {
-            link: {
-              type: 'internal',
-              reference: {
-                relationTo: 'builtInPages',
-                value: builtInPageByUrl['/observations'] ?? null,
-              },
-              label: 'Recent Observations',
-            },
-          },
-          {
-            link: {
-              type: 'internal',
-              reference: {
-                relationTo: 'builtInPages',
-                value: builtInPageByUrl['/observations/submit'] ?? null,
-              },
-              label: 'Submit Observations',
-            },
-          },
-        ],
-      },
-      blog: {
-        link: {
-          type: 'internal',
-          reference: { relationTo: 'builtInPages', value: builtInPageByUrl['/blog'] },
-          label: 'Blog',
-        },
-      },
-      events: {
-        link: {
-          type: 'internal',
-          reference: { relationTo: 'builtInPages', value: builtInPageByUrl['/events'] },
-          label: 'Events',
-        },
-      },
-    },
-    context: { disableRevalidate: true },
-  })
+  // Clear old rels for the paths we're replacing
+  await db.run(sql`
+    DELETE FROM navigations_rels
+    WHERE parent_id = ${navId}
+      AND (
+        path IN ('forecasts.link.reference', 'blog.link.reference', 'events.link.reference')
+        OR path LIKE 'forecasts.items.%.link.reference'
+        OR path LIKE 'observations.items.%.link.reference'
+      )
+  `)
+
+  // Insert top-level link rels
+  await db.run(
+    sql`INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id) VALUES (1, ${navId}, 'forecasts.link.reference', ${forecastLinkPageId})`,
+  )
+  await db.run(
+    sql`INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id) VALUES (1, ${navId}, 'blog.link.reference', ${pageByUrl['/blog']})`,
+  )
+  await db.run(
+    sql`INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id) VALUES (1, ${navId}, 'events.link.reference', ${pageByUrl['/events']})`,
+  )
+
+  // Replace forecasts items
+  await db.run(sql`DELETE FROM navigations_forecasts_items WHERE _parent_id = ${navId}`)
+  if (zones.length > 1) {
+    for (let i = 0; i < zones.length; i++) {
+      const { zone, slug } = zones[i]
+      await db.run(sql`
+        INSERT INTO navigations_forecasts_items (_order, _parent_id, id, link_type, link_label)
+        VALUES (${i + 1}, ${navId}, ${randomUUID()}, 'internal', ${zone.name})
+      `)
+      await db.run(sql`
+        INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id)
+        VALUES (1, ${navId}, ${'forecasts.items.' + i + '.link.reference'}, ${pageByUrl[`/forecasts/avalanche/${slug}`]})
+      `)
+    }
+  }
+
+  // Replace observations items
+  await db.run(sql`DELETE FROM navigations_observations_items WHERE _parent_id = ${navId}`)
+  const obsItems = [
+    { label: 'Recent Observations', url: '/observations' },
+    { label: 'Submit Observations', url: '/observations/submit' },
+  ]
+  for (let i = 0; i < obsItems.length; i++) {
+    const { label, url } = obsItems[i]
+    await db.run(sql`
+      INSERT INTO navigations_observations_items (_order, _parent_id, id, link_type, link_label)
+      VALUES (${i + 1}, ${navId}, ${randomUUID()}, 'internal', ${label})
+    `)
+    if (pageByUrl[url]) {
+      await db.run(sql`
+        INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id)
+        VALUES (1, ${navId}, ${'observations.items.' + i + '.link.reference'}, ${pageByUrl[url]})
+      `)
+    } else {
+      payload.logger.warn(
+        `  No built-in page found for ${url}, observations item will have no reference`,
+      )
+    }
+  }
 
   payload.logger.info(`  Navigation updated for ${tenant.slug}`)
 }
