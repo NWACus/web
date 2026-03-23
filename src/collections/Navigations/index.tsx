@@ -41,6 +41,7 @@ export const Navigations: CollectionConfig = {
           name: 'forecasts',
           description: 'This nav dropdown is autofilled with your forecast zones.',
           hasConfigurableNavItems: false,
+          hasReadOnlyLink: true,
           hasReadOnlyNavItems: true,
           hasEnabledToggle: false,
         }),
