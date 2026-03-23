@@ -73,7 +73,7 @@ for (const tenant of tenants.docs) {
     } else {
       const created = await payload.create({
         collection: 'builtInPages',
-        data: { tenant: tenant.id, title, url },
+        data: { tenant: tenant.id, title, url, isInNav: true },
         context: { disableRevalidate: true },
       })
       payload.logger.info(`  Created built-in page: ${url}`)
