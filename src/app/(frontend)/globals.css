@@ -20,6 +20,12 @@
   * {
     @apply border-border;
   }
+  /* Gradient covers overscroll areas: header color at top, footer color at bottom.
+     Body's bg-background covers it during normal scrolling. */
+  html {
+    background: linear-gradient(to bottom, var(--header) 50%, var(--footer) 50%);
+    background-attachment: fixed;
+  }
   body {
     @apply bg-background text-foreground min-h-[100vh] flex flex-col max-w-[100vw] overflow-x-clip;
   }
