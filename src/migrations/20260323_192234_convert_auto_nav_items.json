@@ -5512,6 +5512,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "is_in_nav": {
+          "name": "is_in_nav",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "tenant_id": {
           "name": "tenant_id",
           "type": "integer",
@@ -22859,6 +22867,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "51529e7b-58a0-4009-a532-548bd58eea89",
+  "id": "b5474d0e-d86d-46c8-8691-6f1cfc1e66fe",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

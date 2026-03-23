@@ -45,7 +45,7 @@ import * as migration_20260120_194629_unify_block_naming from './20260120_194629
 import * as migration_20260128_213937_rename_appearance_to_variant from './20260128_213937_rename_appearance_to_variant'
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
-import * as migration_20260323_155359_convert_auto_nav_items from './20260323_155359_convert_auto_nav_items'
+import * as migration_20260323_192234_convert_auto_nav_items from './20260323_192234_convert_auto_nav_items'
 
 export const migrations = [
   {
@@ -284,8 +284,8 @@ export const migrations = [
     name: '20260303_233752_remove_custom_domain_from_tenants',
   },
   {
-    up: migration_20260323_155359_convert_auto_nav_items.up,
-    down: migration_20260323_155359_convert_auto_nav_items.down,
-    name: '20260323_155359_convert_auto_nav_items',
+    up: migration_20260323_192234_convert_auto_nav_items.up,
+    down: migration_20260323_192234_convert_auto_nav_items.down,
+    name: '20260323_192234_convert_auto_nav_items',
   },
 ]

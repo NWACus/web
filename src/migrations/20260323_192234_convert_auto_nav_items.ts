@@ -71,6 +71,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`_navigations_v_version_observations_items_parent_id_idx\` ON \`_navigations_v_version_observations_items\` (\`_parent_id\`);`,
   )
+  await db.run(sql`ALTER TABLE \`built_in_pages\` ADD \`is_in_nav\` integer DEFAULT false;`)
   await db.run(
     sql`ALTER TABLE \`navigations\` ADD \`forecasts_link_type\` text DEFAULT 'internal';`,
   )
@@ -118,6 +119,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   await db.run(sql`DROP TABLE \`navigations_observations_items\`;`)
   await db.run(sql`DROP TABLE \`_navigations_v_version_forecasts_items\`;`)
   await db.run(sql`DROP TABLE \`_navigations_v_version_observations_items\`;`)
+  await db.run(sql`ALTER TABLE \`built_in_pages\` DROP COLUMN \`is_in_nav\`;`)
   await db.run(sql`ALTER TABLE \`navigations\` DROP COLUMN \`forecasts_link_type\`;`)
   await db.run(sql`ALTER TABLE \`navigations\` DROP COLUMN \`forecasts_link_url\`;`)
   await db.run(sql`ALTER TABLE \`navigations\` DROP COLUMN \`forecasts_link_label\`;`)
