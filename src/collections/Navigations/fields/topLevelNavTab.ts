@@ -23,6 +23,7 @@ export const topLevelNavTab = ({
     itemsField({
       label: `${toWords(name)} Nav Items`,
       description: `Dropdown items under ${toWords(name)}`,
+      hasSubNavItems: !hasReadOnlyNavItems,
       overrides: {
         admin: {
           hidden: !hasConfigurableNavItems && !hasReadOnlyNavItems,

@@ -1,9 +1,9 @@
 import { navLink } from '@/fields/navLink'
 import { merge } from 'lodash-es'
-import { ArrayField, FieldHook } from 'payload'
+import { ArrayField, Condition, FieldHook } from 'payload'
 
-// Condition: show field only when item has sub-items (accordion/section mode)
-const hasSubItems = (_data: unknown, siblingData: Record<string, unknown>) =>
+// Conditions: show/hide fields based on whether item has sub-items (accordion/section mode)
+const hasSubItems: Condition = (_, siblingData) =>
   Array.isArray(siblingData?.items) && siblingData.items.length > 0
 
 // Copy link.label to standalone label when sub-items are added,
@@ -35,10 +35,12 @@ const clearLinkWhenHasSubItems: FieldHook = ({ siblingData, value }) => {
 export const itemsField = ({
   label,
   description,
+  hasSubNavItems = true,
   overrides = {},
 }: {
   label: string
   description?: string
+  hasSubNavItems?: boolean
   overrides?: Partial<ArrayField>
 }): ArrayField =>
   merge(
@@ -50,36 +52,45 @@ export const itemsField = ({
         description,
       },
       fields: [
-        {
-          name: 'label',
-          type: 'text',
-          required: true,
-          admin: {
-            description: 'Label for this nav section (shown when item has sub-items)',
-            condition: hasSubItems,
-          },
-          hooks: {
-            beforeChange: [clearLabelWhenItemHasNoSubItems],
-          },
-        },
+        ...(hasSubNavItems
+          ? [
+              {
+                name: 'label',
+                type: 'text',
+                required: true,
+                admin: {
+                  description: 'Label for this nav section (shown when item has sub-items)',
+                  condition: hasSubItems,
+                },
+                hooks: {
+                  beforeChange: [clearLabelWhenItemHasNoSubItems],
+                },
+              },
+            ]
+          : []),
         {
           ...navLink,
           admin: {
             ...navLink.admin,
-            condition: (data: unknown, siblingData: Record<string, unknown>) =>
-              !hasSubItems(data, siblingData),
+            condition: hasSubNavItems
+              ? (...args: Parameters<Condition>) => !hasSubItems(...args)
+              : undefined,
           },
           hooks: {
             // navLink.hooks contains clearIrrelevantLinkValues; we add our cleanup hook
             beforeChange: [...(navLink.hooks?.beforeChange ?? []), clearLinkWhenHasSubItems],
           },
         },
-        {
-          name: 'items',
-          type: 'array',
-          label: 'Sub Nav Items',
-          fields: [navLink],
-        },
+        ...(hasSubNavItems
+          ? [
+              {
+                name: 'items',
+                type: 'array',
+                label: 'Sub Nav Items',
+                fields: [navLink],
+              },
+            ]
+          : []),
       ],
     },
     overrides,

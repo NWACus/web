@@ -2185,10 +2185,6 @@ export interface Navigation {
      */
     items?:
       | {
-          /**
-           * Label for this nav section (shown when item has sub-items)
-           */
-          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2208,30 +2204,6 @@ export interface Navigation {
             label?: string | null;
             newTab?: boolean | null;
           };
-          items?:
-            | {
-                link?: {
-                  type?: ('internal' | 'external') | null;
-                  reference?:
-                    | ({
-                        relationTo: 'pages';
-                        value: number | Page;
-                      } | null)
-                    | ({
-                        relationTo: 'builtInPages';
-                        value: number | BuiltInPage;
-                      } | null)
-                    | ({
-                        relationTo: 'posts';
-                        value: number | Post;
-                      } | null);
-                  url?: string | null;
-                  label?: string | null;
-                  newTab?: boolean | null;
-                };
-                id?: string | null;
-              }[]
-            | null;
           id?: string | null;
         }[]
       | null;
@@ -2242,10 +2214,6 @@ export interface Navigation {
      */
     items?:
       | {
-          /**
-           * Label for this nav section (shown when item has sub-items)
-           */
-          label?: string | null;
           link?: {
             type?: ('internal' | 'external') | null;
             reference?:
@@ -2265,30 +2233,6 @@ export interface Navigation {
             label?: string | null;
             newTab?: boolean | null;
           };
-          items?:
-            | {
-                link?: {
-                  type?: ('internal' | 'external') | null;
-                  reference?:
-                    | ({
-                        relationTo: 'pages';
-                        value: number | Page;
-                      } | null)
-                    | ({
-                        relationTo: 'builtInPages';
-                        value: number | BuiltInPage;
-                      } | null)
-                    | ({
-                        relationTo: 'posts';
-                        value: number | Post;
-                      } | null);
-                  url?: string | null;
-                  label?: string | null;
-                  newTab?: boolean | null;
-                };
-                id?: string | null;
-              }[]
-            | null;
           id?: string | null;
         }[]
       | null;
@@ -3881,7 +3825,6 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
-              label?: T;
               link?:
                 | T
                 | {
@@ -3890,20 +3833,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     url?: T;
                     label?: T;
                     newTab?: T;
-                  };
-              items?:
-                | T
-                | {
-                    link?:
-                      | T
-                      | {
-                          type?: T;
-                          reference?: T;
-                          url?: T;
-                          label?: T;
-                          newTab?: T;
-                        };
-                    id?: T;
                   };
               id?: T;
             };
@@ -3914,7 +3843,6 @@ export interface NavigationsSelect<T extends boolean = true> {
         items?:
           | T
           | {
-              label?: T;
               link?:
                 | T
                 | {
@@ -3923,20 +3851,6 @@ export interface NavigationsSelect<T extends boolean = true> {
                     url?: T;
                     label?: T;
                     newTab?: T;
-                  };
-              items?:
-                | T
-                | {
-                    link?:
-                      | T
-                      | {
-                          type?: T;
-                          reference?: T;
-                          url?: T;
-                          label?: T;
-                          newTab?: T;
-                        };
-                    id?: T;
                   };
               id?: T;
             };
