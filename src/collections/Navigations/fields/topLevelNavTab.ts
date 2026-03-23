@@ -1,3 +1,4 @@
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { navLink } from '@/fields/navLink'
 import { Field, Tab, toWords } from 'payload'
 import { itemsField } from './itemsField'
@@ -25,9 +26,9 @@ export const topLevelNavTab = ({
       description: `Dropdown items under ${toWords(name)}`,
       hasSubNavItems: !hasReadOnlyNavItems,
       overrides: {
+        ...(hasReadOnlyNavItems ? { access: { update: hasSuperAdminPermissions } } : {}),
         admin: {
           hidden: !hasConfigurableNavItems && !hasReadOnlyNavItems,
-          readOnly: hasReadOnlyNavItems,
         },
       },
     }),
@@ -37,9 +38,11 @@ export const topLevelNavTab = ({
     fields = [
       {
         ...navLink,
+        access: {
+          update: hasSuperAdminPermissions,
+        },
         admin: {
           ...navLink.admin,
-          readOnly: true,
         },
       },
       ...fields,
