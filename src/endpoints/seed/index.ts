@@ -960,6 +960,8 @@ export const seed = async ({
           builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
           builtInPage(tenant, 'Recent Observations', '/observations'),
           builtInPage(tenant, 'Submit Observations', '/observations/submit'),
+          builtInPage(tenant, 'Blog', '/blog'),
+          builtInPage(tenant, 'Events', '/events'),
         ])
         .flat(),
     )

@@ -1,3 +1,4 @@
+import { navLink } from '@/fields/navLink'
 import { Field, Tab, toWords } from 'payload'
 import { itemsField } from './itemsField'
 
@@ -5,12 +6,16 @@ export const topLevelNavTab = ({
   name,
   description,
   hasConfigurableNavItems = true,
+  hasReadOnlyLink = false,
+  hasReadOnlyNavItems = false,
   hasEnabledToggle = true,
   enabledToggleDescription = 'If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.',
 }: {
   name: string
   description?: string
   hasConfigurableNavItems?: boolean
+  hasReadOnlyLink?: boolean
+  hasReadOnlyNavItems?: boolean
   hasEnabledToggle?: boolean
   enabledToggleDescription?: string
 }): Tab => {
@@ -20,11 +25,25 @@ export const topLevelNavTab = ({
       description: `Dropdown items under ${toWords(name)}`,
       overrides: {
         admin: {
-          hidden: !hasConfigurableNavItems,
+          hidden: !hasConfigurableNavItems && !hasReadOnlyNavItems,
+          readOnly: hasReadOnlyNavItems,
         },
       },
     }),
   ]
+
+  if (hasReadOnlyLink) {
+    fields = [
+      {
+        ...navLink,
+        admin: {
+          ...navLink.admin,
+          readOnly: true,
+        },
+      },
+      ...fields,
+    ]
+  }
 
   if (description) {
     const descriptionField: Field = {
@@ -67,7 +86,8 @@ export const topLevelNavTab = ({
 
   return {
     name,
-    virtual: !hasConfigurableNavItems && !hasEnabledToggle,
+    virtual:
+      !hasConfigurableNavItems && !hasReadOnlyNavItems && !hasEnabledToggle && !hasReadOnlyLink,
     fields,
   }
 }

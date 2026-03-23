@@ -2489,6 +2489,25 @@ export interface Navigation {
        */
       enabled?: boolean | null;
     };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
     /**
      * Dropdown items under Blog
      */
@@ -2551,6 +2570,25 @@ export interface Navigation {
        * If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Events
@@ -4025,6 +4063,15 @@ export interface NavigationsSelect<T extends boolean = true> {
           | {
               enabled?: T;
             };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
         items?:
           | T
           | {
@@ -4062,6 +4109,15 @@ export interface NavigationsSelect<T extends boolean = true> {
           | T
           | {
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T

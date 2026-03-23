@@ -81,7 +81,10 @@ export const navigationSeed = (
       items: [],
     },
     observations: {
-      items: [],
+      items: [
+        { link: builtInPageLink({ url: '/observations', label: 'Recent Observations' }) },
+        { link: builtInPageLink({ url: '/observations/submit', label: 'Submit Observations' }) },
+      ],
     },
     weather: {
       items: [
@@ -209,6 +212,14 @@ export const navigationSeed = (
           link: pageLink({ slug: 'avalanche-accident-map' }),
         },
       ],
+    },
+    blog: {
+      link: builtInPageLink({ url: '/blog', label: 'Blog' }),
+      options: { enabled: true },
+    },
+    events: {
+      link: builtInPageLink({ url: '/events', label: 'Events' }),
+      options: { enabled: true },
     },
     donate: {
       link: pageLink({ slug: 'donate-membership', label: 'Donate' }),
