@@ -77,21 +77,6 @@ export const Navigations: CollectionConfig = {
           name: 'donate',
           fields: [
             {
-              type: 'ui',
-              name: 'donateDescription',
-              admin: {
-                components: {
-                  Field: {
-                    path: '@/components/BannerDescription#BannerDescription',
-                    clientProps: {
-                      message: 'This nav item is styled as a button.',
-                      type: 'info',
-                    },
-                  },
-                },
-              },
-            },
-            {
               type: 'group',
               name: 'options',
               label: '',
@@ -107,7 +92,23 @@ export const Navigations: CollectionConfig = {
                 },
               ],
             },
-            navLink,
+            {
+              ...navLink,
+              label: '',
+              admin: {
+                ...navLink.admin,
+                components: {
+                  ...navLink.admin?.components,
+                  Description: {
+                    path: '@/components/BannerDescription#BannerDescription',
+                    clientProps: {
+                      message: 'This nav item is styled as a button.',
+                      type: 'info',
+                    },
+                  },
+                },
+              },
+            },
           ],
         },
       ],
