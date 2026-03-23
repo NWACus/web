@@ -19,41 +19,40 @@ jobs:
       id-token: write
       actions: read
     steps:
-      - name: Check team membership
-        id: team-check
+      - name: Check authorization
+        id: auth-check
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-encoding: string
           script: |
-            const org = context.repo.owner;
-            const team = 'claude-users';
             const username = context.actor;
 
-            try {
-              await github.rest.teams.getMembershipForUserInOrg({
-                org,
-                team_slug: team,
-                username,
-              });
-              console.log(`✅ ${username} is a member of ${team}`);
+            // Check if user has write (or admin) access to the repo
+            const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username,
+            });
+
+            const permission = data.permission;
+            console.log(`${username} has '${permission}' permission on this repo`);
+
+            if (permission === 'admin' || permission === 'write') {
+              console.log(`✅ ${username} is authorized`);
               return 'authorized';
-            } catch (error) {
-              if (error.status === 404) {
-                console.log(`❌ ${username} is not a member of ${team}`);
-                return 'unauthorized';
-              }
-              throw error;
             }
 
+            console.log(`❌ ${username} is not authorized (needs write or admin access)`);
+            return 'unauthorized';
+
       - name: Post unauthorized comment
-        if: steps.team-check.outputs.result == 'unauthorized'
+        if: steps.auth-check.outputs.result == 'unauthorized'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const username = context.actor;
-            const team = 'claude-users';
             const issueNumber = context.issue?.number || context.payload.issue?.number || context.payload.pull_request?.number;
 
             if (issueNumber) {
@@ -61,7 +60,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issueNumber,
-                body: `👋 @${username}, you're not currently authorized to use Claude on this repository.\n\nTo use Claude, you need to be a member of the \`${team}\` team. Please contact a repository administrator if you believe you should have access.`
+                body: `👋 @${username}, you're not currently authorized to use Claude on this repository.\n\nTo use Claude, you need write or admin access to this repository. Please contact a repository administrator if you believe you should have access.`
               });
             }
 
