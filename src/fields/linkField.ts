@@ -59,6 +59,7 @@ const buildLinkFields = ({
     type: 'relationship',
     admin: {
       condition: (_, siblingData) => siblingData?.type === 'internal',
+      sortOptions: { pages: 'title', builtInPages: 'title', posts: 'title' },
       width: '50%',
     },
     label: 'Select page or post',
