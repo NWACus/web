@@ -41,9 +41,6 @@ export const topLevelNavTab = ({
         access: {
           update: hasSuperAdminPermissions,
         },
-        admin: {
-          ...navLink.admin,
-        },
       },
       ...fields,
     ]
