@@ -181,4 +181,8 @@ for (const tenant of tenants.docs) {
 }
 
 payload.logger.info('Done.')
+payload.logger.info(
+  'NOTE: Next.js navigation cache is NOT automatically cleared by this script. ' +
+    'Go to Admin → Diagnostics → Revalidate Cache after running to reflect changes on the frontend.',
+)
 process.exit(0)

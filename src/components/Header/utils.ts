@@ -285,7 +285,10 @@ export const getTopLevelNavItems = async ({
       })
       forecastsNavItem =
         zoneItems.length > 0
-          ? { label: forecastLink.label, link: forecastLink, items: zoneItems }
+          ? {
+              label: 'Forecasts',
+              items: [{ id: 'all-forecasts', link: forecastLink }, ...zoneItems],
+            }
           : { link: forecastLink }
     }
   } else if (
@@ -325,15 +328,7 @@ export const getTopLevelNavItems = async ({
               url: '/forecasts/avalanche',
             },
           },
-          {
-            id: 'zones',
-            items: zoneLinks,
-            link: {
-              type: 'internal',
-              label: 'Zones',
-              url: '/forecasts/avalanche',
-            },
-          },
+          ...zoneLinks,
         ],
       }
     }
