@@ -76,6 +76,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           track_progress: true
+          use_commit_signing: true
 
           # Limit tools to safe operations for this codebase
           claude_args: |
