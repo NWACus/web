@@ -2736,6 +2736,9 @@ export interface Navigation {
   };
   donate?: {
     options?: {
+      /**
+       * If hidden, the button will not appear in the nav.
+       */
       enabled?: boolean | null;
     };
     link?: {

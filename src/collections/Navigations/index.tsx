@@ -80,11 +80,16 @@ export const Navigations: CollectionConfig = {
             {
               type: 'group',
               name: 'options',
+              label: '',
               fields: [
                 {
                   type: 'checkbox',
                   defaultValue: true,
                   name: 'enabled',
+                  label: 'Show Button in Navigation',
+                  admin: {
+                    description: 'If hidden, the button will not appear in the nav.',
+                  },
                 },
               ],
             },
