@@ -3,8 +3,8 @@ import { findCenterByDomain } from '../../src/utilities/tenancy/avalancheCenters
 describe('findCenterByDomain', () => {
   it('finds a center by exact domain match (no www)', () => {
     expect(findCenterByDomain('nwac.us')).toBe('nwac')
-    expect(findCenterByDomain('alaskasnow.org')).toBe('aaic')
-    expect(findCenterByDomain('avalanche.state.co.us')).toBe('caic')
+    expect(findCenterByDomain('alaskasnow.org')).toBe('hac')
+    expect(findCenterByDomain('hpavalanche.org')).toBe('hpac')
   })
 
   it('finds a center when domain has www. prefix', () => {
@@ -26,10 +26,10 @@ describe('findCenterByDomain', () => {
   })
 
   it('handles domains shared by multiple centers (returns first match)', () => {
-    // Multiple centers use 'alaskasnow.org': aaic, cac, earac, hac, vac
-    // Should return the first one found (aaic)
+    // Multiple centers use 'alaskasnow.org': hac, vac
+    // Should return the first one found (hac)
     const result = findCenterByDomain('alaskasnow.org')
-    expect(result).toBe('aaic')
+    expect(result).toBe('hac')
   })
 
   it('returns undefined for non-existent domains', () => {
