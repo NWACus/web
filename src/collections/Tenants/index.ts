@@ -1,4 +1,5 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
+import { provisionTenant } from '@/collections/Tenants/endpoints/provisionTenant'
 import { deprovisionBeforeDelete } from '@/collections/Tenants/hooks/deprovisionBeforeDelete'
 import {
   revalidateTenantsAfterChange,
@@ -34,6 +35,13 @@ export const Tenants: CollectionConfig = {
   defaultPopulate: {
     slug: true,
   },
+  endpoints: [
+    {
+      path: '/provision',
+      method: 'post',
+      handler: provisionTenant,
+    },
+  ],
   hooks: {
     afterChange: [revalidateTenantsAfterChange],
     beforeDelete: [deprovisionBeforeDelete],
@@ -66,5 +74,17 @@ export const Tenants: CollectionConfig = {
       required: true,
     },
     contentHashField(),
+    {
+      type: 'ui',
+      name: 'onboardingChecklist',
+      label: 'Onboarding Status',
+      admin: {
+        components: {
+          Cell: '@/collections/Tenants/components/OnboardingStatusCell#OnboardingStatusCell',
+          Field: '@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist',
+        },
+        position: 'sidebar',
+      },
+    },
   ],
 }

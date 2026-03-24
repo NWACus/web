@@ -36,6 +36,8 @@ import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de7
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
 import { TenantSlugField as TenantSlugField_1aeaed4308ae318944aa6215b1567366 } from '@/collections/Tenants/components/TenantSlugField'
+import { OnboardingStatusCell as OnboardingStatusCell_132cf100d66efa575804a025c9c1c699 } from '@/collections/Tenants/components/OnboardingStatusCell'
+import { OnboardingChecklist as OnboardingChecklist_e43d4b78209dd849b6f9ccc557d93063 } from '@/collections/Tenants/components/OnboardingChecklist'
 import { SyncTenantsOnSave as SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1 } from '@/collections/Tenants/components/SyncTenantsOnSave'
 import { DeleteTenantModal as DeleteTenantModal_4179c7e18c353aeb4f324f76e2ac1d6e } from '@/collections/Tenants/components/DeleteTenantModal'
 import { AutoFillNameFromSlug as AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10 } from '@/collections/Tenants/components/AutoFillNameFromSlug'
@@ -98,6 +100,8 @@ export const importMap = {
   "@/collections/Roles/components/CollectionsField#CollectionsField": CollectionsField_49c0311020325b59204cc21d2f536b8d,
   "@/collections/Roles/components/RulesCell#RulesCell": RulesCell_649699f5b285e7a5429592dc58fd6f0c,
   "@/collections/Tenants/components/TenantSlugField#TenantSlugField": TenantSlugField_1aeaed4308ae318944aa6215b1567366,
+  "@/collections/Tenants/components/OnboardingStatusCell#OnboardingStatusCell": OnboardingStatusCell_132cf100d66efa575804a025c9c1c699,
+  "@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist": OnboardingChecklist_e43d4b78209dd849b6f9ccc557d93063,
   "@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave": SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1,
   "@/collections/Tenants/components/DeleteTenantModal#DeleteTenantModal": DeleteTenantModal_4179c7e18c353aeb4f324f76e2ac1d6e,
   "@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug": AutoFillNameFromSlug_d35762ea9217d01948b813fe4241fe10,

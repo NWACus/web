@@ -143,3 +143,11 @@ export const TenantNames = {
   sac: 'Sierra Avalanche Center',
   snfac: 'Sawtooth Avalanche Center',
 } as const
+
+// Needed to access Avalanche Center collection pages
+export const TenantIds = {
+  dvac: '1',
+  nwac: '2',
+  sac: '3',
+  snfac: '4',
+} as const
