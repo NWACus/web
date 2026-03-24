@@ -35,6 +35,8 @@ import { InviteUser as InviteUser_6042b6804e11048cd4fbe6206cbc2b0f } from '@/col
 import { ResendInviteButton as ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735 } from '@/collections/Users/components/ResendInviteButton'
 import { CollectionsField as CollectionsField_49c0311020325b59204cc21d2f536b8d } from '@/collections/Roles/components/CollectionsField'
 import { RulesCell as RulesCell_649699f5b285e7a5429592dc58fd6f0c } from '@/collections/Roles/components/RulesCell'
+import { OnboardingStatusCell as OnboardingStatusCell_132cf100d66efa575804a025c9c1c699 } from '@/collections/Tenants/components/OnboardingStatusCell'
+import { OnboardingChecklist as OnboardingChecklist_e43d4b78209dd849b6f9ccc557d93063 } from '@/collections/Tenants/components/OnboardingChecklist'
 import { SyncTenantsOnSave as SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1 } from '@/collections/Tenants/components/SyncTenantsOnSave'
 import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721 } from '@/fields/navLink/components/LinkLabelDescription'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
@@ -94,6 +96,8 @@ export const importMap = {
   "@/collections/Users/components/ResendInviteButton#ResendInviteButton": ResendInviteButton_e262b7912e5bdc08a1a83eb2731de735,
   "@/collections/Roles/components/CollectionsField#CollectionsField": CollectionsField_49c0311020325b59204cc21d2f536b8d,
   "@/collections/Roles/components/RulesCell#RulesCell": RulesCell_649699f5b285e7a5429592dc58fd6f0c,
+  "@/collections/Tenants/components/OnboardingStatusCell#OnboardingStatusCell": OnboardingStatusCell_132cf100d66efa575804a025c9c1c699,
+  "@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist": OnboardingChecklist_e43d4b78209dd849b6f9ccc557d93063,
   "@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave": SyncTenantsOnSave_7025498606b767f7843bf544e6535ee1,
   "@/fields/navLink/components/LinkLabelDescription#LinkLabelDescription": LinkLabelDescription_cc2cf53f1598892c0c926f3cb616a721,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
