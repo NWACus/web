@@ -1,12 +1,10 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
-import type { BuiltInPage, Page, Tenant } from '@/payload-types'
+import type { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
+import { isValidRelationship } from '@/utilities/relationships'
 import type { Payload, PayloadHandler } from 'payload'
 
 const TEMPLATE_TENANT_SLUG = 'dvac'
-
-// Page slugs that should not be copied during provisioning (e.g. demo/showcase pages)
-export const SKIP_PAGE_SLUGS = new Set(['blocks', 'lexical-blocks'])
 
 export const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
   { title: 'All Forecasts', url: '/forecasts/avalanche' },
@@ -81,13 +79,70 @@ export const provisionTenant: PayloadHandler = async (req) => {
 /**
  * Provisions a tenant with all default data:
  * 1. Website Settings with placeholder brand assets (logo, icon, banner)
- * 2. Built-in pages (forecasts, weather stations, observations)
- * 3. Blank pages matching the template tenant's (DVAC) page structure
- * 4. Home page with default content
- * 5. Navigation linked to the new pages and built-in pages
+ * 2. Look up template tenant (DVAC) navigation to determine which pages to create
+ * 3. Built-in pages (filtered to those referenced in template navigation)
+ * 4. Blank pages matching the template tenant's page structure
+ * 5. Home page with default content
+ * 6. Navigation linked to the new pages and built-in pages
  *
  * Idempotent - checks for existing data before creating.
  */
+/**
+ * Extracts page slugs from a resolved navigation document.
+ * Walks all DVAC nav tabs' items (and sub-items) and collects slugs
+ * from internal page references.
+ */
+export type NavReferences = {
+  pageSlugs: Set<string>
+  builtInPageUrls: Set<string>
+}
+
+export function extractNavReferences(nav: Navigation): NavReferences {
+  const pageSlugs = new Set<string>()
+  const builtInPageUrls = new Set<string>()
+
+  for (const tab of Object.values(nav)) {
+    if (typeof tab === 'object' && tab !== null) {
+      // Tab with items array (forecasts, weather, education, etc.)
+      if ('items' in tab && Array.isArray(tab.items)) {
+        for (const item of tab.items) {
+          buildNavReference(item.link, pageSlugs, builtInPageUrls)
+          if (Array.isArray(item.items)) {
+            for (const subItem of item.items) {
+              buildNavReference(subItem.link, pageSlugs, builtInPageUrls)
+            }
+          }
+        }
+      }
+
+      // Tab with a direct link (donate)
+      if ('link' in tab) {
+        buildNavReference(tab.link, pageSlugs, builtInPageUrls)
+      }
+    }
+  }
+
+  return { pageSlugs, builtInPageUrls }
+}
+
+function buildNavReference(
+  link:
+    | { reference?: { relationTo: string; value: number | { id: string | number } } | null }
+    | null
+    | undefined,
+  pageSlugs: Set<string>,
+  builtInPageUrls: Set<string>,
+): void {
+  const ref = link?.reference
+  if (!ref || !isValidRelationship(ref.value)) return
+
+  if (ref.relationTo === 'pages' && 'slug' in ref.value) {
+    pageSlugs.add(String(ref.value.slug))
+  } else if (ref.relationTo === 'builtInPages' && 'url' in ref.value) {
+    builtInPageUrls.add(String(ref.value.url))
+  }
+}
+
 export async function provision(payload: Payload, tenant: Tenant) {
   const log = payload.logger
 
@@ -141,7 +196,41 @@ export async function provision(payload: Payload, tenant: Tenant) {
     log.info(`[${tenant.slug}] Website settings already exist, skipping`)
   }
 
-  // 2. Create Built-In Pages
+  // 2. Look up template tenant navigation to determine which pages to create
+  log.info(`[${tenant.slug}] Looking up template tenant (${TEMPLATE_TENANT_SLUG}) navigation...`)
+  const templateTenant = await payload
+    .find({
+      collection: 'tenants',
+      where: { slug: { equals: TEMPLATE_TENANT_SLUG } },
+      limit: 1,
+    })
+    .then((res) => res.docs[0])
+
+  let navPageSlugs = new Set<string>()
+  let navBuiltInPageUrls = new Set<string>()
+
+  if (templateTenant) {
+    const templateNav = await payload
+      .find({
+        collection: 'navigations',
+        where: { tenant: { equals: templateTenant.id } },
+        limit: 1,
+        depth: 1,
+      })
+      .then((res) => res.docs[0])
+
+    const refs = extractNavReferences(templateNav ?? {})
+    navPageSlugs = refs.pageSlugs
+    navBuiltInPageUrls = refs.builtInPageUrls
+    log.info(
+      `[${tenant.slug}] Found ${navPageSlugs.size} page slugs and ${navBuiltInPageUrls.size} built-in page URLs in template navigation`,
+    )
+  } else {
+    log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Using default built-in pages.`)
+  }
+
+  // 3. Create Built-In Pages
+  // TODO: Filter to only navigation-referenced built-in pages #999
   log.info(`[${tenant.slug}] Creating built-in pages...`)
   const existingBuiltInPages = await payload.find({
     collection: 'builtInPages',
@@ -173,29 +262,19 @@ export async function provision(payload: Payload, tenant: Tenant) {
     builtInPagesByUrl[bip.url] = bip
   }
 
-  // 3. Create blank pages from template tenant (DVAC) page structure
-  log.info(
-    `[${tenant.slug}] Creating blank pages from template tenant (${TEMPLATE_TENANT_SLUG})...`,
-  )
-  const templateTenant = await payload
-    .find({
-      collection: 'tenants',
-      where: { slug: { equals: TEMPLATE_TENANT_SLUG } },
-      limit: 1,
-    })
-    .then((res) => res.docs[0])
-
+  // 4. Create blank pages for pages referenced in template navigation
   const createdPages: Page[] = []
   const failedPages: string[] = []
-  // Maps page slug to new page for navigation linking
   const pagesBySlug: Record<string, Page> = {}
 
   if (templateTenant) {
+    // Query the template pages that are referenced in navigation
     const templatePages = await payload.find({
       collection: 'pages',
       where: {
         tenant: { equals: templateTenant.id },
         _status: { equals: 'published' },
+        slug: { in: [...navPageSlugs].join(',') },
       },
       limit: 500,
       depth: 0,
@@ -211,10 +290,6 @@ export async function provision(payload: Payload, tenant: Tenant) {
     const existingPagesBySlug = new Map(existingPages.docs.map((p) => [p.slug, p]))
 
     for (const templatePage of templatePages.docs) {
-      if (SKIP_PAGE_SLUGS.has(templatePage.slug)) {
-        log.info(`[${tenant.slug}] Skipping "${templatePage.title}" (demo page)`)
-        continue
-      }
       const existing = existingPagesBySlug.get(templatePage.slug)
       if (existing) {
         log.info(`[${tenant.slug}] Page "${templatePage.title}" already exists, skipping`)
@@ -257,11 +332,9 @@ export async function provision(payload: Payload, tenant: Tenant) {
         pagesBySlug[p.slug] = p
       }
     }
-  } else {
-    log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Skipping page creation.`)
   }
 
-  // 4. Create Home Page
+  // 5. Create Home Page
   log.info(`[${tenant.slug}] Creating home page...`)
   const existingHomePage = await payload.find({
     collection: 'homePages',
@@ -337,7 +410,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     log.info(`[${tenant.slug}] Home page already exists, skipping`)
   }
 
-  // 5. Create Navigation
+  // 6. Create Navigation
   log.info(`[${tenant.slug}] Creating navigation...`)
   const existingNavigation = await payload.find({
     collection: 'navigations',

@@ -3,8 +3,8 @@
 import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
 import {
   BUILT_IN_PAGES,
+  extractNavReferences,
   provision,
-  SKIP_PAGE_SLUGS,
 } from '@/collections/Tenants/endpoints/provisionTenant'
 import config from '@payload-config'
 import fs from 'fs/promises'
@@ -13,7 +13,7 @@ import { getPayload } from 'payload'
 
 export type ProvisioningStatus = {
   builtInPages: { count: number; expected: number }
-  pages: { created: number; expected: number; missing: string[]; skipped: string[] }
+  pages: { created: number; expected: number; missing: string[] }
   homePage: boolean
   navigation: boolean
   settings: { exists: boolean; id?: number | string }
@@ -88,27 +88,31 @@ export async function checkProvisioningStatusAction(
     const templateTenant = templateTenantResult.docs[0]
 
     let templatePageSlugs: { slug: string; title: string }[] = []
-    const skippedPages: string[] = []
     if (templateTenant) {
+      // Get page slugs from template navigation (same logic as provisioning)
+      const templateNav = await payload
+        .find({
+          collection: 'navigations',
+          where: { tenant: { equals: templateTenant.id } },
+          limit: 1,
+          depth: 1,
+        })
+        .then((res) => res.docs[0])
+
+      // TODO: Use builtInPageUrls to filter expected built-in page count #999
+      const { pageSlugs: navPageSlugs } = extractNavReferences(templateNav ?? {})
+
       const templatePages = await payload.find({
         collection: 'pages',
         where: {
           tenant: { equals: templateTenant.id },
           _status: { equals: 'published' },
+          slug: { in: [...navPageSlugs].join(',') },
         },
         limit: 500,
         select: { slug: true, title: true },
       })
-      // Only exclude demo/showcase pages
-      templatePageSlugs = templatePages.docs
-        .filter((p) => {
-          if (SKIP_PAGE_SLUGS.has(p.slug)) {
-            skippedPages.push(p.title)
-            return false
-          }
-          return true
-        })
-        .map((p) => ({ slug: p.slug, title: p.title }))
+      templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
     }
 
     const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
@@ -117,12 +121,12 @@ export async function checkProvisioningStatusAction(
 
     return {
       status: {
+        // TODO: Filter expected count to navigation-referenced built-in pages #999
         builtInPages: { count: builtInPages.totalDocs, expected: BUILT_IN_PAGES.length },
         pages: {
           created: createdPages.length,
           expected: templatePageSlugs.length,
           missing: missing.map((p) => p.title),
-          skipped: skippedPages,
         },
         homePage: homePages.totalDocs > 0,
         navigation: navigations.totalDocs > 0,

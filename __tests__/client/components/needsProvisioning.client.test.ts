@@ -3,7 +3,7 @@ import type { ProvisioningStatus } from '@/collections/Tenants/components/onboar
 
 const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningStatus => ({
   builtInPages: { count: 0, expected: 7 },
-  pages: { created: 0, expected: 5, missing: [], skipped: [] },
+  pages: { created: 0, expected: 5, missing: [] },
   homePage: false,
   navigation: false,
   settings: { exists: false },
@@ -21,7 +21,7 @@ describe('needsProvisioning', () => {
       needsProvisioning(
         buildStatus({
           builtInPages: { count: 7, expected: 7 },
-          pages: { created: 5, expected: 5, missing: [], skipped: [] },
+          pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: true,
           settings: { exists: true },
@@ -35,7 +35,7 @@ describe('needsProvisioning', () => {
       needsProvisioning(
         buildStatus({
           builtInPages: { count: 3, expected: 7 },
-          pages: { created: 5, expected: 5, missing: [], skipped: [] },
+          pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: true,
           settings: { exists: true },
@@ -49,7 +49,7 @@ describe('needsProvisioning', () => {
       needsProvisioning(
         buildStatus({
           builtInPages: { count: 7, expected: 7 },
-          pages: { created: 3, expected: 5, missing: ['About Us', 'Donate'], skipped: [] },
+          pages: { created: 3, expected: 5, missing: ['About Us', 'Donate'] },
           homePage: true,
           navigation: true,
           settings: { exists: true },
@@ -63,7 +63,7 @@ describe('needsProvisioning', () => {
       needsProvisioning(
         buildStatus({
           builtInPages: { count: 7, expected: 7 },
-          pages: { created: 5, expected: 5, missing: [], skipped: [] },
+          pages: { created: 5, expected: 5, missing: [] },
           homePage: false,
           navigation: true,
           settings: { exists: true },
@@ -77,7 +77,7 @@ describe('needsProvisioning', () => {
       needsProvisioning(
         buildStatus({
           builtInPages: { count: 7, expected: 7 },
-          pages: { created: 5, expected: 5, missing: [], skipped: [] },
+          pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: false,
           settings: { exists: true },
@@ -91,7 +91,7 @@ describe('needsProvisioning', () => {
       needsProvisioning(
         buildStatus({
           builtInPages: { count: 7, expected: 7 },
-          pages: { created: 5, expected: 5, missing: [], skipped: [] },
+          pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: true,
           settings: { exists: false },

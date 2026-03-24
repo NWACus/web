@@ -28,19 +28,8 @@ jest.mock('../../src/endpoints/seed/utilities', () => ({
   getSeedImageByFilename: jest.fn(),
 }))
 
-import { SKIP_PAGE_SLUGS } from '@/collections/Tenants/endpoints/provisionTenant'
 import type { Page } from '@/payload-types'
 import { clearLayoutRelationships } from '@/utilities/clearLayoutRelationships'
-
-describe('SKIP_PAGE_SLUGS', () => {
-  it.each(['blocks', 'lexical-blocks'])('includes %s', (slug) => {
-    expect(SKIP_PAGE_SLUGS.has(slug)).toBe(true)
-  })
-
-  it.each(['about-us', 'contact', 'donate-membership'])('does not include %s', (slug) => {
-    expect(SKIP_PAGE_SLUGS.has(slug)).toBe(false)
-  })
-})
 
 describe('clearLayoutRelationships', () => {
   it('returns empty array for empty layout', () => {

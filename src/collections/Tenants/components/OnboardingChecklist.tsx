@@ -14,7 +14,7 @@ import {
 
 const DEFAULT_STATUS: ProvisioningStatus = {
   builtInPages: { count: 0, expected: 0 },
-  pages: { created: 0, expected: 0, missing: [], skipped: [] },
+  pages: { created: 0, expected: 0, missing: [] },
   homePage: false,
   navigation: false,
   settings: { exists: false, id: undefined },
@@ -187,7 +187,6 @@ export function OnboardingChecklist() {
         details={loaded && `(${pages.created}/${pages.expected})`}
       >
         {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
-        {pages.skipped.length > 0 && <div>Skipped (demo pages): {pages.skipped.join(', ')}</div>}
       </ChecklistItem>
 
       <ChecklistItem loading={isProvisioning} done={homePage} label="Home page" />
