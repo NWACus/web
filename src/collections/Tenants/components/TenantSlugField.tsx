@@ -1,29 +1,25 @@
-'use client'
+import type { SelectFieldServerComponent } from 'payload'
 
-import type { SelectFieldClientProps } from 'payload'
+import { SelectField } from '@payloadcms/ui'
 
-import { SelectField, useDocumentInfo } from '@payloadcms/ui'
-import { useEffect, useState } from 'react'
+export const TenantSlugField: SelectFieldServerComponent = async ({
+  clientField,
+  field,
+  payload,
+}) => {
+  const { docs } = await payload.find({
+    collection: 'tenants',
+    limit: 0,
+    depth: 0,
+    select: { slug: true },
+  })
 
-export const TenantSlugField = (props: SelectFieldClientProps) => {
-  const { id } = useDocumentInfo()
-  const [usedSlugs, setUsedSlugs] = useState<string[]>([])
+  const usedSlugs: Set<string> = new Set(docs.map((doc) => doc.slug))
 
-  useEffect(() => {
-    if (id) return
+  const options = clientField.options?.filter((option) => {
+    const value = typeof option === 'string' ? option : option.value
+    return !usedSlugs.has(value)
+  })
 
-    fetch('/api/tenants?limit=0&depth=0&select[slug]=true')
-      .then((res) => res.json())
-      .then((data) => setUsedSlugs(data.docs.map((doc: { slug: string }) => doc.slug)))
-      .catch(() => {})
-  }, [id])
-
-  const options = id
-    ? props.field.options
-    : props.field.options?.filter((option) => {
-        const value = typeof option === 'string' ? option : option.value
-        return !usedSlugs.includes(value)
-      })
-
-  return <SelectField {...props} field={{ ...props.field, options }} />
+  return <SelectField field={{ ...clientField, options }} path={field.name} />
 }
