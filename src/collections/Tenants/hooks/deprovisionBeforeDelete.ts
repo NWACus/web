@@ -18,6 +18,7 @@ export const TENANT_SCOPED_COLLECTIONS = [
   'media',
   'redirects',
   'roleAssignments',
+  'forms',
 ] as const
 
 /**
