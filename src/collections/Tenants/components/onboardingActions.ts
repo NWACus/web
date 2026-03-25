@@ -1,7 +1,11 @@
 'use server'
 
 import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
-import { extractNavReferences, provision } from '@/collections/Tenants/endpoints/provisionTenant'
+import {
+  extractNavReferences,
+  provision,
+  resolveBuiltInPages,
+} from '@/collections/Tenants/endpoints/provisionTenant'
 import config from '@payload-config'
 import fs from 'fs/promises'
 import path from 'path'
@@ -84,6 +88,8 @@ export async function checkProvisioningStatusAction(
     const templateTenant = templateTenantResult.docs[0]
 
     let templatePageSlugs: { slug: string; title: string }[] = []
+    let navPageSlugs = new Set<string>()
+    let navBuiltInPages: Array<{ title: string; url: string }> = []
     if (templateTenant) {
       // Get page slugs from template navigation (same logic as provisioning)
       const templateNav = await payload
@@ -95,7 +101,9 @@ export async function checkProvisioningStatusAction(
         })
         .then((res) => res.docs[0])
 
-      const { pageSlugs: navPageSlugs } = extractNavReferences(templateNav ?? {})
+      const refs = extractNavReferences(templateNav ?? {})
+      navPageSlugs = refs.pageSlugs
+      navBuiltInPages = refs.builtInPages
 
       const templatePages = await payload.find({
         collection: 'pages',
@@ -110,7 +118,12 @@ export async function checkProvisioningStatusAction(
       templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
     }
 
-    // TODO: Use builtInPageUrls to filter expected built-in page count #999
+    const { forecastPages, nonForecastPages } = await resolveBuiltInPages(
+      tenant.slug,
+      navBuiltInPages,
+      payload.logger,
+    )
+    const expectedBuiltInPages = [...forecastPages, ...nonForecastPages]
 
     const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
     const createdPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
@@ -118,7 +131,7 @@ export async function checkProvisioningStatusAction(
 
     return {
       status: {
-        builtInPages: { count: builtInPages.totalDocs, expected: builtInPages.totalDocs },
+        builtInPages: { count: builtInPages.totalDocs, expected: expectedBuiltInPages.length },
         pages: {
           created: createdPages.length,
           expected: templatePageSlugs.length,
