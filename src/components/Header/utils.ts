@@ -68,7 +68,6 @@ function topLevelNavItem({
   }
 
   if (tab.items && tab.items.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     result.items = tab.items
       .map((item) => {
         if (!item) return null
@@ -92,7 +91,6 @@ function topLevelNavItem({
         }
 
         if (item.items && item.items.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           navItem.items = item.items
             .map((nestedItem, index) => {
               if (!nestedItem) return null
@@ -117,7 +115,7 @@ function topLevelNavItem({
 
               return nestedNavItem.link ? nestedNavItem : null
             })
-            .filter(Boolean) as NavItem[]
+            .filter((item): item is NavItem => item !== null)
 
           if (navItem.items && navItem.items.length === 0) {
             delete navItem.items
@@ -126,7 +124,7 @@ function topLevelNavItem({
 
         return navItem.link || (navItem.items && navItem.items.length > 0) ? navItem : null
       })
-      .filter(Boolean) as NavItem[]
+      .filter((item): item is NavItem => item !== null)
 
     if (result.items && result.items.length === 0) {
       delete result.items
