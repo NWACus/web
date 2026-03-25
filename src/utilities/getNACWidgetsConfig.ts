@@ -1,4 +1,5 @@
 import invariant from 'tiny-invariant'
+import { getEnvironmentFriendlyName } from './getEnvironmentFriendlyName'
 import { getCachedGlobal } from './getGlobals'
 
 export async function getNACWidgetsConfig() {
@@ -16,9 +17,11 @@ export async function getNACWidgetsConfig() {
     'Could not determine NAC widgets base url. Ensure this is set in the NAC Widgets Config global.',
   )
 
-  // In production, always force devMode off regardless of the admin setting
+  // In production, always force devMode off. Otherwise, respect the admin panel setting.
   const devMode =
-    process.env.NODE_ENV === 'production' ? false : (nacWidgetsConfig?.devMode ?? false)
+    getEnvironmentFriendlyName() === 'prod' || !nacWidgetsConfig?.devMode
+      ? false
+      : nacWidgetsConfig?.devMode
 
   return { version, baseUrl, devMode }
 }

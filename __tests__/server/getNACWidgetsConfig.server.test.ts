@@ -12,12 +12,18 @@ jest.mock('../../src/utilities/getGlobals', () => ({
 
 describe('utilities: getNACWidgetsConfig', () => {
   const originalNodeEnv = process.env.NODE_ENV
+  const originalVercelEnv = process.env.VERCEL_ENV
 
   afterEach(() => {
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: originalNodeEnv,
       configurable: true,
     })
+    if (originalVercelEnv === undefined) {
+      delete process.env.VERCEL_ENV
+    } else {
+      process.env.VERCEL_ENV = originalVercelEnv
+    }
     mockConfig.devMode = false
   })
 
@@ -27,8 +33,17 @@ describe('utilities: getNACWidgetsConfig', () => {
     expect(result.baseUrl).toBe('https://du6amfiq9m9h7.cloudfront.net/public/v2')
   })
 
+  it('returns devMode from the global config in non-production', async () => {
+    Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', configurable: true })
+    mockConfig.devMode = true
+
+    const result = await getNACWidgetsConfig()
+    expect(result.devMode).toBe(true)
+  })
+
   it('forces devMode to false in production even when global config has it enabled', async () => {
     Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', configurable: true })
+    process.env.VERCEL_ENV = 'production'
     mockConfig.devMode = true
 
     const result = await getNACWidgetsConfig()
@@ -37,7 +52,7 @@ describe('utilities: getNACWidgetsConfig', () => {
 
   it('defaults devMode to false when not set in global config', async () => {
     Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', configurable: true })
-    mockConfig.devMode = undefined
+    delete mockConfig.devMode
 
     const result = await getNACWidgetsConfig()
     expect(result.devMode).toBe(false)
