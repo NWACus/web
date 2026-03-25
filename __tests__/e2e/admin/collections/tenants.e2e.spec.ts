@@ -113,7 +113,7 @@ authTest.describe('Tenants', () => {
 
       // Should have a prompt to type the name
       await expect(modal).toContainText('Type')
-      await expect(modal.locator('strong')).toContainText(tenantName)
+      await expect(modal.getByText(tenantName, { exact: true })).toBeVisible()
 
       // Cancel to avoid actually deleting
       const cancelButton = modal.getByRole('button', { name: 'Cancel' })
