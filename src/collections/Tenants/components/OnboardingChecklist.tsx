@@ -170,7 +170,7 @@ export function OnboardingChecklist() {
 
       {automatedComplete && (
         <p className="mt-2 text-sm opacity-70">
-          Pages and navigation structures are copied from DVAC
+          Blank pages are created using DVACs navigation structure
         </p>
       )}
 
