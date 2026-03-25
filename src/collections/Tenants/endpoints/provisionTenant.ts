@@ -591,6 +591,14 @@ export async function provision(payload: Payload, tenant: Tenant) {
               navPageItem('avalanche-accident-map'),
             ]),
           },
+          blog: {
+            link: navBuiltInPageItem('/blog', 'Blog')?.link,
+            options: { enabled: true },
+          },
+          events: {
+            link: navBuiltInPageItem('/events', 'Events')?.link,
+            options: { enabled: true },
+          },
           donate: {
             link: navPageItem('donate-membership', 'Donate')?.link,
           },
