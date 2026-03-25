@@ -18,9 +18,6 @@ import { useRouter } from 'next/navigation'
 import { formatAdminURL } from 'payload/shared'
 import { useCallback, useEffect, useState } from 'react'
 
-// TODOs
-// - Remove photos from blocks or use a global photo?
-
 export const DuplicatePageForDrawer = () => {
   const { data: pageData } = useDocumentInfo()
   const modified = useFormModified()

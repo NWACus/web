@@ -536,6 +536,10 @@ export interface HomePage {
         backgroundColor: string;
         imageLayout: 'left' | 'right';
         image: number | Media;
+        /**
+         * Text will flow around the image instead of being in a separate column
+         */
+        textWrap?: boolean | null;
         richText: {
           root: {
             type: string;
@@ -705,24 +709,18 @@ export interface HomePage {
  */
 export interface Tenant {
   id: number;
-  name: string;
   /**
    * Avalanche center identifier. Used for subdomains and URL paths.
    */
   slug:
-    | 'aaic'
     | 'bac'
     | 'btac'
-    | 'cac'
-    | 'caic'
     | 'caac'
     | 'cbac'
     | 'cnfaic'
     | 'coaa'
     | 'dvac'
-    | 'earac'
     | 'esac'
-    | 'ewyaix'
     | 'fac'
     | 'gnfac'
     | 'hac'
@@ -735,12 +733,11 @@ export interface Tenant {
     | 'pac'
     | 'sac'
     | 'snfac'
-    | 'soaix'
     | 'tac'
-    | 'uac'
     | 'vac'
     | 'wac'
     | 'wcmac';
+  name: string;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -956,7 +953,33 @@ export interface Page {
         blockType: 'headerBlock';
       }
     | ImageLinkGridBlock
-    | ImageTextBlock
+    | {
+        backgroundColor: string;
+        imageLayout: 'left' | 'right';
+        image: number | Media;
+        /**
+         * Text will flow around the image instead of being in a separate column
+         */
+        textWrap?: boolean | null;
+        richText: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageText';
+      }
     | LinkPreviewBlock
     | {
         media: number | Media;
@@ -1664,33 +1687,6 @@ export interface BuiltInPage {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextBlock".
- */
-export interface ImageTextBlock {
-  backgroundColor: string;
-  imageLayout: 'left' | 'right';
-  image: number | Media;
-  richText: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3289,6 +3285,7 @@ export interface ImageTextBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   imageLayout?: T;
   image?: T;
+  textWrap?: T;
   richText?: T;
   id?: T;
   blockName?: T;
@@ -3822,8 +3819,8 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
-  name?: T;
   slug?: T;
+  name?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -4876,6 +4873,37 @@ export interface SingleEventBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'singleEvent';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock".
+ */
+export interface ImageTextBlock {
+  backgroundColor: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  /**
+   * Text will flow around the image instead of being in a separate column
+   */
+  textWrap?: boolean | null;
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

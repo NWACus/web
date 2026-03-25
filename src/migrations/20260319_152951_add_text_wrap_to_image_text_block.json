@@ -1355,6 +1355,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "rich_text": {
           "name": "rich_text",
           "type": "text",
@@ -4080,6 +4088,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "rich_text": {
           "name": "rich_text",
           "type": "text",
@@ -6788,6 +6804,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "rich_text": {
           "name": "rich_text",
           "type": "text",
@@ -9309,6 +9333,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         },
         "rich_text": {
           "name": "rich_text",
@@ -22221,14 +22253,6 @@
           "autoincrement": false,
           "default": "'https://du6amfiq9m9h7.cloudfront.net/public/v2'"
         },
-        "dev_mode": {
-          "name": "dev_mode",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -22345,6 +22369,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "533ac594-a47f-4988-b72f-12f6f7e95acd",
+  "id": "4187ba9a-c557-47c5-b371-09df529ac7b4",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

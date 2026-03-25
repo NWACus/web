@@ -22,20 +22,19 @@ export async function saveDocAndAssert(
 ): Promise<void> {
   const timeout = options?.timeout ?? 10000
 
+  const toastSelector =
+    expectation === 'success'
+      ? '.toast-success, [data-type="success"]'
+      : '.toast-error, [data-type="error"]'
+
+  // Start waiting for the toast before clicking save to avoid race conditions
+  const toastPromise = page.locator(toastSelector).first().waitFor({ state: 'visible', timeout })
+
   // Click the save button
   await page.click(selector)
 
-  if (expectation === 'success') {
-    // Wait for success toast
-    await expect(page.locator('.toast-success, .Toastify__toast--success')).toBeVisible({
-      timeout,
-    })
-  } else {
-    // Wait for error toast
-    await expect(page.locator('.toast-error, .Toastify__toast--error')).toBeVisible({
-      timeout,
-    })
-  }
+  // Wait for the toast to appear
+  await toastPromise
 
   // Dismiss toasts unless disabled
   if (!options?.disableDismissAllToasts) {
@@ -59,15 +58,12 @@ export async function saveDocHotkeyAndAssert(
 
   await page.keyboard.press(`${modifier}+s`)
 
-  if (expectation === 'success') {
-    await expect(page.locator('.toast-success, .Toastify__toast--success')).toBeVisible({
-      timeout,
-    })
-  } else {
-    await expect(page.locator('.toast-error, .Toastify__toast--error')).toBeVisible({
-      timeout,
-    })
-  }
+  const hotkeyToastSelector =
+    expectation === 'success'
+      ? '.toast-success, [data-type="success"]'
+      : '.toast-error, [data-type="error"]'
+
+  await expect(page.locator(hotkeyToastSelector).first()).toBeVisible({ timeout })
 
   if (!options?.disableDismissAllToasts) {
     await closeAllToasts(page)
@@ -126,5 +122,6 @@ export async function waitForLoading(page: Page, timeout = 10000): Promise<void>
 export async function openDocControls(page: Page): Promise<void> {
   const docControls = page.locator('.doc-controls__popup .popup-button')
   await docControls.click()
-  await expect(page.locator('.doc-controls__popup .popup__content')).toBeVisible()
+  // Popup content is rendered via React portal at document body level, not inside .doc-controls__popup
+  await expect(page.locator('.popup__content')).toBeVisible({ timeout: 10000 })
 }

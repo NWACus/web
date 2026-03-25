@@ -57,6 +57,11 @@ export default async function ProvidersEmbedPage({
     }
   })
 
+  // Sort providers alphabetically by name within each state
+  for (const state of Object.keys(providersByState)) {
+    providersByState[state].sort((a, b) => a.name.localeCompare(b.name))
+  }
+
   // Sort states alphabetically, but always put International (INTL) last
   const states = Object.keys(providersByState).sort((a, b) => {
     if (a === 'INTL') return 1

@@ -66,7 +66,7 @@ export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
     case 'imageLinkGrid':
       return <ImageLinkGridBlockComponent {...block} />
     case 'imageText':
-      return <ImageTextBlockComponent {...block} />
+      return <ImageTextBlockComponent {...block} isLayoutBlock={true} />
     case 'linkPreview':
       return <LinkPreviewBlockComponent {...block} />
     case 'mediaBlock':
