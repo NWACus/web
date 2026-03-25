@@ -1355,6 +1355,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "rich_text": {
           "name": "rich_text",
           "type": "text",
@@ -4080,6 +4088,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "rich_text": {
           "name": "rich_text",
           "type": "text",
@@ -6796,6 +6812,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
         "rich_text": {
           "name": "rich_text",
           "type": "text",
@@ -9317,6 +9341,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "text_wrap": {
+          "name": "text_wrap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         },
         "rich_text": {
           "name": "rich_text",
@@ -16099,15 +16131,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "name": {
-          "name": "name",
+        "slug": {
+          "name": "slug",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "slug": {
-          "name": "slug",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -22867,6 +22899,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "b5474d0e-d86d-46c8-8691-6f1cfc1e66fe",
+  "id": "95f03dc2-5756-4092-9a43-3fea4b524583",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -46,7 +46,7 @@ import * as migration_20260128_213937_rename_appearance_to_variant from './20260
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
 import * as migration_20260319_152951_add_text_wrap_to_image_text_block from './20260319_152951_add_text_wrap_to_image_text_block'
-import * as migration_20260323_192234_convert_auto_nav_items from './20260323_192234_convert_auto_nav_items'
+import * as migration_20260325_142016_convert_auto_nav_items from './20260325_142016_convert_auto_nav_items'
 
 export const migrations = [
   {
@@ -285,13 +285,13 @@ export const migrations = [
     name: '20260303_233752_remove_custom_domain_from_tenants',
   },
   {
-    up: migration_20260323_192234_convert_auto_nav_items.up,
-    down: migration_20260323_192234_convert_auto_nav_items.down,
-    name: '20260323_192234_convert_auto_nav_items',
-  },
-  {
     up: migration_20260319_152951_add_text_wrap_to_image_text_block.up,
     down: migration_20260319_152951_add_text_wrap_to_image_text_block.down,
     name: '20260319_152951_add_text_wrap_to_image_text_block',
+  },
+  {
+    up: migration_20260325_142016_convert_auto_nav_items.up,
+    down: migration_20260325_142016_convert_auto_nav_items.down,
+    name: '20260325_142016_convert_auto_nav_items',
   },
 ]
