@@ -32,7 +32,7 @@ test.describe('Onboarding Checklist', () => {
 
     // Core checklist items
     await expect(checklist.getByText('Built-in pages')).toBeVisible()
-    await expect(checklist.getByText('Pages')).toBeVisible()
+    await expect(checklist.getByText('Pages', { exact: true })).toBeVisible()
     await expect(checklist.getByText('Home page')).toBeVisible()
     await expect(checklist.getByText('Navigation')).toBeVisible()
     await expect(checklist.getByText('Website Settings')).toBeVisible()
