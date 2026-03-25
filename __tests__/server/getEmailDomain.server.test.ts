@@ -8,7 +8,7 @@ describe('getEmailDomain', () => {
   it('strips only the www. prefix, not other subdomains', () => {
     expect(getEmailDomain('cnfaic')).toBe('cnfaic.org')
 
-    expect(getEmailDomain('aaic')).toBe('alaskasnow.org')
+    expect(getEmailDomain('hac')).toBe('alaskasnow.org')
   })
 
   it('strips port numbers from domains (for local development)', () => {

@@ -1,5 +1,6 @@
 'use server'
 
+import { clearLayoutRelationships } from '@/utilities/clearLayoutRelationships'
 import configPromise from '@payload-config'
 import { getPayload, PayloadRequest } from 'payload'
 
@@ -17,31 +18,30 @@ export async function duplicatePageToTenant(req: PayloadRequest) {
     throw new Error(`Tenant not found: ${tenantSlug}`)
   }
 
-  const newPageSansIds = removeIdKey(newPage)
+  const layoutWithoutRefs = clearLayoutRelationships(newPage.layout ?? [])
+
+  // Only append "-copy" to title/slug if a page with that slug already exists for this tenant
+  let title = newPage.title
+  let slug = newPage.slug
+  const existing = await payload.find({
+    collection: 'pages',
+    where: { tenant: { equals: tenant.id }, slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  })
+  if (existing.docs.length > 0) {
+    title = `${title} - Copy`
+    slug = `${slug}-copy`
+  }
 
   return await payload.create({
     collection: 'pages',
+    draft: true,
     data: {
-      ...newPageSansIds,
+      layout: layoutWithoutRefs,
       tenant,
-      title: `${newPage.title} - Copy`,
-      slug: `${newPage.slug}-copy`,
+      title,
+      slug,
     },
   })
-}
-
-const removeIdKey = <T>(obj: T): T => {
-  if (Array.isArray(obj)) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    return obj.map(removeIdKey) as T
-  }
-  if (obj && typeof obj === 'object') {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    return Object.fromEntries(
-      Object.entries(obj)
-        .filter(([k]) => !k.toLowerCase().includes('id'))
-        .map(([k, v]) => [k, removeIdKey(v)]),
-    ) as T
-  }
-  return obj
 }
