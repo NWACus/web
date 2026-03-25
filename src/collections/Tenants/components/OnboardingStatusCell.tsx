@@ -16,10 +16,12 @@ export async function OnboardingStatusCell({
     return null
   }
 
-  const { builtInPages, pages, homePage, navigation, settings } = result.status
+  const { forecastPages, defaultBuiltInPages, pages, homePage, navigation, settings } =
+    result.status
 
   const allComplete =
-    builtInPages.count >= builtInPages.expected &&
+    forecastPages.count >= forecastPages.expected &&
+    defaultBuiltInPages.count >= defaultBuiltInPages.expected &&
     pages.created >= pages.expected &&
     pages.expected > 0 &&
     homePage &&

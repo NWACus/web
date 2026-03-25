@@ -12,7 +12,8 @@ import path from 'path'
 import { getPayload } from 'payload'
 
 export type ProvisioningStatus = {
-  builtInPages: { count: number; expected: number }
+  forecastPages: { count: number; expected: number; zoneCount: number }
+  defaultBuiltInPages: { count: number; expected: number }
   pages: { created: number; expected: number; missing: string[] }
   homePage: boolean
   navigation: boolean
@@ -42,7 +43,8 @@ export async function checkProvisioningStatusAction(
       payload.find({
         collection: 'builtInPages',
         where: { tenant: { equals: tenantId } },
-        limit: 0,
+        limit: 100,
+        select: { url: true },
       }),
       payload.find({
         collection: 'pages',
@@ -118,12 +120,18 @@ export async function checkProvisioningStatusAction(
       templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
     }
 
-    const { forecastPages, nonForecastPages } = await resolveBuiltInPages(
-      tenant.slug,
-      navBuiltInPages,
-      payload.logger,
-    )
-    const expectedBuiltInPages = [...forecastPages, ...nonForecastPages]
+    const {
+      forecastPages: expectedForecastPages,
+      nonForecastPages: expectedNonForecastPages,
+      zoneCount,
+    } = await resolveBuiltInPages(tenant.slug, navBuiltInPages, payload.logger)
+
+    const tenantForecastPageCount = builtInPages.docs.filter((p) =>
+      p.url.startsWith('/forecasts/avalanche'),
+    ).length
+    const tenantDefaultPageCount = builtInPages.docs.filter(
+      (p) => !p.url.startsWith('/forecasts/avalanche'),
+    ).length
 
     const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
     const createdPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
@@ -131,7 +139,15 @@ export async function checkProvisioningStatusAction(
 
     return {
       status: {
-        builtInPages: { count: builtInPages.totalDocs, expected: expectedBuiltInPages.length },
+        forecastPages: {
+          count: tenantForecastPageCount,
+          expected: expectedForecastPages.length,
+          zoneCount,
+        },
+        defaultBuiltInPages: {
+          count: tenantDefaultPageCount,
+          expected: expectedNonForecastPages.length,
+        },
         pages: {
           created: createdPages.length,
           expected: templatePageSlugs.length,

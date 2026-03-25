@@ -39,7 +39,8 @@ jest.mock('../../../src/collections/Tenants/components/onboardingActions', () =>
 }))
 
 const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningStatus => ({
-  builtInPages: { count: 0, expected: 7 },
+  forecastPages: { count: 0, expected: 2, zoneCount: 0 },
+  defaultBuiltInPages: { count: 0, expected: 5 },
   pages: { created: 0, expected: 5, missing: [] },
   homePage: false,
   navigation: false,
@@ -49,7 +50,8 @@ const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningS
 })
 
 const fullyProvisioned = buildStatus({
-  builtInPages: { count: 7, expected: 7 },
+  forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+  defaultBuiltInPages: { count: 5, expected: 5 },
   pages: { created: 5, expected: 5, missing: [] },
   homePage: true,
   navigation: true,
@@ -83,7 +85,7 @@ describe('OnboardingChecklist', () => {
       render(<OnboardingChecklist />)
       await flushAsync()
 
-      expect(screen.queryByText('(0/7)')).not.toBeInTheDocument()
+      expect(screen.queryByText('(0/2)')).not.toBeInTheDocument()
       expect(screen.queryByText('(0/5)')).not.toBeInTheDocument()
       expect(screen.queryByText('colors.css')).not.toBeInTheDocument()
       expect(screen.queryByText('centerColorMap')).not.toBeInTheDocument()
@@ -93,7 +95,8 @@ describe('OnboardingChecklist', () => {
       // Automated items complete but pages incomplete — needsProvisioning returns false,
       // so auto-provision doesn't run but the button shows
       const incompleteStatus = buildStatus({
-        builtInPages: { count: 7, expected: 7 },
+        forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+        defaultBuiltInPages: { count: 5, expected: 5 },
         pages: { created: 3, expected: 5, missing: ['About Us', 'Donate'] },
         homePage: true,
         navigation: true,
@@ -122,7 +125,8 @@ describe('OnboardingChecklist', () => {
     it('shows missing pages', async () => {
       mockCheckStatus.mockResolvedValue({
         status: buildStatus({
-          builtInPages: { count: 7, expected: 7 },
+          forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 5, expected: 5 },
           pages: { created: 3, expected: 5, missing: ['About Us', 'Donate'] },
           homePage: true,
           navigation: true,

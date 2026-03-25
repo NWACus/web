@@ -4,6 +4,7 @@ import { Button, toast, useDocumentInfo, useForm } from '@payloadcms/ui'
 import { CheckCircle2, Circle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
+import pluralize from 'pluralize'
 import { useCallback, useEffect, useState } from 'react'
 import { needsProvisioning } from './needsProvisioning'
 import {
@@ -13,7 +14,8 @@ import {
 } from './onboardingActions'
 
 const DEFAULT_STATUS: ProvisioningStatus = {
-  builtInPages: { count: 0, expected: 0 },
+  forecastPages: { count: 0, expected: 0, zoneCount: 0 },
+  defaultBuiltInPages: { count: 0, expected: 0 },
   pages: { created: 0, expected: 0, missing: [] },
   homePage: false,
   navigation: false,
@@ -145,10 +147,12 @@ export function OnboardingChecklist() {
     })
   }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { builtInPages, pages, homePage, navigation, settings, theme } = status
+  const { forecastPages, defaultBuiltInPages, pages, homePage, navigation, settings, theme } =
+    status
 
   const automatedComplete =
-    builtInPages.count >= builtInPages.expected &&
+    forecastPages.count >= forecastPages.expected &&
+    defaultBuiltInPages.count >= defaultBuiltInPages.expected &&
     pages.created >= pages.expected &&
     pages.expected > 0 &&
     homePage &&
@@ -170,15 +174,25 @@ export function OnboardingChecklist() {
 
       {automatedComplete && (
         <p className="mt-2 text-sm opacity-70">
-          Blank pages are created using DVACs navigation structure
+          Forecast pages are automated from NAC zones. Blank pages are created using DVACs
+          navigation structure.
         </p>
       )}
 
       <ChecklistItem
         loading={isProvisioning}
-        done={loaded && builtInPages.count >= builtInPages.expected}
-        label="Built-in pages"
-        details={loaded && `(${builtInPages.count}/${builtInPages.expected})`}
+        done={loaded && forecastPages.count >= forecastPages.expected}
+        label="Forecast pages"
+        details={loaded && `(${forecastPages.count}/${forecastPages.expected})`}
+      >
+        {loaded &&
+          `Center has ${forecastPages.zoneCount} ${pluralize('zone', forecastPages.zoneCount)} from NAC`}
+      </ChecklistItem>
+      <ChecklistItem
+        loading={isProvisioning}
+        done={loaded && defaultBuiltInPages.count >= defaultBuiltInPages.expected}
+        label="Default built-in pages"
+        details={loaded && `(${defaultBuiltInPages.count}/${defaultBuiltInPages.expected})`}
       />
       <ChecklistItem
         loading={isProvisioning}
