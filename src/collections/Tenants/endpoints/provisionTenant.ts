@@ -1,13 +1,13 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
+import { getActiveForecastZones, type ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 import { isValidRelationship } from '@/utilities/relationships'
 import type { Payload, PayloadHandler } from 'payload'
 
 const TEMPLATE_TENANT_SLUG = 'dvac'
 
-export const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
-  { title: 'All Forecasts', url: '/forecasts/avalanche' },
+export const NON_FORECAST_BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
   { title: 'Mountain Weather', url: '/weather/forecast' },
   { title: 'Weather Stations', url: '/weather/stations/map' },
   { title: 'Recent Observations', url: '/observations' },
@@ -15,6 +15,34 @@ export const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
   { title: 'Blog', url: '/blog' },
   { title: 'Events', url: '/events' },
 ]
+
+/**
+ * Builds the list of built-in pages based on forecast zones from AFP data.
+ * Forecast pages are always included (determined by AFP, not template nav).
+ * Non-forecast pages are filtered to those referenced in the template navigation.
+ */
+export function buildBuiltInPages(
+  zones: ActiveForecastZoneWithSlug[],
+  navBuiltInPageUrls?: Set<string>,
+): Array<{ title: string; url: string }> {
+  const forecastPages =
+    zones.length === 1
+      ? [{ title: 'Avalanche Forecast', url: `/forecasts/avalanche/${zones[0].slug}` }]
+      : [
+          { title: 'All Forecasts', url: '/forecasts/avalanche' },
+          ...zones.map(({ zone, slug }) => ({
+            title: zone.name,
+            url: `/forecasts/avalanche/${slug}`,
+          })),
+        ]
+
+  // Filter non-forecast pages to those referenced in template navigation
+  const nonForecastPages = navBuiltInPageUrls
+    ? NON_FORECAST_BUILT_IN_PAGES.filter((p) => navBuiltInPageUrls.has(p.url))
+    : NON_FORECAST_BUILT_IN_PAGES
+
+  return [...forecastPages, ...nonForecastPages]
+}
 
 /**
  * Creates a new tenant and provisions it with all default data.
@@ -80,10 +108,11 @@ export const provisionTenant: PayloadHandler = async (req) => {
  * Provisions a tenant with all default data:
  * 1. Website Settings with placeholder brand assets (logo, icon, banner)
  * 2. Look up template tenant (DVAC) navigation to determine which pages to create
- * 3. Built-in pages (filtered to those referenced in template navigation)
- * 4. Blank pages matching the template tenant's page structure
- * 5. Home page with default content
- * 6. Navigation linked to the new pages and built-in pages
+ * 3. Query AFP for forecast zones (single vs multi-zone detection)
+ * 4. Built-in pages (zone-aware, filtered to those referenced in template navigation)
+ * 5. Blank pages matching the template tenant's page structure
+ * 6. Home page with default content
+ * 7. Navigation linked to the new pages and built-in pages (zone-aware forecasts)
  *
  * Idempotent - checks for existing data before creating.
  */
@@ -229,9 +258,30 @@ export async function provision(payload: Payload, tenant: Tenant) {
     log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Using default built-in pages.`)
   }
 
-  // 3. Create Built-In Pages
-  // TODO: Filter to only navigation-referenced built-in pages #999
-  log.info(`[${tenant.slug}] Creating built-in pages...`)
+  // 3. Query AFP for forecast zones
+  log.info(`[${tenant.slug}] Querying AFP for forecast zones...`)
+  let forecastZones: ActiveForecastZoneWithSlug[] = []
+  try {
+    forecastZones = await getActiveForecastZones(tenant.slug)
+    if (forecastZones.length === 0) {
+      log.warn(
+        `[${tenant.slug}] No forecast zones found from AFP. Creating default "All Forecasts" page.`,
+      )
+    } else {
+      log.info(`[${tenant.slug}] Found ${forecastZones.length} forecast zone(s) from AFP`)
+    }
+  } catch (err) {
+    log.warn(
+      `[${tenant.slug}] Failed to query AFP for forecast zones: ${err instanceof Error ? err.message : 'Unknown error'}. Creating default "All Forecasts" page.`,
+    )
+  }
+
+  // 4. Create Built-In Pages (zone-aware, filtered to nav-referenced)
+  const builtInPagesToCreate = buildBuiltInPages(
+    forecastZones,
+    navBuiltInPageUrls.size > 0 ? navBuiltInPageUrls : undefined,
+  )
+  log.info(`[${tenant.slug}] Creating ${builtInPagesToCreate.length} built-in pages...`)
   const existingBuiltInPages = await payload.find({
     collection: 'builtInPages',
     where: { tenant: { equals: tenant.id } },
@@ -240,7 +290,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
   const existingBuiltInPageUrls = new Set(existingBuiltInPages.docs.map((p) => p.url))
 
   const createdBuiltInPages: BuiltInPage[] = [...existingBuiltInPages.docs]
-  for (const { title, url } of BUILT_IN_PAGES) {
+  for (const { title, url } of builtInPagesToCreate) {
     if (existingBuiltInPageUrls.has(url)) {
       log.info(`[${tenant.slug}] Built-in page "${title}" already exists, skipping`)
       continue
@@ -262,7 +312,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     builtInPagesByUrl[bip.url] = bip
   }
 
-  // 4. Create blank pages for pages referenced in template navigation
+  // 5. Create blank pages for pages referenced in template navigation
   const createdPages: Page[] = []
   const failedPages: string[] = []
   const pagesBySlug: Record<string, Page> = {}
@@ -334,7 +384,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     }
   }
 
-  // 5. Create Home Page
+  // 6. Create Home Page
   log.info(`[${tenant.slug}] Creating home page...`)
   const existingHomePage = await payload.find({
     collection: 'homePages',
@@ -410,7 +460,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     log.info(`[${tenant.slug}] Home page already exists, skipping`)
   }
 
-  // 6. Create Navigation
+  // 7. Create Navigation
   log.info(`[${tenant.slug}] Creating navigation...`)
   const existingNavigation = await payload.find({
     collection: 'navigations',
@@ -459,8 +509,31 @@ export async function provision(payload: Payload, tenant: Tenant) {
         collection: 'navigations',
         data: {
           tenant: tenant.id,
-          forecasts: { items: [] },
-          observations: { items: [] },
+          forecasts:
+            forecastZones.length === 1
+              ? {
+                  link: navBuiltInPageItem(
+                    `/forecasts/avalanche/${forecastZones[0].slug}`,
+                    'Avalanche Forecast',
+                  )?.link,
+                  items: [],
+                }
+              : {
+                  link: navBuiltInPageItem('/forecasts/avalanche', 'All Forecasts')?.link,
+                  items: filterNulls(
+                    forecastZones
+                      .sort((a, b) => (a.zone.rank ?? Infinity) - (b.zone.rank ?? Infinity))
+                      .map(({ zone, slug }) =>
+                        navBuiltInPageItem(`/forecasts/avalanche/${slug}`, zone.name),
+                      ),
+                  ),
+                },
+          observations: {
+            items: filterNulls([
+              navBuiltInPageItem('/observations', 'Recent Observations'),
+              navBuiltInPageItem('/observations/submit', 'Submit Observations'),
+            ]),
+          },
           weather: {
             items: filterNulls([
               navBuiltInPageItem('/weather/stations/map', 'Weather Stations'),

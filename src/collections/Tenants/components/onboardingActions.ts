@@ -1,11 +1,7 @@
 'use server'
 
 import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
-import {
-  BUILT_IN_PAGES,
-  extractNavReferences,
-  provision,
-} from '@/collections/Tenants/endpoints/provisionTenant'
+import { extractNavReferences, provision } from '@/collections/Tenants/endpoints/provisionTenant'
 import config from '@payload-config'
 import fs from 'fs/promises'
 import path from 'path'
@@ -99,7 +95,6 @@ export async function checkProvisioningStatusAction(
         })
         .then((res) => res.docs[0])
 
-      // TODO: Use builtInPageUrls to filter expected built-in page count #999
       const { pageSlugs: navPageSlugs } = extractNavReferences(templateNav ?? {})
 
       const templatePages = await payload.find({
@@ -115,14 +110,15 @@ export async function checkProvisioningStatusAction(
       templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
     }
 
+    // TODO: Use builtInPageUrls to filter expected built-in page count #999
+
     const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
     const createdPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
     const missing = templatePageSlugs.filter((p) => !tenantPagesBySlug.has(p.slug))
 
     return {
       status: {
-        // TODO: Filter expected count to navigation-referenced built-in pages #999
-        builtInPages: { count: builtInPages.totalDocs, expected: BUILT_IN_PAGES.length },
+        builtInPages: { count: builtInPages.totalDocs, expected: builtInPages.totalDocs },
         pages: {
           created: createdPages.length,
           expected: templatePageSlugs.length,
