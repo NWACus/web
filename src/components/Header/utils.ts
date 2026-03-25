@@ -1,9 +1,5 @@
 import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
-import {
-  ActiveForecastZoneWithSlug,
-  getActiveForecastZones,
-  getAvalancheCenterPlatforms,
-} from '@/services/nac/nac'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import { normalizePath } from '@/utilities/path'
 import configPromise from '@payload-config'
@@ -261,12 +257,10 @@ export function convertToNavLink(
 
 export const getTopLevelNavItems = async ({
   navigation,
-  activeForecastZones,
   avalancheCenterPlatforms,
   center,
 }: {
   navigation: Navigation
-  activeForecastZones?: ActiveForecastZoneWithSlug[]
   avalancheCenterPlatforms: AvalancheCenterPlatforms
   center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
@@ -291,68 +285,14 @@ export const getTopLevelNavItems = async ({
             }
           : { link: forecastLink }
     }
-  } else if (
-    // TODO: remove this fallback once all tenants have been migrated (migrate-nav-builtin-pages script)
-    activeForecastZones &&
-    activeForecastZones.length > 0 &&
-    avalancheCenterPlatforms.forecasts
-  ) {
-    if (activeForecastZones.length === 1) {
-      forecastsNavItem = {
-        link: {
-          label: 'Avalanche Forecast',
-          type: 'internal',
-          url: `/forecasts/avalanche/${activeForecastZones[0].slug}`,
-        },
-      }
-    } else {
-      const zoneLinks: NavItem[] = activeForecastZones
-        .sort((zoneA, zoneB) => (zoneA.zone.rank ?? Infinity) - (zoneB.zone.rank ?? Infinity))
-        .map(({ zone, slug }) => ({
-          id: slug || zone.name,
-          link: {
-            type: 'internal',
-            label: zone.name,
-            url: slug ? `/forecasts/avalanche/${slug}` : '/forecasts/avalanche',
-          },
-        }))
-
-      forecastsNavItem = {
-        label: 'Forecasts',
-        items: [
-          {
-            id: 'all',
-            link: {
-              type: 'internal',
-              label: 'All Forecasts',
-              url: '/forecasts/avalanche',
-            },
-          },
-          ...zoneLinks,
-        ],
-      }
-    }
   }
 
-  const observationsItems: NavItem[] =
-    navigation.observations?.items && navigation.observations.items.length > 0
-      ? navigation.observations.items.flatMap((item, i) => {
-          if (!item.link) return []
-          const link = convertToNavLink(item.link)
-          if (!link) return []
-          return [{ id: item.id ?? String(i), link }]
-        })
-      : [
-          // TODO: remove this fallback once all tenants have been migrated (migrate-nav-builtin-pages script)
-          {
-            id: 'recent',
-            link: { type: 'internal', label: 'Recent Observations', url: '/observations' },
-          },
-          {
-            id: 'submit',
-            link: { type: 'internal', label: 'Submit Observation', url: '/observations/submit' },
-          },
-        ]
+  const observationsItems: NavItem[] = (navigation.observations?.items ?? []).flatMap((item, i) => {
+    if (!item.link) return []
+    const link = convertToNavLink(item.link)
+    if (!link) return []
+    return [{ id: item.id ?? String(i), link }]
+  })
 
   const observationsNavItem: TopLevelNavItem = { label: 'Observations', items: observationsItems }
 
@@ -365,18 +305,14 @@ export const getTopLevelNavItems = async ({
   }
 
   const blogLink = navigation.blog?.link ? convertToNavLink(navigation.blog.link) : undefined
-  const blogNavItem: TopLevelNavItem = {
-    label: blogLink?.label ?? 'Blog',
-    // TODO: remove hardcoded fallback once all tenants have been migrated (migrate-nav-builtin-pages script)
-    link: blogLink ?? { label: 'Blog', type: 'internal', url: '/blog' },
-  }
+  const blogNavItem: TopLevelNavItem = blogLink
+    ? { link: blogLink }
+    : { link: { label: 'Blog', type: 'internal', url: '/blog' } }
 
   const eventsLink = navigation.events?.link ? convertToNavLink(navigation.events.link) : undefined
-  const eventsNavItem: TopLevelNavItem = {
-    label: eventsLink?.label ?? 'Events',
-    // TODO: remove hardcoded fallback once all tenants have been migrated (migrate-nav-builtin-pages script)
-    link: eventsLink ?? { label: 'Events', type: 'internal', url: '/events' },
-  }
+  const eventsNavItem: TopLevelNavItem = eventsLink
+    ? { link: eventsLink }
+    : { link: { label: 'Events', type: 'internal', url: '/events' } }
 
   const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
@@ -445,14 +381,10 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         return { topLevelNavItems: [] }
       }
 
-      const [activeForecastZones, avalancheCenterPlatforms] = await Promise.all([
-        getActiveForecastZones(center),
-        getAvalancheCenterPlatforms(center),
-      ])
+      const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
       return await getTopLevelNavItems({
         navigation,
-        activeForecastZones,
         avalancheCenterPlatforms,
         center,
       })
