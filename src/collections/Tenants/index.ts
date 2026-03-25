@@ -1,5 +1,6 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
 import { provisionTenant } from '@/collections/Tenants/endpoints/provisionTenant'
+import { deprovisionBeforeDelete } from '@/collections/Tenants/hooks/deprovisionBeforeDelete'
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
@@ -20,6 +21,8 @@ export const Tenants: CollectionConfig = {
       edit: {
         beforeDocumentControls: [
           '@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave',
+          '@/collections/Tenants/components/DeleteTenantModal#DeleteTenantModal',
+          '@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug',
         ],
       },
     },
@@ -41,18 +44,17 @@ export const Tenants: CollectionConfig = {
   ],
   hooks: {
     afterChange: [revalidateTenantsAfterChange],
+    beforeDelete: [deprovisionBeforeDelete],
     afterDelete: [revalidateTenantsAfterDelete],
   },
   fields: [
     {
-      name: 'name',
-      type: 'text',
-      required: true,
-    },
-    {
       name: 'slug',
       type: 'select',
       admin: {
+        components: {
+          Field: '@/collections/Tenants/components/TenantSlugField#TenantSlugField',
+        },
         description: 'Avalanche center identifier. Used for subdomains and URL paths.',
       },
       options: VALID_TENANT_SLUGS.map((slug) => ({
@@ -65,6 +67,11 @@ export const Tenants: CollectionConfig = {
       access: {
         update: () => false, // we should never change this after initial creation
       },
+    },
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
     },
     contentHashField(),
     {

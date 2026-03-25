@@ -69,10 +69,11 @@ async function createTenant(
   await page.waitForLoadState('networkidle')
   await waitForFormReady(page)
 
-  await page.locator('#field-name').fill(name)
   const slugField = page.locator('#field-slug')
   await slugField.locator('button.dropdown-indicator').click()
   await slugField.locator('.rs__option', { hasText: new RegExp(`\\(${slug}\\)`) }).click()
+  // Fill name after slug selection — AutoFillNameFromSlug overwrites name on slug change
+  await page.locator('#field-name').fill(name)
   await saveDocAndAssert(page)
 
   return slug

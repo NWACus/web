@@ -709,7 +709,6 @@ export interface HomePage {
  */
 export interface Tenant {
   id: number;
-  name: string;
   /**
    * Avalanche center identifier. Used for subdomains and URL paths.
    */
@@ -738,6 +737,7 @@ export interface Tenant {
     | 'vac'
     | 'wac'
     | 'wcmac';
+  name: string;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -3819,8 +3819,8 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
-  name?: T;
   slug?: T;
+  name?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

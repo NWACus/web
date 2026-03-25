@@ -122,5 +122,6 @@ export async function waitForLoading(page: Page, timeout = 10000): Promise<void>
 export async function openDocControls(page: Page): Promise<void> {
   const docControls = page.locator('.doc-controls__popup .popup-button')
   await docControls.click()
-  await expect(page.locator('.doc-controls__popup .popup__content')).toBeVisible()
+  // Popup content is rendered via React portal at document body level, not inside .doc-controls__popup
+  await expect(page.locator('.popup__content')).toBeVisible({ timeout: 10000 })
 }
