@@ -2,7 +2,8 @@ import { needsProvisioning } from '@/collections/Tenants/components/needsProvisi
 import type { ProvisioningStatus } from '@/collections/Tenants/components/onboardingActions'
 
 const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningStatus => ({
-  builtInPages: { count: 0, expected: 7 },
+  forecastPages: { count: 0, expected: 2, zoneCount: 0 },
+  defaultBuiltInPages: { count: 0, expected: 5 },
   pages: { created: 0, expected: 5, missing: [] },
   homePage: false,
   navigation: false,
@@ -20,7 +21,8 @@ describe('needsProvisioning', () => {
     expect(
       needsProvisioning(
         buildStatus({
-          builtInPages: { count: 7, expected: 7 },
+          forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 5, expected: 5 },
           pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: true,
@@ -34,7 +36,8 @@ describe('needsProvisioning', () => {
     expect(
       needsProvisioning(
         buildStatus({
-          builtInPages: { count: 3, expected: 7 },
+          forecastPages: { count: 1, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 2, expected: 5 },
           pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: true,
@@ -48,7 +51,8 @@ describe('needsProvisioning', () => {
     expect(
       needsProvisioning(
         buildStatus({
-          builtInPages: { count: 7, expected: 7 },
+          forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 5, expected: 5 },
           pages: { created: 3, expected: 5, missing: ['About Us', 'Donate'] },
           homePage: true,
           navigation: true,
@@ -62,7 +66,8 @@ describe('needsProvisioning', () => {
     expect(
       needsProvisioning(
         buildStatus({
-          builtInPages: { count: 7, expected: 7 },
+          forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 5, expected: 5 },
           pages: { created: 5, expected: 5, missing: [] },
           homePage: false,
           navigation: true,
@@ -76,7 +81,8 @@ describe('needsProvisioning', () => {
     expect(
       needsProvisioning(
         buildStatus({
-          builtInPages: { count: 7, expected: 7 },
+          forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 5, expected: 5 },
           pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: false,
@@ -90,7 +96,8 @@ describe('needsProvisioning', () => {
     expect(
       needsProvisioning(
         buildStatus({
-          builtInPages: { count: 7, expected: 7 },
+          forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 5, expected: 5 },
           pages: { created: 5, expected: 5, missing: [] },
           homePage: true,
           navigation: true,
@@ -104,7 +111,8 @@ describe('needsProvisioning', () => {
     expect(
       needsProvisioning(
         buildStatus({
-          builtInPages: { count: 7, expected: 7 },
+          forecastPages: { count: 2, expected: 2, zoneCount: 2 },
+          defaultBuiltInPages: { count: 5, expected: 5 },
           homePage: true,
           navigation: true,
           settings: { exists: true },

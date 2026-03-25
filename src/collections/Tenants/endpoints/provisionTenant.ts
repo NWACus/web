@@ -19,6 +19,7 @@ export async function resolveBuiltInPages(
 ): Promise<{
   forecastPages: Array<{ title: string; url: string }>
   nonForecastPages: Array<{ title: string; url: string }>
+  zoneCount: number
 }> {
   let forecastZones: ActiveForecastZoneWithSlug[] = []
   try {
@@ -59,7 +60,7 @@ export async function resolveBuiltInPages(
 
   const nonForecastPages = navBuiltInPages.filter((p) => !p.url.startsWith('/forecasts/avalanche'))
 
-  return { forecastPages, nonForecastPages }
+  return { forecastPages, nonForecastPages, zoneCount: forecastZones.length }
 }
 
 /**
