@@ -292,7 +292,22 @@ export const getTopLevelNavItems = async ({
     return [{ id: item.id ?? String(i), link }]
   })
 
-  const observationsNavItem: TopLevelNavItem = { label: 'Observations', items: observationsItems }
+  const observationsNavItem: TopLevelNavItem = {
+    label: 'Observations',
+    items:
+      observationsItems.length > 0
+        ? observationsItems
+        : [
+            {
+              id: 'recent',
+              link: { type: 'internal', label: 'Recent Observations', url: '/observations' },
+            },
+            {
+              id: 'submit',
+              link: { type: 'internal', label: 'Submit Observation', url: '/observations/submit' },
+            },
+          ],
+  }
 
   // SAC-specific observations archive link — revert this block when no longer needed
   if (center === 'sac') {
