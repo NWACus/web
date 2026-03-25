@@ -1,4 +1,5 @@
 __tests__/e2e/auth.setup.ts
+__tests__/server/duplicatePageToTenant.server.test.ts
 src/app/(frontend)/[center]/[...segments]/page.tsx
 src/app/(frontend)/[center]/[slug]/page.tsx
 src/app/(frontend)/[center]/blog/[slug]/page.tsx
@@ -12,5 +13,4 @@ src/collections/Users/components/resendInviteActions.ts
 src/components/Header/utils.ts
 src/endpoints/seed/upsert.ts
 src/globals/Diagnostics/actions/revalidateCache.ts
-src/utilities/removeIdKey.ts
 src/utilities/removeNonDeterministicKeys.ts

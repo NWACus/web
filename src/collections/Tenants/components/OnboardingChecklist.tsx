@@ -14,7 +14,7 @@ import {
 
 const DEFAULT_STATUS: ProvisioningStatus = {
   builtInPages: { count: 0, expected: 0 },
-  pages: { copied: 0, expected: 0, missing: [], skipped: [] },
+  pages: { created: 0, expected: 0, missing: [] },
   homePage: false,
   navigation: false,
   settings: { exists: false, id: undefined },
@@ -149,7 +149,7 @@ export function OnboardingChecklist() {
 
   const automatedComplete =
     builtInPages.count >= builtInPages.expected &&
-    pages.copied >= pages.expected &&
+    pages.created >= pages.expected &&
     pages.expected > 0 &&
     homePage &&
     navigation &&
@@ -168,6 +168,12 @@ export function OnboardingChecklist() {
         )}
       </div>
 
+      {automatedComplete && (
+        <p className="mt-2 text-sm opacity-70">
+          Blank pages are created using DVACs navigation structure
+        </p>
+      )}
+
       <ChecklistItem
         loading={isProvisioning}
         done={loaded && builtInPages.count >= builtInPages.expected}
@@ -176,12 +182,11 @@ export function OnboardingChecklist() {
       />
       <ChecklistItem
         loading={isProvisioning}
-        done={pages.copied >= pages.expected && pages.expected > 0}
-        label="Pages - copied from DVAC"
-        details={loaded && `(${pages.copied}/${pages.expected})`}
+        done={pages.created >= pages.expected && pages.expected > 0}
+        label="Pages"
+        details={loaded && `(${pages.created}/${pages.expected})`}
       >
         {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
-        {pages.skipped.length > 0 && <div>Skipped (demo pages): {pages.skipped.join(', ')}</div>}
       </ChecklistItem>
 
       <ChecklistItem loading={isProvisioning} done={homePage} label="Home page" />

@@ -40,7 +40,7 @@ jest.mock('../../../src/collections/Tenants/components/onboardingActions', () =>
 
 const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningStatus => ({
   builtInPages: { count: 0, expected: 7 },
-  pages: { copied: 0, expected: 5, missing: [], skipped: [] },
+  pages: { created: 0, expected: 5, missing: [] },
   homePage: false,
   navigation: false,
   settings: { exists: false },
@@ -50,7 +50,7 @@ const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningS
 
 const fullyProvisioned = buildStatus({
   builtInPages: { count: 7, expected: 7 },
-  pages: { copied: 5, expected: 5, missing: [], skipped: [] },
+  pages: { created: 5, expected: 5, missing: [] },
   homePage: true,
   navigation: true,
   settings: { exists: true, id: 1 },
@@ -94,7 +94,7 @@ describe('OnboardingChecklist', () => {
       // so auto-provision doesn't run but the button shows
       const incompleteStatus = buildStatus({
         builtInPages: { count: 7, expected: 7 },
-        pages: { copied: 3, expected: 5, missing: ['About Us', 'Donate'], skipped: [] },
+        pages: { created: 3, expected: 5, missing: ['About Us', 'Donate'] },
         homePage: true,
         navigation: true,
         settings: { exists: true, id: 1 },
@@ -123,7 +123,7 @@ describe('OnboardingChecklist', () => {
       mockCheckStatus.mockResolvedValue({
         status: buildStatus({
           builtInPages: { count: 7, expected: 7 },
-          pages: { copied: 3, expected: 5, missing: ['About Us', 'Donate'], skipped: [] },
+          pages: { created: 3, expected: 5, missing: ['About Us', 'Donate'] },
           homePage: true,
           navigation: true,
           settings: { exists: true, id: 1 },
@@ -134,23 +134,6 @@ describe('OnboardingChecklist', () => {
       await flushAsync()
 
       expect(screen.getByText('Missing: About Us, Donate')).toBeInTheDocument()
-    })
-
-    it('shows skipped demo pages', async () => {
-      mockCheckStatus.mockResolvedValue({
-        status: buildStatus({
-          builtInPages: { count: 7, expected: 7 },
-          pages: { copied: 4, expected: 5, missing: [], skipped: ['Demo Page'] },
-          homePage: true,
-          navigation: true,
-          settings: { exists: true, id: 1 },
-        }),
-      })
-
-      render(<OnboardingChecklist />)
-      await flushAsync()
-
-      expect(screen.getByText('Skipped (demo pages): Demo Page')).toBeInTheDocument()
     })
 
     it('shows link to settings when settings exist', async () => {

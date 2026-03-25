@@ -31,7 +31,7 @@ function isReactElement(value: unknown): value is React.ReactElement<{
 
 const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningStatus => ({
   builtInPages: { count: 7, expected: 7 },
-  pages: { copied: 5, expected: 5, missing: [], skipped: [] },
+  pages: { created: 5, expected: 5, missing: [] },
   homePage: true,
   navigation: true,
   settings: { exists: true, id: 1 },

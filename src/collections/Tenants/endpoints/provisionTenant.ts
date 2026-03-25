@@ -1,23 +1,10 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
-import { getSeedImageByFilename } from '@/endpoints/seed/utilities'
-import type { BuiltInPage, Page, Tenant } from '@/payload-types'
-import { removeIdKey } from '@/utilities/removeIdKey'
+import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
+import type { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
+import { isValidRelationship } from '@/utilities/relationships'
 import type { Payload, PayloadHandler } from 'payload'
 
 const TEMPLATE_TENANT_SLUG = 'dvac'
-
-// Block types that reference tenant-scoped data (teams, sponsors, events) and can't
-// be copied to a new tenant without the corresponding records existing.
-export const TENANT_SCOPED_BLOCK_TYPES = new Set([
-  'team',
-  'sponsors',
-  'singleEvent',
-  'singleBlogPost',
-  'formBlock',
-])
-
-// Page slugs that should not be copied during provisioning (e.g. demo/showcase pages)
-export const SKIP_PAGE_SLUGS = new Set(['blocks', 'lexical-blocks'])
 
 export const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
   { title: 'All Forecasts', url: '/forecasts/avalanche' },
@@ -92,13 +79,70 @@ export const provisionTenant: PayloadHandler = async (req) => {
 /**
  * Provisions a tenant with all default data:
  * 1. Website Settings with placeholder brand assets (logo, icon, banner)
- * 2. Built-in pages (forecasts, weather stations, observations)
- * 3. Pages copied from the template tenant (DVAC)
- * 4. Home page with default content
- * 5. Navigation linked to the new pages and built-in pages
+ * 2. Look up template tenant (DVAC) navigation to determine which pages to create
+ * 3. Built-in pages (filtered to those referenced in template navigation)
+ * 4. Blank pages matching the template tenant's page structure
+ * 5. Home page with default content
+ * 6. Navigation linked to the new pages and built-in pages
  *
  * Idempotent - checks for existing data before creating.
  */
+/**
+ * Extracts page slugs from a resolved navigation document.
+ * Walks all DVAC nav tabs' items (and sub-items) and collects slugs
+ * from internal page references.
+ */
+export type NavReferences = {
+  pageSlugs: Set<string>
+  builtInPageUrls: Set<string>
+}
+
+export function extractNavReferences(nav: Navigation): NavReferences {
+  const pageSlugs = new Set<string>()
+  const builtInPageUrls = new Set<string>()
+
+  for (const tab of Object.values(nav)) {
+    if (typeof tab === 'object' && tab !== null) {
+      // Tab with items array (forecasts, weather, education, etc.)
+      if ('items' in tab && Array.isArray(tab.items)) {
+        for (const item of tab.items) {
+          buildNavReference(item.link, pageSlugs, builtInPageUrls)
+          if (Array.isArray(item.items)) {
+            for (const subItem of item.items) {
+              buildNavReference(subItem.link, pageSlugs, builtInPageUrls)
+            }
+          }
+        }
+      }
+
+      // Tab with a direct link (donate)
+      if ('link' in tab) {
+        buildNavReference(tab.link, pageSlugs, builtInPageUrls)
+      }
+    }
+  }
+
+  return { pageSlugs, builtInPageUrls }
+}
+
+function buildNavReference(
+  link:
+    | { reference?: { relationTo: string; value: number | { id: string | number } } | null }
+    | null
+    | undefined,
+  pageSlugs: Set<string>,
+  builtInPageUrls: Set<string>,
+): void {
+  const ref = link?.reference
+  if (!ref || !isValidRelationship(ref.value)) return
+
+  if (ref.relationTo === 'pages' && 'slug' in ref.value) {
+    pageSlugs.add(String(ref.value.slug))
+  } else if (ref.relationTo === 'builtInPages' && 'url' in ref.value) {
+    builtInPageUrls.add(String(ref.value.url))
+  }
+}
+
 export async function provision(payload: Payload, tenant: Tenant) {
   const log = payload.logger
 
@@ -152,7 +196,41 @@ export async function provision(payload: Payload, tenant: Tenant) {
     log.info(`[${tenant.slug}] Website settings already exist, skipping`)
   }
 
-  // 2. Create Built-In Pages
+  // 2. Look up template tenant navigation to determine which pages to create
+  log.info(`[${tenant.slug}] Looking up template tenant (${TEMPLATE_TENANT_SLUG}) navigation...`)
+  const templateTenant = await payload
+    .find({
+      collection: 'tenants',
+      where: { slug: { equals: TEMPLATE_TENANT_SLUG } },
+      limit: 1,
+    })
+    .then((res) => res.docs[0])
+
+  let navPageSlugs = new Set<string>()
+  let navBuiltInPageUrls = new Set<string>()
+
+  if (templateTenant) {
+    const templateNav = await payload
+      .find({
+        collection: 'navigations',
+        where: { tenant: { equals: templateTenant.id } },
+        limit: 1,
+        depth: 1,
+      })
+      .then((res) => res.docs[0])
+
+    const refs = extractNavReferences(templateNav ?? {})
+    navPageSlugs = refs.pageSlugs
+    navBuiltInPageUrls = refs.builtInPageUrls
+    log.info(
+      `[${tenant.slug}] Found ${navPageSlugs.size} page slugs and ${navBuiltInPageUrls.size} built-in page URLs in template navigation`,
+    )
+  } else {
+    log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Using default built-in pages.`)
+  }
+
+  // 3. Create Built-In Pages
+  // TODO: Filter to only navigation-referenced built-in pages #999
   log.info(`[${tenant.slug}] Creating built-in pages...`)
   const existingBuiltInPages = await payload.find({
     collection: 'builtInPages',
@@ -184,27 +262,19 @@ export async function provision(payload: Payload, tenant: Tenant) {
     builtInPagesByUrl[bip.url] = bip
   }
 
-  // 3. Copy pages from template tenant (DVAC)
-  log.info(`[${tenant.slug}] Copying pages from template tenant (${TEMPLATE_TENANT_SLUG})...`)
-  const templateTenant = await payload
-    .find({
-      collection: 'tenants',
-      where: { slug: { equals: TEMPLATE_TENANT_SLUG } },
-      limit: 1,
-    })
-    .then((res) => res.docs[0])
-
-  const copiedPages: Page[] = []
+  // 4. Create blank pages for pages referenced in template navigation
+  const createdPages: Page[] = []
   const failedPages: string[] = []
-  // Maps template page slug to new page for navigation linking
   const pagesBySlug: Record<string, Page> = {}
 
   if (templateTenant) {
+    // Query the template pages that are referenced in navigation
     const templatePages = await payload.find({
       collection: 'pages',
       where: {
         tenant: { equals: templateTenant.id },
         _status: { equals: 'published' },
+        slug: { in: [...navPageSlugs].join(',') },
       },
       limit: 500,
       depth: 0,
@@ -220,82 +290,51 @@ export async function provision(payload: Payload, tenant: Tenant) {
     const existingPagesBySlug = new Map(existingPages.docs.map((p) => [p.slug, p]))
 
     for (const templatePage of templatePages.docs) {
-      if (SKIP_PAGE_SLUGS.has(templatePage.slug)) {
-        log.info(`[${tenant.slug}] Skipping "${templatePage.title}" (demo page)`)
-        continue
-      }
       const existing = existingPagesBySlug.get(templatePage.slug)
       if (existing) {
-        // If the existing page is a draft (e.g. from a previous failed copy), delete and retry
-        if (existing._status === 'draft') {
-          log.info(
-            `[${tenant.slug}] Page "${templatePage.title}" exists as draft, deleting to retry`,
-          )
-          await payload.delete({ collection: 'pages', id: existing.id })
-        } else {
-          log.info(`[${tenant.slug}] Page "${templatePage.title}" already exists, skipping copy`)
-          pagesBySlug[existing.slug] = existing
-          continue
-        }
+        log.info(`[${tenant.slug}] Page "${templatePage.title}" already exists, skipping`)
+        pagesBySlug[existing.slug] = existing
+        continue
       }
 
-      const cleanedPage = removeIdKey(templatePage)
-      // Filter out blocks that reference tenant-scoped data (teams, sponsors, events, forms)
-      // since those records won't exist for the new tenant.
-      // For blocks with optional static references (blogList, eventList), convert to dynamic mode.
-      const layout = Array.isArray(cleanedPage.layout)
-        ? cleanedPage.layout
-            .filter(
-              (block: { blockType?: string }) =>
-                !block.blockType || !TENANT_SCOPED_BLOCK_TYPES.has(block.blockType),
-            )
-            .map((block) => {
-              if (block.blockType === 'blogList' && block.postOptions === 'static') {
-                return { ...block, postOptions: 'dynamic' as const, staticOptions: undefined }
-              }
-              if (block.blockType === 'eventList' && block.eventOptions === 'static') {
-                return { ...block, eventOptions: 'dynamic' as const, staticOpts: undefined }
-              }
-              return block
-            })
-        : cleanedPage.layout
-      // If all blocks were stripped, create as draft since layout is required
-      const hasContent = Array.isArray(layout) && layout.length > 0
       try {
         const newPage = await payload.create({
           collection: 'pages',
           data: {
-            ...cleanedPage,
-            layout,
+            layout: [
+              {
+                blockType: 'content',
+                backgroundColor: 'transparent',
+                layout: '1_1',
+                columns: [{ richText: simpleContent('') }],
+              },
+            ],
             tenant: tenant.id,
             title: templatePage.title,
             slug: templatePage.slug,
-            _status: hasContent ? 'published' : 'draft',
-            publishedAt: hasContent ? new Date().toISOString() : undefined,
+            _status: 'published',
+            publishedAt: new Date().toISOString(),
           },
-          draft: !hasContent,
         })
-        copiedPages.push(newPage)
+        createdPages.push(newPage)
         pagesBySlug[newPage.slug] = newPage
       } catch (err) {
         log.error(
-          `[${tenant.slug}] Failed to copy page "${templatePage.title}" (slug: ${templatePage.slug}): ${err instanceof Error ? err.message : 'Unknown error'}`,
+          `[${tenant.slug}] Failed to create page "${templatePage.title}" (slug: ${templatePage.slug}): ${err instanceof Error ? err.message : 'Unknown error'}`,
         )
         failedPages.push(templatePage.title)
       }
     }
 
-    // Also index any pre-existing pages we didn't copy (from the initial query)
+    // Also index any pre-existing pages we didn't create (from the initial query)
     for (const p of existingPages.docs) {
       if (!pagesBySlug[p.slug]) {
         pagesBySlug[p.slug] = p
       }
     }
-  } else {
-    log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Skipping page copy.`)
   }
 
-  // 4. Create Home Page
+  // 5. Create Home Page
   log.info(`[${tenant.slug}] Creating home page...`)
   const existingHomePage = await payload.find({
     collection: 'homePages',
@@ -335,70 +374,14 @@ export async function provision(payload: Payload, tenant: Tenant) {
             backgroundColor: 'brand-700',
             columns: [
               {
-                richText: {
-                  root: {
-                    type: 'root',
-                    format: '',
-                    indent: 0,
-                    version: 1,
-                    children: [
-                      {
-                        type: 'paragraph',
-                        format: '',
-                        indent: 0,
-                        version: 1,
-                        children: [
-                          {
-                            mode: 'normal',
-                            text: 'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.',
-                            type: 'text',
-                            style: '',
-                            detail: 0,
-                            format: 0,
-                            version: 1,
-                          },
-                        ],
-                        direction: 'ltr',
-                        textStyle: '',
-                        textFormat: 0,
-                      },
-                    ],
-                    direction: 'ltr',
-                  },
-                },
+                richText: simpleContent(
+                  'Stay informed with the latest avalanche forecasts, mountain weather conditions, and safety information for our region.',
+                ),
               },
               {
-                richText: {
-                  root: {
-                    type: 'root',
-                    format: '',
-                    indent: 0,
-                    version: 1,
-                    children: [
-                      {
-                        type: 'paragraph',
-                        format: '',
-                        indent: 0,
-                        version: 1,
-                        children: [
-                          {
-                            mode: 'normal',
-                            text: 'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.',
-                            type: 'text',
-                            style: '',
-                            detail: 0,
-                            format: 0,
-                            version: 1,
-                          },
-                        ],
-                        direction: 'ltr',
-                        textStyle: '',
-                        textFormat: 0,
-                      },
-                    ],
-                    direction: 'ltr',
-                  },
-                },
+                richText: simpleContent(
+                  'Our mission is to increase avalanche awareness, reduce avalanche impacts, and equip the community with essential safety education and data.',
+                ),
               },
             ],
           },
@@ -427,7 +410,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     log.info(`[${tenant.slug}] Home page already exists, skipping`)
   }
 
-  // 5. Create Navigation
+  // 6. Create Navigation
   log.info(`[${tenant.slug}] Creating navigation...`)
   const existingNavigation = await payload.find({
     collection: 'navigations',
@@ -475,7 +458,6 @@ export async function provision(payload: Payload, tenant: Tenant) {
       await payload.create({
         collection: 'navigations',
         data: {
-          _status: 'published',
           tenant: tenant.id,
           forecasts: { items: [] },
           observations: { items: [] },
@@ -535,6 +517,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
           donate: {
             link: navPageItem('donate-membership', 'Donate')?.link,
           },
+          _status: 'published',
         },
       })
       navigationCreated = true
@@ -551,7 +534,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     tenant: { id: tenant.id, name: tenant.name, slug: tenant.slug },
     settingsCreated,
     builtInPagesCreated: createdBuiltInPages.length - existingBuiltInPages.docs.length,
-    pagesCopied: copiedPages.length,
+    pagesCreated: createdPages.length,
     failedPages,
     homePageCreated,
     navigationCreated,
