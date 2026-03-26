@@ -1,7 +1,11 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
-import { getActiveForecastZones, type ActiveForecastZoneWithSlug } from '@/services/nac/nac'
+import {
+  getActiveForecastZones,
+  getAvalancheCenterPlatforms,
+  type ActiveForecastZoneWithSlug,
+} from '@/services/nac/nac'
 import { isValidRelationship } from '@/utilities/relationships'
 import type { Payload, PayloadHandler } from 'payload'
 import type { Logger } from 'pino'
@@ -57,7 +61,20 @@ export async function resolveBuiltInPages(
           })),
         ]
 
-  const nonForecastPages = navBuiltInPages.filter((p) => !p.url.startsWith('/forecasts/avalanche'))
+  // Non-forecast pages from DVAC nav, excluding Mountain Weather (determined by NAC)
+  const nonForecastPages = navBuiltInPages.filter(
+    (p) => !p.url.startsWith('/forecasts/avalanche') && p.url !== '/weather/forecast',
+  )
+
+  // Add Mountain Weather only if center has weather forecasts in NAC
+  try {
+    const { weather } = await getAvalancheCenterPlatforms(tenantSlug)
+    if (weather) {
+      nonForecastPages.push({ title: 'Mountain Weather', url: '/weather/forecast' })
+    }
+  } catch {
+    log.warn(`[${tenantSlug}] Failed to query NAC platforms. Excluding Mountain Weather.`)
+  }
 
   return { forecastPages, nonForecastPages }
 }

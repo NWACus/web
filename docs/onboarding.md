@@ -12,7 +12,7 @@ Provisioning is idempotent and can be rerun safely.
 |------|---------|
 | Website Settings | Created with placeholder brand assets (logo, icon, banner). Replace with real assets via the checklist link. |
 | Forecast pages | Queries AFP via `getActiveForecastZones()` to auto-detect single vs multi-zone. Creates zone-specific built-in pages (see table below). Falls back to a default "All Forecasts" page if AFP is unavailable. |
-| Default built-in pages | Creates non-forecast built-in pages sourced from the template (DVAC) navigation (see table below). |
+| Default built-in pages | Creates non-forecast built-in pages sourced from the template (DVAC) navigation (see table below). Mountain Weather is only included if the center has a weather forecast configured in NAC (`platforms.weather`). |
 | Template pages | Copies all published pages from the template tenant (DVAC). Pages whose blocks all reference tenant-scoped data (teams, sponsors, events, forms) are copied as empty drafts. Demo pages (`blocks`, `lexical-blocks`) are skipped. Static blog/event list blocks are converted to dynamic mode. |
 | Home page | Creates a home page with welcome content and quick links to About Us and Donate. |
 | Navigation | Creates navigation menus linked to all copied pages and built-in pages. Forecasts tab is zone-aware (single zone: direct link; multi-zone: "All Forecasts" + per-zone items). |
@@ -29,6 +29,7 @@ Forecast pages are determined by AFP zone data\*. Non-forecast pages are sourced
 | All Forecasts | `/forecasts/avalanche` | AFP (multi-zone) |
 | _ZONE NAME_ | `/forecasts/avalanche/ZONE` | AFP (multi-zone) |
 | Avalanche Forecast | `/forecasts/avalanche/ZONE` | AFP (single-zone) |
+| Mountain Weather | `/weather/forecast` | NAC `platforms.weather` |
 | _Non-forecast pages_ | _varies_ | DVAC navigation |
 
 ## Manual steps
