@@ -12,7 +12,7 @@ import path from 'path'
 import { getPayload } from 'payload'
 
 export type ProvisioningStatus = {
-  forecastPages: { count: number; expected: number; zoneCount: number }
+  forecastPages: { count: number; expected: number }
   defaultBuiltInPages: { count: number; expected: number }
   pages: { created: number; expected: number; missing: string[] }
   homePage: boolean
@@ -120,11 +120,8 @@ export async function checkProvisioningStatusAction(
       templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
     }
 
-    const {
-      forecastPages: expectedForecastPages,
-      nonForecastPages: expectedNonForecastPages,
-      zoneCount,
-    } = await resolveBuiltInPages(tenant.slug, navBuiltInPages, payload.logger)
+    const { forecastPages: expectedForecastPages, nonForecastPages: expectedNonForecastPages } =
+      await resolveBuiltInPages(tenant.slug, navBuiltInPages, payload.logger)
 
     const tenantForecastPageCount = builtInPages.docs.filter((p) =>
       p.url.startsWith('/forecasts/avalanche'),
@@ -142,7 +139,6 @@ export async function checkProvisioningStatusAction(
         forecastPages: {
           count: tenantForecastPageCount,
           expected: expectedForecastPages.length,
-          zoneCount,
         },
         defaultBuiltInPages: {
           count: tenantDefaultPageCount,
