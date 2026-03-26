@@ -1,3 +1,9 @@
+// TODO: Migrate to MSW for HTTP-level mocking. MSW v2 ships ESM which requires
+// transformIgnorePatterns changes in jest.config.mjs (next/jest overrides them).
+// See PR #969 (getAvalancheCenterPlatforms test) which uses this same jest.mock
+// pattern. Unlike that test which re-implements the function logic with mock data,
+// this test mocks at the function boundary since resolveBuiltInPages orchestrates
+// multiple NAC calls — MSW would let us test the full call chain end-to-end.
 const mockGetActiveForecastZones = jest.fn()
 const mockGetAvalancheCenterPlatforms = jest.fn()
 
