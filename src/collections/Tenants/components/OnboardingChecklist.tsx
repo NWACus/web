@@ -171,31 +171,35 @@ export function OnboardingChecklist() {
         )}
       </div>
 
-      {automatedComplete && (
-        <p className="mt-2 text-sm opacity-70">
-          Forecast nav is automatically based on NAC zones. <br />
-          Blank pages are created using DVACs navigation structure.
-        </p>
-      )}
-
       <ChecklistItem
         loading={isProvisioning}
         done={loaded && forecastPages.count >= forecastPages.expected}
-        label="Forecast pages"
+        label="Forecast Built-In pages"
         details={loaded && `(${forecastPages.count}/${forecastPages.expected})`}
-      />
+      >
+        {automatedComplete && (
+          <p className="text-sm opacity-70">
+            Forecast built-ins are automatically based on NAC zones.
+          </p>
+        )}
+      </ChecklistItem>
       <ChecklistItem
         loading={isProvisioning}
         done={loaded && defaultBuiltInPages.count >= defaultBuiltInPages.expected}
-        label="Default built-in pages"
+        label="Default Built-In pages"
         details={loaded && `(${defaultBuiltInPages.count}/${defaultBuiltInPages.expected})`}
-      />
+      ></ChecklistItem>
       <ChecklistItem
         loading={isProvisioning}
         done={pages.created >= pages.expected && pages.expected > 0}
         label="Pages"
         details={loaded && `(${pages.created}/${pages.expected})`}
       >
+        {automatedComplete && (
+          <p className="text-sm opacity-70">
+            Blank pages are created using DVACs navigation structure.
+          </p>
+        )}
         {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
       </ChecklistItem>
 
@@ -212,7 +216,11 @@ export function OnboardingChecklist() {
             </Link>
           )
         }
-      />
+      >
+        {automatedComplete && (
+          <p className="text-sm opacity-70">Placeholder logo, icon and banner added.</p>
+        )}
+      </ChecklistItem>
 
       <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
         <h4 className="mb-2">Needs action</h4>

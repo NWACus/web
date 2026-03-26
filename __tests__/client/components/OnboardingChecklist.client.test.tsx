@@ -122,6 +122,32 @@ describe('OnboardingChecklist', () => {
   })
 
   describe('loaded', () => {
+    it('shows forecast and default built-in page labels', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(screen.getByText('Forecast Built-In pages')).toBeInTheDocument()
+      expect(screen.getByText('Default Built-In pages')).toBeInTheDocument()
+    })
+
+    it('shows forecast and default built-in page counts', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(screen.getByText('(2/2)')).toBeInTheDocument()
+      // (5/5) appears for both defaultBuiltInPages and pages
+      expect(screen.getAllByText('(5/5)')).toHaveLength(2)
+    })
+
+    it('shows NAC zones description when fully provisioned', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(
+        screen.getByText('Forecast built-ins are automatically based on NAC zones.'),
+      ).toBeInTheDocument()
+    })
+
     it('shows missing pages', async () => {
       mockCheckStatus.mockResolvedValue({
         status: buildStatus({
