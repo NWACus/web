@@ -1,6 +1,6 @@
 import type { SelectFieldServerComponent } from 'payload'
 
-import { SelectField } from '@payloadcms/ui'
+import { SelectField, SelectInput } from '@payloadcms/ui'
 
 export const TenantSlugField: SelectFieldServerComponent = async ({
   clientField,
@@ -9,6 +9,21 @@ export const TenantSlugField: SelectFieldServerComponent = async ({
   payload,
 }) => {
   const currentSlug = data?.slug
+  // Slug is immutable after creation
+  if (data.id) {
+    return (
+      <SelectInput
+        name={field.name}
+        path={field.name}
+        label={clientField.label}
+        description={clientField.admin?.description}
+        options={[{ label: String(currentSlug).toUpperCase(), value: currentSlug }]}
+        value={currentSlug}
+        required
+        readOnly
+      />
+    )
+  }
 
   const { docs } = await payload.find({
     collection: 'tenants',
