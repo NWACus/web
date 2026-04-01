@@ -1,25 +1,5 @@
-// Mock heavy payload-dependent modules before any imports.
-// jest.mock uses relative paths because it doesn't resolve @/ aliases.
-jest.mock('../../src/constants/defaults', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  DEFAULT_BLOCKS: require('./fixtures/mockBlocks').DEFAULT_BLOCKS,
-}))
-
-jest.mock('../../src/blocks/NACMedia/config', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  NACMediaBlock: require('./fixtures/mockBlocks').NACMediaBlock,
-}))
-
-jest.mock('../../src/blocks/Button/config', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  ButtonBlock: require('./fixtures/mockBlocks').ButtonBlock,
-}))
-
-jest.mock('../../src/blocks/Callout/config', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  CalloutBlock: require('./fixtures/mockBlocks').CalloutBlock,
-}))
-
+// Real block configs are used (no mocks needed) thanks to ESM transform support in jest.config.mjs.
+// These mocks are for modules that need a running Payload instance or external services.
 jest.mock('../../src/access/hasSuperAdminPermissions', () => ({
   hasSuperAdminPermissions: jest.fn(),
 }))
