@@ -1,0 +1,142 @@
+{
+  "id": 184224,
+  "published_time": "2026-04-01T12:56:00+00:00",
+  "expires_time": "2026-04-02T10:00:00+00:00",
+  "created_at": "2026-04-01T10:54:07+00:00",
+  "updated_at": "2026-04-01T13:36:05+00:00",
+  "author": "Zachary Miller",
+  "product_type": "forecast",
+  "bottom_line": "<p>Watch for and avoid fresh wind drifts and slabs. You will find more, and larger, drifts and slabs as you climb from middle to upper elevations. At lower elevations, steer clear of steep slopes if you are sinking into a wet, mushy snowpack.<\/p>\n<p><em>We will issue our last daily Avalanche Forecast of the season this Sunday, April 5th. We will issue General Avalanche Information updates through late April or early May.&nbsp;&nbsp;<\/em><\/p>",
+  "hazard_discussion": "<p>Just when we thought winter had punched its timecard and clocked out - April Fools - it's back! With the return of snowfall, it's worth turning our brains back into winter mode and out of the simplified spring-diurnal mindset. Keep your head on a swivel for changing conditions if you're out enjoying the cold new snow, especially in areas where you find more than 6\" of fresh snow. Spring storms are notoriously spotty in character, with large amounts of variability in the timing and quantity of snowfall across the landscape. Additionally, convective storms could produce graupel or other snow crystal types that form sensitive mid-storm interfaces. These interfaces make great failure layers for even thin wind slabs that quickly form above them.<\/p>\n<p>Conveniently, the recent warm weather has solidified much of the snowpack below this new snowfall. On steep slopes where new snow is accumulating on firm, hard ice or wind-hammered surfaces, <a href=\"https:\/\/www.sawtoothavalanche.com\/observations\/ad3ad1d2-c813-4a5b-af20-5995e3afb51d#\/observation\/ad3ad1d2-c813-4a5b-af20-5995e3afb51d\" target=\"_blank\" rel=\"noopener\">loose snow avalanches (sluffs)<\/a> could release naturally or be easy to trigger and run faster and further than expected. At lower elevations near or below the rain-snow line, wet avalanches are still in the mix, and avoiding steep slopes where you find unsupportable wet snow is a great way to play it safe. Given the variety of conditions you may experience in the mountains today, be ready to pull the plug and switch to a more conservative plan B if you see obvious signs of instability or feel the hairs on the back of your neck stand up.<\/p>",
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [
+    {
+      "id": 1,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4074_69cc69b3bdd4e-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4074_69cc69b3bdd4e-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4074_69cc69b3bdd4e.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_4074_69cc69b3bdd4e-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Public Observation: Bench Hut",
+      "caption": "(3\/31\/2026) <p>Wet loose off the Defibrillator couloir (north facing) observed on 3\/31\/2026 in the Sawtooth Range.<\/p> Photo: Jon Preuss",
+      "favorite": false
+    },
+    {
+      "id": 2,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/260326_PoleCk_001_69c5da4df1f15-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/260326_PoleCk_001_69c5da4df1f15-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/260326_PoleCk_001_69c5da4df1f15.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/260326_PoleCk_001_69c5da4df1f15-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Pairie Creek wet slab avalanche",
+      "caption": "<p>(3\/26\/2026) Wet slab and wet loose avalanches. E-SE @ 9,300-9,800'. Prairie Ck.&nbsp;<\/p>\n<p>Photo: Sawtooth Avalanche Center<\/p>",
+      "favorite": false
+    },
+    {
+      "id": 3,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/AAE23B67-7543-4662-83C7-00A55C80157E_69c1f02a1784d-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/AAE23B67-7543-4662-83C7-00A55C80157E_69c1f02a1784d-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/AAE23B67-7543-4662-83C7-00A55C80157E_69c1f02a1784d.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/AAE23B67-7543-4662-83C7-00A55C80157E_69c1f02a1784d-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Marshall Lakes Basin",
+      "caption": "<p>(3\/23\/2026)&nbsp;Wet Loose avalanche observed in Marshall Lakes Basin in the Northern Sawtooth Range.<\/p>\n<p>Photo: Bernard, Rich, Seymore, Armstomg, Anderson<\/p>",
+      "favorite": false
+    },
+    {
+      "id": 4,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_2728_69c1c99ae8dc1-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_2728_69c1c99ae8dc1-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_2728_69c1c99ae8dc1.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/IMG_2728_69c1c99ae8dc1-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Public Observation: Bench Lakes",
+      "caption": "<p>(3\/22\/2026) Large recent wet loose avalanches on Williams Peak's S face.<\/p>",
+      "favorite": false
+    },
+    {
+      "id": 5,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9-large.jpg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9-medium.jpg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9.jpg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "<p>(3\/21\/2026)&nbsp;This photo was taken a couple of minutes after pouring purple Gatorade onto the snow surface. The layers where water collects, or pools, stand out in the photo, especially the 2 crusts immediately above the faceted snow at\/near the ground.&nbsp;<\/p>\n<p>Photo: Sawtooth Avalanche Center<\/p>",
+      "favorite": false
+    },
+    {
+      "id": 6,
+      "url": {
+        "large": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/P1170364_69bb84f0659d6-large.jpeg",
+        "medium": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/P1170364_69bb84f0659d6-medium.jpeg",
+        "original": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/P1170364_69bb84f0659d6.jpeg",
+        "thumbnail": "https:\/\/avalanche-org-media.s3.us-west-2.amazonaws.com\/P1170364_69bb84f0659d6-thumbnail.jpeg"
+      },
+      "type": "image",
+      "title": "Peak 9367",
+      "caption": "<p>(3\/18\/2026)&nbsp;Wet loose avalanche ~8500' on a west aspect in the Smiley Creek drainage on Peak 9367.<\/p>\n<p>Photo: Sawtooth Avalanche Center<\/p>",
+      "favorite": false
+    }
+  ],
+  "weather_data": { "weather_product_id": 184222 },
+  "json_data": null,
+  "avalanche_center": {
+    "id": "SNFAC",
+    "name": "Sawtooth Avalanche Center",
+    "url": "https:\/\/www.sawtoothavalanche.com\/",
+    "city": "Ketchum",
+    "state": "ID"
+  },
+  "forecast_avalanche_problems": [
+    {
+      "id": 2988903,
+      "forecast_id": 184224,
+      "avalanche_problem_id": 3,
+      "rank": 1,
+      "likelihood": "possible",
+      "discussion": "<p>You could find wind slabs up to 2 feet thick in exposed terrain. Wind slabs are largest and most widespread at upper elevations.<\/p>\n<p>Recent cornice growth, pillows, and&nbsp;<a href=\"https:\/\/www.sawtoothavalanche.com\/forecasts\/avalanche\/galena-summit-&amp;-eastern-mtns#\/media\/bd8a4c0e-18ed-11f1-ae9e-c7ebae8cc9c0\" target=\"_blank\" rel=\"noopener\">dunes<\/a> are all clues that wind was at work moving snow. Look for <a href=\"https:\/\/avalanche.org\/avalanche-encyclopedia\/snowpack\/snowpack-observations\/signs-of-instability-red-flags\/shooting-cracks\/\" target=\"_blank\" rel=\"noopener\">shooting cracks<\/a> as evidence of fresh wind slabs and a nudge to move to softer snow on more sheltered slopes. These slabs commonly form beneath ridgelines, on the sides of cross-loaded gullies, and lower in cirques below large cliff bands, chutes, and couloirs.<\/p>",
+      "media": { "url": "", "type": "", "caption": "" },
+      "location": [
+        "north upper",
+        "northeast upper",
+        "east upper",
+        "southeast upper",
+        "south upper",
+        "southwest upper",
+        "west upper",
+        "northwest upper"
+      ],
+      "size": ["1", "2"],
+      "name": "Wind Slab",
+      "problem_description": "Wind Slab avalanches are the release of a cohesive layer of snow (a slab) formed by the wind. Wind typically transports snow from the upwind sides of terrain features and deposits snow on the downwind side. Wind slabs are often smooth and rounded and sometimes sound hollow, and can range from soft to hard. Wind slabs that form over a persistent weak layer (surface hoar, depth hoar, or near-surface facets) may be termed Persistent Slabs or may develop into Persistent Slabs.",
+      "icon": "http:\/\/api.avalanche.org\/img\/avalanche_problems\/WindSlab.png"
+    }
+  ],
+  "danger": [
+    { "lower": 2, "upper": 2, "middle": 2, "valid_day": "current" },
+    { "lower": 2, "upper": 3, "middle": 2, "valid_day": "tomorrow" }
+  ],
+  "forecast_zone": [
+    {
+      "id": 2906,
+      "name": "Sawtooth & Western Smoky Mtns",
+      "url": "https:\/\/www.sawtoothavalanche.com\/forecasts\/avalanche\/sawtooth-&-western-smoky-mtns",
+      "state": "ID",
+      "zone_id": "2",
+      "config": null
+    }
+  ]
+}
