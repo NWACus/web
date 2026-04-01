@@ -1,0 +1,24 @@
+{
+  "_description": "Layout structure modeled on a real page with TeamBlocks directly in layout. Demonstrates the simple case: blocks with direct relationship refs.",
+  "slug": "who-we-are",
+  "layout": [
+    {
+      "id": "aa11bb22cc33dd44ee55ff66",
+      "team": 401,
+      "blockName": "Staff",
+      "blockType": "team"
+    },
+    {
+      "id": "bb22cc33dd44ee55ff66aa77",
+      "team": 402,
+      "blockName": "Friends",
+      "blockType": "team"
+    },
+    {
+      "id": "cc33dd44ee55ff66aa77bb88",
+      "team": 403,
+      "blockName": "Board",
+      "blockType": "team"
+    }
+  ]
+}

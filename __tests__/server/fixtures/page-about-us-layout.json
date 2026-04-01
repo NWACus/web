@@ -1,0 +1,186 @@
+{
+  "_description": "Layout structure modeled on a real page with deep nesting: ContentBlock > richText > CalloutBlock > richText > ButtonBlock with internal page reference, and ContentBlock > richText > MediaBlock.",
+  "slug": "about-us",
+  "layout": [
+    {
+      "id": "a1b2c3d4e5f6a7b8c9d0e1f2",
+      "backgroundColor": "transparent",
+      "layout": "2_12",
+      "blockName": "About",
+      "columns": [
+        {
+          "id": "b2c3d4e5f6a7b8c9d0e1f2a3",
+          "richText": {
+            "root": {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "About this avalanche center.",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "format": "",
+                  "indent": 0,
+                  "type": "heading",
+                  "version": 1,
+                  "tag": "h4"
+                }
+              ],
+              "direction": "ltr",
+              "format": "",
+              "indent": 0,
+              "type": "root",
+              "version": 1
+            }
+          }
+        },
+        {
+          "id": "c3d4e5f6a7b8c9d0e1f2a3b4",
+          "richText": {
+            "root": {
+              "children": [
+                {
+                  "type": "block",
+                  "version": 2,
+                  "format": "",
+                  "fields": {
+                    "callout": {
+                      "root": {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "detail": 0,
+                                "format": 0,
+                                "mode": "normal",
+                                "style": "",
+                                "text": "Who We Are",
+                                "type": "text",
+                                "version": 1
+                              }
+                            ],
+                            "direction": null,
+                            "format": "",
+                            "indent": 0,
+                            "type": "heading",
+                            "version": 1,
+                            "tag": "h4"
+                          },
+                          {
+                            "type": "block",
+                            "version": 2,
+                            "format": "",
+                            "fields": {
+                              "button": {
+                                "type": "internal",
+                                "label": "Meet the Team",
+                                "reference": {
+                                  "relationTo": "pages",
+                                  "value": 201
+                                },
+                                "appearance": "default",
+                                "variant": "default"
+                              },
+                              "blockType": "buttonBlock",
+                              "id": "d4e5f6a7b8c9d0e1f2a3b4c5"
+                            }
+                          }
+                        ],
+                        "direction": null,
+                        "format": "",
+                        "indent": 0,
+                        "type": "root",
+                        "version": 1
+                      }
+                    },
+                    "backgroundColor": "brand-200",
+                    "blockType": "calloutBlock",
+                    "id": "e5f6a7b8c9d0e1f2a3b4c5d6"
+                  }
+                }
+              ],
+              "direction": null,
+              "format": "",
+              "indent": 0,
+              "type": "root",
+              "version": 1
+            }
+          }
+        }
+      ],
+      "blockType": "content"
+    },
+    {
+      "id": "f6a7b8c9d0e1f2a3b4c5d6e7",
+      "backgroundColor": "brand-400",
+      "layout": "2_11",
+      "blockName": "Photos",
+      "columns": [
+        {
+          "id": "a7b8c9d0e1f2a3b4c5d6e7f8",
+          "richText": {
+            "root": {
+              "children": [
+                {
+                  "type": "block",
+                  "version": 2,
+                  "format": "",
+                  "fields": {
+                    "id": "b8c9d0e1f2a3b4c5d6e7f8a9",
+                    "media": 301,
+                    "imageSize": "original",
+                    "blockName": "",
+                    "alignContent": "left",
+                    "backgroundColor": "transparent",
+                    "blockType": "mediaBlock"
+                  }
+                }
+              ],
+              "direction": null,
+              "format": "",
+              "indent": 0,
+              "type": "root",
+              "version": 1
+            }
+          }
+        },
+        {
+          "id": "c9d0e1f2a3b4c5d6e7f8a9b0",
+          "richText": {
+            "root": {
+              "children": [
+                {
+                  "type": "block",
+                  "version": 2,
+                  "format": "",
+                  "fields": {
+                    "id": "d0e1f2a3b4c5d6e7f8a9b0c1",
+                    "media": 302,
+                    "imageSize": "original",
+                    "blockName": "",
+                    "alignContent": "left",
+                    "backgroundColor": "transparent",
+                    "blockType": "mediaBlock"
+                  }
+                }
+              ],
+              "direction": null,
+              "format": "",
+              "indent": 0,
+              "type": "root",
+              "version": 1
+            }
+          }
+        }
+      ],
+      "blockType": "content"
+    }
+  ]
+}
