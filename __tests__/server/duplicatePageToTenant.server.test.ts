@@ -1,21 +1,18 @@
-jest.mock('../../src/constants/defaults', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  DEFAULT_BLOCKS: require('./fixtures/mockBlocks').DEFAULT_BLOCKS,
-}))
-
-jest.mock('../../src/blocks/NACMedia/config', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  NACMediaBlock: require('./fixtures/mockBlocks').NACMediaBlock,
-}))
-
-jest.mock('../../src/blocks/Button/config', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  ButtonBlock: require('./fixtures/mockBlocks').ButtonBlock,
-}))
-
-jest.mock('../../src/blocks/Callout/config', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  CalloutBlock: require('./fixtures/mockBlocks').CalloutBlock,
+// Real block configs are used thanks to ESM transform support in jest.config.mjs.
+// lexicalEditor() calls at module initialization need a stub since there's no running Payload instance.
+jest.mock('@payloadcms/richtext-lexical', () => ({
+  lexicalEditor: () => ({}),
+  BlocksFeature: () => ({ key: 'blocks' }),
+  FixedToolbarFeature: () => ({}),
+  HeadingFeature: () => ({}),
+  HorizontalRuleFeature: () => ({}),
+  InlineToolbarFeature: () => ({}),
+  AlignFeature: () => ({}),
+  ParagraphFeature: () => ({}),
+  UnderlineFeature: () => ({}),
+  BoldFeature: () => ({}),
+  ItalicFeature: () => ({}),
+  LinkFeature: () => ({}),
 }))
 
 jest.mock('../../src/payload.config', () => ({}))
