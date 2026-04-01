@@ -1,0 +1,986 @@
+// Mock modules that need a running Payload instance or execute at import time.
+// These must be before any imports that trigger the module load chain.
+jest.mock('../../src/payload.config', () => ({}))
+jest.mock('payload', () => ({ getPayload: jest.fn() }))
+// lexicalEditor and feature functions execute at module scope when block configs load.
+// We stub them but make BlocksFeature capture its blocks arg so the extraction function
+// can introspect which blocks each richText field allows (via feature.serverFeatureProps.blocks).
+jest.mock('@payloadcms/richtext-lexical', () => ({
+  lexicalEditor: ({ features }: { features?: unknown }) => {
+    // Resolve the features array the same way the real lexicalEditor does
+    const resolvedFeatures =
+      typeof features === 'function' ? features({ rootFeatures: [] }) : (features ?? [])
+    return { features: resolvedFeatures }
+  },
+  BlocksFeature: ({ blocks }: { blocks?: unknown[] }) => ({
+    key: 'blocks',
+    serverFeatureProps: { blocks: blocks ?? [] },
+  }),
+  FixedToolbarFeature: () => ({ key: 'fixedToolbar' }),
+  HeadingFeature: () => ({ key: 'heading' }),
+  HorizontalRuleFeature: () => ({ key: 'horizontalRule' }),
+  InlineToolbarFeature: () => ({ key: 'inlineToolbar' }),
+  AlignFeature: () => ({ key: 'align' }),
+  ParagraphFeature: () => ({ key: 'paragraph' }),
+  UnderlineFeature: () => ({ key: 'underline' }),
+  BoldFeature: () => ({ key: 'bold' }),
+  ItalicFeature: () => ({ key: 'italic' }),
+  LinkFeature: () => ({ key: 'link' }),
+}))
+
+import { BlogListBlock } from '@/blocks/BlogList/config'
+import { ButtonBlock } from '@/blocks/Button/config'
+import { CalloutBlock } from '@/blocks/Callout/config'
+import { ContentBlock } from '@/blocks/Content/config'
+import { DocumentBlock } from '@/blocks/Document/config'
+import { FormBlock } from '@/blocks/Form/config'
+import { MediaBlock } from '@/blocks/Media/config'
+import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
+import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { TeamBlock } from '@/blocks/Team/config'
+import { Events } from '@/collections/Events'
+import { HomePages } from '@/collections/HomePages'
+import { Pages } from '@/collections/Pages'
+import { Posts } from '@/collections/Posts'
+import type { Field } from 'payload'
+
+import pageAboutUsLayout from './fixtures/page-about-us-layout.json'
+import pageSupportersLayout from './fixtures/page-supporters-layout.json'
+import pageWhoWeAreLayout from './fixtures/page-who-we-are-layout.json'
+import postWithMediaBlock from './fixtures/post-with-media-block.json'
+
+/**
+ * Tests for the extractDocumentReferences function.
+ *
+ * This function walks a document's data tree (using the collection's field config)
+ * and extracts all relationship/upload references into a flat array. It handles:
+ * - Top-level relationship/upload fields
+ * - Blocks with relationship/upload fields
+ * - RichText (Lexical) fields containing inline blocks
+ * - Deeply nested richText-in-block-in-richText patterns
+ * - Layout-only field types (row, collapsible, unnamed groups/tabs)
+ * - hasMany relationships (arrays of IDs or populated objects)
+ * - Polymorphic relationships (relationTo as array)
+ *
+ * Uses real block and collection configs from the codebase so tests break
+ * when configs change.
+ */
+
+// ---------- Types ----------
+
+interface DocumentReference {
+  collection: string
+  docId: number
+  blockType: string | null
+  fieldPath: string
+}
+
+// ---------- Helpers for building Lexical AST test data ----------
+
+function lexicalRoot(...children: Record<string, unknown>[]): Record<string, unknown> {
+  return {
+    root: {
+      children,
+      direction: null,
+      format: '',
+      indent: 0,
+      type: 'root',
+      version: 1,
+    },
+  }
+}
+
+function lexicalParagraph(text: string): Record<string, unknown> {
+  return {
+    children: [
+      {
+        detail: 0,
+        format: 0,
+        mode: 'normal',
+        style: '',
+        text,
+        type: 'text',
+        version: 1,
+      },
+    ],
+    direction: null,
+    format: '',
+    indent: 0,
+    type: 'paragraph',
+    version: 1,
+  }
+}
+
+function lexicalBlock(fields: Record<string, unknown>): Record<string, unknown> {
+  return {
+    type: 'block',
+    version: 2,
+    format: '',
+    fields,
+  }
+}
+
+// ---------- Placeholder for the function under test ----------
+// TODO: Replace with actual import once implemented
+// import { extractDocumentReferences } from '@/utilities/extractDocumentReferences'
+
+function extractDocumentReferences(
+  _fields: Field[],
+  _data: Record<string, unknown>,
+): DocumentReference[] {
+  // Placeholder — tests will fail until the real implementation exists
+  return []
+}
+
+// ---------- Collection field configs ----------
+// Real collection configs imported above. The .fields property gives us the
+// actual field definitions including tabs, groups, relationship fields, etc.
+// The BlocksFeature mock captures its blocks arg into serverFeatureProps.blocks,
+// so richText fields have their allowed blocks available for introspection.
+const pagesFields = Pages.fields
+const postsFields = Posts.fields
+const eventsFields = Events.fields
+const homePagesFields = HomePages.fields
+
+// Tests layout-only field wrappers (row, collapsible, unnamed/named tabs).
+// These are synthetic because no single collection has all wrapper types together,
+// and the behavior being tested is the walker's traversal logic, not specific configs.
+const fieldsWithLayoutWrappers: Field[] = [
+  {
+    type: 'row',
+    fields: [
+      { name: 'headerImage', type: 'upload', relationTo: 'media' },
+      { name: 'ogImage', type: 'upload', relationTo: 'media' },
+    ],
+  },
+  {
+    type: 'collapsible',
+    label: 'Advanced',
+    fields: [{ name: 'sponsor', type: 'relationship', relationTo: 'sponsors' }],
+  },
+  {
+    type: 'tabs',
+    tabs: [
+      {
+        label: 'Content', // unnamed tab — fields at same level
+        fields: [{ name: 'author', type: 'relationship', relationTo: 'biographies' }],
+      },
+      {
+        name: 'meta', // named tab — creates namespace
+        label: 'SEO',
+        fields: [{ name: 'metaImage', type: 'upload', relationTo: 'media' }],
+      },
+    ],
+  },
+]
+
+// ---------- Tests ----------
+
+// Skipped until extractDocumentReferences is implemented — see plans/on-demand-isr-enhancements.md
+describe.skip('extractDocumentReferences', () => {
+  describe('top-level relationship and upload fields', () => {
+    it('extracts a simple relationship field (unresolved ID)', () => {
+      const data = { authors: [5, 12], tags: [3], featuredImage: 42, content: null }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'biographies', docId: 5, blockType: null, fieldPath: 'authors' },
+          { collection: 'biographies', docId: 12, blockType: null, fieldPath: 'authors' },
+          { collection: 'tags', docId: 3, blockType: null, fieldPath: 'tags' },
+          { collection: 'media', docId: 42, blockType: null, fieldPath: 'featuredImage' },
+        ]),
+      )
+      expect(result).toHaveLength(4)
+    })
+
+    it('extracts a relationship from a populated object (with id)', () => {
+      const data = {
+        authors: [],
+        tags: [],
+        featuredImage: { id: 99, filename: 'photo.jpg', url: '/media/photo.jpg' },
+        content: null,
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([
+        { collection: 'media', docId: 99, blockType: null, fieldPath: 'featuredImage' },
+      ])
+    })
+
+    it('handles null and undefined relationship values', () => {
+      const data = { authors: null, tags: undefined, featuredImage: null, content: null }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles empty hasMany arrays', () => {
+      const data = { authors: [], tags: [], featuredImage: null, content: null }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles hasMany with populated objects', () => {
+      const data = {
+        authors: [
+          { id: 5, name: 'Alice' },
+          { id: 12, name: 'Bob' },
+        ],
+        tags: [],
+        featuredImage: null,
+        content: null,
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'biographies', docId: 5, blockType: null, fieldPath: 'authors' },
+          { collection: 'biographies', docId: 12, blockType: null, fieldPath: 'authors' },
+        ]),
+      )
+      expect(result).toHaveLength(2)
+    })
+
+    it('extracts polymorphic relationship (relationTo as array)', () => {
+      // Polymorphic relationships have shape: { relationTo: 'collection', value: id }
+      const fields: Field[] = [
+        {
+          name: 'reference',
+          type: 'relationship',
+          relationTo: ['pages', 'builtInPages', 'posts'],
+        },
+      ]
+      const data = { reference: { relationTo: 'pages', value: 57 } }
+      const result = extractDocumentReferences(fields, data)
+
+      expect(result).toEqual([
+        { collection: 'pages', docId: 57, blockType: null, fieldPath: 'reference' },
+      ])
+    })
+
+    it('extracts polymorphic relationship with populated value', () => {
+      const fields: Field[] = [
+        {
+          name: 'reference',
+          type: 'relationship',
+          relationTo: ['pages', 'builtInPages', 'posts'],
+        },
+      ]
+      const data = { reference: { relationTo: 'posts', value: { id: 23, title: 'A post' } } }
+      const result = extractDocumentReferences(fields, data)
+
+      expect(result).toEqual([
+        { collection: 'posts', docId: 23, blockType: null, fieldPath: 'reference' },
+      ])
+    })
+  })
+
+  describe('blocks type fields (page layout)', () => {
+    it('extracts references from TeamBlock with direct relationship field', () => {
+      const data = {
+        layout: [
+          { blockType: TeamBlock.slug, team: 16, id: 'block-1' },
+          { blockType: TeamBlock.slug, team: 20, id: 'block-2' },
+        ],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'teams', docId: 16, blockType: TeamBlock.slug, fieldPath: 'layout.0.team' },
+          { collection: 'teams', docId: 20, blockType: TeamBlock.slug, fieldPath: 'layout.1.team' },
+        ]),
+      )
+      expect(result).toHaveLength(2)
+    })
+
+    it('extracts hasMany references from SponsorsBlock', () => {
+      const data = {
+        layout: [{ blockType: SponsorsBlock.slug, sponsors: [42, 78], id: 'block-1' }],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          {
+            collection: 'sponsors',
+            docId: 42,
+            blockType: SponsorsBlock.slug,
+            fieldPath: 'layout.0.sponsors',
+          },
+          {
+            collection: 'sponsors',
+            docId: 78,
+            blockType: SponsorsBlock.slug,
+            fieldPath: 'layout.0.sponsors',
+          },
+        ]),
+      )
+      expect(result).toHaveLength(2)
+    })
+
+    it('extracts upload references from MediaBlock', () => {
+      const data = {
+        layout: [{ blockType: MediaBlock.slug, media: 91, id: 'block-1' }],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([
+        { collection: 'media', docId: 91, blockType: MediaBlock.slug, fieldPath: 'layout.0.media' },
+      ])
+    })
+
+    it('extracts references from BlogListBlock with nested groups (dynamicOptions, staticOptions)', () => {
+      const data = {
+        layout: [
+          {
+            blockType: BlogListBlock.slug,
+            id: 'block-1',
+            heading: 'Latest Posts',
+            dynamicOptions: { filterByTags: [3, 7] },
+            staticOptions: { staticPosts: [10, 15] },
+          },
+        ],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          {
+            collection: 'tags',
+            docId: 3,
+            blockType: BlogListBlock.slug,
+            fieldPath: 'layout.0.dynamicOptions.filterByTags',
+          },
+          {
+            collection: 'tags',
+            docId: 7,
+            blockType: BlogListBlock.slug,
+            fieldPath: 'layout.0.dynamicOptions.filterByTags',
+          },
+          {
+            collection: 'posts',
+            docId: 10,
+            blockType: BlogListBlock.slug,
+            fieldPath: 'layout.0.staticOptions.staticPosts',
+          },
+          {
+            collection: 'posts',
+            docId: 15,
+            blockType: BlogListBlock.slug,
+            fieldPath: 'layout.0.staticOptions.staticPosts',
+          },
+        ]),
+      )
+      expect(result).toHaveLength(4)
+    })
+
+    it('extracts relationship from FormBlock', () => {
+      const data = {
+        layout: [{ blockType: FormBlock.slug, form: 5, id: 'block-1' }],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([
+        { collection: 'forms', docId: 5, blockType: FormBlock.slug, fieldPath: 'layout.0.form' },
+      ])
+    })
+  })
+
+  describe('richText fields with inline blocks (1 level)', () => {
+    it('extracts block references from Lexical AST in post content', () => {
+      const data = {
+        authors: [],
+        tags: [],
+        featuredImage: null,
+        content: lexicalRoot(
+          lexicalParagraph('Some text'),
+          lexicalBlock({
+            media: 499,
+            imageSize: 'original',
+            blockType: MediaBlock.slug,
+            id: 'lex-block-1',
+          }),
+          lexicalParagraph('More text'),
+        ),
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([
+        { collection: 'media', docId: 499, blockType: MediaBlock.slug, fieldPath: 'content' },
+      ])
+    })
+
+    it('extracts multiple block references from richText', () => {
+      const data = {
+        authors: [],
+        tags: [],
+        featuredImage: null,
+        content: lexicalRoot(
+          lexicalBlock({
+            media: 10,
+            blockType: MediaBlock.slug,
+            id: 'lex-1',
+          }),
+          lexicalBlock({
+            document: 20,
+            blockType: DocumentBlock.slug,
+            id: 'lex-2',
+          }),
+          lexicalBlock({
+            post: 30,
+            blockType: SingleBlogPostBlock.slug,
+            id: 'lex-3',
+          }),
+        ),
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'media', docId: 10, blockType: MediaBlock.slug, fieldPath: 'content' },
+          {
+            collection: 'documents',
+            docId: 20,
+            blockType: DocumentBlock.slug,
+            fieldPath: 'content',
+          },
+          {
+            collection: 'posts',
+            docId: 30,
+            blockType: SingleBlogPostBlock.slug,
+            fieldPath: 'content',
+          },
+        ]),
+      )
+      expect(result).toHaveLength(3)
+    })
+  })
+
+  describe('deeply nested richText-in-block-in-richText (2+ levels)', () => {
+    it('extracts references from ContentBlock > richText > MediaBlock', () => {
+      // This is the Gap 1 scenario: block inside richText inside a layout block
+      const data = {
+        layout: [
+          {
+            blockType: ContentBlock.slug,
+            id: 'content-block-1',
+            layout: '1_1',
+            columns: [
+              {
+                id: 'col-1',
+                richText: lexicalRoot(
+                  lexicalBlock({
+                    media: 91,
+                    imageSize: 'original',
+                    blockType: MediaBlock.slug,
+                    id: 'lex-media-1',
+                  }),
+                ),
+              },
+            ],
+          },
+        ],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([
+        {
+          collection: 'media',
+          docId: 91,
+          blockType: MediaBlock.slug,
+          fieldPath: 'layout.0.columns.0.richText',
+        },
+      ])
+    })
+
+    it('extracts references from ContentBlock > richText > CalloutBlock > richText > ButtonBlock (3 levels deep)', () => {
+      // This is the deepest nesting pattern found in real production data (about-us page)
+      const data = {
+        layout: [
+          {
+            blockType: ContentBlock.slug,
+            id: 'content-block-1',
+            layout: '2_12',
+            columns: [
+              {
+                id: 'col-1',
+                richText: lexicalRoot(
+                  lexicalBlock({
+                    callout: lexicalRoot(
+                      lexicalParagraph('Callout text'),
+                      lexicalBlock({
+                        button: {
+                          type: 'internal',
+                          label: 'Meet the Team',
+                          reference: { relationTo: 'pages', value: 57 },
+                        },
+                        blockType: ButtonBlock.slug,
+                        id: 'lex-button-1',
+                      }),
+                    ),
+                    backgroundColor: 'brand-200',
+                    blockType: CalloutBlock.slug,
+                    id: 'lex-callout-1',
+                  }),
+                ),
+              },
+            ],
+          },
+        ],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([
+        {
+          collection: 'pages',
+          docId: 57,
+          blockType: ButtonBlock.slug,
+          fieldPath: 'layout.0.columns.0.richText',
+        },
+      ])
+    })
+
+    it('extracts references from multiple nesting levels simultaneously', () => {
+      // A post with: top-level featuredImage + MediaBlock and SponsorsBlock inside richText content
+      const data = {
+        featuredImage: 100,
+        authors: [],
+        tags: [],
+        relatedPosts: [],
+        content: lexicalRoot(
+          lexicalBlock({
+            media: 91,
+            blockType: MediaBlock.slug,
+            id: 'lex-media-1',
+          }),
+          lexicalBlock({
+            sponsors: [42, 78],
+            blockType: SponsorsBlock.slug,
+            id: 'lex-sponsors-1',
+          }),
+        ),
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'media', docId: 100, blockType: null, fieldPath: 'featuredImage' },
+          { collection: 'media', docId: 91, blockType: MediaBlock.slug, fieldPath: 'content' },
+          {
+            collection: 'sponsors',
+            docId: 42,
+            blockType: SponsorsBlock.slug,
+            fieldPath: 'content',
+          },
+          {
+            collection: 'sponsors',
+            docId: 78,
+            blockType: SponsorsBlock.slug,
+            fieldPath: 'content',
+          },
+        ]),
+      )
+      expect(result).toHaveLength(4)
+    })
+  })
+
+  describe('layout-only field wrappers (row, collapsible, tabs)', () => {
+    it('extracts references through row fields', () => {
+      const data = { headerImage: 10, ogImage: 20 }
+      const result = extractDocumentReferences(fieldsWithLayoutWrappers, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'media', docId: 10, blockType: null, fieldPath: 'headerImage' },
+          { collection: 'media', docId: 20, blockType: null, fieldPath: 'ogImage' },
+        ]),
+      )
+    })
+
+    it('extracts references through collapsible fields', () => {
+      const data = { sponsor: 5 }
+      const result = extractDocumentReferences(fieldsWithLayoutWrappers, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'sponsors', docId: 5, blockType: null, fieldPath: 'sponsor' },
+        ]),
+      )
+    })
+
+    it('extracts references through unnamed tabs (fields at same level)', () => {
+      const data = { author: 8 }
+      const result = extractDocumentReferences(fieldsWithLayoutWrappers, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'biographies', docId: 8, blockType: null, fieldPath: 'author' },
+        ]),
+      )
+    })
+
+    it('extracts references through named tabs (creates namespace)', () => {
+      const data = { meta: { metaImage: 15 } }
+      const result = extractDocumentReferences(fieldsWithLayoutWrappers, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'media', docId: 15, blockType: null, fieldPath: 'meta.metaImage' },
+        ]),
+      )
+    })
+  })
+
+  describe('group fields', () => {
+    it('extracts references through named groups (Events landingPageContent)', () => {
+      const data = {
+        featuredImage: null,
+        thumbnailImage: null,
+        eventGroups: [],
+        eventTags: [],
+        landingPageContent: {
+          content: lexicalRoot(
+            lexicalBlock({
+              media: 300,
+              blockType: MediaBlock.slug,
+              id: 'lex-1',
+            }),
+          ),
+        },
+      }
+      const result = extractDocumentReferences(eventsFields, data)
+
+      expect(result).toEqual([
+        {
+          collection: 'media',
+          docId: 300,
+          blockType: MediaBlock.slug,
+          fieldPath: 'landingPageContent.content',
+        },
+      ])
+    })
+  })
+
+  describe('HomePages collection pattern', () => {
+    it('extracts references from highlightedContent > columns > richText', () => {
+      const data = {
+        highlightedContent: {
+          columns: [
+            {
+              id: 'col-1',
+              richText: lexicalRoot(
+                lexicalBlock({
+                  media: 200,
+                  blockType: MediaBlock.slug,
+                  id: 'lex-1',
+                }),
+              ),
+            },
+            {
+              id: 'col-2',
+              richText: lexicalRoot(
+                lexicalBlock({
+                  post: 45,
+                  blockType: SingleBlogPostBlock.slug,
+                  id: 'lex-2',
+                }),
+              ),
+            },
+          ],
+        },
+        layout: [],
+      }
+      const result = extractDocumentReferences(homePagesFields, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          {
+            collection: 'media',
+            docId: 200,
+            blockType: MediaBlock.slug,
+            fieldPath: 'highlightedContent.columns.0.richText',
+          },
+          {
+            collection: 'posts',
+            docId: 45,
+            blockType: SingleBlogPostBlock.slug,
+            fieldPath: 'highlightedContent.columns.1.richText',
+          },
+        ]),
+      )
+      expect(result).toHaveLength(2)
+    })
+  })
+
+  describe('deduplication', () => {
+    it('deduplicates identical references (same collection + docId)', () => {
+      // Same media referenced as featuredImage AND inside a content richText MediaBlock
+      const data = {
+        featuredImage: 91,
+        authors: [],
+        tags: [],
+        relatedPosts: [],
+        content: lexicalRoot(
+          lexicalBlock({
+            media: 91,
+            blockType: MediaBlock.slug,
+            id: 'lex-1',
+          }),
+        ),
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      // Deduplicated on collection+docId — should appear only once
+      const mediaRefs = result.filter((r) => r.collection === 'media' && r.docId === 91)
+      expect(mediaRefs).toHaveLength(1)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('handles empty layout blocks array', () => {
+      const data = { layout: [] }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles missing data fields gracefully', () => {
+      const data = {}
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles richText with no block nodes', () => {
+      const data = {
+        authors: [],
+        tags: [],
+        featuredImage: null,
+        content: lexicalRoot(lexicalParagraph('Just text, no blocks')),
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles block with unknown blockType gracefully', () => {
+      const data = {
+        layout: [{ blockType: 'nonExistentBlock', someField: 42, id: 'block-1' }],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles Lexical block with unknown blockType in richText', () => {
+      const data = {
+        authors: [],
+        tags: [],
+        featuredImage: null,
+        content: lexicalRoot(
+          lexicalBlock({
+            blockType: 'unknownBlock',
+            someField: 99,
+            id: 'lex-1',
+          }),
+        ),
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles null richText data', () => {
+      const data = {
+        authors: [],
+        tags: [],
+        featuredImage: null,
+        content: null,
+      }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('handles block with null relationship value', () => {
+      const data = {
+        layout: [{ blockType: TeamBlock.slug, team: null, id: 'block-1' }],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([])
+    })
+
+    it('does not recurse infinitely if block configs allow circular nesting', () => {
+      // ContentBlock allows CalloutBlock, and CalloutBlock's richText could
+      // theoretically contain a ContentBlock. The data won't actually nest
+      // infinitely, but the walker should handle it without stack overflow.
+      const data = {
+        layout: [
+          {
+            blockType: ContentBlock.slug,
+            id: 'content-1',
+            layout: '1_1',
+            columns: [
+              {
+                id: 'col-1',
+                richText: lexicalRoot(
+                  lexicalBlock({
+                    callout: lexicalRoot(
+                      lexicalBlock({
+                        media: 42,
+                        blockType: MediaBlock.slug,
+                        id: 'lex-deep',
+                      }),
+                    ),
+                    blockType: CalloutBlock.slug,
+                    id: 'lex-callout',
+                  }),
+                ),
+              },
+            ],
+          },
+        ],
+      }
+      const result = extractDocumentReferences(pagesFields, data)
+
+      expect(result).toEqual([
+        {
+          collection: 'media',
+          docId: 42,
+          blockType: MediaBlock.slug,
+          fieldPath: 'layout.0.columns.0.richText',
+        },
+      ])
+    })
+  })
+
+  // -----------------------------------------------------------------------
+  // Fixture tests
+  //
+  // These use document structures modeled on real content pulled from the
+  // dev database via Payload MCP server. IDs are randomized but the
+  // structural patterns (nesting depth, field shapes, block types) are real.
+  //
+  // TODO: Add a homePages fixture when one with populated highlightedContent
+  // (richText with blocks) is available in the dev database.
+  // -----------------------------------------------------------------------
+
+  describe('fixture: page "about-us" (deep nesting)', () => {
+    // This page has ContentBlocks with richText containing CalloutBlocks
+    // and MediaBlocks — the exact deep nesting pattern that the current
+    // revalidation system misses.
+
+    it('finds the ButtonBlock reference 3 levels deep (ContentBlock > CalloutBlock > ButtonBlock)', () => {
+      const result = extractDocumentReferences(pagesFields, pageAboutUsLayout)
+
+      // ButtonBlock inside CalloutBlock inside ContentBlock's richText
+      // has an internal page reference: { relationTo: 'pages', value: 201 }
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            collection: 'pages',
+            docId: 201,
+            blockType: ButtonBlock.slug,
+          }),
+        ]),
+      )
+    })
+
+    it('finds MediaBlock references inside ContentBlock richText', () => {
+      const result = extractDocumentReferences(pagesFields, pageAboutUsLayout)
+
+      // Two MediaBlocks in the "Photos" ContentBlock's columns
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ collection: 'media', docId: 301, blockType: MediaBlock.slug }),
+          expect.objectContaining({ collection: 'media', docId: 302, blockType: MediaBlock.slug }),
+        ]),
+      )
+    })
+
+    it('finds all 3 references total', () => {
+      const result = extractDocumentReferences(pagesFields, pageAboutUsLayout)
+
+      // page 201 (ButtonBlock), media 301 (MediaBlock), media 302 (MediaBlock)
+      expect(result).toHaveLength(3)
+    })
+  })
+
+  describe('fixture: page "who-we-are" (direct layout blocks)', () => {
+    it('finds all TeamBlock references directly in layout', () => {
+      const result = extractDocumentReferences(pagesFields, pageWhoWeAreLayout)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ collection: 'teams', docId: 401, blockType: TeamBlock.slug }),
+          expect.objectContaining({ collection: 'teams', docId: 402, blockType: TeamBlock.slug }),
+          expect.objectContaining({ collection: 'teams', docId: 403, blockType: TeamBlock.slug }),
+        ]),
+      )
+      expect(result).toHaveLength(3)
+    })
+  })
+
+  describe('fixture: page "supporters" (hasMany sponsors)', () => {
+    it('finds all sponsor references across multiple SponsorsBlocks', () => {
+      const result = extractDocumentReferences(pagesFields, pageSupportersLayout)
+
+      const sponsorRefs = result.filter((r) => r.collection === 'sponsors')
+
+      // 5 SponsorsBlocks with 7 + 14 + 9 + 12 + 5 = 47 sponsor IDs total
+      // After deduplication (all unique IDs), should still be 47
+      expect(sponsorRefs).toHaveLength(47)
+    })
+
+    it('does not include headerBlock references (headerBlock has no relationship fields)', () => {
+      const result = extractDocumentReferences(pagesFields, pageSupportersLayout)
+
+      // Only sponsor references, no others
+      expect(result.every((r) => r.collection === 'sponsors')).toBe(true)
+    })
+  })
+
+  describe('fixture: post with media block', () => {
+    it('finds the featuredImage upload and the MediaBlock in content', () => {
+      const result = extractDocumentReferences(postsFields, postWithMediaBlock)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          // Top-level featuredImage upload
+          expect.objectContaining({
+            collection: 'media',
+            docId: 601,
+            blockType: null,
+            fieldPath: 'featuredImage',
+          }),
+          // MediaBlock inside richText content
+          expect.objectContaining({
+            collection: 'media',
+            docId: 601,
+            blockType: MediaBlock.slug,
+          }),
+        ]),
+      )
+    })
+
+    it('deduplicates since featuredImage and content MediaBlock reference the same media', () => {
+      const result = extractDocumentReferences(postsFields, postWithMediaBlock)
+
+      // media 601 appears twice (featuredImage + content block) but should be deduplicated
+      const mediaRefs = result.filter((r) => r.collection === 'media' && r.docId === 601)
+      expect(mediaRefs).toHaveLength(1)
+    })
+
+    it('ignores empty relationship arrays (authors, tags, relatedPosts)', () => {
+      const result = extractDocumentReferences(postsFields, postWithMediaBlock)
+
+      expect(result.find((r) => r.collection === 'biographies')).toBeUndefined()
+      expect(result.find((r) => r.collection === 'tags')).toBeUndefined()
+      expect(result.find((r) => r.collection === 'posts')).toBeUndefined()
+    })
+  })
+})
