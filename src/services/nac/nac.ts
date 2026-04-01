@@ -2,6 +2,12 @@ import { normalizePath } from '@/utilities/path'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
+import {
+  forecastResultSchema,
+  warningResultSchema,
+  type ForecastResult,
+  type WarningResult,
+} from './types/forecastSchemas'
 import { allAvalancheCenterCapabilitiesSchema, avalancheCenterSchema } from './types/schemas'
 
 const host = process.env.NAC_HOST || 'https://api.avalanche.org'
@@ -215,3 +221,55 @@ export async function getActiveForecastZones(centerSlug: string) {
 
   return forecastZones
 }
+
+export async function fetchForecast(
+  centerId: string,
+  zoneId: number,
+): Promise<ForecastResult | null> {
+  const centerIdToUse = centerId.toLowerCase() === 'dvac' ? 'NWAC' : centerId.toUpperCase()
+
+  try {
+    const data = await nacFetch(
+      `/v2/public/product?type=forecast&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+      { cachedTime: 300 },
+    )
+
+    const parsed = forecastResultSchema.safeParse(data)
+    if (!parsed.success) {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: parsed.error }, 'Failed to parse forecast response')
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+export async function fetchWarning(
+  centerId: string,
+  zoneId: number,
+): Promise<WarningResult | null> {
+  const centerIdToUse = centerId.toLowerCase() === 'dvac' ? 'NWAC' : centerId.toUpperCase()
+
+  try {
+    const data = await nacFetch(
+      `/v2/public/product?type=warning&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+      { cachedTime: 300 },
+    )
+
+    const parsed = warningResultSchema.safeParse(data)
+    if (!parsed.success) {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: parsed.error }, 'Failed to parse warning response')
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+export { resolveZoneFromSlug } from './resolveZone'
