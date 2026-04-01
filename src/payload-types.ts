@@ -3009,6 +3009,10 @@ export interface Setting {
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
+  /**
+   * When enabled, the forecast page renders natively using Next.js server components instead of the embedded widget. This can be toggled per center for incremental rollout.
+   */
+  useNativeForecasts?: boolean | null;
   socialMedia?: {
     instagram?: string | null;
     facebook?: string | null;
@@ -4809,6 +4813,7 @@ export interface SettingsSelect<T extends boolean = true> {
   icon?: T;
   banner?: T;
   usfsLogo?: T;
+  useNativeForecasts?: T;
   socialMedia?:
     | T
     | {
