@@ -4,6 +4,17 @@ const createJestConfig = nextJest({
   dir: './',
 })
 
+// Payload and its dependencies use ESM, which Jest can't handle by default.
+// next/jest hardcodes /node_modules/ in transformIgnorePatterns, so we
+// override the patterns to transform all node_modules with SWC.
+// See: https://github.com/vercel/next.js/issues/35634
+function addEsmTransformSupport(jestConfig) {
+  return {
+    ...jestConfig,
+    transformIgnorePatterns: ['^.+\\.module\\.(css|sass|scss)$'],
+  }
+}
+
 const clientTestConfig = {
   displayName: 'client',
   testEnvironment: 'jsdom',
@@ -21,8 +32,8 @@ const serverTestConfig = {
 /** @type {import('jest').Config} */
 const config = {
   projects: [
-    await createJestConfig(clientTestConfig)(),
-    await createJestConfig(serverTestConfig)(),
+    addEsmTransformSupport(await createJestConfig(clientTestConfig)()),
+    addEsmTransformSupport(await createJestConfig(serverTestConfig)()),
   ],
 }
 
