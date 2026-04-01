@@ -45,6 +45,7 @@ import * as migration_20260120_194629_unify_block_naming from './20260120_194629
 import * as migration_20260128_213937_rename_appearance_to_variant from './20260128_213937_rename_appearance_to_variant'
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
+import * as migration_20260401_193304_add_use_native_forecasts_to_settings from './20260401_193304_add_use_native_forecasts_to_settings'
 
 export const migrations = [
   {
@@ -281,5 +282,10 @@ export const migrations = [
     up: migration_20260303_233752_remove_custom_domain_from_tenants.up,
     down: migration_20260303_233752_remove_custom_domain_from_tenants.down,
     name: '20260303_233752_remove_custom_domain_from_tenants',
+  },
+  {
+    up: migration_20260401_193304_add_use_native_forecasts_to_settings.up,
+    down: migration_20260401_193304_add_use_native_forecasts_to_settings.down,
+    name: '20260401_193304_add_use_native_forecasts_to_settings',
   },
 ]
