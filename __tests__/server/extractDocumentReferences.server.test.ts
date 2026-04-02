@@ -66,15 +66,6 @@ import postWithMediaBlock from './fixtures/post-with-media-block.json'
  * when configs change.
  */
 
-// ---------- Types ----------
-
-interface DocumentReference {
-  collection: string
-  docId: number
-  blockType: string | null
-  fieldPath: string
-}
-
 // ---------- Helpers for building Lexical AST test data ----------
 
 function lexicalRoot(...children: Record<string, unknown>[]): Record<string, unknown> {
@@ -120,17 +111,7 @@ function lexicalBlock(fields: Record<string, unknown>): Record<string, unknown> 
   }
 }
 
-// ---------- Placeholder for the function under test ----------
-// TODO: Replace with actual import once implemented
-// import { extractDocumentReferences } from '@/utilities/extractDocumentReferences'
-
-function extractDocumentReferences(
-  _fields: Field[],
-  _data: Record<string, unknown>,
-): DocumentReference[] {
-  // Placeholder — tests will fail until the real implementation exists
-  return []
-}
+import { extractDocumentReferences } from '@/utilities/extractDocumentReferences'
 
 // ---------- Collection field configs ----------
 // Real collection configs imported above. The .fields property gives us the
@@ -176,8 +157,7 @@ const fieldsWithLayoutWrappers: Field[] = [
 
 // ---------- Tests ----------
 
-// Skipped until extractDocumentReferences is implemented — see plans/on-demand-isr-enhancements.md
-describe.skip('extractDocumentReferences', () => {
+describe('extractDocumentReferences', () => {
   describe('top-level relationship and upload fields', () => {
     it('extracts a simple relationship field (unresolved ID)', () => {
       const data = { authors: [5, 12], tags: [3], featuredImage: 42, content: null }
@@ -635,21 +615,21 @@ describe.skip('extractDocumentReferences', () => {
   })
 
   describe('group fields', () => {
-    it('extracts references through named groups (Events landingPageContent)', () => {
+    it('extracts references through unnamed groups (Events Landing Page Content)', () => {
+      // The Events "Landing Page Content" group has no `name`, so its fields
+      // (content, blocksInContent) sit at the same data level as other fields.
       const data = {
         featuredImage: null,
         thumbnailImage: null,
         eventGroups: [],
         eventTags: [],
-        landingPageContent: {
-          content: lexicalRoot(
-            lexicalBlock({
-              media: 300,
-              blockType: MediaBlock.slug,
-              id: 'lex-1',
-            }),
-          ),
-        },
+        content: lexicalRoot(
+          lexicalBlock({
+            media: 300,
+            blockType: MediaBlock.slug,
+            id: 'lex-1',
+          }),
+        ),
       }
       const result = extractDocumentReferences(eventsFields, data)
 
@@ -658,7 +638,7 @@ describe.skip('extractDocumentReferences', () => {
           collection: 'media',
           docId: 300,
           blockType: MediaBlock.slug,
-          fieldPath: 'landingPageContent.content',
+          fieldPath: 'content',
         },
       ])
     })
@@ -945,26 +925,19 @@ describe.skip('extractDocumentReferences', () => {
   })
 
   describe('fixture: post with media block', () => {
-    it('finds the featuredImage upload and the MediaBlock in content', () => {
+    it('finds the featuredImage upload reference (MediaBlock in content is deduplicated)', () => {
       const result = extractDocumentReferences(postsFields, postWithMediaBlock)
 
-      expect(result).toEqual(
-        expect.arrayContaining([
-          // Top-level featuredImage upload
-          expect.objectContaining({
-            collection: 'media',
-            docId: 601,
-            blockType: null,
-            fieldPath: 'featuredImage',
-          }),
-          // MediaBlock inside richText content
-          expect.objectContaining({
-            collection: 'media',
-            docId: 601,
-            blockType: MediaBlock.slug,
-          }),
-        ]),
-      )
+      // media 601 is referenced both as featuredImage and in a content MediaBlock,
+      // but deduplication on collection+docId keeps only the first occurrence
+      expect(result).toEqual([
+        expect.objectContaining({
+          collection: 'media',
+          docId: 601,
+          blockType: null,
+          fieldPath: 'featuredImage',
+        }),
+      ])
     })
 
     it('deduplicates since featuredImage and content MediaBlock reference the same media', () => {
