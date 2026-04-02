@@ -1,4 +1,6 @@
 import { accessByGlobalRoleOrTenantIds } from '@/collections/Tenants/access/byGlobalRoleOrTenantIds'
+import { provisionTenant } from '@/collections/Tenants/endpoints/provisionTenant'
+import { deprovisionBeforeDelete } from '@/collections/Tenants/hooks/deprovisionBeforeDelete'
 import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
@@ -15,6 +17,15 @@ export const Tenants: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Permissions',
     hidden: ({ user }) => hasReadOnlyAccess(user, 'tenants'),
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          '@/collections/Tenants/components/SyncTenantsOnSave#SyncTenantsOnSave',
+          '@/collections/Tenants/components/DeleteTenantModal#DeleteTenantModal',
+          '@/collections/Tenants/components/AutoFillNameFromSlug#AutoFillNameFromSlug',
+        ],
+      },
+    },
   },
   labels: {
     plural: 'Avalanche Centers',
@@ -24,20 +35,26 @@ export const Tenants: CollectionConfig = {
   defaultPopulate: {
     slug: true,
   },
+  endpoints: [
+    {
+      path: '/provision',
+      method: 'post',
+      handler: provisionTenant,
+    },
+  ],
   hooks: {
     afterChange: [revalidateTenantsAfterChange],
+    beforeDelete: [deprovisionBeforeDelete],
     afterDelete: [revalidateTenantsAfterDelete],
   },
   fields: [
     {
-      name: 'name',
-      type: 'text',
-      required: true,
-    },
-    {
       name: 'slug',
       type: 'select',
       admin: {
+        components: {
+          Field: '@/collections/Tenants/components/TenantSlugField#TenantSlugField',
+        },
         description: 'Avalanche center identifier. Used for subdomains and URL paths.',
       },
       options: VALID_TENANT_SLUGS.map((slug) => ({
@@ -51,6 +68,23 @@ export const Tenants: CollectionConfig = {
         update: () => false, // we should never change this after initial creation
       },
     },
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
+    },
     contentHashField(),
+    {
+      type: 'ui',
+      name: 'onboardingChecklist',
+      label: 'Onboarding Status',
+      admin: {
+        components: {
+          Cell: '@/collections/Tenants/components/OnboardingStatusCell#OnboardingStatusCell',
+          Field: '@/collections/Tenants/components/OnboardingChecklist#OnboardingChecklist',
+        },
+        position: 'sidebar',
+      },
+    },
   ],
 }

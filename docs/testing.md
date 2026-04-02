@@ -73,15 +73,23 @@ pnpm test:e2e -- --workers=1 --headed __tests__/e2e/admin/tenant-selector/non-te
 
 ```
 __tests__/e2e/
-├── auth.setup.ts      # Logs in as each test user and caches browser state
-├── admin/             # Admin panel tests (project: admin)
+├── auth.setup.ts           # Logs in as each test user and caches browser state
+├── admin/                  # Admin panel tests (project: admin)
+│   ├── collections/        # CRUD flow tests for each collection
+│   │   └── tenants.e2e.spec.ts
+│   ├── tenant-selector/    # Tenant selector behavior tests
+│   │   └── ...
+│   └── ...                 # Other admin UI tests
+├── frontend/               # Frontend tests (project: frontend)
 │   └── ...
-├── fixtures/          # Reusable setup/teardown logic
+├── fixtures/               # Reusable setup/teardown logic
 │   └── ...
-├── helpers/           # Shared utilities
+├── helpers/                # Shared utilities
 │   └── ...
-└── .auth/             # Cached storageState files (gitignored)
+└── .auth/                  # Cached storageState files (gitignored)
 ```
+
+The `admin/collections/` folder contains tests for the CRUD flows of admin collections. Each file is named after the collection slug (e.g., `tenants.e2e.spec.ts`) and groups tests under `Create`, `Read`, `Update`, and `Delete` describe blocks.
 
 ### Writing Tests
 

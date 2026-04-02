@@ -299,24 +299,18 @@ export interface HomePage {
  */
 export interface Tenant {
   id: number;
-  name: string;
   /**
    * Avalanche center identifier. Used for subdomains and URL paths.
    */
   slug:
-    | 'aaic'
     | 'bac'
     | 'btac'
-    | 'cac'
-    | 'caic'
     | 'caac'
     | 'cbac'
     | 'cnfaic'
     | 'coaa'
     | 'dvac'
-    | 'earac'
     | 'esac'
-    | 'ewyaix'
     | 'fac'
     | 'gnfac'
     | 'hac'
@@ -329,12 +323,11 @@ export interface Tenant {
     | 'pac'
     | 'sac'
     | 'snfac'
-    | 'soaix'
     | 'tac'
-    | 'uac'
     | 'vac'
     | 'wac'
     | 'wcmac';
+  name: string;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1239,6 +1232,10 @@ export interface ImageTextBlock {
   backgroundColor: string;
   imageLayout: 'left' | 'right';
   image: number | Media;
+  /**
+   * Text will flow around the image instead of being in a separate column
+   */
+  textWrap?: boolean | null;
   richText: {
     root: {
       type: string;
@@ -2929,6 +2926,7 @@ export interface ImageTextBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   imageLayout?: T;
   image?: T;
+  textWrap?: T;
   richText?: T;
   id?: T;
   blockName?: T;
@@ -3462,8 +3460,8 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
-  name?: T;
   slug?: T;
+  name?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
