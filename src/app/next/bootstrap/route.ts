@@ -1,4 +1,5 @@
 import { bootstrap } from '@/endpoints/bootstrap'
+import { isUser } from '@/utilities/isUser'
 import config from '@payload-config'
 import { headers } from 'next/headers'
 import { getPayload } from 'payload'
@@ -17,7 +18,7 @@ export async function POST(): Promise<Response> {
   // Authenticate by passing request headers
   const { user } = await payload.auth({ headers: requestHeaders })
 
-  if (!user) {
+  if (!user || !isUser(user)) {
     return new Response('Action forbidden.', { status: 403 })
   }
 

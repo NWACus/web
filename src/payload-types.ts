@@ -2983,6 +2983,54 @@ export interface PayloadMcpApiKey {
      */
     find?: boolean | null;
   };
+  documents?: {
+    /**
+     * Allow clients to find documents.
+     */
+    find?: boolean | null;
+  };
+  forms?: {
+    /**
+     * Allow clients to find forms.
+     */
+    find?: boolean | null;
+  };
+  navigations?: {
+    /**
+     * Allow clients to find navigations.
+     */
+    find?: boolean | null;
+  };
+  settings?: {
+    /**
+     * Allow clients to find settings.
+     */
+    find?: boolean | null;
+  };
+  tenants?: {
+    /**
+     * Allow clients to find tenants.
+     */
+    find?: boolean | null;
+  };
+  eventGroups?: {
+    /**
+     * Allow clients to find eventGroups.
+     */
+    find?: boolean | null;
+  };
+  eventTags?: {
+    /**
+     * Allow clients to find eventTags.
+     */
+    find?: boolean | null;
+  };
+  nacWidgetsConfig?: {
+    /**
+     * Allow clients to find nacWidgetsConfig global.
+     */
+    find?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -4563,6 +4611,46 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         find?: T;
       };
   tags?:
+    | T
+    | {
+        find?: T;
+      };
+  documents?:
+    | T
+    | {
+        find?: T;
+      };
+  forms?:
+    | T
+    | {
+        find?: T;
+      };
+  navigations?:
+    | T
+    | {
+        find?: T;
+      };
+  settings?:
+    | T
+    | {
+        find?: T;
+      };
+  tenants?:
+    | T
+    | {
+        find?: T;
+      };
+  eventGroups?:
+    | T
+    | {
+        find?: T;
+      };
+  eventTags?:
+    | T
+    | {
+        find?: T;
+      };
+  nacWidgetsConfig?:
     | T
     | {
         find?: T;

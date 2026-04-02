@@ -9,6 +9,7 @@ import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { validateEventDates } from '@/hooks/validateEventDates'
 import { Course } from '@/payload-types'
+import { isUser } from '@/utilities/isUser'
 import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { validateZipCode } from '@/utilities/validateZipCode'
@@ -152,7 +153,7 @@ export const Courses: CollectionConfig = {
       type: 'relationship',
       defaultValue: ({ user }) => {
         // Set provider to their first provider if a provider user
-        if (user?.providers && Array.isArray(user.providers)) {
+        if (isUser(user) && user.providers && Array.isArray(user.providers)) {
           const providerId =
             typeof user.providers[0] === 'number' ? user.providers[0] : user.providers[0]?.id
           return providerId
@@ -169,7 +170,12 @@ export const Courses: CollectionConfig = {
       relationTo: 'providers',
       filterOptions: ({ user }) => {
         // If user has provider relationships, only show those providers
-        if (user?.providers && Array.isArray(user.providers) && user.providers.length > 0) {
+        if (
+          isUser(user) &&
+          user.providers &&
+          Array.isArray(user.providers) &&
+          user.providers.length > 0
+        ) {
           const providerIds = user.providers
             .map((provider) => (typeof provider === 'number' ? provider : provider?.id))
             .filter((id): id is number => typeof id === 'number')

@@ -175,6 +175,9 @@
       "esbuild",
       "sharp",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "mcp-handler": "1.0.7"
+    }
   }
 }

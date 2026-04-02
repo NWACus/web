@@ -1,4 +1,5 @@
 import type { RoleAssignment } from '@/payload-types'
+import { isUser } from '@/utilities/isUser'
 import { canAssignRole } from '@/utilities/rbac/escalationCheck'
 import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
@@ -13,7 +14,7 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
     return data
   }
 
-  if (!req.user) {
+  if (!req.user || !isUser(req.user)) {
     throw new ValidationError({
       errors: [
         {

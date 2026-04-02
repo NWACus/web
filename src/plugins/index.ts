@@ -1,4 +1,5 @@
 import { accessByTenantRole, byTenantRole } from '@/access/byTenantRole'
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { revalidateForm, revalidateFormDelete } from '@/hooks/revalidateForm'
 import { Page, Post } from '@/payload-types'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
@@ -90,7 +91,8 @@ export const plugins: Plugin[] = [
     },
   }),
   mcpPlugin({
-    // Read-only access for AI-assisted development (querying content for test data, debugging, etc.)
+    // Read-only access for AI-assisted development and content querying.
+    // No create/update/delete operations are exposed on any collection.
     collections: {
       pages: { enabled: { find: true } },
       posts: { enabled: { find: true } },
@@ -101,7 +103,33 @@ export const plugins: Plugin[] = [
       biographies: { enabled: { find: true } },
       sponsors: { enabled: { find: true } },
       tags: { enabled: { find: true } },
+      documents: { enabled: { find: true } },
+      forms: { enabled: { find: true } },
+      navigations: { enabled: { find: true } },
+      settings: { enabled: { find: true } },
+      tenants: { enabled: { find: true } },
+      eventGroups: { enabled: { find: true } },
+      eventTags: { enabled: { find: true } },
     },
+    // Expose globals as read-only
+    globals: {
+      nacWidgetsConfig: { enabled: { find: true } },
+    },
+    // Restrict MCP API key management to super admins only
+    overrideApiKeyCollection: (collection) => ({
+      ...collection,
+      admin: {
+        ...collection.admin,
+        group: 'Admin',
+      },
+      access: {
+        ...collection.access,
+        create: hasSuperAdminPermissions,
+        read: hasSuperAdminPermissions,
+        update: hasSuperAdminPermissions,
+        delete: hasSuperAdminPermissions,
+      },
+    }),
     // The MCP plugin fetches the API key's user at depth:1, which doesn't
     // populate the nested joins (globalRoleAssignments.docs[].globalRole.rules)
     // that our RBAC access functions need. Re-fetch the user at depth:3 so

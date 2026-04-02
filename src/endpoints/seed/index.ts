@@ -2,6 +2,7 @@ import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import { Form, Tenant } from '@/payload-types'
+import { isUser } from '@/utilities/isUser'
 import { getEmailDomain, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import fs from 'fs'
 import { headers } from 'next/headers'
@@ -620,7 +621,7 @@ export const seed = async ({
       const requestHeaders = await headers()
       const { user } = await payload.auth({ headers: requestHeaders })
 
-      if (user && user.email !== users['Super Admin'].email) {
+      if (user && isUser(user) && user.email !== users['Super Admin'].email) {
         await payload.create({
           collection: 'globalRoleAssignments',
           data: {

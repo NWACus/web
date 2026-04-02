@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  mcp-handler: 1.0.7
+
 importers:
   .:
     dependencies:
@@ -10776,14 +10779,14 @@ packages:
       }
     engines: { node: '>= 0.4' }
 
-  mcp-handler@1.1.0:
+  mcp-handler@1.0.7:
     resolution:
       {
-        integrity: sha512-MVCES7g18gcoZy+R/3v5nadkUMzMAWdos8jRl6DyljOKvd2/ZKDmwlCjL6zp4vo+7FeCXOYL1uWinHWlkKAAUg==,
+        integrity: sha512-w2wHb6IVmbiS+pnBNb5BXaSd+ynSgExNauB55gUwoHDw8Q8Ew9TVMsSX89yItmex61zQTl+/NuSYmlOgSpj8SQ==,
       }
     hasBin: true
     peerDependencies:
-      '@modelcontextprotocol/sdk': 1.26.0
+      '@modelcontextprotocol/sdk': 1.25.2
       next: '>=13.0.0'
     peerDependenciesMeta:
       next:
@@ -16579,7 +16582,7 @@ snapshots:
       '@modelcontextprotocol/sdk': 1.25.2(hono@4.12.9)(zod@3.25.76)
       '@types/json-schema': 7.0.15
       json-schema-to-zod: 2.6.1
-      mcp-handler: 1.1.0(@modelcontextprotocol/sdk@1.25.2(hono@4.12.9)(zod@3.25.76))(next@15.4.11(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))
+      mcp-handler: 1.0.7(@modelcontextprotocol/sdk@1.25.2(hono@4.12.9)(zod@3.25.76))(next@15.4.11(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))
       payload: 3.78.0(graphql@16.10.0)(typescript@5.7.2)
       zod: 3.25.76
     transitivePeerDependencies:
@@ -21328,7 +21331,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  mcp-handler@1.1.0(@modelcontextprotocol/sdk@1.25.2(hono@4.12.9)(zod@3.25.76))(next@15.4.11(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4)):
+  mcp-handler@1.0.7(@modelcontextprotocol/sdk@1.25.2(hono@4.12.9)(zod@3.25.76))(next@15.4.11(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4)):
     dependencies:
       '@modelcontextprotocol/sdk': 1.25.2(hono@4.12.9)(zod@3.25.76)
       chalk: 5.4.1

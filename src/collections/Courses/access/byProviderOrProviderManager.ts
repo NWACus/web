@@ -1,4 +1,5 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
+import { isUser } from '@/utilities/isUser'
 import { isProviderManager } from '@/utilities/rbac/isProviderManager'
 import { ruleMethod } from '@/utilities/rbac/ruleMatches'
 import { Access, CollectionConfig } from 'payload'
@@ -24,6 +25,7 @@ export const byProviderOrProviderManager: (method: ruleMethod) => Access =
     }
 
     // Check if user has provider relationships
+    if (!isUser(args.req.user)) return false
     const userProviders = args.req.user.providers
     if (!userProviders || !Array.isArray(userProviders) || userProviders.length === 0) {
       return false

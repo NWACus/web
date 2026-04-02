@@ -5,6 +5,7 @@ import { User } from '@/payload-types'
 import { generateInviteUserEmail } from '@/utilities/email/generateInviteUserEmail'
 import { sendEmail } from '@/utilities/email/sendEmail'
 import { getURL } from '@/utilities/getURL'
+import { isUser } from '@/utilities/isUser'
 import { canManageProviders } from '@/utilities/rbac/canManageProviders'
 import { canAssignGlobalRole, canAssignRole } from '@/utilities/rbac/escalationCheck'
 import { isProviderManager } from '@/utilities/rbac/isProviderManager'
@@ -80,7 +81,7 @@ export async function inviteUserAction({
 
     const { user: loggedInUser } = await payload.auth({ headers: headersList })
 
-    if (!loggedInUser) {
+    if (!loggedInUser || !isUser(loggedInUser)) {
       throw new Error('You are not allowed to perform that action.')
     }
 
