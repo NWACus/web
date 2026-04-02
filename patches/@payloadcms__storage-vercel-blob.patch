@@ -1,0 +1,155 @@
+diff --git a/dist/client/VercelBlobClientUploadHandler.d.ts b/dist/client/VercelBlobClientUploadHandler.d.ts
+index 984feebe49e7bfaabd0294eebaa9415e09e0e5cd..18285f61580c050750d6312d12a8cdfb5d4ba6c8 100644
+--- a/dist/client/VercelBlobClientUploadHandler.d.ts
++++ b/dist/client/VercelBlobClientUploadHandler.d.ts
+@@ -1,5 +1,6 @@
+ export type VercelBlobClientUploadHandlerExtra = {
+     addRandomSuffix: boolean;
++    allowOverwrite: boolean;
+     baseURL: string;
+     prefix: string;
+ };
+diff --git a/dist/client/VercelBlobClientUploadHandler.js b/dist/client/VercelBlobClientUploadHandler.js
+index 94a3512c0436805acba26910adb595cf970f4961..cda0b0aea5769c0522b7e9d609d9b919f89a43aa 100644
+--- a/dist/client/VercelBlobClientUploadHandler.js
++++ b/dist/client/VercelBlobClientUploadHandler.js
+@@ -3,7 +3,7 @@ import { createClientUploadHandler } from '@payloadcms/plugin-cloud-storage/clie
+ import { upload } from '@vercel/blob/client';
+ import { formatAdminURL } from 'payload/shared';
+ export const VercelBlobClientUploadHandler = createClientUploadHandler({
+-    handler: async ({ apiRoute, collectionSlug, extra: { addRandomSuffix, baseURL, prefix = '' }, file, serverHandlerPath, serverURL, updateFilename })=>{
++    handler: async ({ apiRoute, collectionSlug, extra: { addRandomSuffix, allowOverwrite, baseURL, prefix = '' }, file, serverHandlerPath, serverURL, updateFilename })=>{
+         const endpointRoute = formatAdminURL({
+             apiRoute,
+             path: serverHandlerPath,
+diff --git a/dist/getClientUploadRoute.d.ts b/dist/getClientUploadRoute.d.ts
+index b0d9157554801e9a873ad09c1ace7c6c5db43a90..519f19e05145f5aaabd7afe8571149b529019b50 100644
+--- a/dist/getClientUploadRoute.d.ts
++++ b/dist/getClientUploadRoute.d.ts
+@@ -5,9 +5,10 @@ type Args = {
+         req: PayloadRequest;
+     }) => boolean | Promise<boolean>;
+     addRandomSuffix?: boolean;
++    allowOverwrite?: boolean;
+     cacheControlMaxAge?: number;
+     token: string;
+ };
+-export declare const getClientUploadRoute: ({ access, addRandomSuffix, cacheControlMaxAge, token }: Args) => PayloadHandler;
++export declare const getClientUploadRoute: ({ access, addRandomSuffix, allowOverwrite, cacheControlMaxAge, token }: Args) => PayloadHandler;
+ export {};
+ //# sourceMappingURL=getClientUploadRoute.d.ts.map
+\ No newline at end of file
+diff --git a/dist/getClientUploadRoute.js b/dist/getClientUploadRoute.js
+index e11cf568867309efcb243fab490a33c6b01c46a8..bfeeee12b5180db867576f1a33738ebd076850a7 100644
+--- a/dist/getClientUploadRoute.js
++++ b/dist/getClientUploadRoute.js
+@@ -1,7 +1,7 @@
+ import { handleUpload } from '@vercel/blob/client';
+ import { APIError, Forbidden } from 'payload';
+ const defaultAccess = ({ req })=>!!req.user;
+-export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix, cacheControlMaxAge, token })=>async (req)=>{
++export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix, allowOverwrite, cacheControlMaxAge, token })=>async (req)=>{
+         const body = await req.json();
+         try {
+             const jsonResponse = await handleUpload({
+@@ -18,6 +18,7 @@ export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix,
+                     }
+                     return Promise.resolve({
+                         addRandomSuffix,
++                        allowOverwrite,
+                         cacheControlMaxAge
+                     });
+                 },
+diff --git a/dist/handleUpload.d.ts b/dist/handleUpload.d.ts
+index 74b7b972fc9dbeffb7a2c79c8b472c831e61a670..404b4e4f2adc0d8f0180fae9428444232a2e4d6f 100644
+--- a/dist/handleUpload.d.ts
++++ b/dist/handleUpload.d.ts
+@@ -4,6 +4,6 @@ type HandleUploadArgs = {
+     baseUrl: string;
+     prefix?: string;
+ } & Omit<VercelBlobStorageOptions, 'collections'>;
+-export declare const getHandleUpload: ({ access, addRandomSuffix, baseUrl, cacheControlMaxAge, prefix, token, }: HandleUploadArgs) => HandleUpload;
++export declare const getHandleUpload: ({ access, addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, prefix, token, }: HandleUploadArgs) => HandleUpload;
+ export {};
+ //# sourceMappingURL=handleUpload.d.ts.map
+\ No newline at end of file
+diff --git a/dist/handleUpload.js b/dist/handleUpload.js
+index db797445156822d2a2a0024b303df940b446e4c2..eedefda709bf53e7f0b4bd2f1b0cdc81e5267c52 100644
+--- a/dist/handleUpload.js
++++ b/dist/handleUpload.js
+@@ -1,11 +1,12 @@
+ import { put } from '@vercel/blob';
+ import path from 'path';
+-export const getHandleUpload = ({ access = 'public', addRandomSuffix, baseUrl, cacheControlMaxAge, prefix = '', token })=>{
++export const getHandleUpload = ({ access = 'public', addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, prefix = '', token })=>{
+     return async ({ data, file: { buffer, filename, mimeType } })=>{
+         const fileKey = path.posix.join(data.prefix || prefix, filename);
+         const result = await put(fileKey, buffer, {
+             access,
+             addRandomSuffix,
++            allowOverwrite,
+             cacheControlMaxAge,
+             contentType: mimeType,
+             token
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 8949c2db42d2657bdd7a72e1476420ce9766ea23..1edaf94546ad7876d4577a7150ed3b85f14f1585 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -14,6 +14,13 @@ export type VercelBlobStorageOptions = {
+      * @default false
+      */
+     addRandomSuffix?: boolean;
++    /**
++     * Allow overwriting existing blobs with the same pathname.
++     * When false (default), uploading a blob with an existing pathname throws an error.
++     *
++     * @default false
++     */
++    allowOverwrite?: boolean;
+     /**
+      * When enabled, fields (like the prefix field) will always be inserted into
+      * the collection schema regardless of whether the plugin is enabled. This
+diff --git a/dist/index.js b/dist/index.js
+index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1ae5949021 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -8,6 +8,7 @@ import { getStaticHandler } from './staticHandler.js';
+ const defaultUploadOptions = {
+     access: 'public',
+     addRandomSuffix: false,
++    allowOverwrite: false,
+     cacheControlMaxAge: 60 * 60 * 24 * 365,
+     enabled: true
+ };
+@@ -32,12 +33,14 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
+             enabled: !isPluginDisabled && Boolean(options.clientUploads),
+             extraClientHandlerProps: (collection)=>({
+                     addRandomSuffix: !!optionsWithDefaults.addRandomSuffix,
++                    allowOverwrite: !!optionsWithDefaults.allowOverwrite,
+                     baseURL: baseUrl,
+                     prefix: typeof collection === 'object' && collection.prefix && `${collection.prefix}/` || ''
+                 }),
+             serverHandler: getClientUploadRoute({
+                 access: typeof options.clientUploads === 'object' ? options.clientUploads.access : undefined,
+                 addRandomSuffix: optionsWithDefaults.addRandomSuffix,
++                allowOverwrite: optionsWithDefaults.allowOverwrite,
+                 cacheControlMaxAge: options.cacheControlMaxAge,
+                 token: options.token ?? ''
+             }),
+@@ -96,7 +99,7 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
+     };
+ function vercelBlobStorageInternal(options) {
+     return ({ collection, prefix })=>{
+-        const { access, addRandomSuffix, baseUrl, cacheControlMaxAge, clientUploads, token } = options;
++        const { access, addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, clientUploads, token } = options;
+         if (!token) {
+             throw new Error('Vercel Blob storage token is required');
+         }
+@@ -115,6 +118,7 @@ function vercelBlobStorageInternal(options) {
+             handleUpload: getHandleUpload({
+                 access,
+                 addRandomSuffix,
++                allowOverwrite,
+                 baseUrl,
+                 cacheControlMaxAge,
+                 prefix,
