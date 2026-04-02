@@ -97,7 +97,7 @@ export default buildConfig({
         {
           slug: 'getting-started',
           label: 'Getting Started',
-          ComponentPath: '@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget',
+          Component: '@/components/dashboard-widgets/GettingStartedWidget#GettingStartedWidget',
           minWidth: 'full',
         },
       ],
