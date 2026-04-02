@@ -1,4 +1,7 @@
-import { type ValidTenantSlug } from '../../../../src/utilities/tenancy/avalancheCenters'
+import {
+  isValidTenantSlug,
+  type ValidTenantSlug,
+} from '../../../../src/utilities/tenancy/avalancheCenters'
 import { openNav } from '../../fixtures/nav.fixture'
 import { expect, tenantSelectorTest as test } from '../../fixtures/tenant-selector.fixture'
 import { AdminUrlUtil, CollectionSlugs, saveDocAndAssert, waitForFormReady } from '../../helpers'
@@ -72,7 +75,11 @@ async function createTenant(
   if (!slugMatch) {
     throw new Error(`Could not extract slug from option text: ${optionText}`)
   }
-  const slug = slugMatch[1] as ValidTenantSlug
+  const extractedSlug = slugMatch[1]
+  if (!isValidTenantSlug(extractedSlug)) {
+    throw new Error(`Extracted slug is not a valid tenant slug: ${extractedSlug}`)
+  }
+  const slug: ValidTenantSlug = extractedSlug
   await firstOption.click()
 
   // Fill name after slug selection — AutoFillNameFromSlug overwrites name on slug change
