@@ -1,7 +1,4 @@
-import {
-  VALID_TENANT_SLUGS,
-  type ValidTenantSlug,
-} from '../../../../src/utilities/tenancy/avalancheCenters'
+import { type ValidTenantSlug } from '../../../../src/utilities/tenancy/avalancheCenters'
 import { openNav } from '../../fixtures/nav.fixture'
 import { expect, tenantSelectorTest as test } from '../../fixtures/tenant-selector.fixture'
 import { AdminUrlUtil, CollectionSlugs, saveDocAndAssert, waitForFormReady } from '../../helpers'
@@ -19,21 +16,6 @@ const TEMP_TENANT_NAME = 'E2E Sync Test Center'
 const UPDATED_TENANT_NAME = 'E2E Sync Test Renamed'
 
 test.describe.configure({ timeout: 120000, mode: 'serial' })
-
-/** Find the first valid tenant slug that doesn't already exist in the database */
-async function findUnusedTenantSlug(
-  page: import('@playwright/test').Page,
-): Promise<ValidTenantSlug> {
-  const response = await page.request.get('http://localhost:3000/api/tenants?limit=100')
-  const data = await response.json()
-  const usedSlugs = new Set(data.docs?.map((doc: { slug: string }) => doc.slug))
-
-  const unused = VALID_TENANT_SLUGS.find((slug) => !usedSlugs.has(slug))
-  if (!unused) {
-    throw new Error('No unused tenant slugs available')
-  }
-  return unused
-}
 
 /** Delete all tenants matching a slug */
 async function deleteTenantBySlug(page: import('@playwright/test').Page, slug: string) {
@@ -63,7 +45,6 @@ async function createTenant(
   name: string,
 ): Promise<ValidTenantSlug> {
   const tenantsUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.tenants)
-  const slug = await findUnusedTenantSlug(page)
 
   await page.goto(tenantsUrl.create)
   await page.waitForLoadState('domcontentloaded')
@@ -72,11 +53,28 @@ async function createTenant(
   const slugField = page.locator('#field-slug')
   const dropdownButton = slugField.locator('button.dropdown-indicator')
   await dropdownButton.waitFor({ state: 'visible', timeout: 30000 })
-  await dropdownButton.click()
 
-  const option = slugField.locator('.rs__option', { hasText: new RegExp(`\\(${slug}\\)`) })
-  await option.waitFor({ state: 'visible', timeout: 10000 })
-  await option.click()
+  // The TenantSlugField is a server component — the dropdown may not be interactive
+  // immediately after the button renders. Retry clicking until the menu opens.
+  const menu = slugField.locator('.rs__menu')
+  await expect(async () => {
+    await dropdownButton.click()
+    await expect(menu).toBeVisible({ timeout: 2000 })
+  }).toPass({ timeout: 30000 })
+
+  // Pick the first available option from the dropdown (the server component
+  // already filters out slugs that are in use, so any visible option is valid)
+  const firstOption = slugField.locator('.rs__option').first()
+  await firstOption.waitFor({ state: 'visible', timeout: 10000 })
+  // Extract slug from option text, e.g. "Bridgeport Avalanche Center (bac)" -> "bac"
+  const optionText = await firstOption.textContent()
+  const slugMatch = optionText?.match(/\((\w+)\)$/)
+  if (!slugMatch) {
+    throw new Error(`Could not extract slug from option text: ${optionText}`)
+  }
+  const slug = slugMatch[1] as ValidTenantSlug
+  await firstOption.click()
+
   // Fill name after slug selection — AutoFillNameFromSlug overwrites name on slug change
   await page.locator('#field-name').fill(name)
   await saveDocAndAssert(page)
