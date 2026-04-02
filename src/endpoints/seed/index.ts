@@ -15,6 +15,7 @@ import type {
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
+import { getActiveForecastZones } from '@/services/nac/nac'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
@@ -948,6 +949,14 @@ export const seed = async ({
       ),
     )
 
+    const forecastZonesByTenant: Record<
+      string,
+      Awaited<ReturnType<typeof getActiveForecastZones>>
+    > = {}
+    for (const tenant of Object.values(tenants)) {
+      forecastZonesByTenant[tenant.slug] = await getActiveForecastZones(tenant.slug)
+    }
+
     const builtInPages = await upsert(
       'builtInPages',
       payload,
@@ -955,15 +964,26 @@ export const seed = async ({
       tenantsById,
       (obj) => obj.url,
       Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
-          builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
-          builtInPage(tenant, 'Mountain Weather', '/weather/forecast'),
-          builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
-          builtInPage(tenant, 'Recent Observations', '/observations'),
-          builtInPage(tenant, 'Submit Observations', '/observations/submit'),
-          builtInPage(tenant, 'Blog', '/blog'),
-          builtInPage(tenant, 'Events', '/events'),
-        ])
+        .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => {
+          const zones = forecastZonesByTenant[tenant.slug] ?? []
+          const zonePages =
+            zones.length === 1
+              ? [builtInPage(tenant, 'Avalanche Forecast', `/forecasts/avalanche/${zones[0].slug}`)]
+              : [
+                  builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
+                  ...zones.map(({ zone, slug }) =>
+                    builtInPage(tenant, zone.name, `/forecasts/avalanche/${slug}`),
+                  ),
+                ]
+          return [
+            ...zonePages,
+            builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+            builtInPage(tenant, 'Recent Observations', '/observations'),
+            builtInPage(tenant, 'Submit Observations', '/observations/submit'),
+            builtInPage(tenant, 'Blog', '/blog'),
+            builtInPage(tenant, 'Events', '/events'),
+          ]
+        })
         .flat(),
     )
 
@@ -1219,7 +1239,7 @@ export const seed = async ({
       (_obj) => 'nav',
       Object.values(tenants).map(
         (tenant): RequiredDataFromCollectionSlug<'navigations'> =>
-          navigationSeed(payload, pages, builtInPages, tenant),
+          navigationSeed(payload, pages, builtInPages, tenant, forecastZonesByTenant),
       ),
     )
 

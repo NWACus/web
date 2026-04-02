@@ -14,6 +14,7 @@ export const builtInPage: (
     tenant: tenant.id,
     title: title,
     url: url,
+    isInNav: true,
     createdAt: new Date().toISOString(),
   }
 }

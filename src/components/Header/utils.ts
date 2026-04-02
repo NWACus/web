@@ -1,9 +1,5 @@
 import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
-import {
-  ActiveForecastZoneWithSlug,
-  getActiveForecastZones,
-  getAvalancheCenterPlatforms,
-} from '@/services/nac/nac'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import { normalizePath } from '@/utilities/path'
 import configPromise from '@payload-config'
@@ -72,7 +68,6 @@ function topLevelNavItem({
   }
 
   if (tab.items && tab.items.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     result.items = tab.items
       .map((item) => {
         if (!item) return null
@@ -96,7 +91,6 @@ function topLevelNavItem({
         }
 
         if (item.items && item.items.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           navItem.items = item.items
             .map((nestedItem, index) => {
               if (!nestedItem) return null
@@ -121,7 +115,7 @@ function topLevelNavItem({
 
               return nestedNavItem.link ? nestedNavItem : null
             })
-            .filter(Boolean) as NavItem[]
+            .filter((item): item is NavItem => item !== null)
 
           if (navItem.items && navItem.items.length === 0) {
             delete navItem.items
@@ -130,7 +124,7 @@ function topLevelNavItem({
 
         return navItem.link || (navItem.items && navItem.items.length > 0) ? navItem : null
       })
-      .filter(Boolean) as NavItem[]
+      .filter((item): item is NavItem => item !== null)
 
     if (result.items && result.items.length === 0) {
       delete result.items
@@ -261,122 +255,77 @@ export function convertToNavLink(
 
 export const getTopLevelNavItems = async ({
   navigation,
-  activeForecastZones,
   avalancheCenterPlatforms,
   center,
 }: {
   navigation: Navigation
-  activeForecastZones?: ActiveForecastZoneWithSlug[]
   avalancheCenterPlatforms: AvalancheCenterPlatforms
   center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
   let forecastsNavItem: TopLevelNavItem = {
-    link: {
-      label: 'Forecasts',
-      type: 'internal',
-      url: '/forecasts/avalanche',
-    },
+    link: { label: 'Forecasts', type: 'internal', url: '/forecasts/avalanche' },
   }
 
-  if (activeForecastZones && activeForecastZones.length > 0 && avalancheCenterPlatforms.forecasts) {
-    if (activeForecastZones.length === 1) {
-      forecastsNavItem = {
-        link: {
-          label: 'Avalanche Forecast',
-          type: 'internal',
-          url: `/forecasts/avalanche/${activeForecastZones[0].slug}`,
-        },
-      }
-    } else {
-      const zoneLinks: NavItem[] = activeForecastZones
-        .sort((zoneA, zoneB) => (zoneA.zone.rank ?? Infinity) - (zoneB.zone.rank ?? Infinity))
-        .map(({ zone, slug }) => {
-          return {
-            id: slug || zone.name,
-            link: {
-              type: 'internal',
-              label: zone.name,
-              url: slug ? `/forecasts/avalanche/${slug}` : '/forecasts/avalanche',
-            },
-          }
-        })
-
-      forecastsNavItem = {
-        label: 'Forecasts',
-        items: [
-          {
-            id: 'all',
-            link: {
-              type: 'internal',
-              label: 'All Forecasts',
-              url: '/forecasts/avalanche',
-            },
-          },
-          {
-            id: 'zones',
-            items: zoneLinks,
-            link: {
-              type: 'internal',
-              label: 'Zones',
-              url: '/forecasts/avalanche',
-            },
-          },
-        ],
-      }
+  if (navigation.forecasts?.link) {
+    const forecastLink = convertToNavLink(navigation.forecasts.link)
+    if (forecastLink) {
+      const zoneItems: NavItem[] = (navigation.forecasts.items ?? []).flatMap((item, i) => {
+        if (!item.link) return []
+        const link = convertToNavLink(item.link)
+        if (!link) return []
+        return [{ id: item.id ?? String(i), link }]
+      })
+      forecastsNavItem =
+        zoneItems.length > 0
+          ? {
+              label: 'Forecasts',
+              items: [{ id: 'all-forecasts', link: forecastLink }, ...zoneItems],
+            }
+          : { link: forecastLink }
     }
   }
 
+  const observationsItems: NavItem[] = (navigation.observations?.items ?? []).flatMap((item, i) => {
+    if (!item.link) return []
+    const link = convertToNavLink(item.link)
+    if (!link) return []
+    return [{ id: item.id ?? String(i), link }]
+  })
+
   const observationsNavItem: TopLevelNavItem = {
     label: 'Observations',
-    items: [
-      {
-        id: 'recent',
-        link: {
-          type: 'internal',
-          label: 'Recent Observations',
-          url: '/observations',
-        },
-      },
-      {
-        id: 'submit',
-        link: {
-          type: 'internal',
-          label: 'Submit Observation',
-          url: '/observations/submit',
-        },
-      },
-    ],
+    items:
+      observationsItems.length > 0
+        ? observationsItems
+        : [
+            {
+              id: 'recent',
+              link: { type: 'internal', label: 'Recent Observations', url: '/observations' },
+            },
+            {
+              id: 'submit',
+              link: { type: 'internal', label: 'Submit Observation', url: '/observations/submit' },
+            },
+          ],
   }
 
   // SAC-specific observations archive link — revert this block when no longer needed
   if (center === 'sac') {
     observationsNavItem.items?.push({
       id: 'archive',
-      link: {
-        type: 'internal',
-        label: 'Observations Archive',
-        url: '/observations-archive',
-      },
+      link: { type: 'internal', label: 'Observations Archive', url: '/observations-archive' },
     })
   }
 
-  const blogNavItem: TopLevelNavItem = {
-    label: 'Blog',
-    link: {
-      label: 'Blog',
-      type: 'internal',
-      url: '/blog',
-    },
-  }
+  const blogLink = navigation.blog?.link ? convertToNavLink(navigation.blog.link) : undefined
+  const blogNavItem: TopLevelNavItem = blogLink
+    ? { link: blogLink }
+    : { link: { label: 'Blog', type: 'internal', url: '/blog' } }
 
-  const eventsNavItem: TopLevelNavItem = {
-    label: 'Events',
-    link: {
-      label: 'Events',
-      type: 'internal',
-      url: '/events',
-    },
-  }
+  const eventsLink = navigation.events?.link ? convertToNavLink(navigation.events.link) : undefined
+  const eventsNavItem: TopLevelNavItem = eventsLink
+    ? { link: eventsLink }
+    : { link: { label: 'Events', type: 'internal', url: '/events' } }
 
   const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
@@ -445,12 +394,10 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         return { topLevelNavItems: [] }
       }
 
-      const activeForecastZones = await getActiveForecastZones(center)
       const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
       return await getTopLevelNavItems({
         navigation,
-        activeForecastZones,
         avalancheCenterPlatforms,
         center,
       })

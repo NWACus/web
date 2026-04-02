@@ -1,3 +1,5 @@
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
+import { navLink } from '@/fields/navLink'
 import { Field, Tab, toWords } from 'payload'
 import { itemsField } from './itemsField'
 
@@ -5,12 +7,16 @@ export const topLevelNavTab = ({
   name,
   description,
   hasConfigurableNavItems = true,
+  hasReadOnlyLink = false,
+  hasReadOnlyNavItems = false,
   hasEnabledToggle = true,
   enabledToggleDescription = 'If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.',
 }: {
   name: string
   description?: string
   hasConfigurableNavItems?: boolean
+  hasReadOnlyLink?: boolean
+  hasReadOnlyNavItems?: boolean
   hasEnabledToggle?: boolean
   enabledToggleDescription?: string
 }): Tab => {
@@ -18,13 +24,46 @@ export const topLevelNavTab = ({
     itemsField({
       label: `${toWords(name)} Nav Items`,
       description: `Dropdown items under ${toWords(name)}`,
+      hasSubNavItems: !hasReadOnlyNavItems,
       overrides: {
+        ...(hasReadOnlyNavItems ? { access: { update: hasSuperAdminPermissions } } : {}),
         admin: {
-          hidden: !hasConfigurableNavItems,
+          hidden: !hasConfigurableNavItems && !hasReadOnlyNavItems,
         },
       },
     }),
   ]
+
+  if (hasReadOnlyLink) {
+    fields = [
+      {
+        ...navLink,
+        access: {
+          update: hasSuperAdminPermissions,
+        },
+      },
+      ...fields,
+    ]
+  }
+
+  if (description) {
+    const descriptionField: Field = {
+      type: 'ui',
+      name: `${name}Description`,
+      admin: {
+        components: {
+          Field: {
+            path: '@/components/BannerDescription#BannerDescription',
+            clientProps: {
+              message: description,
+              type: 'info',
+            },
+          },
+        },
+      },
+    }
+    fields = [descriptionField, ...fields]
+  }
 
   if (hasEnabledToggle) {
     const enabledToggleField: Field = {
@@ -48,8 +87,8 @@ export const topLevelNavTab = ({
 
   return {
     name,
-    description,
-    virtual: !hasConfigurableNavItems && !hasEnabledToggle,
+    virtual:
+      !hasConfigurableNavItems && !hasReadOnlyNavItems && !hasEnabledToggle && !hasReadOnlyLink,
     fields,
   }
 }
