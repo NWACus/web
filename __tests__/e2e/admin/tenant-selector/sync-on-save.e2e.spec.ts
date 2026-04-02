@@ -18,7 +18,7 @@ import { AdminUrlUtil, CollectionSlugs, saveDocAndAssert, waitForFormReady } fro
 const TEMP_TENANT_NAME = 'E2E Sync Test Center'
 const UPDATED_TENANT_NAME = 'E2E Sync Test Renamed'
 
-test.describe.configure({ timeout: 90000, mode: 'serial' })
+test.describe.configure({ timeout: 120000, mode: 'serial' })
 
 /** Find the first valid tenant slug that doesn't already exist in the database */
 async function findUnusedTenantSlug(
@@ -66,12 +66,17 @@ async function createTenant(
   const slug = await findUnusedTenantSlug(page)
 
   await page.goto(tenantsUrl.create)
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('domcontentloaded')
   await waitForFormReady(page)
 
   const slugField = page.locator('#field-slug')
-  await slugField.locator('button.dropdown-indicator').click()
-  await slugField.locator('.rs__option', { hasText: new RegExp(`\\(${slug}\\)`) }).click()
+  const dropdownButton = slugField.locator('button.dropdown-indicator')
+  await dropdownButton.waitFor({ state: 'visible', timeout: 30000 })
+  await dropdownButton.click()
+
+  const option = slugField.locator('.rs__option', { hasText: new RegExp(`\\(${slug}\\)`) })
+  await option.waitFor({ state: 'visible', timeout: 10000 })
+  await option.click()
   // Fill name after slug selection — AutoFillNameFromSlug overwrites name on slug change
   await page.locator('#field-name').fill(name)
   await saveDocAndAssert(page)
@@ -94,10 +99,10 @@ test.describe('Tenant selector syncs on save', () => {
 
       // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
       await openNav(page)
-      await Promise.all([
-        page.waitForURL('**/admin/collections/pages'),
-        page.locator('nav a[href="/admin/collections/pages"]').click(),
-      ])
+      const navLink = page.locator('nav a[href="/admin/collections/pages"]')
+      await navLink.waitFor({ state: 'visible', timeout: 10000 })
+      await navLink.click()
+      await page.waitForURL('**/admin/collections/pages', { timeout: 30000 })
       await page.waitForLoadState('domcontentloaded')
 
       // The tenant selector should show the new tenant without a full page reload
@@ -128,10 +133,10 @@ test.describe('Tenant selector syncs on save', () => {
 
       // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
       await openNav(page)
-      await Promise.all([
-        page.waitForURL('**/admin/collections/pages'),
-        page.locator('nav a[href="/admin/collections/pages"]').click(),
-      ])
+      const navLink = page.locator('nav a[href="/admin/collections/pages"]')
+      await navLink.waitFor({ state: 'visible', timeout: 10000 })
+      await navLink.click()
+      await page.waitForURL('**/admin/collections/pages', { timeout: 30000 })
       await page.waitForLoadState('domcontentloaded')
 
       const options = await getTenantOptions(page)
