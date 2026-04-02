@@ -4,6 +4,7 @@ import { Page, Post } from '@/payload-types'
 import { getEnvironmentFriendlyName } from '@/utilities/getEnvironmentFriendlyName'
 import { getURL } from '@/utilities/getURL'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
+import { mcpPlugin } from '@payloadcms/plugin-mcp'
 import { sentryPlugin } from '@payloadcms/plugin-sentry'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { GenerateURL } from '@payloadcms/plugin-seo/types'
@@ -78,6 +79,7 @@ export const plugins: Plugin[] = [
     },
     clientUploads: true,
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
+    addRandomSuffix: true,
   }),
   sentryPlugin({
     Sentry,
@@ -85,6 +87,43 @@ export const plugins: Plugin[] = [
       debug: true,
       // >= 500 status codes are captured automatically in addition to these
       captureErrors: [400, 401, 403, 404],
+    },
+  }),
+  mcpPlugin({
+    // Read-only access for AI-assisted development (querying content for test data, debugging, etc.)
+    collections: {
+      pages: { enabled: { find: true } },
+      posts: { enabled: { find: true } },
+      homePages: { enabled: { find: true } },
+      events: { enabled: { find: true } },
+      media: { enabled: { find: true } },
+      teams: { enabled: { find: true } },
+      biographies: { enabled: { find: true } },
+      sponsors: { enabled: { find: true } },
+      tags: { enabled: { find: true } },
+    },
+    // The MCP plugin fetches the API key's user at depth:1, which doesn't
+    // populate the nested joins (globalRoleAssignments.docs[].globalRole.rules)
+    // that our RBAC access functions need. Re-fetch the user at depth:3 so
+    // byTenantRole can see the full role chain.
+    overrideAuth: async (req, getDefaultMcpAccessSettings) => {
+      const defaultSettings = await getDefaultMcpAccessSettings()
+      const userId =
+        typeof defaultSettings.user === 'object' && defaultSettings.user !== null
+          ? defaultSettings.user.id
+          : undefined
+
+      if (userId) {
+        const fullyPopulatedUser = await req.payload.findByID({
+          collection: 'users',
+          id: userId,
+          depth: 3,
+        })
+        req.user = fullyPopulatedUser
+        return { ...defaultSettings, user: fullyPopulatedUser }
+      }
+
+      return defaultSettings
     },
   }),
 ]
