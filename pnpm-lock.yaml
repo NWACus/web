@@ -173,8 +173,8 @@ importers:
         specifier: ^2.7.3
         version: 2.7.3(next@15.4.11(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(react@19.1.0)
       path-to-regexp:
-        specifier: ^8.3.0
-        version: 8.3.0
+        specifier: ^8.4.0
+        version: 8.4.0
       payload:
         specifier: 3.78.0
         version: 3.78.0(graphql@16.10.0)(typescript@5.7.2)
@@ -8221,10 +8221,10 @@ packages:
       }
     engines: { node: '>=10.2.0' }
 
-  enhanced-resolve@5.19.0:
+  enhanced-resolve@5.20.1:
     resolution:
       {
-        integrity: sha512-phv3E1Xl4tQOShqSte26C7Fl84EwUdZsyOuSSk9qtAGyyQs2s3jJzComh+Abf4g187lUUAvH+H26omrqia2aGg==,
+        integrity: sha512-Qohcme7V1inbAfvjItgw0EaxVX5q2rdVEZHRBrEQdRZTssLDGsL8Lwrznl8oQ/6kuTJONLaDcGjkNP247XEhcA==,
       }
     engines: { node: '>=10.13.0' }
 
@@ -11365,10 +11365,10 @@ packages:
         integrity: sha512-Yhpw4T9C6hPpgPeA28us07OJeqZ5EzQTkbfwuhsUg0c237RomFoETJgmp2sa3F/41gfLE6G5cqcYwznmeEeOlQ==,
       }
 
-  path-to-regexp@8.3.0:
+  path-to-regexp@8.4.0:
     resolution:
       {
-        integrity: sha512-7jdwVIRtsP8MYpdXSwOS0YdD0Du+qOoF/AEPIt88PcCFrZCzx41oxku1jD88hZBwbNUIEfpqvuhjFaMAqMTWnA==,
+        integrity: sha512-PuseHIvAnz3bjrM2rGJtSgo1zjgxapTLZ7x2pjhzWwlp4SJQgK3f3iZIQwkpEnBaKz6seKBADpM4B4ySkuYypg==,
       }
 
   path-type@4.0.0:
@@ -11815,12 +11815,6 @@ packages:
         integrity: sha512-tYC1Q1hgyRuHgloV/YXs2w15unPVh8qfu/qCTfhTYamaw7fyhumKa2yGpdSo87vY32rIclj+4fWYQXUMs9EHvg==,
       }
 
-  randombytes@2.1.0:
-    resolution:
-      {
-        integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==,
-      }
-
   range-parser@1.2.1:
     resolution:
       {
@@ -12209,12 +12203,6 @@ packages:
         integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==,
       }
 
-  safe-buffer@5.2.1:
-    resolution:
-      {
-        integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==,
-      }
-
   safe-push-apply@1.0.0:
     resolution:
       {
@@ -12331,12 +12319,6 @@ packages:
       }
     engines: { node: '>=10' }
     hasBin: true
-
-  serialize-javascript@6.0.2:
-    resolution:
-      {
-        integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==,
-      }
 
   set-function-length@1.2.2:
     resolution:
@@ -12881,17 +12863,17 @@ packages:
         integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==,
       }
 
-  tapable@2.3.0:
+  tapable@2.3.2:
     resolution:
       {
-        integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==,
+        integrity: sha512-1MOpMXuhGzGL5TTCZFItxCc0AARf1EZFQkGqMm7ERKj8+Hgr5oLvJOVFcC+lRmR8hCe2S3jC4T5D7Vg/d7/fhA==,
       }
     engines: { node: '>=6' }
 
-  terser-webpack-plugin@5.3.16:
+  terser-webpack-plugin@5.4.0:
     resolution:
       {
-        integrity: sha512-h9oBFCWrq78NyWWVcSwZarJkZ01c2AyGrzs1crmHZO3QUg9D61Wu4NPjBy69n7JqylFF5y+CsUZYmYEIZ3mR+Q==,
+        integrity: sha512-Bn5vxm48flOIfkdl5CaD2+1CiUVbonWQ3KQPyP7/EuIl9Gbzq/gQFOzaMFUEgVjB1396tcK0SG8XcNJ/2kDH8g==,
       }
     engines: { node: '>= 10.13.0' }
     peerDependencies:
@@ -12907,10 +12889,10 @@ packages:
       uglify-js:
         optional: true
 
-  terser@5.46.0:
+  terser@5.46.1:
     resolution:
       {
-        integrity: sha512-jTwoImyr/QbOWFFso3YoU3ik0jBBDJ6JTOQiy/J2YxVJdZCc+5u7skhNwiOR3FQIygFqVUPHl7qbbxtjW2K3Qg==,
+        integrity: sha512-vzCjQO/rgUuK9sf8VJZvjqiqiHFaZLnOiimmUuOKODxWL8mm/xua7viT7aqX7dgPY60otQjUotzFMmCB4VdmqQ==,
       }
     engines: { node: '>=10' }
     hasBin: true
@@ -18974,10 +18956,10 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  enhanced-resolve@5.19.0:
+  enhanced-resolve@5.20.1:
     dependencies:
       graceful-fs: 4.2.11
-      tapable: 2.3.0
+      tapable: 2.3.2
 
   entities@4.5.0: {}
 
@@ -21354,7 +21336,7 @@ snapshots:
 
   path-to-regexp@6.3.0: {}
 
-  path-to-regexp@8.3.0: {}
+  path-to-regexp@8.4.0: {}
 
   path-type@4.0.0: {}
 
@@ -21621,10 +21603,6 @@ snapshots:
   queue-microtask@1.2.3: {}
 
   quick-format-unescaped@4.0.4: {}
-
-  randombytes@2.1.0:
-    dependencies:
-      safe-buffer: 5.2.1
 
   range-parser@1.2.1: {}
 
@@ -21921,8 +21899,6 @@ snapshots:
 
   safe-buffer@5.1.2: {}
 
-  safe-buffer@5.2.1: {}
-
   safe-push-apply@1.0.0:
     dependencies:
       es-errors: 1.3.0
@@ -21990,10 +21966,6 @@ snapshots:
   semver@7.7.2: {}
 
   semver@7.7.3: {}
-
-  serialize-javascript@6.0.2:
-    dependencies:
-      randombytes: 2.1.0
 
   set-function-length@1.2.2:
     dependencies:
@@ -22408,20 +22380,19 @@ snapshots:
 
   tailwindcss@4.1.18: {}
 
-  tapable@2.3.0: {}
+  tapable@2.3.2: {}
 
-  terser-webpack-plugin@5.3.16(esbuild@0.25.12)(webpack@5.100.2(esbuild@0.25.12)):
+  terser-webpack-plugin@5.4.0(esbuild@0.25.12)(webpack@5.100.2(esbuild@0.25.12)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
-      serialize-javascript: 6.0.2
-      terser: 5.46.0
+      terser: 5.46.1
       webpack: 5.100.2(esbuild@0.25.12)
     optionalDependencies:
       esbuild: 0.25.12
 
-  terser@5.46.0:
+  terser@5.46.1:
     dependencies:
       '@jridgewell/source-map': 0.3.11
       acorn: 8.16.0
@@ -22827,7 +22798,7 @@ snapshots:
       acorn-import-phases: 1.0.4(acorn@8.16.0)
       browserslist: 4.28.1
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.19.0
+      enhanced-resolve: 5.20.1
       es-module-lexer: 1.7.0
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -22838,8 +22809,8 @@ snapshots:
       mime-types: 2.1.35
       neo-async: 2.6.2
       schema-utils: 4.3.3
-      tapable: 2.3.0
-      terser-webpack-plugin: 5.3.16(esbuild@0.25.12)(webpack@5.100.2(esbuild@0.25.12))
+      tapable: 2.3.2
+      terser-webpack-plugin: 5.4.0(esbuild@0.25.12)(webpack@5.100.2(esbuild@0.25.12))
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     transitivePeerDependencies:
