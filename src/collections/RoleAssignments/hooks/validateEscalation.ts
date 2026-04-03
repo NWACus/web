@@ -1,4 +1,5 @@
 import type { RoleAssignment } from '@/payload-types'
+import { getUser } from '@/utilities/isUser'
 import { canAssignRole } from '@/utilities/rbac/escalationCheck'
 import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
@@ -13,7 +14,8 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
     return data
   }
 
-  if (!req.user) {
+  const user = getUser(req)
+  if (!user) {
     throw new ValidationError({
       errors: [
         {
@@ -54,7 +56,7 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
       depth: 0,
     })
 
-    if (!canAssignRole(req.payload.logger, req.user, roleDoc, tenantId)) {
+    if (!canAssignRole(req.payload.logger, user, roleDoc, tenantId)) {
       throw new ValidationError({
         errors: [
           {
@@ -66,7 +68,7 @@ export const validateEscalation: CollectionBeforeValidateHook<RoleAssignment> = 
     }
   } else if (typeof role === 'object' && 'rules' in role) {
     // Role is already populated, check it directly
-    if (!canAssignRole(req.payload.logger, req.user, role, tenantId)) {
+    if (!canAssignRole(req.payload.logger, user, role, tenantId)) {
       throw new ValidationError({
         errors: [
           {
