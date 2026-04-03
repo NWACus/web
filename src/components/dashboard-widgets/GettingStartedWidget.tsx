@@ -1,11 +1,11 @@
-import { isUser } from '@/utilities/isUser'
+import { getUser } from '@/utilities/isUser'
 import { Button } from '@payloadcms/ui'
 import { BookOpenText, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
 import { WidgetServerProps } from 'payload'
 
 export async function GettingStartedWidget({ req }: WidgetServerProps) {
-  const name = isUser(req.user) ? req.user.name : undefined
+  const name = getUser(req)?.name
 
   return (
     <div className="card flex flex-col gap-8 mb-4">

@@ -1,5 +1,5 @@
 import { byGlobalRole } from '@/access/byGlobalRole'
-import { isUser } from '@/utilities/isUser'
+import { getUser } from '@/utilities/isUser'
 import { Access, CollectionConfig } from 'payload'
 
 // byProviderRelationship allows users to access providers they're assigned to
@@ -17,9 +17,10 @@ export const byProviderRelationship: (method: 'create' | 'read' | 'update' | 'de
       return globalAccess
     }
 
-    if (method !== 'create' && isUser(args.req.user)) {
+    const user = getUser(args.req)
+    if (method !== 'create' && user) {
       // For users with provider relationships
-      const userProviders = args.req.user.providers
+      const userProviders = user.providers
       if (!userProviders || !Array.isArray(userProviders) || userProviders.length === 0) {
         return false
       }
