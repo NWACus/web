@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  '@payloadcms/plugin-mcp':
+    hash: a39fff1a18106977d061a3628729288c14c0620d17f6ad6be9f7fd642a40360a
+    path: patches/@payloadcms__plugin-mcp.patch
   '@payloadcms/storage-vercel-blob':
     hash: 6aebc87a9520ade74c818974e5ef5ebb6e10c1fdbe6c5a49896f5eb078f9de3d
     path: patches/@payloadcms__storage-vercel-blob.patch
@@ -44,7 +47,7 @@ importers:
         version: 3.81.0(@types/react@19.0.1)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.2)
       '@payloadcms/plugin-mcp':
         specifier: 3.81.0
-        version: 3.81.0(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.2))
+        version: 3.81.0(patch_hash=a39fff1a18106977d061a3628729288c14c0620d17f6ad6be9f7fd642a40360a)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.2))
       '@payloadcms/plugin-sentry':
         specifier: 3.81.0
         version: 3.81.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(webpack@5.100.2(esbuild@0.25.12))
@@ -16045,7 +16048,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@payloadcms/plugin-mcp@3.81.0(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.2))':
+  '@payloadcms/plugin-mcp@3.81.0(patch_hash=a39fff1a18106977d061a3628729288c14c0620d17f6ad6be9f7fd642a40360a)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.2))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.27.1(zod@3.25.76)
       '@types/json-schema': 7.0.15

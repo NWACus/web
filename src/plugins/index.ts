@@ -92,8 +92,7 @@ export const plugins: Plugin[] = [
     },
   }),
   mcpPlugin({
-    // Read-only access for AI-assisted development and content querying.
-    // No create/update/delete operations are exposed on any collection.
+    // No create/update/delete operations are exposed on any collection/global.
     collections: {
       pages: { enabled: { find: true } },
       posts: { enabled: { find: true } },
@@ -112,10 +111,42 @@ export const plugins: Plugin[] = [
       eventGroups: { enabled: { find: true } },
       eventTags: { enabled: { find: true } },
     },
-    // Expose globals as read-only
     globals: {
       nacWidgetsConfig: { enabled: { find: true } },
     },
+    mcp: {
+      serverOptions: {
+        serverInfo: {
+          name: 'AvyWeb Payload CMS',
+          version: '1.0.0',
+        },
+        instructions: [
+          'This MCP server provides read-only access to the AvyWeb Payload CMS database.',
+          'AvyWeb is a multi-tenant platform serving multiple avalanche centers (NWAC, DVAC, SAC, SNFAC, etc.).',
+          '',
+          'Data model:',
+          '- Every content document (pages, posts, events, etc.) belongs to a tenant.',
+          '- Use findTenants to discover available tenants and their IDs/slugs.',
+          '- Filter by tenant using where clauses like {"tenant": {"equals": <tenantId>}}.',
+          '- Use depth parameter to control relationship population (0 = IDs only, 1+ = resolved objects).',
+          '',
+          'Common queries:',
+          '- "What are the recent NWAC posts?" → findTenants to get NWAC tenant ID, then findPosts with tenant filter, sorted by -updatedAt.',
+          '- "Show me the homepage content" → findHomePages filtered by tenant.',
+          '- "What events are coming up?" → findEvents filtered by tenant.',
+          '- "What navigation items exist?" → findNavigations filtered by tenant.',
+          '',
+          'Tips:',
+          '- Use the select parameter to return only specific fields: \'{"title": true, "slug": true}\'.',
+          '- Use sort parameter for ordering: "-createdAt" for newest first, "title" for alphabetical.',
+          '- The where clause supports operators: equals, not_equals, contains, like, greater_than, less_than, in, etc.',
+        ].join('\n'),
+      },
+    },
+    // Our RBAC access functions need deeply populated user relationships
+    // (globalRoleAssignments.docs[].globalRole.rules). The plugin defaults
+    // to depth:1 which isn't enough — depth:3 resolves the full chain.
+    authDepth: 3,
     // Restrict MCP API key management to super admins only
     overrideApiKeyCollection: (collection) => ({
       ...collection,
@@ -131,28 +162,5 @@ export const plugins: Plugin[] = [
         delete: hasSuperAdminPermissions,
       },
     }),
-    // The MCP plugin fetches the API key's user at depth:1, which doesn't
-    // populate the nested joins (globalRoleAssignments.docs[].globalRole.rules)
-    // that our RBAC access functions need. Re-fetch the user at depth:3 so
-    // byTenantRole can see the full role chain.
-    overrideAuth: async (req, getDefaultMcpAccessSettings) => {
-      const defaultSettings = await getDefaultMcpAccessSettings()
-      const userId =
-        typeof defaultSettings.user === 'object' && defaultSettings.user !== null
-          ? defaultSettings.user.id
-          : undefined
-
-      if (userId) {
-        const fullyPopulatedUser = await req.payload.findByID({
-          collection: 'users',
-          id: userId,
-          depth: 3,
-        })
-        req.user = fullyPopulatedUser
-        return { ...defaultSettings, user: fullyPopulatedUser }
-      }
-
-      return defaultSettings
-    },
   }),
 ]
