@@ -85,7 +85,7 @@ The MCP server returns instructions to clients during initialization that descri
 
 These instructions are configured in `src/plugins/index.ts` via `mcp.serverOptions.instructions` and are surfaced automatically in the MCP client's system prompt.
 
-> **Note**: The `instructions` field is supported via a local patch (`patches/@payloadcms__plugin-mcp.patch`). See `docs/payload-mcp-auth-depth-upstream-pr.md` for the upstream PR plan.
+> **Note**: The `instructions` field is supported via a local patch (`patches/@payloadcms__plugin-mcp.patch`).
 
 ## Patch: authDepth and instructions
 

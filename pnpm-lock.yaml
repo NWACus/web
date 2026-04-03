@@ -244,7 +244,7 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
       zod:
-        specifier: ^3.25.76
+        specifier: ^3.24.4
         version: 3.25.76
     devDependencies:
       '@eslint/eslintrc':

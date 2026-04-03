@@ -81,7 +81,6 @@ export const plugins: Plugin[] = [
     clientUploads: true,
     allowOverwrite: true,
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
-    addRandomSuffix: true,
   }),
   sentryPlugin({
     Sentry,

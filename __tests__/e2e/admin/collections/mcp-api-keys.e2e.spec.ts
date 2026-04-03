@@ -41,21 +41,14 @@ authTest.describe('MCP API Keys', () => {
         await page.waitForLoadState('networkidle')
 
         // Payload returns 403 or redirects unauthorized users.
-        // Either the HTTP response is 403, or the page shows "not allowed",
-        // or the user is redirected to the unauthorized page.
         const is403 = response?.status() === 403
         const isUnauthorizedPage = page.url().includes('unauthorized')
         const showsNotAllowed = await page
           .locator('text=not allowed')
           .isVisible()
           .catch(() => false)
-        // Payload may also show an empty state with no rows and no create button
-        const hasNoCreateButton = !(await page
-          .getByRole('link', { name: /create new/i })
-          .isVisible()
-          .catch(() => false))
 
-        expect(is403 || isUnauthorizedPage || showsNotAllowed || hasNoCreateButton).toBe(true)
+        expect(is403 || isUnauthorizedPage || showsNotAllowed).toBe(true)
       })
     }
   })
