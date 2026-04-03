@@ -149,10 +149,6 @@ export const plugins: Plugin[] = [
     // Restrict MCP API key management to super admins only
     overrideApiKeyCollection: (collection) => ({
       ...collection,
-      admin: {
-        ...collection.admin,
-        group: 'Admin',
-      },
       access: {
         ...collection.access,
         create: hasSuperAdminPermissions,

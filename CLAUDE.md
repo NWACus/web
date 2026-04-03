@@ -30,11 +30,29 @@ This project configures two MCP servers in `.mcp.json` for querying the Payload 
 
 ### Setup
 
-MCP API keys are created in the Payload admin panel under **Admin > MCP API Keys** (super-admin only). Set the keys as environment variables:
+MCP API keys are created in the Payload admin panel under **Admin > MCP API Keys** (super-admin only).
 
-```bash
-export AVYWEB_MCP_API_KEY_LOCAL="your-local-key"
-export AVYWEB_MCP_API_KEY_PROD="your-prod-key"
+The developer should configure these MCP servers like so:
+
+```
+{
+  "mcpServers": {
+    "avyweb-payload-local": {
+      "type": "http",
+      "url": "http://localhost:3000/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${AVYWEB_MCP_API_KEY_LOCAL}"
+      }
+    },
+    "avyweb-payload-prod": {
+      "type": "http",
+      "url": "https://avy-fx.org/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${AVYWEB_MCP_API_KEY_PROD}"
+      }
+    }
+  }
+}
 ```
 
 ### When to Use

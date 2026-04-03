@@ -4,9 +4,9 @@ The Payload MCP plugin exposes a [Model Context Protocol](https://modelcontextpr
 
 ## What it provides
 
-- **Read-only access** to 16 collections (pages, posts, events, media, teams, biographies, sponsors, tags, documents, forms, navigations, settings, tenants, eventGroups, eventTags) and the `nacWidgetsConfig` global
+- Config-based access to collections and globals. We have configured **Read-only access** to 16 collections (pages, posts, events, media, teams, biographies, sponsors, tags, documents, forms, navigations, settings, tenants, eventGroups, eventTags) and the `nacWidgetsConfig` global.
 - Authentication via API key (Bearer token)
-- Access control enforced through Payload's standard RBAC system (the API key's associated user determines what content is accessible)
+- Access control enforced through Payload's standard RBAC system (the API key's associated user determines what content is accessible in addition to the plugin config limitations)
 - **Server instructions** that describe the multi-tenant data model and common query patterns to MCP clients
 
 ### Read-only by configuration
@@ -29,7 +29,7 @@ The plugin also supports [custom MCP tools](https://github.com/payloadcms/payloa
 
 ### 1. Create an API key
 
-1. Log in to the admin panel as a super admin (`localhost:3000/admin`)
+1. Log in to the admin panel as a super admin
 2. Navigate to **Admin > MCP API Keys**
 3. Click **Create New**
 4. Fill in a label (e.g., "Claude Code local dev")
@@ -42,26 +42,21 @@ Only super admins can create, view, or manage MCP API keys.
 
 ### 2. Configure your AI tool
 
-MCP server connections are configured in `.mcp.json` (committed to the repo) with API keys provided via environment variables:
+Here is an example config for Claude Code (replace with real API keys for your setup):
 
-```bash
-export AVYWEB_MCP_API_KEY_LOCAL="your-local-key"
-export AVYWEB_MCP_API_KEY_PROD="your-prod-key"
 ```
-
-The `.mcp.json` file defines two servers:
-
-- **`avyweb-payload-local`** — `localhost:3000/api/mcp` (requires `pnpm dev` running)
-- **`avyweb-payload-prod`** — `avy-fx.org/api/mcp`
-
-For other MCP clients (Cursor, etc.), use the same URLs and Bearer token auth:
-
-```json
 {
   "mcpServers": {
     "avyweb-payload-local": {
       "type": "http",
       "url": "http://localhost:3000/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY_HERE"
+      }
+    },
+    "avyweb-payload-prod": {
+      "type": "http",
+      "url": "https://avy-fx.org/api/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY_HERE"
       }
@@ -73,6 +68,8 @@ For other MCP clients (Cursor, etc.), use the same URLs and Bearer token auth:
 ### 3. Production
 
 Create a dedicated API key for each environment and user. Do not share API keys across environments.
+
+The MCP plugin is configured in every environment so you can create MCP server configurations/connections for preview environments/dev too.
 
 ## Server instructions
 
@@ -93,9 +90,9 @@ We maintain a patch on `@payloadcms/plugin-mcp` that adds two features not yet i
 
 1. **`authDepth`** — Controls the population depth when authenticating API key users. Our RBAC system requires depth 3 to resolve `globalRoleAssignments.docs[].globalRole.rules`. Without this, access control checks fail silently.
 
-2. **`instructions`** �� Passes the MCP protocol's `instructions` field through to the underlying SDK. This allows the server to describe its data model and usage patterns to LLM clients.
+2. **`instructions`** Passes the MCP protocol's `instructions` field through to the underlying SDK. This allows the server to describe its data model and usage patterns to LLM clients.
 
-Both are backwards-compatible and proposed for upstream contribution.
+Both are backwards-compatible and we should open PRs on the plugin for these patches.
 
 ## Security
 
