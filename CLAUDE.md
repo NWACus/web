@@ -21,6 +21,46 @@ When you need to understand Payload internals, reference the source code in `nod
 
 The code is readable ES modules with source maps. This matches the exact Payload version used in this project.
 
+## MCP Servers (AvyWeb Payload CMS)
+
+This project configures two MCP servers in `.mcp.json` for querying the Payload CMS database:
+
+- **`avyweb-payload-local`** — Local dev server at `localhost:3000/api/mcp`. Requires `pnpm dev` running.
+- **`avyweb-payload-prod`** — Production server at `avy-fx.org/api/mcp`.
+
+### Setup
+
+MCP API keys are created in the Payload admin panel under **Admin > MCP API Keys** (super-admin only). Set the keys as environment variables:
+
+```bash
+export AVYWEB_MCP_API_KEY_LOCAL="your-local-key"
+export AVYWEB_MCP_API_KEY_PROD="your-prod-key"
+```
+
+### When to Use
+
+Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when you need to:
+
+- **Query live database content** — actual document data, IDs, field values, relationships
+- **Verify seed data** — check what documents exist after seeding
+- **Understand content structure** — see how real content populates collection schemas
+- **Debug data issues** — inspect specific documents by ID or filter criteria
+
+### When NOT to Use
+
+- **Understanding collection schemas** — read the collection config files in `src/collections/` instead
+- **Understanding code patterns** — read the source code directly
+- **Dev server not running** — local MCP tools will fail without `pnpm dev`
+
+### Querying Tips
+
+- All content is multi-tenant. Always filter by tenant: `{"tenant": {"equals": <tenantId>}}`
+- Use `findTenants` first to discover tenant IDs and slugs (nwac, dvac, sac, snfac)
+- Use `depth: 0` for IDs only, `depth: 1+` for resolved relationships
+- Use `select` to return only needed fields: `{"title": true, "slug": true}`
+- Use `sort` for ordering: `"-updatedAt"` for newest first
+- Where clause operators: `equals`, `contains`, `like`, `greater_than`, `less_than`, `in`, etc.
+
 ## Essential Commands
 
 ### Development
