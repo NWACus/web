@@ -288,6 +288,15 @@ export interface HomePage {
       }[]
     | null;
   publishedAt?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        blockType?: string | null;
+        fieldPath?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -377,6 +386,15 @@ export interface Page {
   publishedAt?: string | null;
   slug: string;
   tenant: number | Tenant;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        blockType?: string | null;
+        fieldPath?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -496,6 +514,15 @@ export interface Post {
       }[]
     | null;
   slug: string;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        blockType?: string | null;
+        fieldPath?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -852,6 +879,15 @@ export interface Event {
   eventTags?: (number | EventTag)[] | null;
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
   tenant: number | Tenant;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        blockType?: string | null;
+        fieldPath?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2758,6 +2794,15 @@ export interface HomePagesSelect<T extends boolean = true> {
         id?: T;
       };
   publishedAt?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        blockType?: T;
+        fieldPath?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3070,6 +3115,15 @@ export interface PagesSelect<T extends boolean = true> {
   publishedAt?: T;
   slug?: T;
   tenant?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        blockType?: T;
+        fieldPath?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3106,6 +3160,15 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
       };
   slug?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        blockType?: T;
+        fieldPath?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3242,6 +3305,15 @@ export interface EventsSelect<T extends boolean = true> {
   eventTags?: T;
   modeOfTravel?: T;
   tenant?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        blockType?: T;
+        fieldPath?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
