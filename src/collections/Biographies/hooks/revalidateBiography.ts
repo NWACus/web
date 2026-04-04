@@ -3,21 +3,17 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import { getPayload } from 'payload'
 
 import type { Biography } from '@/payload-types'
+import { compareRevalidationSystems } from '@/utilities/compareRevalidationSystems'
 import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
 import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 async function revalidateBiographyWithCascading(biographyId: number) {
   const payload = await getPayload({ config: configPromise })
 
-  await revalidateBlockReferences({
-    collection: 'biographies',
-    id: biographyId,
-  })
-
-  await revalidateRelationshipReferences({
-    collection: 'biographies',
-    id: biographyId,
-  })
+  const reference = { collection: 'biographies' as const, id: biographyId }
+  await revalidateBlockReferences(reference)
+  await revalidateRelationshipReferences(reference)
+  await compareRevalidationSystems(reference)
 
   try {
     // Also revalidate teams that contain this biography (i.e. pages/posts with TeamBlocks)

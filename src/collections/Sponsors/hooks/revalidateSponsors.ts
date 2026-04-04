@@ -1,18 +1,15 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 import type { Sponsor } from '@/payload-types'
+import { compareRevalidationSystems } from '@/utilities/compareRevalidationSystems'
 import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
 import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 async function revalidate(docId: number) {
-  await revalidateBlockReferences({
-    collection: 'sponsors',
-    id: docId,
-  })
-  await revalidateRelationshipReferences({
-    collection: 'sponsors',
-    id: docId,
-  })
+  const reference = { collection: 'sponsors' as const, id: docId }
+  await revalidateBlockReferences(reference)
+  await revalidateRelationshipReferences(reference)
+  await compareRevalidationSystems(reference)
 }
 
 export const revalidateSponsors: CollectionAfterChangeHook<Sponsor> = async ({
