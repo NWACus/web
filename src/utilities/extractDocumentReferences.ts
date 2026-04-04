@@ -60,10 +60,10 @@ function extractRefsFromRelationshipValue(
   }
 
   // Non-polymorphic singular: ID or populated object
-  const collection = relationTo as string
+  if (typeof relationTo !== 'string') return
   const id = extractId(value)
   if (id != null) {
-    refs.push({ collection, docId: id, blockType, fieldPath })
+    refs.push({ collection: relationTo, docId: id, blockType, fieldPath })
   }
 }
 
@@ -76,18 +76,23 @@ function getBlocksFromRichTextField(field: Field): Block[] {
   if (field.type !== 'richText') return []
 
   // The editor object has a `features` array (resolved by lexicalEditor or our test mock).
-  const editor = (field as DataObject).editor as DataObject | undefined
-  if (!editor) return []
+  // These properties aren't on the Field type but exist at runtime on resolved richText fields.
+  const fieldObj: DataObject = field
+  const editor = fieldObj.editor
+  if (!isDataObject(editor)) return []
 
   const features = editor.features
   if (!Array.isArray(features)) return []
 
   for (const feature of features) {
-    if (isDataObject(feature) && feature.key === 'blocks') {
-      const props = feature.serverFeatureProps as DataObject | undefined
-      if (props && Array.isArray(props.blocks)) {
-        return props.blocks as Block[]
-      }
+    if (!isDataObject(feature) || feature.key !== 'blocks') continue
+
+    const props = feature.serverFeatureProps
+    if (!isDataObject(props) || !Array.isArray(props.blocks)) continue
+
+    // Validate that entries look like Block objects (have a slug property)
+    if (props.blocks.every((b: unknown) => isDataObject(b) && typeof b.slug === 'string')) {
+      return props.blocks
     }
   }
 
@@ -101,10 +106,7 @@ function getBlocksFromRichTextField(field: Field): Block[] {
  * Handles: relationship, upload, blocks, richText (Lexical), group, array,
  * row, collapsible, and tabs fields at any nesting depth.
  */
-export function extractDocumentReferences(
-  fields: Field[],
-  data: DataObject,
-): DocumentReference[] {
+export function extractDocumentReferences(fields: Field[], data: DataObject): DocumentReference[] {
   const refs: DocumentReference[] = []
   walkFields(fields, data, '', null, refs)
 
@@ -132,8 +134,7 @@ function walkFields(
       case 'upload': {
         const value = data[field.name]
         const fieldPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name
-        const relationTo =
-          field.type === 'upload' ? field.relationTo : field.relationTo
+        const relationTo = field.type === 'upload' ? field.relationTo : field.relationTo
         extractRefsFromRelationshipValue(value, relationTo, currentBlockType, fieldPath, refs)
         break
       }
