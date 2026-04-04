@@ -48,8 +48,7 @@ export default async function Page({ params }: Args) {
   if (!isValidTenantSlug(center)) {
     notFound()
   }
-
-  const { version, baseUrl } = await getNACWidgetsConfig()
+  const { version, baseUrl, devMode } = await getNACWidgetsConfig()
   const { quickLinks, highlightedContent, layout } =
     (await getCachedHomePage(center, draft)()) ?? {}
 
@@ -82,6 +81,7 @@ export default async function Page({ params }: Args) {
         widget="warnings"
         widgetsVersion={version}
         widgetsBaseUrl={baseUrl}
+        widgetsDevMode={devMode}
       />
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
@@ -98,6 +98,7 @@ export default async function Page({ params }: Args) {
               widget="map"
               widgetsVersion={version}
               widgetsBaseUrl={baseUrl}
+              widgetsDevMode={devMode}
             />
           </div>
           {quickLinks && quickLinks.length > 0 && (

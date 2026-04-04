@@ -7,11 +7,13 @@ export default function SingleObservationPage({
   center,
   widgetsVersion,
   widgetsBaseUrl,
+  widgetsDevMode,
 }: {
   title: string
   center: string
   widgetsVersion: string
   widgetsBaseUrl: string
+  widgetsDevMode?: boolean
 }) {
   return (
     <div className="container flex flex-col gap-8">
@@ -34,6 +36,7 @@ export default function SingleObservationPage({
         widget={'observations'}
         widgetsVersion={widgetsVersion}
         widgetsBaseUrl={widgetsBaseUrl}
+        widgetsDevMode={widgetsDevMode}
       />
     </div>
   )
