@@ -10,6 +10,7 @@ import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPu
 import { filterByTenant } from '@/access/filterByTenant'
 
 import { contentHashField } from '@/fields/contentHashField'
+import { documentReferencesField } from '@/fields/documentReferencesField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 
@@ -18,6 +19,7 @@ import { duplicatePageToTenant } from '@/collections/Pages/endpoints/duplicatePa
 import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import { titleField } from '@/fields/title'
+import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { blocks } from 'payload/shared'
@@ -127,6 +129,7 @@ export const Pages: CollectionConfig<'pages'> = {
     },
     slugField(),
     tenantField(),
+    documentReferencesField(),
     contentHashField(),
   ],
   endpoints: [
@@ -144,7 +147,7 @@ export const Pages: CollectionConfig<'pages'> = {
   ],
   hooks: {
     afterChange: [revalidatePage],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, populateDocumentReferences],
     afterDelete: [revalidatePageDelete],
   },
   versions: {

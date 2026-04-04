@@ -12,6 +12,7 @@ import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { eventTypesData } from '@/constants/eventTypes'
 import { contentHashField } from '@/fields/contentHashField'
+import { documentReferencesField } from '@/fields/documentReferencesField'
 import { locationField } from '@/fields/location'
 import { modeOfTravelField } from '@/fields/modeOfTravelField'
 import { skillLevelField } from '@/fields/skillLevel'
@@ -19,6 +20,7 @@ import { slugField } from '@/fields/slug'
 import { startAndEndDateField } from '@/fields/startAndEndDateField'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
+import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { validateEventDates } from '@/hooks/validateEventDates'
 import { Course } from '@/payload-types'
@@ -237,11 +239,12 @@ export const Events: CollectionConfig = {
     },
     modeOfTravelField(),
     tenantField(),
+    documentReferencesField(),
     contentHashField(),
   ],
   hooks: {
     beforeValidate: [validateEventDates],
-    beforeChange: [populatePublishedAt, populateBlocksInContent],
+    beforeChange: [populatePublishedAt, populateBlocksInContent, populateDocumentReferences],
     afterChange: [revalidateEvent],
     afterDelete: [revalidateEventDelete],
   },
