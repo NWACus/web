@@ -13,6 +13,10 @@ function isDataObject(value: unknown): value is DataObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function isBlock(value: unknown): value is Block {
+  return isDataObject(value) && typeof value.slug === 'string'
+}
+
 /**
  * Extracts a numeric document ID from a relationship value.
  * Handles both unresolved IDs (number) and populated objects ({ id: number }).
@@ -93,12 +97,22 @@ function getBlocksFromRichTextField(field: Field): Block[] {
     if (!isDataObject(feature) || feature.key !== 'blocks') continue
 
     const props = feature.serverFeatureProps
-    if (!isDataObject(props) || !Array.isArray(props.blocks)) continue
+    if (!isDataObject(props)) continue
 
-    // Validate that entries look like Block objects (have a slug property)
-    if (props.blocks.every((b: unknown) => isDataObject(b) && typeof b.slug === 'string')) {
-      return props.blocks
+    const allBlocks: Block[] = []
+
+    if (Array.isArray(props.blocks)) {
+      for (const b of props.blocks) {
+        if (isBlock(b)) allBlocks.push(b)
+      }
     }
+    if (Array.isArray(props.inlineBlocks)) {
+      for (const b of props.inlineBlocks) {
+        if (isBlock(b)) allBlocks.push(b)
+      }
+    }
+
+    if (allBlocks.length > 0) return allBlocks
   }
 
   return []
@@ -250,7 +264,7 @@ function walkLexicalNodes(
   if (!isDataObject(root)) return
 
   function walkNode(node: DataObject): void {
-    if (node.type === 'block' && isDataObject(node.fields)) {
+    if ((node.type === 'block' || node.type === 'inlineBlock') && isDataObject(node.fields)) {
       const blockType = node.fields.blockType
       if (typeof blockType === 'string') {
         const blockConfig = blockConfigMap.get(blockType)
