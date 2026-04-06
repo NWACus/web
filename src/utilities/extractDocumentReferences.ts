@@ -134,8 +134,7 @@ function walkFields(
       case 'upload': {
         const value = data[field.name]
         const fieldPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name
-        const relationTo = field.type === 'upload' ? field.relationTo : field.relationTo
-        extractRefsFromRelationshipValue(value, relationTo, currentBlockType, fieldPath, refs)
+        extractRefsFromRelationshipValue(value, field.relationTo, currentBlockType, fieldPath, refs)
         break
       }
 
