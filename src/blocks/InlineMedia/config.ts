@@ -3,6 +3,7 @@ import type { Block } from 'payload'
 export const InlineMediaBlock: Block = {
   slug: 'inlineMedia',
   interfaceName: 'InlineMediaBlock',
+  imageURL: '/thumbnail/MediaThumbnail.jpg',
   fields: [
     {
       name: 'media',
