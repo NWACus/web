@@ -5,8 +5,16 @@ import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
+import {
+  fetchForecast,
+  getActiveForecastZones,
+  getAvalancheCenterPlatforms,
+} from '@/services/nac/nac'
+import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { ProductType } from '@/services/nac/types/forecastSchemas'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
+import { getUseNativeForecasts } from '@/utilities/getUseNativeForecasts'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
@@ -53,6 +61,12 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
+  const useNative = await getUseNativeForecasts(center)
+
+  if (useNative) {
+    return <NativeForecastPage centerSlug={center} zoneSlug={zone} />
+  }
+
   const { version, baseUrl } = await getNACWidgetsConfig()
 
   return (
@@ -75,7 +89,7 @@ export async function generateMetadata(
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const parentMeta = await parent
-  const { zone } = await params
+  const { center, zone } = await params
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
@@ -84,6 +98,37 @@ export async function generateMetadata(
 
   const parentOg = parentMeta.openGraph
 
+  // When native mode is on, use forecast data for richer metadata
+  const useNative = await getUseNativeForecasts(center)
+  if (useNative) {
+    const resolved = await resolveZoneFromSlug(center, zone)
+    if (resolved) {
+      const forecast = await fetchForecast(center, resolved.zone.id)
+      if (forecast) {
+        const zoneName = resolved.zone.name
+        const description =
+          forecast.product_type === ProductType.Forecast
+            ? (forecast.bottom_line ?? undefined)
+            : undefined
+
+        return {
+          title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
+          description,
+          alternates: {
+            canonical: `/forecasts/avalanche/${zone}`,
+          },
+          openGraph: {
+            ...parentOg,
+            title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
+            description,
+            url: `/forecasts/avalanche/${zone}`,
+          },
+        }
+      }
+    }
+  }
+
+  // Fallback: slug-derived zone name (existing behavior)
   const zoneName = zone
     .split('-')
     .map((word) => `${word.substring(0, 1).toUpperCase()}${word.substring(1)}`)
