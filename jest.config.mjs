@@ -12,6 +12,12 @@ function addEsmTransformSupport(jestConfig) {
   return {
     ...jestConfig,
     transformIgnorePatterns: ['^.+\\.module\\.(css|sass|scss)$'],
+    moduleNameMapper: {
+      ...jestConfig.moduleNameMapper,
+      // file-type is a pure ESM package that Jest/SWC can't transform.
+      // No tests need actual file-type detection, so stub it out.
+      '^file-type$': '<rootDir>/__tests__/server/fixtures/fileTypeStub.js',
+    },
   }
 }
 
