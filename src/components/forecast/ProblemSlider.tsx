@@ -40,7 +40,10 @@ function ProblemSliderCore({ labels, range, className }: ProblemSliderCoreProps)
   const rangeHeight = yPos(to, labels.length) - yPos(from, labels.length) - RANGE_PADDING * 2
 
   return (
-    <div className={className} style={{ display: 'flex', flexDirection: 'row', aspectRatio: '4/5' }}>
+    <div
+      className={className}
+      style={{ display: 'flex', flexDirection: 'row', aspectRatio: '4/5' }}
+    >
       <div style={{ height: '80%', display: 'flex', alignItems: 'center' }}>
         <svg
           viewBox={`0 0 25 ${svgHeight}`}
@@ -162,10 +165,7 @@ export function SizeSlider({ size, className }: SizeSliderProps) {
   // SeverityNumberLine assumes 0 = topmost label (Historic).
   // size[] values use AvalancheProblemSize enum (1=Small .. 4=Historic).
   // Map: index = Historic(4) - sizeValue. Clamp to valid range [0, 3].
-  const from = Math.min(
-    AvalancheProblemSize.Historic - 1,
-    AvalancheProblemSize.Historic - size[0],
-  )
+  const from = Math.min(AvalancheProblemSize.Historic - 1, AvalancheProblemSize.Historic - size[0])
   const to = Math.max(0, AvalancheProblemSize.Historic - size[1])
   return <ProblemSliderCore labels={SIZE_LABELS} range={[from, to]} className={className} />
 }
