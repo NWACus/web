@@ -34,6 +34,10 @@ export const DEFAULT_BLOCKS = [
   TeamBlock,
 ]
 
+// Safety-net time-based revalidation interval (seconds) for ISR pages.
+// On-demand revalidation handles most cache invalidation; this is a fallback.
+export const ISR_REVALIDATE_INTERVAL = 3600
+
 export const POSTS_LIMIT: number = 10
 export const EVENTS_LIMIT: number = 10
 export const COURSES_LIMIT: number = 10

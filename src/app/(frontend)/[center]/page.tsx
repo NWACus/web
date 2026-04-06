@@ -5,6 +5,7 @@ import { RenderBlocks } from '@/blocks/RenderBlocks'
 import HighlightedContent from '@/collections/HomePages/components/HighlightedContent'
 import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
+import { ISR_REVALIDATE_INTERVAL } from '@/constants/defaults'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
@@ -14,7 +15,7 @@ import { notFound } from 'next/navigation'
 import invariant from 'tiny-invariant'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
+export const revalidate = ISR_REVALIDATE_INTERVAL
 export const dynamicParams = true
 
 const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
