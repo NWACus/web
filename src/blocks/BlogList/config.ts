@@ -1,4 +1,4 @@
-import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaults'
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import {

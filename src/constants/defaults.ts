@@ -8,7 +8,6 @@ import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGridBlock } from '@/blocks/ImageLinkGrid/config'
 import { ImageTextBlock } from '@/blocks/ImageText/config'
-import { InlineMediaBlock } from '@/blocks/InlineMedia/config'
 import { LinkPreviewBlock } from '@/blocks/LinkPreview/config'
 import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
@@ -34,8 +33,6 @@ export const DEFAULT_BLOCKS = [
   SponsorsBlock,
   TeamBlock,
 ]
-
-export const DEFAULT_INLINE_BLOCKS = [InlineMediaBlock]
 
 export const POSTS_LIMIT: number = 10
 export const EVENTS_LIMIT: number = 10

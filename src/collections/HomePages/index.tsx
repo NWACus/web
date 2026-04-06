@@ -9,7 +9,7 @@ import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
-import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaults'
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { DocumentBlock } from '@/blocks/Document/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'

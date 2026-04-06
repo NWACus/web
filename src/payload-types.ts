@@ -4199,160 +4199,6 @@ export interface ButtonBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "calloutBlock".
- */
-export interface CalloutBlock {
-  backgroundColor: string;
-  callout?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'calloutBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
-<<<<<<< HEAD
- * via the `definition` "EventListBlock".
- */
-export interface EventListBlock {
-  backgroundColor: string;
-  heading?: string | null;
-  /**
-   * Optional content to display below the heading and above the event content.
-   */
-  belowHeadingContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  eventOptions: 'dynamic' | 'static';
-  /**
-   * Use Preview ↗ to see how events will appear
-   */
-  dynamicOpts?: {
-    /**
-     * Optionally select event types to filter events.
-     */
-    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-    /**
-     * Optionally select event group to filter events.
-     */
-    byGroups?: (number | EventGroup)[] | null;
-    /**
-     * Optionally select event tags to filter events.
-     */
-    byTags?: (number | EventTag)[] | null;
-    /**
-     * Maximum number of events that will be displayed. Must be an integer.
-     */
-    maxEvents?: number | null;
-  };
-  staticOpts?: {
-    /**
-     * Choose new event from dropdown and/or drag and drop to change order
-     */
-    staticEvents?: (number | Event)[] | null;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'eventList';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EventTableBlock".
- */
-export interface EventTableBlock {
-  backgroundColor: string;
-  heading?: string | null;
-  /**
-   * Optional content to display below the heading and above the event content.
-   */
-  belowHeadingContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  eventOptions: 'dynamic' | 'static';
-  /**
-   * Use Preview ↗ to see how events will appear
-   */
-  dynamicOpts?: {
-    /**
-     * Optionally select event types to filter events.
-     */
-    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-    /**
-     * Optionally select event group to filter events.
-     */
-    byGroups?: (number | EventGroup)[] | null;
-    /**
-     * Optionally select event tags to filter events.
-     */
-    byTags?: (number | EventTag)[] | null;
-    /**
-     * Maximum number of events that will be displayed. Must be an integer.
-     */
-    maxEvents?: number | null;
-  };
-  staticOpts?: {
-    /**
-     * Choose new event from dropdown and/or drag and drop to change order
-     */
-    staticEvents?: (number | Event)[] | null;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'eventTable';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleEventBlock".
- */
-export interface SingleEventBlock {
-  backgroundColor: string;
-  /**
-   * Select an event to display
-   */
-  event: number | Event;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleEvent';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "InlineMediaBlock".
  */
 export interface InlineMediaBlock {
@@ -4383,8 +4229,31 @@ export interface InlineMediaBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
-=======
->>>>>>> main
+ * via the `definition` "calloutBlock".
+ */
+export interface CalloutBlock {
+  backgroundColor: string;
+  callout?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'calloutBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
