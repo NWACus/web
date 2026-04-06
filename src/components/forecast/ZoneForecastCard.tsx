@@ -17,7 +17,6 @@ import { WarningBanner } from './WarningBanner'
 interface ZoneForecastCardProps {
   zoneName: string
   zoneSlug: string
-  centerSlug: string
   forecast: ForecastResult | null
   warning: WarningResult | null
   elevationBandNames: ElevationBandNames
@@ -52,7 +51,6 @@ function toWarningProduct(result: WarningResult | null) {
 export function ZoneForecastCard({
   zoneName,
   zoneSlug,
-  centerSlug,
   forecast,
   warning,
   elevationBandNames,
@@ -64,7 +62,7 @@ export function ZoneForecastCard({
     <Card>
       <CardHeader>
         <CardTitle>
-          <Link href={`/${centerSlug}/forecasts/avalanche/${zoneSlug}`} className="hover:underline">
+          <Link href={`/forecasts/avalanche/${zoneSlug}`} className="hover:underline">
             {zoneName}
           </Link>
         </CardTitle>
