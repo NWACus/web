@@ -51,6 +51,9 @@ function extractRefsFromRelationshipValue(
   if (isPolymorphic) {
     // Polymorphic: { relationTo: 'collection', value: id | { id } }
     if (isDataObject(value) && typeof value.relationTo === 'string') {
+      // Skip tenant references — they exist on every tenant-scoped document
+      // and are not useful for revalidation tracking
+      if (value.relationTo === 'tenants') return
       const id = extractId(value.value)
       if (id != null) {
         refs.push({ collection: value.relationTo, docId: id, blockType, fieldPath })
@@ -61,6 +64,8 @@ function extractRefsFromRelationshipValue(
 
   // Non-polymorphic singular: ID or populated object
   if (typeof relationTo !== 'string') return
+  // Skip tenant references — consistent with getRelationshipsFromConfig
+  if (relationTo === 'tenants') return
   const id = extractId(value)
   if (id != null) {
     refs.push({ collection: relationTo, docId: id, blockType, fieldPath })
