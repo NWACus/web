@@ -157,7 +157,6 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
       tenants: {
         slug: true,
         name: true,
-        customDomain: true,
       },
     },
     where: {

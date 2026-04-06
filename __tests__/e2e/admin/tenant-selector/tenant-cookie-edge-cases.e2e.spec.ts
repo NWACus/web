@@ -1,4 +1,3 @@
-import { TenantIds } from '__tests__/e2e/helpers/tenant-cookie'
 import {
   expect,
   TenantNames,
@@ -99,7 +98,7 @@ test.describe('Tenant Cookie Edge Cases', () => {
     await selectTenant(page, TenantNames.dvac)
     await page.waitForLoadState('networkidle')
 
-    // Cookie should be set after selecting a tenant (stores tenant ID, not slug)
+    // Cookie should be set after selecting a tenant (stores tenant slug)
     const cookieAfterSelect = await getTenantCookie(page)
     expect(cookieAfterSelect).toBeTruthy()
 
@@ -127,7 +126,7 @@ test.describe('Tenant Cookie Edge Cases', () => {
     const page = await loginAs('superAdmin')
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
-    // Select a tenant via UI (sets cookie to tenant ID)
+    // Select a tenant via UI (sets cookie to tenant slug)
     await page.goto(url.list)
     await page.waitForLoadState('networkidle')
     await selectTenant(page, TenantNames.snfac)
@@ -171,7 +170,7 @@ test.describe('Navigation & State Consistency', () => {
 
       // Get the cookie while viewing the document
       const docTenantCookie = await getTenantCookie(page)
-      expect(docTenantCookie).toBe(TenantIds.nwac)
+      expect(docTenantCookie).toBe(TenantSlugs.nwac)
 
       // Navigate away and back using browser history
       await page.goBack()
@@ -254,9 +253,9 @@ test.describe('Dashboard View', () => {
     await selectTenant(page, TenantNames.snfac)
     await page.waitForLoadState('networkidle')
 
-    // Cookie should be set after selecting a tenant (stores tenant ID, not slug)
+    // Cookie should be set after selecting a tenant (stores tenant slug)
     const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantIds.snfac)
+    expect(cookie).toBe(TenantSlugs.snfac)
 
     await page.context().close()
   })

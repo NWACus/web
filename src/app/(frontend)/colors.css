@@ -16,6 +16,8 @@
   --secondary-hover: hsla(240, 25%, 39%, 0.8);
   --secondary-foreground: hsl(240 5.9% 10%);
 
+  --nav-underline: hsl(280, 63%, 17%);
+
   --muted: hsl(240 4.8% 95.9%);
   --muted-foreground: hsl(240 3.8% 46.1%);
 
@@ -109,6 +111,8 @@
   --callout: hsl(69 94% 64%);
   --callout-hover: hsla(69 94% 64% / 0.8);
   --callout-foreground: hsl(240 6% 10%);
+
+  --nav-underline: var(--secondary);
 }
 
 /* Sierra Avalanche Center */
@@ -144,8 +148,9 @@
   --callout-foreground: hsl(0 0% 100%);
 
   --accent: hsl(27 92% 62%);
-
   --destructive: hsl(0 59% 53%);
+
+  --nav-underline: var(--callout);
 
   --brand-50: var(--alice-blue);
   --brand-100: var(--ice-blue);
@@ -189,6 +194,8 @@
   --footer: var(--brand-400);
   --footer-foreground: var(--brand-900);
   --footer-foreground-highlight: var(--brand-700);
+
+  --nav-underline: var(--callout);
 }
 
 .a3 {

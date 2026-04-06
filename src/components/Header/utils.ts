@@ -263,10 +263,12 @@ export const getTopLevelNavItems = async ({
   navigation,
   activeForecastZones,
   avalancheCenterPlatforms,
+  center,
 }: {
   navigation: Navigation
   activeForecastZones?: ActiveForecastZoneWithSlug[]
   avalancheCenterPlatforms: AvalancheCenterPlatforms
+  center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
   let forecastsNavItem: TopLevelNavItem = {
     link: {
@@ -346,6 +348,18 @@ export const getTopLevelNavItems = async ({
     ],
   }
 
+  // SAC-specific observations archive link — revert this block when no longer needed
+  if (center === 'sac') {
+    observationsNavItem.items?.push({
+      id: 'archive',
+      link: {
+        type: 'internal',
+        label: 'Observations Archive',
+        url: '/observations-archive',
+      },
+    })
+  }
+
   const blogNavItem: TopLevelNavItem = {
     label: 'Blog',
     link: {
@@ -385,6 +399,19 @@ export const getTopLevelNavItems = async ({
     const link = convertToNavLink(navigation.donate.link)
 
     if (link) {
+      // For internal page links, resolve the canonical (navigation-nested) URL
+      // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
+      // see https://github.com/NWACus/web/pull/981 for more context
+      if (link.type === 'internal') {
+        const slug = link.url.split('/').filter(Boolean).pop()
+        if (slug) {
+          const navItem = findNavigationItemBySlug(topLevelNavItems, slug)
+          if (navItem?.link?.type === 'internal') {
+            link.url = navItem.link.url
+          }
+        }
+      }
+
       donateNavItem = {
         label: link.label,
         link,
@@ -425,6 +452,7 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         navigation,
         activeForecastZones,
         avalancheCenterPlatforms,
+        center,
       })
     },
     [`top-level-nav-items-${center}`],

@@ -48,7 +48,9 @@ const selectors = {
  * Use with hasText to match exact option text.
  */
 export function exactText(text: string): RegExp {
-  return new RegExp(`^${text}$`)
+  // Escape regex special characters so literal text like "(bac)" matches correctly
+  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`^${escaped}$`)
 }
 
 /**
