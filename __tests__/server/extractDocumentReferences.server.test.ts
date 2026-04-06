@@ -13,9 +13,9 @@ jest.mock('@payloadcms/richtext-lexical', () => ({
       typeof features === 'function' ? features({ rootFeatures: [] }) : (features ?? [])
     return { features: resolvedFeatures }
   },
-  BlocksFeature: ({ blocks }: { blocks?: unknown[] }) => ({
+  BlocksFeature: ({ blocks, inlineBlocks }: { blocks?: unknown[]; inlineBlocks?: unknown[] }) => ({
     key: 'blocks',
-    serverFeatureProps: { blocks: blocks ?? [] },
+    serverFeatureProps: { blocks: blocks ?? [], inlineBlocks: inlineBlocks ?? [] },
   }),
   FixedToolbarFeature: () => ({ key: 'fixedToolbar' }),
   HeadingFeature: () => ({ key: 'heading' }),
@@ -43,7 +43,8 @@ import { Events } from '@/collections/Events'
 import { HomePages } from '@/collections/HomePages'
 import { Pages } from '@/collections/Pages'
 import { Posts } from '@/collections/Posts'
-import type { Field } from 'payload'
+import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import type { Block, Field } from 'payload'
 
 import pageAboutUsLayout from './fixtures/page-about-us-layout.json'
 import pageSupportersLayout from './fixtures/page-supporters-layout.json'
@@ -89,6 +90,14 @@ function lexicalBlock(fields: Record<string, unknown>): Record<string, unknown> 
     type: 'block',
     version: 2,
     format: '',
+    fields,
+  }
+}
+
+function lexicalInlineBlock(fields: Record<string, unknown>): Record<string, unknown> {
+  return {
+    type: 'inlineBlock',
+    version: 1,
     fields,
   }
 }
@@ -470,6 +479,115 @@ describe('extractDocumentReferences', () => {
         ]),
       )
       expect(result).toHaveLength(3)
+    })
+  })
+
+  describe('richText fields with Lexical inlineBlock nodes', () => {
+    // Synthetic inline block config (mirrors InlineMedia from PR #968)
+    const InlineMediaBlock: Block = {
+      slug: 'inlineMedia',
+      fields: [
+        { name: 'media', type: 'upload', relationTo: 'media' },
+        { name: 'caption', type: 'text' },
+      ],
+    }
+
+    // Synthetic richText field using the mocked lexicalEditor/BlocksFeature.
+    // The mock resolves features into { key, serverFeatureProps } objects that
+    // the extraction function can introspect at runtime.
+    const fieldsWithInlineBlocks: Field[] = [
+      {
+        name: 'content',
+        type: 'richText',
+        editor: lexicalEditor({
+          features: [BlocksFeature({ blocks: [MediaBlock], inlineBlocks: [InlineMediaBlock] })],
+        }),
+      },
+    ]
+
+    it('extracts upload ref from an inlineBlock node', () => {
+      const data = {
+        content: lexicalRoot(
+          lexicalParagraph('Text with an inline image'),
+          // Inline blocks live inside paragraphs in real Lexical, but walkNode
+          // traverses all children recursively, so placing at root level works too
+          lexicalInlineBlock({
+            media: 701,
+            caption: 'A photo',
+            blockType: 'inlineMedia',
+            id: 'inline-1',
+          }),
+        ),
+      }
+      const result = extractDocumentReferences(fieldsWithInlineBlocks, data)
+
+      expect(result).toEqual([
+        { collection: 'media', docId: 701, blockType: 'inlineMedia', fieldPath: 'content' },
+      ])
+    })
+
+    it('extracts refs from both regular blocks and inline blocks in same richText', () => {
+      const data = {
+        content: lexicalRoot(
+          lexicalBlock({
+            media: 100,
+            imageSize: 'original',
+            blockType: MediaBlock.slug,
+            id: 'block-1',
+          }),
+          lexicalInlineBlock({
+            media: 200,
+            caption: 'Inline photo',
+            blockType: 'inlineMedia',
+            id: 'inline-1',
+          }),
+        ),
+      }
+      const result = extractDocumentReferences(fieldsWithInlineBlocks, data)
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { collection: 'media', docId: 100, blockType: MediaBlock.slug, fieldPath: 'content' },
+          { collection: 'media', docId: 200, blockType: 'inlineMedia', fieldPath: 'content' },
+        ]),
+      )
+      expect(result).toHaveLength(2)
+    })
+
+    it('extracts inline block refs nested inside a paragraph node', () => {
+      // Realistic placement: inline blocks are children of paragraph nodes
+      const data = {
+        content: {
+          root: {
+            children: [
+              {
+                type: 'paragraph',
+                version: 1,
+                children: [
+                  { type: 'text', text: 'Check out ', version: 1 },
+                  {
+                    type: 'inlineBlock',
+                    version: 1,
+                    fields: {
+                      media: 555,
+                      blockType: 'inlineMedia',
+                      id: 'inline-in-para',
+                    },
+                  },
+                  { type: 'text', text: ' in context.', version: 1 },
+                ],
+              },
+            ],
+            type: 'root',
+            version: 1,
+          },
+        },
+      }
+      const result = extractDocumentReferences(fieldsWithInlineBlocks, data)
+
+      expect(result).toEqual([
+        { collection: 'media', docId: 555, blockType: 'inlineMedia', fieldPath: 'content' },
+      ])
     })
   })
 
