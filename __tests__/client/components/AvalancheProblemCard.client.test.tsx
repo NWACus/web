@@ -43,9 +43,7 @@ describe('AvalancheProblemCard', () => {
 
   it('renders sanitized discussion HTML', () => {
     render(<AvalancheProblemCard problem={baseProblem} />)
-    expect(
-      screen.getByText('Watch for storm slabs on north-facing terrain.'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Watch for storm slabs on north-facing terrain.')).toBeInTheDocument()
   })
 
   it('does not render discussion when null', () => {
