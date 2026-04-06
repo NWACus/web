@@ -15,11 +15,11 @@ import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
-import { InlineMediaBlock } from '@/blocks/InlineMedia/config'
 import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaults'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
@@ -103,7 +103,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 SingleEventBlock,
                 SponsorsBlock,
               ],
-              inlineBlocks: [InlineMediaBlock],
+              inlineBlocks: DEFAULT_INLINE_BLOCKS,
             }),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),
