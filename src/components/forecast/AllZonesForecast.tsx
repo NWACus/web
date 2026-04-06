@@ -43,7 +43,6 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
           <ZoneForecastCard
             zoneName={zone.name}
             zoneSlug={slug}
-            centerSlug={centerSlug}
             forecast={forecast}
             warning={warning}
             elevationBandNames={zone.config.elevation_band_names}

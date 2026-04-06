@@ -13,6 +13,8 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { MediaType, type MediaItem } from '@/services/nac/types/forecastSchemas'
 
+import { sanitizeHtml } from './sanitizeHtml'
+
 interface MediaLightboxProps {
   media: MediaItem[]
   initialIndex: number
@@ -88,6 +90,7 @@ export function MediaLightbox({ media, initialIndex, open, onOpenChange }: Media
       <DialogContent
         className="max-w-4xl border-none bg-black/95 p-0 sm:rounded-xl"
         overlayClassName="bg-black/90"
+        closeClassName="text-white hover:text-white/80"
         onKeyDown={handleKeyDown}
       >
         <DialogTitle className="sr-only">Media viewer</DialogTitle>
@@ -117,8 +120,12 @@ export function MediaLightbox({ media, initialIndex, open, onOpenChange }: Media
 
           {/* Caption and counter */}
           <div className="mt-3 text-center">
+            {/* Captions may contain HTML tags (e.g. <p>, &nbsp;) */}
             {getCaption(media[current]) && (
-              <p className="text-sm text-white/80">{getCaption(media[current])}</p>
+              <div
+                className="prose prose-sm prose-invert max-w-none text-white/80"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(getCaption(media[current]) ?? '') }}
+              />
             )}
             {media.length > 1 && (
               <p className="mt-1 text-xs text-white/50">
