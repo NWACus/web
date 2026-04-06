@@ -18,12 +18,7 @@ export function BottomLine({ html, dangerLevel }: BottomLineProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={dangerIconUrl(dangerLevel)}
-            alt=""
-            className="h-8 w-8"
-            aria-hidden="true"
-          />
+          <img src={dangerIconUrl(dangerLevel)} alt="" className="h-8 w-8" aria-hidden="true" />
           The Bottom Line
         </CardTitle>
       </CardHeader>
