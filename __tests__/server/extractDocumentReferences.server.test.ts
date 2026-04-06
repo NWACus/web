@@ -916,14 +916,12 @@ describe('extractDocumentReferences', () => {
     })
 
     it('excludes tenant references from real collection fields', () => {
-      // Posts collection has a tenant field — verify it's filtered out
       const data = { tenant: 1, authors: [5], tags: [], featuredImage: null, content: null }
       const result = extractDocumentReferences(postsFields, data)
 
       expect(result).toEqual([
         { collection: 'biographies', docId: 5, blockType: null, fieldPath: 'authors' },
       ])
-      // Verify no tenant reference leaked through
       expect(result.every((ref) => ref.collection !== 'tenants')).toBe(true)
     })
   })
