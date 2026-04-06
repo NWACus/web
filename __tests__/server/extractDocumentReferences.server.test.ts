@@ -2,6 +2,7 @@
 // These must be before any imports that trigger the module load chain.
 jest.mock('../../src/payload.config', () => ({}))
 jest.mock('payload', () => ({ getPayload: jest.fn() }))
+
 // lexicalEditor and feature functions execute at module scope when block configs load.
 // We stub them but make BlocksFeature capture its blocks arg so the extraction function
 // can introspect which blocks each richText field allows (via feature.serverFeatureProps.blocks).
@@ -49,25 +50,6 @@ import pageSupportersLayout from './fixtures/page-supporters-layout.json'
 import pageWhoWeAreLayout from './fixtures/page-who-we-are-layout.json'
 import postWithMediaBlock from './fixtures/post-with-media-block.json'
 
-/**
- * Tests for the extractDocumentReferences function.
- *
- * This function walks a document's data tree (using the collection's field config)
- * and extracts all relationship/upload references into a flat array. It handles:
- * - Top-level relationship/upload fields
- * - Blocks with relationship/upload fields
- * - RichText (Lexical) fields containing inline blocks
- * - Deeply nested richText-in-block-in-richText patterns
- * - Layout-only field types (row, collapsible, unnamed groups/tabs)
- * - hasMany relationships (arrays of IDs or populated objects)
- * - Polymorphic relationships (relationTo as array)
- *
- * Uses real block and collection configs from the codebase so tests break
- * when configs change.
- */
-
-// ---------- Helpers for building Lexical AST test data ----------
-
 function lexicalRoot(...children: Record<string, unknown>[]): Record<string, unknown> {
   return {
     root: {
@@ -113,17 +95,12 @@ function lexicalBlock(fields: Record<string, unknown>): Record<string, unknown> 
 
 import { extractDocumentReferences } from '@/utilities/extractDocumentReferences'
 
-// ---------- Collection field configs ----------
-// Real collection configs imported above. The .fields property gives us the
-// actual field definitions including tabs, groups, relationship fields, etc.
-// The BlocksFeature mock captures its blocks arg into serverFeatureProps.blocks,
-// so richText fields have their allowed blocks available for introspection.
 const pagesFields = Pages.fields
 const postsFields = Posts.fields
 const eventsFields = Events.fields
 const homePagesFields = HomePages.fields
 
-// Tests layout-only field wrappers (row, collapsible, unnamed/named tabs).
+// Layout-only field wrappers (row, collapsible, unnamed/named tabs).
 // These are synthetic because no single collection has all wrapper types together,
 // and the behavior being tested is the walker's traversal logic, not specific configs.
 const fieldsWithLayoutWrappers: Field[] = [
@@ -155,11 +132,9 @@ const fieldsWithLayoutWrappers: Field[] = [
   },
 ]
 
-// ---------- Tests ----------
-
 describe('extractDocumentReferences', () => {
   describe('top-level relationship and upload fields', () => {
-    it('extracts a simple relationship field (unresolved ID)', () => {
+    it('extracts a relationship field (unpopulated ID)', () => {
       const data = { authors: [5, 12], tags: [3], featuredImage: 42, content: null }
       const result = extractDocumentReferences(postsFields, data)
 
@@ -223,8 +198,7 @@ describe('extractDocumentReferences', () => {
       expect(result).toHaveLength(2)
     })
 
-    it('extracts polymorphic relationship (relationTo as array)', () => {
-      // Polymorphic relationships have shape: { relationTo: 'collection', value: id }
+    it('extracts polymorphic relationship with relationship (unpopulated ID)', () => {
       const fields: Field[] = [
         {
           name: 'reference',
@@ -253,6 +227,66 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual([
         { collection: 'posts', docId: 23, blockType: null, fieldPath: 'reference' },
+      ])
+    })
+
+    it('extracts polymorphic relationship with hasMany relationships (unpopulated IDs)', () => {
+      const fields: Field[] = [
+        {
+          name: 'references',
+          type: 'relationship',
+          hasMany: true,
+          relationTo: ['pages', 'builtInPages', 'posts'],
+        },
+      ]
+      const data = {
+        references: [
+          { relationTo: 'pages', value: 57 },
+          { relationTo: 'builtInPages', value: 42 },
+        ],
+      }
+      const result = extractDocumentReferences(fields, data)
+
+      expect(result).toEqual([
+        { collection: 'pages', docId: 57, blockType: null, fieldPath: 'references' },
+        { collection: 'builtInPages', docId: 42, blockType: null, fieldPath: 'references' },
+      ])
+    })
+
+    it('extracts polymorphic relationship with hasMany relationships with populated values', () => {
+      const fields: Field[] = [
+        {
+          name: 'references',
+          type: 'relationship',
+          hasMany: true,
+          relationTo: ['pages', 'builtInPages', 'posts'],
+        },
+      ]
+      const data = {
+        references: [
+          {
+            relationTo: 'pages',
+            value: {
+              id: 57,
+              title: 'Contact',
+              slug: 'contact',
+            },
+          },
+          {
+            relationTo: 'builtInPages',
+            value: {
+              id: 42,
+              title: 'Mountain Weather',
+              url: '/weather/forecast',
+            },
+          },
+        ],
+      }
+      const result = extractDocumentReferences(fields, data)
+
+      expect(result).toEqual([
+        { collection: 'pages', docId: 57, blockType: null, fieldPath: 'references' },
+        { collection: 'builtInPages', docId: 42, blockType: null, fieldPath: 'references' },
       ])
     })
   })
@@ -794,10 +828,13 @@ describe('extractDocumentReferences', () => {
       expect(result).toEqual([])
     })
 
-    it('does not recurse infinitely if block configs allow circular nesting', () => {
-      // ContentBlock allows CalloutBlock, and CalloutBlock's richText could
-      // theoretically contain a ContentBlock. The data won't actually nest
-      // infinitely, but the walker should handle it without stack overflow.
+    it('correctly extracts references from deeply nested blocks whose configs form a cycle', () => {
+      // Regression test: ContentBlock allows CalloutBlock, and CalloutBlock's
+      // richText could theoretically contain a ContentBlock — forming a cycle
+      // in the config graph. This works because the walker follows the actual
+      // data (which is always a finite tree), not the config definitions. This
+      // test ensures no future refactor accidentally introduces config-graph
+      // traversal that would loop.
       const data = {
         layout: [
           {
@@ -845,14 +882,11 @@ describe('extractDocumentReferences', () => {
   // dev database via Payload MCP server. IDs are randomized but the
   // structural patterns (nesting depth, field shapes, block types) are real.
   //
-  // TODO: Add a homePages fixture when one with populated highlightedContent
-  // (richText with blocks) is available in the dev database.
   // -----------------------------------------------------------------------
 
   describe('fixture: page "about-us" (deep nesting)', () => {
     // This page has ContentBlocks with richText containing CalloutBlocks
-    // and MediaBlocks — the exact deep nesting pattern that the current
-    // revalidation system misses.
+    // and MediaBlocks
 
     it('finds the ButtonBlock reference 3 levels deep (ContentBlock > CalloutBlock > ButtonBlock)', () => {
       const result = extractDocumentReferences(pagesFields, pageAboutUsLayout)
