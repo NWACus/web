@@ -57,12 +57,7 @@ export function AvalancheProblemCard({ problem }: AvalancheProblemCardProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={problemIconUrl(problem.name)}
-            alt=""
-            className="h-10 w-10"
-            aria-hidden="true"
-          />
+          <img src={problemIconUrl(problem.name)} alt="" className="h-10 w-10" aria-hidden="true" />
           {problem.name}
         </CardTitle>
       </CardHeader>

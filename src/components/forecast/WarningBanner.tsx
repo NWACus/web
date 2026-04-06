@@ -2,9 +2,9 @@
  * Avalanche warning/watch banner with progressive enhancement.
  * Uses <details>/<summary> — no client JS needed.
  */
-import { cn } from '@/utilities/ui'
-import type { Warning, Watch, Special } from '@/services/nac/types/forecastSchemas'
+import type { Special, Warning, Watch } from '@/services/nac/types/forecastSchemas'
 import { ProductType } from '@/services/nac/types/forecastSchemas'
+import { cn } from '@/utilities/ui'
 
 import { sanitizeHtml } from './sanitizeHtml'
 
@@ -63,15 +63,8 @@ export function WarningBanner({ warning }: WarningBannerProps) {
   const label = productLabel(warning.product_type)
 
   return (
-    <details
-      className={cn('rounded-lg border', styles.bg, styles.border)}
-    >
-      <summary
-        className={cn(
-          'cursor-pointer px-4 py-3 font-semibold',
-          styles.text,
-        )}
-      >
+    <details className={cn('rounded-lg border', styles.bg, styles.border)}>
+      <summary className={cn('cursor-pointer px-4 py-3 font-semibold', styles.text)}>
         ⚠ {label}: {warning.bottom_line}
       </summary>
       <div className={cn('space-y-2 px-4 pb-4 pt-2 text-sm', styles.text)}>
