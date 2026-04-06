@@ -3,10 +3,7 @@
  * plus a tomorrow outlook section.
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  type AvalancheDangerForecast,
-  ForecastPeriod,
-} from '@/services/nac/types/forecastSchemas'
+import { type AvalancheDangerForecast, ForecastPeriod } from '@/services/nac/types/forecastSchemas'
 import type { ElevationBandNames } from '@/services/nac/types/schemas'
 
 import { DangerElevationBand } from './DangerElevationBand'
@@ -28,11 +25,7 @@ export function DangerRating({ danger, elevationBandNames }: DangerRatingProps) 
       </CardHeader>
       <CardContent className="space-y-6">
         {today && (
-          <DangerDay
-            label="Today"
-            forecast={today}
-            elevationBandNames={elevationBandNames}
-          />
+          <DangerDay label="Today" forecast={today} elevationBandNames={elevationBandNames} />
         )}
         {tomorrow && (
           <DangerDay
