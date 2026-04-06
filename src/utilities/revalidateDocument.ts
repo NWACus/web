@@ -3,6 +3,9 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
+import type { Tenant } from '@/payload-types'
+import { resolveTenant } from './tenancy/resolveTenant'
+
 export interface RevalidationReference {
   collection:
     | 'biographies'
@@ -19,29 +22,21 @@ export interface RevalidationReference {
 }
 
 export interface DocumentForRevalidation {
-  collection: 'pages' | 'posts' | 'homePages' | 'events'
+  collection: string
   id: number
   slug: string
-  tenant: number | { id: number; slug: string }
+  tenant: number | Tenant
 }
 
 export async function revalidateDocument(doc: DocumentForRevalidation): Promise<void> {
   const payload = await getPayload({ config: configPromise })
-  let tenant = doc.tenant
 
-  if (typeof tenant === 'number') {
-    try {
-      tenant = await payload.findByID({
-        collection: 'tenants',
-        id: tenant,
-        depth: 0,
-      })
-    } catch (error) {
-      payload.logger.warn(
-        `Failed to resolve tenant ${tenant} for ${doc.collection} ${doc.id}: ${error}`,
-      )
-      return
-    }
+  let tenant: Tenant
+  try {
+    tenant = await resolveTenant(doc.tenant)
+  } catch (error) {
+    payload.logger.warn(`Failed to resolve tenant for ${doc.collection} ${doc.id}: ${error}`)
+    return
   }
 
   if (doc.collection === 'pages') {
