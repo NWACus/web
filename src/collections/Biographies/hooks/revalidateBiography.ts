@@ -3,18 +3,15 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 import { getPayload } from 'payload'
 
 import type { Biography } from '@/payload-types'
-import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
-import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
+import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 async function revalidateBiographyWithCascading(biographyId: number) {
   const payload = await getPayload({ config: configPromise })
 
-  const reference = { collection: 'biographies' as const, id: biographyId }
-  await revalidateBlockReferences(reference)
-  await revalidateRelationshipReferences(reference)
+  await revalidateDocumentReferences({ collection: 'biographies', id: biographyId })
 
   try {
-    // Also revalidate teams that contain this biography (i.e. pages/posts with TeamBlocks)
+    // Also revalidate documents referencing teams that contain this biography
     payload.logger.info(`Checking for cascading team references for biography ID ${biographyId}`)
 
     const teamsWithBiographyRes = await payload.find({
@@ -25,21 +22,13 @@ async function revalidateBiographyWithCascading(biographyId: number) {
       depth: 0,
     })
 
-    const teamsWithBiography = teamsWithBiographyRes.docs.map((team) => ({
-      collection: 'teams',
-      id: team.id,
-    }))
-
-    if (teamsWithBiography.length > 0) {
+    if (teamsWithBiographyRes.docs.length > 0) {
       payload.logger.info(
-        `Found ${teamsWithBiography.length} teams containing biography ID ${biographyId}`,
+        `Found ${teamsWithBiographyRes.docs.length} teams containing biography ID ${biographyId}`,
       )
 
-      for (const teamReference of teamsWithBiography) {
-        await revalidateBlockReferences({
-          collection: 'teams',
-          id: teamReference.id,
-        })
+      for (const team of teamsWithBiographyRes.docs) {
+        await revalidateDocumentReferences({ collection: 'teams', id: team.id })
       }
     } else {
       payload.logger.info(`No teams found containing biography ID ${biographyId}`)
