@@ -36,7 +36,6 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig, DateField, ValidateOptions } from 'payload'
 import { date } from 'payload/shared'
-import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
 import { revalidateEvent, revalidateEventDelete } from './hooks/revalidateEvent'
 
 export const Events: CollectionConfig = {
@@ -174,32 +173,6 @@ export const Events: CollectionConfig = {
             },
           }),
         },
-        // Hidden field to track blocks embedded in content for revalidation purposes
-        {
-          name: 'blocksInContent',
-          type: 'array',
-          access: {
-            update: () => false,
-          },
-          admin: {
-            disabled: true,
-            readOnly: true,
-          },
-          fields: [
-            {
-              name: 'blockType',
-              type: 'text',
-            },
-            {
-              name: 'collection',
-              type: 'text',
-            },
-            {
-              name: 'docId',
-              type: 'number',
-            },
-          ],
-        },
       ],
     },
 
@@ -244,7 +217,7 @@ export const Events: CollectionConfig = {
   ],
   hooks: {
     beforeValidate: [validateEventDates],
-    beforeChange: [populatePublishedAt, populateBlocksInContent, populateDocumentReferences],
+    beforeChange: [populatePublishedAt, populateDocumentReferences],
     afterChange: [revalidateEvent],
     afterDelete: [revalidateEventDelete],
   },

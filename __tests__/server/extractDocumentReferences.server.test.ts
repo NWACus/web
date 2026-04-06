@@ -651,7 +651,7 @@ describe('extractDocumentReferences', () => {
   describe('group fields', () => {
     it('extracts references through unnamed groups (Events Landing Page Content)', () => {
       // The Events "Landing Page Content" group has no `name`, so its fields
-      // (content, blocksInContent) sit at the same data level as other fields.
+      // (content) sit at the same data level as other fields.
       const data = {
         featuredImage: null,
         thumbnailImage: null,

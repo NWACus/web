@@ -276,17 +276,6 @@ export interface HomePage {
     | SponsorsBlock
     | TeamBlock
   )[];
-  /**
-   * Automatically populated field tracking block references in highlightedContent for revalidation purposes.
-   */
-  blocksInHighlightedContent?:
-    | {
-        blockType?: string | null;
-        collection?: string | null;
-        docId?: number | null;
-        id?: string | null;
-      }[]
-    | null;
   publishedAt?: string | null;
   documentReferences?:
     | {
@@ -505,14 +494,6 @@ export interface Post {
   showDate?: boolean | null;
   tags?: (number | Tag)[] | null;
   relatedPosts?: (number | Post)[] | null;
-  blocksInContent?:
-    | {
-        blockType?: string | null;
-        collection?: string | null;
-        docId?: number | null;
-        id?: string | null;
-      }[]
-    | null;
   slug: string;
   documentReferences?:
     | {
@@ -865,14 +846,6 @@ export interface Event {
     };
     [k: string]: unknown;
   } | null;
-  blocksInContent?:
-    | {
-        blockType?: string | null;
-        collection?: string | null;
-        docId?: number | null;
-        id?: string | null;
-      }[]
-    | null;
   slug: string;
   type: 'event' | 'awareness' | 'field-class';
   eventGroups?: (number | EventGroup)[] | null;
@@ -2785,14 +2758,6 @@ export interface HomePagesSelect<T extends boolean = true> {
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
       };
-  blocksInHighlightedContent?:
-    | T
-    | {
-        blockType?: T;
-        collection?: T;
-        docId?: T;
-        id?: T;
-      };
   publishedAt?: T;
   documentReferences?:
     | T
@@ -3151,14 +3116,6 @@ export interface PostsSelect<T extends boolean = true> {
   showDate?: T;
   tags?: T;
   relatedPosts?: T;
-  blocksInContent?:
-    | T
-    | {
-        blockType?: T;
-        collection?: T;
-        docId?: T;
-        id?: T;
-      };
   slug?: T;
   documentReferences?:
     | T
@@ -3291,14 +3248,6 @@ export interface EventsSelect<T extends boolean = true> {
   registrationDeadline_tz?: T;
   skillLevel?: T;
   content?: T;
-  blocksInContent?:
-    | T
-    | {
-        blockType?: T;
-        collection?: T;
-        docId?: T;
-        id?: T;
-      };
   slug?: T;
   type?: T;
   eventGroups?: T;
