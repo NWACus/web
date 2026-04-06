@@ -8,12 +8,11 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
 
-import { ISR_REVALIDATE_INTERVAL } from '@/constants/defaults'
 import { generateMetaForPost } from '@/utilities/generateMeta'
 
 export const dynamic = 'force-static'
 export const dynamicParams = true
-export const revalidate = ISR_REVALIDATE_INTERVAL
+export const revalidate = 3600 // Next.js requires a static literal here
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })

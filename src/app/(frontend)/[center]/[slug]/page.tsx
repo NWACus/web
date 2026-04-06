@@ -11,12 +11,11 @@ import { cache } from 'react'
 import type { Page as PageType } from '@/payload-types'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
-import { ISR_REVALIDATE_INTERVAL } from '@/constants/defaults'
 import { generateMetaForPage } from '@/utilities/generateMeta'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export const dynamic = 'force-static'
-export const revalidate = ISR_REVALIDATE_INTERVAL
+export const revalidate = 3600 // Next.js requires a static literal here
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })

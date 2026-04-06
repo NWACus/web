@@ -7,7 +7,6 @@ import { getPayload } from 'payload'
 import { ButtonLink } from '@/components/ButtonLink'
 import { EventInfo } from '@/components/EventInfo'
 import { Media } from '@/components/Media'
-import { ISR_REVALIDATE_INTERVAL } from '@/constants/defaults'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { generateMetaForEvent } from '@/utilities/generateMeta'
 import { cn } from '@/utilities/ui'
@@ -17,7 +16,7 @@ import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-static'
 export const dynamicParams = true
-export const revalidate = ISR_REVALIDATE_INTERVAL
+export const revalidate = 3600 // Next.js requires a static literal here
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
