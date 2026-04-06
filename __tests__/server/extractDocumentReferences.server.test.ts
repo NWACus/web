@@ -875,6 +875,57 @@ describe('extractDocumentReferences', () => {
     })
   })
 
+  describe('tenant relationship filtering', () => {
+    it('excludes tenant relationship fields from output', () => {
+      const fields: Field[] = [
+        { name: 'tenant', type: 'relationship', relationTo: 'tenants', required: true },
+        { name: 'featuredImage', type: 'upload', relationTo: 'media' },
+        { name: 'author', type: 'relationship', relationTo: 'biographies' },
+      ]
+      const data = { tenant: 1, featuredImage: 10, author: 20 }
+      const result = extractDocumentReferences(fields, data)
+
+      expect(result).toEqual([
+        { collection: 'media', docId: 10, blockType: null, fieldPath: 'featuredImage' },
+        { collection: 'biographies', docId: 20, blockType: null, fieldPath: 'author' },
+      ])
+    })
+
+    it('excludes tenant references from polymorphic relationship fields', () => {
+      const fields: Field[] = [
+        {
+          name: 'related',
+          type: 'relationship',
+          relationTo: ['tenants', 'pages', 'posts'],
+          hasMany: true,
+        },
+      ]
+      const data = {
+        related: [
+          { relationTo: 'tenants', value: 1 },
+          { relationTo: 'pages', value: 5 },
+          { relationTo: 'posts', value: 8 },
+        ],
+      }
+      const result = extractDocumentReferences(fields, data)
+
+      expect(result).toEqual([
+        { collection: 'pages', docId: 5, blockType: null, fieldPath: 'related' },
+        { collection: 'posts', docId: 8, blockType: null, fieldPath: 'related' },
+      ])
+    })
+
+    it('excludes tenant references from real collection fields', () => {
+      const data = { tenant: 1, authors: [5], tags: [], featuredImage: null, content: null }
+      const result = extractDocumentReferences(postsFields, data)
+
+      expect(result).toEqual([
+        { collection: 'biographies', docId: 5, blockType: null, fieldPath: 'authors' },
+      ])
+      expect(result.every((ref) => ref.collection !== 'tenants')).toBe(true)
+    })
+  })
+
   // -----------------------------------------------------------------------
   // Fixture tests
   //
