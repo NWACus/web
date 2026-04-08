@@ -27,7 +27,7 @@ jobs:
           if /home/runner/.turso/turso db show payloadcms-dev; then
             /home/runner/.turso/turso db destroy payloadcms-dev --yes
           fi
-          /home/runner/.turso/turso db create payloadcms-dev --from-db payloadcms-prod --wait
+          /home/runner/.turso/turso db create payloadcms-dev --group payloadcms --from-db payloadcms-prod --wait
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Record database connection URI and token
