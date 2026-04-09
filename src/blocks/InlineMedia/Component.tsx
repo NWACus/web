@@ -65,10 +65,16 @@ export const InlineMediaComponent = ({
   // Descendant selectors propagate height through Media's intermediate span and picture elements.
   const mediaElement = isFixedHeight ? (
     <span
-      className="block [&>span]:h-full [&_picture]:h-full [&_picture]:my-0"
+      className="block [&>span]:h-full [&_picture]:h-full"
       style={{ height: `${fixedHeight}px` }}
     >
-      <Media htmlElement="span" resource={media} imgClassName={imgSizeClass} sizes={sizes} />
+      <Media
+        htmlElement="span"
+        resource={media}
+        imgClassName={imgSizeClass}
+        pictureClassName="my-0"
+        sizes={sizes}
+      />
     </span>
   ) : (
     <Media
