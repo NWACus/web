@@ -17,12 +17,12 @@ export const InlineMediaBlock: Block = {
       defaultValue: 'inline',
       options: [
         { label: 'Inline', value: 'inline' },
-        { label: 'Float left', value: 'float-left' },
-        { label: 'Float right', value: 'float-right' },
+        { label: 'Left', value: 'float-left' },
+        { label: 'Right', value: 'float-right' },
       ],
       admin: {
         description:
-          'Inline renders the image within the text flow. Float positions the image to one side with text wrapping around it.',
+          'Inline renders the image within the text flow. Left or Right positions the image to that side with text wrapping around it.',
       },
     },
     {
