@@ -63,6 +63,7 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
 
       basePaths.forEach((path) => revalidatePath(path))
     }
+    return
   }
 
   if (doc.collection === 'posts') {
@@ -73,6 +74,7 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
     )
 
     basePaths.forEach((path) => revalidatePath(path))
+    return
   }
 
   if (doc.collection === 'homePages') {
@@ -83,6 +85,7 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
     )
 
     basePaths.forEach((path) => revalidatePath(path))
+    return
   }
 
   if (doc.collection === 'events') {
@@ -93,5 +96,10 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
     )
 
     basePaths.forEach((path) => revalidatePath(path))
+    return
   }
+
+  payload.logger.warn(
+    `revalidateDocument: no path mapping for collection '${doc.collection}' (doc ID ${doc.id}). Add a handler or check if documentReferencesField() should be removed from this collection.`,
+  )
 }

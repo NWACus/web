@@ -109,12 +109,15 @@ describe('revalidateDocument', () => {
     expect(mockRevalidatePath).toHaveBeenCalledWith('/nwac/events/winter-summit')
   })
 
-  it('does nothing for unrecognized collection types', async () => {
+  it('logs a warning for unrecognized collection types', async () => {
     const doc = { collection: 'unknownCollection', id: 1, slug: 'test', tenant: 1 }
 
     await revalidateDocument(doc)
 
     expect(mockRevalidatePath).not.toHaveBeenCalled()
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining("no path mapping for collection 'unknownCollection'"),
+    )
   })
 
   it('handles tenant resolution failure gracefully', async () => {
