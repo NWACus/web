@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 When working with frameworks in this project, reference the official LLM documentation:
 
 - **Next.js**: https://nextjs.org/docs/llms-full.txt
-- **Payload CMS**: No official llms.txt yet (requested in [issue #13362](https://github.com/payloadcms/payload/issues/13362))
+- **Payload CMS**: https://payloadcms.com/llms-full.txt
 
 ### Payload CMS Source Reference
 
