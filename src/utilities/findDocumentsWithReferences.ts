@@ -41,6 +41,7 @@ export async function findDocumentsWithReferences(
           ],
         },
         depth: 1,
+        limit: 0,
       })
 
       for (const doc of res.docs) {
