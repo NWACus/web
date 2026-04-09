@@ -25,6 +25,19 @@ This is a deliberate security decision — even if an API key is compromised, no
 
 The plugin also supports [custom MCP tools](https://github.com/payloadcms/payload/tree/main/packages/plugin-mcp#custom-tools) — arbitrary functions exposed as tools to MCP clients. We don't use any yet, but this could be useful for operations that don't map to simple CRUD (e.g., triggering revalidation, running reports, or composing multi-step workflows).
 
+## Adding a collection to MCP
+
+To expose a new collection to MCP clients, add it to the `collections` object in the MCP plugin config at `src/plugins/index.ts`:
+
+```typescript
+collections: {
+  // ... existing collections
+  yourCollection: { enabled: { find: true } },
+}
+```
+
+Keep it read-only (`find: true` only). Update the collection list at the top of this doc and in CLAUDE.md as well.
+
 ## Setup
 
 ### 1. Create an API key
