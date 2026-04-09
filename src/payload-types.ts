@@ -4204,7 +4204,7 @@ export interface ButtonBlock {
 export interface InlineMediaBlock {
   media: number | Media;
   /**
-   * Inline renders the image within the text flow. Float positions the image to one side with text wrapping around it.
+   * Inline renders the image within the text flow. Left or Right positions the image to that side with text wrapping around it.
    */
   position?: ('inline' | 'float-left' | 'float-right') | null;
   /**
