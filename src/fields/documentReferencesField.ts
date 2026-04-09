@@ -1,10 +1,6 @@
 import { Field } from 'payload'
 
-/**
- * Reusable field definition for tracking all document references within a collection.
- * Intended to be populated by the populateDocumentReferences beforeChange hook.
- * Hidden in admin UI — visible in API responses.
- */
+/** Populated by the populateDocumentReferences beforeChange hook. Hidden in admin UI. */
 export const documentReferencesField = (): Field => ({
   name: 'documentReferences',
   type: 'array',

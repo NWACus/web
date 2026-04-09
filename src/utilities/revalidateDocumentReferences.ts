@@ -3,11 +3,7 @@ import { getPayload } from 'payload'
 import { findDocumentsWithReferences } from './findDocumentsWithReferences'
 import { revalidateDocument, RevalidationReference } from './revalidateDocument'
 
-/**
- * Revalidate all routable documents that reference a specific document.
- * Replaces both `revalidateBlockReferences` and `revalidateRelationshipReferences`
- * by querying the unified `documentReferences` field.
- */
+/** Revalidate all routable documents that reference a specific document. */
 export async function revalidateDocumentReferences(
   reference: RevalidationReference,
 ): Promise<void> {

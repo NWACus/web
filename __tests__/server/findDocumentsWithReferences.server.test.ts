@@ -1,6 +1,5 @@
 jest.mock('../../src/payload.config', () => ({}))
 
-// Stub lexical editor features that execute at module scope when collection configs load
 jest.mock('@payloadcms/richtext-lexical', () => ({
   lexicalEditor: ({ features }: { features?: unknown }) => {
     const resolvedFeatures =

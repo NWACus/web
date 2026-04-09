@@ -1,14 +1,8 @@
-// Mock modules that need a running Payload instance or execute at import time.
-// These must be before any imports that trigger the module load chain.
+// Stubs for modules that execute at import time (before Payload is running).
 jest.mock('../../src/payload.config', () => ({}))
 jest.mock('payload', () => ({ getPayload: jest.fn() }))
-
-// lexicalEditor and feature functions execute at module scope when block configs load.
-// We stub them but make BlocksFeature capture its blocks arg so the extraction function
-// can introspect which blocks each richText field allows (via feature.serverFeatureProps.blocks).
 jest.mock('@payloadcms/richtext-lexical', () => ({
   lexicalEditor: ({ features }: { features?: unknown }) => {
-    // Resolve the features array the same way the real lexicalEditor does
     const resolvedFeatures =
       typeof features === 'function' ? features({ rootFeatures: [] }) : (features ?? [])
     return { features: resolvedFeatures }
@@ -109,9 +103,7 @@ const postsFields = Posts.fields
 const eventsFields = Events.fields
 const homePagesFields = HomePages.fields
 
-// Layout-only field wrappers (row, collapsible, unnamed/named tabs).
-// These are synthetic because no single collection has all wrapper types together,
-// and the behavior being tested is the walker's traversal logic, not specific configs.
+// Synthetic layout wrappers to test the walker's traversal of row, collapsible, and tabs.
 const fieldsWithLayoutWrappers: Field[] = [
   {
     type: 'row',
@@ -483,7 +475,6 @@ describe('extractDocumentReferences', () => {
   })
 
   describe('richText fields with Lexical inlineBlock nodes', () => {
-    // Synthetic inline block config (mirrors InlineMedia from PR #968)
     const InlineMediaBlock: Block = {
       slug: 'inlineMedia',
       fields: [
@@ -492,9 +483,6 @@ describe('extractDocumentReferences', () => {
       ],
     }
 
-    // Synthetic richText field using the mocked lexicalEditor/BlocksFeature.
-    // The mock resolves features into { key, serverFeatureProps } objects that
-    // the extraction function can introspect at runtime.
     const fieldsWithInlineBlocks: Field[] = [
       {
         name: 'content',
@@ -947,12 +935,8 @@ describe('extractDocumentReferences', () => {
     })
 
     it('correctly extracts references from deeply nested blocks whose configs form a cycle', () => {
-      // Regression test: ContentBlock allows CalloutBlock, and CalloutBlock's
-      // richText could theoretically contain a ContentBlock — forming a cycle
-      // in the config graph. This works because the walker follows the actual
-      // data (which is always a finite tree), not the config definitions. This
-      // test ensures no future refactor accidentally introduces config-graph
-      // traversal that would loop.
+      // Config graph has cycles (ContentBlock ↔ CalloutBlock) but the walker
+      // follows data (always a finite tree), so no infinite loop.
       const data = {
         layout: [
           {
@@ -1044,19 +1028,9 @@ describe('extractDocumentReferences', () => {
     })
   })
 
-  // -----------------------------------------------------------------------
-  // Fixture tests
-  //
-  // These use document structures modeled on real content pulled from the
-  // dev database via Payload MCP server. IDs are randomized but the
-  // structural patterns (nesting depth, field shapes, block types) are real.
-  //
-  // -----------------------------------------------------------------------
+  // Fixture tests — real content structures from the dev database with randomized IDs.
 
   describe('fixture: page "about-us" (deep nesting)', () => {
-    // This page has ContentBlocks with richText containing CalloutBlocks
-    // and MediaBlocks
-
     it('finds the ButtonBlock reference 3 levels deep (ContentBlock > CalloutBlock > ButtonBlock)', () => {
       const result = extractDocumentReferences(pagesFields, pageAboutUsLayout)
 

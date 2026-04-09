@@ -17,24 +17,14 @@ function isBlock(value: unknown): value is Block {
   return isDataObject(value) && typeof value.slug === 'string'
 }
 
-/**
- * Extracts a numeric document ID from a relationship value.
- * Handles both unresolved IDs (number) and populated objects ({ id: number }).
- */
 function extractId(value: unknown): number | null {
   if (typeof value === 'number') return value
   if (isDataObject(value) && typeof value.id === 'number') return value.id
   return null
 }
 
-/**
- * Extracts references from a single relationship or upload field value.
- * Handles: singular, hasMany (array), polymorphic ({ relationTo, value }), and
- * polymorphic hasMany (array of { relationTo, value }).
- */
 function extractRefsFromRelationshipValue(
   value: unknown,
-  /** The `relationTo` from the field config — string or string[] */
   relationTo: string | string[],
   blockType: string | null,
   fieldPath: string,
@@ -45,7 +35,6 @@ function extractRefsFromRelationshipValue(
   const isPolymorphic = Array.isArray(relationTo)
 
   if (Array.isArray(value)) {
-    // hasMany — array of IDs, populated objects, or polymorphic objects
     for (const item of value) {
       extractRefsFromRelationshipValue(item, relationTo, blockType, fieldPath, refs)
     }
@@ -53,10 +42,7 @@ function extractRefsFromRelationshipValue(
   }
 
   if (isPolymorphic) {
-    // Polymorphic: { relationTo: 'collection', value: id | { id } }
     if (isDataObject(value) && typeof value.relationTo === 'string') {
-      // Skip tenant references — they exist on every tenant-scoped document
-      // and are not useful for revalidation tracking
       if (value.relationTo === 'tenants') return
       const id = extractId(value.value)
       if (id != null) {
@@ -66,7 +52,6 @@ function extractRefsFromRelationshipValue(
     return
   }
 
-  // Non-polymorphic singular: ID or populated object
   if (typeof relationTo !== 'string') return
   // Skip tenant references
   if (relationTo === 'tenants') return
@@ -76,15 +61,9 @@ function extractRefsFromRelationshipValue(
   }
 }
 
-/**
- * Resolves the list of Block configs allowed in a richText field's BlocksFeature.
- * Works with the mock in tests (which stores blocks in serverFeatureProps.blocks)
- * and with the real Payload editor config.
- */
 function getBlocksFromRichTextField(field: Field): Block[] {
   if (field.type !== 'richText') return []
 
-  // The editor object has a `features` array (resolved by lexicalEditor or our test mock).
   // These properties aren't on the Field type but exist at runtime on resolved richText fields.
   const fieldObj: DataObject = field
   const editor = fieldObj.editor
@@ -118,18 +97,11 @@ function getBlocksFromRichTextField(field: Field): Block[] {
   return []
 }
 
-/**
- * Walks a Payload field config tree and the corresponding document data,
- * extracting all relationship and upload references into a flat array.
- *
- * Handles: relationship, upload, blocks, richText (Lexical), group, array,
- * row, collapsible, and tabs fields at any nesting depth.
- */
+/** Walks a Payload field config tree and extracts all relationship/upload references. */
 export function extractDocumentReferences(fields: Field[], data: DataObject): DocumentReference[] {
   const refs: DocumentReference[] = []
   walkFields(fields, data, '', null, refs)
 
-  // Deduplicate on collection + docId (keep first occurrence)
   const seen = new Set<string>()
   return refs.filter((ref) => {
     const key = `${ref.collection}:${ref.docId}`
@@ -143,7 +115,6 @@ function walkFields(
   fields: Field[],
   data: DataObject,
   pathPrefix: string,
-  /** blockType slug when inside a block's fields, null at top level */
   currentBlockType: string | null,
   refs: DocumentReference[],
 ): void {
@@ -197,7 +168,6 @@ function walkFields(
           const groupPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name
           walkFields(field.fields, groupData, groupPath, currentBlockType, refs)
         } else {
-          // Unnamed group — fields at same level
           walkFields(field.fields, data, pathPrefix, currentBlockType, refs)
         }
         break
@@ -219,7 +189,6 @@ function walkFields(
 
       case 'row':
       case 'collapsible': {
-        // Layout-only wrappers — fields are at the same data level
         walkFields(field.fields, data, pathPrefix, currentBlockType, refs)
         break
       }
@@ -232,27 +201,18 @@ function walkFields(
             const tabPath = pathPrefix ? `${pathPrefix}.${tab.name}` : tab.name
             walkFields(tab.fields, tabData, tabPath, currentBlockType, refs)
           } else {
-            // Unnamed tab — fields at same level
             walkFields(tab.fields, data, pathPrefix, currentBlockType, refs)
           }
         }
         break
       }
-
-      // All other field types (text, number, checkbox, etc.) — skip
     }
   }
 }
 
 /**
- * Walks a Lexical AST looking for block nodes. For each block node found:
- * 1. Looks up the block config to find relationship/upload fields
- * 2. Extracts references from those fields
- * 3. Recursively walks any richText fields within the block (handling deep nesting)
- *
- * All references found within a Lexical AST use the richText field's path as
- * their fieldPath, regardless of nesting depth. This is because the Lexical
- * JSON structure is opaque — the useful location info is "which richText field".
+ * Walks a Lexical AST looking for block nodes and extracting their references.
+ * All refs use the richText field's path as fieldPath regardless of nesting depth.
  */
 function walkLexicalNodes(
   lexicalData: DataObject,
@@ -269,7 +229,6 @@ function walkLexicalNodes(
       if (typeof blockType === 'string') {
         const blockConfig = blockConfigMap.get(blockType)
         if (blockConfig?.fields) {
-          // Extract refs from this block using fixed fieldPath (no path extension)
           walkFieldsInLexicalContext(blockConfig.fields, node.fields, blockType, fieldPath, refs)
         }
       }
@@ -287,11 +246,7 @@ function walkLexicalNodes(
   walkNode(root)
 }
 
-/**
- * Walks fields within a Lexical block context. Unlike walkFields, this uses a
- * fixed fieldPath (the richText field's path) for all extracted refs and does
- * not extend the path as it recurses into nested structures.
- */
+/** Like walkFields but uses a fixed fieldPath (the richText field's path) for all refs. */
 function walkFieldsInLexicalContext(
   fields: Field[],
   data: DataObject,
@@ -309,7 +264,6 @@ function walkFieldsInLexicalContext(
       }
 
       case 'richText': {
-        // Nested richText within a Lexical block — recurse into its own AST
         const richTextData = data[field.name]
         if (!isDataObject(richTextData)) break
         const allowedBlocks = getBlocksFromRichTextField(field)

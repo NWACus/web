@@ -9,25 +9,12 @@ export interface DocumentReference {
   id: number
 }
 
-/**
- * Type guard: validates that a string is a registered Payload collection slug.
- * Needed because SanitizedCollectionConfig.slug is typed as string, but payload.find()
- * requires the narrower CollectionSlug union type.
- */
+// SanitizedCollectionConfig.slug is string but payload.find() requires CollectionSlug
 function isCollectionSlug(slug: string, validSlugs: Set<string>): slug is CollectionSlug {
   return validSlugs.has(slug)
 }
 
-/**
- * Find all documents that have a `documentReferences` field and contain references to
- * a specific document.
- *
- * Discovers which collections to query by inspecting the Payload config at runtime,
- * rather than hardcoding collection slugs.
- *
- * Replaces both `findDocumentsWithBlockReferences` and `findDocumentsWithRelationshipReferences`
- * by querying a single denormalized field instead of config-driven mappings.
- */
+/** Find all documents whose `documentReferences` field contains a reference to the given document. */
 export async function findDocumentsWithReferences(
   reference: DocumentReference,
 ): Promise<DocumentForRevalidation[]> {
@@ -36,7 +23,6 @@ export async function findDocumentsWithReferences(
 
   const allSlugs = new Set(payload.config.collections.map((c) => c.slug))
 
-  // Discover collections that have a top-level documentReferences field
   const collectionsWithReferences = payload.config.collections
     .filter((c) => c.fields.some((f) => 'name' in f && f.name === 'documentReferences'))
     .map((c) => c.slug)
@@ -58,8 +44,7 @@ export async function findDocumentsWithReferences(
       })
 
       for (const doc of res.docs) {
-        // Spread into a plain object for generic property access, since Payload's
-        // generated types don't have index signatures
+        // Payload's generated types don't have index signatures
         const record: Record<string, unknown> = { ...doc }
 
         const tenant = record['tenant']

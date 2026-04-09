@@ -37,37 +37,15 @@ beforeEach(() => {
 })
 
 describe('revalidateDocument', () => {
-  /**
-   * This test documents the architectural invariant that prevents infinite
-   * revalidation cycles when documents reference each other (A → B → A).
-   *
-   * The revalidation chain is:
-   *   1. Document A is saved → afterChange hook fires
-   *   2. afterChange calls revalidateDocumentReferences(A)
-   *   3. That finds Document B references A, calls revalidateDocument(B)
-   *   4. revalidateDocument(B) ONLY calls revalidatePath() — it never saves
-   *      or updates any document, so no afterChange hook fires for B
-   *   5. Chain terminates
-   *
-   * If revalidateDocument ever started calling payload.update() or
-   * payload.create(), circular references would cause infinite loops.
-   * This test ensures that doesn't happen by verifying the mock Payload
-   * instance never has write methods called.
-   */
+  // Cycle safety: revalidateDocument must only call revalidatePath(), never
+  // payload.update/create/delete. Otherwise circular references (A → B → A)
+  // would cause infinite loops through afterChange hooks.
   it('only invalidates Next.js cache — never triggers Payload write operations', async () => {
-    // Simulate: Page A references Post B, and Post B references Page A.
-    // When Page A is saved, revalidateDocumentReferences finds Post B.
-    // revalidateDocument(Post B) should ONLY call revalidatePath.
     const postB = { collection: 'posts', id: 10, slug: 'post-b', tenant: 1 }
 
     await revalidateDocument(postB)
 
-    // The critical assertion: revalidatePath was called (cache invalidation happened)
     expect(mockRevalidatePath).toHaveBeenCalled()
-
-    // The Payload instance should NEVER have update/create/delete called on it.
-    // These methods don't even exist on our mock — if the code tried to call them,
-    // it would throw. This is the architectural firewall against infinite cycles.
     expect(mockPayload).not.toHaveProperty('update')
     expect(mockPayload).not.toHaveProperty('create')
     expect(mockPayload).not.toHaveProperty('delete')

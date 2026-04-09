@@ -11,9 +11,6 @@ async function revalidateBiographyWithCascading(biographyId: number) {
   await revalidateDocumentReferences({ collection: 'biographies', id: biographyId })
 
   try {
-    // Also revalidate documents referencing teams that contain this biography
-    payload.logger.info(`Checking for cascading team references for biography ID ${biographyId}`)
-
     const teamsWithBiographyRes = await payload.find({
       collection: 'teams',
       where: {
@@ -22,16 +19,8 @@ async function revalidateBiographyWithCascading(biographyId: number) {
       depth: 0,
     })
 
-    if (teamsWithBiographyRes.docs.length > 0) {
-      payload.logger.info(
-        `Found ${teamsWithBiographyRes.docs.length} teams containing biography ID ${biographyId}`,
-      )
-
-      for (const team of teamsWithBiographyRes.docs) {
-        await revalidateDocumentReferences({ collection: 'teams', id: team.id })
-      }
-    } else {
-      payload.logger.info(`No teams found containing biography ID ${biographyId}`)
+    for (const team of teamsWithBiographyRes.docs) {
+      await revalidateDocumentReferences({ collection: 'teams', id: team.id })
     }
   } catch (error) {
     payload.logger.warn(`Error finding teams with biography member ${biographyId}: ${error}`)
