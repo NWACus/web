@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import { isTenantValue } from './isTenantValue'
 import { DocumentForRevalidation } from './revalidateDocument'
 
-export interface DocumentReference {
+export interface ReferenceQuery {
   collection: string
   id: number
 }
@@ -16,7 +16,7 @@ function isCollectionSlug(slug: string, validSlugs: Set<string>): slug is Collec
 
 /** Find all documents whose `documentReferences` field contains a reference to the given document. */
 export async function findDocumentsWithReferences(
-  reference: DocumentReference,
+  reference: ReferenceQuery,
 ): Promise<DocumentForRevalidation[]> {
   const payload = await getPayload({ config: configPromise })
   const results: DocumentForRevalidation[] = []
