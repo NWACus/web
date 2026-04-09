@@ -68,7 +68,7 @@ function extractRefsFromRelationshipValue(
 
   // Non-polymorphic singular: ID or populated object
   if (typeof relationTo !== 'string') return
-  // Skip tenant references — consistent with getRelationshipsFromConfig
+  // Skip tenant references
   if (relationTo === 'tenants') return
   const id = extractId(value)
   if (id != null) {
