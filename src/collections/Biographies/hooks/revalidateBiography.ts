@@ -17,7 +17,7 @@ async function revalidateBiographyWithCascading(biographyId: number) {
     const teamsWithBiographyRes = await payload.find({
       collection: 'teams',
       where: {
-        members: { equals: biographyId },
+        members: { contains: biographyId },
       },
       depth: 0,
     })
