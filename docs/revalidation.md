@@ -40,33 +40,16 @@ Central function for revalidating routable collections (currently pages, posts, 
 
 **🧑‍💻 Code to update**: This function must be updated when new routable collections are added. Each new routable collection needs its URL pattern logic added here.
 
-### `revalidateBlockReferences.ts`
-Finds and revalidates all routable collections that contain a document through content blocks:
-- Uses `findDocumentsWithBlockReferences()` to locate referencing documents
-- Handles block-based relationships in layouts and content
+### `revalidateDocumentReferences.ts`
+Orchestrates the full reference revalidation flow:
+- Uses `findDocumentsWithReferences()` to locate all documents that reference a given collection/ID
 - Calls `revalidateDocument()` for each found reference
+- Replaces the old `revalidateBlockReferences` and `revalidateRelationshipReferences` utilities
 
-### `revalidateRelationshipReferences.ts`
-Finds and revalidates all routable collections that reference a document through relationship fields:
-- Uses `findDocumentsWithRelationshipReferences()` to locate referencing documents
-- Handles direct relationship field references
-- Calls `revalidateDocument()` for each found reference
-
-### Reference Finders
-
-#### `findDocumentsWithBlockReferences.ts`
-Queries routable collections for block-based references:
-- **Pages**: Searches `layout.{fieldName}` for block references
-- **Posts**: Searches `blocksInContent.collection` and `blocksInContent.docId` for embedded blocks
-- **HomePages**: Searches `layout.{fieldName}` for block references
-- **🧑‍💻 Code to update**: Must be updated when new routable collections are added
-
-#### `findDocumentsWithRelationshipReferences.ts`
-Queries routable collections for relationship field references:
-- Uses configuration mappings to identify relationship fields
-- Searches all routable collections (currently pages, posts, and homePages)
-- Only includes published documents (or all documents for homePages which don't have draft status)
-- **🧑‍💻 Code to update**: Configuration mappings must include new routable collections
+### `findDocumentsWithReferences.ts`
+Queries the `documentReferences` JSON field across all collections that have it:
+- Auto-discovers which collections have a `documentReferences` field from the Payload config
+- No hardcoded collection lists — adding `documentReferencesField()` to a new collection is sufficient
 
 ## Collection Patterns
 
@@ -82,20 +65,20 @@ Collections that generate frontend routes implement comprehensive revalidation:
 #### Posts (`src/collections/Posts/hooks/revalidatePost.ts`)
 - **Path revalidation**: `/blog/{slug}` and `/{center}/blog/{slug}`
 - **Tag revalidation**: `posts-sitemap-{center}`, `navigation-{center}`
-- **Reference revalidation**: Calls both `revalidateBlockReferences()` and `revalidateRelationshipReferences()`
+- **Reference revalidation**: Calls `revalidateDocumentReferences()`
 - **Previous version handling**: Handles slug changes and status changes
 
 #### HomePages (`src/collections/HomePages/hooks/revalidateHomePage.ts`)
 - **Path revalidation**: `/` and `/{center}/` (affects home page routes)
 - **Tag revalidation**: `navigation-{center}`
-- **Reference revalidation**: Calls both `revalidateBlockReferences()` and `revalidateRelationshipReferences()`
+- **Reference revalidation**: Calls `revalidateDocumentReferences()`
 - **Special considerations**: No slugs (affects root paths), no draft status handling needed
 
 ### Reference Collections (Media, Teams, Biographies, etc.)
 Collections that are referenced by routable collections but don't have their own frontend routes:
 
 #### Media (`src/collections/Media/hooks/revalidateMedia.ts`)
-- Only calls `revalidateBlockReferences()` and `revalidateRelationshipReferences()`
+- Only calls `revalidateDocumentReferences()`
 - No direct path revalidation (reference collections don't generate routes)
 
 #### Teams, Biographies, Tags
@@ -154,8 +137,7 @@ Collections that don't have frontend routes but are referenced by routable colle
 
 1. **Only implement reference-based revalidation**:
    ```typescript
-   await revalidateBlockReferences({ collection: 'collectionName', id: docId })
-   await revalidateRelationshipReferences({ collection: 'collectionName', id: docId })
+   await revalidateDocumentReferences({ collection: 'collectionName', id: docId })
    ```
 
 2. **No direct path revalidation** (they don't generate routes)
@@ -176,10 +158,9 @@ Collections that generate frontend routes (currently Pages, Posts, HomePages, fu
 When adding a new collection that will have frontend routes:
 
 1. **Update `revalidateDocument.ts`** - Add URL pattern logic for the new collection
-2. **Update finder utilities** - Include the new collection in block/relationship reference queries
+2. **Add `documentReferencesField()`** and `populateDocumentReferences` hook to the collection
 3. **Create collection-specific revalidation hooks** - Following the routable collection pattern
-4. **Update configuration mappings** - Ensure the new collection is included in relationship mappings
-5. **Consider navigation integration** - If the collection uses navigation-based routing
+4. **Consider navigation integration** - If the collection uses navigation-based routing
 
 ### Multi-tenant Considerations
 - Always resolve tenant information for proper path construction
@@ -189,41 +170,16 @@ When adding a new collection that will have frontend routes:
 
 ## Known Limitations
 
-While our revalidation system handles most content changes automatically, there are some scenarios where on-demand revalidation cannot detect all references:
+### Time-Based Revalidation Settings
 
-### Deeply Nested RichText Fields in Blocks
+On-demand revalidation handles most cache invalidation. Time-based revalidation (ISR) serves as a safety net for any edge cases not covered by reference tracking. Current setting:
 
-**Problem**: Blocks that contain richText fields (richText nested within blocks) are not automatically tracked by the revalidation system.
-
-**Example Scenario**:
-- A Page has a `ContentBlock` in its `layout`
-- That `ContentBlock` contains a richText field
-- The richText field contains a `MediaBlock` that references a media document
-- When the media document is updated, the Page won't be automatically revalidated
-
-**Why This Happens**: PayloadCMS field hooks don't fire for blocks within Lexical's BlocksFeature. See: https://github.com/payloadcms/payload/issues/14156
-
-**Workaround**: Time-based revalidation serves as a safety net. Pages are revalidated periodically (every 10-15 minutes) regardless of content changes.
-
-**Possible Solutions** (not currently implemented):
-1. Implement async background jobs that scan all routable collection documents for deeply nested relationships
-2. Wait for PayloadCMS to add field hook support for Lexical block features
-
-### Impact on Time-Based Revalidation Settings
-
-Because of these limitations, we cannot set very long time-based revalidation periods. Current settings:
-
-- **Individual pages/posts/homePages**: 600 seconds (10 minutes) - Conservative safety net for deeply nested blocks
-- **Blog list pages**: 600 seconds (10 minutes) - Not explicitly revalidated when posts change
-
-These shorter intervals ensure that even deeply nested changes appear within a reasonable timeframe, at the cost of more serverless function invocations and CDN cache misses.
+- **All routable pages**: 3600 seconds (1 hour)
 
 ### Best Practices
 
-1. **Avoid deeply nesting richText fields** - Keep richText fields at the top level of collections when possible
-2. **Implement explicit tracking** - For critical richText fields, follow the pattern in "Tracking Blocks in Rich Text Fields"
-3. **Test revalidation behavior** - After adding new blocks or collections, verify that changes trigger proper revalidation
-4. **Monitor cache behavior** - Use production builds locally (see README.md) to test ISR behavior
+1. **Test revalidation behavior** - After adding new blocks or collections, verify that changes trigger proper revalidation
+2. **Monitor cache behavior** - Use production builds locally (see README.md) to test ISR behavior
 
 ### Testing ISR Locally
 
