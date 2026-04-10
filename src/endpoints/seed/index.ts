@@ -2,6 +2,7 @@ import { page } from '@/endpoints/seed/pages/page'
 import { upsert, upsertGlobals } from '@/endpoints/seed/upsert'
 import { getPath, getSeedImageByFilename } from '@/endpoints/seed/utilities'
 import { Form, Tenant } from '@/payload-types'
+import { getUser } from '@/utilities/isUser'
 import { getEmailDomain, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import fs from 'fs'
 import { headers } from 'next/headers'
@@ -618,7 +619,8 @@ export const seed = async ({
 
     try {
       const requestHeaders = await headers()
-      const { user } = await payload.auth({ headers: requestHeaders })
+      const auth = await payload.auth({ headers: requestHeaders })
+      const user = getUser(auth)
 
       if (user && user.email !== users['Super Admin'].email) {
         await payload.create({
