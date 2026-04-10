@@ -34,21 +34,15 @@ authTest.describe('MCP API Keys', () => {
     })
 
     for (const role of deniedRoles) {
-      authTest(`${role} cannot view the MCP API Keys list`, async ({ loginAs }) => {
+      authTest(`${role} cannot access MCP API Keys documents`, async ({ loginAs }) => {
         const page = await loginAs(role)
 
-        const response = await page.goto(mcpApiKeysUrl.list)
+        await page.goto(mcpApiKeysUrl.list)
         await page.waitForLoadState('networkidle')
 
-        // Payload returns 403 or redirects unauthorized users.
-        const is403 = response?.status() === 403
-        const isUnauthorizedPage = page.url().includes('unauthorized')
-        const showsNotAllowed = await page
-          .locator('text=not allowed')
-          .isVisible()
-          .catch(() => false)
-
-        expect(is403 || isUnauthorizedPage || showsNotAllowed).toBe(true)
+        // Payload hides the collection from non-super-admins entirely,
+        // rendering a "Not Found" page instead of the list view.
+        await expect(page.locator('text=Nothing found')).toBeVisible({ timeout: 10000 })
       })
     }
   })
