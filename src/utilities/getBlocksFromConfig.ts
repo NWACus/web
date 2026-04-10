@@ -35,7 +35,7 @@ export async function getBlocksFromConfig() {
   // Find blocks used in Events collection (in richText lexical editor)
   const eventsCollection = config.collections?.find((collection) => collection.slug === 'events')
   const eventsBlocks = extractBlocksFromRichTextBlocksFeature(eventsCollection?.fields || [])
-  const eventsBlockMappings = extractBlockMappings(postsBlocks)
+  const eventsBlockMappings = extractBlockMappings(eventsBlocks)
 
   return {
     pagesBlocks,
