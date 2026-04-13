@@ -35,6 +35,7 @@ export const Teams: CollectionConfig = {
       admin: {
         description:
           'Add members to the team and drag/drop to reorder how they display on the page.',
+        isSortable: true,
       },
     },
     contentHashField(),
