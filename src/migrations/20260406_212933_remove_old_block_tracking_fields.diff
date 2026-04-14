@@ -1,0 +1,14 @@
+🔍 Comparing snapshots:
+   Old: 20260404_015415_backfill_document_references.json
+   New: 20260406_212933_remove_old_block_tracking_fields.json
+
+📊 Migration Analysis: 20260406_212933_remove_old_block_tracking_fields
+============================================================
+
+❌ Tables Removed (6):
+   • _events_v_version_blocks_in_content
+   • _home_pages_v_version_blocks_in_highlighted_content
+   • _posts_v_version_blocks_in_content
+   • events_blocks_in_content
+   • home_pages_blocks_in_highlighted_content
+   • posts_blocks_in_content
