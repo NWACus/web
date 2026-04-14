@@ -47,8 +47,6 @@ import * as migration_20260131_012456_remove_wrap_in_container from './20260131_
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
 import * as migration_20260319_152951_add_text_wrap_to_image_text_block from './20260319_152951_add_text_wrap_to_image_text_block'
 import * as migration_20260403_204010 from './20260403_204010'
-import * as migration_20260404_012604_add_documentReferences_field from './20260404_012604_add_documentReferences_field'
-import * as migration_20260404_015415_backfill_document_references from './20260404_015415_backfill_document_references'
 import * as migration_20260414_030626_add_documentReferences_field from './20260414_030626_add_documentReferences_field'
 import * as migration_20260414_030934_backfill_document_references from './20260414_030934_backfill_document_references'
 import * as migration_20260414_034842_remove_old_block_tracking_fields from './20260414_034842_remove_old_block_tracking_fields'
@@ -298,16 +296,6 @@ export const migrations = [
     up: migration_20260403_204010.up,
     down: migration_20260403_204010.down,
     name: '20260403_204010',
-  },
-  {
-    up: migration_20260404_012604_add_documentReferences_field.up,
-    down: migration_20260404_012604_add_documentReferences_field.down,
-    name: '20260404_012604_add_documentReferences_field',
-  },
-  {
-    up: migration_20260404_015415_backfill_document_references.up,
-    down: migration_20260404_015415_backfill_document_references.down,
-    name: '20260404_015415_backfill_document_references',
   },
   {
     up: migration_20260414_030626_add_documentReferences_field.up,
