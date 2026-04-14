@@ -10,8 +10,13 @@ import { extractDocumentReferences } from '@/utilities/extractDocumentReferences
  * so it handles all field types including richText with BlocksFeature at any
  * nesting depth.
  */
-export const populateDocumentReferences: CollectionBeforeChangeHook = ({ data, collection }) => {
-  const documentReferences = extractDocumentReferences(collection.fields, data)
+export const populateDocumentReferences: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  collection,
+}) => {
+  const merged = { ...originalDoc, ...data }
+  const documentReferences = extractDocumentReferences(collection.fields, merged)
 
   return {
     ...data,
