@@ -1,7 +1,9 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
+import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
+import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { Sponsor } from '@/payload-types'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { CollectionConfig, DateField, DateFieldValidation, ValidateOptions } from 'payload'
@@ -72,8 +74,10 @@ export const Sponsors: CollectionConfig = {
       },
     },
     contentHashField(),
+    documentReferencesField(),
   ],
   hooks: {
+    beforeChange: [populateDocumentReferences],
     afterChange: [revalidateSponsors],
     afterDelete: [revalidateSponsorsDelete],
   },

@@ -7,18 +7,7 @@ import type { Tenant } from '@/payload-types'
 import { resolveTenant } from './tenancy/resolveTenant'
 
 export interface RevalidationReference {
-  collection:
-    | 'biographies'
-    | 'documents'
-    | 'events'
-    | 'forms'
-    | 'homePages'
-    | 'media'
-    | 'pages'
-    | 'posts'
-    | 'sponsors'
-    | 'tags'
-    | 'teams'
+  collection: string
   id: number
 }
 
@@ -28,6 +17,9 @@ export interface DocumentForRevalidation {
   slug: string
   tenant: number | Tenant
 }
+
+/** Collections with frontend routes that can be revalidated via revalidatePath. */
+export const ROUTABLE_COLLECTIONS = new Set(['pages', 'posts', 'events', 'homePages'])
 
 export async function revalidateDocument(doc: DocumentForRevalidation): Promise<void> {
   const payload = await getPayload({ config: configPromise })
