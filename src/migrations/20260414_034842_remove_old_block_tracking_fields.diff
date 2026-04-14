@@ -16,4 +16,4 @@ The old tracking fields, their population hooks, and their query utilities (`fin
 
 ## Conclusion
 
-The data in these tables is safe to drop. It was only used for cache revalidation lookups (finding which documents reference a changed document). The same data is now stored in the `documentReferences` JSON field, which was backfilled in the prior migration (`20260404_015415_backfill_document_references`). No user-facing content is lost.
+The data in these tables is safe to drop. It was only used for cache revalidation lookups (finding which documents reference a changed document). The same data is now stored in the `documentReferences` JSON field, which was backfilled in the prior migration (`20260414_030934_backfill_document_references`). No user-facing content is lost.
