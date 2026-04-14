@@ -40,6 +40,7 @@ export async function findDocumentsWithReferences(
             { 'documentReferences.docId': { equals: reference.id } },
           ],
         },
+        select: { id: true, slug: true, tenant: true },
         depth: 1,
         limit: 0,
       })
