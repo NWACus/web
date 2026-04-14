@@ -91,8 +91,8 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 ### Database & Seeding
 
 - `pnpm bootstrap` - Quick setup: creates DB with bootstrap@avy.com user and super-admin rights
-- `pnpm seed` - Full database seed with all test data (uses shell script)
-- `pnpm seed:standalone` - Faster standalone seed with all test data (recommended)
+- `pnpm seed` - Full database seed with all test data (recommended, uses shell script)
+- `pnpm seed:standalone` - Standalone seed with all test data (requires no running server)
 - `pnpm reseed` - Incremental update of changed seed data
 - `pnpm migrate` - Run Payload migrations
 - `pnpm migrate:check [filename]` - Check migrations for potentially destructive patterns
@@ -391,7 +391,7 @@ Never cast relationship fields - they can be resolved objects, unresolved IDs, o
 ### When Modifying Collection Schemas
 
 1. **Check if seed data needs updating** - If you add/change fields, update the seed script to include appropriate test data
-2. **Run the seed script** - After updating, run `pnpm seed:standalone` to verify it completes without errors
+2. **Run the seed script** - After updating, run `pnpm seed` to verify it completes without errors
 3. **Generate a migration** - Run `pnpm payload migrate:create` for schema changes
 4. **Check migration safety** - Run `pnpm migrate:check` to detect potentially destructive patterns
 5. **Review `/docs/migration-safety.md`** for guidance on safe migrations
