@@ -18,6 +18,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`home_pages_document_references_parent_id_idx\` ON \`home_pages_document_references\` (\`_parent_id\`);`,
   )
+  await db.run(
+    sql`CREATE INDEX \`home_pages_document_references_collection_doc_id_idx\` ON \`home_pages_document_references\` (\`collection\`, \`doc_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`_home_pages_v_version_document_references\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -36,6 +39,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`_home_pages_v_version_document_references_parent_id_idx\` ON \`_home_pages_v_version_document_references\` (\`_parent_id\`);`,
   )
+  await db.run(
+    sql`CREATE INDEX \`_home_pages_v_version_document_references_collection_doc_id_idx\` ON \`_home_pages_v_version_document_references\` (\`collection\`, \`doc_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`pages_document_references\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -52,6 +58,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   )
   await db.run(
     sql`CREATE INDEX \`pages_document_references_parent_id_idx\` ON \`pages_document_references\` (\`_parent_id\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`pages_document_references_collection_doc_id_idx\` ON \`pages_document_references\` (\`collection\`, \`doc_id\`);`,
   )
   await db.run(sql`CREATE TABLE \`_pages_v_version_document_references\` (
   	\`_order\` integer NOT NULL,
@@ -71,6 +80,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`_pages_v_version_document_references_parent_id_idx\` ON \`_pages_v_version_document_references\` (\`_parent_id\`);`,
   )
+  await db.run(
+    sql`CREATE INDEX \`_pages_v_version_document_references_collection_doc_id_idx\` ON \`_pages_v_version_document_references\` (\`collection\`, \`doc_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`posts_document_references\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -87,6 +99,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   )
   await db.run(
     sql`CREATE INDEX \`posts_document_references_parent_id_idx\` ON \`posts_document_references\` (\`_parent_id\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`posts_document_references_collection_doc_id_idx\` ON \`posts_document_references\` (\`collection\`, \`doc_id\`);`,
   )
   await db.run(sql`CREATE TABLE \`_posts_v_version_document_references\` (
   	\`_order\` integer NOT NULL,
@@ -106,6 +121,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`CREATE INDEX \`_posts_v_version_document_references_parent_id_idx\` ON \`_posts_v_version_document_references\` (\`_parent_id\`);`,
   )
+  await db.run(
+    sql`CREATE INDEX \`_posts_v_version_document_references_collection_doc_id_idx\` ON \`_posts_v_version_document_references\` (\`collection\`, \`doc_id\`);`,
+  )
   await db.run(sql`CREATE TABLE \`events_document_references\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
@@ -122,6 +140,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   )
   await db.run(
     sql`CREATE INDEX \`events_document_references_parent_id_idx\` ON \`events_document_references\` (\`_parent_id\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`events_document_references_collection_doc_id_idx\` ON \`events_document_references\` (\`collection\`, \`doc_id\`);`,
   )
   await db.run(sql`CREATE TABLE \`_events_v_version_document_references\` (
   	\`_order\` integer NOT NULL,
@@ -140,6 +161,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   )
   await db.run(
     sql`CREATE INDEX \`_events_v_version_document_references_parent_id_idx\` ON \`_events_v_version_document_references\` (\`_parent_id\`);`,
+  )
+  await db.run(
+    sql`CREATE INDEX \`_events_v_version_document_references_collection_doc_id_idx\` ON \`_events_v_version_document_references\` (\`collection\`, \`doc_id\`);`,
   )
 }
 
