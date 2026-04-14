@@ -1,0 +1,18 @@
+
+> web@1.0.0 migrate:diff /Users/kellenbusby/Code/nwac/web
+> cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/analyze-migration-diff.ts
+
+
+🔍 Comparing snapshots:
+   Old: 20260414_034842_remove_old_block_tracking_fields.json
+   New: 20260414_161746.json
+
+📊 Migration Analysis: 20260414_161746
+============================================================
+
+✅ Tables Added (3):
+   • biographies_document_references
+   • sponsors_document_references
+   • teams_document_references
+
+

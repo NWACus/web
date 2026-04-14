@@ -55,6 +55,7 @@ Start by copying `src/collections/collection-template.ts` into a new file in `sr
 1. **Configure the collection** — Choose the appropriate access control pattern and fields from the template
 2. **Register it** — Import and add the collection to your Payload config
 3. **Consider revalidation** — If the collection is referenced as a relationship in a block, you need to write revalidation hooks. See `/docs/revalidation.md`
+   - **Intermediate collections**: If your collection is **not routable** (has no frontend URL) but has `upload` or `relationship` fields pointing to other collections, AND it is itself referenced by routable collections through blocks or relationships, add `documentReferencesField()` to its `fields` and `populateDocumentReferences` to its `beforeChange` hooks. This enables the recursive revalidation system to follow changes through intermediate collections (e.g., a media image change propagates through a sponsor to the pages displaying that sponsor). See Sponsors, Biographies, or Teams for examples.
 4. **Generate types** — Run `pnpm generate:types` to update TypeScript types
 5. **Add seed data** — Add representative test data to the seed script once the schema is finalized
 6. **Run the seed script** — Verify `pnpm seed` completes without errors

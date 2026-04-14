@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import type { CollectionSlug } from 'payload'
+import type { CollectionSlug, Where } from 'payload'
 import { getPayload } from 'payload'
 import { isTenantValue } from './isTenantValue'
 import { DocumentForRevalidation } from './revalidateDocument'
@@ -25,21 +25,23 @@ export async function findDocumentsWithReferences(
 
   const collectionsWithReferences = payload.config.collections
     .filter((c) => c.fields.some((f) => 'name' in f && f.name === 'documentReferences'))
-    .map((c) => c.slug)
+    .map((c) => ({ slug: c.slug, hasDrafts: Boolean(c.versions && c.versions.drafts) }))
 
-  for (const collectionSlug of collectionsWithReferences) {
+  for (const { slug: collectionSlug, hasDrafts } of collectionsWithReferences) {
     if (!isCollectionSlug(collectionSlug, allSlugs)) continue
 
     try {
+      // Only filter by _status for collections with drafts enabled
+      const conditions: Where[] = hasDrafts ? [{ _status: { equals: 'published' } }] : []
+      conditions.push(
+        { 'documentReferences.collection': { equals: reference.collection } },
+        { 'documentReferences.docId': { equals: reference.id } },
+      )
+      const where: Where = { and: conditions }
+
       const res = await payload.find({
         collection: collectionSlug,
-        where: {
-          and: [
-            { _status: { equals: 'published' } },
-            { 'documentReferences.collection': { equals: reference.collection } },
-            { 'documentReferences.docId': { equals: reference.id } },
-          ],
-        },
+        where,
         select: { id: true, slug: true, tenant: true },
         depth: 1,
         limit: 0,

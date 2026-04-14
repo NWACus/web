@@ -606,6 +606,22 @@ export interface Biography {
   start_date?: string | null;
   biography?: string | null;
   contentHash?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1470,6 +1486,22 @@ export interface Sponsor {
   startDate?: string | null;
   endDate?: string | null;
   contentHash?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1499,6 +1531,22 @@ export interface Team {
    */
   members: (number | Biography)[];
   contentHash?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3388,6 +3436,14 @@ export interface SponsorsSelect<T extends boolean = true> {
   startDate?: T;
   endDate?: T;
   contentHash?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3560,6 +3616,14 @@ export interface BiographiesSelect<T extends boolean = true> {
   start_date?: T;
   biography?: T;
   contentHash?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3572,6 +3636,14 @@ export interface TeamsSelect<T extends boolean = true> {
   name?: T;
   members?: T;
   contentHash?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

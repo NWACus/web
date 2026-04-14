@@ -1,7 +1,9 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
+import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
+import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
 import { revalidateTeam, revalidateTeamDelete } from './hooks/revalidateTeam'
@@ -39,8 +41,10 @@ export const Teams: CollectionConfig = {
       },
     },
     contentHashField(),
+    documentReferencesField(),
   ],
   hooks: {
+    beforeChange: [populateDocumentReferences],
     afterChange: [revalidateTeam],
     afterDelete: [revalidateTeamDelete],
   },
