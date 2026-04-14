@@ -7,8 +7,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` text PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`home_pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
@@ -27,8 +26,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	\`_uuid\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_home_pages_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -48,8 +46,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` text PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`pages\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
@@ -68,8 +65,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	\`_uuid\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_pages_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -89,8 +85,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` text PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`posts\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
@@ -109,8 +104,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	\`_uuid\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_posts_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
@@ -130,8 +124,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` text PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`events\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );
   `)
@@ -150,8 +143,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`collection\` text,
   	\`doc_id\` numeric,
-  	\`block_type\` text,
-  	\`field_path\` text,
+  	\`instances\` text,
   	\`_uuid\` text,
   	FOREIGN KEY (\`_parent_id\`) REFERENCES \`_events_v\`(\`id\`) ON UPDATE no action ON DELETE cascade
   );

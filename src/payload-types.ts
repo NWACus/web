@@ -313,8 +313,15 @@ export interface HomePage {
     | {
         collection?: string | null;
         docId?: number | null;
-        blockType?: string | null;
-        fieldPath?: string | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -411,8 +418,15 @@ export interface Page {
     | {
         collection?: string | null;
         docId?: number | null;
-        blockType?: string | null;
-        fieldPath?: string | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -539,8 +553,15 @@ export interface Post {
     | {
         collection?: string | null;
         docId?: number | null;
-        blockType?: string | null;
-        fieldPath?: string | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -904,8 +925,15 @@ export interface Event {
     | {
         collection?: string | null;
         docId?: number | null;
-        blockType?: string | null;
-        fieldPath?: string | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -2963,8 +2991,7 @@ export interface HomePagesSelect<T extends boolean = true> {
     | {
         collection?: T;
         docId?: T;
-        blockType?: T;
-        fieldPath?: T;
+        instances?: T;
         id?: T;
       };
   contentHash?: T;
@@ -3284,8 +3311,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         collection?: T;
         docId?: T;
-        blockType?: T;
-        fieldPath?: T;
+        instances?: T;
         id?: T;
       };
   contentHash?: T;
@@ -3329,8 +3355,7 @@ export interface PostsSelect<T extends boolean = true> {
     | {
         collection?: T;
         docId?: T;
-        blockType?: T;
-        fieldPath?: T;
+        instances?: T;
         id?: T;
       };
   contentHash?: T;
@@ -3474,8 +3499,7 @@ export interface EventsSelect<T extends boolean = true> {
     | {
         collection?: T;
         docId?: T;
-        blockType?: T;
-        fieldPath?: T;
+        instances?: T;
         id?: T;
       };
   contentHash?: T;
