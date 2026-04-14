@@ -1,8 +1,14 @@
-// Stubs for modules that execute at import time (before Payload is running).
+// Mock modules that need a running Payload instance or execute at import time.
+// These must be before any imports that trigger the module load chain.
 jest.mock('../../src/payload.config', () => ({}))
 jest.mock('payload', () => ({ getPayload: jest.fn() }))
+
+// lexicalEditor and feature functions execute at module scope when block configs load.
+// We stub them but make BlocksFeature capture its blocks arg so the extraction function
+// can introspect which blocks each richText field allows (via feature.serverFeatureProps.blocks).
 jest.mock('@payloadcms/richtext-lexical', () => ({
   lexicalEditor: ({ features }: { features?: unknown }) => {
+    // Resolve the features array the same way the real lexicalEditor does
     const resolvedFeatures =
       typeof features === 'function' ? features({ rootFeatures: [] }) : (features ?? [])
     return { features: resolvedFeatures }
@@ -103,7 +109,9 @@ const postsFields = Posts.fields
 const eventsFields = Events.fields
 const homePagesFields = HomePages.fields
 
-// Synthetic layout wrappers to test the walker's traversal of row, collapsible, and tabs.
+// Layout-only field wrappers (row, collapsible, unnamed/named tabs).
+// These are synthetic because no single collection has all wrapper types together,
+// and the behavior being tested is the walker's traversal logic, not specific configs.
 const fieldsWithLayoutWrappers: Field[] = [
   {
     type: 'row',
@@ -141,10 +149,26 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'biographies', docId: 5, blockType: null, fieldPath: 'authors' },
-          { collection: 'biographies', docId: 12, blockType: null, fieldPath: 'authors' },
-          { collection: 'tags', docId: 3, blockType: null, fieldPath: 'tags' },
-          { collection: 'media', docId: 42, blockType: null, fieldPath: 'featuredImage' },
+          {
+            collection: 'biographies',
+            docId: 5,
+            instances: [{ blockType: null, fieldPath: 'authors' }],
+          },
+          {
+            collection: 'biographies',
+            docId: 12,
+            instances: [{ blockType: null, fieldPath: 'authors' }],
+          },
+          {
+            collection: 'tags',
+            docId: 3,
+            instances: [{ blockType: null, fieldPath: 'tags' }],
+          },
+          {
+            collection: 'media',
+            docId: 42,
+            instances: [{ blockType: null, fieldPath: 'featuredImage' }],
+          },
         ]),
       )
       expect(result).toHaveLength(4)
@@ -160,7 +184,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(postsFields, data)
 
       expect(result).toEqual([
-        { collection: 'media', docId: 99, blockType: null, fieldPath: 'featuredImage' },
+        {
+          collection: 'media',
+          docId: 99,
+          instances: [{ blockType: null, fieldPath: 'featuredImage' }],
+        },
       ])
     })
 
@@ -192,8 +220,16 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'biographies', docId: 5, blockType: null, fieldPath: 'authors' },
-          { collection: 'biographies', docId: 12, blockType: null, fieldPath: 'authors' },
+          {
+            collection: 'biographies',
+            docId: 5,
+            instances: [{ blockType: null, fieldPath: 'authors' }],
+          },
+          {
+            collection: 'biographies',
+            docId: 12,
+            instances: [{ blockType: null, fieldPath: 'authors' }],
+          },
         ]),
       )
       expect(result).toHaveLength(2)
@@ -211,7 +247,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fields, data)
 
       expect(result).toEqual([
-        { collection: 'pages', docId: 57, blockType: null, fieldPath: 'reference' },
+        {
+          collection: 'pages',
+          docId: 57,
+          instances: [{ blockType: null, fieldPath: 'reference' }],
+        },
       ])
     })
 
@@ -227,7 +267,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fields, data)
 
       expect(result).toEqual([
-        { collection: 'posts', docId: 23, blockType: null, fieldPath: 'reference' },
+        {
+          collection: 'posts',
+          docId: 23,
+          instances: [{ blockType: null, fieldPath: 'reference' }],
+        },
       ])
     })
 
@@ -249,8 +293,16 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fields, data)
 
       expect(result).toEqual([
-        { collection: 'pages', docId: 57, blockType: null, fieldPath: 'references' },
-        { collection: 'builtInPages', docId: 42, blockType: null, fieldPath: 'references' },
+        {
+          collection: 'pages',
+          docId: 57,
+          instances: [{ blockType: null, fieldPath: 'references' }],
+        },
+        {
+          collection: 'builtInPages',
+          docId: 42,
+          instances: [{ blockType: null, fieldPath: 'references' }],
+        },
       ])
     })
 
@@ -286,8 +338,16 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fields, data)
 
       expect(result).toEqual([
-        { collection: 'pages', docId: 57, blockType: null, fieldPath: 'references' },
-        { collection: 'builtInPages', docId: 42, blockType: null, fieldPath: 'references' },
+        {
+          collection: 'pages',
+          docId: 57,
+          instances: [{ blockType: null, fieldPath: 'references' }],
+        },
+        {
+          collection: 'builtInPages',
+          docId: 42,
+          instances: [{ blockType: null, fieldPath: 'references' }],
+        },
       ])
     })
   })
@@ -304,8 +364,16 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'teams', docId: 16, blockType: TeamBlock.slug, fieldPath: 'layout.0.team' },
-          { collection: 'teams', docId: 20, blockType: TeamBlock.slug, fieldPath: 'layout.1.team' },
+          {
+            collection: 'teams',
+            docId: 16,
+            instances: [{ blockType: TeamBlock.slug, fieldPath: 'layout.0.team' }],
+          },
+          {
+            collection: 'teams',
+            docId: 20,
+            instances: [{ blockType: TeamBlock.slug, fieldPath: 'layout.1.team' }],
+          },
         ]),
       )
       expect(result).toHaveLength(2)
@@ -322,14 +390,12 @@ describe('extractDocumentReferences', () => {
           {
             collection: 'sponsors',
             docId: 42,
-            blockType: SponsorsBlock.slug,
-            fieldPath: 'layout.0.sponsors',
+            instances: [{ blockType: SponsorsBlock.slug, fieldPath: 'layout.0.sponsors' }],
           },
           {
             collection: 'sponsors',
             docId: 78,
-            blockType: SponsorsBlock.slug,
-            fieldPath: 'layout.0.sponsors',
+            instances: [{ blockType: SponsorsBlock.slug, fieldPath: 'layout.0.sponsors' }],
           },
         ]),
       )
@@ -343,7 +409,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(pagesFields, data)
 
       expect(result).toEqual([
-        { collection: 'media', docId: 91, blockType: MediaBlock.slug, fieldPath: 'layout.0.media' },
+        {
+          collection: 'media',
+          docId: 91,
+          instances: [{ blockType: MediaBlock.slug, fieldPath: 'layout.0.media' }],
+        },
       ])
     })
 
@@ -366,26 +436,30 @@ describe('extractDocumentReferences', () => {
           {
             collection: 'tags',
             docId: 3,
-            blockType: BlogListBlock.slug,
-            fieldPath: 'layout.0.dynamicOptions.filterByTags',
+            instances: [
+              { blockType: BlogListBlock.slug, fieldPath: 'layout.0.dynamicOptions.filterByTags' },
+            ],
           },
           {
             collection: 'tags',
             docId: 7,
-            blockType: BlogListBlock.slug,
-            fieldPath: 'layout.0.dynamicOptions.filterByTags',
+            instances: [
+              { blockType: BlogListBlock.slug, fieldPath: 'layout.0.dynamicOptions.filterByTags' },
+            ],
           },
           {
             collection: 'posts',
             docId: 10,
-            blockType: BlogListBlock.slug,
-            fieldPath: 'layout.0.staticOptions.staticPosts',
+            instances: [
+              { blockType: BlogListBlock.slug, fieldPath: 'layout.0.staticOptions.staticPosts' },
+            ],
           },
           {
             collection: 'posts',
             docId: 15,
-            blockType: BlogListBlock.slug,
-            fieldPath: 'layout.0.staticOptions.staticPosts',
+            instances: [
+              { blockType: BlogListBlock.slug, fieldPath: 'layout.0.staticOptions.staticPosts' },
+            ],
           },
         ]),
       )
@@ -399,7 +473,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(pagesFields, data)
 
       expect(result).toEqual([
-        { collection: 'forms', docId: 5, blockType: FormBlock.slug, fieldPath: 'layout.0.form' },
+        {
+          collection: 'forms',
+          docId: 5,
+          instances: [{ blockType: FormBlock.slug, fieldPath: 'layout.0.form' }],
+        },
       ])
     })
   })
@@ -424,7 +502,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(postsFields, data)
 
       expect(result).toEqual([
-        { collection: 'media', docId: 499, blockType: MediaBlock.slug, fieldPath: 'content' },
+        {
+          collection: 'media',
+          docId: 499,
+          instances: [{ blockType: MediaBlock.slug, fieldPath: 'content' }],
+        },
       ])
     })
 
@@ -455,18 +537,20 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'media', docId: 10, blockType: MediaBlock.slug, fieldPath: 'content' },
+          {
+            collection: 'media',
+            docId: 10,
+            instances: [{ blockType: MediaBlock.slug, fieldPath: 'content' }],
+          },
           {
             collection: 'documents',
             docId: 20,
-            blockType: DocumentBlock.slug,
-            fieldPath: 'content',
+            instances: [{ blockType: DocumentBlock.slug, fieldPath: 'content' }],
           },
           {
             collection: 'posts',
             docId: 30,
-            blockType: SingleBlogPostBlock.slug,
-            fieldPath: 'content',
+            instances: [{ blockType: SingleBlogPostBlock.slug, fieldPath: 'content' }],
           },
         ]),
       )
@@ -475,6 +559,7 @@ describe('extractDocumentReferences', () => {
   })
 
   describe('richText fields with Lexical inlineBlock nodes', () => {
+    // Synthetic inline block config (mirrors InlineMedia from PR #968)
     const InlineMediaBlock: Block = {
       slug: 'inlineMedia',
       fields: [
@@ -483,6 +568,9 @@ describe('extractDocumentReferences', () => {
       ],
     }
 
+    // Synthetic richText field using the mocked lexicalEditor/BlocksFeature.
+    // The mock resolves features into { key, serverFeatureProps } objects that
+    // the extraction function can introspect at runtime.
     const fieldsWithInlineBlocks: Field[] = [
       {
         name: 'content',
@@ -510,7 +598,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fieldsWithInlineBlocks, data)
 
       expect(result).toEqual([
-        { collection: 'media', docId: 701, blockType: 'inlineMedia', fieldPath: 'content' },
+        {
+          collection: 'media',
+          docId: 701,
+          instances: [{ blockType: 'inlineMedia', fieldPath: 'content' }],
+        },
       ])
     })
 
@@ -535,8 +627,16 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'media', docId: 100, blockType: MediaBlock.slug, fieldPath: 'content' },
-          { collection: 'media', docId: 200, blockType: 'inlineMedia', fieldPath: 'content' },
+          {
+            collection: 'media',
+            docId: 100,
+            instances: [{ blockType: MediaBlock.slug, fieldPath: 'content' }],
+          },
+          {
+            collection: 'media',
+            docId: 200,
+            instances: [{ blockType: 'inlineMedia', fieldPath: 'content' }],
+          },
         ]),
       )
       expect(result).toHaveLength(2)
@@ -574,7 +674,11 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fieldsWithInlineBlocks, data)
 
       expect(result).toEqual([
-        { collection: 'media', docId: 555, blockType: 'inlineMedia', fieldPath: 'content' },
+        {
+          collection: 'media',
+          docId: 555,
+          instances: [{ blockType: 'inlineMedia', fieldPath: 'content' }],
+        },
       ])
     })
   })
@@ -610,8 +714,7 @@ describe('extractDocumentReferences', () => {
         {
           collection: 'media',
           docId: 91,
-          blockType: MediaBlock.slug,
-          fieldPath: 'layout.0.columns.0.richText',
+          instances: [{ blockType: MediaBlock.slug, fieldPath: 'layout.0.columns.0.richText' }],
         },
       ])
     })
@@ -657,8 +760,7 @@ describe('extractDocumentReferences', () => {
         {
           collection: 'pages',
           docId: 57,
-          blockType: ButtonBlock.slug,
-          fieldPath: 'layout.0.columns.0.richText',
+          instances: [{ blockType: ButtonBlock.slug, fieldPath: 'layout.0.columns.0.richText' }],
         },
       ])
     })
@@ -687,19 +789,25 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'media', docId: 100, blockType: null, fieldPath: 'featuredImage' },
-          { collection: 'media', docId: 91, blockType: MediaBlock.slug, fieldPath: 'content' },
+          {
+            collection: 'media',
+            docId: 100,
+            instances: [{ blockType: null, fieldPath: 'featuredImage' }],
+          },
+          {
+            collection: 'media',
+            docId: 91,
+            instances: [{ blockType: MediaBlock.slug, fieldPath: 'content' }],
+          },
           {
             collection: 'sponsors',
             docId: 42,
-            blockType: SponsorsBlock.slug,
-            fieldPath: 'content',
+            instances: [{ blockType: SponsorsBlock.slug, fieldPath: 'content' }],
           },
           {
             collection: 'sponsors',
             docId: 78,
-            blockType: SponsorsBlock.slug,
-            fieldPath: 'content',
+            instances: [{ blockType: SponsorsBlock.slug, fieldPath: 'content' }],
           },
         ]),
       )
@@ -714,8 +822,16 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'media', docId: 10, blockType: null, fieldPath: 'headerImage' },
-          { collection: 'media', docId: 20, blockType: null, fieldPath: 'ogImage' },
+          {
+            collection: 'media',
+            docId: 10,
+            instances: [{ blockType: null, fieldPath: 'headerImage' }],
+          },
+          {
+            collection: 'media',
+            docId: 20,
+            instances: [{ blockType: null, fieldPath: 'ogImage' }],
+          },
         ]),
       )
     })
@@ -726,7 +842,11 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'sponsors', docId: 5, blockType: null, fieldPath: 'sponsor' },
+          {
+            collection: 'sponsors',
+            docId: 5,
+            instances: [{ blockType: null, fieldPath: 'sponsor' }],
+          },
         ]),
       )
     })
@@ -737,7 +857,11 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'biographies', docId: 8, blockType: null, fieldPath: 'author' },
+          {
+            collection: 'biographies',
+            docId: 8,
+            instances: [{ blockType: null, fieldPath: 'author' }],
+          },
         ]),
       )
     })
@@ -748,7 +872,11 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { collection: 'media', docId: 15, blockType: null, fieldPath: 'meta.metaImage' },
+          {
+            collection: 'media',
+            docId: 15,
+            instances: [{ blockType: null, fieldPath: 'meta.metaImage' }],
+          },
         ]),
       )
     })
@@ -757,7 +885,7 @@ describe('extractDocumentReferences', () => {
   describe('group fields', () => {
     it('extracts references through unnamed groups (Events Landing Page Content)', () => {
       // The Events "Landing Page Content" group has no `name`, so its fields
-      // (content) sit at the same data level as other fields.
+      // (content, blocksInContent) sit at the same data level as other fields.
       const data = {
         featuredImage: null,
         thumbnailImage: null,
@@ -777,8 +905,7 @@ describe('extractDocumentReferences', () => {
         {
           collection: 'media',
           docId: 300,
-          blockType: MediaBlock.slug,
-          fieldPath: 'content',
+          instances: [{ blockType: MediaBlock.slug, fieldPath: 'content' }],
         },
       ])
     })
@@ -820,14 +947,19 @@ describe('extractDocumentReferences', () => {
           {
             collection: 'media',
             docId: 200,
-            blockType: MediaBlock.slug,
-            fieldPath: 'highlightedContent.columns.0.richText',
+            instances: [
+              { blockType: MediaBlock.slug, fieldPath: 'highlightedContent.columns.0.richText' },
+            ],
           },
           {
             collection: 'posts',
             docId: 45,
-            blockType: SingleBlogPostBlock.slug,
-            fieldPath: 'highlightedContent.columns.1.richText',
+            instances: [
+              {
+                blockType: SingleBlogPostBlock.slug,
+                fieldPath: 'highlightedContent.columns.1.richText',
+              },
+            ],
           },
         ]),
       )
@@ -835,8 +967,8 @@ describe('extractDocumentReferences', () => {
     })
   })
 
-  describe('deduplication', () => {
-    it('deduplicates identical references (same collection + docId)', () => {
+  describe('deduplication and instance grouping', () => {
+    it('groups instances when same document is referenced from multiple locations', () => {
       // Same media referenced as featuredImage AND inside a content richText MediaBlock
       const data = {
         featuredImage: 91,
@@ -853,9 +985,13 @@ describe('extractDocumentReferences', () => {
       }
       const result = extractDocumentReferences(postsFields, data)
 
-      // Deduplicated on collection+docId — should appear only once
+      // Grouped on collection+docId — should appear once with both instances
       const mediaRefs = result.filter((r) => r.collection === 'media' && r.docId === 91)
       expect(mediaRefs).toHaveLength(1)
+      expect(mediaRefs[0].instances).toEqual([
+        { blockType: null, fieldPath: 'featuredImage' },
+        { blockType: MediaBlock.slug, fieldPath: 'content' },
+      ])
     })
   })
 
@@ -935,8 +1071,12 @@ describe('extractDocumentReferences', () => {
     })
 
     it('correctly extracts references from deeply nested blocks whose configs form a cycle', () => {
-      // Config graph has cycles (ContentBlock ↔ CalloutBlock) but the walker
-      // follows data (always a finite tree), so no infinite loop.
+      // Regression test: ContentBlock allows CalloutBlock, and CalloutBlock's
+      // richText could theoretically contain a ContentBlock — forming a cycle
+      // in the config graph. This works because the walker follows the actual
+      // data (which is always a finite tree), not the config definitions. This
+      // test ensures no future refactor accidentally introduces config-graph
+      // traversal that would loop.
       const data = {
         layout: [
           {
@@ -970,8 +1110,7 @@ describe('extractDocumentReferences', () => {
         {
           collection: 'media',
           docId: 42,
-          blockType: MediaBlock.slug,
-          fieldPath: 'layout.0.columns.0.richText',
+          instances: [{ blockType: MediaBlock.slug, fieldPath: 'layout.0.columns.0.richText' }],
         },
       ])
     })
@@ -988,8 +1127,16 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fields, data)
 
       expect(result).toEqual([
-        { collection: 'media', docId: 10, blockType: null, fieldPath: 'featuredImage' },
-        { collection: 'biographies', docId: 20, blockType: null, fieldPath: 'author' },
+        {
+          collection: 'media',
+          docId: 10,
+          instances: [{ blockType: null, fieldPath: 'featuredImage' }],
+        },
+        {
+          collection: 'biographies',
+          docId: 20,
+          instances: [{ blockType: null, fieldPath: 'author' }],
+        },
       ])
     })
 
@@ -1012,8 +1159,16 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(fields, data)
 
       expect(result).toEqual([
-        { collection: 'pages', docId: 5, blockType: null, fieldPath: 'related' },
-        { collection: 'posts', docId: 8, blockType: null, fieldPath: 'related' },
+        {
+          collection: 'pages',
+          docId: 5,
+          instances: [{ blockType: null, fieldPath: 'related' }],
+        },
+        {
+          collection: 'posts',
+          docId: 8,
+          instances: [{ blockType: null, fieldPath: 'related' }],
+        },
       ])
     })
 
@@ -1022,15 +1177,29 @@ describe('extractDocumentReferences', () => {
       const result = extractDocumentReferences(postsFields, data)
 
       expect(result).toEqual([
-        { collection: 'biographies', docId: 5, blockType: null, fieldPath: 'authors' },
+        {
+          collection: 'biographies',
+          docId: 5,
+          instances: [{ blockType: null, fieldPath: 'authors' }],
+        },
       ])
       expect(result.every((ref) => ref.collection !== 'tenants')).toBe(true)
     })
   })
 
-  // Fixture tests — real content structures from the dev database with randomized IDs.
+  // -----------------------------------------------------------------------
+  // Fixture tests
+  //
+  // These use document structures modeled on real content pulled from the
+  // dev database via Payload MCP server. IDs are randomized but the
+  // structural patterns (nesting depth, field shapes, block types) are real.
+  //
+  // -----------------------------------------------------------------------
 
   describe('fixture: page "about-us" (deep nesting)', () => {
+    // This page has ContentBlocks with richText containing CalloutBlocks
+    // and MediaBlocks
+
     it('finds the ButtonBlock reference 3 levels deep (ContentBlock > CalloutBlock > ButtonBlock)', () => {
       const result = extractDocumentReferences(pagesFields, pageAboutUsLayout)
 
@@ -1041,7 +1210,7 @@ describe('extractDocumentReferences', () => {
           expect.objectContaining({
             collection: 'pages',
             docId: 201,
-            blockType: ButtonBlock.slug,
+            instances: [expect.objectContaining({ blockType: ButtonBlock.slug })],
           }),
         ]),
       )
@@ -1053,8 +1222,16 @@ describe('extractDocumentReferences', () => {
       // Two MediaBlocks in the "Photos" ContentBlock's columns
       expect(result).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ collection: 'media', docId: 301, blockType: MediaBlock.slug }),
-          expect.objectContaining({ collection: 'media', docId: 302, blockType: MediaBlock.slug }),
+          expect.objectContaining({
+            collection: 'media',
+            docId: 301,
+            instances: [expect.objectContaining({ blockType: MediaBlock.slug })],
+          }),
+          expect.objectContaining({
+            collection: 'media',
+            docId: 302,
+            instances: [expect.objectContaining({ blockType: MediaBlock.slug })],
+          }),
         ]),
       )
     })
@@ -1073,9 +1250,21 @@ describe('extractDocumentReferences', () => {
 
       expect(result).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ collection: 'teams', docId: 401, blockType: TeamBlock.slug }),
-          expect.objectContaining({ collection: 'teams', docId: 402, blockType: TeamBlock.slug }),
-          expect.objectContaining({ collection: 'teams', docId: 403, blockType: TeamBlock.slug }),
+          expect.objectContaining({
+            collection: 'teams',
+            docId: 401,
+            instances: [expect.objectContaining({ blockType: TeamBlock.slug })],
+          }),
+          expect.objectContaining({
+            collection: 'teams',
+            docId: 402,
+            instances: [expect.objectContaining({ blockType: TeamBlock.slug })],
+          }),
+          expect.objectContaining({
+            collection: 'teams',
+            docId: 403,
+            instances: [expect.objectContaining({ blockType: TeamBlock.slug })],
+          }),
         ]),
       )
       expect(result).toHaveLength(3)
@@ -1102,27 +1291,17 @@ describe('extractDocumentReferences', () => {
   })
 
   describe('fixture: post with media block', () => {
-    it('finds the featuredImage upload reference (MediaBlock in content is deduplicated)', () => {
+    it('groups both instances when same media is referenced from featuredImage and content block', () => {
       const result = extractDocumentReferences(postsFields, postWithMediaBlock)
 
       // media 601 is referenced both as featuredImage and in a content MediaBlock,
-      // but deduplication on collection+docId keeps only the first occurrence
-      expect(result).toEqual([
-        expect.objectContaining({
-          collection: 'media',
-          docId: 601,
-          blockType: null,
-          fieldPath: 'featuredImage',
-        }),
-      ])
-    })
-
-    it('deduplicates since featuredImage and content MediaBlock reference the same media', () => {
-      const result = extractDocumentReferences(postsFields, postWithMediaBlock)
-
-      // media 601 appears twice (featuredImage + content block) but should be deduplicated
+      // grouped into a single entry with both instances
       const mediaRefs = result.filter((r) => r.collection === 'media' && r.docId === 601)
       expect(mediaRefs).toHaveLength(1)
+      expect(mediaRefs[0].instances).toEqual([
+        { blockType: null, fieldPath: 'featuredImage' },
+        { blockType: MediaBlock.slug, fieldPath: 'content' },
+      ])
     })
 
     it('ignores empty relationship arrays (authors, tags, relatedPosts)', () => {

@@ -21,6 +21,64 @@ When you need to understand Payload internals, reference the source code in `nod
 
 The code is readable ES modules with source maps. This matches the exact Payload version used in this project.
 
+## MCP Servers (AvyWeb Payload CMS)
+
+This project configures two MCP servers in `.mcp.json` for querying the Payload CMS database:
+
+- **`avyweb-payload-local`** — Local dev server at `localhost:3000/api/mcp`. Requires `pnpm dev` running.
+- **`avyweb-payload-prod`** — Production server at `avy-fx.org/api/mcp`.
+
+### Setup
+
+MCP API keys are created in the Payload admin panel under **Admin > MCP API Keys** (super-admin only).
+
+The developer should configure these MCP servers like so:
+
+```
+{
+  "mcpServers": {
+    "avyweb-payload-local": {
+      "type": "http",
+      "url": "http://localhost:3000/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${AVYWEB_MCP_API_KEY_LOCAL}"
+      }
+    },
+    "avyweb-payload-prod": {
+      "type": "http",
+      "url": "https://avy-fx.org/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${AVYWEB_MCP_API_KEY_PROD}"
+      }
+    }
+  }
+}
+```
+
+### When to Use
+
+Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when you need to:
+
+- **Query live database content** — actual document data, IDs, field values, relationships
+- **Verify seed data** — check what documents exist after seeding
+- **Understand content structure** — see how real content populates collection schemas
+- **Debug data issues** — inspect specific documents by ID or filter criteria
+
+### When NOT to Use
+
+- **Understanding collection schemas** — read the collection config files in `src/collections/` instead
+- **Understanding code patterns** — read the source code directly
+- **Dev server not running** — local MCP tools will fail without `pnpm dev`
+
+### Querying Tips
+
+- All content is multi-tenant. Always filter by tenant: `{"tenant": {"equals": <tenantId>}}`
+- Use `findTenants` first to discover tenant IDs and slugs (nwac, dvac, sac, snfac)
+- Use `depth: 0` for IDs only, `depth: 1+` for resolved relationships
+- Use `select` to return only needed fields: `{"title": true, "slug": true}`
+- Use `sort` for ordering: `"-updatedAt"` for newest first
+- Where clause operators: `equals`, `contains`, `like`, `greater_than`, `less_than`, `in`, etc.
+
 ## Essential Commands
 
 ### Development
@@ -33,8 +91,8 @@ The code is readable ES modules with source maps. This matches the exact Payload
 ### Database & Seeding
 
 - `pnpm bootstrap` - Quick setup: creates DB with bootstrap@avy.com user and super-admin rights
-- `pnpm seed` - Full database seed with all test data (uses shell script)
-- `pnpm seed:standalone` - Faster standalone seed with all test data (recommended)
+- `pnpm seed` - Full database seed with all test data (recommended, uses shell script)
+- `pnpm seed:standalone` - Standalone seed with all test data (requires no running server)
 - `pnpm reseed` - Incremental update of changed seed data
 - `pnpm migrate` - Run Payload migrations
 - `pnpm migrate:check [filename]` - Check migrations for potentially destructive patterns
@@ -333,7 +391,7 @@ Never cast relationship fields - they can be resolved objects, unresolved IDs, o
 ### When Modifying Collection Schemas
 
 1. **Check if seed data needs updating** - If you add/change fields, update the seed script to include appropriate test data
-2. **Run the seed script** - After updating, run `pnpm seed:standalone` to verify it completes without errors
+2. **Run the seed script** - After updating, run `pnpm seed` to verify it completes without errors
 3. **Generate a migration** - Run `pnpm payload migrate:create` for schema changes
 4. **Check migration safety** - Run `pnpm migrate:check` to detect potentially destructive patterns
 5. **Review `/docs/migration-safety.md`** for guidance on safe migrations
