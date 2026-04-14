@@ -10,14 +10,15 @@ export interface RevalidationReference {
   collection:
     | 'biographies'
     | 'documents'
-    | 'teams'
-    | 'media'
-    | 'forms'
-    | 'tags'
-    | 'posts'
-    | 'homePages'
-    | 'sponsors'
     | 'events'
+    | 'forms'
+    | 'homePages'
+    | 'media'
+    | 'pages'
+    | 'posts'
+    | 'sponsors'
+    | 'tags'
+    | 'teams'
   id: number
 }
 
