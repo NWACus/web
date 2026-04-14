@@ -183,7 +183,6 @@ export const Events: CollectionConfig = {
           },
           admin: {
             disabled: true,
-            readOnly: true,
           },
           fields: [
             {

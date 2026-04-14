@@ -10,7 +10,6 @@ export const documentReferencesField = (): Field => ({
   type: 'array',
   admin: {
     disabled: true,
-    readOnly: true,
   },
   fields: [
     { name: 'collection', type: 'text' },
