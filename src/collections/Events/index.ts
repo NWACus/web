@@ -35,7 +35,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { CollectionConfig, DateField, ValidateOptions } from 'payload'
 import { date } from 'payload/shared'
-import { populateBlocksInContent } from '../Posts/hooks/populateBlocksInContent'
+import { populateBlocksInContent } from './hooks/populateBlocksInContent'
 import { revalidateEvent, revalidateEventDelete } from './hooks/revalidateEvent'
 
 export const Events: CollectionConfig = {
