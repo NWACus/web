@@ -14,7 +14,13 @@ export const documentReferencesField = (): Field => ({
   fields: [
     { name: 'collection', type: 'text' },
     { name: 'docId', type: 'number' },
-    { name: 'blockType', type: 'text' },
-    { name: 'fieldPath', type: 'text' },
+    {
+      name: 'instances',
+      type: 'array',
+      fields: [
+        { name: 'blockType', type: 'text' },
+        { name: 'fieldPath', type: 'text' },
+      ],
+    },
   ],
 })

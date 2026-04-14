@@ -1,10 +1,14 @@
 import type { Block, Field } from 'payload'
 
+export interface DocumentReferenceInstance {
+  blockType: string | null
+  fieldPath: string
+}
+
 export interface DocumentReference {
   collection: string
   docId: number
-  blockType: string | null
-  fieldPath: string
+  instances: DocumentReferenceInstance[]
 }
 
 type DataObject = Record<string, unknown>
@@ -38,7 +42,7 @@ function extractRefsFromRelationshipValue(
   relationTo: string | string[],
   blockType: string | null,
   fieldPath: string,
-  refs: DocumentReference[],
+  refs: RawRef[],
 ): void {
   if (value == null) return
 
@@ -125,18 +129,37 @@ function getBlocksFromRichTextField(field: Field): Block[] {
  * Handles: relationship, upload, blocks, richText (Lexical), group, array,
  * row, collapsible, and tabs fields at any nesting depth.
  */
-export function extractDocumentReferences(fields: Field[], data: DataObject): DocumentReference[] {
-  const refs: DocumentReference[] = []
-  walkFields(fields, data, '', null, refs)
+/**
+ * Internal representation used during the walk phase.
+ * Converted to DocumentReference (with grouped instances) at the end.
+ */
+interface RawRef {
+  collection: string
+  docId: number
+  blockType: string | null
+  fieldPath: string
+}
 
-  // Deduplicate on collection + docId (keep first occurrence)
-  const seen = new Set<string>()
-  return refs.filter((ref) => {
+export function extractDocumentReferences(fields: Field[], data: DataObject): DocumentReference[] {
+  const rawRefs: RawRef[] = []
+  walkFields(fields, data, '', null, rawRefs)
+
+  // Group by collection + docId, collecting all instances
+  const grouped = new Map<string, DocumentReference>()
+  for (const ref of rawRefs) {
     const key = `${ref.collection}:${ref.docId}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+    const existing = grouped.get(key)
+    if (existing) {
+      existing.instances.push({ blockType: ref.blockType, fieldPath: ref.fieldPath })
+    } else {
+      grouped.set(key, {
+        collection: ref.collection,
+        docId: ref.docId,
+        instances: [{ blockType: ref.blockType, fieldPath: ref.fieldPath }],
+      })
+    }
+  }
+  return Array.from(grouped.values())
 }
 
 function walkFields(
@@ -145,7 +168,7 @@ function walkFields(
   pathPrefix: string,
   /** blockType slug when inside a block's fields, null at top level */
   currentBlockType: string | null,
-  refs: DocumentReference[],
+  refs: RawRef[],
 ): void {
   for (const field of fields) {
     switch (field.type) {
@@ -258,7 +281,7 @@ function walkLexicalNodes(
   lexicalData: DataObject,
   blockConfigMap: Map<string, Block>,
   fieldPath: string,
-  refs: DocumentReference[],
+  refs: RawRef[],
 ): void {
   const root = lexicalData.root
   if (!isDataObject(root)) return
@@ -297,7 +320,7 @@ function walkFieldsInLexicalContext(
   data: DataObject,
   blockType: string,
   fieldPath: string,
-  refs: DocumentReference[],
+  refs: RawRef[],
 ): void {
   for (const field of fields) {
     switch (field.type) {
