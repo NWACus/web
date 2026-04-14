@@ -61,6 +61,7 @@
     "@payloadcms/email-resend": "3.81.0",
     "@payloadcms/next": "3.81.0",
     "@payloadcms/plugin-form-builder": "3.81.0",
+    "@payloadcms/plugin-mcp": "3.81.0",
     "@payloadcms/plugin-sentry": "3.81.0",
     "@payloadcms/plugin-seo": "3.81.0",
     "@payloadcms/richtext-lexical": "3.81.0",
@@ -176,7 +177,8 @@
       "unrs-resolver"
     ],
     "patchedDependencies": {
-      "@payloadcms/storage-vercel-blob": "patches/@payloadcms__storage-vercel-blob.patch"
+      "@payloadcms/storage-vercel-blob": "patches/@payloadcms__storage-vercel-blob.patch",
+      "@payloadcms/plugin-mcp": "patches/@payloadcms__plugin-mcp.patch"
     }
   }
 }
