@@ -292,52 +292,34 @@ export const getTopLevelNavItems = async ({
     return [{ id: item.id ?? String(i), link }]
   })
 
-  const observationsNavItem: TopLevelNavItem = {
-    label: 'Observations',
-    items:
-      observationsItems.length > 0
-        ? observationsItems
-        : [
-            {
-              id: 'recent',
-              link: { type: 'internal', label: 'Recent Observations', url: '/observations' },
-            },
-            {
-              id: 'submit',
-              link: { type: 'internal', label: 'Submit Observation', url: '/observations/submit' },
-            },
-          ],
-  }
-
   // SAC-specific observations archive link — revert this block when no longer needed
   if (center === 'sac') {
-    observationsNavItem.items?.push({
+    observationsItems.push({
       id: 'archive',
       link: { type: 'internal', label: 'Observations Archive', url: '/observations-archive' },
     })
   }
 
+  const observationsNavItem: TopLevelNavItem | undefined =
+    observationsItems.length > 0 ? { label: 'Observations', items: observationsItems } : undefined
+
   const blogLink = navigation.blog?.link ? convertToNavLink(navigation.blog.link) : undefined
-  const blogNavItem: TopLevelNavItem = blogLink
-    ? { link: blogLink }
-    : { link: { label: 'Blog', type: 'internal', url: '/blog' } }
+  const blogNavItem: TopLevelNavItem | undefined = blogLink ? { link: blogLink } : undefined
 
   const eventsLink = navigation.events?.link ? convertToNavLink(navigation.events.link) : undefined
-  const eventsNavItem: TopLevelNavItem = eventsLink
-    ? { link: eventsLink }
-    : { link: { label: 'Events', type: 'internal', url: '/events' } }
+  const eventsNavItem: TopLevelNavItem | undefined = eventsLink ? { link: eventsLink } : undefined
 
   const topLevelNavItems: TopLevelNavItem[] = [
-    ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
+    ...(avalancheCenterPlatforms.forecasts && forecastsNavItem ? [forecastsNavItem] : []),
     ...topLevelNavItem({
       tab: navigation.weather,
       label: 'Weather',
     }),
-    ...(avalancheCenterPlatforms.obs ? [observationsNavItem] : []),
+    ...(avalancheCenterPlatforms.obs && observationsNavItem ? [observationsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
-    ...(navigation.blog?.options?.enabled ? [blogNavItem] : []),
-    ...(navigation.events?.options?.enabled ? [eventsNavItem] : []),
+    ...(navigation.blog?.options?.enabled && blogNavItem ? [blogNavItem] : []),
+    ...(navigation.events?.options?.enabled && eventsNavItem ? [eventsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
   ]
