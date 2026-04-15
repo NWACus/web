@@ -262,28 +262,34 @@ export const getTopLevelNavItems = async ({
   avalancheCenterPlatforms: AvalancheCenterPlatforms
   center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
-  let forecastsNavItem: TopLevelNavItem = {
-    link: { label: 'Forecasts', type: 'internal', url: '/forecasts/avalanche' },
-  }
+  const forecastItems: NavItem[] = (navigation.forecasts?.items ?? []).flatMap((item, i) => {
+    const itemId = item.id ?? String(i)
 
-  if (navigation.forecasts?.link) {
-    const forecastLink = convertToNavLink(navigation.forecasts.link)
-    if (forecastLink) {
-      const zoneItems: NavItem[] = (navigation.forecasts.items ?? []).flatMap((item, i) => {
-        if (!item.link) return []
-        const link = convertToNavLink(item.link)
-        if (!link) return []
-        return [{ id: item.id ?? String(i), link }]
+    // Section with sub-items (e.g., "Zones" accordion)
+    if (item.items && item.items.length > 0) {
+      const subItems: NavItem[] = item.items.flatMap((sub, subIndex) => {
+        if (!sub.link) return []
+        const subLink = convertToNavLink(sub.link)
+        if (!subLink) return []
+        return [{ id: sub.id ?? `${itemId}-${subIndex}`, link: subLink }]
       })
-      forecastsNavItem =
-        zoneItems.length > 0
-          ? {
-              label: 'Forecasts',
-              items: [{ id: 'all-forecasts', link: forecastLink }, ...zoneItems],
-            }
-          : { link: forecastLink }
+      if (subItems.length === 0) return []
+      const navItem: NavItem = { id: itemId, items: subItems }
+      if ('label' in item && typeof item.label === 'string') {
+        navItem.label = item.label
+      }
+      return [navItem]
     }
-  }
+
+    // Flat item with a direct link
+    if (!item.link) return []
+    const link = convertToNavLink(item.link)
+    if (!link) return []
+    return [{ id: itemId, link }]
+  })
+
+  const forecastsNavItem: TopLevelNavItem | undefined =
+    forecastItems.length > 0 ? { label: 'Forecasts', items: forecastItems } : undefined
 
   const observationsItems: NavItem[] = (navigation.observations?.items ?? []).flatMap((item, i) => {
     if (!item.link) return []

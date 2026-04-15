@@ -86,17 +86,33 @@ export const navigationSeed = (
     forecasts:
       zones.length === 1
         ? {
-            link: builtInPageLink({
-              url: `/forecasts/avalanche/${zones[0].slug}`,
-              label: 'Avalanche Forecast',
-            }),
-            items: [],
+            items: [
+              {
+                link: builtInPageLink({
+                  url: `/forecasts/avalanche/${zones[0].slug}`,
+                  label: 'Avalanche Forecast',
+                }),
+              },
+            ],
           }
         : {
-            link: builtInPageLink({ url: '/forecasts/avalanche', label: 'All Forecasts' }),
-            items: zones.map(({ zone, slug }) => ({
-              link: builtInPageLink({ url: `/forecasts/avalanche/${slug}`, label: zone.name }),
-            })),
+            items: [
+              {
+                link: builtInPageLink({
+                  url: '/forecasts/avalanche',
+                  label: 'All Forecasts',
+                }),
+              },
+              {
+                label: 'Zones',
+                items: zones.map(({ zone, slug }) => ({
+                  link: builtInPageLink({
+                    url: `/forecasts/avalanche/${slug}`,
+                    label: zone.name,
+                  }),
+                })),
+              },
+            ],
           },
     observations: {
       items: [

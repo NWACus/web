@@ -168,46 +168,49 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
     )
 
     if (nacAvailable) {
-      const forecastLinkLabel = zones.length === 1 ? 'Avalanche Forecast' : 'All Forecasts'
-      const forecastLinkPageId =
-        zones.length === 1
-          ? pageByUrl[`/forecasts/avalanche/${zones[0].slug}`]
-          : pageByUrl['/forecasts/avalanche']
-
-      await db.run(sql`
-        UPDATE navigations SET
-          forecasts_link_type = 'internal',
-          forecasts_link_label = ${forecastLinkLabel}
-        WHERE id = ${navId}
-      `)
-
       await db.run(sql`
         DELETE FROM navigations_rels
         WHERE parent_id = ${navId}
-          AND (
-            path = 'forecasts.link.reference'
-            OR path LIKE 'forecasts.items.%.link.reference'
-          )
+          AND path LIKE 'forecasts.items.%.link.reference'
       `)
 
-      if (forecastLinkPageId) {
-        await db.run(
-          sql`INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id) VALUES (1, ${navId}, 'forecasts.link.reference', ${forecastLinkPageId})`,
-        )
-      }
-
-      // Replace forecasts items
+      // Replace forecasts items — "All Forecasts" as first item, then a "Zones" section
       await db.run(sql`DELETE FROM navigations_forecasts_items WHERE _parent_id = ${navId}`)
-      if (zones.length > 1) {
+      if (zones.length === 1) {
+        const singleZoneId = randomUUID()
+        await db.run(sql`
+          INSERT INTO navigations_forecasts_items (_order, _parent_id, id, link_type, link_label)
+          VALUES (1, ${navId}, ${singleZoneId}, 'internal', 'Avalanche Forecast')
+        `)
+        await db.run(sql`
+          INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id)
+          VALUES (1, ${navId}, 'forecasts.items.0.link.reference', ${pageByUrl[`/forecasts/avalanche/${zones[0].slug}`]})
+        `)
+      } else if (zones.length > 1) {
+        const allForecastsId = randomUUID()
+        await db.run(sql`
+          INSERT INTO navigations_forecasts_items (_order, _parent_id, id, link_type, link_label)
+          VALUES (1, ${navId}, ${allForecastsId}, 'internal', 'All Forecasts')
+        `)
+        await db.run(sql`
+          INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id)
+          VALUES (1, ${navId}, 'forecasts.items.0.link.reference', ${pageByUrl['/forecasts/avalanche']})
+        `)
+
+        const zonesParentId = randomUUID()
+        await db.run(sql`
+          INSERT INTO navigations_forecasts_items (_order, _parent_id, id, label)
+          VALUES (2, ${navId}, ${zonesParentId}, 'Zones')
+        `)
         for (let i = 0; i < zones.length; i++) {
           const { name, slug } = zones[i]
           await db.run(sql`
-            INSERT INTO navigations_forecasts_items (_order, _parent_id, id, link_type, link_label)
-            VALUES (${i + 1}, ${navId}, ${randomUUID()}, 'internal', ${name})
+            INSERT INTO navigations_forecasts_items_items (_order, _parent_id, id, link_type, link_label)
+            VALUES (${i + 1}, ${zonesParentId}, ${randomUUID()}, 'internal', ${name})
           `)
           await db.run(sql`
             INSERT INTO navigations_rels ("order", parent_id, path, built_in_pages_id)
-            VALUES (1, ${navId}, ${'forecasts.items.' + i + '.link.reference'}, ${pageByUrl[`/forecasts/avalanche/${slug}`]})
+            VALUES (1, ${navId}, ${'forecasts.items.1.items.' + i + '.link.reference'}, ${pageByUrl[`/forecasts/avalanche/${slug}`]})
           `)
         }
       }
@@ -232,6 +235,10 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
         `)
       }
     }
+
+    // Clear stale draft versions so Payload regenerates from the main tables
+    // on next load. Cascade drops child version rows.
+    await db.run(sql`DELETE FROM _navigations_v WHERE parent_id = ${navId}`)
 
     payload.logger.info(`  Backfilled nav for ${tenant.slug}`)
   }

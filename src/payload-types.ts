@@ -1838,25 +1838,6 @@ export interface Navigation {
   id: number;
   tenant: number | Tenant;
   forecasts?: {
-    link?: {
-      type?: ('internal' | 'external') | null;
-      reference?:
-        | ({
-            relationTo: 'pages';
-            value: number | Page;
-          } | null)
-        | ({
-            relationTo: 'builtInPages';
-            value: number | BuiltInPage;
-          } | null)
-        | ({
-            relationTo: 'posts';
-            value: number | Post;
-          } | null);
-      url?: string | null;
-      label?: string | null;
-      newTab?: boolean | null;
-    };
     /**
      * Dropdown items under Forecasts
      */
@@ -3699,15 +3680,6 @@ export interface NavigationsSelect<T extends boolean = true> {
   forecasts?:
     | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              newTab?: T;
-            };
         items?:
           | T
           | {

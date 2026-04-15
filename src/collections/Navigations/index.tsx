@@ -40,7 +40,6 @@ export const Navigations: CollectionConfig = {
         topLevelNavTab({
           name: 'forecasts',
           description: 'This nav dropdown is autofilled with your forecast zones.',
-          hasLandingPage: true,
           hasEnabledToggle: false,
         }),
         topLevelNavTab({
