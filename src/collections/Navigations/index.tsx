@@ -40,16 +40,12 @@ export const Navigations: CollectionConfig = {
         topLevelNavTab({
           name: 'forecasts',
           description: 'This nav dropdown is autofilled with your forecast zones.',
-          hasConfigurableNavItems: false,
-          hasReadOnlyLink: true,
-          hasReadOnlyNavItems: true,
+          hasLandingPage: true,
           hasEnabledToggle: false,
         }),
         topLevelNavTab({
           name: 'observations',
           description: 'This nav dropdown is autofilled with the default observations links.',
-          hasConfigurableNavItems: false,
-          hasReadOnlyNavItems: true,
           hasEnabledToggle: false,
         }),
         topLevelNavTab({
@@ -63,7 +59,7 @@ export const Navigations: CollectionConfig = {
           description:
             'This nav item navigates to your blog landing page and does not have any dropdown items.',
           hasConfigurableNavItems: false,
-          hasReadOnlyLink: true,
+          hasLandingPage: true,
           enabledToggleDescription:
             'If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.',
         }),
@@ -72,7 +68,7 @@ export const Navigations: CollectionConfig = {
           description:
             'This nav item navigates to your events landing page and does not have any dropdown items.',
           hasConfigurableNavItems: false,
-          hasReadOnlyLink: true,
+          hasLandingPage: true,
           enabledToggleDescription:
             'If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.',
         }),

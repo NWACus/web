@@ -7,16 +7,14 @@ export const topLevelNavTab = ({
   name,
   description,
   hasConfigurableNavItems = true,
-  hasReadOnlyLink = false,
-  hasReadOnlyNavItems = false,
+  hasLandingPage = false,
   hasEnabledToggle = true,
   enabledToggleDescription = 'If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.',
 }: {
   name: string
   description?: string
   hasConfigurableNavItems?: boolean
-  hasReadOnlyLink?: boolean
-  hasReadOnlyNavItems?: boolean
+  hasLandingPage?: boolean
   hasEnabledToggle?: boolean
   enabledToggleDescription?: string
 }): Tab => {
@@ -24,17 +22,15 @@ export const topLevelNavTab = ({
     itemsField({
       label: `${toWords(name)} Nav Items`,
       description: `Dropdown items under ${toWords(name)}`,
-      hasSubNavItems: !hasReadOnlyNavItems,
       overrides: {
-        ...(hasReadOnlyNavItems ? { access: { update: hasSuperAdminPermissions } } : {}),
         admin: {
-          hidden: !hasConfigurableNavItems && !hasReadOnlyNavItems,
+          hidden: !hasConfigurableNavItems,
         },
       },
     }),
   ]
 
-  if (hasReadOnlyLink) {
+  if (hasLandingPage) {
     fields = [
       {
         ...navLink,
@@ -87,8 +83,7 @@ export const topLevelNavTab = ({
 
   return {
     name,
-    virtual:
-      !hasConfigurableNavItems && !hasReadOnlyNavItems && !hasEnabledToggle && !hasReadOnlyLink,
+    virtual: !hasConfigurableNavItems && !hasEnabledToggle && !hasLandingPage,
     fields,
   }
 }
