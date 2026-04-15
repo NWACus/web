@@ -17,7 +17,7 @@ export const TenantSlugField: SelectFieldServerComponent = async ({
         path={field.name}
         label={clientField.label}
         description={clientField.admin?.description}
-        options={[{ label: String(currentSlug).toUpperCase(), value: currentSlug }]}
+        options={[{ label: String(currentSlug), value: currentSlug }]}
         value={currentSlug}
         required
         readOnly

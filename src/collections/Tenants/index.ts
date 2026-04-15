@@ -53,13 +53,13 @@ export const Tenants: CollectionConfig = {
       type: 'select',
       admin: {
         components: {
-          Cell: '@/collections/Tenants/components/SlugCell#SlugCell',
+          Cell: '@/collections/Tenants/components/TenantSlugCell#TenantSlugCell',
           Field: '@/collections/Tenants/components/TenantSlugField#TenantSlugField',
         },
         description: 'Avalanche center identifier. Used for subdomains and URL paths.',
       },
       options: VALID_TENANT_SLUGS.map((slug) => ({
-        label: `${slug.toUpperCase()} — ${AVALANCHE_CENTERS[slug].name}`,
+        label: `${slug} — ${AVALANCHE_CENTERS[slug].name}`,
         value: slug,
       })),
       index: true,
