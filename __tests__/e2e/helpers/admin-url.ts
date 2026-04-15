@@ -116,6 +116,7 @@ export const CollectionSlugs = {
   roles: 'roles',
   courses: 'courses',
   providers: 'providers',
+  mcpApiKeys: 'payload-mcp-api-keys',
 } as const
 
 /**

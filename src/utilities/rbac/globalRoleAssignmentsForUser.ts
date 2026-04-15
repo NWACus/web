@@ -1,4 +1,5 @@
 import { GlobalRoleAssignment, User } from '@/payload-types'
+import { isUser } from '@/utilities/isUser'
 import { ClientUser } from 'payload'
 import { Logger } from 'pino'
 
@@ -6,6 +7,9 @@ export const globalRoleAssignmentsForUser = (
   logger: Logger,
   user: User | ClientUser,
 ): GlobalRoleAssignment[] => {
+  if (!isUser(user)) {
+    return []
+  }
   const assignments: GlobalRoleAssignment[] = []
   if (
     user.globalRoleAssignments &&

@@ -14,8 +14,8 @@ export const populateBlocksInContent: CollectionBeforeChangeHook<Event> = async 
 
   if (data.content?.root?.children) {
     try {
-      const { postsBlockMappings } = await getBlocksFromConfig()
-      blocksInContent = walkLexicalNodes(data.content.root.children, postsBlockMappings)
+      const { eventsBlockMappings } = await getBlocksFromConfig()
+      blocksInContent = walkLexicalNodes(data.content.root.children, eventsBlockMappings)
     } catch (error) {
       req.payload.logger.warn(`Error extracting block references: ${error}`)
       blocksInContent = []

@@ -25,10 +25,15 @@ export async function getRelationshipsFromConfig() {
     homePagesCollection?.fields || [],
   )
 
+  // Find relationship fields used in Events collection
+  const eventsCollection = config.collections?.find((collection) => collection.slug === 'events')
+  const eventsRelationshipMappings = extractRelationshipMappings(eventsCollection?.fields || [])
+
   return {
     pagesRelationshipMappings,
     postsRelationshipMappings,
     homePagesRelationshipMappings,
+    eventsRelationshipMappings,
   }
 }
 

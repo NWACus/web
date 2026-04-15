@@ -1,4 +1,5 @@
 import type { GlobalRoleAssignment } from '@/payload-types'
+import { getUser } from '@/utilities/isUser'
 import { canAssignGlobalRole } from '@/utilities/rbac/escalationCheck'
 import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
@@ -13,7 +14,8 @@ export const validateEscalation: CollectionBeforeValidateHook<GlobalRoleAssignme
     return data
   }
 
-  if (!req.user) {
+  const user = getUser(req)
+  if (!user) {
     throw new ValidationError({
       errors: [
         {
@@ -40,7 +42,7 @@ export const validateEscalation: CollectionBeforeValidateHook<GlobalRoleAssignme
       depth: 0,
     })
 
-    if (!canAssignGlobalRole(req.payload.logger, req.user, globalRoleDoc)) {
+    if (!canAssignGlobalRole(req.payload.logger, user, globalRoleDoc)) {
       throw new ValidationError({
         errors: [
           {
@@ -52,7 +54,7 @@ export const validateEscalation: CollectionBeforeValidateHook<GlobalRoleAssignme
     }
   } else if (typeof globalRole === 'object' && globalRole && 'rules' in globalRole) {
     // Global role is already populated, check it directly
-    if (!canAssignGlobalRole(req.payload.logger, req.user, globalRole)) {
+    if (!canAssignGlobalRole(req.payload.logger, user, globalRole)) {
       throw new ValidationError({
         errors: [
           {

@@ -1,0 +1,116 @@
+diff --git a/dist/endpoints/mcp.js b/dist/endpoints/mcp.js
+index 7b6b62d82ed708d679e329d43c424595c39b81b1..764f6ab9c63d1cbea0e5a0c54f44396120c0261e 100644
+--- a/dist/endpoints/mcp.js
++++ b/dist/endpoints/mcp.js
+@@ -22,7 +22,7 @@ export const initializeMCPHandler = (pluginOptions)=>{
+             };
+             const { docs } = await payload.find({
+                 collection: 'payload-mcp-api-keys',
+-                depth: 1,
++                depth: pluginOptions.authDepth ?? 1,
+                 limit: 1,
+                 pagination: false,
+                 where
+diff --git a/dist/mcp/getMcpHandler.js b/dist/mcp/getMcpHandler.js
+index d69079472a3d58d6d1fb5958de20437de7863c4c..c321ae4d10f45d03204221e8bbac0b3503faa0a4 100644
+--- a/dist/mcp/getMcpHandler.js
++++ b/dist/mcp/getMcpHandler.js
+@@ -213,7 +213,8 @@ export const getMCPHandler = (pluginOptions, mcpAccessSettings, req)=>{
+                 payload.logger.info('[payload-mcp] 🚀 MCP Server Ready.');
+             }
+         }, {
+-            serverInfo: serverOptions.serverInfo
++            serverInfo: serverOptions.serverInfo,
++            instructions: serverOptions.instructions
+         }, {
+             basePath: MCPHandlerOptions.basePath || payload.config.routes?.api || '/api',
+             disableSse: MCPHandlerOptions.disableSse ?? true,
+diff --git a/dist/types.d.ts b/dist/types.d.ts
+index 09019905cdd448c0235dab94d36c13f85f6b9e2d..a96817d7b2dd2908563c0cd3b9cede5692418ac9 100644
+--- a/dist/types.d.ts
++++ b/dist/types.d.ts
+@@ -260,6 +260,13 @@ export type PluginMCPServerConfig = {
+             parameters: z.ZodRawShape;
+         }[];
+     };
++    /**
++     * Set the depth used when querying API key documents during authentication.
++     * Increase this if your user collection has deeply nested relationships
++     * (e.g., role assignments with nested rules) that access control depends on.
++     * @default 1
++     */
++    authDepth?: number;
+     /**
+      * Override the API key collection.
+      * This allows you to add fields to the API key collection or modify the collection in any way you want.
+@@ -333,6 +340,12 @@ export type MCPServerOptions = {
+          */
+         version: string;
+     };
++    /**
++     * Optional instructions describing how to use the server and its features.
++     * These are returned to MCP clients during initialization and may be added
++     * to the LLM's system prompt.
++     */
++    instructions?: string;
+ };
+ export type MCPAccessSettings = {
+     auth?: {
+diff --git a/src/endpoints/mcp.ts b/src/endpoints/mcp.ts
+index ee9d484fcb20784894bb0e5b7d910f9bf084e36b..d1ba435b3f5742b44b6ac3c41c9fb4e83b9fc982 100644
+--- a/src/endpoints/mcp.ts
++++ b/src/endpoints/mcp.ts
+@@ -38,7 +38,7 @@ export const initializeMCPHandler = (pluginOptions: PluginMCPServerConfig) => {
+ 
+       const { docs } = await payload.find({
+         collection: 'payload-mcp-api-keys',
+-        depth: 1,
++        depth: pluginOptions.authDepth ?? 1,
+         limit: 1,
+         pagination: false,
+         where,
+diff --git a/src/mcp/getMcpHandler.ts b/src/mcp/getMcpHandler.ts
+index 5e9ac74e7c553489810ec2ad01dac1f626b4270d..01eb665872547e0926d323d29ec829cac22cc4db 100644
+--- a/src/mcp/getMcpHandler.ts
++++ b/src/mcp/getMcpHandler.ts
+@@ -528,6 +528,7 @@ export const getMCPHandler = (
+       },
+       {
+         serverInfo: serverOptions.serverInfo,
++        instructions: serverOptions.instructions,
+       },
+       {
+         basePath: MCPHandlerOptions.basePath || payload.config.routes?.api || '/api',
+diff --git a/src/types.ts b/src/types.ts
+index fcea1a2c1863bdf7d02c09a176bdf64c1507ad4f..9f217edcb9b251b38dfea26e0c813ea5e55b8a62 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -308,6 +308,14 @@ export type PluginMCPServerConfig = {
+     }[]
+   }
+ 
++  /**
++   * Set the depth used when querying API key documents during authentication.
++   * Increase this if your user collection has deeply nested relationships
++   * (e.g., role assignments with nested rules) that access control depends on.
++   * @default 1
++   */
++  authDepth?: number
++
+   /**
+    * Override the API key collection.
+    * This allows you to add fields to the API key collection or modify the collection in any way you want.
+@@ -388,6 +396,13 @@ export type MCPServerOptions = {
+      */
+     version: string
+   }
++
++  /**
++   * Optional instructions describing how to use the server and its features.
++   * These are returned to MCP clients during initialization and may be added
++   * to the LLM's system prompt.
++   */
++  instructions?: string
+ }
+ 
+ export type MCPAccessSettings = {

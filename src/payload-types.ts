@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations;
   };
   blocks: {};
   collections: {
@@ -93,6 +94,7 @@ export interface Config {
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
+    'payload-mcp-api-keys': PayloadMcpApiKey;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -143,6 +145,7 @@ export interface Config {
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
+    'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -167,13 +170,31 @@ export interface Config {
     'getting-started': GettingStartedWidget;
     collections: CollectionsWidget;
   };
-  user: User;
+  user: User | PayloadMcpApiKey;
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface PayloadMcpApiKeyAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -258,433 +279,23 @@ export interface HomePage {
    * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
    */
   layout: (
-    | {
-        heading?: string | null;
-        /**
-         * Optional content to display below the heading and above the blog list.
-         */
-        belowHeadingContent?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        backgroundColor: string;
-        postOptions: 'dynamic' | 'static';
-        dynamicOptions?: {
-          /**
-           * Select how the list of posts will be sorted.
-           */
-          sortBy: '-publishedAt' | 'publishedAt';
-          /**
-           * Optionally select tags to filter posts in this list by.
-           */
-          filterByTags?: (number | Tag)[] | null;
-          /**
-           * Maximum number of posts that will be displayed. Must be an integer.
-           */
-          maxPosts?: number | null;
-        };
-        staticOptions?: {
-          /**
-           * Choose new post from dropdown and/or drag and drop to change order
-           */
-          staticPosts?: (number | Post)[] | null;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'blogList';
-      }
-    | {
-        backgroundColor: string;
-        layout: '1_1' | '2_11' | '3_111' | '2_12' | '2_21' | '4_1111' | '3_112' | '3_121' | '3_211';
-        columns: {
-          richText?: {
-            root: {
-              type: string;
-              children: {
-                type: any;
-                version: number;
-                [k: string]: unknown;
-              }[];
-              direction: ('ltr' | 'rtl') | null;
-              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-              indent: number;
-              version: number;
-            };
-            [k: string]: unknown;
-          } | null;
-          id?: string | null;
-        }[];
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'content';
-      }
-    | {
-        document: number | Document;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'documentBlock';
-      }
-    | {
-        backgroundColor: string;
-        heading?: string | null;
-        /**
-         * Optional content to display below the heading and above the event content.
-         */
-        belowHeadingContent?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        eventOptions: 'dynamic' | 'static';
-        /**
-         * Use Preview ↗ to see how events will appear
-         */
-        dynamicOpts?: {
-          /**
-           * Optionally select event types to filter events.
-           */
-          byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-          /**
-           * Optionally select event group to filter events.
-           */
-          byGroups?: (number | EventGroup)[] | null;
-          /**
-           * Optionally select event tags to filter events.
-           */
-          byTags?: (number | EventTag)[] | null;
-          /**
-           * Maximum number of events that will be displayed. Must be an integer.
-           */
-          maxEvents?: number | null;
-        };
-        staticOpts?: {
-          /**
-           * Choose new event from dropdown and/or drag and drop to change order
-           */
-          staticEvents?: (number | Event)[] | null;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'eventList';
-      }
-    | {
-        backgroundColor: string;
-        heading?: string | null;
-        /**
-         * Optional content to display below the heading and above the event content.
-         */
-        belowHeadingContent?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        eventOptions: 'dynamic' | 'static';
-        /**
-         * Use Preview ↗ to see how events will appear
-         */
-        dynamicOpts?: {
-          /**
-           * Optionally select event types to filter events.
-           */
-          byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-          /**
-           * Optionally select event group to filter events.
-           */
-          byGroups?: (number | EventGroup)[] | null;
-          /**
-           * Optionally select event tags to filter events.
-           */
-          byTags?: (number | EventTag)[] | null;
-          /**
-           * Maximum number of events that will be displayed. Must be an integer.
-           */
-          maxEvents?: number | null;
-        };
-        staticOpts?: {
-          /**
-           * Choose new event from dropdown and/or drag and drop to change order
-           */
-          staticEvents?: (number | Event)[] | null;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'eventTable';
-      }
-    | {
-        form: number | Form;
-        enableIntro?: boolean | null;
-        introContent?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'formBlock';
-      }
-    | {
-        /**
-         * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
-         */
-        html: string;
-        backgroundColor: string;
-        alignContent?: ('left' | 'center' | 'right') | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'genericEmbed';
-      }
-    | {
-        richText: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        backgroundColor: string;
-        /**
-         * Makes background color the full width of the page
-         */
-        fullWidthColor?: boolean | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'headerBlock';
-      }
-    | {
-        columns?:
-          | {
-              image: number | Media;
-              link?: {
-                type?: ('internal' | 'external') | null;
-                newTab?: boolean | null;
-                reference?:
-                  | ({
-                      relationTo: 'pages';
-                      value: number | Page;
-                    } | null)
-                  | ({
-                      relationTo: 'builtInPages';
-                      value: number | BuiltInPage;
-                    } | null)
-                  | ({
-                      relationTo: 'posts';
-                      value: number | Post;
-                    } | null);
-                url?: string | null;
-              };
-              /**
-               * Insert text that will overlay the image
-               */
-              caption: string;
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'imageLinkGrid';
-      }
-    | {
-        backgroundColor: string;
-        imageLayout: 'left' | 'right';
-        image: number | Media;
-        /**
-         * Text will flow around the image instead of being in a separate column
-         */
-        textWrap?: boolean | null;
-        richText: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'imageText';
-      }
-    | {
-        /**
-         * Leave blank if you do not want a title
-         */
-        header?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        backgroundColor: string;
-        cards?:
-          | {
-              image: number | Media;
-              title: string;
-              text: string;
-              button?: {
-                type?: ('internal' | 'external') | null;
-                newTab?: boolean | null;
-                reference?:
-                  | ({
-                      relationTo: 'pages';
-                      value: number | Page;
-                    } | null)
-                  | ({
-                      relationTo: 'builtInPages';
-                      value: number | BuiltInPage;
-                    } | null)
-                  | ({
-                      relationTo: 'posts';
-                      value: number | Post;
-                    } | null);
-                url?: string | null;
-                label?: string | null;
-                /**
-                 * Choose the button style.
-                 */
-                variant?: ('default' | 'secondary' | 'outline') | null;
-              };
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'linkPreview';
-      }
-    | {
-        media: number | Media;
-        /**
-         * Optional text that appears below the image to provide additional context or information about the image content.
-         */
-        caption?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        backgroundColor: string;
-        alignContent?: ('left' | 'center' | 'right') | null;
-        /**
-         * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
-         */
-        imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'mediaBlock';
-      }
-    | {
-        backgroundColor: string;
-        mode: 'carousel' | 'grid';
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'nacMediaBlock';
-      }
-    | {
-        backgroundColor: string;
-        /**
-         * Select a blog post to display
-         */
-        post: number | Post;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'singleBlogPost';
-      }
-    | {
-        backgroundColor: string;
-        /**
-         * Select an event to display
-         */
-        event: number | Event;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'singleEvent';
-      }
-    | {
-        backgroundColor: string;
-        sponsorsLayout: 'static' | 'carousel' | 'banner';
-        sponsors: (number | Sponsor)[];
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'sponsorsBlock';
-      }
-    | {
-        team: number | Team;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'team';
-      }
+    | BlogListBlock
+    | ContentBlock
+    | DocumentBlock
+    | EventListBlock
+    | EventTableBlock
+    | FormBlock
+    | GenericEmbedBlock
+    | HeaderBlock
+    | ImageLinkGridBlock
+    | ImageTextBlock
+    | LinkPreviewBlock
+    | MediaBlock
+    | NACMediaBlock
+    | SingleBlogPostBlock
+    | SingleEventBlock
+    | SponsorsBlock
+    | TeamBlock
   )[];
   /**
    * Automatically populated field tracking block references in highlightedContent for revalidation purposes.
@@ -756,290 +367,22 @@ export interface Page {
    * This is where you design your page. Add and move blocks around to change the layout. Use the Preview button to see your page edits in another tab.
    */
   layout: (
-    | {
-        heading?: string | null;
-        /**
-         * Optional content to display below the heading and above the blog list.
-         */
-        belowHeadingContent?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        backgroundColor: string;
-        postOptions: 'dynamic' | 'static';
-        dynamicOptions?: {
-          /**
-           * Select how the list of posts will be sorted.
-           */
-          sortBy: '-publishedAt' | 'publishedAt';
-          /**
-           * Optionally select tags to filter posts in this list by.
-           */
-          filterByTags?: (number | Tag)[] | null;
-          /**
-           * Maximum number of posts that will be displayed. Must be an integer.
-           */
-          maxPosts?: number | null;
-        };
-        staticOptions?: {
-          /**
-           * Choose new post from dropdown and/or drag and drop to change order
-           */
-          staticPosts?: (number | Post)[] | null;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'blogList';
-      }
+    | BlogListBlock
     | ContentBlock
-    | {
-        document: number | Document;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'documentBlock';
-      }
-    | {
-        backgroundColor: string;
-        heading?: string | null;
-        /**
-         * Optional content to display below the heading and above the event content.
-         */
-        belowHeadingContent?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        eventOptions: 'dynamic' | 'static';
-        /**
-         * Use Preview ↗ to see how events will appear
-         */
-        dynamicOpts?: {
-          /**
-           * Optionally select event types to filter events.
-           */
-          byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-          /**
-           * Optionally select event group to filter events.
-           */
-          byGroups?: (number | EventGroup)[] | null;
-          /**
-           * Optionally select event tags to filter events.
-           */
-          byTags?: (number | EventTag)[] | null;
-          /**
-           * Maximum number of events that will be displayed. Must be an integer.
-           */
-          maxEvents?: number | null;
-        };
-        staticOpts?: {
-          /**
-           * Choose new event from dropdown and/or drag and drop to change order
-           */
-          staticEvents?: (number | Event)[] | null;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'eventList';
-      }
-    | {
-        backgroundColor: string;
-        heading?: string | null;
-        /**
-         * Optional content to display below the heading and above the event content.
-         */
-        belowHeadingContent?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        eventOptions: 'dynamic' | 'static';
-        /**
-         * Use Preview ↗ to see how events will appear
-         */
-        dynamicOpts?: {
-          /**
-           * Optionally select event types to filter events.
-           */
-          byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-          /**
-           * Optionally select event group to filter events.
-           */
-          byGroups?: (number | EventGroup)[] | null;
-          /**
-           * Optionally select event tags to filter events.
-           */
-          byTags?: (number | EventTag)[] | null;
-          /**
-           * Maximum number of events that will be displayed. Must be an integer.
-           */
-          maxEvents?: number | null;
-        };
-        staticOpts?: {
-          /**
-           * Choose new event from dropdown and/or drag and drop to change order
-           */
-          staticEvents?: (number | Event)[] | null;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'eventTable';
-      }
+    | DocumentBlock
+    | EventListBlock
+    | EventTableBlock
     | FormBlock
-    | {
-        /**
-         * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
-         */
-        html: string;
-        backgroundColor: string;
-        alignContent?: ('left' | 'center' | 'right') | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'genericEmbed';
-      }
-    | {
-        richText: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        backgroundColor: string;
-        /**
-         * Makes background color the full width of the page
-         */
-        fullWidthColor?: boolean | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'headerBlock';
-      }
+    | GenericEmbedBlock
+    | HeaderBlock
     | ImageLinkGridBlock
-    | {
-        backgroundColor: string;
-        imageLayout: 'left' | 'right';
-        image: number | Media;
-        /**
-         * Text will flow around the image instead of being in a separate column
-         */
-        textWrap?: boolean | null;
-        richText: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'imageText';
-      }
+    | ImageTextBlock
     | LinkPreviewBlock
-    | {
-        media: number | Media;
-        /**
-         * Optional text that appears below the image to provide additional context or information about the image content.
-         */
-        caption?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        backgroundColor: string;
-        alignContent?: ('left' | 'center' | 'right') | null;
-        /**
-         * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
-         */
-        imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'mediaBlock';
-      }
+    | MediaBlock
     | NACMediaBlock
-    | {
-        backgroundColor: string;
-        /**
-         * Select a blog post to display
-         */
-        post: number | Post;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'singleBlogPost';
-      }
-    | {
-        backgroundColor: string;
-        /**
-         * Select an event to display
-         */
-        event: number | Event;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'singleEvent';
-      }
-    | {
-        backgroundColor: string;
-        sponsorsLayout: 'static' | 'carousel' | 'banner';
-        sponsors: (number | Sponsor)[];
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'sponsorsBlock';
-      }
+    | SingleBlogPostBlock
+    | SingleEventBlock
+    | SponsorsBlock
     | TeamBlock
   )[];
   meta?: {
@@ -1059,6 +402,56 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogListBlock".
+ */
+export interface BlogListBlock {
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the blog list.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  backgroundColor: string;
+  postOptions: 'dynamic' | 'static';
+  dynamicOptions?: {
+    /**
+     * Select how the list of posts will be sorted.
+     */
+    sortBy: '-publishedAt' | 'publishedAt';
+    /**
+     * Optionally select tags to filter posts in this list by.
+     */
+    filterByTags?: (number | Tag)[] | null;
+    /**
+     * Maximum number of posts that will be displayed. Must be an integer.
+     */
+    maxPosts?: number | null;
+  };
+  staticOptions?: {
+    /**
+     * Choose new post from dropdown and/or drag and drop to change order
+     */
+    staticPosts?: (number | Post)[] | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'blogList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1218,6 +611,16 @@ export interface ContentBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentBlock".
+ */
+export interface DocumentBlock {
+  document: number | Document;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'documentBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "documents".
  */
 export interface Document {
@@ -1236,6 +639,63 @@ export interface Document {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventListBlock".
+ */
+export interface EventListBlock {
+  backgroundColor: string;
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the event content.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  eventOptions: 'dynamic' | 'static';
+  /**
+   * Use Preview ↗ to see how events will appear
+   */
+  dynamicOpts?: {
+    /**
+     * Optionally select event types to filter events.
+     */
+    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+    /**
+     * Optionally select event group to filter events.
+     */
+    byGroups?: (number | EventGroup)[] | null;
+    /**
+     * Optionally select event tags to filter events.
+     */
+    byTags?: (number | EventTag)[] | null;
+    /**
+     * Maximum number of events that will be displayed. Must be an integer.
+     */
+    maxEvents?: number | null;
+  };
+  staticOpts?: {
+    /**
+     * Choose new event from dropdown and/or drag and drop to change order
+     */
+    staticEvents?: (number | Event)[] | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1436,6 +896,63 @@ export interface EventTag {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventTableBlock".
+ */
+export interface EventTableBlock {
+  backgroundColor: string;
+  heading?: string | null;
+  /**
+   * Optional content to display below the heading and above the event content.
+   */
+  belowHeadingContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  eventOptions: 'dynamic' | 'static';
+  /**
+   * Use Preview ↗ to see how events will appear
+   */
+  dynamicOpts?: {
+    /**
+     * Optionally select event types to filter events.
+     */
+    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
+    /**
+     * Optionally select event group to filter events.
+     */
+    byGroups?: (number | EventGroup)[] | null;
+    /**
+     * Optionally select event tags to filter events.
+     */
+    byTags?: (number | EventTag)[] | null;
+    /**
+     * Maximum number of events that will be displayed. Must be an integer.
+     */
+    maxEvents?: number | null;
+  };
+  staticOpts?: {
+    /**
+     * Choose new event from dropdown and/or drag and drop to change order
+     */
+    staticEvents?: (number | Event)[] | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventTable';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1640,6 +1157,46 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GenericEmbedBlock".
+ */
+export interface GenericEmbedBlock {
+  /**
+   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
+  html: string;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'genericEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeaderBlock".
+ */
+export interface HeaderBlock {
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  backgroundColor: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'headerBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ImageLinkGridBlock".
  */
 export interface ImageLinkGridBlock {
@@ -1687,6 +1244,37 @@ export interface BuiltInPage {
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock".
+ */
+export interface ImageTextBlock {
+  backgroundColor: string;
+  imageLayout: 'left' | 'right';
+  image: number | Media;
+  /**
+   * Text will flow around the image instead of being in a separate column
+   */
+  textWrap?: boolean | null;
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1749,6 +1337,40 @@ export interface LinkPreviewBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: number | Media;
+  /**
+   * Optional text that appears below the image to provide additional context or information about the image content.
+   */
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  /**
+   * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
+   */
+  imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "NACMediaBlock".
  */
 export interface NACMediaBlock {
@@ -1757,6 +1379,46 @@ export interface NACMediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'nacMediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleBlogPostBlock".
+ */
+export interface SingleBlogPostBlock {
+  backgroundColor: string;
+  /**
+   * Select a blog post to display
+   */
+  post: number | Post;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleBlogPost';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SingleEventBlock".
+ */
+export interface SingleEventBlock {
+  backgroundColor: string;
+  /**
+   * Select an event to display
+   */
+  event: number | Event;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'singleEvent';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SponsorsBlock".
+ */
+export interface SponsorsBlock {
+  backgroundColor: string;
+  sponsorsLayout: 'static' | 'carousel' | 'banner';
+  sponsors: (number | Sponsor)[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'sponsorsBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2949,6 +2611,135 @@ export interface FormSubmission {
   createdAt: string;
 }
 /**
+ * API keys control which collections, resources, tools, and prompts MCP clients can access
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-mcp-api-keys".
+ */
+export interface PayloadMcpApiKey {
+  id: number;
+  /**
+   * The user that the API key is associated with.
+   */
+  user: number | User;
+  /**
+   * A useful label for the API key.
+   */
+  label?: string | null;
+  /**
+   * The purpose of the API key.
+   */
+  description?: string | null;
+  pages?: {
+    /**
+     * Allow clients to find pages.
+     */
+    find?: boolean | null;
+  };
+  posts?: {
+    /**
+     * Allow clients to find posts.
+     */
+    find?: boolean | null;
+  };
+  homePages?: {
+    /**
+     * Allow clients to find homePages.
+     */
+    find?: boolean | null;
+  };
+  events?: {
+    /**
+     * Allow clients to find events.
+     */
+    find?: boolean | null;
+  };
+  media?: {
+    /**
+     * Allow clients to find media.
+     */
+    find?: boolean | null;
+  };
+  teams?: {
+    /**
+     * Allow clients to find teams.
+     */
+    find?: boolean | null;
+  };
+  biographies?: {
+    /**
+     * Allow clients to find biographies.
+     */
+    find?: boolean | null;
+  };
+  sponsors?: {
+    /**
+     * Allow clients to find sponsors.
+     */
+    find?: boolean | null;
+  };
+  tags?: {
+    /**
+     * Allow clients to find tags.
+     */
+    find?: boolean | null;
+  };
+  documents?: {
+    /**
+     * Allow clients to find documents.
+     */
+    find?: boolean | null;
+  };
+  forms?: {
+    /**
+     * Allow clients to find forms.
+     */
+    find?: boolean | null;
+  };
+  navigations?: {
+    /**
+     * Allow clients to find navigations.
+     */
+    find?: boolean | null;
+  };
+  settings?: {
+    /**
+     * Allow clients to find settings.
+     */
+    find?: boolean | null;
+  };
+  tenants?: {
+    /**
+     * Allow clients to find tenants.
+     */
+    find?: boolean | null;
+  };
+  eventGroups?: {
+    /**
+     * Allow clients to find eventGroups.
+     */
+    find?: boolean | null;
+  };
+  eventTags?: {
+    /**
+     * Allow clients to find eventTags.
+     */
+    find?: boolean | null;
+  };
+  nacWidgetsConfig?: {
+    /**
+     * Allow clients to find nacWidgetsConfig global.
+     */
+    find?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
+  collection: 'payload-mcp-api-keys';
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -3075,12 +2866,21 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'form-submissions';
         value: number | FormSubmission;
+      } | null)
+    | ({
+        relationTo: 'payload-mcp-api-keys';
+        value: number | PayloadMcpApiKey;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'payload-mcp-api-keys';
+        value: number | PayloadMcpApiKey;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -3090,10 +2890,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: number;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'payload-mcp-api-keys';
+        value: number | PayloadMcpApiKey;
+      };
   key?: string | null;
   value?:
     | {
@@ -4487,6 +4292,105 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-mcp-api-keys_select".
+ */
+export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
+  user?: T;
+  label?: T;
+  description?: T;
+  pages?:
+    | T
+    | {
+        find?: T;
+      };
+  posts?:
+    | T
+    | {
+        find?: T;
+      };
+  homePages?:
+    | T
+    | {
+        find?: T;
+      };
+  events?:
+    | T
+    | {
+        find?: T;
+      };
+  media?:
+    | T
+    | {
+        find?: T;
+      };
+  teams?:
+    | T
+    | {
+        find?: T;
+      };
+  biographies?:
+    | T
+    | {
+        find?: T;
+      };
+  sponsors?:
+    | T
+    | {
+        find?: T;
+      };
+  tags?:
+    | T
+    | {
+        find?: T;
+      };
+  documents?:
+    | T
+    | {
+        find?: T;
+      };
+  forms?:
+    | T
+    | {
+        find?: T;
+      };
+  navigations?:
+    | T
+    | {
+        find?: T;
+      };
+  settings?:
+    | T
+    | {
+        find?: T;
+      };
+  tenants?:
+    | T
+    | {
+        find?: T;
+      };
+  eventGroups?:
+    | T
+    | {
+        find?: T;
+      };
+  eventTags?:
+    | T
+    | {
+        find?: T;
+      };
+  nacWidgetsConfig?:
+    | T
+    | {
+        find?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  enableAPIKey?: T;
+  apiKey?: T;
+  apiKeyIndex?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -4645,166 +4549,6 @@ export interface ButtonBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "DocumentBlock".
- */
-export interface DocumentBlock {
-  document: number | Document;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'documentBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "GenericEmbedBlock".
- */
-export interface GenericEmbedBlock {
-  /**
-   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
-   */
-  html: string;
-  backgroundColor: string;
-  alignContent?: ('left' | 'center' | 'right') | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'genericEmbed';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "HeaderBlock".
- */
-export interface HeaderBlock {
-  richText: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  backgroundColor: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'headerBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
- */
-export interface MediaBlock {
-  media: number | Media;
-  /**
-   * Optional text that appears below the image to provide additional context or information about the image content.
-   */
-  caption?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  backgroundColor: string;
-  alignContent?: ('left' | 'center' | 'right') | null;
-  /**
-   * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
-   */
-  imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleBlogPostBlock".
- */
-export interface SingleBlogPostBlock {
-  backgroundColor: string;
-  /**
-   * Select a blog post to display
-   */
-  post: number | Post;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleBlogPost';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SponsorsBlock".
- */
-export interface SponsorsBlock {
-  backgroundColor: string;
-  sponsorsLayout: 'static' | 'carousel' | 'banner';
-  sponsors: (number | Sponsor)[];
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'sponsorsBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BlogListBlock".
- */
-export interface BlogListBlock {
-  heading?: string | null;
-  /**
-   * Optional content to display below the heading and above the blog list.
-   */
-  belowHeadingContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  backgroundColor: string;
-  postOptions: 'dynamic' | 'static';
-  dynamicOptions?: {
-    /**
-     * Select how the list of posts will be sorted.
-     */
-    sortBy: '-publishedAt' | 'publishedAt';
-    /**
-     * Optionally select tags to filter posts in this list by.
-     */
-    filterByTags?: (number | Tag)[] | null;
-    /**
-     * Maximum number of posts that will be displayed. Must be an integer.
-     */
-    maxPosts?: number | null;
-  };
-  staticOptions?: {
-    /**
-     * Choose new post from dropdown and/or drag and drop to change order
-     */
-    staticPosts?: (number | Post)[] | null;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'blogList';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "calloutBlock".
  */
 export interface CalloutBlock {
@@ -4827,165 +4571,6 @@ export interface CalloutBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'calloutBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EventListBlock".
- */
-export interface EventListBlock {
-  backgroundColor: string;
-  heading?: string | null;
-  /**
-   * Optional content to display below the heading and above the event content.
-   */
-  belowHeadingContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  eventOptions: 'dynamic' | 'static';
-  /**
-   * Use Preview ↗ to see how events will appear
-   */
-  dynamicOpts?: {
-    /**
-     * Optionally select event types to filter events.
-     */
-    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-    /**
-     * Optionally select event group to filter events.
-     */
-    byGroups?: (number | EventGroup)[] | null;
-    /**
-     * Optionally select event tags to filter events.
-     */
-    byTags?: (number | EventTag)[] | null;
-    /**
-     * Maximum number of events that will be displayed. Must be an integer.
-     */
-    maxEvents?: number | null;
-  };
-  staticOpts?: {
-    /**
-     * Choose new event from dropdown and/or drag and drop to change order
-     */
-    staticEvents?: (number | Event)[] | null;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'eventList';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EventTableBlock".
- */
-export interface EventTableBlock {
-  backgroundColor: string;
-  heading?: string | null;
-  /**
-   * Optional content to display below the heading and above the event content.
-   */
-  belowHeadingContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  eventOptions: 'dynamic' | 'static';
-  /**
-   * Use Preview ↗ to see how events will appear
-   */
-  dynamicOpts?: {
-    /**
-     * Optionally select event types to filter events.
-     */
-    byTypes?: ('event' | 'awareness' | 'field-class')[] | null;
-    /**
-     * Optionally select event group to filter events.
-     */
-    byGroups?: (number | EventGroup)[] | null;
-    /**
-     * Optionally select event tags to filter events.
-     */
-    byTags?: (number | EventTag)[] | null;
-    /**
-     * Maximum number of events that will be displayed. Must be an integer.
-     */
-    maxEvents?: number | null;
-  };
-  staticOpts?: {
-    /**
-     * Choose new event from dropdown and/or drag and drop to change order
-     */
-    staticEvents?: (number | Event)[] | null;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'eventTable';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SingleEventBlock".
- */
-export interface SingleEventBlock {
-  backgroundColor: string;
-  /**
-   * Select an event to display
-   */
-  event: number | Event;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'singleEvent';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextBlock".
- */
-export interface ImageTextBlock {
-  backgroundColor: string;
-  imageLayout: 'left' | 'right';
-  image: number | Media;
-  /**
-   * Text will flow around the image instead of being in a separate column
-   */
-  textWrap?: boolean | null;
-  richText: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'imageText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -147,8 +147,9 @@ export async function findDocumentsWithBlockReferences(
           results.push(...pagesWithBlocks)
         }
       } catch (error) {
+        const cause = error instanceof Error && error.cause ? ` | Cause: ${error.cause}` : ''
         payload.logger.warn(
-          `Error querying pages for ${reference.collection} reference ${reference.id} in field ${mapping.fieldName}: ${error}`,
+          `Error querying pages for ${reference.collection} reference ${reference.id} in field ${mapping.fieldName}: ${error}${cause}`,
         )
       }
     }
@@ -185,8 +186,9 @@ export async function findDocumentsWithBlockReferences(
 
       results.push(...postsWithBlocks)
     } catch (error) {
+      const cause = error instanceof Error && error.cause ? ` | Cause: ${error.cause}` : ''
       payload.logger.warn(
-        `Error querying posts for ${reference.collection} reference ${reference.id}: ${error}`,
+        `Error querying posts for ${reference.collection} reference ${reference.id}: ${error}${cause}`,
       )
     }
   }
@@ -254,8 +256,9 @@ export async function findDocumentsWithBlockReferences(
           results.push(...homePagesWithBlocks)
         }
       } catch (error) {
+        const cause = error instanceof Error && error.cause ? ` | Cause: ${error.cause}` : ''
         payload.logger.warn(
-          `Error querying homePages for ${reference.collection} reference ${reference.id}: ${error}`,
+          `Error querying homePages for ${reference.collection} reference ${reference.id}: ${error}${cause}`,
         )
       }
     }
@@ -293,8 +296,9 @@ export async function findDocumentsWithBlockReferences(
 
       results.push(...homePagesWithBlocks)
     } catch (error) {
+      const cause = error instanceof Error && error.cause ? ` | Cause: ${error.cause}` : ''
       payload.logger.warn(
-        `Error querying homePages.blocksInHighlightedContent for ${reference.collection} reference ${reference.id}: ${error}`,
+        `Error querying homePages.blocksInHighlightedContent for ${reference.collection} reference ${reference.id}: ${error}${cause}`,
       )
     }
   }
@@ -330,8 +334,9 @@ export async function findDocumentsWithBlockReferences(
 
       results.push(...eventsWithBlocks)
     } catch (error) {
+      const cause = error instanceof Error && error.cause ? ` | Cause: ${error.cause}` : ''
       payload.logger.warn(
-        `Error querying events for ${reference.collection} reference ${reference.id}: ${error}`,
+        `Error querying events for ${reference.collection} reference ${reference.id}: ${error}${cause}`,
       )
     }
   }

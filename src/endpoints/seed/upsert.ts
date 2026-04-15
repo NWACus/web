@@ -108,6 +108,7 @@ type TenantScopedCollectionWithHash = Exclude<
   | 'payload-migrations'
   | 'globalRoleAssignments'
   | 'payload-kv'
+  | 'payload-mcp-api-keys'
 >
 
 export async function upsert<TSlug extends TenantScopedCollectionWithHash>(
