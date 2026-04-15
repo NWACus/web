@@ -22,10 +22,7 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
     },
     read: byTenantRole('read', 'builtInPages'),
     update: byGlobalRole('update', 'builtInPages'),
-    delete: ({ req }) => {
-      if (!byGlobalRole('delete', 'builtInPages')({ req })) return false
-      return { isInNav: { not_equals: true } }
-    },
+    delete: byGlobalRole('delete', 'builtInPages'),
   },
   admin: {
     group: 'Content',
@@ -40,15 +37,6 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
       label: 'URL',
       type: 'text',
       required: true,
-    },
-    {
-      name: 'isInNav',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        hidden: true,
-        description: 'Pages used in navigation cannot be deleted to prevent broken links.',
-      },
     },
     tenantField(),
     contentHashField(),

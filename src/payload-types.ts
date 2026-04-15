@@ -1683,10 +1683,6 @@ export interface BuiltInPage {
   id: number;
   title: string;
   url: string;
-  /**
-   * Pages used in navigation cannot be deleted to prevent broken links.
-   */
-  isInNav?: boolean | null;
   tenant: number | Tenant;
   contentHash?: string | null;
   updatedAt: string;
@@ -3452,7 +3448,6 @@ export interface TeamBlockSelect<T extends boolean = true> {
 export interface BuiltInPagesSelect<T extends boolean = true> {
   title?: T;
   url?: T;
-  isInNav?: T;
   tenant?: T;
   contentHash?: T;
   updatedAt?: T;
