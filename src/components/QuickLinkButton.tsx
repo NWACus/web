@@ -26,7 +26,6 @@ export default function QuickLinkButton({
   const href = handleReferenceURL({ type, reference, url })
   if (!href) return null
 
-  // Fall back to the referenced page's title when no label is provided
   const referenceTitle =
     reference && isValidRelationship(reference.value) ? reference.value.title : ''
   const displayLabel = label || referenceTitle
