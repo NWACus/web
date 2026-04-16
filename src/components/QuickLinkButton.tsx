@@ -1,5 +1,6 @@
 'use client'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
+import { isValidRelationship } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
 import { useAnalytics } from '@/utilities/useAnalytics'
 import { ArrowRight } from 'lucide-react'
@@ -25,16 +26,20 @@ export default function QuickLinkButton({
   const href = handleReferenceURL({ type, reference, url })
   if (!href) return null
 
+  // Fall back to the referenced page's title when no label is provided
+  const referenceTitle =
+    reference && isValidRelationship(reference.value) ? reference.value.title : ''
+  const displayLabel = label || referenceTitle
+
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
+  const linkDestination = href || url || ''
   const onClickWithCapture = () => {
     captureWithTenant('home_page_quick_links', {
-      name: label ?? '',
+      name: displayLabel,
       from_page: window.location.pathname,
       to_page: linkDestination,
     })
   }
-
-  const linkDestination = href || url || ''
 
   return (
     <Link
@@ -46,7 +51,7 @@ export default function QuickLinkButton({
       onClick={onClickWithCapture}
       {...newTabProps}
     >
-      <span className="font-medium whitespace-nowrap text-lg">{label}</span>
+      <span className="font-medium whitespace-nowrap text-lg">{displayLabel}</span>
       <ArrowRight className="h-7 w-7 flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1 text-primary" />
     </Link>
   )
