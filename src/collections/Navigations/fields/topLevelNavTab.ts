@@ -1,5 +1,3 @@
-import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
-import { navLink } from '@/fields/navLink'
 import { Field, Tab, toWords } from 'payload'
 import { itemsField } from './itemsField'
 
@@ -7,14 +5,12 @@ export const topLevelNavTab = ({
   name,
   description,
   hasConfigurableNavItems = true,
-  hasLandingPage = false,
   hasEnabledToggle = true,
   enabledToggleDescription = 'If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.',
 }: {
   name: string
   description?: string
   hasConfigurableNavItems?: boolean
-  hasLandingPage?: boolean
   hasEnabledToggle?: boolean
   enabledToggleDescription?: string
 }): Tab => {
@@ -29,18 +25,6 @@ export const topLevelNavTab = ({
       },
     }),
   ]
-
-  if (hasLandingPage) {
-    fields = [
-      {
-        ...navLink,
-        access: {
-          update: hasSuperAdminPermissions,
-        },
-      },
-      ...fields,
-    ]
-  }
 
   if (description) {
     const descriptionField: Field = {
@@ -83,7 +67,7 @@ export const topLevelNavTab = ({
 
   return {
     name,
-    virtual: !hasConfigurableNavItems && !hasEnabledToggle && !hasLandingPage,
+    virtual: !hasConfigurableNavItems && !hasEnabledToggle,
     fields,
   }
 }

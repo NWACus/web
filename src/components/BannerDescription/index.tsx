@@ -20,7 +20,7 @@ export const BannerDescription = ({ message, type = 'default' }: BannerDescripti
   if (!message) return null
 
   return (
-    <Banner alignIcon="left" icon={icons[type]} type={type} className="w-fit gap-2 items-center">
+    <Banner alignIcon="left" icon={icons[type]} type={type} className="w-100 gap-2 items-center">
       {message}
     </Banner>
   )

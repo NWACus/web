@@ -1,10 +1,10 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
-import { navLink } from '@/fields/navLink'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
+import { singleLinkNavTab } from './fields/singleLinkNavTab'
 import { topLevelNavTab } from './fields/topLevelNavTab'
 import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
 
@@ -53,64 +53,27 @@ export const Navigations: CollectionConfig = {
         }),
         topLevelNavTab({ name: 'education' }),
         topLevelNavTab({ name: 'accidents' }),
-        topLevelNavTab({
+        singleLinkNavTab({
           name: 'blog',
           description:
             'This nav item navigates to your blog landing page and does not have any dropdown items.',
-          hasConfigurableNavItems: false,
-          hasLandingPage: true,
           enabledToggleDescription:
             'If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.',
         }),
-        topLevelNavTab({
+        singleLinkNavTab({
           name: 'events',
           description:
             'This nav item navigates to your events landing page and does not have any dropdown items.',
-          hasConfigurableNavItems: false,
-          hasLandingPage: true,
           enabledToggleDescription:
             'If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.',
         }),
         topLevelNavTab({ name: 'about' }),
         topLevelNavTab({ name: 'support' }),
-        {
+        singleLinkNavTab({
           name: 'donate',
-          fields: [
-            {
-              type: 'group',
-              name: 'options',
-              label: '',
-              fields: [
-                {
-                  type: 'checkbox',
-                  defaultValue: true,
-                  name: 'enabled',
-                  label: 'Show Button in Navigation',
-                  admin: {
-                    description: 'If hidden, the button will not appear in the nav.',
-                  },
-                },
-              ],
-            },
-            {
-              ...navLink,
-              label: '',
-              admin: {
-                ...navLink.admin,
-                components: {
-                  ...navLink.admin?.components,
-                  Description: {
-                    path: '@/components/BannerDescription#BannerDescription',
-                    clientProps: {
-                      message: 'This nav item is styled as a button.',
-                      type: 'info',
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        },
+          description: 'This link appears as a button in the navigation.',
+          enabledToggleDescription: 'If hidden, the button will not appear in the nav.',
+        }),
       ],
     },
     contentHashField(),
