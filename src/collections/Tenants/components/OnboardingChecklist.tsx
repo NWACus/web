@@ -13,7 +13,8 @@ import {
 } from './onboardingActions'
 
 const DEFAULT_STATUS: ProvisioningStatus = {
-  builtInPages: { count: 0, expected: 0 },
+  forecastPages: { count: 0, expected: 0 },
+  defaultBuiltInPages: { count: 0, expected: 0 },
   pages: { created: 0, expected: 0, missing: [] },
   homePage: false,
   navigation: false,
@@ -145,10 +146,12 @@ export function OnboardingChecklist() {
     })
   }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { builtInPages, pages, homePage, navigation, settings, theme } = status
+  const { forecastPages, defaultBuiltInPages, pages, homePage, navigation, settings, theme } =
+    status
 
   const automatedComplete =
-    builtInPages.count >= builtInPages.expected &&
+    forecastPages.count >= forecastPages.expected &&
+    defaultBuiltInPages.count >= defaultBuiltInPages.expected &&
     pages.created >= pages.expected &&
     pages.expected > 0 &&
     homePage &&
@@ -168,24 +171,35 @@ export function OnboardingChecklist() {
         )}
       </div>
 
-      {automatedComplete && (
-        <p className="mt-2 text-sm opacity-70">
-          Blank pages are created using DVACs navigation structure
-        </p>
-      )}
-
       <ChecklistItem
         loading={isProvisioning}
-        done={loaded && builtInPages.count >= builtInPages.expected}
-        label="Built-in pages"
-        details={loaded && `(${builtInPages.count}/${builtInPages.expected})`}
-      />
+        done={loaded && forecastPages.count >= forecastPages.expected}
+        label="Forecast Built-In pages"
+        details={loaded && `(${forecastPages.count}/${forecastPages.expected})`}
+      >
+        {automatedComplete && (
+          <p className="text-sm opacity-70">
+            Forecast built-ins are automatically based on NAC zones.
+          </p>
+        )}
+      </ChecklistItem>
+      <ChecklistItem
+        loading={isProvisioning}
+        done={loaded && defaultBuiltInPages.count >= defaultBuiltInPages.expected}
+        label="Default Built-In pages"
+        details={loaded && `(${defaultBuiltInPages.count}/${defaultBuiltInPages.expected})`}
+      ></ChecklistItem>
       <ChecklistItem
         loading={isProvisioning}
         done={pages.created >= pages.expected && pages.expected > 0}
         label="Pages"
         details={loaded && `(${pages.created}/${pages.expected})`}
       >
+        {automatedComplete && (
+          <p className="text-sm opacity-70">
+            Blank pages are created using DVACs navigation structure.
+          </p>
+        )}
         {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
       </ChecklistItem>
 
@@ -202,7 +216,11 @@ export function OnboardingChecklist() {
             </Link>
           )
         }
-      />
+      >
+        {automatedComplete && (
+          <p className="text-sm opacity-70">Placeholder logo, icon and banner added.</p>
+        )}
+      </ChecklistItem>
 
       <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
         <h4 className="mb-2">Needs action</h4>

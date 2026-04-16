@@ -1,20 +1,83 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
+import {
+  getActiveForecastZones,
+  getAvalancheCenterPlatforms,
+  type ActiveForecastZoneWithSlug,
+} from '@/services/nac/nac'
 import { isValidRelationship } from '@/utilities/relationships'
 import type { Payload, PayloadHandler } from 'payload'
+import type { Logger } from 'pino'
 
 const TEMPLATE_TENANT_SLUG = 'dvac'
 
-export const BUILT_IN_PAGES: Array<{ title: string; url: string }> = [
-  { title: 'All Forecasts', url: '/forecasts/avalanche' },
-  { title: 'Mountain Weather', url: '/weather/forecast' },
-  { title: 'Weather Stations', url: '/weather/stations/map' },
-  { title: 'Recent Observations', url: '/observations' },
-  { title: 'Submit Observations', url: '/observations/submit' },
-  { title: 'Blog', url: '/blog' },
-  { title: 'Events', url: '/events' },
-]
+/**
+ * Queries AFP for forecast zones and splits template nav built-in pages into
+ * zone-aware forecast pages (sorted by rank) and non-forecast pages.
+ */
+export async function resolveBuiltInPages(
+  tenantSlug: string,
+  navBuiltInPages: Array<{ title: string; url: string }>,
+  log: Logger,
+): Promise<{
+  forecastPages: Array<{ title: string; url: string }>
+  nonForecastPages: Array<{ title: string; url: string }>
+}> {
+  let forecastZones: ActiveForecastZoneWithSlug[] = []
+  try {
+    forecastZones = await getActiveForecastZones(tenantSlug)
+    if (forecastZones.length === 0) {
+      log.warn(
+        `[${tenantSlug}] No forecast zones found from AFP. Creating default "All Forecasts" page.`,
+      )
+    } else {
+      log.info(`[${tenantSlug}] Found ${forecastZones.length} forecast zone(s) from AFP`)
+    }
+  } catch (err) {
+    log.warn(
+      `[${tenantSlug}] Failed to query AFP for forecast zones: ${err instanceof Error ? err.message : 'Unknown error'}. Creating default "All Forecasts" page.`,
+    )
+  }
+
+  // Sort by rank so consumers can iterate in display order
+  const sorted = [...forecastZones].sort(
+    (a, b) => (a.zone.rank ?? Infinity) - (b.zone.rank ?? Infinity),
+  )
+
+  const forecastPages =
+    sorted.length === 1
+      ? [
+          {
+            title: 'Avalanche Forecast',
+            url: `/forecasts/avalanche/${sorted[0].slug}`,
+          },
+        ]
+      : [
+          { title: 'All Forecasts', url: '/forecasts/avalanche' },
+          ...sorted.map(({ zone, slug }) => ({
+            title: zone.name,
+            url: `/forecasts/avalanche/${slug}`,
+          })),
+        ]
+
+  // Non-forecast pages from DVAC nav, excluding Mountain Weather (determined by NAC)
+  const nonForecastPages = navBuiltInPages.filter(
+    (p) => !p.url.startsWith('/forecasts/avalanche') && p.url !== '/weather/forecast',
+  )
+
+  // Add Mountain Weather only if center has weather forecasts in NAC
+  try {
+    const { weather } = await getAvalancheCenterPlatforms(tenantSlug)
+    if (weather) {
+      nonForecastPages.push({ title: 'Mountain Weather', url: '/weather/forecast' })
+    }
+  } catch {
+    log.warn(`[${tenantSlug}] Failed to query NAC platforms. Excluding Mountain Weather.`)
+  }
+
+  return { forecastPages, nonForecastPages }
+}
 
 /**
  * Creates a new tenant and provisions it with all default data.
@@ -80,10 +143,11 @@ export const provisionTenant: PayloadHandler = async (req) => {
  * Provisions a tenant with all default data:
  * 1. Website Settings with placeholder brand assets (logo, icon, banner)
  * 2. Look up template tenant (DVAC) navigation to determine which pages to create
- * 3. Built-in pages (filtered to those referenced in template navigation)
- * 4. Blank pages matching the template tenant's page structure
- * 5. Home page with default content
- * 6. Navigation linked to the new pages and built-in pages
+ * 3. Query AFP for forecast zones (single vs multi-zone detection)
+ * 4. Built-in pages (zone-aware, filtered to those referenced in template navigation)
+ * 5. Blank pages matching the template tenant's page structure
+ * 6. Home page with default content
+ * 7. Navigation linked to the new pages and built-in pages (zone-aware forecasts)
  *
  * Idempotent - checks for existing data before creating.
  */
@@ -94,22 +158,23 @@ export const provisionTenant: PayloadHandler = async (req) => {
  */
 export type NavReferences = {
   pageSlugs: Set<string>
-  builtInPageUrls: Set<string>
+  builtInPages: Array<{ title: string; url: string }>
 }
 
 export function extractNavReferences(nav: Navigation): NavReferences {
   const pageSlugs = new Set<string>()
-  const builtInPageUrls = new Set<string>()
+  const builtInPages: Array<{ title: string; url: string }> = []
+  const seenUrls = new Set<string>()
 
   for (const tab of Object.values(nav)) {
     if (typeof tab === 'object' && tab !== null) {
       // Tab with items array (forecasts, weather, education, etc.)
       if ('items' in tab && Array.isArray(tab.items)) {
         for (const item of tab.items) {
-          buildNavReference(item.link, pageSlugs, builtInPageUrls)
+          buildNavReference(item.link, pageSlugs, builtInPages, seenUrls)
           if (Array.isArray(item.items)) {
             for (const subItem of item.items) {
-              buildNavReference(subItem.link, pageSlugs, builtInPageUrls)
+              buildNavReference(subItem.link, pageSlugs, builtInPages, seenUrls)
             }
           }
         }
@@ -117,12 +182,12 @@ export function extractNavReferences(nav: Navigation): NavReferences {
 
       // Tab with a direct link (donate)
       if ('link' in tab) {
-        buildNavReference(tab.link, pageSlugs, builtInPageUrls)
+        buildNavReference(tab.link, pageSlugs, builtInPages, seenUrls)
       }
     }
   }
 
-  return { pageSlugs, builtInPageUrls }
+  return { pageSlugs, builtInPages }
 }
 
 function buildNavReference(
@@ -131,15 +196,20 @@ function buildNavReference(
     | null
     | undefined,
   pageSlugs: Set<string>,
-  builtInPageUrls: Set<string>,
+  builtInPages: Array<{ title: string; url: string }>,
+  seenUrls: Set<string>,
 ): void {
   const ref = link?.reference
   if (!ref || !isValidRelationship(ref.value)) return
 
   if (ref.relationTo === 'pages' && 'slug' in ref.value) {
     pageSlugs.add(String(ref.value.slug))
-  } else if (ref.relationTo === 'builtInPages' && 'url' in ref.value) {
-    builtInPageUrls.add(String(ref.value.url))
+  } else if (ref.relationTo === 'builtInPages' && 'url' in ref.value && 'title' in ref.value) {
+    const url = String(ref.value.url)
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url)
+      builtInPages.push({ title: String(ref.value.title), url })
+    }
   }
 }
 
@@ -207,7 +277,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     .then((res) => res.docs[0])
 
   let navPageSlugs = new Set<string>()
-  let navBuiltInPageUrls = new Set<string>()
+  let navBuiltInPages: Array<{ title: string; url: string }> = []
 
   if (templateTenant) {
     const templateNav = await payload
@@ -221,17 +291,22 @@ export async function provision(payload: Payload, tenant: Tenant) {
 
     const refs = extractNavReferences(templateNav ?? {})
     navPageSlugs = refs.pageSlugs
-    navBuiltInPageUrls = refs.builtInPageUrls
+    navBuiltInPages = refs.builtInPages
     log.info(
-      `[${tenant.slug}] Found ${navPageSlugs.size} page slugs and ${navBuiltInPageUrls.size} built-in page URLs in template navigation`,
+      `[${tenant.slug}] Found ${navPageSlugs.size} page slugs and ${navBuiltInPages.length} built-in pages in template navigation`,
     )
   } else {
     log.warn(`Template tenant "${TEMPLATE_TENANT_SLUG}" not found. Using default built-in pages.`)
   }
 
-  // 3. Create Built-In Pages
-  // TODO: Filter to only navigation-referenced built-in pages #999
-  log.info(`[${tenant.slug}] Creating built-in pages...`)
+  // 3–4. Query AFP for forecast zones and resolve built-in pages
+  const { forecastPages, nonForecastPages } = await resolveBuiltInPages(
+    tenant.slug,
+    navBuiltInPages,
+    log,
+  )
+  const builtInPagesToCreate = [...forecastPages, ...nonForecastPages]
+  log.info(`[${tenant.slug}] Creating ${builtInPagesToCreate.length} built-in pages...`)
   const existingBuiltInPages = await payload.find({
     collection: 'builtInPages',
     where: { tenant: { equals: tenant.id } },
@@ -240,7 +315,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
   const existingBuiltInPageUrls = new Set(existingBuiltInPages.docs.map((p) => p.url))
 
   const createdBuiltInPages: BuiltInPage[] = [...existingBuiltInPages.docs]
-  for (const { title, url } of BUILT_IN_PAGES) {
+  for (const { title, url } of builtInPagesToCreate) {
     if (existingBuiltInPageUrls.has(url)) {
       log.info(`[${tenant.slug}] Built-in page "${title}" already exists, skipping`)
       continue
@@ -262,7 +337,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     builtInPagesByUrl[bip.url] = bip
   }
 
-  // 4. Create blank pages for pages referenced in template navigation
+  // 5. Create blank pages for pages referenced in template navigation
   const createdPages: Page[] = []
   const failedPages: string[] = []
   const pagesBySlug: Record<string, Page> = {}
@@ -334,7 +409,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     }
   }
 
-  // 5. Create Home Page
+  // 6. Create Home Page
   log.info(`[${tenant.slug}] Creating home page...`)
   const existingHomePage = await payload.find({
     collection: 'homePages',
@@ -410,7 +485,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
     log.info(`[${tenant.slug}] Home page already exists, skipping`)
   }
 
-  // 6. Create Navigation
+  // 7. Create Navigation
   log.info(`[${tenant.slug}] Creating navigation...`)
   const existingNavigation = await payload.find({
     collection: 'navigations',
@@ -459,8 +534,26 @@ export async function provision(payload: Payload, tenant: Tenant) {
         collection: 'navigations',
         data: {
           tenant: tenant.id,
-          forecasts: { items: [] },
-          observations: { items: [] },
+          forecasts:
+            forecastPages.length === 1
+              ? {
+                  link: navBuiltInPageItem(forecastPages[0].url, forecastPages[0].title)?.link,
+                  items: [],
+                }
+              : {
+                  link: navBuiltInPageItem('/forecasts/avalanche', 'All Forecasts')?.link,
+                  items: filterNulls(
+                    forecastPages
+                      .filter((p) => p.url !== '/forecasts/avalanche')
+                      .map((p) => navBuiltInPageItem(p.url, p.title)),
+                  ),
+                },
+          observations: {
+            items: filterNulls([
+              navBuiltInPageItem('/observations', 'Recent Observations'),
+              navBuiltInPageItem('/observations/submit', 'Submit Observations'),
+            ]),
+          },
           weather: {
             items: filterNulls([
               navBuiltInPageItem('/weather/stations/map', 'Weather Stations'),
@@ -513,6 +606,14 @@ export async function provision(payload: Payload, tenant: Tenant) {
               navPageItem('grief-and-loss-resources'),
               navPageItem('avalanche-accident-map'),
             ]),
+          },
+          blog: {
+            link: navBuiltInPageItem('/blog', 'Blog')?.link,
+            options: { enabled: true },
+          },
+          events: {
+            link: navBuiltInPageItem('/events', 'Events')?.link,
+            options: { enabled: true },
           },
           donate: {
             link: navPageItem('donate-membership', 'Donate')?.link,
