@@ -4,11 +4,11 @@ import { fireEvent, render, screen } from '@testing-library/react'
 
 const mockCaptureWithTenant = jest.fn()
 
-jest.mock('@/utilities/useAnalytics', () => ({
+jest.mock('../../../src/utilities/useAnalytics', () => ({
   useAnalytics: () => ({ captureWithTenant: mockCaptureWithTenant }),
 }))
 
-jest.mock('@/utilities/handleReferenceURL', () => ({
+jest.mock('../../../src/utilities/handleReferenceURL', () => ({
   handleReferenceURL: ({ url }: { url?: string }) => url ?? '/mock-href',
 }))
 
@@ -16,6 +16,8 @@ const resolvedPage = {
   id: 1,
   title: 'Avalanche Forecast',
   slug: 'avalanche-forecast',
+  layout: [],
+  tenant: 1,
   _status: 'published' as const,
   createdAt: '',
   updatedAt: '',
@@ -64,7 +66,7 @@ describe('QuickLinkButton', () => {
   })
 
   it('renders nothing when handleReferenceURL returns no href', () => {
-    jest.requireMock('@/utilities/handleReferenceURL').handleReferenceURL = () => null
+    jest.requireMock('../../../src/utilities/handleReferenceURL').handleReferenceURL = () => null
 
     const { container } = render(
       <QuickLinkButton
@@ -77,7 +79,7 @@ describe('QuickLinkButton', () => {
 
     expect(container).toBeEmptyDOMElement()
 
-    jest.requireMock('@/utilities/handleReferenceURL').handleReferenceURL = ({
+    jest.requireMock('../../../src/utilities/handleReferenceURL').handleReferenceURL = ({
       url,
     }: {
       url?: string
