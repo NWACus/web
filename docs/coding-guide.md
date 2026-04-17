@@ -290,3 +290,45 @@ Links styled as buttons with built-in analytics tracking. Supports both direct U
   Read More
 </ButtonLink>
 ```
+
+## Testing with Payload Configs
+
+### ESM Transform Support
+
+Payload and its dependencies (`@payloadcms/*`, `@lexical/*`, etc.) ship as ESM, which Jest can't handle by default. `next/jest` hardcodes `/node_modules/` in `transformIgnorePatterns`, preventing ESM packages from being transformed.
+
+Our `jest.config.mjs` overrides this with `addEsmTransformSupport()`, which removes the node_modules ignore pattern so SWC transforms all dependencies. This allows tests to import real block configs, collection fields, and other Payload modules directly.
+
+See [vercel/next.js#35634](https://github.com/vercel/next.js/issues/35634) for background on this issue.
+
+### Prefer real configs over synthetic mocks
+
+When testing functions that depend on block or collection configs, **import the real configs** rather than creating synthetic mock versions. Synthetic configs can silently drift from reality — if a relationship field is renamed or a block's structure changes, tests using mocks will keep passing while the real code breaks. Using real configs means you don't have to remember to update a second copy.
+
+```typescript
+// Prefer: import real block configs
+import { ContentBlock } from '@/blocks/Content/config'
+import { TeamBlock } from '@/blocks/Team/config'
+
+// Avoid: synthetic configs that can drift from reality
+const TeamBlock = { slug: 'team', fields: [{ type: 'relationship', name: 'team', relationTo: 'teams' }] }
+```
+
+### When you still need mocks
+
+Some modules need mocking because they require a running Payload instance or external services:
+
+- **`payload`** — mock `getPayload` when tests don't need a real database
+- **`@payload-config`** — mock with `{}` when module initialization tries to load the config
+- **`@payloadcms/richtext-lexical`** — mock `lexicalEditor` and feature functions when the import chain calls them at module scope and they require Payload's runtime context
+
+```typescript
+// Mock lexical editor functions that execute at import time
+jest.mock('@payloadcms/richtext-lexical', () => ({
+  lexicalEditor: () => ({}),
+  BlocksFeature: () => ({ key: 'blocks' }),
+  // ... other features as needed
+}))
+```
+
+Only mock what's necessary. If the ESM transform support lets you use the real module, prefer that.
