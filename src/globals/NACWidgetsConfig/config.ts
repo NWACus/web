@@ -24,6 +24,16 @@ export const NACWidgetsConfig: GlobalConfig = {
       validate: validateExternalUrl,
       required: true,
     },
+    {
+      type: 'checkbox',
+      name: 'devMode',
+      defaultValue: false,
+      admin: {
+        description:
+          'When enabled, widgets use a staging base URL instead of production. Always forced to false in production.',
+      },
+      required: true,
+    },
   ],
   hooks: {
     afterChange: [revalidateWidgetPages],
