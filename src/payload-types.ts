@@ -4558,6 +4558,36 @@ export interface ButtonBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InlineMediaBlock".
+ */
+export interface InlineMediaBlock {
+  media: number | Media;
+  /**
+   * Inline renders the image within the text flow. Left or Right positions the image to that side with text wrapping around it.
+   */
+  position?: ('inline' | 'float-left' | 'float-right') | null;
+  /**
+   * Vertical alignment relative to the surrounding text.
+   */
+  verticalAlign?: ('middle' | 'top' | 'bottom' | 'baseline') | null;
+  /**
+   * Original uses the natural image size. Percentage widths are relative to the containing block. Fixed height lets you specify an exact pixel height.
+   */
+  size?: ('original' | '25' | '50' | '75' | '100' | 'fixed-height') | null;
+  /**
+   * Height in pixels.
+   */
+  fixedHeight?: number | null;
+  /**
+   * Optional text shown as a tooltip on hover.
+   */
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'inlineMedia';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "calloutBlock".
  */
 export interface CalloutBlock {
