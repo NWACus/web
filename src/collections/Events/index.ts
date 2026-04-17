@@ -10,6 +10,7 @@ import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import { eventTypesData } from '@/constants/eventTypes'
 import { contentHashField } from '@/fields/contentHashField'
 import { locationField } from '@/fields/location'
@@ -165,6 +166,7 @@ export const Events: CollectionConfig = {
                     SingleEventBlock,
                     SponsorsBlock,
                   ],
+                  inlineBlocks: DEFAULT_INLINE_BLOCKS,
                 }),
                 HorizontalRuleFeature(),
                 InlineToolbarFeature(),
