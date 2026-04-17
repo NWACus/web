@@ -40,3 +40,4 @@ plans/
 /blob-report/
 /playwright/.cache/
 __tests__/e2e/.auth/
+.beads

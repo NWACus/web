@@ -1,0 +1,83 @@
+{
+  "_description": "Layout structure modeled on a real sponsors page with multiple SponsorsBlocks containing hasMany relationship arrays. HeaderBlocks have no relationship fields and should be ignored.",
+  "slug": "supporters",
+  "layout": [
+    {
+      "id": "1a2b3c4d5e6f7a8b9c0d1e2f",
+      "richText": {
+        "root": {
+          "children": [
+            {
+              "children": [
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Business Supporters",
+                  "type": "text",
+                  "version": 1
+                }
+              ],
+              "direction": null,
+              "format": "center",
+              "indent": 0,
+              "type": "heading",
+              "version": 1,
+              "tag": "h2"
+            }
+          ],
+          "direction": null,
+          "format": "",
+          "indent": 0,
+          "type": "root",
+          "version": 1
+        }
+      },
+      "backgroundColor": "brand-800",
+      "fullWidthColor": true,
+      "blockName": "Business Sponsors Header",
+      "blockType": "headerBlock"
+    },
+    {
+      "id": "2b3c4d5e6f7a8b9c0d1e2f3a",
+      "backgroundColor": "transparent",
+      "sponsorsLayout": "static",
+      "blockName": "Tier 1",
+      "blockType": "sponsorsBlock",
+      "sponsors": [501, 502, 503, 504, 505, 506, 507]
+    },
+    {
+      "id": "3c4d5e6f7a8b9c0d1e2f3a4b",
+      "backgroundColor": "transparent",
+      "sponsorsLayout": "static",
+      "blockName": "Tier 2",
+      "blockType": "sponsorsBlock",
+      "sponsors": [508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521]
+    },
+    {
+      "id": "4d5e6f7a8b9c0d1e2f3a4b5c",
+      "backgroundColor": "transparent",
+      "sponsorsLayout": "static",
+      "blockName": "Pro Partners",
+      "blockType": "sponsorsBlock",
+      "sponsors": [522, 523, 524, 525, 526, 527, 528, 529, 530]
+    },
+    {
+      "id": "5e6f7a8b9c0d1e2f3a4b5c6d",
+      "backgroundColor": "transparent",
+      "sponsorsLayout": "static",
+      "blockName": "Local Partners",
+      "blockType": "sponsorsBlock",
+      "sponsors": [531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542]
+    },
+    {
+      "id": "6f7a8b9c0d1e2f3a4b5c6d7e",
+      "backgroundColor": "transparent",
+      "sponsorsLayout": "static",
+      "blockName": "National Partners",
+      "blockType": "sponsorsBlock",
+      "sponsors": [543, 544, 545, 546, 547]
+    }
+  ]
+}
