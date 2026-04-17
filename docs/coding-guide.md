@@ -48,9 +48,18 @@ Our testing is lightweight at the moment. Including tests with PRs is always enc
 
 ## Adding New Collections
 
-When adding new collections please make sure to review the following docs:
-- `/docs/revalidation.md` -- If the collection is referenced as a relationship in a block, you need to write revalidation hooks
-- `/docs/migration-safety.md` -- You need to generate a migration. Make sure your migration will not result in unintended data loss.
+Start by copying `src/collections/collection-template.ts` into a new file in `src/collections/`. The template includes the basic structure with access control options, tenant field configurations, and common built-in fields.
+
+### Checklist
+
+1. **Configure the collection** — Choose the appropriate access control pattern and fields from the template
+2. **Register it** — Import and add the collection to your Payload config
+3. **Consider revalidation** — If the collection is referenced as a relationship in a block, you need to write revalidation hooks. See `/docs/revalidation.md`
+4. **Generate types** — Run `pnpm generate:types` to update TypeScript types
+5. **Add seed data** — Add representative test data to the seed script once the schema is finalized
+6. **Run the seed script** — Verify `pnpm seed` completes without errors
+7. **Generate a migration** — Run `pnpm payload migrate:create` and review the output. See `/docs/migration-safety.md` to make sure your migration won't cause unintended data loss
+8. **Expose via MCP (if appropriate)** — If this collection should be queryable by AI tools, add it to the MCP plugin config in `src/plugins/index.ts`. See `/docs/mcp-server.md` for details
 
 ## Safely handling relationship fields
 

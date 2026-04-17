@@ -1,4 +1,5 @@
 import { GlobalRoleAssignment, User } from '@/payload-types'
+import { isUser } from '@/utilities/isUser'
 import { ruleMatches } from './ruleMatches'
 
 /**
@@ -9,7 +10,7 @@ import { ruleMatches } from './ruleMatches'
  * This is used for admin UI conditions.
  */
 export const hasProviderAccess = (user: User | null | undefined): boolean => {
-  if (!user) {
+  if (!user || !isUser(user)) {
     return false
   }
 

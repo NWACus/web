@@ -13,8 +13,12 @@ export async function findDocumentsWithRelationshipReferences(
   const payload = await getPayload({ config: configPromise })
   const results: DocumentForRevalidation[] = []
 
-  const { pagesRelationshipMappings, postsRelationshipMappings, homePagesRelationshipMappings } =
-    await getRelationshipsFromConfig()
+  const {
+    pagesRelationshipMappings,
+    postsRelationshipMappings,
+    homePagesRelationshipMappings,
+    eventsRelationshipMappings,
+  } = await getRelationshipsFromConfig()
 
   const pagesMappings = pagesRelationshipMappings[reference.collection]
 
@@ -117,6 +121,44 @@ export async function findDocumentsWithRelationshipReferences(
       } catch (error) {
         payload.logger.warn(
           `Error querying homePages for ${reference.collection} reference ${reference.id} at ${mapping.fieldPath}: ${error}`,
+        )
+      }
+    }
+  }
+
+  const eventsMappings = eventsRelationshipMappings[reference.collection]
+
+  if (eventsMappings) {
+    for (const mapping of eventsMappings) {
+      try {
+        const eventsWithRelationsRes = await payload.find({
+          collection: 'events',
+          where: {
+            and: [
+              {
+                _status: { equals: 'published' },
+              },
+              {
+                [mapping.fieldPath]: { equals: reference.id },
+              },
+            ],
+          },
+          depth: 1,
+        })
+
+        const eventsWithRelations: DocumentForRevalidation[] = eventsWithRelationsRes.docs.map(
+          (doc) => ({
+            collection: 'events',
+            id: doc.id,
+            slug: doc.slug,
+            tenant: doc.tenant,
+          }),
+        )
+
+        results.push(...eventsWithRelations)
+      } catch (error) {
+        payload.logger.warn(
+          `Error querying events for ${reference.collection} reference ${reference.id} at ${mapping.fieldPath}: ${error}`,
         )
       }
     }

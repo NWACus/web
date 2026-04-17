@@ -19,6 +19,7 @@ import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
@@ -104,6 +105,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 SingleEventBlock,
                 SponsorsBlock,
               ],
+              inlineBlocks: DEFAULT_INLINE_BLOCKS,
             }),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),

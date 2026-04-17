@@ -46,7 +46,7 @@ import * as migration_20260128_213937_rename_appearance_to_variant from './20260
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
 import * as migration_20260319_152951_add_text_wrap_to_image_text_block from './20260319_152951_add_text_wrap_to_image_text_block'
-import * as migration_20260325_173659_add_dev_mode from './20260325_173659_add_dev_mode'
+import * as migration_20260403_204010 from './20260403_204010'
 
 export const migrations = [
   {
@@ -290,8 +290,8 @@ export const migrations = [
     name: '20260319_152951_add_text_wrap_to_image_text_block',
   },
   {
-    up: migration_20260325_173659_add_dev_mode.up,
-    down: migration_20260325_173659_add_dev_mode.down,
-    name: '20260325_173659_add_dev_mode',
+    up: migration_20260403_204010.up,
+    down: migration_20260403_204010.down,
+    name: '20260403_204010',
   },
 ]
