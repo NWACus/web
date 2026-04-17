@@ -5,14 +5,9 @@ import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences
 import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
 
 async function revalidate(docId: number) {
-  await revalidateBlockReferences({
-    collection: 'documents',
-    id: docId,
-  })
-  await revalidateRelationshipReferences({
-    collection: 'documents',
-    id: docId,
-  })
+  const reference = { collection: 'documents' as const, id: docId }
+  await revalidateBlockReferences(reference)
+  await revalidateRelationshipReferences(reference)
 }
 
 export const revalidateDocuments: CollectionAfterChangeHook<Document> = async ({
