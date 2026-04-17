@@ -22685,6 +22685,14 @@
           "autoincrement": false,
           "default": "'https://du6amfiq9m9h7.cloudfront.net/public/v2'"
         },
+        "dev_mode": {
+          "name": "dev_mode",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -22801,6 +22809,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "561d9c25-8efb-4c2e-9250-507d8a266d6e",
+  "id": "149ad252-47e6-4dce-b48a-a674cf7bf173",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlogListBlock } from '../BlogList/config'
@@ -30,6 +31,7 @@ export const CalloutBlock: Block = {
                 MediaBlock,
                 SingleBlogPostBlock,
               ],
+              inlineBlocks: DEFAULT_INLINE_BLOCKS,
             }),
           ]
         },
