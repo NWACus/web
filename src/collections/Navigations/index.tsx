@@ -4,8 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
-import { singleLinkNavTab } from './fields/singleLinkNavTab'
-import { topLevelNavTab } from './fields/topLevelNavTab'
+import { navTab } from './fields/navTab'
 import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
 
 export const Navigations: CollectionConfig = {
@@ -37,41 +36,64 @@ export const Navigations: CollectionConfig = {
     {
       type: 'tabs',
       tabs: [
-        topLevelNavTab({
+        navTab({
           name: 'forecasts',
-          description: 'This nav dropdown is autofilled with your forecast zones.',
+          description:
+            'Autofilled from your forecast zones in the AFP. Edits here may be overwritten when zones change in the AFP.',
           hasEnabledToggle: false,
         }),
-        topLevelNavTab({
+        navTab({
           name: 'observations',
-          description: 'This nav dropdown is autofilled with the default observations links.',
+          description:
+            'Autofilled with default observation links (Recent Observations, Submit Observation). Edits here may be overwritten.',
           hasEnabledToggle: false,
         }),
-        topLevelNavTab({
+        navTab({
           name: 'weather',
-          description: 'This nav dropdown will also include your weather stations.',
+          description:
+            'Your weather stations map is automatically included in this dropdown. Add any additional weather-related links below.',
         }),
-        topLevelNavTab({ name: 'education' }),
-        topLevelNavTab({ name: 'accidents' }),
-        singleLinkNavTab({
+        navTab({
+          name: 'education',
+          description:
+            'Customize this dropdown with links to your education pages — e.g., classes, courses, workshops, scholarships.',
+        }),
+        navTab({
+          name: 'accidents',
+          description:
+            'Customize this dropdown with links to accident reports, statistics, and related resources.',
+        }),
+        navTab({
           name: 'blog',
           description:
-            'This nav item navigates to your blog landing page and does not have any dropdown items.',
+            'Points to your blog landing page (posts are listed automatically on that page).',
+          defaultMode: 'link',
           enabledToggleDescription:
             'If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.',
         }),
-        singleLinkNavTab({
+        navTab({
           name: 'events',
           description:
-            'This nav item navigates to your events landing page and does not have any dropdown items.',
+            'Points to your events landing page (upcoming events are listed automatically on that page).',
+          defaultMode: 'link',
           enabledToggleDescription:
             'If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.',
         }),
-        topLevelNavTab({ name: 'about' }),
-        topLevelNavTab({ name: 'support' }),
-        singleLinkNavTab({
+        navTab({
+          name: 'about',
+          description:
+            'Customize this dropdown with "About Us" pages — e.g., team, mission, partners, annual reports.',
+        }),
+        navTab({
+          name: 'support',
+          description:
+            'Customize this dropdown with ways supporters can contribute — e.g., donate, volunteer, corporate sponsorship.',
+        }),
+        navTab({
           name: 'donate',
-          description: 'This link appears as a button in the navigation.',
+          description:
+            'Renders as a call-to-action button at the end of the navigation. Usually points to your donation page.',
+          defaultMode: 'button',
           enabledToggleDescription: 'If hidden, the button will not appear in the nav.',
         }),
       ],

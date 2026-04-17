@@ -86,6 +86,7 @@ export const navigationSeed = (
     forecasts:
       zones.length === 1
         ? {
+            options: { displayMode: 'dropdown' },
             items: [
               {
                 link: builtInPageLink({
@@ -96,6 +97,7 @@ export const navigationSeed = (
             ],
           }
         : {
+            options: { displayMode: 'dropdown' },
             items: [
               {
                 link: builtInPageLink({
@@ -115,12 +117,14 @@ export const navigationSeed = (
             ],
           },
     observations: {
+      options: { displayMode: 'dropdown' },
       items: [
         { link: builtInPageLink({ url: '/observations', label: 'Recent Observations' }) },
         { link: builtInPageLink({ url: '/observations/submit', label: 'Submit Observations' }) },
       ],
     },
     weather: {
+      options: { displayMode: 'dropdown' },
       items: [
         {
           link: builtInPageLink({
@@ -136,6 +140,7 @@ export const navigationSeed = (
       ],
     },
     education: {
+      options: { displayMode: 'dropdown' },
       items: [
         {
           link: pageLink({ slug: 'learn' }),
@@ -191,6 +196,7 @@ export const navigationSeed = (
       ],
     },
     about: {
+      options: { displayMode: 'dropdown' },
       items: [
         {
           link: pageLink({ slug: 'about-us' }),
@@ -210,6 +216,7 @@ export const navigationSeed = (
       ],
     },
     support: {
+      options: { displayMode: 'dropdown' },
       items: [
         {
           link: pageLink({ slug: 'donate-membership' }),
@@ -229,6 +236,7 @@ export const navigationSeed = (
       ],
     },
     accidents: {
+      options: { displayMode: 'dropdown' },
       items: [
         {
           link: pageLink({ slug: 'local-accident-reports' }),
@@ -249,14 +257,15 @@ export const navigationSeed = (
     },
     blog: {
       link: builtInPageLink({ url: '/blog', label: 'Blog' }),
-      options: { enabled: true },
+      options: { displayMode: 'link', enabled: true },
     },
     events: {
       link: builtInPageLink({ url: '/events', label: 'Events' }),
-      options: { enabled: true },
+      options: { displayMode: 'link', enabled: true },
     },
     donate: {
       link: pageLink({ slug: 'donate-membership', label: 'Donate' }),
+      options: { displayMode: 'button' },
     },
   }
 }

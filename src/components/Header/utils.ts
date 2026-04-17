@@ -35,37 +35,51 @@ export type NavItem = {
   items?: NavItem[]
 }
 
+export type DisplayMode = 'dropdown' | 'link' | 'button'
+
 export type TopLevelNavItem =
   | {
+      displayMode?: DisplayMode
       link: NavLink
       label?: string
       items?: NavItem[]
     }
   | {
+      displayMode?: DisplayMode
       label: string
       link?: NavLink
       items?: NavItem[]
     }
 
+// Structural type that matches any top-level nav tab from the Navigation type.
+// The displayMode field is optional because dropdown-locked tabs (forecasts,
+// observations) have a literal 'dropdown' type, while flexible tabs have a
+// union. A plain optional string covers both.
+type NavTab = Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
+
 /**
- * Convenience function to validate and convert a payload topLevelNavTab to a frontend TopLevelNavItem.
+ * Convert a payload nav tab to a frontend TopLevelNavItem, branching on displayMode.
  *
- * @returns TopLevelNavItem in an array if the topLevelNavTab is valid or an empty array if invalid.
+ * - `'link'` or `'button'` mode: returns the tab's top-level link.
+ * - `'dropdown'` mode (default): returns the tab's items as a dropdown.
+ * - Returns an empty array if the tab is disabled, missing, or has no renderable content.
  */
-function topLevelNavItem({
-  tab,
-  label,
-}: {
-  tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
-  label: string
-}): TopLevelNavItem[] {
+function topLevelNavItem({ tab, label }: { tab: NavTab; label: string }): TopLevelNavItem[] {
   if (!tab || tab.options?.enabled === false) {
     return []
   }
 
-  const result: TopLevelNavItem = {
-    label,
+  const mode: DisplayMode = tab.options?.displayMode ?? 'dropdown'
+
+  if (mode === 'link' || mode === 'button') {
+    if (!tab.link) return []
+    const link = convertToNavLink(tab.link)
+    if (!link) return []
+    return [{ displayMode: mode, link, label: link.label }]
   }
+
+  // dropdown mode
+  const result: TopLevelNavItem = { displayMode: 'dropdown', label }
 
   if (tab.items && tab.items.length > 0) {
     result.items = tab.items
@@ -309,49 +323,29 @@ export const getTopLevelNavItems = async ({
   const observationsNavItem: TopLevelNavItem | undefined =
     observationsItems.length > 0 ? { label: 'Observations', items: observationsItems } : undefined
 
-  const blogLink = navigation.blog?.link ? convertToNavLink(navigation.blog.link) : undefined
-  const blogNavItem: TopLevelNavItem | undefined = blogLink ? { link: blogLink } : undefined
-
-  const eventsLink = navigation.events?.link ? convertToNavLink(navigation.events.link) : undefined
-  const eventsNavItem: TopLevelNavItem | undefined = eventsLink ? { link: eventsLink } : undefined
-
   const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts && forecastsNavItem ? [forecastsNavItem] : []),
-    ...topLevelNavItem({
-      tab: navigation.weather,
-      label: 'Weather',
-    }),
+    ...topLevelNavItem({ tab: navigation.weather, label: 'Weather' }),
     ...(avalancheCenterPlatforms.obs && observationsNavItem ? [observationsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
-    ...(navigation.blog?.options?.enabled && blogNavItem ? [blogNavItem] : []),
-    ...(navigation.events?.options?.enabled && eventsNavItem ? [eventsNavItem] : []),
+    ...topLevelNavItem({ tab: navigation.blog, label: 'Blog' }),
+    ...topLevelNavItem({ tab: navigation.events, label: 'Events' }),
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
   ]
 
-  let donateNavItem: TopLevelNavItem | undefined = undefined
+  const [donateNavItem] = topLevelNavItem({ tab: navigation.donate, label: 'Donate' })
 
-  if (navigation.donate?.link && navigation.donate.options?.enabled) {
-    const link = convertToNavLink(navigation.donate.link)
-
-    if (link) {
-      // For internal page links, resolve the canonical (navigation-nested) URL
-      // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
-      // see https://github.com/NWACus/web/pull/981 for more context
-      if (link.type === 'internal') {
-        const slug = link.url.split('/').filter(Boolean).pop()
-        if (slug) {
-          const navItem = findNavigationItemBySlug(topLevelNavItems, slug)
-          if (navItem?.link?.type === 'internal') {
-            link.url = navItem.link.url
-          }
-        }
-      }
-
-      donateNavItem = {
-        label: link.label,
-        link,
+  // For internal button links, resolve the canonical (navigation-nested) URL
+  // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
+  // see https://github.com/NWACus/web/pull/981 for more context
+  if (donateNavItem?.link?.type === 'internal') {
+    const slug = donateNavItem.link.url.split('/').filter(Boolean).pop()
+    if (slug) {
+      const matchedNavItem = findNavigationItemBySlug(topLevelNavItems, slug)
+      if (matchedNavItem?.link?.type === 'internal') {
+        donateNavItem.link.url = matchedNavItem.link.url
       }
     }
   }

@@ -459,15 +459,17 @@ export async function provision(payload: Payload, tenant: Tenant) {
         collection: 'navigations',
         data: {
           tenant: tenant.id,
-          forecasts: { items: [] },
-          observations: { items: [] },
+          forecasts: { options: { displayMode: 'dropdown' }, items: [] },
+          observations: { options: { displayMode: 'dropdown' }, items: [] },
           weather: {
+            options: { displayMode: 'dropdown' },
             items: filterNulls([
               navBuiltInPageItem('/weather/stations/map', 'Weather Stations'),
               navPageItem('weather-tools'),
             ]),
           },
           education: {
+            options: { displayMode: 'dropdown' },
             items: [
               ...filterNulls([navPageItem('learn')]),
               {
@@ -488,6 +490,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
             ],
           },
           about: {
+            options: { displayMode: 'dropdown' },
             items: filterNulls([
               navPageItem('about-us'),
               navPageItem('agency-partners'),
@@ -497,6 +500,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
             ]),
           },
           support: {
+            options: { displayMode: 'dropdown' },
             items: filterNulls([
               navPageItem('donate-membership'),
               navPageItem('workplace-giving'),
@@ -506,6 +510,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
             ]),
           },
           accidents: {
+            options: { displayMode: 'dropdown' },
             items: filterNulls([
               navPageItem('local-accident-reports'),
               navPageItem('avalanche-accident-statistics'),
@@ -515,6 +520,7 @@ export async function provision(payload: Payload, tenant: Tenant) {
             ]),
           },
           donate: {
+            options: { displayMode: 'button' },
             link: navPageItem('donate-membership', 'Donate')?.link,
           },
           _status: 'published',
