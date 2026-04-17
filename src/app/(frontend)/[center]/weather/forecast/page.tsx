@@ -6,7 +6,6 @@ import { getPayload } from 'payload'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
@@ -41,8 +40,6 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const { version, baseUrl, devMode } = await getNACWidgetsConfig()
-
   return (
     <>
       <WidgetRouterHandler initialPath="/weather" widgetPageKey="weather-forecast" />
@@ -52,13 +49,7 @@ export default async function Page({ params }: Args) {
             <h1 className="font-bold">Mountain Weather</h1>
           </div>
         </div>
-        <NACWidget
-          center={center}
-          widget={'forecast'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-          widgetsDevMode={devMode}
-        />
+        <NACWidget center={center} widget={'forecast'} />
       </div>
     </>
   )

@@ -6,7 +6,6 @@ import { getPayload } from 'payload'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
 
@@ -42,20 +41,12 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const { version, baseUrl, devMode } = await getNACWidgetsConfig()
-
   return (
     <>
       <WidgetRouterHandler initialPath="/all/" widgetPageKey="forecasts" />
       <ZoneLinkHijacker />
       <div className="container flex flex-col">
-        <NACWidget
-          center={center}
-          widget="forecast"
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-          widgetsDevMode={devMode}
-        />
+        <NACWidget center={center} widget="forecast" />
       </div>
     </>
   )
