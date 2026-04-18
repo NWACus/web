@@ -156,6 +156,7 @@
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.0.0",
     "lint-staged": "^16.4.0",
+    "msw": "^2.13.4",
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-organize-imports": "^4.1.0",
