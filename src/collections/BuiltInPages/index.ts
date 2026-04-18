@@ -28,6 +28,7 @@ export const BuiltInPages: CollectionConfig<'pages'> = {
     group: 'Content',
     useAsTitle: 'title',
     baseListFilter: filterByTenant,
+    defaultColumns: ['title', 'url', 'tenant'],
   },
   fields: [
     titleField(),

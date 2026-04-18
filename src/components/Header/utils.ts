@@ -1,9 +1,5 @@
 import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
-import {
-  ActiveForecastZoneWithSlug,
-  getActiveForecastZones,
-  getAvalancheCenterPlatforms,
-} from '@/services/nac/nac'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import { normalizePath } from '@/utilities/path'
 import configPromise from '@payload-config'
@@ -39,40 +35,53 @@ export type NavItem = {
   items?: NavItem[]
 }
 
+export type DisplayMode = 'dropdown' | 'link' | 'button'
+
 export type TopLevelNavItem =
   | {
+      displayMode?: DisplayMode
       link: NavLink
       label?: string
       items?: NavItem[]
     }
   | {
+      displayMode?: DisplayMode
       label: string
       link?: NavLink
       items?: NavItem[]
     }
 
+// Structural type that matches any top-level nav tab from the Navigation type.
+// The displayMode field is optional because dropdown-locked tabs (forecasts,
+// observations) have a literal 'dropdown' type, while flexible tabs have a
+// union. A plain optional string covers both.
+type NavTab = Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
+
 /**
- * Convenience function to validate and convert a payload topLevelNavTab to a frontend TopLevelNavItem.
+ * Convert a payload nav tab to a frontend TopLevelNavItem, branching on displayMode.
  *
- * @returns TopLevelNavItem in an array if the topLevelNavTab is valid or an empty array if invalid.
+ * - `'link'` or `'button'` mode: returns the tab's top-level link.
+ * - `'dropdown'` mode (default): returns the tab's items as a dropdown.
+ * - Returns an empty array if the tab is disabled, missing, or has no renderable content.
  */
-function topLevelNavItem({
-  tab,
-  label,
-}: {
-  tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
-  label: string
-}): TopLevelNavItem[] {
+function topLevelNavItem({ tab, label }: { tab: NavTab; label: string }): TopLevelNavItem[] {
   if (!tab || tab.options?.enabled === false) {
     return []
   }
 
-  const result: TopLevelNavItem = {
-    label,
+  const mode: DisplayMode = tab.options?.displayMode ?? 'dropdown'
+
+  if (mode === 'link' || mode === 'button') {
+    if (!tab.link) return []
+    const link = convertToNavLink(tab.link)
+    if (!link) return []
+    return [{ displayMode: mode, link, label: link.label }]
   }
 
+  // dropdown mode
+  const result: TopLevelNavItem = { displayMode: 'dropdown', label }
+
   if (tab.items && tab.items.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     result.items = tab.items
       .map((item) => {
         if (!item) return null
@@ -96,7 +105,6 @@ function topLevelNavItem({
         }
 
         if (item.items && item.items.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           navItem.items = item.items
             .map((nestedItem, index) => {
               if (!nestedItem) return null
@@ -121,7 +129,7 @@ function topLevelNavItem({
 
               return nestedNavItem.link ? nestedNavItem : null
             })
-            .filter(Boolean) as NavItem[]
+            .filter((item): item is NavItem => item !== null)
 
           if (navItem.items && navItem.items.length === 0) {
             delete navItem.items
@@ -130,7 +138,7 @@ function topLevelNavItem({
 
         return navItem.link || (navItem.items && navItem.items.length > 0) ? navItem : null
       })
-      .filter(Boolean) as NavItem[]
+      .filter((item): item is NavItem => item !== null)
 
     if (result.items && result.items.length === 0) {
       delete result.items
@@ -261,160 +269,83 @@ export function convertToNavLink(
 
 export const getTopLevelNavItems = async ({
   navigation,
-  activeForecastZones,
   avalancheCenterPlatforms,
   center,
 }: {
   navigation: Navigation
-  activeForecastZones?: ActiveForecastZoneWithSlug[]
   avalancheCenterPlatforms: AvalancheCenterPlatforms
   center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
-  let forecastsNavItem: TopLevelNavItem = {
-    link: {
-      label: 'Forecasts',
-      type: 'internal',
-      url: '/forecasts/avalanche',
-    },
-  }
+  const forecastItems: NavItem[] = (navigation.forecasts?.items ?? []).flatMap((item, i) => {
+    const itemId = item.id ?? String(i)
 
-  if (activeForecastZones && activeForecastZones.length > 0 && avalancheCenterPlatforms.forecasts) {
-    if (activeForecastZones.length === 1) {
-      forecastsNavItem = {
-        link: {
-          label: 'Avalanche Forecast',
-          type: 'internal',
-          url: `/forecasts/avalanche/${activeForecastZones[0].slug}`,
-        },
+    // Section with sub-items (e.g., "Zones" accordion)
+    if (item.items && item.items.length > 0) {
+      const subItems: NavItem[] = item.items.flatMap((sub, subIndex) => {
+        if (!sub.link) return []
+        const subLink = convertToNavLink(sub.link)
+        if (!subLink) return []
+        return [{ id: sub.id ?? `${itemId}-${subIndex}`, link: subLink }]
+      })
+      if (subItems.length === 0) return []
+      const navItem: NavItem = { id: itemId, items: subItems }
+      if ('label' in item && typeof item.label === 'string') {
+        navItem.label = item.label
       }
-    } else {
-      const zoneLinks: NavItem[] = activeForecastZones
-        .sort((zoneA, zoneB) => (zoneA.zone.rank ?? Infinity) - (zoneB.zone.rank ?? Infinity))
-        .map(({ zone, slug }) => {
-          return {
-            id: slug || zone.name,
-            link: {
-              type: 'internal',
-              label: zone.name,
-              url: slug ? `/forecasts/avalanche/${slug}` : '/forecasts/avalanche',
-            },
-          }
-        })
-
-      forecastsNavItem = {
-        label: 'Forecasts',
-        items: [
-          {
-            id: 'all',
-            link: {
-              type: 'internal',
-              label: 'All Forecasts',
-              url: '/forecasts/avalanche',
-            },
-          },
-          {
-            id: 'zones',
-            items: zoneLinks,
-            link: {
-              type: 'internal',
-              label: 'Zones',
-              url: '/forecasts/avalanche',
-            },
-          },
-        ],
-      }
+      return [navItem]
     }
-  }
 
-  const observationsNavItem: TopLevelNavItem = {
-    label: 'Observations',
-    items: [
-      {
-        id: 'recent',
-        link: {
-          type: 'internal',
-          label: 'Recent Observations',
-          url: '/observations',
-        },
-      },
-      {
-        id: 'submit',
-        link: {
-          type: 'internal',
-          label: 'Submit Observation',
-          url: '/observations/submit',
-        },
-      },
-    ],
-  }
+    // Flat item with a direct link
+    if (!item.link) return []
+    const link = convertToNavLink(item.link)
+    if (!link) return []
+    return [{ id: itemId, link }]
+  })
+
+  const forecastsNavItem: TopLevelNavItem | undefined =
+    forecastItems.length > 0 ? { label: 'Forecasts', items: forecastItems } : undefined
+
+  const observationsItems: NavItem[] = (navigation.observations?.items ?? []).flatMap((item, i) => {
+    if (!item.link) return []
+    const link = convertToNavLink(item.link)
+    if (!link) return []
+    return [{ id: item.id ?? String(i), link }]
+  })
 
   // SAC-specific observations archive link — revert this block when no longer needed
   if (center === 'sac') {
-    observationsNavItem.items?.push({
+    observationsItems.push({
       id: 'archive',
-      link: {
-        type: 'internal',
-        label: 'Observations Archive',
-        url: '/observations-archive',
-      },
+      link: { type: 'internal', label: 'Observations Archive', url: '/observations-archive' },
     })
   }
 
-  const blogNavItem: TopLevelNavItem = {
-    label: 'Blog',
-    link: {
-      label: 'Blog',
-      type: 'internal',
-      url: '/blog',
-    },
-  }
-
-  const eventsNavItem: TopLevelNavItem = {
-    label: 'Events',
-    link: {
-      label: 'Events',
-      type: 'internal',
-      url: '/events',
-    },
-  }
+  const observationsNavItem: TopLevelNavItem | undefined =
+    observationsItems.length > 0 ? { label: 'Observations', items: observationsItems } : undefined
 
   const topLevelNavItems: TopLevelNavItem[] = [
-    ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
-    ...topLevelNavItem({
-      tab: navigation.weather,
-      label: 'Weather',
-    }),
-    ...(avalancheCenterPlatforms.obs ? [observationsNavItem] : []),
+    ...(avalancheCenterPlatforms.forecasts && forecastsNavItem ? [forecastsNavItem] : []),
+    ...topLevelNavItem({ tab: navigation.weather, label: 'Weather' }),
+    ...(avalancheCenterPlatforms.obs && observationsNavItem ? [observationsNavItem] : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
-    ...(navigation.blog?.options?.enabled ? [blogNavItem] : []),
-    ...(navigation.events?.options?.enabled ? [eventsNavItem] : []),
+    ...topLevelNavItem({ tab: navigation.blog, label: 'Blog' }),
+    ...topLevelNavItem({ tab: navigation.events, label: 'Events' }),
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
   ]
 
-  let donateNavItem: TopLevelNavItem | undefined = undefined
+  const [donateNavItem] = topLevelNavItem({ tab: navigation.donate, label: 'Donate' })
 
-  if (navigation.donate?.link && navigation.donate.options?.enabled) {
-    const link = convertToNavLink(navigation.donate.link)
-
-    if (link) {
-      // For internal page links, resolve the canonical (navigation-nested) URL
-      // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
-      // see https://github.com/NWACus/web/pull/981 for more context
-      if (link.type === 'internal') {
-        const slug = link.url.split('/').filter(Boolean).pop()
-        if (slug) {
-          const navItem = findNavigationItemBySlug(topLevelNavItems, slug)
-          if (navItem?.link?.type === 'internal') {
-            link.url = navItem.link.url
-          }
-        }
-      }
-
-      donateNavItem = {
-        label: link.label,
-        link,
+  // For internal button links, resolve the canonical (navigation-nested) URL
+  // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
+  // see https://github.com/NWACus/web/pull/981 for more context
+  if (donateNavItem?.link?.type === 'internal') {
+    const slug = donateNavItem.link.url.split('/').filter(Boolean).pop()
+    if (slug) {
+      const matchedNavItem = findNavigationItemBySlug(topLevelNavItems, slug)
+      if (matchedNavItem?.link?.type === 'internal') {
+        donateNavItem.link.url = matchedNavItem.link.url
       }
     }
   }
@@ -445,12 +376,10 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         return { topLevelNavItems: [] }
       }
 
-      const activeForecastZones = await getActiveForecastZones(center)
       const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
       return await getTopLevelNavItems({
         navigation,
-        activeForecastZones,
         avalancheCenterPlatforms,
         center,
       })

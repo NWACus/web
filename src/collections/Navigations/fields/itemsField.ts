@@ -1,9 +1,9 @@
 import { navLink } from '@/fields/navLink'
 import { merge } from 'lodash-es'
-import { ArrayField, FieldHook } from 'payload'
+import { ArrayField, Condition, FieldHook } from 'payload'
 
 // Condition: show field only when item has sub-items (accordion/section mode)
-const hasSubItems = (_data: unknown, siblingData: Record<string, unknown>) =>
+const hasSubItems: Condition = (_, siblingData) =>
   Array.isArray(siblingData?.items) && siblingData.items.length > 0
 
 // Copy link.label to standalone label when sub-items are added,
@@ -66,8 +66,7 @@ export const itemsField = ({
           ...navLink,
           admin: {
             ...navLink.admin,
-            condition: (data: unknown, siblingData: Record<string, unknown>) =>
-              !hasSubItems(data, siblingData),
+            condition: (...args: Parameters<Condition>) => !hasSubItems(...args),
           },
           hooks: {
             // navLink.hooks contains clearIrrelevantLinkValues; we add our cleanup hook
