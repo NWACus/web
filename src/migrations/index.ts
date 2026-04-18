@@ -49,9 +49,9 @@ import * as migration_20260319_152951_add_text_wrap_to_image_text_block from './
 import * as migration_20260403_204010 from './20260403_204010'
 import * as migration_20260414_030626_add_documentReferences_field from './20260414_030626_add_documentReferences_field'
 import * as migration_20260414_030934_backfill_document_references from './20260414_030934_backfill_document_references'
-import * as migration_20260415_210100_convert_auto_nav_items from './20260415_210100_convert_auto_nav_items'
-import * as migration_20260415_210200_backfill_nav_builtin_pages from './20260415_210200_backfill_nav_builtin_pages'
 import * as migration_20260417_202409_add_dev_mode from './20260417_202409_add_dev_mode'
+import * as migration_20260418_120000_convert_auto_nav_items from './20260418_120000_convert_auto_nav_items'
+import * as migration_20260418_120100_backfill_nav_builtin_pages from './20260418_120100_backfill_nav_builtin_pages'
 
 export const migrations = [
   {
@@ -310,18 +310,18 @@ export const migrations = [
     name: '20260414_030934_backfill_document_references',
   },
   {
-    up: migration_20260415_210100_convert_auto_nav_items.up,
-    down: migration_20260415_210100_convert_auto_nav_items.down,
-    name: '20260415_210100_convert_auto_nav_items',
-  },
-  {
-    up: migration_20260415_210200_backfill_nav_builtin_pages.up,
-    down: migration_20260415_210200_backfill_nav_builtin_pages.down,
-    name: '20260415_210200_backfill_nav_builtin_pages',
-  },
-  {
     up: migration_20260417_202409_add_dev_mode.up,
     down: migration_20260417_202409_add_dev_mode.down,
     name: '20260417_202409_add_dev_mode',
+  },
+  {
+    up: migration_20260418_120000_convert_auto_nav_items.up,
+    down: migration_20260418_120000_convert_auto_nav_items.down,
+    name: '20260418_120000_convert_auto_nav_items',
+  },
+  {
+    up: migration_20260418_120100_backfill_nav_builtin_pages.up,
+    down: migration_20260418_120100_backfill_nav_builtin_pages.down,
+    name: '20260418_120100_backfill_nav_builtin_pages',
   },
 ]

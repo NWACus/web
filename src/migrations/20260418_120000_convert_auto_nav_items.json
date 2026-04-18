@@ -2296,6 +2296,79 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "home_pages_document_references": {
+      "name": "home_pages_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "home_pages_document_references_order_idx": {
+          "name": "home_pages_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "home_pages_document_references_parent_id_idx": {
+          "name": "home_pages_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "home_pages_document_references_parent_id_fk": {
+          "name": "home_pages_document_references_parent_id_fk",
+          "tableFrom": "home_pages_document_references",
+          "tableTo": "home_pages",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "home_pages": {
       "name": "home_pages",
       "columns": {
@@ -5099,6 +5172,86 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "_home_pages_v_version_document_references": {
+      "name": "_home_pages_v_version_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_uuid": {
+          "name": "_uuid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_home_pages_v_version_document_references_order_idx": {
+          "name": "_home_pages_v_version_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "_home_pages_v_version_document_references_parent_id_idx": {
+          "name": "_home_pages_v_version_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_home_pages_v_version_document_references_parent_id_fk": {
+          "name": "_home_pages_v_version_document_references_parent_id_fk",
+          "tableFrom": "_home_pages_v_version_document_references",
+          "tableTo": "_home_pages_v",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "_home_pages_v": {
       "name": "_home_pages_v",
       "columns": {
@@ -7661,6 +7814,79 @@
         "pages_blocks_team_parent_id_fk": {
           "name": "pages_blocks_team_parent_id_fk",
           "tableFrom": "pages_blocks_team",
+          "tableTo": "pages",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "pages_document_references": {
+      "name": "pages_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "pages_document_references_order_idx": {
+          "name": "pages_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "pages_document_references_parent_id_idx": {
+          "name": "pages_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "pages_document_references_parent_id_fk": {
+          "name": "pages_document_references_parent_id_fk",
+          "tableFrom": "pages_document_references",
           "tableTo": "pages",
           "columnsFrom": ["_parent_id"],
           "columnsTo": ["id"],
@@ -10265,6 +10491,86 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "_pages_v_version_document_references": {
+      "name": "_pages_v_version_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_uuid": {
+          "name": "_uuid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_pages_v_version_document_references_order_idx": {
+          "name": "_pages_v_version_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "_pages_v_version_document_references_parent_id_idx": {
+          "name": "_pages_v_version_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_pages_v_version_document_references_parent_id_fk": {
+          "name": "_pages_v_version_document_references_parent_id_fk",
+          "tableFrom": "_pages_v_version_document_references",
+          "tableTo": "_pages_v",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "_pages_v": {
       "name": "_pages_v",
       "columns": {
@@ -10826,6 +11132,79 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "posts_document_references": {
+      "name": "posts_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "posts_document_references_order_idx": {
+          "name": "posts_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "posts_document_references_parent_id_idx": {
+          "name": "posts_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "posts_document_references_parent_id_fk": {
+          "name": "posts_document_references_parent_id_fk",
+          "tableFrom": "posts_document_references",
+          "tableTo": "posts",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "posts": {
       "name": "posts",
       "columns": {
@@ -11251,6 +11630,86 @@
         "_posts_v_version_blocks_in_content_parent_id_fk": {
           "name": "_posts_v_version_blocks_in_content_parent_id_fk",
           "tableFrom": "_posts_v_version_blocks_in_content",
+          "tableTo": "_posts_v",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "_posts_v_version_document_references": {
+      "name": "_posts_v_version_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_uuid": {
+          "name": "_uuid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_posts_v_version_document_references_order_idx": {
+          "name": "_posts_v_version_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "_posts_v_version_document_references_parent_id_idx": {
+          "name": "_posts_v_version_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_posts_v_version_document_references_parent_id_fk": {
+          "name": "_posts_v_version_document_references_parent_id_fk",
+          "tableFrom": "_posts_v_version_document_references",
           "tableTo": "_posts_v",
           "columnsFrom": ["_parent_id"],
           "columnsTo": ["id"],
@@ -12314,6 +12773,79 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "events_document_references": {
+      "name": "events_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "events_document_references_order_idx": {
+          "name": "events_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "events_document_references_parent_id_idx": {
+          "name": "events_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "events_document_references_parent_id_fk": {
+          "name": "events_document_references_parent_id_fk",
+          "tableFrom": "events_document_references",
+          "tableTo": "events",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "events": {
       "name": "events",
       "columns": {
@@ -12853,6 +13385,86 @@
           "tableFrom": "_events_v_version_mode_of_travel",
           "tableTo": "_events_v",
           "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "_events_v_version_document_references": {
+      "name": "_events_v_version_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_uuid": {
+          "name": "_uuid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "_events_v_version_document_references_order_idx": {
+          "name": "_events_v_version_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "_events_v_version_document_references_parent_id_idx": {
+          "name": "_events_v_version_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "_events_v_version_document_references_parent_id_fk": {
+          "name": "_events_v_version_document_references_parent_id_fk",
+          "tableFrom": "_events_v_version_document_references",
+          "tableTo": "_events_v",
+          "columnsFrom": ["_parent_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -24300,6 +24912,14 @@
           "autoincrement": false,
           "default": "'https://du6amfiq9m9h7.cloudfront.net/public/v2'"
         },
+        "dev_mode": {
+          "name": "dev_mode",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -24416,6 +25036,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "7d0e730a-b07b-45e1-831f-995d847175aa",
+  "id": "05dd95cd-8e9c-44ca-9a19-76f8428d8016",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
