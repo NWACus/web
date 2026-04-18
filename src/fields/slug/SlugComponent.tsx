@@ -6,7 +6,6 @@ import { Button, FieldLabel, TextInput, useField, useFormFields } from '@payload
 
 import { RefreshCw } from 'lucide-react'
 import { formatSlug } from './formatSlug'
-import './index.scss'
 
 type SlugComponentProps = {
   fieldToUse: string
@@ -42,11 +41,15 @@ export const SlugComponent = ({
   const readOnly = readOnlyFromProps || false
 
   return (
-    <div className="field-type slug-field-component">
-      <div className="label-wrapper">
+    <div className="field-type relative">
+      <div className="flex justify-between items-center">
         <FieldLabel htmlFor={`field-${path}`} label={label} required />
 
-        <Button className="generate-button" buttonStyle="icon-label" onClick={handleGenerate}>
+        <Button
+          className="absolute right-0 bottom-[0.4em] z-[1] m-0 pb-[0.3125rem]"
+          buttonStyle="icon-label"
+          onClick={handleGenerate}
+        >
           <RefreshCw className="w-4" />
         </Button>
       </div>
