@@ -6,6 +6,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Page } from '@/payload-types'
 import { normalizePath } from '@/utilities/path'
+import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 const revalidatePagePaths = async ({
   slug,
@@ -65,6 +66,8 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
     })
 
     revalidatePageTags(tenant.slug)
+
+    await revalidateDocumentReferences({ collection: 'pages', id: doc.id })
   }
 
   // If the page was previously published, and it is no longer published or the slug has changed
@@ -100,4 +103,6 @@ export const revalidatePageDelete: CollectionAfterDeleteHook<Page> = async ({
   })
 
   revalidatePageTags(tenant.slug)
+
+  await revalidateDocumentReferences({ collection: 'pages', id: doc.id })
 }

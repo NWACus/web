@@ -4,8 +4,7 @@ import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Post } from '@/payload-types'
-import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
-import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
+import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 const revalidate = async ({
   docId,
@@ -28,15 +27,7 @@ const revalidate = async ({
   revalidateTag(`posts-sitemap-${tenantSlug}`)
   revalidateTag(`navigation-${tenantSlug}`)
 
-  await revalidateBlockReferences({
-    collection: 'posts',
-    id: docId,
-  })
-
-  await revalidateRelationshipReferences({
-    collection: 'posts',
-    id: docId,
-  })
+  await revalidateDocumentReferences({ collection: 'posts', id: docId })
 }
 
 export const revalidatePost: CollectionAfterChangeHook<Post> = async ({

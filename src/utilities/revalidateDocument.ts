@@ -3,45 +3,41 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
+import type { Tenant } from '@/payload-types'
+import { resolveTenant } from './tenancy/resolveTenant'
+
 export interface RevalidationReference {
   collection:
     | 'biographies'
     | 'documents'
-    | 'teams'
-    | 'media'
-    | 'forms'
-    | 'tags'
-    | 'posts'
-    | 'homePages'
-    | 'sponsors'
     | 'events'
+    | 'forms'
+    | 'homePages'
+    | 'media'
+    | 'pages'
+    | 'posts'
+    | 'sponsors'
+    | 'tags'
+    | 'teams'
   id: number
 }
 
 export interface DocumentForRevalidation {
-  collection: 'pages' | 'posts' | 'homePages' | 'events'
+  collection: string
   id: number
   slug: string
-  tenant: number | { id: number; slug: string }
+  tenant: number | Tenant
 }
 
 export async function revalidateDocument(doc: DocumentForRevalidation): Promise<void> {
   const payload = await getPayload({ config: configPromise })
-  let tenant = doc.tenant
 
-  if (typeof tenant === 'number') {
-    try {
-      tenant = await payload.findByID({
-        collection: 'tenants',
-        id: tenant,
-        depth: 0,
-      })
-    } catch (error) {
-      payload.logger.warn(
-        `Failed to resolve tenant ${tenant} for ${doc.collection} ${doc.id}: ${error}`,
-      )
-      return
-    }
+  let tenant: Tenant
+  try {
+    tenant = await resolveTenant(doc.tenant)
+  } catch (error) {
+    payload.logger.warn(`Failed to resolve tenant for ${doc.collection} ${doc.id}: ${error}`)
+    return
   }
 
   if (doc.collection === 'pages') {
@@ -68,6 +64,7 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
 
       basePaths.forEach((path) => revalidatePath(path))
     }
+    return
   }
 
   if (doc.collection === 'posts') {
@@ -78,6 +75,7 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
     )
 
     basePaths.forEach((path) => revalidatePath(path))
+    return
   }
 
   if (doc.collection === 'homePages') {
@@ -88,6 +86,7 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
     )
 
     basePaths.forEach((path) => revalidatePath(path))
+    return
   }
 
   if (doc.collection === 'events') {
@@ -98,5 +97,10 @@ export async function revalidateDocument(doc: DocumentForRevalidation): Promise<
     )
 
     basePaths.forEach((path) => revalidatePath(path))
+    return
   }
+
+  payload.logger.warn(
+    `revalidateDocument: no path mapping for collection '${doc.collection}' (doc ID ${doc.id}). Add a handler or check if documentReferencesField() should be removed from this collection.`,
+  )
 }

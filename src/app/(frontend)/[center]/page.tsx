@@ -13,7 +13,7 @@ import { notFound } from 'next/navigation'
 import invariant from 'tiny-invariant'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
+export const revalidate = 3600 // Next.js requires a static literal here
 export const dynamicParams = true
 
 const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59

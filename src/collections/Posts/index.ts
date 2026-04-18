@@ -26,7 +26,6 @@ import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
-import { populateBlocksInContent } from './hooks/populateBlocksInContent'
 import { revalidatePost, revalidatePostDelete } from './hooks/revalidatePost'
 
 import { accessByTenantRoleOrReadPublished } from '@/access/byTenantRoleOrReadPublished'
@@ -201,38 +200,12 @@ export const Posts: CollectionConfig<'posts'> = {
       hasMany: true,
       relationTo: 'posts',
     },
-    // Hidden field to track blocks embedded in content for revalidation purposes
-    {
-      name: 'blocksInContent',
-      type: 'array',
-      access: {
-        update: () => false,
-      },
-      admin: {
-        disabled: true,
-        readOnly: true,
-      },
-      fields: [
-        {
-          name: 'blockType',
-          type: 'text',
-        },
-        {
-          name: 'collection',
-          type: 'text',
-        },
-        {
-          name: 'docId',
-          type: 'number',
-        },
-      ],
-    },
     slugField(),
     documentReferencesField(),
     contentHashField(),
   ],
   hooks: {
-    beforeChange: [populatePublishedAt, populateBlocksInContent, populateDocumentReferences],
+    beforeChange: [populatePublishedAt, populateDocumentReferences],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidatePostDelete],

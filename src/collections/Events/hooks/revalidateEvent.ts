@@ -4,8 +4,7 @@ import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePath } from 'next/cache'
 
 import type { Event } from '@/payload-types'
-import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
-import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
+import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 const revalidate = async ({
   docId,
@@ -26,15 +25,7 @@ const revalidate = async ({
   revalidatePath(preRewritePath)
   revalidatePath(eventRewritePath)
 
-  await revalidateBlockReferences({
-    collection: 'events',
-    id: docId,
-  })
-
-  await revalidateRelationshipReferences({
-    collection: 'events',
-    id: docId,
-  })
+  await revalidateDocumentReferences({ collection: 'events', id: docId })
 }
 
 export const revalidateEvent: CollectionAfterChangeHook<Event> = async ({
