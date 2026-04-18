@@ -42,16 +42,11 @@ export async function Header({ center }: { center: string }) {
     `Depth not set correctly when querying settings. USFS Logo for tenant ${center} exists but is not an object.`,
   )
 
-  const { topLevelNavItems, donateNavItem } = await getCachedTopLevelNavItems(center, draft)()
+  const { topLevelNavItems } = await getCachedTopLevelNavItems(center, draft)()
 
   return (
     <header className="bg-header lg:shadow-sm lg:border-b">
-      <MobileNav
-        topLevelNavItems={topLevelNavItems}
-        donateNavItem={donateNavItem}
-        banner={banner}
-        usfsLogo={usfsLogo}
-      />
+      <MobileNav topLevelNavItems={topLevelNavItems} banner={banner} usfsLogo={usfsLogo} />
       {/* content padding since mobile nav is position: fixed */}
       <div className="lg:hidden h-[64px] bg-background" />
 
@@ -76,7 +71,7 @@ export async function Header({ center }: { center: string }) {
             )}
           </Link>
         )}
-        <DesktopNav topLevelNavItems={topLevelNavItems} donateNavItem={donateNavItem} />
+        <DesktopNav topLevelNavItems={topLevelNavItems} />
       </div>
     </header>
   )

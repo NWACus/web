@@ -18,13 +18,7 @@ import { TopLevelNavItem } from './utils'
 const underlineHoverClassName =
   "relative w-fit after:content-[''] after:absolute after:left-2 after:bottom-0 after:h-[1px] after:w-0 after:bg-nav-underline after:transition-all after:duration-300 hover:after:w-[calc(100%-1rem)] hover:text-header-foreground-highlight"
 
-export const DesktopNav = ({
-  topLevelNavItems,
-  donateNavItem,
-}: {
-  topLevelNavItems: TopLevelNavItem[]
-  donateNavItem?: TopLevelNavItem
-}) => {
+export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNavItem[] }) => {
   return (
     <NavigationMenu delayDuration={100} className="z-20">
       <NavigationMenuList>
@@ -32,6 +26,18 @@ export const DesktopNav = ({
           const label = navItem.label || navItem.link?.label
 
           if (!label) return null
+
+          if (navItem.displayMode === 'button' && navItem.link) {
+            return (
+              <NavigationMenuItem key={label} value={label}>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                  <RenderNavLink link={navItem.link}>
+                    <Button variant="callout">{label}</Button>
+                  </RenderNavLink>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )
+          }
 
           if (!navItem.items) {
             return (
@@ -124,15 +130,6 @@ export const DesktopNav = ({
             </NavigationMenuItem>
           )
         })}
-        {donateNavItem && (
-          <NavigationMenuItem>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
-              <RenderNavLink link={donateNavItem.link}>
-                <Button variant="callout">{donateNavItem.label}</Button>
-              </RenderNavLink>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        )}
       </NavigationMenuList>
     </NavigationMenu>
   )

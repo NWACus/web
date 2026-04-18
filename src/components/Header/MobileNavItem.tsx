@@ -2,8 +2,9 @@
 import { cn } from '@/utilities/ui'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
+import { Button } from '../ui/button'
 import { RenderNavLink } from './RenderNavLink'
-import { NavItem } from './utils'
+import { DisplayMode, NavItem } from './utils'
 
 const underlineHoverClassName =
   "relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-nav-underline after:transition-all after:duration-300 hover:after:w-full hover:text-header-foreground-highlight"
@@ -11,6 +12,7 @@ const underlineHoverClassName =
 type MobileNavItemProps = {
   label: string
   navItem: NavItem
+  displayMode?: DisplayMode
   setMobileNavOpen: Dispatch<SetStateAction<boolean>>
   className?: string
 }
@@ -18,9 +20,22 @@ type MobileNavItemProps = {
 export const MobileNavItem = ({
   label,
   navItem,
+  displayMode,
   setMobileNavOpen,
   className,
 }: MobileNavItemProps) => {
+  if (displayMode === 'button' && navItem.link) {
+    return (
+      <RenderNavLink
+        link={navItem.link}
+        className={cn('flex items-center py-3 px-2', className)}
+        onClick={() => setMobileNavOpen(false)}
+      >
+        <Button variant="callout">{label}</Button>
+      </RenderNavLink>
+    )
+  }
+
   if (!navItem.items || navItem.items.length === 0) {
     return navItem.link ? (
       <RenderNavLink

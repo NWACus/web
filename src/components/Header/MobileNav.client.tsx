@@ -22,15 +22,15 @@ import { TopLevelNavItem } from './utils'
 
 export const MobileNav = ({
   topLevelNavItems,
-  donateNavItem,
   banner,
   usfsLogo,
 }: {
   topLevelNavItems: TopLevelNavItem[]
-  donateNavItem?: TopLevelNavItem
   banner?: Media
   usfsLogo?: Media | null
 }) => {
+  const buttonNavItems = topLevelNavItems.filter((item) => item.displayMode === 'button')
+  const menuNavItems = topLevelNavItems.filter((item) => item.displayMode !== 'button')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [headerHeight, setHeaderHeight] = useState(64) // fallback to the expected height of the mobile nav bar
   const headerRef = useRef<HTMLDivElement>(null)
@@ -109,11 +109,19 @@ export const MobileNav = ({
               )}
             </Link>
           )}
-          {donateNavItem && (
-            <RenderNavLink link={donateNavItem.link} onClick={() => setMobileNavOpen(false)}>
-              <Button variant="callout">{donateNavItem.label}</Button>
-            </RenderNavLink>
-          )}
+          {buttonNavItems.map((navItem) => {
+            const label = navItem.label ?? navItem.link?.label
+            if (!label || !navItem.link) return null
+            return (
+              <RenderNavLink
+                key={label}
+                link={navItem.link}
+                onClick={() => setMobileNavOpen(false)}
+              >
+                <Button variant="callout">{label}</Button>
+              </RenderNavLink>
+            )
+          })}
         </div>
       </div>
       <DialogPortal>
@@ -129,7 +137,7 @@ export const MobileNav = ({
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
           <Accordion type="single" collapsible asChild>
             <nav className="divide-y divide-header-foreground/20 px-2 sm:container">
-              {topLevelNavItems.map((navItem, index) => {
+              {menuNavItems.map((navItem, index) => {
                 const label = navItem.label ?? navItem.link?.label
 
                 invariant(label, `Missing a label for top level nav item ${index}`)
@@ -143,6 +151,7 @@ export const MobileNav = ({
                       link: navItem.link,
                       items: navItem.items,
                     }}
+                    displayMode={navItem.displayMode}
                     setMobileNavOpen={setMobileNavOpen}
                   />
                 )

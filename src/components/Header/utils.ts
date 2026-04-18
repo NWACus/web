@@ -275,7 +275,7 @@ export const getTopLevelNavItems = async ({
   navigation: Navigation
   avalancheCenterPlatforms: AvalancheCenterPlatforms
   center: string
-}): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
+}): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
   const forecastItems: NavItem[] = (navigation.forecasts?.items ?? []).flatMap((item, i) => {
     const itemId = item.id ?? String(i)
 
@@ -333,29 +333,28 @@ export const getTopLevelNavItems = async ({
     ...topLevelNavItem({ tab: navigation.events, label: 'Events' }),
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
+    ...topLevelNavItem({ tab: navigation.donate, label: 'Donate' }),
   ]
 
-  const [donateNavItem] = topLevelNavItem({ tab: navigation.donate, label: 'Donate' })
-
-  // For internal button links, resolve the canonical (navigation-nested) URL
+  // For button-mode internal links, resolve the canonical (navigation-nested) URL
   // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
   // see https://github.com/NWACus/web/pull/981 for more context
-  if (donateNavItem?.link?.type === 'internal') {
-    const slug = donateNavItem.link.url.split('/').filter(Boolean).pop()
-    if (slug) {
-      const matchedNavItem = findNavigationItemBySlug(topLevelNavItems, slug)
-      if (matchedNavItem?.link?.type === 'internal') {
-        donateNavItem.link.url = matchedNavItem.link.url
-      }
+  for (const item of topLevelNavItems) {
+    if (item.displayMode !== 'button' || item.link?.type !== 'internal') continue
+    const slug = item.link.url.split('/').filter(Boolean).pop()
+    if (!slug) continue
+    const matchedNavItem = findNavigationItemBySlug(topLevelNavItems, slug)
+    if (matchedNavItem?.link?.type === 'internal') {
+      item.link.url = matchedNavItem.link.url
     }
   }
 
-  return { topLevelNavItems, donateNavItem }
+  return { topLevelNavItems }
 }
 
 export const getCachedTopLevelNavItems = (center: string, draft: boolean = false) =>
   unstable_cache(
-    async (): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
+    async (): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
       const payload = await getPayload({ config: configPromise })
 
       const navigationRes = await payload.find({
