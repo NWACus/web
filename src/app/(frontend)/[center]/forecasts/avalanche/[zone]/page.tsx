@@ -6,7 +6,6 @@ import { getPayload } from 'payload'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
@@ -53,18 +52,11 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const { version, baseUrl } = await getNACWidgetsConfig()
-
   return (
     <>
       <WidgetRouterHandler initialPath={`/${zone}/`} widgetPageKey="forecast-zone" />
       <div className="container flex flex-col">
-        <NACWidget
-          center={center}
-          widget={'forecast'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
+        <NACWidget center={center} widget={'forecast'} />
       </div>
     </>
   )

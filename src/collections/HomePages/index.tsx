@@ -1,6 +1,7 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
+import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
@@ -9,6 +10,7 @@ import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { DocumentBlock } from '@/blocks/Document/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
@@ -16,6 +18,7 @@ import { NACMediaBlock } from '@/blocks/NACMedia/config'
 import { DEFAULT_BLOCKS } from '@/constants/defaults'
 import colorPickerField from '@/fields/color'
 import { quickLinksField } from '@/fields/quickLinksFields'
+import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import {
@@ -111,6 +114,7 @@ export const HomePages: CollectionConfig = {
                         SingleBlogPostBlock,
                         SponsorsBlock,
                       ],
+                      inlineBlocks: DEFAULT_INLINE_BLOCKS,
                     }),
                     HorizontalRuleFeature(),
                     InlineToolbarFeature(),
@@ -178,11 +182,16 @@ export const HomePages: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    documentReferencesField(),
     contentHashField(),
   ],
   hooks: {
     afterChange: [revalidateHomePage],
-    beforeChange: [populateBlocksInHighlightedContent, populatePublishedAt],
+    beforeChange: [
+      populateBlocksInHighlightedContent,
+      populatePublishedAt,
+      populateDocumentReferences,
+    ],
     afterDelete: [revalidateHomePageDelete],
   },
   versions: {

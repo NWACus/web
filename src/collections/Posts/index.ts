@@ -19,7 +19,9 @@ import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
+import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { getTenantAndIdFilter, getTenantFilter } from '@/utilities/collectionFilters'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
@@ -32,6 +34,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 
 import { ImageTextBlock } from '@/blocks/ImageText/config'
 import { contentHashField } from '@/fields/contentHashField'
+import { documentReferencesField } from '@/fields/documentReferencesField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
@@ -104,6 +107,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 SingleEventBlock,
                 SponsorsBlock,
               ],
+              inlineBlocks: DEFAULT_INLINE_BLOCKS,
             }),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),
@@ -224,10 +228,11 @@ export const Posts: CollectionConfig<'posts'> = {
       ],
     },
     slugField(),
+    documentReferencesField(),
     contentHashField(),
   ],
   hooks: {
-    beforeChange: [populatePublishedAt, populateBlocksInContent],
+    beforeChange: [populatePublishedAt, populateBlocksInContent, populateDocumentReferences],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidatePostDelete],

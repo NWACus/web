@@ -309,6 +309,22 @@ export interface HomePage {
       }[]
     | null;
   publishedAt?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -398,6 +414,22 @@ export interface Page {
   publishedAt?: string | null;
   slug: string;
   tenant: number | Tenant;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -517,6 +549,22 @@ export interface Post {
       }[]
     | null;
   slug: string;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -873,6 +921,22 @@ export interface Event {
   eventTags?: (number | EventTag)[] | null;
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
   tenant: number | Tenant;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -3165,6 +3229,14 @@ export interface HomePagesSelect<T extends boolean = true> {
         id?: T;
       };
   publishedAt?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3477,6 +3549,14 @@ export interface PagesSelect<T extends boolean = true> {
   publishedAt?: T;
   slug?: T;
   tenant?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3513,6 +3593,14 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
       };
   slug?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3649,6 +3737,14 @@ export interface EventsSelect<T extends boolean = true> {
   eventTags?: T;
   modeOfTravel?: T;
   tenant?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -4723,6 +4819,10 @@ export interface NacWidgetsConfig {
   id: number;
   version: string;
   baseUrl: string;
+  /**
+   * When enabled, widgets use a staging base URL instead of production. Always forced to false in production.
+   */
+  devMode: boolean;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4756,6 +4856,7 @@ export interface A3Management {
 export interface NacWidgetsConfigSelect<T extends boolean = true> {
   version?: T;
   baseUrl?: T;
+  devMode?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -4830,6 +4931,36 @@ export interface ButtonBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'buttonBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InlineMediaBlock".
+ */
+export interface InlineMediaBlock {
+  media: number | Media;
+  /**
+   * Inline renders the image within the text flow. Left or Right positions the image to that side with text wrapping around it.
+   */
+  position?: ('inline' | 'float-left' | 'float-right') | null;
+  /**
+   * Vertical alignment relative to the surrounding text.
+   */
+  verticalAlign?: ('middle' | 'top' | 'bottom' | 'baseline') | null;
+  /**
+   * Original uses the natural image size. Percentage widths are relative to the containing block. Fixed height lets you specify an exact pixel height.
+   */
+  size?: ('original' | '25' | '50' | '75' | '100' | 'fixed-height') | null;
+  /**
+   * Height in pixels.
+   */
+  fixedHeight?: number | null;
+  /**
+   * Optional text shown as a tooltip on hover.
+   */
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'inlineMedia';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

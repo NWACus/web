@@ -1,0 +1,63 @@
+{
+  "_description": "Post structure modeled on a real post with: top-level featuredImage upload, MediaBlock in richText content, and empty relationship arrays (authors, tags, relatedPosts).",
+  "slug": "example-post",
+  "featuredImage": 601,
+  "authors": [],
+  "tags": [],
+  "relatedPosts": [],
+  "content": {
+    "root": {
+      "children": [
+        {
+          "children": [
+            {
+              "detail": 0,
+              "format": 0,
+              "mode": "normal",
+              "style": "",
+              "text": "An example blog post with an embedded image.",
+              "type": "text",
+              "version": 1
+            }
+          ],
+          "direction": null,
+          "format": "",
+          "indent": 0,
+          "type": "paragraph",
+          "version": 1,
+          "textFormat": 0,
+          "textStyle": ""
+        },
+        {
+          "type": "block",
+          "version": 2,
+          "format": "",
+          "fields": {
+            "id": "7a8b9c0d1e2f3a4b5c6d7e8f",
+            "media": 601,
+            "imageSize": "original",
+            "blockName": "",
+            "alignContent": "left",
+            "backgroundColor": "transparent",
+            "blockType": "mediaBlock"
+          }
+        },
+        {
+          "children": [],
+          "direction": null,
+          "format": "",
+          "indent": 0,
+          "type": "paragraph",
+          "version": 1,
+          "textFormat": 0,
+          "textStyle": ""
+        }
+      ],
+      "direction": null,
+      "format": "",
+      "indent": 0,
+      "type": "root",
+      "version": 1
+    }
+  }
+}
