@@ -5,12 +5,14 @@ import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
 import { navTab } from './fields/navTab'
+import { clearUnusedTabData } from './hooks/clearUnusedTabData'
 import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
   access: accessByTenantRole('navigations'),
   hooks: {
+    beforeChange: [clearUnusedTabData],
     afterChange: [revalidateNavigation],
     afterDelete: [revalidateNavigationDelete],
   },
