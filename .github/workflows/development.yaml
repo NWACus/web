@@ -75,12 +75,6 @@ jobs:
         run: echo -n "${{ steps.generate-sync-password.outputs.password }}" | vercel env add NON_PROD_SYNC_PASSWORD preview main --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch=main --token=${{ secrets.VERCEL_TOKEN }} .env
-      - name: Debug Vercel env pull
-        run: |
-          echo "Vercel CLI version: $(vercel --version)"
-          echo "NON_PROD_SYNC_PASSWORD present in .env: $(grep -c '^NON_PROD_SYNC_PASSWORD=' .env || echo 0)"
-          echo ".env var names (values redacted):"
-          grep -oE '^[A-Z_][A-Z0-9_]*=' .env | sort -u
       - name: Run database migrations
         run: pnpm migrate
         env:
