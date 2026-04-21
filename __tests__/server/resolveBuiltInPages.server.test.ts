@@ -21,14 +21,6 @@ const mockLog: import('pino').Logger = {
   error: jest.fn(),
 }
 
-const navBuiltInPages = [
-  { title: 'All Forecasts', url: '/forecasts/avalanche' },
-  { title: 'Mountain Weather', url: '/weather/forecast' },
-  { title: 'Weather Stations', url: '/weather/stations/map' },
-  { title: 'Recent Observations', url: '/observations' },
-  { title: 'Blog', url: '/blog' },
-]
-
 function makeZone(name: string, slug: string, rank: number) {
   return {
     slug,
@@ -60,7 +52,7 @@ describe('resolveBuiltInPages', () => {
     it('creates single forecast page for single-zone center', async () => {
       mockGetActiveForecastZones.mockResolvedValue([makeZone('Olympic', 'olympic', 1)])
 
-      const { forecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { forecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(forecastPages).toEqual([
         { title: 'Avalanche Forecast', url: '/forecasts/avalanche/olympic' },
@@ -73,7 +65,7 @@ describe('resolveBuiltInPages', () => {
         makeZone('Zone A', 'zone-a', 1),
       ])
 
-      const { forecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { forecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(forecastPages).toEqual([
         { title: 'All Forecasts', url: '/forecasts/avalanche' },
@@ -85,7 +77,7 @@ describe('resolveBuiltInPages', () => {
     it('creates default All Forecasts page when AFP returns no zones', async () => {
       mockGetActiveForecastZones.mockResolvedValue([])
 
-      const { forecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { forecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(forecastPages).toEqual([{ title: 'All Forecasts', url: '/forecasts/avalanche' }])
     })
@@ -93,7 +85,7 @@ describe('resolveBuiltInPages', () => {
     it('falls back to default All Forecasts page when AFP fails', async () => {
       mockGetActiveForecastZones.mockRejectedValue(new Error('network error'))
 
-      const { forecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { forecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(forecastPages).toEqual([{ title: 'All Forecasts', url: '/forecasts/avalanche' }])
     })
@@ -105,7 +97,7 @@ describe('resolveBuiltInPages', () => {
     })
 
     it('excludes forecast pages from non-forecast list', async () => {
-      const { nonForecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { nonForecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(nonForecastPages.find((p) => p.url.startsWith('/forecasts/avalanche'))).toBeUndefined()
     })
@@ -113,7 +105,7 @@ describe('resolveBuiltInPages', () => {
     it('excludes Mountain Weather when center has no weather platform', async () => {
       mockGetAvalancheCenterPlatforms.mockResolvedValue({ weather: false })
 
-      const { nonForecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { nonForecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(nonForecastPages.find((p) => p.url === '/weather/forecast')).toBeUndefined()
     })
@@ -121,7 +113,7 @@ describe('resolveBuiltInPages', () => {
     it('includes Mountain Weather when center has weather platform', async () => {
       mockGetAvalancheCenterPlatforms.mockResolvedValue({ weather: true })
 
-      const { nonForecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { nonForecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(nonForecastPages).toContainEqual({
         title: 'Mountain Weather',
@@ -132,13 +124,13 @@ describe('resolveBuiltInPages', () => {
     it('excludes Mountain Weather when NAC platforms query fails', async () => {
       mockGetAvalancheCenterPlatforms.mockRejectedValue(new Error('network error'))
 
-      const { nonForecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+      const { nonForecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(nonForecastPages.find((p) => p.url === '/weather/forecast')).toBeUndefined()
     })
 
-    it('includes other DVAC nav pages unchanged', async () => {
-      const { nonForecastPages } = await resolveBuiltInPages('test', navBuiltInPages, mockLog)
+    it('includes the static BUILT_IN_PAGES list', async () => {
+      const { nonForecastPages } = await resolveBuiltInPages('test', mockLog)
 
       expect(nonForecastPages).toContainEqual({
         title: 'Weather Stations',
@@ -148,7 +140,12 @@ describe('resolveBuiltInPages', () => {
         title: 'Recent Observations',
         url: '/observations',
       })
+      expect(nonForecastPages).toContainEqual({
+        title: 'Submit Observations',
+        url: '/observations/submit',
+      })
       expect(nonForecastPages).toContainEqual({ title: 'Blog', url: '/blog' })
+      expect(nonForecastPages).toContainEqual({ title: 'Events', url: '/events' })
     })
   })
 })

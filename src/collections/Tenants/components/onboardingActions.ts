@@ -2,7 +2,7 @@
 
 import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
 import {
-  extractNavReferences,
+  PAGES_TO_PROVISION,
   provision,
   resolveBuiltInPages,
 } from '@/collections/Tenants/endpoints/provisionTenant'
@@ -27,101 +27,52 @@ export async function checkProvisioningStatusAction(
   try {
     const payload = await getPayload({ config })
 
-    // Template tenant slug must match TEMPLATE_TENANT_SLUG in provisionTenant.ts
-    const templateTenantSlug = 'dvac'
-
-    const [
-      builtInPages,
-      pages,
-      homePages,
-      navigations,
-      settings,
-      tenant,
-      brandColors,
-      templateTenantResult,
-    ] = await Promise.all([
-      payload.find({
-        collection: 'builtInPages',
-        where: { tenant: { equals: tenantId } },
-        limit: 100,
-        select: { url: true },
-      }),
-      payload.find({
-        collection: 'pages',
-        where: { tenant: { equals: tenantId } },
-        limit: 500,
-        select: { slug: true, title: true, _status: true },
-      }),
-      payload.find({
-        collection: 'homePages',
-        where: { tenant: { equals: tenantId } },
-        limit: 0,
-      }),
-      payload.find({
-        collection: 'navigations',
-        where: { tenant: { equals: tenantId } },
-        limit: 0,
-      }),
-      payload.find({
-        collection: 'settings',
-        where: { tenant: { equals: tenantId } },
-        limit: 1,
-        select: {},
-      }),
-      payload.findByID({
-        collection: 'tenants',
-        id: tenantId,
-      }),
-      fs
-        .readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8')
-        .catch((err) => {
-          payload.logger.warn(
-            `Failed to read colors.css: ${err instanceof Error ? err.message : err}`,
-          )
-          return ''
+    const [builtInPages, pages, homePages, navigations, settings, tenant, brandColors] =
+      await Promise.all([
+        payload.find({
+          collection: 'builtInPages',
+          where: { tenant: { equals: tenantId } },
+          limit: 100,
+          select: { url: true },
         }),
-      payload.find({
-        collection: 'tenants',
-        where: { slug: { equals: templateTenantSlug } },
-        limit: 1,
-      }),
-    ])
-
-    const templateTenant = templateTenantResult.docs[0]
-
-    let templatePageSlugs: { slug: string; title: string }[] = []
-    let navPageSlugs = new Set<string>()
-    let navBuiltInPages: Array<{ title: string; url: string }> = []
-    if (templateTenant) {
-      // Get page slugs from template navigation (same logic as provisioning)
-      const templateNav = await payload
-        .find({
+        payload.find({
+          collection: 'pages',
+          where: { tenant: { equals: tenantId } },
+          limit: 500,
+          select: { slug: true, title: true, _status: true },
+        }),
+        payload.find({
+          collection: 'homePages',
+          where: { tenant: { equals: tenantId } },
+          limit: 0,
+        }),
+        payload.find({
           collection: 'navigations',
-          where: { tenant: { equals: templateTenant.id } },
+          where: { tenant: { equals: tenantId } },
+          limit: 0,
+        }),
+        payload.find({
+          collection: 'settings',
+          where: { tenant: { equals: tenantId } },
           limit: 1,
-          depth: 1,
-        })
-        .then((res) => res.docs[0])
-
-      const refs = extractNavReferences(templateNav ?? {})
-      navPageSlugs = refs.pageSlugs
-      navBuiltInPages = refs.builtInPages
-
-      const templatePages = await payload.find({
-        collection: 'pages',
-        where: {
-          tenant: { equals: templateTenant.id },
-          _status: { equals: 'published' },
-          slug: { in: [...navPageSlugs].join(',') },
-        },
-        limit: 500,
-        select: { slug: true, title: true },
-      })
-      templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
-    }
+          select: {},
+        }),
+        payload.findByID({
+          collection: 'tenants',
+          id: tenantId,
+        }),
+        fs
+          .readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8')
+          .catch((err) => {
+            payload.logger.warn(
+              `Failed to read colors.css: ${err instanceof Error ? err.message : err}`,
+            )
+            return ''
+          }),
+      ])
 
     const { forecastPages: expectedForecastPages, nonForecastPages: expectedNonForecastPages } =
-      await resolveBuiltInPages(tenant.slug, navBuiltInPages, payload.logger)
+      await resolveBuiltInPages(tenant.slug, payload.logger)
 
     const tenantForecastPageCount = builtInPages.docs.filter((p) =>
       p.url.startsWith('/forecasts/avalanche'),
@@ -131,8 +82,8 @@ export async function checkProvisioningStatusAction(
     ).length
 
     const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
-    const createdPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
-    const missing = templatePageSlugs.filter((p) => !tenantPagesBySlug.has(p.slug))
+    const createdPages = PAGES_TO_PROVISION.filter((p) => tenantPagesBySlug.has(p.slug))
+    const missing = PAGES_TO_PROVISION.filter((p) => !tenantPagesBySlug.has(p.slug))
 
     return {
       status: {
@@ -146,7 +97,7 @@ export async function checkProvisioningStatusAction(
         },
         pages: {
           created: createdPages.length,
-          expected: templatePageSlugs.length,
+          expected: PAGES_TO_PROVISION.length,
           missing: missing.map((p) => p.title),
         },
         homePage: homePages.totalDocs > 0,
