@@ -1,12 +1,27 @@
 'use server'
 
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
 import { provision, type ProvisioningFailed } from '@/collections/Tenants/endpoints/provisionTenant'
 import { isRecord } from '@/utilities/isRecord'
 import config from '@payload-config'
 import fs from 'fs/promises'
+import { headers } from 'next/headers'
 import path from 'path'
-import { getPayload } from 'payload'
+import { getPayload, type Payload, type PayloadRequest } from 'payload'
+
+// Server actions are POST endpoints reachable by anyone with the action ID —
+// gate every action behind a super-admin check before touching tenant data.
+async function authorize(): Promise<{ payload: Payload } | { error: string }> {
+  const payload = await getPayload({ config })
+  const { user } = await payload.auth({ headers: await headers() })
+  if (!user) return { error: 'Unauthorized' }
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const mockedReq = { user, payload } as PayloadRequest
+  const isSuperAdmin = await hasSuperAdminPermissions({ req: mockedReq })
+  if (!isSuperAdmin) return { error: 'Super admin access required' }
+  return { payload }
+}
 
 export type ProvisioningStatus = {
   status: 'not_started' | 'in_progress' | 'complete' | 'partial'
@@ -24,9 +39,10 @@ const STALE_IN_PROGRESS_MS = 10 * 60 * 1000
 export async function checkProvisioningStatusAction(
   tenantId: number | string,
 ): Promise<{ status: ProvisioningStatus } | { error: string }> {
+  const auth = await authorize()
+  if ('error' in auth) return auth
+  const { payload } = auth
   try {
-    const payload = await getPayload({ config })
-
     const [tenant, settings, brandColors] = await Promise.all([
       payload.findByID({
         collection: 'tenants',
@@ -88,7 +104,9 @@ export async function checkProvisioningStatusAction(
 export async function runProvisionAction(
   tenantId: number | string,
 ): Promise<{ success: true; failedPages: string[] } | { error: string }> {
-  const payload = await getPayload({ config })
+  const auth = await authorize()
+  if ('error' in auth) return auth
+  const { payload } = auth
   try {
     const tenant = await payload.findByID({
       collection: 'tenants',
@@ -113,7 +131,9 @@ export async function runProvisionAction(
 export async function markProvisioningCompleteAction(
   tenantId: number | string,
 ): Promise<{ success: true } | { error: string }> {
-  const payload = await getPayload({ config })
+  const auth = await authorize()
+  if ('error' in auth) return auth
+  const { payload } = auth
   try {
     await payload.update({
       collection: 'tenants',
