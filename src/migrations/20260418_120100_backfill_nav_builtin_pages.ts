@@ -63,9 +63,15 @@ const fetchActiveZones = async (centerSlug: string): Promise<{ name: string; slu
 }
 
 export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
-  const tenants = await payload.find({ collection: 'tenants', limit: 100, depth: 0 })
+  const tenantsResult = await db.run(sql`SELECT id, slug FROM tenants LIMIT 100`)
+  const tenants: { id: number; slug: string }[] = []
+  for (const row of tenantsResult.rows) {
+    if (isRecord(row) && typeof row.id === 'number' && typeof row.slug === 'string') {
+      tenants.push({ id: row.id, slug: row.slug })
+    }
+  }
 
-  for (const tenant of tenants.docs) {
+  for (const tenant of tenants) {
     payload.logger.info(`Backfilling nav for tenant: ${tenant.slug}`)
 
     let zones: { name: string; slug: string }[] = []
