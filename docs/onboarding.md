@@ -8,6 +8,10 @@ Create the tenant in the admin panel → provisioning runs automatically via `pr
 
 Provisioning is idempotent and can be rerun safely.
 
+### Provisioning status field
+
+The outcome of each provisioning run is stored on the tenant's `provisioning` group field (`status`, `lastRunAt`, `failedPages`) directly on the Tenants collection. The onboarding checklist reads this field directly — it no longer re-derives status from live page/navigation counts, so deleting a page post-provisioning won't un-mark the tenant as complete. Re-running overwrites with the latest outcome (`complete` if everything succeeded, `partial` if some pages failed). The tenant list view renders this status as a Pill in the Provisioning column.
+
 | Step | Details |
 |------|---------|
 | Website Settings | Created with placeholder brand assets (logo, icon, banner). Replace with real assets via the checklist link. |

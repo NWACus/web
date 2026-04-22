@@ -1,9 +1,10 @@
 'use client'
 
 import { Button, toast, useDocumentInfo, useForm } from '@payloadcms/ui'
-import { CheckCircle2, Circle, Loader2 } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Circle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
+import { formatDate } from 'date-fns/format'
 import { useCallback, useEffect, useState } from 'react'
 import { needsProvisioning } from './needsProvisioning'
 import {
@@ -13,29 +14,24 @@ import {
 } from './onboardingActions'
 
 const DEFAULT_STATUS: ProvisioningStatus = {
-  forecastPages: { count: 0, expected: 0 },
-  defaultBuiltInPages: { count: 0, expected: 0 },
-  pages: { created: 0, expected: 0, missing: [] },
-  homePage: false,
-  navigation: false,
-  settings: { exists: false, id: undefined },
+  status: 'not_started',
+  lastRunAt: null,
+  failed: {},
   theme: { brandColors: false, ogColors: false },
+  tenantCreatedAt: null,
+  settings: { id: undefined },
 }
 
 function ChecklistItem({
   loading,
   done,
   label,
-  details,
   children,
-  action,
 }: {
   loading?: boolean
   done: boolean
   label: string
-  details?: React.ReactNode
   children?: React.ReactNode
-  action?: React.ReactNode
 }) {
   const isRunning = loading && !done
 
@@ -56,9 +52,7 @@ function ChecklistItem({
             <Circle size={20} className="shrink-0 text-muted-foreground" />
           )}
           <span className={done ? 'opacity-70' : ''}>{label}</span>
-          {!isRunning && details && <span className="text-sm opacity-50">{details}</span>}
         </div>
-        {!isRunning && action && <div>{action}</div>}
       </div>
       {!isRunning && children && <div className="ml-9 mt-1 text-sm opacity-50">{children}</div>}
     </div>
@@ -70,9 +64,9 @@ export function OnboardingChecklist() {
   const { setProcessing } = useForm()
   const [status, setStatus] = useState<ProvisioningStatus>(DEFAULT_STATUS)
   const [loaded, setLoaded] = useState(false)
-  const [isProvisioning, setIsProvisioning] = useState(false)
 
   const tenantId = data?.id
+  const isProvisioning = status.status === 'in_progress'
 
   const checkStatus = useCallback(async () => {
     if (!tenantId) return null
@@ -94,29 +88,18 @@ export function OnboardingChecklist() {
   const handleProvision = useCallback(async () => {
     if (!tenantId || isProvisioning) return
 
-    setIsProvisioning(true)
+    // Optimistically mirror the in_progress state the server is about to write
+    // so the UI flips to the spinner immediately instead of waiting for the
+    // action to return.
+    setStatus((s) => ({ ...s, status: 'in_progress' }))
     setProcessing(true)
 
     toast.promise(
-      new Promise((resolve, reject) => {
-        runProvisionAction(tenantId)
-          .then(async (result) => {
-            if ('error' in result) {
-              setIsProvisioning(false)
-              setProcessing(false)
-              reject(result.error)
-              return
-            }
-            await checkStatus()
-            setIsProvisioning(false)
-            setProcessing(false)
-            resolve(result)
-          })
-          .catch((err) => {
-            setIsProvisioning(false)
-            setProcessing(false)
-            reject(err)
-          })
+      runProvisionAction(tenantId).then(async (result) => {
+        await checkStatus()
+        setProcessing(false)
+        if ('error' in result) throw new Error(result.error)
+        return result
       }),
       {
         loading: 'Building avy center...',
@@ -136,122 +119,153 @@ export function OnboardingChecklist() {
         return
       }
 
+      setStatus(result.status)
+      setLoaded(true)
+
       if (needsProvisioning(result.status)) {
-        setIsProvisioning(true)
         handleProvision()
-      } else {
-        setStatus(result.status)
-        setLoaded(true)
       }
     })
   }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { forecastPages, defaultBuiltInPages, pages, homePage, navigation, settings, theme } =
-    status
-
-  const automatedComplete =
-    forecastPages.count >= forecastPages.expected &&
-    defaultBuiltInPages.count >= defaultBuiltInPages.expected &&
-    pages.created >= pages.expected &&
-    pages.expected > 0 &&
-    homePage &&
-    navigation &&
-    settings.exists
+  const { theme } = status
+  // On the create view there's no tenant yet — skip the initial load spinner
+  // and render the placeholder checklist so users can see what will happen.
+  const showInitialLoader = Boolean(tenantId) && !loaded
+  const showChecklist = !tenantId || loaded
+  const showPlaceholders = status.status === 'not_started' || status.status === 'in_progress'
 
   return (
     <div className="rounded-lg border-solid border-[var(--theme-border-color)] p-6">
       <h3 className="mb-4">Onboarding Checklist</h3>
 
-      <div className="flex items-center justify-between mb-2">
-        <h4>Automated</h4>
-        {loaded && !automatedComplete && (
-          <Button className="m-0" onClick={handleProvision} disabled={isProvisioning} size="medium">
-            {isProvisioning ? 'Provisioning...' : 'Rerun Provisioning'}
-          </Button>
-        )}
-      </div>
+      {/* Initial load — waiting for checkProvisioningStatusAction to return */}
+      {showInitialLoader && (
+        <div className="py-4 flex items-center gap-3">
+          <Loader2
+            data-testid="spinner"
+            size={20}
+            className="shrink-0"
+            style={{ animation: 'spin 1s linear infinite', color: 'var(--theme-text)' }}
+          />
+          <span className="opacity-70">Loading...</span>
+        </div>
+      )}
 
-      <ChecklistItem
-        loading={isProvisioning}
-        done={loaded && forecastPages.count >= forecastPages.expected}
-        label="Forecast Built-In pages"
-        details={loaded && `(${forecastPages.count}/${forecastPages.expected})`}
-      >
-        {automatedComplete && (
-          <p className="text-sm opacity-70">
-            Forecast built-ins are automatically based on NAC zones.
-          </p>
-        )}
-      </ChecklistItem>
-      <ChecklistItem
-        loading={isProvisioning}
-        done={loaded && defaultBuiltInPages.count >= defaultBuiltInPages.expected}
-        label="Default Built-In pages"
-        details={loaded && `(${defaultBuiltInPages.count}/${defaultBuiltInPages.expected})`}
-      ></ChecklistItem>
-      <ChecklistItem
-        loading={isProvisioning}
-        done={pages.created >= pages.expected && pages.expected > 0}
-        label="Pages"
-        details={loaded && `(${pages.created}/${pages.expected})`}
-      >
-        {automatedComplete && (
-          <p className="text-sm opacity-70">
-            Blank pages are created using DVACs navigation structure.
-          </p>
-        )}
-        {pages.missing.length > 0 && <div>Missing: {pages.missing.join(', ')}</div>}
-      </ChecklistItem>
-
-      <ChecklistItem loading={isProvisioning} done={homePage} label="Home page" />
-      <ChecklistItem loading={isProvisioning} done={navigation} label="Navigation" />
-      <ChecklistItem
-        loading={isProvisioning}
-        done={settings.exists}
-        label="Website Settings"
-        action={
-          settings.id && (
-            <Link href={`/admin/collections/settings/${settings.id}`} className="text-sm">
-              Update Brand Assets
-            </Link>
-          )
-        }
-      >
-        {automatedComplete && (
-          <p className="text-sm opacity-70">Placeholder logo, icon and banner added.</p>
-        )}
-      </ChecklistItem>
-
-      <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
-        <h4 className="mb-2">Needs action</h4>
-
-        <ChecklistItem loading={isProvisioning} done={theme.brandColors} label="Add brand colors">
-          {loaded && !theme.brandColors && (
-            <span>
-              Add slug to <code>colors.css</code> — see{' '}
-              <Link
-                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
-                target="_blank"
-              >
-                docs/onboarding.md
-              </Link>
-            </span>
+      {/* Header section — shown once provisioning has run at least once */}
+      {showChecklist && (status.status === 'complete' || status.status === 'partial') && (
+        <div className="mb-4 pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {status.status === 'complete' ? (
+                <>
+                  <CheckCircle2 size={20} className="shrink-0 text-success" />
+                  <span>Complete</span>
+                </>
+              ) : (
+                <>
+                  <AlertTriangle size={20} className="shrink-0 text-warning" />
+                  <span>Failed</span>
+                </>
+              )}
+            </div>
+            <Button
+              className="m-0"
+              onClick={handleProvision}
+              disabled={isProvisioning}
+              size="medium"
+              buttonStyle="secondary"
+            >
+              Rerun
+            </Button>
+          </div>
+          {status.status === 'partial' && (
+            <div className="text-sm ml-9 mb-4 space-y-2">
+              {status.failed.timedOut && <div className="opacity-70">{status.failed.timedOut}</div>}
+              {status.failed.websiteSettings && (
+                <div className="opacity-70">Website settings failed to provision.</div>
+              )}
+              {status.failed.homePage && (
+                <div className="opacity-70">Home page failed to provision.</div>
+              )}
+              {status.failed.navigation && (
+                <div className="opacity-70">Navigation failed to provision.</div>
+              )}
+              {status.failed.pages && Object.keys(status.failed.pages).length > 0 && (
+                <div>
+                  <div className="font-semibold opacity-80">Missing pages:</div>
+                  <ul className="list-disc pl-5 opacity-70">
+                    {Object.keys(status.failed.pages).map((name) => (
+                      <li key={name}>{name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
-        </ChecklistItem>
-        <ChecklistItem loading={isProvisioning} done={theme.ogColors} label="Add OG image colors">
-          {loaded && !theme.ogColors && (
-            <span>
-              Add slug to <code>centerColorMap</code> — see{' '}
-              <Link
-                href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
-                target="_blank"
-              >
-                docs/onboarding.md
-              </Link>
-            </span>
+        </div>
+      )}
+
+      {/* Manual steps — always visible as a nag until configured */}
+      {showChecklist && (
+        <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
+          <h4 className="mb-2">Needs action</h4>
+
+          {showPlaceholders && (
+            <>
+              <ChecklistItem loading={isProvisioning} done={false} label="Home page" />
+              <ChecklistItem loading={isProvisioning} done={false} label="Pages" />
+              <ChecklistItem loading={isProvisioning} done={false} label="Navigation" />
+              <ChecklistItem loading={isProvisioning} done={false} label="Website Settings" />
+            </>
           )}
-        </ChecklistItem>
-      </div>
+          {status.settings.id && (
+            <ChecklistItem
+              loading={isProvisioning}
+              done={theme.brandColors}
+              label="Update Brand Assets"
+            >
+              <div className="mt-2 text-md">
+                Change avy center logo & info in{' '}
+                <Link href={`/admin/collections/settings/${status.settings.id}`}>Settings</Link>
+              </div>
+            </ChecklistItem>
+          )}
+
+          <ChecklistItem loading={isProvisioning} done={theme.brandColors} label="Add brand colors">
+            {!theme.brandColors && (
+              <span>
+                Add slug to <code>colors.css</code> — see{' '}
+                <Link
+                  href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
+                  target="_blank"
+                >
+                  docs/onboarding.md
+                </Link>
+              </span>
+            )}
+          </ChecklistItem>
+          <ChecklistItem loading={isProvisioning} done={theme.ogColors} label="Add OG image colors">
+            {!theme.ogColors && (
+              <span>
+                Add slug to <code>centerColorMap</code> — see{' '}
+                <Link
+                  href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
+                  target="_blank"
+                >
+                  docs/onboarding.md
+                </Link>
+              </span>
+            )}
+          </ChecklistItem>
+          {(status.status === 'complete' || status.status === 'partial') && (
+            <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-4 text-sm opacity-70">
+              <strong>Last provisioned:</strong>&nbsp;
+              {status.lastRunAt && formatDate(status.lastRunAt, 'PPpp')}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -201,22 +201,34 @@ export const seed = async ({
       },
     })
 
+    // Seed tenants with provisioning status already 'complete' so the
+    // onboarding checklist shows Complete without requiring a manual re-run.
+    const seededAt = new Date().toISOString()
+    const seededProvisioning = {
+      status: 'complete' as const,
+      lastRunAt: seededAt,
+      failed: undefined,
+    }
     const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
       {
         name: 'Death Valley Avalanche Center',
         slug: 'dvac',
+        provisioning: seededProvisioning,
       },
       {
         name: 'Northwest Avalanche Center',
         slug: 'nwac',
+        provisioning: seededProvisioning,
       },
       {
         name: 'Sierra Avalanche Center',
         slug: 'sac',
+        provisioning: seededProvisioning,
       },
       {
         name: 'Sawtooth Avalanche Center',
         slug: 'snfac',
+        provisioning: seededProvisioning,
       },
     ])
     const tenantsById: Record<number, Tenant> = {}

@@ -1,11 +1,10 @@
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { getSeedImageByFilename, simpleContent } from '@/endpoints/seed/utilities'
 import type { BuiltInPage, Page, Tenant } from '@/payload-types'
-import {
-  getActiveForecastZones,
-  getAvalancheCenterPlatforms,
-  type ActiveForecastZoneWithSlug,
-} from '@/services/nac/nac'
+// nac.ts imports @payload-config, which imports this collection — lazy-load
+// the value imports inside function bodies to break the circular dependency.
+// Type imports are erased at runtime and don't contribute to the cycle.
+import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 import type { Payload, PayloadHandler } from 'payload'
 import type { Logger } from 'pino'
 
@@ -66,6 +65,9 @@ export async function resolveBuiltInPages(
   forecastPages: Array<{ title: string; url: string }>
   nonForecastPages: Array<{ title: string; url: string }>
 }> {
+  // Lazy-loaded to break the circular import with @payload-config
+  const { getActiveForecastZones, getAvalancheCenterPlatforms } = await import('@/services/nac/nac')
+
   let forecastZones: ActiveForecastZoneWithSlug[] = []
   try {
     forecastZones = await getActiveForecastZones(tenantSlug)
@@ -153,12 +155,17 @@ export const provisionTenant: PayloadHandler = async (req) => {
   }
 
   try {
-    // Create the tenant
+    // Create the tenant. Initial provisioning is 'not_started'; the provision()
+    // call below overwrites with the actual outcome when it completes.
     const tenant = await payload.create({
       collection: 'tenants',
       data: {
         name: body.name,
         slug: body.slug,
+        provisioning: {
+          status: 'not_started',
+          lastRunAt: new Date().toISOString(),
+        },
       },
     })
 
@@ -190,10 +197,38 @@ export const provisionTenant: PayloadHandler = async (req) => {
  *
  * Idempotent - checks for existing data before creating.
  */
+
+export type ProvisioningFailed = NonNullable<NonNullable<Tenant['provisioning']>['failed']>
+
+const errorMessage = (err: unknown): string =>
+  err instanceof Error ? err.message : 'Unknown error'
+
 export async function provision(payload: Payload, tenant: Tenant) {
   const log = payload.logger
 
   log.info(`Provisioning tenant: ${tenant.name} (${tenant.slug})`)
+
+  // Mark in_progress upfront so concurrent page loads / reloads see the
+  // active provisioning run and don't trigger a second one.
+  try {
+    await payload.update({
+      collection: 'tenants',
+      id: tenant.id,
+      data: {
+        provisioning: {
+          status: 'in_progress',
+          lastRunAt: new Date().toISOString(),
+          failed: undefined,
+        },
+      },
+    })
+  } catch (err) {
+    log.error(
+      `[${tenant.slug}] Failed to mark provisioning in_progress: ${err instanceof Error ? err.message : 'Unknown error'}`,
+    )
+  }
+
+  const failed: ProvisioningFailed = {}
 
   // 1. Create Website Settings with placeholder brand assets
   log.info(`[${tenant.slug}] Creating website settings...`)
@@ -204,41 +239,47 @@ export async function provision(payload: Payload, tenant: Tenant) {
   })
   let settingsCreated = false
   if (existingSettings.docs.length === 0) {
-    const [logoFile, iconFile, bannerFile] = await Promise.all([
-      getSeedImageByFilename('placeholder-logo.png', log),
-      getSeedImageByFilename('placeholder-icon.png', log),
-      getSeedImageByFilename('placeholder-banner.png', log),
-    ])
-    const [logo, icon, banner] = await Promise.all([
-      payload.create({
-        collection: 'media',
-        data: { tenant: tenant.id, alt: 'logo' },
-        file: logoFile,
-      }),
-      payload.create({
-        collection: 'media',
-        data: { tenant: tenant.id, alt: 'icon' },
-        file: iconFile,
-      }),
-      payload.create({
-        collection: 'media',
-        data: { tenant: tenant.id, alt: 'banner' },
-        file: bannerFile,
-      }),
-    ])
-    await payload.create({
-      collection: 'settings',
-      data: {
-        tenant: tenant.id,
-        description: tenant.name,
-        footerForm: { type: 'none' },
-        socialMedia: {},
-        logo: logo.id,
-        icon: icon.id,
-        banner: banner.id,
-      },
-    })
-    settingsCreated = true
+    try {
+      const [logoFile, iconFile, bannerFile] = await Promise.all([
+        getSeedImageByFilename('placeholder-logo.png', log),
+        getSeedImageByFilename('placeholder-icon.png', log),
+        getSeedImageByFilename('placeholder-banner.png', log),
+      ])
+      const [logo, icon, banner] = await Promise.all([
+        payload.create({
+          collection: 'media',
+          data: { tenant: tenant.id, alt: 'logo' },
+          file: logoFile,
+        }),
+        payload.create({
+          collection: 'media',
+          data: { tenant: tenant.id, alt: 'icon' },
+          file: iconFile,
+        }),
+        payload.create({
+          collection: 'media',
+          data: { tenant: tenant.id, alt: 'banner' },
+          file: bannerFile,
+        }),
+      ])
+      await payload.create({
+        collection: 'settings',
+        data: {
+          tenant: tenant.id,
+          description: tenant.name,
+          footerForm: { type: 'none' },
+          socialMedia: {},
+          logo: logo.id,
+          icon: icon.id,
+          banner: banner.id,
+        },
+      })
+      settingsCreated = true
+    } catch (err) {
+      const message = errorMessage(err)
+      log.error(`[${tenant.slug}] Failed to create website settings: ${message}`)
+      failed.websiteSettings = message
+    }
   } else {
     log.info(`[${tenant.slug}] Website settings already exist, skipping`)
   }
@@ -279,7 +320,6 @@ export async function provision(payload: Payload, tenant: Tenant) {
 
   // 3. Create blank pages for every entry in PAGES_TO_PROVISION
   const createdPages: Page[] = []
-  const failedPages: string[] = []
   const pagesBySlug: Record<string, Page> = {}
 
   const existingPages = await payload.find({
@@ -320,10 +360,10 @@ export async function provision(payload: Payload, tenant: Tenant) {
       createdPages.push(newPage)
       pagesBySlug[slug] = newPage
     } catch (err) {
-      log.error(
-        `[${tenant.slug}] Failed to create page "${title}" (slug: ${slug}): ${err instanceof Error ? err.message : 'Unknown error'}`,
-      )
-      failedPages.push(title)
+      const message = errorMessage(err)
+      log.error(`[${tenant.slug}] Failed to create page "${title}" (slug: ${slug}): ${message}`)
+      if (!failed.pages) failed.pages = {}
+      failed.pages[title] = message
     }
   }
 
@@ -403,9 +443,9 @@ export async function provision(payload: Payload, tenant: Tenant) {
       })
       homePageCreated = true
     } catch (err) {
-      log.error(
-        `[${tenant.slug}] Failed to create home page: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      )
+      const message = errorMessage(err)
+      log.error(`[${tenant.slug}] Failed to create home page: ${message}`)
+      failed.homePage = message
     }
   } else {
     log.info(`[${tenant.slug}] Home page already exists, skipping`)
@@ -564,12 +604,37 @@ export async function provision(payload: Payload, tenant: Tenant) {
       })
       navigationCreated = true
     } catch (err) {
-      log.error(
-        `[${tenant.slug}] Failed to create navigation: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      )
+      const message = errorMessage(err)
+      log.error(`[${tenant.slug}] Failed to create navigation: ${message}`)
+      failed.navigation = message
     }
   } else {
     log.info(`[${tenant.slug}] Navigation already exists, skipping`)
+  }
+
+  // Record the outcome on the tenant itself so the onboarding checklist can
+  // read a single source of truth instead of re-deriving status from live
+  // data. Partial = at least one step failed; Complete = everything succeeded.
+  // Lives on tenants (not settings) because it's lifecycle state, not
+  // configuration.
+  const hasFailures = Object.keys(failed).length > 0
+  const provisioningStatus: 'complete' | 'partial' = hasFailures ? 'partial' : 'complete'
+  try {
+    await payload.update({
+      collection: 'tenants',
+      id: tenant.id,
+      data: {
+        provisioning: {
+          status: provisioningStatus,
+          lastRunAt: new Date().toISOString(),
+          failed: hasFailures ? failed : undefined,
+        },
+      },
+    })
+  } catch (err) {
+    log.error(
+      `[${tenant.slug}] Failed to record provisioning status: ${err instanceof Error ? err.message : 'Unknown error'}`,
+    )
   }
 
   const summary = {
@@ -577,9 +642,10 @@ export async function provision(payload: Payload, tenant: Tenant) {
     settingsCreated,
     builtInPagesCreated: createdBuiltInPages.length - existingBuiltInPages.docs.length,
     pagesCreated: createdPages.length,
-    failedPages,
+    failedPages: Object.keys(failed.pages ?? {}),
     homePageCreated,
     navigationCreated,
+    provisioningStatus,
     // TODO: Theme creation (colors.css, centerColorMap in generateOGImage.tsx) requires manual steps.
   }
 

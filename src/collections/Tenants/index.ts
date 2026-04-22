@@ -76,6 +76,60 @@ export const Tenants: CollectionConfig = {
     },
     contentHashField(),
     {
+      name: 'provisioning',
+      type: 'group',
+      label: 'Provisioning',
+      admin: {
+        hidden: true,
+      },
+      fields: [
+        {
+          name: 'status',
+          type: 'select',
+          defaultValue: 'not_started',
+          required: true,
+          options: [
+            { label: 'Not started', value: 'not_started' },
+            { label: 'In progress', value: 'in_progress' },
+            { label: 'Complete', value: 'complete' },
+            { label: 'Partial', value: 'partial' },
+          ],
+        },
+        { name: 'lastRunAt', type: 'date' },
+        {
+          name: 'failed',
+          type: 'json',
+          admin: {
+            description:
+              'What failed during the last provisioning run. Empty when everything succeeded.',
+          },
+          jsonSchema: {
+            uri: 'a://b/tenant-provisioning-failed.json',
+            fileMatch: ['a://b/tenant-provisioning-failed.json'],
+            // Presence of a key means that step failed; the value is the
+            // error message (stored for debugging, not shown in admin UI).
+            // `pages` is page-name → error message.
+            schema: {
+              type: 'object',
+              additionalProperties: false,
+              properties: {
+                pages: {
+                  type: 'object',
+                  additionalProperties: { type: 'string' },
+                },
+                homePage: { type: 'string' },
+                navigation: { type: 'string' },
+                websiteSettings: { type: 'string' },
+                // Set synthetically on read when an in_progress run has gone
+                // past the staleness window — see checkProvisioningStatusAction.
+                timedOut: { type: 'string' },
+              },
+            },
+          },
+        },
+      ],
+    },
+    {
       type: 'ui',
       name: 'onboardingChecklist',
       label: 'Onboarding Status',
