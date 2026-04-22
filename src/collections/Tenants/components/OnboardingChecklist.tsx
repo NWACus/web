@@ -5,7 +5,7 @@ import { AlertTriangle, CheckCircle2, Circle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 import { formatDate } from 'date-fns/format'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { needsProvisioning } from './needsProvisioning'
 import {
   checkProvisioningStatusAction,
@@ -64,6 +64,10 @@ export function OnboardingChecklist() {
   const { setProcessing } = useForm()
   const [status, setStatus] = useState<ProvisioningStatus>(DEFAULT_STATUS)
   const [loaded, setLoaded] = useState(false)
+  // Refs persist across React 18 StrictMode's double-mount, so we use them to
+  // ensure the auto-provision path fires at most once per tenantId even if
+  // the effect body runs twice in dev.
+  const autoProvisionAttempted = useRef<number | string | null>(null)
 
   const tenantId = data?.id
   const isProvisioning = status.status === 'in_progress'
@@ -109,7 +113,9 @@ export function OnboardingChecklist() {
     )
   }, [tenantId, isProvisioning, checkStatus, setProcessing])
 
-  // On mount: check status and auto-provision only for brand new tenants
+  // On mount: check status and auto-provision only for brand new tenants.
+  // The ref-based guard ensures the auto-provision call fires at most once
+  // per tenantId
   useEffect(() => {
     if (!tenantId) return
 
@@ -122,7 +128,8 @@ export function OnboardingChecklist() {
       setStatus(result.status)
       setLoaded(true)
 
-      if (needsProvisioning(result.status)) {
+      if (needsProvisioning(result.status) && autoProvisionAttempted.current !== tenantId) {
+        autoProvisionAttempted.current = tenantId
         handleProvision()
       }
     })

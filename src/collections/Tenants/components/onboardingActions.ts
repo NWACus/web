@@ -2,7 +2,11 @@
 
 import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
-import { provision, type ProvisioningFailed } from '@/collections/Tenants/endpoints/provisionTenant'
+import {
+  provision,
+  STALE_IN_PROGRESS_MS,
+  type ProvisioningFailed,
+} from '@/collections/Tenants/endpoints/provisionTenant'
 import { isRecord } from '@/utilities/isRecord'
 import config from '@payload-config'
 import fs from 'fs/promises'
@@ -31,10 +35,6 @@ export type ProvisioningStatus = {
   tenantCreatedAt: string | null
   settings: { id?: number | string }
 }
-
-// Provisioning is synchronous on the server, so anything longer than this is
-// almost certainly a crashed run we should recover from rather than wait on.
-const STALE_IN_PROGRESS_MS = 10 * 60 * 1000
 
 export async function checkProvisioningStatusAction(
   tenantId: number | string,

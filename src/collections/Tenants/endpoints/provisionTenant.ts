@@ -200,6 +200,10 @@ export const provisionTenant: PayloadHandler = async (req) => {
 
 export type ProvisioningFailed = NonNullable<NonNullable<Tenant['provisioning']>['failed']>
 
+// A run that's been in_progress longer than this is treated as crashed; the
+// next caller is allowed to take over.
+export const STALE_IN_PROGRESS_MS = 5 * 60 * 1000
+
 const errorMessage = (err: unknown): string =>
   err instanceof Error ? err.message : 'Unknown error'
 
@@ -208,24 +212,34 @@ export async function provision(payload: Payload, tenant: Tenant) {
 
   log.info(`Provisioning tenant: ${tenant.name} (${tenant.slug})`)
 
-  // Mark in_progress upfront so concurrent page loads / reloads see the
-  // active provisioning run and don't trigger a second one.
-  try {
-    await payload.update({
-      collection: 'tenants',
-      id: tenant.id,
-      data: {
-        provisioning: {
-          status: 'in_progress',
-          lastRunAt: new Date().toISOString(),
-          failed: undefined,
+  // Acquire a per-tenant lock; take over stale runs to recover from crashes.
+  const now = new Date()
+  const staleCutoff = new Date(now.getTime() - STALE_IN_PROGRESS_MS).toISOString()
+  const lockResult = await payload.update({
+    collection: 'tenants',
+    where: {
+      and: [
+        { id: { equals: tenant.id } },
+        {
+          or: [
+            { 'provisioning.status': { not_equals: 'in_progress' } },
+            { 'provisioning.lastRunAt': { less_than: staleCutoff } },
+          ],
         },
+      ],
+    },
+    data: {
+      provisioning: {
+        status: 'in_progress',
+        lastRunAt: now.toISOString(),
+        failed: undefined,
       },
-    })
-  } catch (err) {
-    log.error(
-      `[${tenant.slug}] Failed to mark provisioning in_progress: ${err instanceof Error ? err.message : 'Unknown error'}`,
-    )
+    },
+  })
+
+  if (lockResult.docs.length === 0) {
+    log.warn(`[${tenant.slug}] Skipping provision — another run is already active`)
+    throw new Error(`Provisioning is already in progress for ${tenant.slug}`)
   }
 
   const failed: ProvisioningFailed = {}
