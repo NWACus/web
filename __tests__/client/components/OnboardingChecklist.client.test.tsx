@@ -229,6 +229,44 @@ describe('OnboardingChecklist', () => {
     })
   })
 
+  describe('manual', () => {
+    // checkProvisioningStatusAction synthesizes 'manual' when DB says complete
+    // but theme items (colors.css / centerColorMap) aren't done yet.
+    beforeEach(() => {
+      mockCheckStatus.mockResolvedValue({
+        status: buildStatus({
+          status: 'manual',
+          lastRunAt: '2026-04-22T00:00:00.000Z',
+          theme: { brandColors: false, ogColors: false },
+          settings: { id: 1 },
+        }),
+      })
+    })
+
+    it('shows "Complete manual actions" header', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(screen.getByText('Complete manual actions')).toBeInTheDocument()
+    })
+
+    it('still renders the theme nag items', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(screen.getByText('Add brand colors')).toBeInTheDocument()
+      expect(screen.getByText('Add OG image colors')).toBeInTheDocument()
+    })
+
+    it('does not render the partial failure detail block', async () => {
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(screen.queryByText(/failed to provision/i)).not.toBeInTheDocument()
+      expect(screen.queryByText('Missing pages:')).not.toBeInTheDocument()
+    })
+  })
+
   describe('in_progress', () => {
     // Matches what a mid-run page reload would see from the DB
     beforeEach(() => {

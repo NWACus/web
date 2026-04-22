@@ -17,6 +17,12 @@ export function OnboardingStatusCell({
         Partial
       </Pill>
     )
+  if (status === 'manual')
+    return (
+      <Pill size="small" pillStyle="warning">
+        Manual actions
+      </Pill>
+    )
   if (status === 'in_progress') return <Pill size="small">In progress</Pill>
   return <Pill size="small">Not started</Pill>
 }

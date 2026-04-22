@@ -93,6 +93,7 @@ export const Tenants: CollectionConfig = {
             { label: 'In progress', value: 'in_progress' },
             { label: 'Complete', value: 'complete' },
             { label: 'Partial', value: 'partial' },
+            { label: 'Complete manual actions', value: 'manual' },
           ],
         },
         { name: 'lastRunAt', type: 'date' },

@@ -28,7 +28,7 @@ async function authorize(): Promise<{ payload: Payload } | { error: string }> {
 }
 
 export type ProvisioningStatus = {
-  status: 'not_started' | 'in_progress' | 'complete' | 'partial'
+  status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual'
   lastRunAt: string | null
   failed: ProvisioningFailed
   theme: { brandColors: boolean; ogColors: boolean }
@@ -68,7 +68,7 @@ export async function checkProvisioningStatusAction(
     // Recover from crashed runs: if we've been "in_progress" longer than the
     // grace window, treat it as a failed run so the UI shows a re-provision
     // button instead of a spinner that never stops.
-    let status = provisioning?.status ?? 'not_started'
+    let status: ProvisioningStatus['status'] = provisioning?.status ?? 'not_started'
     let failed: ProvisioningFailed = isRecord(provisioning?.failed) ? provisioning.failed : {}
     if (status === 'in_progress' && provisioning?.lastRunAt) {
       const age = Date.now() - new Date(provisioning.lastRunAt).getTime()
@@ -78,17 +78,42 @@ export async function checkProvisioningStatusAction(
       }
     }
 
+    const theme = {
+      // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
+      brandColors: brandColors.includes(`.${tenant.slug} {`),
+      // Check if the tenant slug exists as a key in centerColorMap in the OG route
+      ogColors: tenant.slug in centerColorMap,
+    }
+    const themeComplete = theme.brandColors && theme.ogColors
+
+    // Manual code-level items (brand colors in colors.css, OG colors in
+    // centerColorMap) live outside the DB. Flip between 'complete' and
+    // 'manual' based on the theme check, and persist it so the list-view
+    // cell can render the same state without re-reading colors.css per row.
+    let nextStatus: typeof status | undefined
+    if (status === 'complete' && !themeComplete) nextStatus = 'manual'
+    else if (status === 'manual' && themeComplete) nextStatus = 'complete'
+    if (nextStatus) {
+      await payload
+        .update({
+          collection: 'tenants',
+          id: tenantId,
+          data: { provisioning: { status: nextStatus } },
+        })
+        .catch((err) => {
+          payload.logger.warn(
+            `Failed to sync derived provisioning status for tenant ${tenantId}: ${err instanceof Error ? err.message : err}`,
+          )
+        })
+      status = nextStatus
+    }
+
     return {
       status: {
         status,
         lastRunAt: provisioning?.lastRunAt ?? null,
         failed,
-        theme: {
-          // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
-          brandColors: brandColors.includes(`.${tenant.slug} {`),
-          // Check if the tenant slug exists as a key in centerColorMap in the OG route
-          ogColors: tenant.slug in centerColorMap,
-        },
+        theme,
         tenantCreatedAt: tenant.createdAt ?? null,
         // Settings is only fetched for the id (used to build the "Update Brand
         // Assets" link in the checklist UI)

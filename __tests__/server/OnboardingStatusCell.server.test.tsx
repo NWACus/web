@@ -21,8 +21,9 @@ function isReactElement(value: unknown): value is React.ReactElement<{
   return value !== null && typeof value === 'object' && 'props' in value
 }
 
-const cellFor = (status: 'complete' | 'partial' | 'in_progress' | 'not_started' | undefined) =>
-  OnboardingStatusCell({ rowData: { provisioning: { status } } })
+const cellFor = (
+  status: 'complete' | 'partial' | 'manual' | 'in_progress' | 'not_started' | undefined,
+) => OnboardingStatusCell({ rowData: { provisioning: { status } } })
 
 describe('OnboardingStatusCell', () => {
   it('renders Complete pill for complete status', () => {
@@ -54,6 +55,14 @@ describe('OnboardingStatusCell', () => {
 
     if (!isReactElement(result)) throw new Error('Expected ReactElement')
     expect(result.props.children).toBe('In progress')
+  })
+
+  it('renders Manual actions pill for manual status', () => {
+    const result = cellFor('manual')
+
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('Manual actions')
+    expect(result.props.pillStyle).toBe('warning')
   })
 
   it('renders Not started pill when provisioning is missing', () => {

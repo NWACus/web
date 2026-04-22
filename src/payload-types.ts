@@ -367,7 +367,7 @@ export interface Tenant {
   name: string;
   contentHash?: string | null;
   provisioning: {
-    status: 'not_started' | 'in_progress' | 'complete' | 'partial';
+    status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual';
     lastRunAt?: string | null;
     failed?: {
       pages?: {

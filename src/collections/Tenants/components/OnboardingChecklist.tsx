@@ -162,58 +162,68 @@ export function OnboardingChecklist() {
       )}
 
       {/* Header section — shown once provisioning has run at least once */}
-      {showChecklist && (status.status === 'complete' || status.status === 'partial') && (
-        <div className="mb-4 pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {status.status === 'complete' ? (
-                <>
-                  <CheckCircle2 size={20} className="shrink-0 text-success" />
-                  <span>Complete</span>
-                </>
-              ) : (
-                <>
-                  <AlertTriangle size={20} className="shrink-0 text-warning" />
-                  <span>Failed</span>
-                </>
-              )}
+      {showChecklist &&
+        (status.status === 'complete' ||
+          status.status === 'partial' ||
+          status.status === 'manual') && (
+          <div className="mb-4 pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {status.status === 'complete' ? (
+                  <>
+                    <CheckCircle2 size={20} className="shrink-0 text-success" />
+                    <span>Complete</span>
+                  </>
+                ) : status.status === 'manual' ? (
+                  <>
+                    <AlertTriangle size={20} className="shrink-0 text-warning" />
+                    <span>Complete manual actions</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle size={20} className="shrink-0 text-warning" />
+                    <span>Failed</span>
+                  </>
+                )}
+              </div>
+              <Button
+                className="m-0"
+                onClick={handleProvision}
+                disabled={isProvisioning}
+                size="medium"
+                buttonStyle="secondary"
+              >
+                Rerun
+              </Button>
             </div>
-            <Button
-              className="m-0"
-              onClick={handleProvision}
-              disabled={isProvisioning}
-              size="medium"
-              buttonStyle="secondary"
-            >
-              Rerun
-            </Button>
+            {status.status === 'partial' && (
+              <div className="text-sm ml-9 mb-4 space-y-2">
+                {status.failed.timedOut && (
+                  <div className="opacity-70">{status.failed.timedOut}</div>
+                )}
+                {status.failed.websiteSettings && (
+                  <div className="opacity-70">Website settings failed to provision.</div>
+                )}
+                {status.failed.homePage && (
+                  <div className="opacity-70">Home page failed to provision.</div>
+                )}
+                {status.failed.navigation && (
+                  <div className="opacity-70">Navigation failed to provision.</div>
+                )}
+                {status.failed.pages && Object.keys(status.failed.pages).length > 0 && (
+                  <div>
+                    <div className="font-semibold opacity-80">Missing pages:</div>
+                    <ul className="list-disc pl-5 opacity-70">
+                      {Object.keys(status.failed.pages).map((name) => (
+                        <li key={name}>{name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          {status.status === 'partial' && (
-            <div className="text-sm ml-9 mb-4 space-y-2">
-              {status.failed.timedOut && <div className="opacity-70">{status.failed.timedOut}</div>}
-              {status.failed.websiteSettings && (
-                <div className="opacity-70">Website settings failed to provision.</div>
-              )}
-              {status.failed.homePage && (
-                <div className="opacity-70">Home page failed to provision.</div>
-              )}
-              {status.failed.navigation && (
-                <div className="opacity-70">Navigation failed to provision.</div>
-              )}
-              {status.failed.pages && Object.keys(status.failed.pages).length > 0 && (
-                <div>
-                  <div className="font-semibold opacity-80">Missing pages:</div>
-                  <ul className="list-disc pl-5 opacity-70">
-                    {Object.keys(status.failed.pages).map((name) => (
-                      <li key={name}>{name}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        )}
 
       {/* Manual steps — always visible as a nag until configured */}
       {showChecklist && (
@@ -274,7 +284,9 @@ export function OnboardingChecklist() {
               </span>
             )}
           </ChecklistItem>
-          {(status.status === 'complete' || status.status === 'partial') && (
+          {(status.status === 'complete' ||
+            status.status === 'partial' ||
+            status.status === 'manual') && (
             <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-4 text-sm opacity-70">
               <strong>Last provisioned:</strong>&nbsp;
               {status.lastRunAt && formatDate(status.lastRunAt, 'PPpp')}
