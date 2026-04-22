@@ -28,6 +28,10 @@ describe('needsProvisioning', () => {
     ).toBe(false)
   })
 
+  it('returns false when provisioning is actively running', () => {
+    expect(needsProvisioning(buildStatus({ status: 'in_progress' }))).toBe(false)
+  })
+
   it('ignores theme status (manual step)', () => {
     // Manual steps should never cause auto-provisioning to re-trigger
     expect(

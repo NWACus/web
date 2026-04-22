@@ -207,6 +207,26 @@ describe('OnboardingChecklist', () => {
 
       expect(screen.getByText('Rerun')).toBeInTheDocument()
     })
+
+    it('renders the timedOut message when stale in_progress was recovered', async () => {
+      // checkProvisioningStatusAction synthesizes failed.timedOut when it
+      // recovers a stuck in_progress run past the stale cutoff.
+      mockCheckStatus.mockResolvedValue({
+        status: buildStatus({
+          status: 'partial',
+          lastRunAt: '2026-04-15T00:00:00.000Z',
+          failed: { timedOut: 'Provisioning timed out. It may still be running.' },
+          settings: { id: 1 },
+        }),
+      })
+
+      render(<OnboardingChecklist />)
+      await flushAsync()
+
+      expect(
+        screen.getByText('Provisioning timed out. It may still be running.'),
+      ).toBeInTheDocument()
+    })
   })
 
   describe('in_progress', () => {
