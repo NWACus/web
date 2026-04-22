@@ -115,8 +115,8 @@ export async function checkProvisioningStatusAction(
         failed,
         theme,
         tenantCreatedAt: tenant.createdAt ?? null,
-        // Settings is only fetched for the id (used to build the "Update Brand
-        // Assets" link in the checklist UI)
+        // Settings id is used to build the "Edit settings" link in the
+        // checklist UI.
         settings: { id: settings.docs[0]?.id },
       },
     }

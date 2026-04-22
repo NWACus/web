@@ -238,25 +238,6 @@ export function OnboardingChecklist() {
               <ChecklistItem loading={isProvisioning} done={false} label="Website Settings" />
             </>
           )}
-          {status.settings.id && (
-            <ChecklistItem
-              loading={isProvisioning}
-              done={theme.brandColors}
-              label="Update Brand Assets"
-            >
-              <div className="mt-2 text-md">
-                Change avy center logo & info in{' '}
-                <Link
-                  href={`/admin/collections/settings/${status.settings.id}`}
-                  onClick={() => {
-                    setTenant({ slug: data?.slug }) // Switch selected tenant to avoid redirect
-                  }}
-                >
-                  Settings
-                </Link>
-              </div>
-            </ChecklistItem>
-          )}
 
           <ChecklistItem loading={isProvisioning} done={theme.brandColors} label="Add brand colors">
             {!theme.brandColors && (
@@ -284,6 +265,19 @@ export function OnboardingChecklist() {
               </span>
             )}
           </ChecklistItem>
+          {status.settings.id && (
+            <div className="py-2  opacity-70">
+              Update avy center brand assets & info in{' '}
+              <Link
+                href={`/admin/collections/settings/${status.settings.id}`}
+                onClick={() => {
+                  setTenant({ slug: data?.slug }) // Switch selected tenant to avoid redirect
+                }}
+              >
+                Website Settings
+              </Link>
+            </div>
+          )}
           {(status.status === 'complete' ||
             status.status === 'partial' ||
             status.status === 'manual') && (

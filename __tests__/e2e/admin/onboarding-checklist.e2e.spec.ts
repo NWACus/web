@@ -58,7 +58,7 @@ test.describe('Onboarding Checklist', () => {
     await expect(checklist.getByText(/\(\d+\/\d+\)/).first()).toBeVisible({ timeout: 5000 })
 
     // Settings link should point to the tenant's settings document
-    const settingsLink = checklist.locator('a', { hasText: 'Update Brand Assets' })
+    const settingsLink = checklist.locator('a', { hasText: 'Website Settings' })
     await expect(settingsLink).toBeVisible()
     await expect(settingsLink).toHaveAttribute('href', /\/admin\/collections\/settings\/\d+/)
   })

@@ -132,7 +132,7 @@ describe('OnboardingChecklist', () => {
       expect(screen.queryByText('Pages')).not.toBeInTheDocument()
       expect(screen.queryByText('Home page')).not.toBeInTheDocument()
       expect(screen.queryByText('Navigation')).not.toBeInTheDocument()
-      expect(screen.queryByText('Website Settings')).not.toBeInTheDocument()
+      expect(screen.queryByText('Website Settings', { selector: 'span' })).not.toBeInTheDocument()
     })
 
     it('shows theme nag when theme is incomplete', async () => {
@@ -156,9 +156,8 @@ describe('OnboardingChecklist', () => {
       render(<OnboardingChecklist />)
       await flushAsync()
 
-      expect(screen.getByText('Update Brand Assets')).toBeInTheDocument()
-      const settingsLink = screen.getByText('Settings')
-      expect(settingsLink.closest('a')).toHaveAttribute('href', '/admin/collections/settings/1')
+      const settingsLink = screen.getByText('Website Settings', { selector: 'a' })
+      expect(settingsLink).toHaveAttribute('href', '/admin/collections/settings/1')
     })
 
     it('shows a Rerun button', async () => {
