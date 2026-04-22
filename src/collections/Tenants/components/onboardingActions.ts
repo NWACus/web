@@ -52,7 +52,6 @@ export async function checkProvisioningStatusAction(
         collection: 'settings',
         where: { tenant: { equals: tenantId } },
         limit: 1,
-        select: {},
       }),
       fs
         .readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8')

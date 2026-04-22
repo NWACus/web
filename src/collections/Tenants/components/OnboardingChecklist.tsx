@@ -4,6 +4,7 @@ import { Button, toast, useDocumentInfo, useForm } from '@payloadcms/ui'
 import { AlertTriangle, CheckCircle2, Circle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
+import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { formatDate } from 'date-fns/format'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { needsProvisioning } from './needsProvisioning'
@@ -62,6 +63,7 @@ function ChecklistItem({
 export function OnboardingChecklist() {
   const { data } = useDocumentInfo()
   const { setProcessing } = useForm()
+  const { setTenant } = useTenantSelection()
   const [status, setStatus] = useState<ProvisioningStatus>(DEFAULT_STATUS)
   const [loaded, setLoaded] = useState(false)
   // Refs persist across React 18 StrictMode's double-mount, so we use them to
@@ -234,7 +236,14 @@ export function OnboardingChecklist() {
             >
               <div className="mt-2 text-md">
                 Change avy center logo & info in{' '}
-                <Link href={`/admin/collections/settings/${status.settings.id}`}>Settings</Link>
+                <Link
+                  href={`/admin/collections/settings/${status.settings.id}`}
+                  onClick={() => {
+                    setTenant({ slug: data?.slug }) // Switch selected tenant to avoid redirect
+                  }}
+                >
+                  Settings
+                </Link>
               </div>
             </ChecklistItem>
           )}
