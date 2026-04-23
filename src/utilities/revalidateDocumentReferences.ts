@@ -20,7 +20,11 @@ export async function revalidateDocumentReferences(
     )
 
     for (const doc of documentsToRevalidate) {
-      await revalidateDocument(doc)
+      try {
+        await revalidateDocument(doc)
+      } catch (error) {
+        payload.logger.error(`Failed to revalidate ${doc.collection} ID ${doc.id}: ${error}`)
+      }
     }
 
     payload.logger.info(
