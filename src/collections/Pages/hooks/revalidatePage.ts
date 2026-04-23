@@ -43,9 +43,25 @@ const revalidatePagePaths = async ({
   }
 }
 
-const revalidatePageTags = (tenantSlug: string) => {
+const revalidate = async ({
+  docId,
+  slug,
+  tenantSlug,
+  payload,
+  logPrefix = 'Revalidating page',
+}: {
+  docId: number
+  slug: string
+  tenantSlug: string
+  payload: Payload
+  logPrefix?: string
+}) => {
+  await revalidatePagePaths({ slug, tenantSlug, payload, logPrefix })
+
   revalidateTag(`pages-sitemap-${tenantSlug}`)
   revalidateTag(`navigation-${tenantSlug}`)
+
+  await revalidateDocumentReferences({ collection: 'pages', id: docId })
 }
 
 export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
@@ -58,16 +74,12 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
   const tenant = await resolveTenant(doc.tenant)
 
   if (doc._status === 'published') {
-    await revalidatePagePaths({
+    await revalidate({
+      docId: doc.id,
       slug: doc.slug,
       tenantSlug: tenant.slug,
       payload,
-      logPrefix: 'Revalidating page',
     })
-
-    revalidatePageTags(tenant.slug)
-
-    await revalidateDocumentReferences({ collection: 'pages', id: doc.id })
   }
 
   // If the page was previously published, and it is no longer published or the slug has changed
@@ -76,14 +88,13 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = async ({
     previousDoc._status === 'published' &&
     (doc._status !== 'published' || previousDoc.slug !== doc.slug)
   ) {
-    await revalidatePagePaths({
+    await revalidate({
+      docId: doc.id,
       slug: previousDoc.slug,
       tenantSlug: tenant.slug,
       payload,
       logPrefix: 'Revalidating old page',
     })
-
-    revalidatePageTags(tenant.slug)
   }
 }
 
@@ -95,14 +106,11 @@ export const revalidatePageDelete: CollectionAfterDeleteHook<Page> = async ({
 
   const tenant = await resolveTenant(doc.tenant)
 
-  await revalidatePagePaths({
+  await revalidate({
+    docId: doc.id,
     slug: doc.slug,
     tenantSlug: tenant.slug,
     payload,
     logPrefix: 'Revalidating deleted page',
   })
-
-  revalidatePageTags(tenant.slug)
-
-  await revalidateDocumentReferences({ collection: 'pages', id: doc.id })
 }
