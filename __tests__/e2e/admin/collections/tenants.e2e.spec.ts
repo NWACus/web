@@ -4,6 +4,7 @@ import {
   CollectionSlugs,
   getSelectInputOptions,
   getSelectInputValue,
+  isSelectReadOnly,
   openDocControls,
   selectInput,
   waitForFormReady,
@@ -58,22 +59,28 @@ authTest.describe('Tenants', () => {
   authTest.describe('Read', () => {
     authTest.describe.configure({ timeout: 60000 })
 
-    authTest('slug field shows current value on existing tenant', async ({ adminPage }) => {
-      await adminPage.goto(tenantsUrl.list)
-      await adminPage.waitForLoadState('networkidle')
+    authTest(
+      'slug field shows current value and read-only on existing tenant',
+      async ({ adminPage }) => {
+        await adminPage.goto(tenantsUrl.list)
+        await adminPage.waitForLoadState('networkidle')
 
-      const firstLink = adminPage.locator('table tbody tr td a').first()
-      await firstLink.waitFor({ timeout: 15000 })
-      await firstLink.click()
-      await adminPage.waitForURL(/\/collections\/tenants\/\d+/)
-      await waitForFormReady(adminPage)
+        const firstLink = adminPage.locator('table tbody tr td a').first()
+        await firstLink.waitFor({ timeout: 15000 })
+        await firstLink.click()
+        await adminPage.waitForURL(/\/collections\/tenants\/\d+/)
+        await waitForFormReady(adminPage)
 
-      const slugField = adminPage.locator('#field-slug')
-      await expect(slugField).toBeVisible()
+        const slugField = adminPage.locator('#field-slug')
+        await expect(slugField).toBeVisible()
 
-      const value = await getSelectInputValue({ selectLocator: slugField })
-      expect(value).toBeTruthy()
-    })
+        const value = await getSelectInputValue({ selectLocator: slugField })
+        expect(value).toBeTruthy()
+
+        const readOnly = await isSelectReadOnly({ selectLocator: slugField })
+        expect(readOnly).toBe(true)
+      },
+    )
   })
 
   authTest.describe('Delete', () => {
