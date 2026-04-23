@@ -20,7 +20,7 @@ Collections in this system fall into two main categories for revalidation purpos
 
 ### Routable Collections
 **Collections that generate frontend routes/paths** and require direct path revalidation:
-- Currently: `pages`, `posts`, `homePages`
+- Currently: `pages`, `posts`, `homePages`, `events`
 - Future: Any collection that will have dedicated frontend routes
 - Characteristics: Generate URLs (may or may not have slugs), need comprehensive path + reference revalidation
 
@@ -33,7 +33,7 @@ Collections in this system fall into two main categories for revalidation purpos
 ## Core Utilities
 
 ### `revalidateDocument.ts`
-Central function for revalidating routable collections (currently pages, posts, and homePages). Handles:
+Central function for revalidating routable collections (defined by the `ROUTABLE_COLLECTIONS` array). Handles:
 - Multi-tenant path resolution (`/slug` and `/tenant/slug`)
 - Collection-specific URL patterns (e.g., pages use navigation paths, posts use `/blog/slug`, homePages use `/` and `/{center}/`)
 - Navigation path discovery for collections that integrate with navigation
@@ -48,8 +48,7 @@ Orchestrates the full reference revalidation flow:
 
 ### `findDocumentsWithReferences.ts`
 Queries the `documentReferences` JSON field across all collections that have it:
-- Auto-discovers which collections have a `documentReferences` field from the Payload config
-- No hardcoded collection lists — adding `documentReferencesField()` to a new collection is sufficient
+- Iterates over the `ROUTABLE_COLLECTIONS` array defined in `revalidateDocument.ts`
 
 ## Collection Patterns
 
@@ -157,7 +156,7 @@ Collections that generate frontend routes (currently Pages, Posts, HomePages, fu
 ### Adding New Routable Collections
 When adding a new collection that will have frontend routes:
 
-1. **Update `revalidateDocument.ts`** - Add URL pattern logic for the new collection
+1. **Update `revalidateDocument.ts`** - Add the collection to `ROUTABLE_COLLECTIONS` and add URL pattern logic
 2. **Add `documentReferencesField()`** and `populateDocumentReferences` hook to the collection
 3. **Create collection-specific revalidation hooks** - Following the routable collection pattern
 4. **Consider navigation integration** - If the collection uses navigation-based routing

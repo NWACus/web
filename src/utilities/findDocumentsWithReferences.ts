@@ -1,17 +1,11 @@
 import configPromise from '@payload-config'
-import type { CollectionSlug } from 'payload'
 import { getPayload } from 'payload'
 import { isTenantValue } from './isTenantValue'
-import { DocumentForRevalidation } from './revalidateDocument'
+import { DocumentForRevalidation, ROUTABLE_COLLECTIONS } from './revalidateDocument'
 
 export interface ReferenceQuery {
   collection: string
   id: number
-}
-
-// SanitizedCollectionConfig.slug is string but payload.find() requires CollectionSlug
-function isCollectionSlug(slug: string, validSlugs: Set<string>): slug is CollectionSlug {
-  return validSlugs.has(slug)
 }
 
 /** Find all documents whose `documentReferences` field contains a reference to the given document. */
@@ -21,15 +15,7 @@ export async function findDocumentsWithReferences(
   const payload = await getPayload({ config: configPromise })
   const results: DocumentForRevalidation[] = []
 
-  const allSlugs = new Set(payload.config.collections.map((c) => c.slug))
-
-  const collectionsWithReferences = payload.config.collections
-    .filter((c) => c.fields.some((f) => 'name' in f && f.name === 'documentReferences'))
-    .map((c) => c.slug)
-
-  for (const collectionSlug of collectionsWithReferences) {
-    if (!isCollectionSlug(collectionSlug, allSlugs)) continue
-
+  for (const collectionSlug of ROUTABLE_COLLECTIONS) {
     try {
       const res = await payload.find({
         collection: collectionSlug,

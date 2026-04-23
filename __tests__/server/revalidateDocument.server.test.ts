@@ -23,7 +23,7 @@ jest.mock('../../src/components/Header/utils', () => ({
   getNavigationPathForSlug: () => [],
 }))
 
-import { revalidateDocument } from '@/utilities/revalidateDocument'
+import { DocumentForRevalidation, revalidateDocument } from '@/utilities/revalidateDocument'
 
 beforeEach(() => {
   mockRevalidatePath.mockReset()
@@ -41,7 +41,12 @@ describe('revalidateDocument', () => {
   // payload.update/create/delete. Otherwise circular references (A → B → A)
   // would cause infinite loops through afterChange hooks.
   it('only invalidates Next.js cache — never triggers Payload write operations', async () => {
-    const postB = { collection: 'posts', id: 10, slug: 'post-b', tenant: 1 }
+    const postB = {
+      collection: 'posts',
+      id: 10,
+      slug: 'post-b',
+      tenant: 1,
+    } satisfies DocumentForRevalidation
 
     await revalidateDocument(postB)
 
@@ -52,7 +57,12 @@ describe('revalidateDocument', () => {
   })
 
   it('revalidates correct paths for pages', async () => {
-    const page = { collection: 'pages', id: 1, slug: 'about', tenant: 1 }
+    const page = {
+      collection: 'pages',
+      id: 1,
+      slug: 'about',
+      tenant: 1,
+    } satisfies DocumentForRevalidation
 
     await revalidateDocument(page)
 
@@ -61,7 +71,12 @@ describe('revalidateDocument', () => {
   })
 
   it('revalidates correct paths for posts', async () => {
-    const post = { collection: 'posts', id: 10, slug: 'my-post', tenant: 1 }
+    const post = {
+      collection: 'posts',
+      id: 10,
+      slug: 'my-post',
+      tenant: 1,
+    } satisfies DocumentForRevalidation
 
     await revalidateDocument(post)
 
@@ -70,7 +85,12 @@ describe('revalidateDocument', () => {
   })
 
   it('revalidates correct paths for homePages', async () => {
-    const homePage = { collection: 'homePages', id: 1, slug: '', tenant: 1 }
+    const homePage = {
+      collection: 'homePages',
+      id: 1,
+      slug: '',
+      tenant: 1,
+    } satisfies DocumentForRevalidation
 
     await revalidateDocument(homePage)
 
@@ -79,7 +99,12 @@ describe('revalidateDocument', () => {
   })
 
   it('revalidates correct paths for events', async () => {
-    const event = { collection: 'events', id: 5, slug: 'winter-summit', tenant: 1 }
+    const event = {
+      collection: 'events',
+      id: 5,
+      slug: 'winter-summit',
+      tenant: 1,
+    } satisfies DocumentForRevalidation
 
     await revalidateDocument(event)
 
@@ -88,9 +113,10 @@ describe('revalidateDocument', () => {
   })
 
   it('logs a warning for unrecognized collection types', async () => {
+    // Intentionally passing an invalid collection to test the runtime guard
     const doc = { collection: 'unknownCollection', id: 1, slug: 'test', tenant: 1 }
 
-    await revalidateDocument(doc)
+    await revalidateDocument(doc as DocumentForRevalidation)
 
     expect(mockRevalidatePath).not.toHaveBeenCalled()
     expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -101,7 +127,12 @@ describe('revalidateDocument', () => {
   it('handles tenant resolution failure gracefully', async () => {
     mockResolveTenant.mockRejectedValue(new Error('Tenant not found'))
 
-    const page = { collection: 'pages', id: 1, slug: 'about', tenant: 999 }
+    const page = {
+      collection: 'pages',
+      id: 1,
+      slug: 'about',
+      tenant: 999,
+    } satisfies DocumentForRevalidation
 
     await revalidateDocument(page)
 

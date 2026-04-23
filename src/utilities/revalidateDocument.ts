@@ -22,8 +22,11 @@ export interface RevalidationReference {
   id: number
 }
 
+export const ROUTABLE_COLLECTIONS = ['pages', 'posts', 'homePages', 'events'] as const
+export type RoutableCollection = (typeof ROUTABLE_COLLECTIONS)[number]
+
 export interface DocumentForRevalidation {
-  collection: string
+  collection: RoutableCollection
   id: number
   slug: string
   tenant: number | Tenant
