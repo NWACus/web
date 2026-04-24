@@ -116,6 +116,7 @@ describe('revalidateDocument', () => {
     // Intentionally passing an invalid collection to test the runtime guard
     const doc = { collection: 'unknownCollection', id: 1, slug: 'test', tenant: 1 }
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     await revalidateDocument(doc as DocumentForRevalidation)
 
     expect(mockRevalidatePath).not.toHaveBeenCalled()
