@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import type { CollectionSlug, Where } from 'payload'
 import { getPayload } from 'payload'
 import { isTenantValue } from './isTenantValue'
-import { DocumentForRevalidation } from './revalidateDocument'
+import { DocumentReference } from './revalidateDocument'
 
 export interface ReferenceQuery {
   collection: string
@@ -16,7 +16,7 @@ function isCollectionSlug(slug: string, allSlugs: Set<string>): slug is Collecti
 /** Find all documents whose `documentReferences` field contains a reference to the given document. */
 export async function findDocumentsWithReferences(
   reference: ReferenceQuery,
-): Promise<DocumentForRevalidation[]> {
+): Promise<DocumentReference[]> {
   const payload = await getPayload({ config: configPromise })
 
   const allSlugs = new Set(payload.config.collections.map((c) => c.slug))
@@ -63,7 +63,7 @@ export async function findDocumentsWithReferences(
     }),
   )
 
-  const results: DocumentForRevalidation[] = []
+  const results: DocumentReference[] = []
   for (const [i, result] of settled.entries()) {
     if (result.status === 'fulfilled') {
       results.push(...result.value)

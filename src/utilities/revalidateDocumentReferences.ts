@@ -4,14 +4,20 @@ import { getPayload } from 'payload'
 import { findDocumentsWithReferences, ReferenceQuery } from './findDocumentsWithReferences'
 import {
   DocumentForRevalidation,
+  DocumentReference,
   revalidateDocument,
   RevalidationReference,
   ROUTABLE_COLLECTIONS,
+  RoutableCollection,
 } from './revalidateDocument'
 
 export interface RevalidationDeps {
-  findRefs: (ref: ReferenceQuery) => Promise<DocumentForRevalidation[]>
+  findRefs: (ref: ReferenceQuery) => Promise<DocumentReference[]>
   revalidateDoc: (doc: DocumentForRevalidation) => Promise<void>
+}
+
+function isRoutableCollection(collection: string): collection is RoutableCollection {
+  return ROUTABLE_COLLECTIONS.has(collection)
 }
 
 const defaultDeps: RevalidationDeps = {
@@ -36,12 +42,13 @@ async function revalidateRecursive(
   for (const doc of docs) {
     const docKey = `${doc.collection}:${doc.id}`
 
-    if (ROUTABLE_COLLECTIONS.has(doc.collection)) {
+    if (isRoutableCollection(doc.collection)) {
       if (visited.has(docKey)) continue
       visited.add(docKey)
+      const routableDoc: DocumentForRevalidation = { ...doc, collection: doc.collection }
       try {
-        await deps.revalidateDoc(doc)
-        revalidated.push(doc)
+        await deps.revalidateDoc(routableDoc)
+        revalidated.push(routableDoc)
       } catch (error) {
         logger.error(`Failed to revalidate ${doc.collection} ID ${doc.id}: ${error}`)
       }

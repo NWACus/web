@@ -7,13 +7,13 @@ jest.mock('payload', () => ({
 }))
 
 import { ReferenceQuery } from '@/utilities/findDocumentsWithReferences'
-import { DocumentForRevalidation } from '@/utilities/revalidateDocument'
+import { DocumentForRevalidation, DocumentReference } from '@/utilities/revalidateDocument'
 import {
   revalidateDocumentReferences,
   RevalidationDeps,
 } from '@/utilities/revalidateDocumentReferences'
 
-let mockFindRefs: jest.Mock<Promise<DocumentForRevalidation[]>, [ReferenceQuery]>
+let mockFindRefs: jest.Mock<Promise<DocumentReference[]>, [ReferenceQuery]>
 let mockRevalidateDoc: jest.Mock<Promise<void>, [DocumentForRevalidation]>
 let deps: RevalidationDeps
 
@@ -35,7 +35,7 @@ describe('revalidateDocumentReferences', () => {
   })
 
   it('calls revalidateDoc for routable documents', async () => {
-    const docs: DocumentForRevalidation[] = [
+    const docs: DocumentReference[] = [
       { collection: 'pages', id: 1, slug: 'about', tenant: 1 },
       { collection: 'posts', id: 10, slug: 'my-post', tenant: 2 },
       { collection: 'events', id: 20, slug: 'winter-event', tenant: 1 },
