@@ -32,8 +32,6 @@ jobs:
         shell: bash
       - name: 🧹 Run lint
         run: pnpm lint
-      - name: 🧹 Run eslint
-        run: pnpm eslint
       - name: 🧹 Check type assertions
         run: pnpm verify-type-assertions
 
