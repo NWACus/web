@@ -36,6 +36,7 @@ export const nacWidgetConfigurationSchema = z.object({
   avalancheCenterPlatforms: avalancheCenterPlatformsSchema,
   baseUrl: z.string(),
   version: z.string(),
+  devMode: z.boolean(),
 })
 export type NacWidgetConfigurationSchema = z.infer<typeof nacWidgetConfigurationSchema>
 

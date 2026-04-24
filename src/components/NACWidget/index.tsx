@@ -1,5 +1,6 @@
 'use client'
 
+import { useNACWidgetsConfig } from '@/providers/NACWidgetsConfigProvider'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
@@ -85,22 +86,19 @@ const loadCSS = (url: string): Promise<string> => {
 export function NACWidget({
   center,
   widget,
-  widgetsVersion,
-  widgetsBaseUrl,
   mediaMode,
 }: {
   center: string
   widget: Widget
-  widgetsVersion: string
-  widgetsBaseUrl: string
   mediaMode?: 'carousel' | 'grid'
 }) {
+  const { version, baseUrl, devMode } = useNACWidgetsConfig()
   const widgetId = `nac-widget-${widget}`
 
   // Removes any trailing slashes
-  const safeBaseUrl = widgetsBaseUrl.replace(/\/+$/, '')
+  const safeBaseUrl = baseUrl.replace(/\/+$/, '')
 
-  const scriptUrl = `${safeBaseUrl}/${widgetsVersion}`
+  const scriptUrl = `${safeBaseUrl}/${version}`
 
   const { scriptName, widgetDataKey, widgetControllerKey } = loadersByWidget[widget]
 
@@ -120,7 +118,7 @@ export function NACWidget({
     const widgetData = {
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
       centerId: fallbackCenter.toUpperCase(),
-      devMode: false,
+      devMode,
       mountId: `#${widgetId}`,
       baseUrl: baseUrl,
       controlledMount: true,

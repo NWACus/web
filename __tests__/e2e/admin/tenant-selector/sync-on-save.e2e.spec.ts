@@ -69,9 +69,9 @@ async function createTenant(
   // already filters out slugs that are in use, so any visible option is valid)
   const firstOption = slugField.locator('.rs__option').first()
   await firstOption.waitFor({ state: 'visible', timeout: 10000 })
-  // Extract slug from option text, e.g. "Bridgeport Avalanche Center (bac)" -> "bac"
+  // Extract slug from option text, e.g. "bac — Bridgeport Avalanche Center" -> "bac"
   const optionText = await firstOption.textContent()
-  const slugMatch = optionText?.match(/\((\w+)\)$/)
+  const slugMatch = optionText?.match(/^(\w+)\s+—/)
   if (!slugMatch) {
     throw new Error(`Could not extract slug from option text: ${optionText}`)
   }

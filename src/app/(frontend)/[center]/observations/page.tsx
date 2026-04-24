@@ -8,7 +8,6 @@ import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 import { ObservationLinkHijacker } from './ObservationLinkHijacker.client'
 
@@ -44,8 +43,6 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const { version, baseUrl } = await getNACWidgetsConfig()
-
   return (
     <>
       <WidgetRouterHandler initialPath="/view/observations" widgetPageKey="recent-observations" />
@@ -60,12 +57,7 @@ export default async function Page({ params }: Args) {
           </div>
           <ObservationsDisclaimer />
         </div>
-        <NACWidget
-          center={center}
-          widget={'observations'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
+        <NACWidget center={center} widget={'observations'} />
       </div>
     </>
   )

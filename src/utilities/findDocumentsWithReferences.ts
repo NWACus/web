@@ -9,9 +9,8 @@ export interface ReferenceQuery {
   id: number
 }
 
-// SanitizedCollectionConfig.slug is string but payload.find() requires CollectionSlug
-function isCollectionSlug(slug: string, validSlugs: Set<string>): slug is CollectionSlug {
-  return validSlugs.has(slug)
+function isCollectionSlug(slug: string, allSlugs: Set<string>): slug is CollectionSlug {
+  return allSlugs.has(slug)
 }
 
 /** Find all documents whose `documentReferences` field contains a reference to the given document. */
@@ -19,7 +18,6 @@ export async function findDocumentsWithReferences(
   reference: ReferenceQuery,
 ): Promise<DocumentForRevalidation[]> {
   const payload = await getPayload({ config: configPromise })
-  const results: DocumentForRevalidation[] = []
 
   const allSlugs = new Set(payload.config.collections.map((c) => c.slug))
 
@@ -27,10 +25,10 @@ export async function findDocumentsWithReferences(
     .filter((c) => c.fields.some((f) => 'name' in f && f.name === 'documentReferences'))
     .map((c) => ({ slug: c.slug, hasDrafts: Boolean(c.versions && c.versions.drafts) }))
 
-  for (const { slug: collectionSlug, hasDrafts } of collectionsWithReferences) {
-    if (!isCollectionSlug(collectionSlug, allSlugs)) continue
+  const settled = await Promise.allSettled(
+    collectionsWithReferences.map(async ({ slug: collectionSlug, hasDrafts }) => {
+      if (!isCollectionSlug(collectionSlug, allSlugs)) return []
 
-    try {
       // Only filter by _status for collections with drafts enabled
       const conditions: Where[] = hasDrafts ? [{ _status: { equals: 'published' } }] : []
       conditions.push(
@@ -47,24 +45,32 @@ export async function findDocumentsWithReferences(
         limit: 0,
       })
 
-      for (const doc of res.docs) {
+      return res.docs.flatMap((doc) => {
         // Payload's generated types don't have index signatures
         const record: Record<string, unknown> = { ...doc }
-
         const tenant = record['tenant']
-        if (!isTenantValue(tenant)) continue
+        if (!isTenantValue(tenant)) return []
 
-        results.push({
-          collection: collectionSlug,
-          id: doc.id,
-          slug: typeof record['slug'] === 'string' ? record['slug'] : '',
-          tenant,
-        })
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
+        return [
+          {
+            collection: collectionSlug,
+            id: doc.id,
+            slug: typeof record['slug'] === 'string' ? record['slug'] : '',
+            tenant,
+          },
+        ]
+      })
+    }),
+  )
+
+  const results: DocumentForRevalidation[] = []
+  for (const [i, result] of settled.entries()) {
+    if (result.status === 'fulfilled') {
+      results.push(...result.value)
+    } else {
+      const message = result.reason instanceof Error ? result.reason.message : String(result.reason)
       payload.logger.warn(
-        `Error querying ${collectionSlug} for ${reference.collection} reference ${reference.id}: ${message}`,
+        `Error querying ${collectionsWithReferences[i].slug} for ${reference.collection} reference ${reference.id}: ${message}`,
       )
     }
   }

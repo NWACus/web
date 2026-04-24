@@ -5,13 +5,9 @@ import ObservationsDisclaimer from '@/components/ObservationsDisclaimer'
 export default function SingleObservationPage({
   title,
   center,
-  widgetsVersion,
-  widgetsBaseUrl,
 }: {
   title: string
   center: string
-  widgetsVersion: string
-  widgetsBaseUrl: string
 }) {
   return (
     <div className="container flex flex-col gap-8">
@@ -29,12 +25,7 @@ export default function SingleObservationPage({
         </div>
         <ObservationsDisclaimer />
       </div>
-      <NACWidget
-        center={center}
-        widget={'observations'}
-        widgetsVersion={widgetsVersion}
-        widgetsBaseUrl={widgetsBaseUrl}
-      />
+      <NACWidget center={center} widget={'observations'} />
     </div>
   )
 }

@@ -91,7 +91,7 @@ describe('revalidateDocumentReferences', () => {
     ).resolves.toBeUndefined()
 
     expect(mockLogger.error).toHaveBeenCalledWith(
-      expect.stringContaining('Error during document reference revalidation for teams ID 3'),
+      expect.stringContaining('Failed to revalidate pages ID 1'),
     )
   })
 

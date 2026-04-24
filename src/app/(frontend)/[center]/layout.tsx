@@ -9,9 +9,11 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs.client'
 import { PostHogTenantRegister } from '@/components/PostHogTenantRegister.client'
 import { AvalancheCenterProvider } from '@/providers/AvalancheCenterProvider'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbProvider'
+import { NACWidgetsConfigProvider } from '@/providers/NACWidgetsConfigProvider'
 import { NotFoundProvider } from '@/providers/NotFoundProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { getAvalancheCenterMetadata, getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { getMediaURL, getURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
@@ -78,21 +80,27 @@ export default async function RootLayout({ children, params }: Args) {
   const metadata = await getAvalancheCenterMetadata(center)
   invariant(metadata, 'Could not determine avalanche center metadata')
 
+  const nacWidgetsConfig = await getNACWidgetsConfig()
+
   return (
     <NotFoundProvider>
       <BreadcrumbProvider>
         <TenantProvider tenant={tenant}>
           <PostHogTenantRegister />
           <AvalancheCenterProvider platforms={platforms} metadata={metadata}>
-            <div className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}>
-              <ThemeSetter theme={center} />
-              <Header center={center} />
-              <main className="flex-grow">
-                <Breadcrumbs />
-                {children}
-              </main>
-              <Footer center={center} />
-            </div>
+            <NACWidgetsConfigProvider config={nacWidgetsConfig}>
+              <div
+                className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}
+              >
+                <ThemeSetter theme={center} />
+                <Header center={center} />
+                <main className="flex-grow">
+                  <Breadcrumbs />
+                  {children}
+                </main>
+                <Footer center={center} />
+              </div>
+            </NACWidgetsConfigProvider>
           </AvalancheCenterProvider>
         </TenantProvider>
       </BreadcrumbProvider>

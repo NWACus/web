@@ -1,5 +1,6 @@
 import type { Block, SelectFieldValidation } from 'payload'
 
+import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 import colorPickerField from '@/fields/color'
 import {
   BlocksFeature,
@@ -143,6 +144,7 @@ export const ContentBlock: Block = {
                     SingleBlogPostBlock,
                     SponsorsBlock,
                   ],
+                  inlineBlocks: DEFAULT_INLINE_BLOCKS,
                 }),
                 HorizontalRuleFeature(),
                 InlineToolbarFeature(),

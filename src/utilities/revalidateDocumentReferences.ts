@@ -1,4 +1,5 @@
 import configPromise from '@payload-config'
+import type { PayloadLogger } from 'payload'
 import { getPayload } from 'payload'
 import { findDocumentsWithReferences, ReferenceQuery } from './findDocumentsWithReferences'
 import {
@@ -22,6 +23,7 @@ async function revalidateRecursive(
   reference: RevalidationReference,
   visited: Set<string>,
   deps: RevalidationDeps,
+  logger: PayloadLogger,
 ): Promise<DocumentForRevalidation[]> {
   const key = `${reference.collection}:${reference.id}`
   if (visited.has(key)) return []
@@ -37,8 +39,12 @@ async function revalidateRecursive(
     if (ROUTABLE_COLLECTIONS.has(doc.collection)) {
       if (visited.has(docKey)) continue
       visited.add(docKey)
-      await deps.revalidateDoc(doc)
-      revalidated.push(doc)
+      try {
+        await deps.revalidateDoc(doc)
+        revalidated.push(doc)
+      } catch (error) {
+        logger.error(`Failed to revalidate ${doc.collection} ID ${doc.id}: ${error}`)
+      }
     } else {
       // Non-routable intermediate collection — recurse to find routable documents beyond it
       // visited check happens at the top of the recursive call
@@ -46,6 +52,7 @@ async function revalidateRecursive(
         { collection: doc.collection, id: doc.id },
         visited,
         deps,
+        logger,
       )
       revalidated.push(...nested)
     }
@@ -66,7 +73,7 @@ export async function revalidateDocumentReferences(
 
   try {
     const visited = new Set<string>()
-    const revalidated = await revalidateRecursive(reference, visited, deps)
+    const revalidated = await revalidateRecursive(reference, visited, deps, payload.logger)
 
     payload.logger.info(
       `Revalidated ${revalidated.length} routable documents for ${reference.collection} ID ${reference.id}`,

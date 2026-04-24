@@ -6,7 +6,6 @@ import { getPayload } from 'payload'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
@@ -41,8 +40,6 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const { version, baseUrl } = await getNACWidgetsConfig()
-
   return (
     <>
       <WidgetRouterHandler initialPath="/form" widgetPageKey="submit-observation" />
@@ -52,12 +49,7 @@ export default async function Page({ params }: Args) {
             <h1 className="font-bold">Submit Observation</h1>
           </div>
         </div>
-        <NACWidget
-          center={center}
-          widget={'observations'}
-          widgetsVersion={version}
-          widgetsBaseUrl={baseUrl}
-        />
+        <NACWidget center={center} widget={'observations'} />
       </div>
     </>
   )

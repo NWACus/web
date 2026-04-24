@@ -3,7 +3,7 @@
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import { IframeResizer } from '@open-iframe-resizer/react'
-import DOMPurify from 'isomorphic-dompurify'
+import DOMPurify from 'dompurify'
 import { useEffect, useState } from 'react'
 import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
 

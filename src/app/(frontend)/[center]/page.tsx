@@ -7,7 +7,6 @@ import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
-import { getNACWidgetsConfig } from '@/utilities/getNACWidgetsConfig'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
@@ -48,8 +47,6 @@ export default async function Page({ params }: Args) {
   if (!isValidTenantSlug(center)) {
     notFound()
   }
-
-  const { version, baseUrl } = await getNACWidgetsConfig()
   const { quickLinks, highlightedContent, layout } =
     (await getCachedHomePage(center, draft)()) ?? {}
 
@@ -77,12 +74,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <NACWidget
-        center={center}
-        widget="warnings"
-        widgetsVersion={version}
-        widgetsBaseUrl={baseUrl}
-      />
+      <NACWidget center={center} widget="warnings" />
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
           <div
@@ -93,12 +85,7 @@ export default async function Page({ params }: Args) {
                 : undefined,
             }}
           >
-            <NACWidget
-              center={center}
-              widget="map"
-              widgetsVersion={version}
-              widgetsBaseUrl={baseUrl}
-            />
+            <NACWidget center={center} widget="map" />
           </div>
           {quickLinks && quickLinks.length > 0 && (
             <div className="flex flex-col gap-4">
