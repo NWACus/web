@@ -14,8 +14,6 @@ import { headers } from 'next/headers'
 import path from 'path'
 import { getPayload, type Payload, type PayloadRequest } from 'payload'
 
-// Server actions are POST endpoints reachable by anyone with the action ID —
-// gate every action behind a super-admin check before touching tenant data.
 async function authorize(): Promise<{ payload: Payload } | { error: string }> {
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: await headers() })
