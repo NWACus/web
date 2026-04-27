@@ -9,7 +9,17 @@ import type { DisplayMode, NavItem, NavLink, TopLevelNavItem } from './utils'
  * Putting them in their own file avoids this @payloadcms/drizzle import error.
  */
 
-type NavTab = Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
+type NavTab = Navigation[
+  | 'forecasts'
+  | 'observations'
+  | 'weather'
+  | 'education'
+  | 'accidents'
+  | 'about'
+  | 'support'
+  | 'blog'
+  | 'events'
+  | 'donate']
 
 // Payload-shaped nav item accepted by convertNavItem. Top-level items include
 // `label`; nested items don't. Both have `id`, `link`, and optional children.
@@ -28,9 +38,11 @@ type PayloadNavItem = {
  * - Returns an empty array if the tab is disabled, missing, or has no renderable content.
  */
 export function topLevelNavItem({ tab, label }: { tab: NavTab; label: string }): TopLevelNavItem[] {
-  if (!tab || tab.options?.enabled === false) return []
+  if (!tab) return []
+  const options = tab.options
+  if (options && 'enabled' in options && options.enabled === false) return []
 
-  const mode: DisplayMode = tab.options?.displayMode ?? 'dropdown'
+  const mode: DisplayMode = options?.displayMode ?? 'dropdown'
 
   if (mode === 'link' || mode === 'button') {
     if (!tab.link) return []

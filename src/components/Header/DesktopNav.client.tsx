@@ -2,7 +2,6 @@
 import { cn } from '@/utilities/ui'
 import { AccordionContent } from '@radix-ui/react-accordion'
 import { Accordion, AccordionItem, AccordionTrigger } from '../ui/accordion'
-import { Button } from '../ui/button'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -27,24 +26,13 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
 
           if (!label) return null
 
-          if (navItem.displayMode === 'button' && navItem.link) {
-            return (
-              <NavigationMenuItem key={label} value={label}>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
-                  <RenderNavLink link={navItem.link}>
-                    <Button variant="callout">{label}</Button>
-                  </RenderNavLink>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )
-          }
-
-          if (!navItem.items) {
+          if (navItem.displayMode === 'button' || navItem.displayMode === 'link') {
             return (
               <NavigationMenuItem key={label} value={label}>
                 <NavigationMenuLink asChild>
                   <RenderNavLink
                     link={navItem.link}
+                    displayMode={navItem.displayMode}
                     className={cn(navigationMenuTriggerStyle(), 'font-medium')}
                   />
                 </NavigationMenuLink>
@@ -52,7 +40,7 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
             )
           }
 
-          const firstNavItemWithSubItems = navItem.items.find(
+          const firstNavItemWithSubItems = navItem.items?.find(
             (item) => item.items && item.items.length > 0,
           )
 
@@ -77,7 +65,7 @@ export const DesktopNav = ({ topLevelNavItems }: { topLevelNavItems: TopLevelNav
                   className="grid min-w-max px-4 pt-2 pb-5 gap-2"
                   defaultValue={firstNavItemWithSubItems?.id}
                 >
-                  {navItem.items.map((item) => {
+                  {navItem.items?.map((item) => {
                     const hasSubItems = item.items && item.items.length > 0
 
                     return (

@@ -4,12 +4,7 @@ import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
-import {
-  convertToNavLink,
-  extractAllInternalUrls,
-  findNavigationItemBySlug,
-  topLevelNavItem,
-} from './utils-pure'
+import { extractAllInternalUrls, findNavigationItemBySlug, topLevelNavItem } from './utils-pure'
 
 export {
   convertToNavLink,
@@ -65,57 +60,14 @@ export const getTopLevelNavItems = async ({
   avalancheCenterPlatforms: AvalancheCenterPlatforms
   center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
-  const forecastItems: NavItem[] = (navigation.forecasts?.items ?? []).flatMap((item, i) => {
-    const itemId = item.id ?? String(i)
-
-    // Section with sub-items (e.g., "Zones" accordion)
-    if (item.items && item.items.length > 0) {
-      const subItems: NavItem[] = item.items.flatMap((sub, subIndex) => {
-        if (!sub.link) return []
-        const subLink = convertToNavLink(sub.link)
-        if (!subLink) return []
-        return [{ id: sub.id ?? `${itemId}-${subIndex}`, link: subLink }]
-      })
-      if (subItems.length === 0) return []
-      const navItem: NavItem = { id: itemId, items: subItems }
-      if ('label' in item && typeof item.label === 'string') {
-        navItem.label = item.label
-      }
-      return [navItem]
-    }
-
-    // Flat item with a direct link
-    if (!item.link) return []
-    const link = convertToNavLink(item.link)
-    if (!link) return []
-    return [{ id: itemId, link }]
-  })
-
-  const forecastsNavItem: TopLevelNavItem | undefined =
-    forecastItems.length > 0 ? { label: 'Forecasts', items: forecastItems } : undefined
-
-  const observationsItems: NavItem[] = (navigation.observations?.items ?? []).flatMap((item, i) => {
-    if (!item.link) return []
-    const link = convertToNavLink(item.link)
-    if (!link) return []
-    return [{ id: item.id ?? String(i), link }]
-  })
-
-  // SAC-specific observations archive link — revert this block when no longer needed
-  if (center === 'sac') {
-    observationsItems.push({
-      id: 'archive',
-      link: { type: 'internal', label: 'Observations Archive', url: '/observations-archive' },
-    })
-  }
-
-  const observationsNavItem: TopLevelNavItem | undefined =
-    observationsItems.length > 0 ? { label: 'Observations', items: observationsItems } : undefined
-
   const topLevelNavItems: TopLevelNavItem[] = [
-    ...(avalancheCenterPlatforms.forecasts && forecastsNavItem ? [forecastsNavItem] : []),
+    ...(avalancheCenterPlatforms.forecasts
+      ? topLevelNavItem({ tab: navigation.forecasts, label: 'Forecasts' })
+      : []),
     ...topLevelNavItem({ tab: navigation.weather, label: 'Weather' }),
-    ...(avalancheCenterPlatforms.obs && observationsNavItem ? [observationsNavItem] : []),
+    ...(avalancheCenterPlatforms.obs
+      ? topLevelNavItem({ tab: navigation.observations, label: 'Observations' })
+      : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
     ...topLevelNavItem({ tab: navigation.blog, label: 'Blog' }),
@@ -124,6 +76,17 @@ export const getTopLevelNavItems = async ({
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
     ...topLevelNavItem({ tab: navigation.donate, label: 'Donate' }),
   ]
+
+  // SAC-specific observations archive link — revert this block when no longer needed
+  if (center === 'sac') {
+    const observations = topLevelNavItems.find((item) => item.label === 'Observations')
+    if (observations?.items) {
+      observations.items.push({
+        id: 'archive',
+        link: { type: 'internal', label: 'Observations Archive', url: '/observations-archive' },
+      })
+    }
+  }
 
   // For button-mode internal links, resolve the canonical (navigation-nested) URL
   // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles

@@ -3,16 +3,24 @@ import { useAnalytics } from '@/utilities/useAnalytics'
 import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { ReactNode } from 'react'
-import { NavLink } from './utils'
+import { Button } from '../ui/button'
+import { DisplayMode, NavLink } from './utils'
 
 export interface RenderNavLinkProps {
   link?: NavLink | null
   className?: string
+  displayMode?: DisplayMode
   onClick?: (e?: React.MouseEvent<HTMLAnchorElement>) => void
   children?: ReactNode
 }
 
-export const RenderNavLink = ({ link, className = '', onClick, children }: RenderNavLinkProps) => {
+export const RenderNavLink = ({
+  link,
+  className = '',
+  displayMode,
+  onClick,
+  children,
+}: RenderNavLinkProps) => {
   const { captureWithTenant } = useAnalytics()
 
   if (!link) {
@@ -27,6 +35,13 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
     if (onClick) onClick(e)
   }
 
+  const content =
+    displayMode === 'button' ? (
+      <Button variant="callout">{children || link.label}</Button>
+    ) : (
+      children || link.label
+    )
+
   if (link.type === 'external') {
     return (
       <Link
@@ -35,7 +50,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
         className={cn(link.newTab && 'flex items-center', className)}
         onClick={onClickWithCapture}
       >
-        {children || link.label}
+        {content}
         {link.newTab && (
           <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2 -mt-1.5 lg:-mt-0.5 text-callout" />
         )}
@@ -46,7 +61,7 @@ export const RenderNavLink = ({ link, className = '', onClick, children }: Rende
   if (link.type === 'internal') {
     return (
       <Link href={link.url} className={className} onClick={onClickWithCapture}>
-        {children || link.label}
+        {content}
       </Link>
     )
   }

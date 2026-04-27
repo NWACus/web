@@ -2,7 +2,6 @@
 import { cn } from '@/utilities/ui'
 import { Dispatch, SetStateAction } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
-import { Button } from '../ui/button'
 import { RenderNavLink } from './RenderNavLink'
 import { DisplayMode, NavItem } from './utils'
 
@@ -24,24 +23,15 @@ export const MobileNavItem = ({
   setMobileNavOpen,
   className,
 }: MobileNavItemProps) => {
-  if (displayMode === 'button' && navItem.link) {
-    return (
-      <RenderNavLink
-        link={navItem.link}
-        className={cn('flex items-center py-3 px-2', className)}
-        onClick={() => setMobileNavOpen(false)}
-      >
-        <Button variant="callout">{label}</Button>
-      </RenderNavLink>
-    )
-  }
-
-  if (!navItem.items || navItem.items.length === 0) {
+  if (displayMode === 'button' || !navItem.items || navItem.items.length === 0) {
     return navItem.link ? (
       <RenderNavLink
         link={navItem.link}
+        displayMode={displayMode}
         className={cn(
-          'flex items-center py-3 text-base px-2 hover:text-header-foreground-highlight font-medium',
+          displayMode === 'button'
+            ? 'flex items-center py-3 px-2'
+            : 'flex items-center py-3 text-base px-2 hover:text-header-foreground-highlight font-medium',
           className,
         )}
         onClick={() => setMobileNavOpen(false)}
