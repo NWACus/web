@@ -1,13 +1,13 @@
 import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
-import { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
+import { SeedForecastZone } from './forecast-zones'
 
 export const navigationSeed = (
   payload: Payload,
   pages: Record<string, Record<string, Page>>,
   builtInPages: Record<string, Record<string, BuiltInPage>>,
   tenant: Tenant,
-  forecastZonesByTenant: Record<string, ActiveForecastZoneWithSlug[]> = {},
+  forecastZonesByTenant: Record<string, SeedForecastZone[]> = {},
 ): RequiredDataFromCollectionSlug<'navigations'> => {
   const pageLink = ({
     slug,
@@ -76,9 +76,7 @@ export const navigationSeed = (
     }
   }
 
-  const zones = (forecastZonesByTenant[tenant.slug] ?? []).sort(
-    (a, b) => (a.zone.rank ?? Infinity) - (b.zone.rank ?? Infinity),
-  )
+  const zones = (forecastZonesByTenant[tenant.slug] ?? []).sort((a, b) => a.rank - b.rank)
 
   return {
     _status: 'published',
@@ -107,10 +105,10 @@ export const navigationSeed = (
               },
               {
                 label: 'Zones',
-                items: zones.map(({ zone, slug }) => ({
+                items: zones.map(({ name, slug }) => ({
                   link: builtInPageLink({
                     url: `/forecasts/avalanche/${slug}`,
-                    label: zone.name,
+                    label: name,
                   }),
                 })),
               },

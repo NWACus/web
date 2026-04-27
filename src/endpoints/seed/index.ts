@@ -16,12 +16,12 @@ import type {
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
-import { getActiveForecastZones } from '@/services/nac/nac'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { seedCourses } from './courses'
 import { getEventsData } from './events'
+import { forecastZonesByTenant } from './forecast-zones'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
@@ -952,14 +952,6 @@ export const seed = async ({
       ),
     )
 
-    const forecastZonesByTenant: Record<
-      string,
-      Awaited<ReturnType<typeof getActiveForecastZones>>
-    > = {}
-    for (const tenant of Object.values(tenants)) {
-      forecastZonesByTenant[tenant.slug] = await getActiveForecastZones(tenant.slug)
-    }
-
     const builtInPages = await upsert(
       'builtInPages',
       payload,
@@ -974,8 +966,8 @@ export const seed = async ({
               ? [builtInPage(tenant, 'Avalanche Forecast', `/forecasts/avalanche/${zones[0].slug}`)]
               : [
                   builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
-                  ...zones.map(({ zone, slug }) =>
-                    builtInPage(tenant, zone.name, `/forecasts/avalanche/${slug}`),
+                  ...zones.map(({ name, slug }) =>
+                    builtInPage(tenant, name, `/forecasts/avalanche/${slug}`),
                   ),
                 ]
           return [
