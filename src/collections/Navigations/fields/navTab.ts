@@ -8,9 +8,9 @@ const isDisplayMode = (value: unknown): value is DisplayMode =>
   value === 'dropdown' || value === 'link' || value === 'button'
 
 const MODE_OPTIONS: { label: string; value: DisplayMode }[] = [
-  { label: 'Dropdown — a menu of sub-items', value: 'dropdown' },
-  { label: 'Link — a single clickable link to one page', value: 'link' },
-  { label: 'Button — a styled call-to-action button', value: 'button' },
+  { label: 'Dropdown', value: 'dropdown' },
+  { label: 'Link', value: 'link' },
+  { label: 'Button', value: 'button' },
 ]
 
 const getMode = (siblingData: unknown): DisplayMode | null => {
@@ -41,11 +41,13 @@ export const navTab = ({
 }): Tab => {
   const displayModeField: Field = {
     name: 'displayMode',
-    type: 'radio',
+    type: 'select',
     defaultValue: defaultMode,
     options: MODE_OPTIONS,
     admin: {
-      layout: 'vertical',
+      components: {
+        Field: '@/components/Navigations/DisplayModePicker',
+      },
     },
   }
 
