@@ -164,7 +164,7 @@ describe('OnboardingChecklist', () => {
       render(<OnboardingChecklist />)
       await flushAsync()
 
-      expect(screen.getByText('Rerun')).toBeInTheDocument()
+      expect(screen.getByText('Rerun provisioning')).toBeInTheDocument()
     })
   })
 
@@ -204,7 +204,7 @@ describe('OnboardingChecklist', () => {
       render(<OnboardingChecklist />)
       await flushAsync()
 
-      expect(screen.getByText('Rerun')).toBeInTheDocument()
+      expect(screen.getByText('Rerun provisioning')).toBeInTheDocument()
     })
 
     it('renders the timedOut message when stale in_progress was recovered', async () => {
@@ -242,11 +242,11 @@ describe('OnboardingChecklist', () => {
       })
     })
 
-    it('shows "Complete manual actions" header', async () => {
+    it('shows the manual-actions header', async () => {
       render(<OnboardingChecklist />)
       await flushAsync()
 
-      expect(screen.getByText('Complete manual actions')).toBeInTheDocument()
+      expect(screen.getByText('Complete — manual actions remaining')).toBeInTheDocument()
     })
 
     it('still renders the theme nag items', async () => {

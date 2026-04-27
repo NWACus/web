@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle2, Circle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
+import { Label } from '@radix-ui/react-label'
 import { formatDate } from 'date-fns/format'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { needsProvisioning } from './needsProvisioning'
@@ -145,149 +146,163 @@ export function OnboardingChecklist() {
   const showPlaceholders = status.status === 'not_started' || status.status === 'in_progress'
 
   return (
-    <div className="rounded-lg border-solid border-[var(--theme-border-color)] p-6">
-      <h3 className="mb-4">Onboarding Checklist</h3>
+    <>
+      <div className="rounded-lg border-solid border-[var(--theme-border-color)] p-6">
+        <h3 className="mb-4">Onboarding Checklist</h3>
 
-      {/* Initial load — waiting for checkProvisioningStatusAction to return */}
-      {showInitialLoader && (
-        <div className="py-4 flex items-center gap-3">
-          <Loader2
-            data-testid="spinner"
-            size={20}
-            className="shrink-0"
-            style={{ animation: 'spin 1s linear infinite', color: 'var(--theme-text)' }}
-          />
-          <span className="opacity-70">Loading...</span>
-        </div>
-      )}
+        {showInitialLoader && (
+          <div className="py-4 flex items-center gap-3">
+            <Loader2
+              data-testid="spinner"
+              size={20}
+              className="shrink-0"
+              style={{ animation: 'spin 1s linear infinite', color: 'var(--theme-text)' }}
+            />
+            <span className="opacity-70">Loading...</span>
+          </div>
+        )}
 
-      {/* Header section — shown once provisioning has run at least once */}
-      {showChecklist &&
-        (status.status === 'complete' ||
-          status.status === 'partial' ||
-          status.status === 'manual') && (
-          <div className="mb-4 pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {status.status === 'complete' ? (
-                  <>
-                    <CheckCircle2 size={20} className="shrink-0 text-success" />
-                    <span>Complete</span>
-                  </>
-                ) : status.status === 'manual' ? (
-                  <>
-                    <AlertTriangle size={20} className="shrink-0 text-warning" />
-                    <span>Complete manual actions</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle size={20} className="shrink-0 text-warning" />
-                    <span>Failed</span>
-                  </>
-                )}
+        {/* Header section — shown once provisioning has run at least once */}
+        {showChecklist &&
+          (status.status === 'complete' ||
+            status.status === 'partial' ||
+            status.status === 'manual') && (
+            <div className="mb-4 pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {status.status === 'complete' ? (
+                    <>
+                      <CheckCircle2 size={20} className="shrink-0 text-success" />
+                      <span>Complete</span>
+                    </>
+                  ) : status.status === 'manual' ? (
+                    <>
+                      <CheckCircle2 size={20} className="shrink-0 text-success" />
+                      <span>Complete — manual actions remaining</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle size={20} className="shrink-0 text-warning" />
+                      <span>Failed</span>
+                    </>
+                  )}
+                </div>
               </div>
-              <Button
-                className="m-0"
-                onClick={handleProvision}
-                disabled={isProvisioning}
-                size="medium"
-                buttonStyle="secondary"
-              >
-                Rerun
-              </Button>
+              {status.status === 'partial' && (
+                <div className="text-sm ml-9 mb-4 space-y-2">
+                  {status.failed.timedOut && (
+                    <div className="opacity-70">{status.failed.timedOut}</div>
+                  )}
+                  {status.failed.websiteSettings && (
+                    <div className="opacity-70">Website settings failed to provision.</div>
+                  )}
+                  {status.failed.homePage && (
+                    <div className="opacity-70">Home page failed to provision.</div>
+                  )}
+                  {status.failed.navigation && (
+                    <div className="opacity-70">Navigation failed to provision.</div>
+                  )}
+                  {status.failed.pages && Object.keys(status.failed.pages).length > 0 && (
+                    <div>
+                      <div className="font-semibold opacity-80">Missing pages:</div>
+                      <ul className="list-disc pl-5 opacity-70">
+                        {Object.keys(status.failed.pages).map((name) => (
+                          <li key={name}>{name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            {status.status === 'partial' && (
-              <div className="text-sm ml-9 mb-4 space-y-2">
-                {status.failed.timedOut && (
-                  <div className="opacity-70">{status.failed.timedOut}</div>
-                )}
-                {status.failed.websiteSettings && (
-                  <div className="opacity-70">Website settings failed to provision.</div>
-                )}
-                {status.failed.homePage && (
-                  <div className="opacity-70">Home page failed to provision.</div>
-                )}
-                {status.failed.navigation && (
-                  <div className="opacity-70">Navigation failed to provision.</div>
-                )}
-                {status.failed.pages && Object.keys(status.failed.pages).length > 0 && (
-                  <div>
-                    <div className="font-semibold opacity-80">Missing pages:</div>
-                    <ul className="list-disc pl-5 opacity-70">
-                      {Object.keys(status.failed.pages).map((name) => (
-                        <li key={name}>{name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+          )}
+
+        {/* Manual steps — always visible as a nag until configured */}
+        {showChecklist && (
+          <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
+            <h4 className="mb-2">Needs action</h4>
+
+            {showPlaceholders && (
+              <>
+                <ChecklistItem loading={isProvisioning} done={false} label="Home page" />
+                <ChecklistItem loading={isProvisioning} done={false} label="Pages" />
+                <ChecklistItem loading={isProvisioning} done={false} label="Navigation" />
+                <ChecklistItem loading={isProvisioning} done={false} label="Website Settings" />
+              </>
+            )}
+
+            <ChecklistItem
+              loading={isProvisioning}
+              done={theme.brandColors}
+              label="Add brand colors"
+            >
+              {!theme.brandColors && (
+                <span>
+                  Add slug to <code>colors.css</code> — see{' '}
+                  <Link
+                    href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
+                    target="_blank"
+                  >
+                    docs/onboarding.md
+                  </Link>
+                </span>
+              )}
+            </ChecklistItem>
+            <ChecklistItem
+              loading={isProvisioning}
+              done={theme.ogColors}
+              label="Add OG image colors"
+            >
+              {!theme.ogColors && (
+                <span>
+                  Add slug to <code>centerColorMap</code> — see{' '}
+                  <Link
+                    href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
+                    target="_blank"
+                  >
+                    docs/onboarding.md
+                  </Link>
+                </span>
+              )}
+            </ChecklistItem>
+            {status.settings.id && (
+              <div className="py-2  opacity-70">
+                Update avy center brand assets & info in{' '}
+                <Link
+                  href={`/admin/collections/settings/${status.settings.id}`}
+                  onClick={() => {
+                    setTenant({ slug: data?.slug }) // Switch selected tenant to avoid redirect
+                  }}
+                >
+                  Website Settings
+                </Link>
+              </div>
+            )}
+            {(status.status === 'complete' ||
+              status.status === 'partial' ||
+              status.status === 'manual') && (
+              <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-4 text-sm opacity-70">
+                <strong>Last provisioned:</strong>&nbsp;
+                {status.lastRunAt && formatDate(status.lastRunAt, 'PPpp')}
               </div>
             )}
           </div>
         )}
-
-      {/* Manual steps — always visible as a nag until configured */}
-      {showChecklist && (
-        <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-3">
-          <h4 className="mb-2">Needs action</h4>
-
-          {showPlaceholders && (
-            <>
-              <ChecklistItem loading={isProvisioning} done={false} label="Home page" />
-              <ChecklistItem loading={isProvisioning} done={false} label="Pages" />
-              <ChecklistItem loading={isProvisioning} done={false} label="Navigation" />
-              <ChecklistItem loading={isProvisioning} done={false} label="Website Settings" />
-            </>
-          )}
-
-          <ChecklistItem loading={isProvisioning} done={theme.brandColors} label="Add brand colors">
-            {!theme.brandColors && (
-              <span>
-                Add slug to <code>colors.css</code> — see{' '}
-                <Link
-                  href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
-                  target="_blank"
-                >
-                  docs/onboarding.md
-                </Link>
-              </span>
-            )}
-          </ChecklistItem>
-          <ChecklistItem loading={isProvisioning} done={theme.ogColors} label="Add OG image colors">
-            {!theme.ogColors && (
-              <span>
-                Add slug to <code>centerColorMap</code> — see{' '}
-                <Link
-                  href="https://github.com/NWACus/web/blob/main/docs/onboarding.md#theme"
-                  target="_blank"
-                >
-                  docs/onboarding.md
-                </Link>
-              </span>
-            )}
-          </ChecklistItem>
-          {status.settings.id && (
-            <div className="py-2  opacity-70">
-              Update avy center brand assets & info in{' '}
-              <Link
-                href={`/admin/collections/settings/${status.settings.id}`}
-                onClick={() => {
-                  setTenant({ slug: data?.slug }) // Switch selected tenant to avoid redirect
-                }}
-              >
-                Website Settings
-              </Link>
-            </div>
-          )}
-          {(status.status === 'complete' ||
-            status.status === 'partial' ||
-            status.status === 'manual') && (
-            <div className="mt-3 border-0 border-t border-solid border-t-[var(--theme-border-color)] pt-4 text-sm opacity-70">
-              <strong>Last provisioned:</strong>&nbsp;
-              {status.lastRunAt && formatDate(status.lastRunAt, 'PPpp')}
-            </div>
-          )}
+      </div>
+      {showChecklist && status.status !== 'in_progress' && status.status !== 'not_started' && (
+        <div className="flex items-center justify-between mt-5">
+          <Label>Something not right?</Label>
+          <Button
+            className="m-0"
+            onClick={handleProvision}
+            disabled={isProvisioning}
+            size="medium"
+            buttonStyle="secondary"
+          >
+            Rerun provisioning
+          </Button>
         </div>
       )}
-    </div>
+    </>
   )
 }
