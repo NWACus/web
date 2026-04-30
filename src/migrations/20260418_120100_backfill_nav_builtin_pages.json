@@ -16756,6 +16756,28 @@
           "notNull": false,
           "autoincrement": false
         },
+        "provisioning_status": {
+          "name": "provisioning_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'not_started'"
+        },
+        "provisioning_last_run_at": {
+          "name": "provisioning_last_run_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "provisioning_failed": {
+          "name": "provisioning_failed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
@@ -25036,6 +25058,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "05dd95cd-8e9c-44ca-9a19-76f8428d8016",
+  "id": "724a8da7-a2ff-4afa-9b2a-78ed8d2afdc9",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

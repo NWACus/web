@@ -52,7 +52,6 @@ import * as migration_20260414_030934_backfill_document_references from './20260
 import * as migration_20260417_202409_add_dev_mode from './20260417_202409_add_dev_mode'
 import * as migration_20260418_120000_convert_auto_nav_items from './20260418_120000_convert_auto_nav_items'
 import * as migration_20260418_120100_backfill_nav_builtin_pages from './20260418_120100_backfill_nav_builtin_pages'
-import * as migration_20260421_181446_add_tenant_provisioning_field from './20260421_181446_add_tenant_provisioning_field'
 
 export const migrations = [
   {
@@ -324,10 +323,5 @@ export const migrations = [
     up: migration_20260418_120100_backfill_nav_builtin_pages.up,
     down: migration_20260418_120100_backfill_nav_builtin_pages.down,
     name: '20260418_120100_backfill_nav_builtin_pages',
-  },
-  {
-    up: migration_20260421_181446_add_tenant_provisioning_field.up,
-    down: migration_20260421_181446_add_tenant_provisioning_field.down,
-    name: '20260421_181446_add_tenant_provisioning_field',
   },
 ]

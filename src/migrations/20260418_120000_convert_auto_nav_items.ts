@@ -401,9 +401,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`ALTER TABLE \`_navigations_v\` ADD \`version_donate_options_display_mode\` text DEFAULT 'button';`,
   )
+
+  // status defaults to 'not_started' so existing rows satisfy NOT NULL.
+  // lastRunAt and failed are nullable — brand-new tenants have no run yet.
+  await db.run(
+    sql`ALTER TABLE \`tenants\` ADD \`provisioning_status\` text DEFAULT 'not_started' NOT NULL;`,
+  )
+  await db.run(sql`ALTER TABLE \`tenants\` ADD \`provisioning_last_run_at\` text;`)
+  await db.run(sql`ALTER TABLE \`tenants\` ADD \`provisioning_failed\` text;`)
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+  await db.run(sql`ALTER TABLE \`tenants\` DROP COLUMN \`provisioning_failed\`;`)
+  await db.run(sql`ALTER TABLE \`tenants\` DROP COLUMN \`provisioning_last_run_at\`;`)
+  await db.run(sql`ALTER TABLE \`tenants\` DROP COLUMN \`provisioning_status\`;`)
   await db.run(sql`DROP TABLE \`navigations_forecasts_items_items\`;`)
   await db.run(sql`DROP TABLE \`navigations_forecasts_items\`;`)
   await db.run(sql`DROP TABLE \`navigations_observations_items_items\`;`)

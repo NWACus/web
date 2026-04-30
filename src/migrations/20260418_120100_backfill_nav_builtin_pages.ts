@@ -255,6 +255,19 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
 
     payload.logger.info(`  Backfilled nav for ${tenant.slug}`)
   }
+
+  // Backfill provisioning state for tenants with evidence of a successful
+  // provision — a settings row, a home page, AND a navigation. Half-provisioned
+  // tenants stay at the default 'not_started' so the checklist surfaces a
+  // Rerun affordance instead of claiming they're done.
+  await db.run(sql`
+    UPDATE \`tenants\`
+    SET \`provisioning_status\` = 'complete',
+        \`provisioning_last_run_at\` = \`created_at\`
+    WHERE EXISTS (SELECT 1 FROM \`settings\` WHERE \`settings\`.\`tenant_id\` = \`tenants\`.\`id\`)
+      AND EXISTS (SELECT 1 FROM \`home_pages\` WHERE \`home_pages\`.\`tenant_id\` = \`tenants\`.\`id\`)
+      AND EXISTS (SELECT 1 FROM \`navigations\` WHERE \`navigations\`.\`tenant_id\` = \`tenants\`.\`id\`)
+  `)
 }
 
 export async function down({ payload }: MigrateDownArgs): Promise<void> {
