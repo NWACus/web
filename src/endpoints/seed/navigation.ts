@@ -119,6 +119,16 @@ export const navigationSeed = (
       items: [
         { link: builtInPageLink({ url: '/observations', label: 'Recent Observations' }) },
         { link: builtInPageLink({ url: '/observations/submit', label: 'Submit Observations' }) },
+        ...(tenant.slug === 'sac'
+          ? [
+              {
+                link: builtInPageLink({
+                  url: '/observations-archive',
+                  label: 'Observations Archive',
+                }),
+              },
+            ]
+          : []),
       ],
     },
     weather: {

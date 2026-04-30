@@ -54,11 +54,9 @@ export type TopLevelNavItem =
 export const getTopLevelNavItems = async ({
   navigation,
   avalancheCenterPlatforms,
-  center,
 }: {
   navigation: Navigation
   avalancheCenterPlatforms: AvalancheCenterPlatforms
-  center: string
 }): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
   const topLevelNavItems: TopLevelNavItem[] = [
     ...(avalancheCenterPlatforms.forecasts
@@ -76,17 +74,6 @@ export const getTopLevelNavItems = async ({
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
     ...topLevelNavItem({ tab: navigation.donate, label: 'Donate' }),
   ]
-
-  // SAC-specific observations archive link — revert this block when no longer needed
-  if (center === 'sac') {
-    const observations = topLevelNavItems.find((item) => item.label === 'Observations')
-    if (observations?.items) {
-      observations.items.push({
-        id: 'archive',
-        link: { type: 'internal', label: 'Observations Archive', url: '/observations-archive' },
-      })
-    }
-  }
 
   // For button-mode internal links, resolve the canonical (navigation-nested) URL
   // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
@@ -132,7 +119,6 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
       return await getTopLevelNavItems({
         navigation,
         avalancheCenterPlatforms,
-        center,
       })
     },
     [`top-level-nav-items-${center}`],

@@ -112,6 +112,10 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
       { title: 'Events', url: '/events' },
     )
 
+    if (tenant.slug === 'sac') {
+      pagesToEnsure.push({ title: 'Observations Archive', url: '/observations-archive' })
+    }
+
     const allExisting = await payload.find({
       collection: 'builtInPages',
       where: { tenant: { equals: tenant.id } },
@@ -227,6 +231,9 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
     const obsItems = [
       { label: 'Recent Observations', url: '/observations' },
       { label: 'Submit Observations', url: '/observations/submit' },
+      ...(tenant.slug === 'sac'
+        ? [{ label: 'Observations Archive', url: '/observations-archive' }]
+        : []),
     ]
     for (let i = 0; i < obsItems.length; i++) {
       const { label, url } = obsItems[i]

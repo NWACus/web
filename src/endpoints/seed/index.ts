@@ -977,6 +977,9 @@ export const seed = async ({
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
             builtInPage(tenant, 'Blog', '/blog'),
             builtInPage(tenant, 'Events', '/events'),
+            ...(tenant.slug === 'sac'
+              ? [builtInPage(tenant, 'Observations Archive', '/observations-archive')]
+              : []),
           ]
         })
         .flat(),
