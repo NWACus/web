@@ -1,22 +1,18 @@
-import { BuiltInPage, Navigation, Page, Post } from '@/payload-types'
-import {
-  ActiveForecastZoneWithSlug,
-  getActiveForecastZones,
-  getAvalancheCenterPlatforms,
-} from '@/services/nac/nac'
+import { Navigation } from '@/payload-types'
+import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { AvalancheCenterPlatforms } from '@/services/nac/types/schemas'
-import { normalizePath } from '@/utilities/path'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
-import invariant from 'tiny-invariant'
-import { extractAllInternalUrls, findNavigationItemBySlug } from './utils-pure'
+import { extractAllInternalUrls, findNavigationItemBySlug, topLevelNavItem } from './utils-pure'
 
 export {
+  convertToNavLink,
   extractAllInternalUrls,
   findNavigationItemBySlug,
   getCanonicalUrlsFromNavigation,
   getNavigationPathForSlug,
+  topLevelNavItem,
 } from './utils-pure'
 
 export type NavLink =
@@ -39,392 +35,65 @@ export type NavItem = {
   items?: NavItem[]
 }
 
+export type DisplayMode = 'dropdown' | 'link' | 'button'
+
 export type TopLevelNavItem =
   | {
+      displayMode?: DisplayMode
       link: NavLink
       label?: string
       items?: NavItem[]
     }
   | {
+      displayMode?: DisplayMode
       label: string
       link?: NavLink
       items?: NavItem[]
     }
 
-/**
- * Convenience function to validate and convert a payload topLevelNavTab to a frontend TopLevelNavItem.
- *
- * @returns TopLevelNavItem in an array if the topLevelNavTab is valid or an empty array if invalid.
- */
-function topLevelNavItem({
-  tab,
-  label,
-}: {
-  tab: Navigation['weather' | 'education' | 'accidents' | 'about' | 'support']
-  label: string
-}): TopLevelNavItem[] {
-  if (!tab || tab.options?.enabled === false) {
-    return []
-  }
-
-  const result: TopLevelNavItem = {
-    label,
-  }
-
-  if (tab.items && tab.items.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    result.items = tab.items
-      .map((item) => {
-        if (!item) return null
-
-        invariant(item.id, `Tab ${label} has an item without an id.`)
-
-        const navItem: NavItem = {
-          id: item.id,
-        }
-
-        // Capture standalone label for items that have sub-items but no link
-        if ('label' in item && typeof item.label === 'string') {
-          navItem.label = item.label
-        }
-
-        if (item.link) {
-          const convertedLink = convertToNavLink(item.link, [label.toLowerCase()])
-          if (convertedLink) {
-            navItem.link = convertedLink
-          }
-        }
-
-        if (item.items && item.items.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          navItem.items = item.items
-            .map((nestedItem, index) => {
-              if (!nestedItem) return null
-
-              invariant(nestedItem.id, `Tab ${label}[${item.id}][${index}] has no id.`)
-
-              const nestedNavItem: NavItem = {
-                id: nestedItem.id,
-              }
-
-              if (nestedItem.link) {
-                // Use standalone label (for accordion items) or link label for parent path segment
-                const parentLabel = navItem.label || navItem.link?.label
-                const convertedNestedLink = convertToNavLink(nestedItem.link, [
-                  label.toLowerCase(),
-                  ...(parentLabel ? [parentLabel.toLowerCase()] : []),
-                ])
-                if (convertedNestedLink) {
-                  nestedNavItem.link = convertedNestedLink
-                }
-              }
-
-              return nestedNavItem.link ? nestedNavItem : null
-            })
-            .filter(Boolean) as NavItem[]
-
-          if (navItem.items && navItem.items.length === 0) {
-            delete navItem.items
-          }
-        }
-
-        return navItem.link || (navItem.items && navItem.items.length > 0) ? navItem : null
-      })
-      .filter(Boolean) as NavItem[]
-
-    if (result.items && result.items.length === 0) {
-      delete result.items
-    }
-  }
-
-  // Only return the result if it has a link or items
-  return result.link || (result.items && result.items.length > 0) ? [result] : []
-}
-
-/**
- * Helper function to convert a payload navLink (@/fields/navLinks) to a frontend NavLink
- * Throws if the link is missing expected data.
- * Returns undefined if the link is invalid.
- */
-export function convertToNavLink(
-  link: {
-    type?: ('internal' | 'external') | null
-    reference?:
-      | ({
-          relationTo: 'builtInPages'
-          value: number | BuiltInPage
-        } | null)
-      | ({
-          relationTo: 'pages'
-          value: number | Page
-        } | null)
-      | ({
-          relationTo: 'posts'
-          value: number | Post
-        } | null)
-
-    url?: string | null
-    label?: string | null
-    newTab?: boolean | null
-  },
-  parentItems?: string[],
-): NavLink | undefined {
-  let linkLabel: string | undefined = link.label || undefined
-
-  // external links
-  if (link.type === 'external' && link.url) {
-    invariant(linkLabel, `Label not set for external link with url ${link.url}`)
-
-    return {
-      type: 'external',
-      label: linkLabel,
-      url: link.url,
-      newTab: !!link.newTab,
-    }
-  }
-
-  // internal page/post/builtInPage reference links
-  if (link.type === 'internal' && link.reference) {
-    const reference = link.reference
-
-    invariant(
-      typeof reference.value !== 'number',
-      `Link reference.value is a number. Depth not set correctly on navigations collection query.`,
-    )
-
-    if (
-      !linkLabel &&
-      typeof reference.value === 'object' &&
-      reference.value &&
-      'title' in reference.value
-    ) {
-      linkLabel = reference.value.title
-    }
-
-    invariant(
-      linkLabel,
-      `Could not determine label for link with reference ${JSON.stringify(reference)}`,
-    )
-
-    if (reference.relationTo === 'pages' || reference.relationTo === 'posts') {
-      // Do not render documents in draft state
-      if ('_status' in reference.value && reference.value._status === 'draft') {
-        return undefined
-      }
-
-      let url =
-        link.reference.relationTo === 'pages'
-          ? `/${reference.value.slug}`
-          : `/blog/${reference.value.slug}`
-
-      if (parentItems?.length && parentItems.length > 0) {
-        url = normalizePath(`/${parentItems.join('/')}${url}`, { ensureLeadingSlash: true })
-      }
-
-      return {
-        type: 'internal',
-        label: linkLabel,
-        url,
-      }
-    }
-
-    if (reference.relationTo === 'builtInPages') {
-      const url = normalizePath(reference.value.url, { ensureLeadingSlash: true })
-
-      return {
-        type: 'internal',
-        label: linkLabel,
-        url,
-      }
-    }
-  }
-
-  // internal hardcoded links
-  if (link.type === 'internal' && link.url) {
-    invariant(linkLabel, `Label not set for internal relative link with url ${link.url}`)
-
-    let url = normalizePath(link.url, { ensureLeadingSlash: true })
-
-    if (parentItems?.length && parentItems.length > 0) {
-      url = normalizePath(`/${parentItems.join('/')}${url}`, { ensureLeadingSlash: true })
-    }
-
-    return {
-      type: 'internal',
-      label: linkLabel,
-      url,
-    }
-  }
-
-  return undefined
-}
-
 export const getTopLevelNavItems = async ({
   navigation,
-  activeForecastZones,
   avalancheCenterPlatforms,
-  center,
 }: {
   navigation: Navigation
-  activeForecastZones?: ActiveForecastZoneWithSlug[]
   avalancheCenterPlatforms: AvalancheCenterPlatforms
-  center: string
-}): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
-  let forecastsNavItem: TopLevelNavItem = {
-    link: {
-      label: 'Forecasts',
-      type: 'internal',
-      url: '/forecasts/avalanche',
-    },
-  }
-
-  if (activeForecastZones && activeForecastZones.length > 0 && avalancheCenterPlatforms.forecasts) {
-    if (activeForecastZones.length === 1) {
-      forecastsNavItem = {
-        link: {
-          label: 'Avalanche Forecast',
-          type: 'internal',
-          url: `/forecasts/avalanche/${activeForecastZones[0].slug}`,
-        },
-      }
-    } else {
-      const zoneLinks: NavItem[] = activeForecastZones
-        .sort((zoneA, zoneB) => (zoneA.zone.rank ?? Infinity) - (zoneB.zone.rank ?? Infinity))
-        .map(({ zone, slug }) => {
-          return {
-            id: slug || zone.name,
-            link: {
-              type: 'internal',
-              label: zone.name,
-              url: slug ? `/forecasts/avalanche/${slug}` : '/forecasts/avalanche',
-            },
-          }
-        })
-
-      forecastsNavItem = {
-        label: 'Forecasts',
-        items: [
-          {
-            id: 'all',
-            link: {
-              type: 'internal',
-              label: 'All Forecasts',
-              url: '/forecasts/avalanche',
-            },
-          },
-          {
-            id: 'zones',
-            items: zoneLinks,
-            link: {
-              type: 'internal',
-              label: 'Zones',
-              url: '/forecasts/avalanche',
-            },
-          },
-        ],
-      }
-    }
-  }
-
-  const observationsNavItem: TopLevelNavItem = {
-    label: 'Observations',
-    items: [
-      {
-        id: 'recent',
-        link: {
-          type: 'internal',
-          label: 'Recent Observations',
-          url: '/observations',
-        },
-      },
-      {
-        id: 'submit',
-        link: {
-          type: 'internal',
-          label: 'Submit Observation',
-          url: '/observations/submit',
-        },
-      },
-    ],
-  }
-
-  // SAC-specific observations archive link — revert this block when no longer needed
-  if (center === 'sac') {
-    observationsNavItem.items?.push({
-      id: 'archive',
-      link: {
-        type: 'internal',
-        label: 'Observations Archive',
-        url: '/observations-archive',
-      },
-    })
-  }
-
-  const blogNavItem: TopLevelNavItem = {
-    label: 'Blog',
-    link: {
-      label: 'Blog',
-      type: 'internal',
-      url: '/blog',
-    },
-  }
-
-  const eventsNavItem: TopLevelNavItem = {
-    label: 'Events',
-    link: {
-      label: 'Events',
-      type: 'internal',
-      url: '/events',
-    },
-  }
-
+}): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
   const topLevelNavItems: TopLevelNavItem[] = [
-    ...(avalancheCenterPlatforms.forecasts ? [forecastsNavItem] : []),
-    ...topLevelNavItem({
-      tab: navigation.weather,
-      label: 'Weather',
-    }),
-    ...(avalancheCenterPlatforms.obs ? [observationsNavItem] : []),
+    ...(avalancheCenterPlatforms.forecasts
+      ? topLevelNavItem({ tab: navigation.forecasts, label: 'Forecasts' })
+      : []),
+    ...topLevelNavItem({ tab: navigation.weather, label: 'Weather' }),
+    ...(avalancheCenterPlatforms.obs
+      ? topLevelNavItem({ tab: navigation.observations, label: 'Observations' })
+      : []),
     ...topLevelNavItem({ tab: navigation.education, label: 'Education' }),
     ...topLevelNavItem({ tab: navigation.accidents, label: 'Accidents' }),
-    ...(navigation.blog?.options?.enabled ? [blogNavItem] : []),
-    ...(navigation.events?.options?.enabled ? [eventsNavItem] : []),
+    ...topLevelNavItem({ tab: navigation.blog, label: 'Blog' }),
+    ...topLevelNavItem({ tab: navigation.events, label: 'Events' }),
     ...topLevelNavItem({ tab: navigation.about, label: 'About' }),
     ...topLevelNavItem({ tab: navigation.support, label: 'Support' }),
+    ...topLevelNavItem({ tab: navigation.donate, label: 'Donate' }),
   ]
 
-  let donateNavItem: TopLevelNavItem | undefined = undefined
-
-  if (navigation.donate?.link && navigation.donate.options?.enabled) {
-    const link = convertToNavLink(navigation.donate.link)
-
-    if (link) {
-      // For internal page links, resolve the canonical (navigation-nested) URL
-      // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
-      // see https://github.com/NWACus/web/pull/981 for more context
-      if (link.type === 'internal') {
-        const slug = link.url.split('/').filter(Boolean).pop()
-        if (slug) {
-          const navItem = findNavigationItemBySlug(topLevelNavItems, slug)
-          if (navItem?.link?.type === 'internal') {
-            link.url = navItem.link.url
-          }
-        }
-      }
-
-      donateNavItem = {
-        label: link.label,
-        link,
-      }
+  // For button-mode internal links, resolve the canonical (navigation-nested) URL
+  // to avoid a redirect from e.g. /donate -> /support/donate which Safari mishandles
+  // see https://github.com/NWACus/web/pull/981 for more context
+  for (const item of topLevelNavItems) {
+    if (item.displayMode !== 'button' || item.link?.type !== 'internal') continue
+    const slug = item.link.url.split('/').filter(Boolean).pop()
+    if (!slug) continue
+    const matchedNavItem = findNavigationItemBySlug(topLevelNavItems, slug)
+    if (matchedNavItem?.link?.type === 'internal') {
+      item.link.url = matchedNavItem.link.url
     }
   }
 
-  return { topLevelNavItems, donateNavItem }
+  return { topLevelNavItems }
 }
 
 export const getCachedTopLevelNavItems = (center: string, draft: boolean = false) =>
   unstable_cache(
-    async (): Promise<{ topLevelNavItems: TopLevelNavItem[]; donateNavItem?: TopLevelNavItem }> => {
+    async (): Promise<{ topLevelNavItems: TopLevelNavItem[] }> => {
       const payload = await getPayload({ config: configPromise })
 
       const navigationRes = await payload.find({
@@ -445,14 +114,11 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
         return { topLevelNavItems: [] }
       }
 
-      const activeForecastZones = await getActiveForecastZones(center)
       const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
       return await getTopLevelNavItems({
         navigation,
-        activeForecastZones,
         avalancheCenterPlatforms,
-        center,
       })
     },
     [`top-level-nav-items-${center}`],

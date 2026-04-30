@@ -1,17 +1,18 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
-import { navLink } from '@/fields/navLink'
 import { tenantField } from '@/fields/tenantField'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionConfig } from 'payload'
-import { topLevelNavTab } from './fields/topLevelNavTab'
+import { navTab } from './fields/navTab'
+import { clearUnusedTabData } from './hooks/clearUnusedTabData'
 import { revalidateNavigation, revalidateNavigationDelete } from './hooks/revalidateNavigation'
 
 export const Navigations: CollectionConfig = {
   slug: 'navigations',
   access: accessByTenantRole('navigations'),
   hooks: {
+    beforeChange: [clearUnusedTabData],
     afterChange: [revalidateNavigation],
     afterDelete: [revalidateNavigationDelete],
   },
@@ -37,60 +38,48 @@ export const Navigations: CollectionConfig = {
     {
       type: 'tabs',
       tabs: [
-        topLevelNavTab({
+        navTab({
           name: 'forecasts',
-          description: 'This nav dropdown is autofilled with your forecast zones.',
-          hasConfigurableNavItems: false,
           hasEnabledToggle: false,
         }),
-        topLevelNavTab({
+        navTab({
           name: 'observations',
-          description: 'This nav dropdown is autofilled with the default observations links.',
-          hasConfigurableNavItems: false,
           hasEnabledToggle: false,
         }),
-        topLevelNavTab({
+        navTab({
           name: 'weather',
-          description: 'This nav dropdown will also include your weather stations.',
         }),
-        topLevelNavTab({ name: 'education' }),
-        topLevelNavTab({ name: 'accidents' }),
-        topLevelNavTab({
+        navTab({
+          name: 'education',
+        }),
+        navTab({
+          name: 'accidents',
+        }),
+        navTab({
           name: 'blog',
-          description:
-            'This nav item navigates to your blog landing page and does not have any dropdown items.',
-          hasConfigurableNavItems: false,
+          description: 'Points to your blog landing page',
+          defaultMode: 'link',
           enabledToggleDescription:
             'If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.',
         }),
-        topLevelNavTab({
+        navTab({
           name: 'events',
-          description:
-            'This nav item navigates to your events landing page and does not have any dropdown items.',
-          hasConfigurableNavItems: false,
+          description: 'Points to your events landing page',
+          defaultMode: 'link',
           enabledToggleDescription:
             'If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.',
         }),
-        topLevelNavTab({ name: 'about' }),
-        topLevelNavTab({ name: 'support' }),
-        {
+        navTab({
+          name: 'about',
+        }),
+        navTab({
+          name: 'support',
+        }),
+        navTab({
           name: 'donate',
-          description: 'This nav item is styled as a button.',
-          fields: [
-            {
-              type: 'group',
-              name: 'options',
-              fields: [
-                {
-                  type: 'checkbox',
-                  defaultValue: true,
-                  name: 'enabled',
-                },
-              ],
-            },
-            navLink,
-          ],
-        },
+          defaultMode: 'button',
+          enabledToggleDescription: 'If hidden, the button will not appear in the nav.',
+        }),
       ],
     },
     contentHashField(),

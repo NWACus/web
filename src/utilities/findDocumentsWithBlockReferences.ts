@@ -1,11 +1,8 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { getBlocksFromConfig } from './getBlocksFromConfig'
+import { isRecord } from './isRecord'
 import { DocumentForRevalidation, RevalidationReference } from './revalidateDocument'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
 
 function hasId(value: unknown): value is { id: unknown } {
   return typeof value === 'object' && value !== null && 'id' in value
