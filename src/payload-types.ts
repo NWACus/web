@@ -366,6 +366,19 @@ export interface Tenant {
     | 'wcmac';
   name: string;
   contentHash?: string | null;
+  provisioning: {
+    status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual';
+    lastRunAt?: string | null;
+    failed?: {
+      pages?: {
+        [k: string]: string;
+      };
+      homePage?: string;
+      navigation?: string;
+      websiteSettings?: string;
+      timedOut?: string;
+    };
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -3966,6 +3979,13 @@ export interface TenantsSelect<T extends boolean = true> {
   slug?: T;
   name?: T;
   contentHash?: T;
+  provisioning?:
+    | T
+    | {
+        status?: T;
+        lastRunAt?: T;
+        failed?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

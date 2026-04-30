@@ -1,38 +1,28 @@
 import { Pill } from '@payloadcms/ui'
 import type { DefaultServerCellComponentProps } from 'payload'
 
-import { checkProvisioningStatusAction } from './onboardingActions'
-
-export async function OnboardingStatusCell({
+export function OnboardingStatusCell({
   rowData,
 }: Pick<DefaultServerCellComponentProps, 'rowData'>) {
-  if (!rowData?.id) {
-    return null
-  }
-
-  const result = await checkProvisioningStatusAction(rowData.id)
-
-  if ('error' in result) {
-    return null
-  }
-
-  const { builtInPages, pages, homePage, navigation, settings } = result.status
-
-  const allComplete =
-    builtInPages.count >= builtInPages.expected &&
-    pages.created >= pages.expected &&
-    pages.expected > 0 &&
-    homePage &&
-    navigation &&
-    settings.exists &&
-    result.status.theme.brandColors &&
-    result.status.theme.ogColors
-
-  return allComplete ? (
-    <Pill size="small">Complete</Pill>
-  ) : (
-    <Pill size="small" pillStyle="warning">
-      Incomplete
-    </Pill>
-  )
+  const status = rowData?.provisioning?.status
+  if (status === 'complete')
+    return (
+      <Pill size="small" pillStyle="success">
+        Complete
+      </Pill>
+    )
+  if (status === 'partial')
+    return (
+      <Pill size="small" pillStyle="warning">
+        Partial
+      </Pill>
+    )
+  if (status === 'manual')
+    return (
+      <Pill size="small" pillStyle="warning">
+        Manual actions
+      </Pill>
+    )
+  if (status === 'in_progress') return <Pill size="small">In progress</Pill>
+  return <Pill size="small">Not started</Pill>
 }

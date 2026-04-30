@@ -137,6 +137,10 @@ You typically don't need error boundaries for missing data - returning `null` is
 
 We have `ErrorBoundary` components available at `/src/components/ErrorBoundary/` for these cases. Next.js also provides `error.tsx` and `global-error.tsx` for route-level error handling.
 
+## Server Actions
+
+Server actions (`'use server'`) compile to POST endpoints reachable by anyone with the action ID — they are **not** automatically scoped to the caller. Always gate access at the top of every action: authenticate the user via `payload.auth({ headers: await headers() })` and apply the appropriate role/permission check (e.g. `hasSuperAdminPermissions`) before touching any data. Don't rely on the client-side admin context for authorization.
+
 ## Styling
 
 Prefer using Tailwind utility classes over adding `.(s)css` files.

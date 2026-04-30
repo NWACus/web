@@ -1,74 +1,55 @@
 'use server'
 
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { centerColorMap } from '@/app/api/[center]/og/centerColorMap'
 import {
-  BUILT_IN_PAGES,
-  extractNavReferences,
   provision,
+  STALE_IN_PROGRESS_MS,
+  type ProvisioningFailed,
 } from '@/collections/Tenants/endpoints/provisionTenant'
+import { isRecord } from '@/utilities/isRecord'
 import config from '@payload-config'
 import fs from 'fs/promises'
+import { headers } from 'next/headers'
 import path from 'path'
-import { getPayload } from 'payload'
+import { getPayload, type Payload, type PayloadRequest } from 'payload'
+
+async function authorize(): Promise<{ payload: Payload } | { error: string }> {
+  const payload = await getPayload({ config })
+  const { user } = await payload.auth({ headers: await headers() })
+  if (!user) return { error: 'Unauthorized' }
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const mockedReq = { user, payload } as PayloadRequest
+  const isSuperAdmin = await hasSuperAdminPermissions({ req: mockedReq })
+  if (!isSuperAdmin) return { error: 'Super admin access required' }
+  return { payload }
+}
 
 export type ProvisioningStatus = {
-  builtInPages: { count: number; expected: number }
-  pages: { created: number; expected: number; missing: string[] }
-  homePage: boolean
-  navigation: boolean
-  settings: { exists: boolean; id?: number | string }
+  status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual'
+  lastRunAt: string | null
+  failed: ProvisioningFailed
   theme: { brandColors: boolean; ogColors: boolean }
+  tenantCreatedAt: string | null
+  settings: { id?: number | string }
 }
 
 export async function checkProvisioningStatusAction(
   tenantId: number | string,
 ): Promise<{ status: ProvisioningStatus } | { error: string }> {
+  const auth = await authorize()
+  if ('error' in auth) return auth
+  const { payload } = auth
   try {
-    const payload = await getPayload({ config })
-
-    // Template tenant slug must match TEMPLATE_TENANT_SLUG in provisionTenant.ts
-    const templateTenantSlug = 'dvac'
-
-    const [
-      builtInPages,
-      pages,
-      homePages,
-      navigations,
-      settings,
-      tenant,
-      brandColors,
-      templateTenantResult,
-    ] = await Promise.all([
-      payload.find({
-        collection: 'builtInPages',
-        where: { tenant: { equals: tenantId } },
-        limit: 0,
-      }),
-      payload.find({
-        collection: 'pages',
-        where: { tenant: { equals: tenantId } },
-        limit: 500,
-        select: { slug: true, title: true, _status: true },
-      }),
-      payload.find({
-        collection: 'homePages',
-        where: { tenant: { equals: tenantId } },
-        limit: 0,
-      }),
-      payload.find({
-        collection: 'navigations',
-        where: { tenant: { equals: tenantId } },
-        limit: 0,
+    const [tenant, settings, brandColors] = await Promise.all([
+      payload.findByID({
+        collection: 'tenants',
+        id: tenantId,
       }),
       payload.find({
         collection: 'settings',
         where: { tenant: { equals: tenantId } },
         limit: 1,
-        select: {},
-      }),
-      payload.findByID({
-        collection: 'tenants',
-        id: tenantId,
       }),
       fs
         .readFile(path.join(process.cwd(), 'src/app/(frontend)/colors.css'), 'utf-8')
@@ -78,68 +59,63 @@ export async function checkProvisioningStatusAction(
           )
           return ''
         }),
-      payload.find({
-        collection: 'tenants',
-        where: { slug: { equals: templateTenantSlug } },
-        limit: 1,
-      }),
     ])
 
-    const templateTenant = templateTenantResult.docs[0]
+    const provisioning = tenant.provisioning
 
-    let templatePageSlugs: { slug: string; title: string }[] = []
-    if (templateTenant) {
-      // Get page slugs from template navigation (same logic as provisioning)
-      const templateNav = await payload
-        .find({
-          collection: 'navigations',
-          where: { tenant: { equals: templateTenant.id } },
-          limit: 1,
-          depth: 1,
-        })
-        .then((res) => res.docs[0])
-
-      // TODO: Use builtInPageUrls to filter expected built-in page count #999
-      const { pageSlugs: navPageSlugs } = extractNavReferences(templateNav ?? {})
-
-      const templatePages = await payload.find({
-        collection: 'pages',
-        where: {
-          tenant: { equals: templateTenant.id },
-          _status: { equals: 'published' },
-          slug: { in: [...navPageSlugs].join(',') },
-        },
-        limit: 500,
-        select: { slug: true, title: true },
-      })
-      templatePageSlugs = templatePages.docs.map((p) => ({ slug: p.slug, title: p.title }))
+    // Recover from crashed runs: if we've been "in_progress" longer than the
+    // grace window, treat it as a failed run so the UI shows a re-provision
+    // button instead of a spinner that never stops.
+    let status: ProvisioningStatus['status'] = provisioning?.status ?? 'not_started'
+    let failed: ProvisioningFailed = isRecord(provisioning?.failed) ? provisioning.failed : {}
+    if (status === 'in_progress' && provisioning?.lastRunAt) {
+      const age = Date.now() - new Date(provisioning.lastRunAt).getTime()
+      if (age > STALE_IN_PROGRESS_MS) {
+        status = 'partial'
+        failed = { ...failed, timedOut: 'Provisioning timed out. It may still be running.' }
+      }
     }
 
-    const tenantPagesBySlug = new Map(pages.docs.map((p) => [p.slug, p]))
-    const createdPages = templatePageSlugs.filter((p) => tenantPagesBySlug.has(p.slug))
-    const missing = templatePageSlugs.filter((p) => !tenantPagesBySlug.has(p.slug))
+    const theme = {
+      // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
+      brandColors: brandColors.includes(`.${tenant.slug} {`),
+      // Check if the tenant slug exists as a key in centerColorMap in the OG route
+      ogColors: tenant.slug in centerColorMap,
+    }
+    const themeComplete = theme.brandColors && theme.ogColors
+
+    // Manual code-level items (brand colors in colors.css, OG colors in
+    // centerColorMap) live outside the DB. Flip between 'complete' and
+    // 'manual' based on the theme check, and persist it so the list-view
+    // cell can render the same state without re-reading colors.css per row.
+    let nextStatus: typeof status | undefined
+    if (status === 'complete' && !themeComplete) nextStatus = 'manual'
+    else if (status === 'manual' && themeComplete) nextStatus = 'complete'
+    if (nextStatus) {
+      await payload
+        .update({
+          collection: 'tenants',
+          id: tenantId,
+          data: { provisioning: { status: nextStatus } },
+        })
+        .catch((err) => {
+          payload.logger.warn(
+            `Failed to sync derived provisioning status for tenant ${tenantId}: ${err instanceof Error ? err.message : err}`,
+          )
+        })
+      status = nextStatus
+    }
 
     return {
       status: {
-        // TODO: Filter expected count to navigation-referenced built-in pages #999
-        builtInPages: { count: builtInPages.totalDocs, expected: BUILT_IN_PAGES.length },
-        pages: {
-          created: createdPages.length,
-          expected: templatePageSlugs.length,
-          missing: missing.map((p) => p.title),
-        },
-        homePage: homePages.totalDocs > 0,
-        navigation: navigations.totalDocs > 0,
-        settings: {
-          exists: settings.totalDocs > 0,
-          id: settings.docs[0]?.id,
-        },
-        theme: {
-          // Check if a CSS class matching the tenant slug exists in colors.css (e.g. ".dvac {")
-          brandColors: brandColors.includes(`.${tenant.slug} {`),
-          // Check if the tenant slug exists as a key in centerColorMap in the OG route
-          ogColors: tenant.slug in centerColorMap,
-        },
+        status,
+        lastRunAt: provisioning?.lastRunAt ?? null,
+        failed,
+        theme,
+        tenantCreatedAt: tenant.createdAt ?? null,
+        // Settings id is used to build the "Edit settings" link in the
+        // checklist UI.
+        settings: { id: settings.docs[0]?.id },
       },
     }
   } catch (err) {
@@ -150,7 +126,9 @@ export async function checkProvisioningStatusAction(
 export async function runProvisionAction(
   tenantId: number | string,
 ): Promise<{ success: true; failedPages: string[] } | { error: string }> {
-  const payload = await getPayload({ config })
+  const auth = await authorize()
+  if ('error' in auth) return auth
+  const { payload } = auth
   try {
     const tenant = await payload.findByID({
       collection: 'tenants',
@@ -163,5 +141,35 @@ export async function runProvisionAction(
   } catch (err) {
     payload.logger.error({ err }, 'Provisioning failed')
     return { error: err instanceof Error ? err.message : 'Failed to run provisioning' }
+  }
+}
+
+/**
+ * Manually mark a tenant's provisioning as complete. Used when an admin has
+ * fixed the items that failed during provisioning without re-running it.
+ * Clears `failed` but leaves `lastRunAt` unchanged (that still reflects the
+ * actual last provision run).
+ */
+export async function markProvisioningCompleteAction(
+  tenantId: number | string,
+): Promise<{ success: true } | { error: string }> {
+  const auth = await authorize()
+  if ('error' in auth) return auth
+  const { payload } = auth
+  try {
+    await payload.update({
+      collection: 'tenants',
+      id: tenantId,
+      data: {
+        provisioning: {
+          status: 'complete',
+          failed: undefined,
+        },
+      },
+    })
+    return { success: true }
+  } catch (err) {
+    payload.logger.error({ err }, 'Failed to mark provisioning complete')
+    return { error: err instanceof Error ? err.message : 'Failed to mark provisioning complete' }
   }
 }
