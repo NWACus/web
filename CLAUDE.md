@@ -102,8 +102,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 
 - `pnpm test` - Run all tests (client and server environments)
 - `pnpm test:watch` - Run tests in watch mode
-- `pnpm lint` - Run Next.js linter
-- `pnpm eslint` - Run ESLint directly
+- `pnpm lint` - Run ESLint
 - `pnpm tsc` - TypeScript type checking
 - `pnpm prettify` - Format code with Prettier
 
