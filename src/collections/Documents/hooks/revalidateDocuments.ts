@@ -1,13 +1,10 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 
 import type { Document } from '@/payload-types'
-import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
-import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
+import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
 async function revalidate(docId: number) {
-  const reference = { collection: 'documents' as const, id: docId }
-  await revalidateBlockReferences(reference)
-  await revalidateRelationshipReferences(reference)
+  await revalidateDocumentReferences({ collection: 'documents', id: docId })
 }
 
 export const revalidateDocuments: CollectionAfterChangeHook<Document> = async ({

@@ -1,8 +1,10 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
+import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
+import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
 import { CollectionConfig } from 'payload'
 import { revalidateBiography, revalidateBiographyDelete } from './hooks/revalidateBiography'
 
@@ -49,8 +51,10 @@ export const Biographies: CollectionConfig = {
       required: false,
     },
     contentHashField(),
+    documentReferencesField(),
   ],
   hooks: {
+    beforeChange: [populateDocumentReferences],
     afterChange: [revalidateBiography],
     afterDelete: [revalidateBiographyDelete],
   },
