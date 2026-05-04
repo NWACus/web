@@ -1,27 +1,55 @@
+diff --git a/dist/adapter.d.ts b/dist/adapter.d.ts
+index e4921574d152b98a79bc5319634e36af4fb1ab39..4e45a6b1d6a3b1a4dbb6cf192882a50d55048323 100644
+--- a/dist/adapter.d.ts
++++ b/dist/adapter.d.ts
+@@ -2,12 +2,13 @@ import type { Adapter, ClientUploadsConfig } from '@payloadcms/plugin-cloud-stor
+ interface CreateVercelBlobAdapterArgs {
+     access: 'public';
+     addRandomSuffix?: boolean;
++    allowOverwrite?: boolean;
+     baseUrl: string;
+     cacheControlMaxAge: number;
+     clientUploads?: ClientUploadsConfig;
+     token: string;
+     useCompositePrefixes?: boolean;
+ }
+-export declare function createVercelBlobAdapter({ access, addRandomSuffix, baseUrl, cacheControlMaxAge, clientUploads, token, useCompositePrefixes, }: CreateVercelBlobAdapterArgs): Adapter;
++export declare function createVercelBlobAdapter({ access, addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, clientUploads, token, useCompositePrefixes, }: CreateVercelBlobAdapterArgs): Adapter;
+ export {};
+ //# sourceMappingURL=adapter.d.ts.map
+\ No newline at end of file
+diff --git a/dist/adapter.js b/dist/adapter.js
+index 7c08de8d0b581327114f868ae69858cccef120ec..2790699d38440430e6d0e0a463e967edd150aa3a 100644
+--- a/dist/adapter.js
++++ b/dist/adapter.js
+@@ -2,7 +2,7 @@ import { deleteFile } from './deleteFile.js';
+ import { generateURL } from './generateURL.js';
+ import { getFile } from './getFile.js';
+ import { uploadFile } from './uploadFile.js';
+-export function createVercelBlobAdapter({ access, addRandomSuffix, baseUrl, cacheControlMaxAge, clientUploads, token, useCompositePrefixes = false }) {
++export function createVercelBlobAdapter({ access, addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, clientUploads, token, useCompositePrefixes = false }) {
+     return ({ collection, prefix = '' })=>({
+             name: 'vercel-blob',
+             clientUploads,
+@@ -25,6 +25,7 @@ export function createVercelBlobAdapter({ access, addRandomSuffix, baseUrl, cach
+                 const result = await uploadFile({
+                     access,
+                     addRandomSuffix,
++                    allowOverwrite,
+                     buffer,
+                     cacheControlMaxAge,
+                     collectionPrefix: prefix,
 diff --git a/dist/client/VercelBlobClientUploadHandler.d.ts b/dist/client/VercelBlobClientUploadHandler.d.ts
-index 984feebe49e7bfaabd0294eebaa9415e09e0e5cd..18285f61580c050750d6312d12a8cdfb5d4ba6c8 100644
+index b3b021ebd932ab8c6bb0b5abf829dae0f91a2396..3269e5bd16056ec46f57809166b3e7cc28a78e3e 100644
 --- a/dist/client/VercelBlobClientUploadHandler.d.ts
 +++ b/dist/client/VercelBlobClientUploadHandler.d.ts
 @@ -1,5 +1,6 @@
  export type VercelBlobClientUploadHandlerExtra = {
      addRandomSuffix: boolean;
 +    allowOverwrite: boolean;
-     baseURL: string;
-     prefix: string;
+     useCompositePrefixes: boolean;
  };
-diff --git a/dist/client/VercelBlobClientUploadHandler.js b/dist/client/VercelBlobClientUploadHandler.js
-index 94a3512c0436805acba26910adb595cf970f4961..cda0b0aea5769c0522b7e9d609d9b919f89a43aa 100644
---- a/dist/client/VercelBlobClientUploadHandler.js
-+++ b/dist/client/VercelBlobClientUploadHandler.js
-@@ -3,7 +3,7 @@ import { createClientUploadHandler } from '@payloadcms/plugin-cloud-storage/clie
- import { upload } from '@vercel/blob/client';
- import { formatAdminURL } from 'payload/shared';
- export const VercelBlobClientUploadHandler = createClientUploadHandler({
--    handler: async ({ apiRoute, collectionSlug, extra: { addRandomSuffix, baseURL, prefix = '' }, file, serverHandlerPath, serverURL, updateFilename })=>{
-+    handler: async ({ apiRoute, collectionSlug, extra: { addRandomSuffix, allowOverwrite, baseURL, prefix = '' }, file, serverHandlerPath, serverURL, updateFilename })=>{
-         const endpointRoute = formatAdminURL({
-             apiRoute,
-             path: serverHandlerPath,
+ export declare const VercelBlobClientUploadHandler: ({ children, collectionSlug, enabled, extra, prefix, serverHandlerPath, }: {
 diff --git a/dist/getClientUploadRoute.d.ts b/dist/getClientUploadRoute.d.ts
 index b0d9157554801e9a873ad09c1ace7c6c5db43a90..519f19e05145f5aaabd7afe8571149b529019b50 100644
 --- a/dist/getClientUploadRoute.d.ts
@@ -60,39 +88,8 @@ index e11cf568867309efcb243fab490a33c6b01c46a8..bfeeee12b5180db867576f1a33738ebd
                          cacheControlMaxAge
                      });
                  },
-diff --git a/dist/handleUpload.d.ts b/dist/handleUpload.d.ts
-index 74b7b972fc9dbeffb7a2c79c8b472c831e61a670..404b4e4f2adc0d8f0180fae9428444232a2e4d6f 100644
---- a/dist/handleUpload.d.ts
-+++ b/dist/handleUpload.d.ts
-@@ -4,6 +4,6 @@ type HandleUploadArgs = {
-     baseUrl: string;
-     prefix?: string;
- } & Omit<VercelBlobStorageOptions, 'collections'>;
--export declare const getHandleUpload: ({ access, addRandomSuffix, baseUrl, cacheControlMaxAge, prefix, token, }: HandleUploadArgs) => HandleUpload;
-+export declare const getHandleUpload: ({ access, addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, prefix, token, }: HandleUploadArgs) => HandleUpload;
- export {};
- //# sourceMappingURL=handleUpload.d.ts.map
-\ No newline at end of file
-diff --git a/dist/handleUpload.js b/dist/handleUpload.js
-index db797445156822d2a2a0024b303df940b446e4c2..eedefda709bf53e7f0b4bd2f1b0cdc81e5267c52 100644
---- a/dist/handleUpload.js
-+++ b/dist/handleUpload.js
-@@ -1,11 +1,12 @@
- import { put } from '@vercel/blob';
- import path from 'path';
--export const getHandleUpload = ({ access = 'public', addRandomSuffix, baseUrl, cacheControlMaxAge, prefix = '', token })=>{
-+export const getHandleUpload = ({ access = 'public', addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, prefix = '', token })=>{
-     return async ({ data, file: { buffer, filename, mimeType } })=>{
-         const fileKey = path.posix.join(data.prefix || prefix, filename);
-         const result = await put(fileKey, buffer, {
-             access,
-             addRandomSuffix,
-+            allowOverwrite,
-             cacheControlMaxAge,
-             contentType: mimeType,
-             token
 diff --git a/dist/index.d.ts b/dist/index.d.ts
-index 8949c2db42d2657bdd7a72e1476420ce9766ea23..1edaf94546ad7876d4577a7150ed3b85f14f1585 100644
+index 42bc409877a795be084492014f7818286c4f92ff..987f1a5c59a936dd0b938d601ddeeaa2f3aef6fb 100644
 --- a/dist/index.d.ts
 +++ b/dist/index.d.ts
 @@ -14,6 +14,13 @@ export type VercelBlobStorageOptions = {
@@ -110,10 +107,10 @@ index 8949c2db42d2657bdd7a72e1476420ce9766ea23..1edaf94546ad7876d4577a7150ed3b85
       * When enabled, fields (like the prefix field) will always be inserted into
       * the collection schema regardless of whether the plugin is enabled. This
 diff --git a/dist/index.js b/dist/index.js
-index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1ae5949021 100644
+index 90888ac80eda32c21fae7f511296dbff1f93c9f8..3680d809ce6e4d4776cf2c173c251145c32bd7c2 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -8,6 +8,7 @@ import { getStaticHandler } from './staticHandler.js';
+@@ -5,6 +5,7 @@ import { getClientUploadRoute } from './getClientUploadRoute.js';
  const defaultUploadOptions = {
      access: 'public',
      addRandomSuffix: false,
@@ -121,13 +118,12 @@ index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1a
      cacheControlMaxAge: 60 * 60 * 24 * 365,
      enabled: true
  };
-@@ -32,12 +33,14 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
+@@ -29,11 +30,13 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
              enabled: !isPluginDisabled && Boolean(options.clientUploads),
-             extraClientHandlerProps: (collection)=>({
+             extraClientHandlerProps: ()=>({
                      addRandomSuffix: !!optionsWithDefaults.addRandomSuffix,
 +                    allowOverwrite: !!optionsWithDefaults.allowOverwrite,
-                     baseURL: baseUrl,
-                     prefix: typeof collection === 'object' && collection.prefix && `${collection.prefix}/` || ''
+                     useCompositePrefixes: !!options.useCompositePrefixes
                  }),
              serverHandler: getClientUploadRoute({
                  access: typeof options.clientUploads === 'object' ? options.clientUploads.access : undefined,
@@ -136,20 +132,53 @@ index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1a
                  cacheControlMaxAge: options.cacheControlMaxAge,
                  token: options.token ?? ''
              }),
-@@ -96,7 +99,7 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
-     };
- function vercelBlobStorageInternal(options) {
-     return ({ collection, prefix })=>{
--        const { access, addRandomSuffix, baseUrl, cacheControlMaxAge, clientUploads, token } = options;
-+        const { access, addRandomSuffix, allowOverwrite, baseUrl, cacheControlMaxAge, clientUploads, token } = options;
-         if (!token) {
-             throw new Error('Vercel Blob storage token is required');
-         }
-@@ -115,6 +118,7 @@ function vercelBlobStorageInternal(options) {
-             handleUpload: getHandleUpload({
-                 access,
-                 addRandomSuffix,
-+                allowOverwrite,
-                 baseUrl,
-                 cacheControlMaxAge,
-                 prefix,
+@@ -61,6 +64,7 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
+         const adapter = createVercelBlobAdapter({
+             access: optionsWithDefaults.access ?? 'public',
+             addRandomSuffix: optionsWithDefaults.addRandomSuffix,
++            allowOverwrite: optionsWithDefaults.allowOverwrite,
+             baseUrl,
+             cacheControlMaxAge: optionsWithDefaults.cacheControlMaxAge ?? 60 * 60 * 24 * 365,
+             clientUploads: optionsWithDefaults.clientUploads,
+diff --git a/dist/uploadFile.d.ts b/dist/uploadFile.d.ts
+index 4edd33ec221160cd21cd70bdcc073a8f9de726dc..ede921dc06cbf0085d19a03771c93066d3bbf469 100644
+--- a/dist/uploadFile.d.ts
++++ b/dist/uploadFile.d.ts
+@@ -1,6 +1,7 @@
+ interface UploadFileArgs {
+     access: 'public';
+     addRandomSuffix?: boolean;
++    allowOverwrite?: boolean;
+     buffer: Buffer;
+     cacheControlMaxAge?: number;
+     collectionPrefix?: string;
+@@ -13,6 +14,6 @@ interface UploadFileArgs {
+ interface UploadFileResult {
+     filename?: string;
+ }
+-export declare function uploadFile({ access, addRandomSuffix, buffer, cacheControlMaxAge, collectionPrefix, docPrefix, filename, mimeType, token, useCompositePrefixes, }: UploadFileArgs): Promise<UploadFileResult>;
++export declare function uploadFile({ access, addRandomSuffix, allowOverwrite, buffer, cacheControlMaxAge, collectionPrefix, docPrefix, filename, mimeType, token, useCompositePrefixes, }: UploadFileArgs): Promise<UploadFileResult>;
+ export {};
+ //# sourceMappingURL=uploadFile.d.ts.map
+\ No newline at end of file
+diff --git a/dist/uploadFile.js b/dist/uploadFile.js
+index b3b6bf4b5d407cd5cf44a84c071a282d00959819..8a7d5e7dbe067f05a5ab53b2104cec731543c5a7 100644
+--- a/dist/uploadFile.js
++++ b/dist/uploadFile.js
+@@ -1,7 +1,7 @@
+ import { getFileKey } from '@payloadcms/plugin-cloud-storage/utilities';
+ import { put } from '@vercel/blob';
+ import path from 'path';
+-export async function uploadFile({ access, addRandomSuffix, buffer, cacheControlMaxAge, collectionPrefix = '', docPrefix, filename, mimeType, token, useCompositePrefixes = false }) {
++export async function uploadFile({ access, addRandomSuffix, allowOverwrite, buffer, cacheControlMaxAge, collectionPrefix = '', docPrefix, filename, mimeType, token, useCompositePrefixes = false }) {
+     const { fileKey } = getFileKey({
+         collectionPrefix,
+         docPrefix,
+@@ -11,6 +11,7 @@ export async function uploadFile({ access, addRandomSuffix, buffer, cacheControl
+     const result = await put(fileKey, buffer, {
+         access,
+         addRandomSuffix,
++        allowOverwrite,
+         cacheControlMaxAge,
+         contentType: mimeType,
+         token
