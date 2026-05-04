@@ -1,7 +1,7 @@
 import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-sqlite'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`CREATE TABLE \`sponsors_document_references\` (
+  await db.run(sql`CREATE TABLE IF NOT EXISTS \`sponsors_document_references\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`id\` text PRIMARY KEY NOT NULL,
@@ -12,12 +12,12 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`sponsors_document_references_order_idx\` ON \`sponsors_document_references\` (\`_order\`);`,
+    sql`CREATE INDEX IF NOT EXISTS \`sponsors_document_references_order_idx\` ON \`sponsors_document_references\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`sponsors_document_references_parent_id_idx\` ON \`sponsors_document_references\` (\`_parent_id\`);`,
+    sql`CREATE INDEX IF NOT EXISTS \`sponsors_document_references_parent_id_idx\` ON \`sponsors_document_references\` (\`_parent_id\`);`,
   )
-  await db.run(sql`CREATE TABLE \`biographies_document_references\` (
+  await db.run(sql`CREATE TABLE IF NOT EXISTS \`biographies_document_references\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`id\` text PRIMARY KEY NOT NULL,
@@ -28,12 +28,12 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`biographies_document_references_order_idx\` ON \`biographies_document_references\` (\`_order\`);`,
+    sql`CREATE INDEX IF NOT EXISTS \`biographies_document_references_order_idx\` ON \`biographies_document_references\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`biographies_document_references_parent_id_idx\` ON \`biographies_document_references\` (\`_parent_id\`);`,
+    sql`CREATE INDEX IF NOT EXISTS \`biographies_document_references_parent_id_idx\` ON \`biographies_document_references\` (\`_parent_id\`);`,
   )
-  await db.run(sql`CREATE TABLE \`teams_document_references\` (
+  await db.run(sql`CREATE TABLE IF NOT EXISTS \`teams_document_references\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`id\` text PRIMARY KEY NOT NULL,
@@ -44,10 +44,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`teams_document_references_order_idx\` ON \`teams_document_references\` (\`_order\`);`,
+    sql`CREATE INDEX IF NOT EXISTS \`teams_document_references_order_idx\` ON \`teams_document_references\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`teams_document_references_parent_id_idx\` ON \`teams_document_references\` (\`_parent_id\`);`,
+    sql`CREATE INDEX IF NOT EXISTS \`teams_document_references_parent_id_idx\` ON \`teams_document_references\` (\`_parent_id\`);`,
   )
 }
 
