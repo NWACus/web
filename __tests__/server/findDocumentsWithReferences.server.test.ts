@@ -25,15 +25,17 @@ jest.mock('@payloadcms/richtext-lexical', () => ({
 const mockFind = jest.fn()
 const mockLogger = { warn: jest.fn() }
 
+import { Biographies } from '@/collections/Biographies'
 import { Events } from '@/collections/Events'
 import { HomePages } from '@/collections/HomePages'
 import { Media } from '@/collections/Media'
 import { Pages } from '@/collections/Pages'
 import { Posts } from '@/collections/Posts'
+import { Sponsors } from '@/collections/Sponsors'
 import { Teams } from '@/collections/Teams'
 
-// Include a combination of routable collections with documentReferences fields and those without
-const collectionsToTest = [Pages, Posts, HomePages, Events, Media, Teams]
+// Include routable collections, intermediate collections (with documentReferences), and those without
+const collectionsToTest = [Pages, Posts, HomePages, Events, Biographies, Sponsors, Teams, Media]
 
 jest.mock('payload', () => ({
   getPayload: jest.fn(() =>
@@ -55,17 +57,25 @@ beforeEach(() => {
 
 describe('findDocumentsWithReferences', () => {
   it('queries only collections that have a documentReferences field', async () => {
-    await findDocumentsWithReferences({ collection: 'sponsors', id: 1 })
+    await findDocumentsWithReferences({ collection: 'media', id: 1 })
 
-    expect(mockFind).toHaveBeenCalledTimes(4)
+    expect(mockFind).toHaveBeenCalledTimes(7)
 
     const queriedCollections = mockFind.mock.calls.map(
       (call: [{ collection: string }]) => call[0].collection,
     )
     expect(queriedCollections).toEqual(
-      expect.arrayContaining(['pages', 'posts', 'homePages', 'events']),
+      expect.arrayContaining([
+        'pages',
+        'posts',
+        'homePages',
+        'events',
+        'biographies',
+        'sponsors',
+        'teams',
+      ]),
     )
-    expect(queriedCollections).toHaveLength(4)
+    expect(queriedCollections).toHaveLength(7)
   })
 
   it('does not query collections without documentReferences field', async () => {
@@ -75,21 +85,29 @@ describe('findDocumentsWithReferences', () => {
       (call: [{ collection: string }]) => call[0].collection,
     )
     expect(queriedCollections).not.toContain('media')
-    expect(queriedCollections).not.toContain('teams')
   })
 
-  it('uses correct where clause with _status, collection, and docId', async () => {
+  it('includes _status filter only for collections with drafts enabled', async () => {
     await findDocumentsWithReferences({ collection: 'media', id: 42 })
 
+    const referenceFilters = [
+      { 'documentReferences.collection': { equals: 'media' } },
+      { 'documentReferences.docId': { equals: 42 } },
+    ]
+
+    // Collections with drafts (pages, posts, homePages, events) include _status
+    const draftCollections = new Set(['pages', 'posts', 'homePages', 'events'])
+
     for (const call of mockFind.mock.calls) {
-      const { where, depth } = call[0]
-      expect(where).toEqual({
-        and: [
-          { _status: { equals: 'published' } },
-          { 'documentReferences.collection': { equals: 'media' } },
-          { 'documentReferences.docId': { equals: 42 } },
-        ],
-      })
+      const { collection, where, depth } = call[0]
+
+      if (draftCollections.has(collection)) {
+        expect(where).toEqual({
+          and: [{ _status: { equals: 'published' } }, ...referenceFilters],
+        })
+      } else {
+        expect(where).toEqual({ and: referenceFilters })
+      }
       expect(depth).toBe(1)
     }
   })

@@ -7,29 +7,26 @@ import type { Tenant } from '@/payload-types'
 import { resolveTenant } from './tenancy/resolveTenant'
 
 export interface RevalidationReference {
-  collection:
-    | 'biographies'
-    | 'documents'
-    | 'events'
-    | 'forms'
-    | 'homePages'
-    | 'media'
-    | 'pages'
-    | 'posts'
-    | 'sponsors'
-    | 'tags'
-    | 'teams'
+  collection: string
   id: number
 }
 
-export const ROUTABLE_COLLECTIONS = ['pages', 'posts', 'homePages', 'events'] as const
-export type RoutableCollection = (typeof ROUTABLE_COLLECTIONS)[number]
+/** Collections with frontend routes that can be revalidated via revalidatePath. */
+const ROUTABLE_COLLECTION_LIST = ['pages', 'posts', 'events', 'homePages'] as const
+export type RoutableCollection = (typeof ROUTABLE_COLLECTION_LIST)[number]
+export const ROUTABLE_COLLECTIONS: ReadonlySet<string> = new Set(ROUTABLE_COLLECTION_LIST)
 
-export interface DocumentForRevalidation {
-  collection: RoutableCollection
+/** A document found via documentReferences — may be routable or an intermediate collection. */
+export interface DocumentReference {
+  collection: string
   id: number
   slug: string
   tenant: number | Tenant
+}
+
+/** A routable document that can be revalidated via revalidatePath. */
+export interface DocumentForRevalidation extends DocumentReference {
+  collection: RoutableCollection
 }
 
 export async function revalidateDocument(doc: DocumentForRevalidation): Promise<void> {

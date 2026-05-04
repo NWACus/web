@@ -51,6 +51,8 @@ import * as migration_20260414_030626_add_documentReferences_field from './20260
 import * as migration_20260414_030934_backfill_document_references from './20260414_030934_backfill_document_references'
 import * as migration_20260417_202409_add_dev_mode from './20260417_202409_add_dev_mode'
 import * as migration_20260417_225756_remove_old_block_tracking_fields from './20260417_225756_remove_old_block_tracking_fields'
+import * as migration_20260424_180242_intermediate_collection_document_references from './20260424_180242_intermediate_collection_document_references'
+import * as migration_20260424_180419_backfill_intermediate_document_references from './20260424_180419_backfill_intermediate_document_references'
 
 export const migrations = [
   {
@@ -317,5 +319,15 @@ export const migrations = [
     up: migration_20260417_225756_remove_old_block_tracking_fields.up,
     down: migration_20260417_225756_remove_old_block_tracking_fields.down,
     name: '20260417_225756_remove_old_block_tracking_fields',
+  },
+  {
+    up: migration_20260424_180242_intermediate_collection_document_references.up,
+    down: migration_20260424_180242_intermediate_collection_document_references.down,
+    name: '20260424_180242_intermediate_collection_document_references',
+  },
+  {
+    up: migration_20260424_180419_backfill_intermediate_document_references.up,
+    down: migration_20260424_180419_backfill_intermediate_document_references.down,
+    name: '20260424_180419_backfill_intermediate_document_references',
   },
 ]
