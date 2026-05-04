@@ -21,11 +21,14 @@ function addEsmTransformSupport(jestConfig) {
   }
 }
 
+const sharedTestPathIgnorePatterns = ['/node_modules/', '/.claude/worktrees/']
+
 const clientTestConfig = {
   displayName: 'client',
   testEnvironment: 'jsdom',
   clearMocks: true,
   testMatch: ['**/__tests__/client/**/*.[jt]s?(x)'],
+  testPathIgnorePatterns: sharedTestPathIgnorePatterns,
 }
 
 const serverTestConfig = {
@@ -33,6 +36,7 @@ const serverTestConfig = {
   testEnvironment: 'node',
   clearMocks: true,
   testMatch: ['**/__tests__/server/*.[jt]s?(x)'],
+  testPathIgnorePatterns: sharedTestPathIgnorePatterns,
 }
 
 /** @type {import('jest').Config} */
