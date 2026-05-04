@@ -25,15 +25,13 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
       - name: 🧹 Run lint
         run: pnpm lint
-      - name: 🧹 Run eslint
-        run: pnpm eslint
       - name: 🧹 Check type assertions
         run: pnpm verify-type-assertions
 
@@ -49,7 +47,7 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
         run: pnpm ii
@@ -82,7 +80,7 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
         run: pnpm ii
@@ -127,7 +125,7 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
         run: pnpm ii
@@ -153,7 +151,7 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
         run: pnpm ii
@@ -192,7 +190,7 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
         run: pnpm ii
@@ -231,7 +229,7 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
         run: pnpm ii

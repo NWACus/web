@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 When working with frameworks in this project, reference the official LLM documentation:
 
 - **Next.js**: https://nextjs.org/docs/llms-full.txt
-- **Payload CMS**: No official llms.txt yet (requested in [issue #13362](https://github.com/payloadcms/payload/issues/13362))
+- **Payload CMS**: https://payloadcms.com/llms-full.txt
 
 ### Payload CMS Source Reference
 
@@ -102,8 +102,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 
 - `pnpm test` - Run all tests (client and server environments)
 - `pnpm test:watch` - Run tests in watch mode
-- `pnpm lint` - Run Next.js linter
-- `pnpm eslint` - Run ESLint directly
+- `pnpm lint` - Run ESLint
 - `pnpm tsc` - TypeScript type checking
 - `pnpm prettify` - Format code with Prettier
 
