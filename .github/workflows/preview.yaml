@@ -117,6 +117,19 @@ jobs:
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
+      # Restore .next/cache between preview runs so `vercel build`'s
+      # underlying `next build` can reuse webpack/SWC module caches and the
+      # ISR fetch cache. Save key includes the commit SHA so each run writes
+      # a fresh entry; restore-keys fall back to the most recent cache for
+      # the same lockfile, then any cache for this OS.
+      - name: 💾 Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: nextjs-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            nextjs-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            nextjs-cache-${{ runner.os }}-
       - name: Build Project Artifacts
         run: vercel build --yes --target=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
