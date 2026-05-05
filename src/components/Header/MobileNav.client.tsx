@@ -15,19 +15,15 @@ import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
-import { Button } from '../ui/button'
 import { MobileNavItem } from './MobileNavItem'
-import { RenderNavLink } from './RenderNavLink'
 import { TopLevelNavItem } from './utils'
 
 export const MobileNav = ({
   topLevelNavItems,
-  donateNavItem,
   banner,
   usfsLogo,
 }: {
   topLevelNavItems: TopLevelNavItem[]
-  donateNavItem?: TopLevelNavItem
   banner?: Media
   usfsLogo?: Media | null
 }) => {
@@ -109,11 +105,6 @@ export const MobileNav = ({
               )}
             </Link>
           )}
-          {donateNavItem && (
-            <RenderNavLink link={donateNavItem.link} onClick={() => setMobileNavOpen(false)}>
-              <Button variant="callout">{donateNavItem.label}</Button>
-            </RenderNavLink>
-          )}
         </div>
       </div>
       <DialogPortal>
@@ -143,6 +134,7 @@ export const MobileNav = ({
                       link: navItem.link,
                       items: navItem.items,
                     }}
+                    displayMode={navItem.displayMode}
                     setMobileNavOpen={setMobileNavOpen}
                   />
                 )

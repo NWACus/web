@@ -8,32 +8,33 @@ Create the tenant in the admin panel → provisioning runs automatically via `pr
 
 Provisioning is idempotent and can be rerun safely.
 
+### Provisioning status field
+
+The outcome of each provisioning run is stored on the tenant's `provisioning` group field (`status`, `lastRunAt`, `failedPages`) directly on the Tenants collection. The onboarding checklist reads this field directly — it no longer re-derives status from live page/navigation counts, so deleting a page post-provisioning won't un-mark the tenant as complete. Re-running overwrites with the latest outcome (`complete` if everything succeeded, `partial` if some pages failed). The tenant list view renders this status as a Pill in the Provisioning column.
+
 | Step | Details |
 |------|---------|
 | Website Settings | Created with placeholder brand assets (logo, icon, banner). Replace with real assets via the checklist link. |
-| Built-in pages | Creates standard pages per the table below. |
-| Template pages | Copies all published pages from the template tenant (DVAC). Pages whose blocks all reference tenant-scoped data (teams, sponsors, events, forms) are copied as empty drafts. Demo pages (`blocks`, `lexical-blocks`) are skipped. Static blog/event list blocks are converted to dynamic mode. |
+| Forecast pages | Queries AFP via `getActiveForecastZones()` to auto-detect single vs multi-zone. Creates zone-specific built-in pages (see table below). Falls back to a default "All Forecasts" page if AFP is unavailable. |
+| Default built-in pages | Creates non-forecast built-in pages from the static `BUILT_IN_PAGES` list in `provisionTenant.ts` (see table below). Mountain Weather is only included if the center has a weather forecast configured in NAC (`platforms.weather`). |
+| Blank pages | Creates empty pages for every slug in the static `PAGES_TO_PROVISION` list in `provisionTenant.ts`. Admins are expected to fill in the content after provisioning. |
 | Home page | Creates a home page with welcome content and quick links to About Us and Donate. |
-| Navigation | Creates navigation menus linked to all copied pages and built-in pages. |
+| Navigation | Creates navigation menus linked to all provisioned pages and built-in pages. Forecasts tab is zone-aware (single zone: single-item dropdown; multi-zone: "All Forecasts" + a "Zones" accordion with per-zone items). |
 | Edge Config | The `updateEdgeConfigAfterChange` hook automatically adds the tenant to Vercel Edge Config. |
 
 #### Built-In Pages
 
-\* If a center has a single forecast zone, it gets an "Avalanche Forecast" page pointing to that zone. Multi-zone centers get an "All Forecasts" page plus individual zone pages.
+Forecast pages are determined by AFP zone data\*. Non-forecast pages come from the static `BUILT_IN_PAGES` list in `src/collections/Tenants/endpoints/provisionTenant.ts` — edit that list to change what new tenants get.
 
-| Title | URL | For AC with single or multi zone* |
-|-------|-----|-----------------------------------|
-| All Forecasts | `/forecasts/avalanche` | multi |
-| _ZONE NAME_ | `/forecasts/avalanche/ZONE` | multi |
-| Avalanche Forecast | `/forecasts/avalanche/ZONE` | single |
-| Mountain Weather** | `/weather/forecast` | both |
-| Weather Stations | `/weather/stations/map` | both |
-| Recent Observations | `/observations` | both |
-| Submit Observations | `/observations/submit` | both |
-| Blog | `/blog` | both |
-| Events | `/events` | both |
+\* If a center has a single forecast zone, it gets an "Avalanche Forecast" page pointing to that zone. Multi-zone centers get an "All Forecasts" page plus individual zone pages. If AFP is unavailable, a default "All Forecasts" page is created.
 
-\*\* Mountain Weather is only available for centers that have a weather forecast configured.
+| Title | URL | Source |
+|-------|-----|--------|
+| All Forecasts | `/forecasts/avalanche` | AFP (multi-zone) |
+| _ZONE NAME_ | `/forecasts/avalanche/ZONE` | AFP (multi-zone) |
+| Avalanche Forecast | `/forecasts/avalanche/ZONE` | AFP (single-zone) |
+| Mountain Weather | `/weather/forecast` | NAC `platforms.weather` |
+| _Non-forecast pages_ | _varies_ | `BUILT_IN_PAGES` constant |
 
 ## Manual steps
 

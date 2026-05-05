@@ -1,8 +1,3 @@
-import type { ProvisioningStatus } from '@/collections/Tenants/components/onboardingActions'
-import type { DefaultServerCellComponentProps } from 'payload'
-
-const mockCheckStatus = jest.fn()
-
 jest.mock('@payloadcms/ui', () => ({
   Pill: ({
     children,
@@ -15,104 +10,73 @@ jest.mock('@payloadcms/ui', () => ({
   }) => ({ type: 'Pill', props: { children, pillStyle, size } }),
 }))
 
-jest.mock('../../src/collections/Tenants/components/onboardingActions', () => ({
-  checkProvisioningStatusAction: (...args: unknown[]) => mockCheckStatus(...args),
-}))
-
 // Must import after mock setup
 import { OnboardingStatusCell } from '@/collections/Tenants/components/OnboardingStatusCell'
 
 function isReactElement(value: unknown): value is React.ReactElement<{
   children: string
   pillStyle?: string
+  size?: string
 }> {
   return value !== null && typeof value === 'object' && 'props' in value
 }
 
-const buildStatus = (overrides: Partial<ProvisioningStatus> = {}): ProvisioningStatus => ({
-  builtInPages: { count: 7, expected: 7 },
-  pages: { created: 5, expected: 5, missing: [] },
-  homePage: true,
-  navigation: true,
-  settings: { exists: true, id: 1 },
-  theme: { brandColors: true, ogColors: true },
-  ...overrides,
-})
-
-const renderCell = (rowData: DefaultServerCellComponentProps['rowData']) =>
-  OnboardingStatusCell({ rowData })
+const cellFor = (
+  status: 'complete' | 'partial' | 'manual' | 'in_progress' | 'not_started' | undefined,
+) => OnboardingStatusCell({ rowData: { provisioning: { status } } })
 
 describe('OnboardingStatusCell', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+  it('renders Complete pill for complete status', () => {
+    const result = cellFor('complete')
+
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('Complete')
+    expect(result.props.pillStyle).toBe('success')
+    expect(result.props.size).toBe('small')
   })
 
-  it('returns null when rowData has no id', async () => {
-    const result = await renderCell({})
-    expect(result).toBeNull()
+  it('renders Partial pill with warning style for partial status', () => {
+    const result = cellFor('partial')
+
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('Partial')
+    expect(result.props.pillStyle).toBe('warning')
   })
 
-  it('returns null when status check returns an error', async () => {
-    mockCheckStatus.mockResolvedValue({ error: 'Something went wrong' })
-    const result = await renderCell({ id: 1 })
-    expect(result).toBeNull()
+  it('renders Not started pill for not_started status', () => {
+    const result = cellFor('not_started')
+
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('Not started')
   })
 
-  describe('complete', () => {
-    it('all automated and manual steps are done', async () => {
-      mockCheckStatus.mockResolvedValue({ status: buildStatus() })
-      const result = await renderCell({ id: 1 })
+  it('renders In progress pill for in_progress status', () => {
+    const result = cellFor('in_progress')
 
-      expect(result).not.toBeNull()
-      if (!isReactElement(result)) throw new Error('Expected ReactElement')
-      expect(result.props.children).toBe('Complete')
-      expect(result.props.pillStyle).toBeUndefined()
-    })
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('In progress')
   })
 
-  describe('incomplete', () => {
-    it('brand colors are missing', async () => {
-      mockCheckStatus.mockResolvedValue({
-        status: buildStatus({ theme: { brandColors: false, ogColors: true } }),
-      })
-      const result = await renderCell({ id: 1 })
+  it('renders Manual actions pill for manual status', () => {
+    const result = cellFor('manual')
 
-      if (!isReactElement(result)) throw new Error('Expected ReactElement')
-      expect(result.props.children).toBe('Incomplete')
-      expect(result.props.pillStyle).toBe('warning')
-    })
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('Manual actions')
+    expect(result.props.pillStyle).toBe('warning')
+  })
 
-    it('OG colors are missing', async () => {
-      mockCheckStatus.mockResolvedValue({
-        status: buildStatus({ theme: { brandColors: true, ogColors: false } }),
-      })
-      const result = await renderCell({ id: 1 })
+  it('renders Not started pill when provisioning is missing', () => {
+    // Happens before provisioning has ever been written to the tenant
+    const result = OnboardingStatusCell({ rowData: {} })
 
-      if (!isReactElement(result)) throw new Error('Expected ReactElement')
-      expect(result.props.children).toBe('Incomplete')
-      expect(result.props.pillStyle).toBe('warning')
-    })
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('Not started')
+  })
 
-    it('home page is missing', async () => {
-      mockCheckStatus.mockResolvedValue({
-        status: buildStatus({ homePage: false }),
-      })
-      const result = await renderCell({ id: 1 })
+  it('renders Not started pill when provisioning.status is undefined', () => {
+    const result = OnboardingStatusCell({ rowData: { provisioning: {} } })
 
-      if (!isReactElement(result)) throw new Error('Expected ReactElement')
-      expect(result.props.children).toBe('Incomplete')
-      expect(result.props.pillStyle).toBe('warning')
-    })
-
-    it('settings are missing', async () => {
-      mockCheckStatus.mockResolvedValue({
-        status: buildStatus({ settings: { exists: false } }),
-      })
-      const result = await renderCell({ id: 1 })
-
-      if (!isReactElement(result)) throw new Error('Expected ReactElement')
-      expect(result.props.children).toBe('Incomplete')
-      expect(result.props.pillStyle).toBe('warning')
-    })
+    if (!isReactElement(result)) throw new Error('Expected ReactElement')
+    expect(result.props.children).toBe('Not started')
   })
 })
