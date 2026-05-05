@@ -55,7 +55,17 @@ jobs:
       - name: 📦 Opt out of image optimization
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
+      - name: 💾 Cache seeded database
+        id: db-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            dev.db
+            dev.db-shm
+            dev.db-wal
+          key: seeded-dev-db-${{ hashFiles('src/endpoints/seed/**', 'src/migrations/**', 'src/payload.config.ts', 'src/collections/**', 'src/globals/**', 'pnpm-lock.yaml') }}
       - name: 🧹 Run seed
+        if: steps.db-cache.outputs.cache-hit != 'true'
         run: pnpm seed:standalone
         shell: bash
         env:
@@ -156,12 +166,36 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
+      # Cache Playwright browser binaries (~150MB) keyed by lockfile so the
+      # cache invalidates when @playwright/test bumps. Cache hit → ~30-60s
+      # saved on the chromium download. We still run `playwright install
+      # --with-deps` to ensure the apt system dependencies are present.
+      - name: 💾 Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
       - name: 🎭 Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
       - name: 📦 Opt out of image optimization
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
+      # Reuse the same seeded-DB cache as the `build` job; same key means a
+      # build-job hit warms the cache for e2e and vice versa.
+      - name: 💾 Cache seeded database
+        id: db-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            dev.db
+            dev.db-shm
+            dev.db-wal
+          key: seeded-dev-db-${{ hashFiles('src/endpoints/seed/**', 'src/migrations/**', 'src/payload.config.ts', 'src/collections/**', 'src/globals/**', 'pnpm-lock.yaml') }}
       - name: 🌱 Seed database
+        if: steps.db-cache.outputs.cache-hit != 'true'
         run: pnpm seed:standalone
       - name: 🔨 Build
         run: pnpm build
