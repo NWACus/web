@@ -148,6 +148,15 @@ jobs:
     if: github.event_name == 'merge_group'
     environment: Preview
     runs-on: ubuntu-latest
+    # Shard by Playwright project so admin and frontend specs run on parallel
+    # runners. Roughly halves wall-clock for E2E. Setup steps duplicate per
+    # shard, but the seed and Playwright caches mean the duplication is mostly
+    # the build (~2m). `fail-fast: false` so a failure in one shard doesn't
+    # cancel the other — we want both reports.
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [admin, frontend]
     env:
       DATABASE_URI: 'file:./dev.db'
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
@@ -204,12 +213,13 @@ jobs:
       - name: ⏳ Wait for server
         run: timeout 120 bash -c 'until curl -sf http://localhost:3000/admin/login > /dev/null; do sleep 2; done'
       - name: 🧪 Run E2E tests
-        run: pnpm test:e2e
+        run: pnpm test:e2e:${{ matrix.project }}
       - name: 📤 Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          # One artifact per shard so the parallel jobs don't collide.
+          name: playwright-report-${{ matrix.project }}
           path: playwright-report/
           retention-days: 14
 
