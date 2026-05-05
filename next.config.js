@@ -17,8 +17,8 @@ const nextConfig = {
   crossOrigin: 'anonymous',
   images: {
     unoptimized: false,
-    // Next 16 requires explicit allowlist; we use quality={80} on some <Image> components.
     qualities: [75, 80],
+    localPatterns: [{ pathname: '/api/**' }],
     remotePatterns: [
       {
         hostname: url.hostname,
