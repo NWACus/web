@@ -6,7 +6,7 @@ import { QuickDateFilter } from '@/utilities/createQuickDateFilters'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
 import { parseAsString, useQueryStates } from 'nuqs'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 type DateRangeFilterProps = {
   startDate: string
@@ -16,6 +16,19 @@ type DateRangeFilterProps = {
   titleClassName?: string
   defaultOpen?: boolean
   showBottomBorder?: boolean
+}
+
+// Match a (start, end) pair against the supplied quick filters.
+// Returns the matching filter id, or 'custom' for non-matching dates,
+// or '' when both dates are empty.
+function matchQuickFilter(start: string, end: string, quickFilters: QuickDateFilter[]): string {
+  if (!start && !end) return ''
+  const matching = quickFilters.find((filter) => {
+    const filterStart = filter.startDate()
+    const filterEnd = filter.endDate() || ''
+    return filterStart === start && filterEnd === end
+  })
+  return matching ? matching.id : 'custom'
 }
 
 export const DateRangeFilter = ({
@@ -38,13 +51,20 @@ export const DateRangeFilter = ({
     },
   )
 
-  const [quickFilter, setQuickFilter] = useState('')
   const [isOpen, setIsOpen] = useState(defaultOpen)
-  const isInitialMount = useRef(true)
+  // Tracks whether the user explicitly clicked Custom while their dates still
+  // matched a quick filter. Distinct from the URL-derived match so the user can
+  // see "Custom" highlighted without changing dates.
+  const [customMode, setCustomMode] = useState(false)
+
+  const currentStart = startDate || initialStartDate
+  const currentEnd = endDate || initialEndDate
+  const matchedFilter = matchQuickFilter(currentStart, currentEnd, quickFilters)
+  const quickFilter = customMode ? 'custom' : matchedFilter
 
   const updateDateSelection = useCallback(
     (filter: string, start: string, end: string) => {
-      setQuickFilter(filter)
+      setCustomMode(filter === 'custom')
       setDateParams({
         startDate: start || null,
         endDate: end || null,
@@ -67,6 +87,16 @@ export const DateRangeFilter = ({
     [endDate, startDate, quickFilters, updateDateSelection],
   )
 
+  // If neither URL nor server-rendered initial dates are set, default to
+  // 'upcoming'. setTimeout avoids a hydration race with nuqs reading the URL.
+  // This is a one-shot bootstrap, not a state sync.
+  useEffect(() => {
+    if (!currentStart && !currentEnd) {
+      const timer = setTimeout(() => handleQuickFilter('upcoming'), 0)
+      return () => clearTimeout(timer)
+    }
+  }, [currentStart, currentEnd, handleQuickFilter])
+
   const renderQuickFilterButton = (id: string) => {
     const filter = quickFilters.find((f) => f.id === id)
     if (!filter) return null
@@ -80,42 +110,6 @@ export const DateRangeFilter = ({
       </Button>
     )
   }
-
-  useEffect(
-    function determineMatchingQuickFilter() {
-      const currentStart = startDate || initialStartDate
-      const currentEnd = endDate || initialEndDate
-
-      if (!currentStart && !currentEnd) {
-        // No dates set, set start date and set quick filter to upcoming
-        // setTimeout needed to avoid hydration race condition with nuqs
-        setTimeout(() => {
-          handleQuickFilter('upcoming')
-        }, 0)
-        return
-      }
-
-      if (isInitialMount.current) {
-        if (currentStart) {
-          // Try to match against quick filters
-          const matchingFilter = quickFilters.find((filter) => {
-            const filterStart = filter.startDate()
-            const filterEnd = filter.endDate() || ''
-            return filterStart === currentStart && filterEnd === currentEnd
-          })
-
-          if (matchingFilter) {
-            setQuickFilter(matchingFilter.id)
-          } else {
-            // No match found, must be custom
-            setQuickFilter('custom')
-          }
-        }
-        isInitialMount.current = false
-      }
-    },
-    [endDate, handleQuickFilter, initialEndDate, initialStartDate, quickFilters, startDate],
-  )
 
   return (
     <div className={showBottomBorder ? 'border-b' : ''}>

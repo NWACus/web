@@ -117,8 +117,9 @@ export const TenantSelectionProviderClient = ({
   const { config } = useConfig()
   const router = useRouter()
   const userID = useMemo(() => user?.id, [user?.id])
-  const prevUserID = useRef(userID)
-  const userChanged = userID !== prevUserID.current
+  // Tracks the previous userID so the effect below can detect login/logout
+  // transitions. Read inside the effect, never during render.
+  const prevUserIDRef = useRef(userID)
   const [tenantOptions, setTenantOptions] = useState<OptionObject[]>(() => initialTenantOptions)
   const selectedTenantLabel = useMemo(
     () => tenantOptions.find((option) => option.value === selectedTenantSlug)?.label,
@@ -214,13 +215,16 @@ export const TenantSelectionProviderClient = ({
     [syncTenants],
   )
 
+  // Sync tenant state with auth transitions: refetch on login, clear on
+  // logout. Auth (Payload `useAuth`) is the external system this effect
+  // subscribes to; the local state updates are propagation, not derivation.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    const userChanged = userID !== prevUserIDRef.current
     if (userChanged || (initialValue && initialValue !== getTenantCookie())) {
       if (userID) {
-        // user logging in
         void syncTenants()
       } else {
-        // user logging out
         setSelectedTenantSlug(undefined)
         deleteTenantCookie()
         if (tenantOptions.length > 0) {
@@ -228,24 +232,19 @@ export const TenantSelectionProviderClient = ({
         }
         router.refresh()
       }
-      prevUserID.current = userID
+      prevUserIDRef.current = userID
     }
-  }, [userID, userChanged, syncTenants, tenantOptions, initialValue, router])
+  }, [userID, syncTenants, tenantOptions, initialValue, router])
 
-  /**
-   * If there is no initial value, clear the tenant and refresh the router.
-   * Needed for stale tenant slugs set as a cookie.
-   */
+  // Clear stale tenant cookie when the server didn't pass an initial value.
   useEffect(() => {
     if (!initialValue) {
       setTenant({ slug: undefined, refresh: true })
     }
   }, [initialValue, setTenant])
 
-  /**
-   * If there is no selected tenant slug and the entity type is 'global', set the first tenant as selected.
-   * This ensures that the global tenant is always set when the component mounts.
-   */
+  // Auto-select the first tenant when rendering a global entity that has no
+  // current selection.
   useEffect(() => {
     if (!selectedTenantSlug && tenantOptions.length > 0 && entityType === 'global') {
       setTenant({
@@ -254,6 +253,7 @@ export const TenantSelectionProviderClient = ({
       })
     }
   }, [selectedTenantSlug, tenantOptions, entityType, setTenant])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <span

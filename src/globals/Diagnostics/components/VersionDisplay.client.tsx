@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 declare global {
   interface Window {
@@ -15,17 +15,19 @@ type VersionDisplayProps = {
   nodeVersion: string
 }
 
-export function VersionDisplay({ payloadVersion, nodeVersion }: VersionDisplayProps) {
-  const [mounted, setMounted] = useState(false)
+// `window.next.version` is a one-shot client-only value. useSyncExternalStore
+// with a server snapshot of `'...'` is the SSR-safe way to read it without a
+// hydration guard.
+const subscribeToNothing = () => () => {}
+const getNextjsVersion = () => window.next?.version ?? 'unknown'
+const getNextjsVersionServer = () => '...'
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+export function VersionDisplay({ payloadVersion, nodeVersion }: VersionDisplayProps) {
+  const nextjs = useSyncExternalStore(subscribeToNothing, getNextjsVersion, getNextjsVersionServer)
 
   const versionInfo = {
     payload: payloadVersion,
-    // Only show Next.js version after mount to avoid hydration mismatch
-    nextjs: mounted ? (window.next?.version ?? 'unknown') : '...',
+    nextjs,
     node: nodeVersion,
   }
 

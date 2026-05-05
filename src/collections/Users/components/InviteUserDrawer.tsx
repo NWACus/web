@@ -27,6 +27,73 @@ import { RoleAssignmentRow } from './RoleAssignmentRow'
 
 const drawerSlug = 'invite-user-drawer'
 
+type RoleOption = { label: string; value: string }
+type TenantOption = { label: string; value: string }
+
+function RoleAssignmentsArray({
+  path,
+  roleOptions,
+  tenantOptions,
+}: {
+  path: string
+  roleOptions: RoleOption[]
+  tenantOptions: TenantOption[]
+}) {
+  const { dispatchFields, removeFieldRow, addFieldRow } = useForm()
+
+  const [formState] = useAllFormFields()
+  const roleAssignmentsField = formState?.[path]
+  const rows = Array.isArray(roleAssignmentsField?.rows) ? roleAssignmentsField.rows : []
+
+  const addRow = useCallback(() => {
+    addFieldRow({ path, schemaPath: path })
+
+    // If there's only one tenant, set it automatically
+    if (tenantOptions.length === 1) {
+      dispatchFields({
+        type: 'UPDATE',
+        path: `${path}.${rows.length}.tenant`,
+        value: tenantOptions[0].value,
+        valid: true,
+      })
+    }
+  }, [addFieldRow, dispatchFields, path, rows.length, tenantOptions])
+
+  const removeRow = useCallback(
+    (index: number) => {
+      removeFieldRow({ path, rowIndex: index })
+    },
+    [removeFieldRow, path],
+  )
+
+  return (
+    <div className="field-type">
+      <div className="field-type__wrap">
+        {rows.map((row, index) => (
+          <RoleAssignmentRow
+            key={row.id || index}
+            path={`${path}.${index}`}
+            index={index}
+            roleOptions={roleOptions}
+            tenantOptions={tenantOptions}
+            onRemove={() => removeRow(index)}
+          />
+        ))}
+      </div>
+      <Button
+        buttonStyle="icon-label"
+        className="field-type__add-button"
+        icon="plus"
+        iconPosition="left"
+        iconStyle="with-border"
+        onClick={addRow}
+      >
+        Add Role Assignment
+      </Button>
+    </div>
+  )
+}
+
 type RoleAssignmentRowInput = {
   id: string
   role: string
@@ -262,62 +329,6 @@ export function InviteUserDrawer({
     [closeModal, refineListData],
   )
 
-  const RoleAssignmentsArray = ({ path }: { path: string }) => {
-    const { dispatchFields, removeFieldRow, addFieldRow } = useForm()
-
-    const [formState] = useAllFormFields()
-    const roleAssignmentsField = formState?.[path]
-    const rows = Array.isArray(roleAssignmentsField?.rows) ? roleAssignmentsField.rows : []
-
-    const addRow = useCallback(() => {
-      addFieldRow({ path, schemaPath: path })
-
-      // If there's only one tenant, set it automatically
-      if (tenantOptions.length === 1) {
-        dispatchFields({
-          type: 'UPDATE',
-          path: `${path}.${rows.length}.tenant`,
-          value: tenantOptions[0].value,
-          valid: true,
-        })
-      }
-    }, [addFieldRow, dispatchFields, path, rows.length])
-
-    const removeRow = useCallback(
-      (index: number) => {
-        removeFieldRow({ path, rowIndex: index })
-      },
-      [removeFieldRow, path],
-    )
-
-    return (
-      <div className="field-type">
-        <div className="field-type__wrap">
-          {rows.map((row, index) => (
-            <RoleAssignmentRow
-              key={row.id || index}
-              path={`${path}.${index}`}
-              index={index}
-              roleOptions={roleOptions}
-              tenantOptions={tenantOptions}
-              onRemove={() => removeRow(index)}
-            />
-          ))}
-        </div>
-        <Button
-          buttonStyle="icon-label"
-          className="field-type__add-button"
-          icon="plus"
-          iconPosition="left"
-          iconStyle="with-border"
-          onClick={addRow}
-        >
-          Add Role Assignment
-        </Button>
-      </div>
-    )
-  }
-
   if (!canCreateTenantRoleAssignments && !canCreateGlobalRoleAssignments && !canAssignProviders) {
     return (
       <Gutter>
@@ -375,7 +386,11 @@ export function InviteUserDrawer({
           {canCreateTenantRoleAssignments && (
             <div className="field-type space-y-2">
               <FieldLabel label="Role Assignments" />
-              <RoleAssignmentsArray path="roleAssignments" />
+              <RoleAssignmentsArray
+                path="roleAssignments"
+                roleOptions={roleOptions}
+                tenantOptions={tenantOptions}
+              />
             </div>
           )}
 

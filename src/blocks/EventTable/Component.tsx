@@ -29,13 +29,13 @@ export const EventTableBlockComponent = (args: EventTableComponentProps) => {
 
   const { tenant } = useTenant()
   const [fetchedEvents, setFetchedEvents] = useState<Event[]>([])
-  const [loading, setLoading] = useState(true)
+
+  const [loading, setLoading] = useState(eventOptions === 'dynamic')
 
   let displayEvents: Event[] = filterValidPublishedRelationships(staticEvents)
 
   useEffect(() => {
     if (eventOptions !== 'dynamic') {
-      setLoading(false)
       return
     }
 

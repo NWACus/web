@@ -4,7 +4,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FieldLabel, useField } from '@payloadcms/ui'
 import { Columns2, Columns3, Columns4, Square } from 'lucide-react'
 import { Field, SelectFieldClientProps } from 'payload'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Columns112, Columns12, Columns121, Columns21, Columns211 } from './icons'
 
 type ColumnLayoutPickerProps = {
@@ -29,31 +29,25 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
 
   const { path, field } = props
   const { value, setValue } = useField<string>({ path })
-  const [layoutSelection, setLayoutSelection] = useState(value || '1_1')
 
   const parentPath = path.split(`.${field.name}`)[0]
   const columnsPath = `${parentPath}.columns`
 
   const { value: numColumns } = useField<number>({ path: columnsPath })
 
-  useEffect(() => {
-    if (value) {
-      setLayoutSelection(value)
-    }
-  }, [value])
+  const layoutSelection = value || '1_1'
 
-  // Auto-select valid layout when columns change
+  // Auto-select valid layout when the column count changes. Only setValue
+  // (Payload's setter) is invoked here — no React state mirroring.
   useEffect(() => {
     if (numColumns && numColumns > 0) {
       const currentColCount = parseInt(layoutSelection.split('_')[0])
-      // If current selection doesn't match column count, find the first valid option
       if (currentColCount !== numColumns) {
         const validOption = layoutOptions.find(
           (opt) => parseInt(opt.value.split('_')[0]) === numColumns,
         )
         if (validOption) {
           setValue(validOption.value)
-          setLayoutSelection(validOption.value)
         }
       }
     }
@@ -69,7 +63,6 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
         value={layoutSelection}
         onValueChange={(newValue: string) => {
           if (newValue) {
-            setLayoutSelection(newValue)
             setValue(newValue)
           }
         }}
