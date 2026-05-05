@@ -1,4 +1,5 @@
 import type { HomePage } from '@/payload-types'
+import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { BasePayload, CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
@@ -32,6 +33,8 @@ export const revalidateHomePage: CollectionAfterChangeHook<HomePage> = async ({
 
   payload.logger.info(`Revalidating tenant home page...`)
   await revalidate(doc, payload)
+
+  await revalidateDocumentReferences({ collection: 'homePages', id: doc.id })
 }
 
 export const revalidateHomePageDelete: CollectionAfterDeleteHook<HomePage> = async ({
@@ -42,4 +45,6 @@ export const revalidateHomePageDelete: CollectionAfterDeleteHook<HomePage> = asy
 
   payload.logger.info(`Revalidating tenant home page after delete...`)
   await revalidate(doc, payload)
+
+  await revalidateDocumentReferences({ collection: 'homePages', id: doc.id })
 }

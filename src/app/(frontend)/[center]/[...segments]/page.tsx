@@ -13,7 +13,7 @@ import { normalizePath } from '@/utilities/path'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export const dynamic = 'force-static'
-export const revalidate = 600
+export const revalidate = 3600 // Next.js requires a static literal here
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })

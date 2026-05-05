@@ -55,6 +55,12 @@ Potentially dangerous patterns it detects:
 7. If warnings appear in the pre-commit check:
    - Review the migration for potential data loss
    - Manually modify migration to ensure it runs without unintentional data loss
+   - If the migration will actually result in data loss, document it:
+     - Save the output of `pnpm migrate:diff` as a `.diff` file alongside the migration (e.g., `{timestamp}_{name}.diff`)
+     - Write an `_explanation.md` file (e.g., `{timestamp}_{name}_explanation.md`) with these sections:
+       - **"## Actual changes in JSON snapshots"** — Brief list of affected tables/columns
+       - **"## What caused these changes"** — Technical explanation of why the schema changed
+       - **"## Conclusion"** — Explanation of migration safety: why the data loss is acceptable or how it was mitigated
    - Use `git commit --no-verify` if you're certain it's safe
 8. Recommended: Test the migration locally using the instructions below
 

@@ -1,52 +1,10 @@
-import configPromise from '@payload-config'
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
-import { getPayload } from 'payload'
 
 import type { Biography } from '@/payload-types'
-import { revalidateBlockReferences } from '@/utilities/revalidateBlockReferences'
-import { revalidateRelationshipReferences } from '@/utilities/revalidateRelationshipReferences'
+import { revalidateDocumentReferences } from '@/utilities/revalidateDocumentReferences'
 
-async function revalidateBiographyWithCascading(biographyId: number) {
-  const payload = await getPayload({ config: configPromise })
-
-  const reference = { collection: 'biographies' as const, id: biographyId }
-  await revalidateBlockReferences(reference)
-  await revalidateRelationshipReferences(reference)
-
-  try {
-    // Also revalidate teams that contain this biography (i.e. pages/posts with TeamBlocks)
-    payload.logger.info(`Checking for cascading team references for biography ID ${biographyId}`)
-
-    const teamsWithBiographyRes = await payload.find({
-      collection: 'teams',
-      where: {
-        members: { equals: biographyId },
-      },
-      depth: 0,
-    })
-
-    const teamsWithBiography = teamsWithBiographyRes.docs.map((team) => ({
-      collection: 'teams',
-      id: team.id,
-    }))
-
-    if (teamsWithBiography.length > 0) {
-      payload.logger.info(
-        `Found ${teamsWithBiography.length} teams containing biography ID ${biographyId}`,
-      )
-
-      for (const teamReference of teamsWithBiography) {
-        await revalidateBlockReferences({
-          collection: 'teams',
-          id: teamReference.id,
-        })
-      }
-    } else {
-      payload.logger.info(`No teams found containing biography ID ${biographyId}`)
-    }
-  } catch (error) {
-    payload.logger.warn(`Error finding teams with biography member ${biographyId}: ${error}`)
-  }
+async function revalidate(docId: number) {
+  await revalidateDocumentReferences({ collection: 'biographies', id: docId })
 }
 
 export const revalidateBiography: CollectionAfterChangeHook<Biography> = async ({
@@ -55,7 +13,7 @@ export const revalidateBiography: CollectionAfterChangeHook<Biography> = async (
 }) => {
   if (context.disableRevalidate) return
 
-  await revalidateBiographyWithCascading(doc.id)
+  await revalidate(doc.id)
 }
 
 export const revalidateBiographyDelete: CollectionAfterDeleteHook<Biography> = async ({
@@ -64,5 +22,5 @@ export const revalidateBiographyDelete: CollectionAfterDeleteHook<Biography> = a
 }) => {
   if (context.disableRevalidate) return
 
-  await revalidateBiographyWithCascading(doc.id)
+  await revalidate(doc.id)
 }
