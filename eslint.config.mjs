@@ -44,6 +44,18 @@ const eslintConfig = [
       ],
     },
   },
+  {
+    // shadcn-generated components in src/components/ui/** are intentionally
+    // kept in sync with `pnpm dlx shadcn@latest add <name>` upstream output,
+    // so we don't refactor them for our own lint preferences. Skip the
+    // react-hooks rules whose typical fixes would diverge them from upstream.
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/static-components': 'off',
+    },
+  },
   globalIgnores(['.next/', '.claude/worktrees/', 'src/migrations/', 'next-env.d.ts']),
 ]
 

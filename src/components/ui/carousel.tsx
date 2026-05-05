@@ -51,31 +51,17 @@ const Carousel = React.forwardRef<
     },
     plugins,
   )
-  // Subscribe to embla's reInit/select events and read scroll state via
-  // useSyncExternalStore so each render reflects the current api state
-  // without manual effect-driven sync.
-  const subscribe = React.useCallback(
-    (callback: () => void) => {
-      if (!api) return () => {}
-      api.on('reInit', callback)
-      api.on('select', callback)
-      return () => {
-        api.off('reInit', callback)
-        api.off('select', callback)
-      }
-    },
-    [api],
-  )
-  const canScrollPrev = React.useSyncExternalStore(
-    subscribe,
-    () => api?.canScrollPrev() ?? false,
-    () => false,
-  )
-  const canScrollNext = React.useSyncExternalStore(
-    subscribe,
-    () => api?.canScrollNext() ?? false,
-    () => false,
-  )
+  const [canScrollPrev, setCanScrollPrev] = React.useState(false)
+  const [canScrollNext, setCanScrollNext] = React.useState(false)
+
+  const onSelect = React.useCallback((api: CarouselApi) => {
+    if (!api) {
+      return
+    }
+
+    setCanScrollPrev(api.canScrollPrev())
+    setCanScrollNext(api.canScrollNext())
+  }, [])
 
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev()
@@ -105,6 +91,20 @@ const Carousel = React.forwardRef<
 
     setApi(api)
   }, [api, setApi])
+
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    onSelect(api)
+    api.on('reInit', onSelect)
+    api.on('select', onSelect)
+
+    return () => {
+      api?.off('select', onSelect)
+    }
+  }, [api, onSelect])
 
   return (
     <CarouselContext.Provider
