@@ -17,6 +17,8 @@ const nextConfig = {
   crossOrigin: 'anonymous',
   images: {
     unoptimized: false,
+    // Next 16 requires explicit allowlist; we use quality={80} on some <Image> components.
+    qualities: [75, 80],
     remotePatterns: [
       {
         hostname: url.hostname,
@@ -94,11 +96,14 @@ const configWithSentry = withSentryConfig(configWithPayload, {
   widenClientFileUpload: true,
   tunnelRoute: '/monitoring',
 
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
-
-  // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-  automaticVercelMonitors: true,
+  // Sentry 10 moved these under `webpack:` (no Turbopack equivalent yet).
+  // - removeDebugLogging: tree-shake Sentry logger statements
+  // - automaticVercelMonitors: instrument Vercel Cron Monitors (still no App
+  //   Router route-handler support upstream)
+  webpack: {
+    treeshake: { removeDebugLogging: true },
+    automaticVercelMonitors: true,
+  },
 })
 
 export default process.env.NODE_ENV === 'production' ? configWithSentry : configWithPayload
