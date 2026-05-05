@@ -21,11 +21,16 @@ function addEsmTransformSupport(jestConfig) {
   }
 }
 
+// Claude Code creates ephemeral worktrees under .claude/ for parallel agent
+// runs. Their __tests__ directories must not be discovered by Jest.
+const ignoredPaths = ['/node_modules/', '/.claude/']
+
 const clientTestConfig = {
   displayName: 'client',
   testEnvironment: 'jsdom',
   clearMocks: true,
   testMatch: ['**/__tests__/client/**/*.[jt]s?(x)'],
+  testPathIgnorePatterns: ignoredPaths,
 }
 
 const serverTestConfig = {
@@ -33,6 +38,7 @@ const serverTestConfig = {
   testEnvironment: 'node',
   clearMocks: true,
   testMatch: ['**/__tests__/server/*.[jt]s?(x)'],
+  testPathIgnorePatterns: ignoredPaths,
 }
 
 /** @type {import('jest').Config} */
