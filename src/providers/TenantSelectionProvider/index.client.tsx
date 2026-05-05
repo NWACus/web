@@ -218,6 +218,7 @@ export const TenantSelectionProviderClient = ({
   // Sync tenant state with auth transitions: refetch on login, clear on
   // logout. Auth (Payload `useAuth`) is the external system this effect
   // subscribes to; the local state updates are propagation, not derivation.
+  // Mirrors the upstream pattern in @payloadcms/plugin-multi-tenant.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const userChanged = userID !== prevUserIDRef.current
@@ -227,14 +228,13 @@ export const TenantSelectionProviderClient = ({
       } else {
         setSelectedTenantSlug(undefined)
         deleteTenantCookie()
-        if (tenantOptions.length > 0) {
-          setTenantOptions([])
-        }
+        // Functional setter avoids needing tenantOptions in deps.
+        setTenantOptions((prev) => (prev.length > 0 ? [] : prev))
         router.refresh()
       }
       prevUserIDRef.current = userID
     }
-  }, [userID, syncTenants, tenantOptions, initialValue, router])
+  }, [userID, syncTenants, initialValue, router])
 
   // Clear stale tenant cookie when the server didn't pass an initial value.
   useEffect(() => {
