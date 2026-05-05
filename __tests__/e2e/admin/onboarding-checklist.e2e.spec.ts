@@ -23,21 +23,6 @@ test.describe('Onboarding Checklist', () => {
     await getChecklist(page)
   })
 
-  test('shows automated section with checklist items', async ({ adminPage: page }) => {
-    await page.goto(`/admin/collections/tenants/${TenantIds.nwac}`)
-    const checklist = await getChecklist(page)
-
-    // Automated section header
-    await expect(checklist.getByText('Automated')).toBeVisible()
-
-    // Core checklist items
-    await expect(checklist.getByText('Built-in pages')).toBeVisible()
-    await expect(checklist.getByText('Pages', { exact: true })).toBeVisible()
-    await expect(checklist.getByText('Home page')).toBeVisible()
-    await expect(checklist.getByText('Navigation')).toBeVisible()
-    await expect(checklist.getByText('Website Settings')).toBeVisible()
-  })
-
   test('shows needs action section with theme items', async ({ adminPage: page }) => {
     await page.goto(`/admin/collections/tenants/${TenantIds.nwac}`)
     const checklist = await getChecklist(page)
@@ -66,7 +51,12 @@ test.describe('Onboarding Checklist', () => {
   test('shows empty checklist on tenant create page', async ({ adminPage: page }) => {
     await page.goto('/admin/collections/tenants/create')
     const checklist = await getChecklist(page)
-
+    await expect(checklist.getByText('Pages', { exact: true })).toBeVisible()
+    await expect(checklist.getByText('Home page')).toBeVisible()
+    await expect(checklist.getByText('Navigation')).toBeVisible()
+    await expect(checklist.getByText('Website Settings')).toBeVisible()
+    await expect(checklist.getByText('Add brand colors')).toBeVisible()
+    await expect(checklist.getByText('Add OG image colors')).toBeVisible()
     // No tenantId yet, so status never loads — button should not appear
     await expect(checklist.getByText('Rerun Provisioning')).not.toBeVisible({ timeout: 3000 })
   })
