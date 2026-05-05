@@ -36,16 +36,18 @@ test.describe('Onboarding Checklist', () => {
     await page.goto(`/admin/collections/tenants/${TenantIds.nwac}`)
     const checklist = await getChecklist(page)
 
-    // NWAC is fully provisioned — "Rerun Provisioning" button should not appear
-    await expect(checklist.getByText('Rerun Provisioning')).not.toBeVisible({ timeout: 5000 })
+    await expect(checklist.getByText(/^Complete/)).toBeVisible({ timeout: 10000 })
 
-    // All automated items should show count details (indicating loaded status)
-    await expect(checklist.getByText(/\(\d+\/\d+\)/).first()).toBeVisible({ timeout: 5000 })
+    await expect(checklist.getByText('Last provisioned:')).toBeVisible({ timeout: 5000 })
 
-    // Settings link should point to the tenant's settings document
+    // Settings link points to the tenant's settings document
     const settingsLink = checklist.locator('a', { hasText: 'Website Settings' })
     await expect(settingsLink).toBeVisible()
     await expect(settingsLink).toHaveAttribute('href', /\/admin\/collections\/settings\/\d+/)
+
+    await expect(page.getByRole('button', { name: 'Rerun provisioning' })).toBeVisible({
+      timeout: 5000,
+    })
   })
 
   test('shows empty checklist on tenant create page', async ({ adminPage: page }) => {
@@ -57,7 +59,11 @@ test.describe('Onboarding Checklist', () => {
     await expect(checklist.getByText('Website Settings')).toBeVisible()
     await expect(checklist.getByText('Add brand colors')).toBeVisible()
     await expect(checklist.getByText('Add OG image colors')).toBeVisible()
-    // No tenantId yet, so status never loads — button should not appear
-    await expect(checklist.getByText('Rerun Provisioning')).not.toBeVisible({ timeout: 3000 })
+    // No tenantId yet, so status never loads — last-provisioned footer and
+    // rerun button stay hidden
+    await expect(checklist.getByText('Last provisioned:')).not.toBeVisible({ timeout: 3000 })
+    await expect(page.getByRole('button', { name: 'Rerun provisioning' })).not.toBeVisible({
+      timeout: 3000,
+    })
   })
 })
