@@ -55,7 +55,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       - name: Install Vercel CLI
         run: npm install --global vercel@latest

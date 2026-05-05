@@ -36,6 +36,8 @@ export default defineConfig({
     command: 'pnpm dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true,
-    timeout: 300000, // 5 minutes - Next.js + Payload takes a while to compile
+    // Next 16's Turbopack-default dev server boots in ~340ms; was 5min when
+    // webpack dev was the slow path. Lower so we fail fast on real boot issues.
+    timeout: 90000,
   },
 })

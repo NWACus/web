@@ -28,7 +28,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       - name: 🧹 Run lint
         run: pnpm lint
@@ -50,7 +50,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       - name: 📦 Opt out of image optimization
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
@@ -93,7 +93,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       - name: 🧹 Run pnpm generate:type
         run: |
@@ -138,7 +138,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       - name: 🧪 Run tests
         run: pnpm test
@@ -164,7 +164,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       # Cache Playwright browser binaries (~150MB) keyed by lockfile so the
       # cache invalidates when @playwright/test bumps. Cache hit → ~30-60s
@@ -227,7 +227,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       - name: Check if a migration is needed
         run: |
@@ -266,7 +266,7 @@ jobs:
           node-version: 24.x
           cache: pnpm
       - name: 📦 Install dependencies
-        run: pnpm ii
+        run: pnpm install --frozen-lockfile --ignore-workspace
         shell: bash
       - name: 🔍 Check migration safety
         id: check-migrations
