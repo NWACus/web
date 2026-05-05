@@ -46,11 +46,11 @@ import * as migration_20260128_213937_rename_appearance_to_variant from './20260
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
 import * as migration_20260319_152951_add_text_wrap_to_image_text_block from './20260319_152951_add_text_wrap_to_image_text_block'
-import * as migration_20260403_204010 from './20260403_204010'
-import * as migration_20260418_120000_convert_auto_nav_items from './20260418_120000_convert_auto_nav_items'
-import * as migration_20260418_120100_backfill_nav_builtin_pages from './20260418_120100_backfill_nav_builtin_pages'
+import * as migration_20260403_204010_mcp_server from './20260403_204010_mcp_server'
 import * as migration_20260504_235946_revalidation_fields_and_widgets_dev_mode from './20260504_235946_revalidation_fields_and_widgets_dev_mode'
 import * as migration_20260505_000519_backfill_document_references from './20260505_000519_backfill_document_references'
+import * as migration_20260505_045158_convert_auto_nav_items from './20260505_045158_convert_auto_nav_items'
+import * as migration_20260505_045200_backfill_nav_builtin_pages from './20260505_045200_backfill_nav_builtin_pages'
 
 export const migrations = [
   {
@@ -294,9 +294,9 @@ export const migrations = [
     name: '20260319_152951_add_text_wrap_to_image_text_block',
   },
   {
-    up: migration_20260403_204010.up,
-    down: migration_20260403_204010.down,
-    name: '20260403_204010',
+    up: migration_20260403_204010_mcp_server.up,
+    down: migration_20260403_204010_mcp_server.down,
+    name: '20260403_204010_mcp_server',
   },
   {
     up: migration_20260504_235946_revalidation_fields_and_widgets_dev_mode.up,
@@ -309,13 +309,13 @@ export const migrations = [
     name: '20260505_000519_backfill_document_references',
   },
   {
-    up: migration_20260418_120000_convert_auto_nav_items.up,
-    down: migration_20260418_120000_convert_auto_nav_items.down,
-    name: '20260418_120000_convert_auto_nav_items',
+    up: migration_20260505_045158_convert_auto_nav_items.up,
+    down: migration_20260505_045158_convert_auto_nav_items.down,
+    name: '20260505_045158_convert_auto_nav_items',
   },
   {
-    up: migration_20260418_120100_backfill_nav_builtin_pages.up,
-    down: migration_20260418_120100_backfill_nav_builtin_pages.down,
-    name: '20260418_120100_backfill_nav_builtin_pages',
+    up: migration_20260505_045200_backfill_nav_builtin_pages.up,
+    down: migration_20260505_045200_backfill_nav_builtin_pages.down,
+    name: '20260505_045200_backfill_nav_builtin_pages',
   },
 ]
