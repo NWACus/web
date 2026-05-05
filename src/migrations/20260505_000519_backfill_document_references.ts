@@ -1,9 +1,17 @@
 import { MigrateDownArgs, MigrateUpArgs } from '@payloadcms/db-sqlite'
 
-const ROUTABLE_COLLECTIONS = ['pages', 'posts', 'homePages', 'events'] as const
+const COLLECTIONS = [
+  'pages',
+  'posts',
+  'homePages',
+  'events',
+  'sponsors',
+  'biographies',
+  'teams',
+] as const
 
 /**
- * Backfill the documentReferences field for all existing routable documents.
+ * Backfill the documentReferences field for all existing documents that now have `documentReferences` fields.
  * The populateDocumentReferences beforeChange hook only fires on save, so
  * existing documents need a no-op update to trigger it.
  *
@@ -13,7 +21,7 @@ const ROUTABLE_COLLECTIONS = ['pages', 'posts', 'homePages', 'events'] as const
  * doc's documentReferences will populate naturally on its next save.
  */
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
-  for (const collection of ROUTABLE_COLLECTIONS) {
+  for (const collection of COLLECTIONS) {
     const docs = await payload.find({
       collection,
       limit: 0,
