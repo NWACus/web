@@ -1,0 +1,31 @@
+🔍 Comparing snapshots:
+   Old: 20260403_204010.json
+   New: 20260504_235946_revalidation_fields_and_widgets_dev_mode.json
+
+📊 Migration Analysis: 20260504_235946_revalidation_fields_and_widgets_dev_mode
+============================================================
+
+✅ Tables Added (11):
+   • _events_v_version_document_references
+   • _home_pages_v_version_document_references
+   • _pages_v_version_document_references
+   • _posts_v_version_document_references
+   • biographies_document_references
+   • events_document_references
+   • home_pages_document_references
+   • pages_document_references
+   • posts_document_references
+   • sponsors_document_references
+   • teams_document_references
+
+❌ Tables Removed (6):
+   • _events_v_version_blocks_in_content
+   • _home_pages_v_version_blocks_in_highlighted_content
+   • _posts_v_version_blocks_in_content
+   • events_blocks_in_content
+   • home_pages_blocks_in_highlighted_content
+   • posts_blocks_in_content
+
+📝 Tables Modified (1):
+   • nac_widgets_config
+     + Fields added: dev_mode
