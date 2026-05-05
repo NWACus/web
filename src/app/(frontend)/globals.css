@@ -1,8 +1,8 @@
+@import './colors.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './colors.css';
 
 @layer base {
   h1,

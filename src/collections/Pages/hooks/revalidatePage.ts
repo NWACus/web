@@ -58,8 +58,8 @@ const revalidate = async ({
 }) => {
   await revalidatePagePaths({ slug, tenantSlug, payload, logPrefix })
 
-  revalidateTag(`pages-sitemap-${tenantSlug}`)
-  revalidateTag(`navigation-${tenantSlug}`)
+  revalidateTag(`pages-sitemap-${tenantSlug}`, 'default')
+  revalidateTag(`navigation-${tenantSlug}`, 'default')
 
   await revalidateDocumentReferences({ collection: 'pages', id: docId })
 }

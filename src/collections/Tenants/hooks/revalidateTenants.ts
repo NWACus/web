@@ -10,7 +10,7 @@ export const revalidateTenantsAfterChange: CollectionAfterChangeHook = async ({
   if (context.disableRevalidate) return
 
   try {
-    revalidateTag('tenants')
+    revalidateTag('tenants', 'default')
     payload.logger.info(
       `Successfully revalidated tenants cache after ${operation} on tenant: ${
         doc?.slug || doc?.id
@@ -41,7 +41,7 @@ export const revalidateTenantsAfterDelete: CollectionAfterDeleteHook = async ({
   if (context.disableRevalidate) return
 
   try {
-    revalidateTag('tenants')
+    revalidateTag('tenants', 'default')
     req.payload.logger.info(
       `Successfully revalidated tenants cache after delete on tenant: ${doc?.slug || doc?.id}`,
     )

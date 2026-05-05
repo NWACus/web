@@ -80,7 +80,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@react-email/components": "1.0.11",
     "@react-email/render": "^2.0.4",
-    "@sentry/nextjs": "^9.47.1",
+    "@sentry/nextjs": "^10.51.0",
     "@types/lodash.merge": "^4.6.9",
     "@types/pluralize": "^0.0.33",
     "@vercel/blob": "^2.3.3",
@@ -101,7 +101,7 @@
     "libsql": "^0.5.6",
     "lodash-es": "^4.18.1",
     "lucide-react": "^1.7.0",
-    "next": "15.4.11",
+    "next": "16.2.4",
     "next-sitemap": "^4.2.3",
     "nextjs-toploader": "^3.9.17",
     "nuqs": "^2.7.3",
@@ -114,9 +114,9 @@
     "posthog-node": "^5.5.1",
     "prism-react-renderer": "^2.4.1",
     "qs-esm": "^7.0.2",
-    "react": "^19.2.4",
+    "react": "19.2.5",
     "react-day-picker": "^9.11.1",
-    "react-dom": "^19.2.4",
+    "react-dom": "19.2.5",
     "react-hook-form": "^7.71.2",
     "react-intersection-observer": "^10.0.0",
     "require-in-the-middle": "^7.5.2",
@@ -129,7 +129,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
-    "@next/eslint-plugin-next": "^15.3.3",
+    "@next/eslint-plugin-next": "16.2.4",
     "@playwright/test": "^1.58.0",
     "@react-email/preview-server": "5.2.10",
     "@tailwindcss/container-queries": "^0.1.1",
@@ -147,9 +147,9 @@
     "copyfiles": "^2.4.1",
     "dotenv": "^17.2.0",
     "eslint": "^9.26.0",
-    "eslint-config-next": "15.1.0",
+    "eslint-config-next": "16.2.4",
     "eslint-config-prettier": "^10.1.1",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "husky": "^9.1.7",
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.0.0",
@@ -178,6 +178,10 @@
     "patchedDependencies": {
       "@payloadcms/storage-vercel-blob": "patches/@payloadcms__storage-vercel-blob.patch",
       "@payloadcms/plugin-mcp": "patches/@payloadcms__plugin-mcp.patch"
+    },
+    "overrides": {
+      "@types/react": "19.2.14",
+      "@types/react-dom": "19.2.3"
     }
   }
 }

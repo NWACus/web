@@ -46,7 +46,7 @@ function setCookieIfNeeded(
   return false
 }
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const middlewareStart = performance.now()
 
   const logCompletion = (action: string) => {

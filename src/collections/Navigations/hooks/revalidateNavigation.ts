@@ -18,8 +18,8 @@ export const revalidateNavigation: CollectionAfterChangeHook<Navigation> = async
     payload.logger.info(`Revalidating navigation cache for tenant: ${tenant.slug}`)
 
     // Invalidate navigation cache tags first
-    revalidateTag(`navigation-${tenant.slug}`)
-    revalidateTag(`pages-sitemap-${tenant.slug}`)
+    revalidateTag(`navigation-${tenant.slug}`, 'default')
+    revalidateTag(`pages-sitemap-${tenant.slug}`, 'default')
 
     try {
       // Get current and previous navigation URLs to find what changed
@@ -54,6 +54,6 @@ export const revalidateNavigationDelete: CollectionAfterDeleteHook<Navigation> =
 
   payload.logger.info(`Revalidating navigation cache for deleted tenant: ${tenant.slug}`)
 
-  revalidateTag(`navigation-${tenant.slug}`)
-  revalidateTag(`pages-sitemap-${tenant.slug}`)
+  revalidateTag(`navigation-${tenant.slug}`, 'default')
+  revalidateTag(`pages-sitemap-${tenant.slug}`, 'default')
 }

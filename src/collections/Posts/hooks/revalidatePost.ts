@@ -24,8 +24,8 @@ const revalidate = async ({
 
   revalidatePath(preRewritePath)
   revalidatePath(postRewritePath)
-  revalidateTag(`posts-sitemap-${tenantSlug}`)
-  revalidateTag(`navigation-${tenantSlug}`)
+  revalidateTag(`posts-sitemap-${tenantSlug}`, 'default')
+  revalidateTag(`navigation-${tenantSlug}`, 'default')
 
   await revalidateDocumentReferences({ collection: 'posts', id: docId })
 }

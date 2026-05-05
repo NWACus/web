@@ -6,7 +6,7 @@ export const revalidateRedirect: CollectionAfterChangeHook = ({ req: { payload, 
   if (context.disableRevalidate) return
 
   payload.logger.info(`Revalidating redirects`)
-  revalidateTag('redirects')
+  revalidateTag('redirects', 'default')
 }
 
 export const revalidateRedirectDelete: CollectionAfterDeleteHook = ({
@@ -15,5 +15,5 @@ export const revalidateRedirectDelete: CollectionAfterDeleteHook = ({
   if (context.disableRevalidate) return
 
   payload.logger.info(`Revalidating redirects`)
-  revalidateTag('redirects')
+  revalidateTag('redirects', 'default')
 }

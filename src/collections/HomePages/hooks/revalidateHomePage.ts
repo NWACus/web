@@ -14,7 +14,7 @@ const revalidate = async (doc: HomePage, payload: BasePayload) => {
 
     const tenantHomeTag = `homePage-${tenant.slug}`
     payload.logger.info(`Revalidating tag: ${tenantHomeTag}`)
-    revalidateTag(tenantHomeTag)
+    revalidateTag(tenantHomeTag, 'default')
 
     payload.logger.info(`Revalidating global home page: /`)
     revalidatePath('/', 'page')

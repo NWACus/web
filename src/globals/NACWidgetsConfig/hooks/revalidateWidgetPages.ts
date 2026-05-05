@@ -11,7 +11,7 @@ const revalidateWidgetPages: GlobalAfterChangeHook = async ({ req: { context } }
   revalidatePath('/[center]/stations/map', 'page')
 
   // revalidate the unstable_cache tag for the widget config
-  revalidateTag('global_nacWidgetsConfig')
+  revalidateTag('global_nacWidgetsConfig', 'default')
 }
 
 export default revalidateWidgetPages
