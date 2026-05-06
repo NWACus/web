@@ -59,22 +59,31 @@ export const bootstrap = async ({
 
   payload.logger.info(`— Seeding tenants...`)
 
+  const bootstrappedProvisioning = {
+    status: 'complete' as const,
+    lastRunAt: new Date().toISOString(),
+    failed: undefined,
+  }
   const tenantData: RequiredDataFromCollectionSlug<'tenants'>[] = [
     {
       name: 'Death Valley Avalanche Center',
       slug: 'dvac',
+      provisioning: bootstrappedProvisioning,
     },
     {
       name: 'Northwest Avalanche Center',
       slug: 'nwac',
+      provisioning: bootstrappedProvisioning,
     },
     {
       name: 'Sierra Avalanche Center',
       slug: 'sac',
+      provisioning: bootstrappedProvisioning,
     },
     {
       name: 'Sawtooth Avalanche Center',
       slug: 'snfac',
+      provisioning: bootstrappedProvisioning,
     },
   ]
   for (const data of tenantData) {

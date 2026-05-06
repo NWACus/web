@@ -21,6 +21,7 @@ import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { seedCourses } from './courses'
 import { getEventsData } from './events'
+import { forecastZonesByTenant } from './forecast-zones'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
@@ -200,22 +201,34 @@ export const seed = async ({
       },
     })
 
+    // Seed tenants with provisioning status already 'complete' so the
+    // onboarding checklist shows Complete without requiring a manual re-run.
+    const seededAt = new Date().toISOString()
+    const seededProvisioning = {
+      status: 'complete' as const,
+      lastRunAt: seededAt,
+      failed: undefined,
+    }
     const tenants = await upsertGlobals('tenants', payload, incremental, (obj) => obj.slug, [
       {
         name: 'Death Valley Avalanche Center',
         slug: 'dvac',
+        provisioning: seededProvisioning,
       },
       {
         name: 'Northwest Avalanche Center',
         slug: 'nwac',
+        provisioning: seededProvisioning,
       },
       {
         name: 'Sierra Avalanche Center',
         slug: 'sac',
+        provisioning: seededProvisioning,
       },
       {
         name: 'Sawtooth Avalanche Center',
         slug: 'snfac',
+        provisioning: seededProvisioning,
       },
     ])
     const tenantsById: Record<number, Tenant> = {}
@@ -958,15 +971,29 @@ export const seed = async ({
       tenantsById,
       (obj) => obj.url,
       Object.values(tenants)
-        .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => [
-          builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
-          builtInPage(tenant, 'Mountain Weather', '/weather/forecast'),
-          builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
-          builtInPage(tenant, 'Recent Observations', '/observations'),
-          builtInPage(tenant, 'Submit Observations', '/observations/submit'),
-          builtInPage(tenant, 'Blog', '/blog'),
-          builtInPage(tenant, 'Events', '/events'),
-        ])
+        .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => {
+          const zones = forecastZonesByTenant[tenant.slug] ?? []
+          const zonePages =
+            zones.length === 1
+              ? [builtInPage(tenant, 'Avalanche Forecast', `/forecasts/avalanche/${zones[0].slug}`)]
+              : [
+                  builtInPage(tenant, 'All Forecasts', '/forecasts/avalanche'),
+                  ...zones.map(({ name, slug }) =>
+                    builtInPage(tenant, name, `/forecasts/avalanche/${slug}`),
+                  ),
+                ]
+          return [
+            ...zonePages,
+            builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+            builtInPage(tenant, 'Recent Observations', '/observations'),
+            builtInPage(tenant, 'Submit Observations', '/observations/submit'),
+            builtInPage(tenant, 'Blog', '/blog'),
+            builtInPage(tenant, 'Events', '/events'),
+            ...(tenant.slug === 'sac'
+              ? [builtInPage(tenant, 'Observations Archive', '/observations-archive')]
+              : []),
+          ]
+        })
         .flat(),
     )
 
@@ -1222,7 +1249,7 @@ export const seed = async ({
       (_obj) => 'nav',
       Object.values(tenants).map(
         (tenant): RequiredDataFromCollectionSlug<'navigations'> =>
-          navigationSeed(payload, pages, builtInPages, tenant),
+          navigationSeed(payload, pages, builtInPages, tenant, forecastZonesByTenant),
       ),
     )
 

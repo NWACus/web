@@ -3,9 +3,13 @@ import {
   findNavigationItemBySlug,
   getCanonicalUrlsFromNavigation,
   getNavigationPathForSlug,
+  topLevelNavItem,
 } from '../../src/components/Header/utils-pure'
 
 import type { TopLevelNavItem } from '../../src/components/Header/utils'
+import type { Navigation } from '../../src/payload-types'
+
+type NavTab = Navigation['weather']
 
 describe('Header Utilities', () => {
   const mockNavItems: TopLevelNavItem[] = [
@@ -528,6 +532,205 @@ describe('Header Utilities', () => {
       expect(result.canonicalUrls).toEqual(navigationUrls)
       // Should only have 'about' once in excluded slugs, even though it appears in multiple nav URLs
       expect(result.excludedSlugs).toEqual(['about', 'unique-page'])
+    })
+  })
+
+  describe('topLevelNavItem — displayMode branching', () => {
+    const internalLink: NonNullable<NonNullable<NavTab>['link']> = {
+      type: 'internal',
+      url: '/donate-membership',
+      label: 'Donate',
+    }
+
+    describe("displayMode: 'dropdown'", () => {
+      it('returns an entry with items (no top-level link)', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'dropdown' },
+          items: [
+            {
+              id: 'learn',
+              link: { type: 'internal', url: '/learn', label: 'Learn' },
+            },
+          ],
+        }
+
+        const result = topLevelNavItem({ tab, label: 'Education' })
+
+        expect(result).toHaveLength(1)
+        expect(result[0]).toEqual({
+          displayMode: 'dropdown',
+          label: 'Education',
+          items: [
+            {
+              id: 'learn',
+              link: { type: 'internal', url: '/education/learn', label: 'Learn' },
+            },
+          ],
+        })
+      })
+
+      it('returns empty array when dropdown has no items', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'dropdown' },
+          items: [],
+        }
+
+        expect(topLevelNavItem({ tab, label: 'Education' })).toEqual([])
+      })
+
+      it('defaults to dropdown when displayMode is not set', () => {
+        const tab: NavTab = {
+          items: [
+            {
+              id: 'learn',
+              link: { type: 'internal', url: '/learn', label: 'Learn' },
+            },
+          ],
+        }
+
+        const result = topLevelNavItem({ tab, label: 'Education' })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].displayMode).toBe('dropdown')
+        expect(result[0].items).toBeDefined()
+      })
+    })
+
+    describe("displayMode: 'link'", () => {
+      it('returns a single entry with the top-level link and no items', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'link' },
+          link: { type: 'internal', url: '/blog', label: 'Blog' },
+        }
+
+        const result = topLevelNavItem({ tab, label: 'Blog' })
+
+        expect(result).toHaveLength(1)
+        expect(result[0]).toEqual({
+          displayMode: 'link',
+          link: { type: 'internal', url: '/blog', label: 'Blog' },
+          label: 'Blog',
+        })
+        expect(result[0].items).toBeUndefined()
+      })
+
+      it('returns empty array when link mode has no link', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'link' },
+        }
+
+        expect(topLevelNavItem({ tab, label: 'Blog' })).toEqual([])
+      })
+
+      it('ignores items when mode is link', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'link' },
+          link: { type: 'internal', url: '/blog', label: 'Blog' },
+          items: [
+            {
+              id: 'ignored',
+              link: { type: 'internal', url: '/ignored', label: 'Ignored' },
+            },
+          ],
+        }
+
+        const result = topLevelNavItem({ tab, label: 'Blog' })
+
+        expect(result).toHaveLength(1)
+        expect(result[0].items).toBeUndefined()
+      })
+    })
+
+    describe("displayMode: 'button'", () => {
+      it('returns a single entry flagged as a button with the link', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'button' },
+          link: internalLink,
+        }
+
+        const result = topLevelNavItem({ tab, label: 'Donate' })
+
+        expect(result).toHaveLength(1)
+        expect(result[0]).toEqual({
+          displayMode: 'button',
+          link: { type: 'internal', url: '/donate-membership', label: 'Donate' },
+          label: 'Donate',
+        })
+      })
+
+      it('returns empty array when button mode has no link', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'button' },
+        }
+
+        expect(topLevelNavItem({ tab, label: 'Donate' })).toEqual([])
+      })
+
+      it('preserves external link details (newTab) for button mode', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'button' },
+          link: {
+            type: 'external',
+            url: 'https://example.com/donate',
+            label: 'Donate',
+            newTab: true,
+          },
+        }
+
+        const result = topLevelNavItem({ tab, label: 'Donate' })
+
+        expect(result).toHaveLength(1)
+        expect(result[0]).toEqual({
+          displayMode: 'button',
+          link: {
+            type: 'external',
+            url: 'https://example.com/donate',
+            label: 'Donate',
+            newTab: true,
+          },
+          label: 'Donate',
+        })
+      })
+    })
+
+    describe('enabled toggle', () => {
+      it('returns empty array when the tab is disabled regardless of mode', () => {
+        const linkTab: NavTab = {
+          options: { displayMode: 'link', enabled: false },
+          link: { type: 'internal', url: '/blog', label: 'Blog' },
+        }
+        const buttonTab: NavTab = {
+          options: { displayMode: 'button', enabled: false },
+          link: internalLink,
+        }
+        const dropdownTab: NavTab = {
+          options: { displayMode: 'dropdown', enabled: false },
+          items: [
+            {
+              id: 'learn',
+              link: { type: 'internal', url: '/learn', label: 'Learn' },
+            },
+          ],
+        }
+
+        expect(topLevelNavItem({ tab: linkTab, label: 'Blog' })).toEqual([])
+        expect(topLevelNavItem({ tab: buttonTab, label: 'Donate' })).toEqual([])
+        expect(topLevelNavItem({ tab: dropdownTab, label: 'Education' })).toEqual([])
+      })
+
+      it('renders the tab when enabled is true', () => {
+        const tab: NavTab = {
+          options: { displayMode: 'link', enabled: true },
+          link: { type: 'internal', url: '/blog', label: 'Blog' },
+        }
+
+        expect(topLevelNavItem({ tab, label: 'Blog' })).toHaveLength(1)
+      })
+    })
+
+    it('returns empty array when the tab is missing', () => {
+      // NavTab is an optional field — confirm the function handles undefined gracefully
+      expect(topLevelNavItem({ tab: undefined, label: 'Weather' })).toEqual([])
     })
   })
 })
