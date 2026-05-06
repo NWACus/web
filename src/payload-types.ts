@@ -355,6 +355,19 @@ export interface Tenant {
     | 'wcmac';
   name: string;
   contentHash?: string | null;
+  provisioning: {
+    status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual';
+    lastRunAt?: string | null;
+    failed?: {
+      pages?: {
+        [k: string]: string;
+      };
+      homePage?: string;
+      navigation?: string;
+      websiteSettings?: string;
+      timedOut?: string;
+    };
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1923,6 +1936,28 @@ export interface Navigation {
   id: number;
   tenant: number | Tenant;
   forecasts?: {
+    options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
     /**
      * Dropdown items under Forecasts
      */
@@ -1980,6 +2015,28 @@ export interface Navigation {
       | null;
   };
   observations?: {
+    options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
+    };
     /**
      * Dropdown items under Observations
      */
@@ -2038,10 +2095,30 @@ export interface Navigation {
   };
   weather?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Weather
@@ -2101,10 +2178,30 @@ export interface Navigation {
   };
   education?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Education
@@ -2164,10 +2261,30 @@ export interface Navigation {
   };
   accidents?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Accidents
@@ -2227,10 +2344,30 @@ export interface Navigation {
   };
   blog?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden from the nav, the blog landing page will still be accessible to visitors for filtered blog lists.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Blog
@@ -2290,10 +2427,30 @@ export interface Navigation {
   };
   events?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden from the nav, the events landing page will still be accessible to visitors for filtered event lists.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Events
@@ -2353,10 +2510,30 @@ export interface Navigation {
   };
   about?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under About
@@ -2416,10 +2593,30 @@ export interface Navigation {
   };
   support?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
       /**
        * If hidden, pages with links in this nav item will not be accessible at their navigation-nested URLs.
        */
       enabled?: boolean | null;
+    };
+    link?: {
+      type?: ('internal' | 'external') | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'builtInPages';
+            value: number | BuiltInPage;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+      label?: string | null;
+      newTab?: boolean | null;
     };
     /**
      * Dropdown items under Support
@@ -2479,6 +2676,10 @@ export interface Navigation {
   };
   donate?: {
     options?: {
+      displayMode?: ('dropdown' | 'link' | 'button') | null;
+      /**
+       * If hidden, the button will not appear in the nav.
+       */
       enabled?: boolean | null;
     };
     link?: {
@@ -2500,6 +2701,61 @@ export interface Navigation {
       label?: string | null;
       newTab?: boolean | null;
     };
+    /**
+     * Dropdown items under Donate
+     */
+    items?:
+      | {
+          /**
+           * Label for this nav section (shown when item has sub-items)
+           */
+          label?: string | null;
+          link?: {
+            type?: ('internal' | 'external') | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'builtInPages';
+                  value: number | BuiltInPage;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label?: string | null;
+            newTab?: boolean | null;
+          };
+          items?:
+            | {
+                link?: {
+                  type?: ('internal' | 'external') | null;
+                  reference?:
+                    | ({
+                        relationTo: 'pages';
+                        value: number | Page;
+                      } | null)
+                    | ({
+                        relationTo: 'builtInPages';
+                        value: number | BuiltInPage;
+                      } | null)
+                    | ({
+                        relationTo: 'posts';
+                        value: number | Post;
+                      } | null);
+                  url?: string | null;
+                  label?: string | null;
+                  newTab?: boolean | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
   };
   contentHash?: string | null;
   updatedAt: string;
@@ -3744,6 +4000,13 @@ export interface TenantsSelect<T extends boolean = true> {
   slug?: T;
   name?: T;
   contentHash?: T;
+  provisioning?:
+    | T
+    | {
+        status?: T;
+        lastRunAt?: T;
+        failed?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3756,6 +4019,20 @@ export interface NavigationsSelect<T extends boolean = true> {
   forecasts?:
     | T
     | {
+        options?:
+          | T
+          | {
+              displayMode?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
         items?:
           | T
           | {
@@ -3789,6 +4066,20 @@ export interface NavigationsSelect<T extends boolean = true> {
   observations?:
     | T
     | {
+        options?:
+          | T
+          | {
+              displayMode?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
+            };
         items?:
           | T
           | {
@@ -3825,7 +4116,17 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -3863,7 +4164,17 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -3901,7 +4212,17 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -3939,7 +4260,17 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -3977,7 +4308,17 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -4015,7 +4356,17 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -4053,7 +4404,17 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
+            };
+        link?:
+          | T
+          | {
+              type?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              newTab?: T;
             };
         items?:
           | T
@@ -4091,6 +4452,7 @@ export interface NavigationsSelect<T extends boolean = true> {
         options?:
           | T
           | {
+              displayMode?: T;
               enabled?: T;
             };
         link?:
@@ -4101,6 +4463,35 @@ export interface NavigationsSelect<T extends boolean = true> {
               url?: T;
               label?: T;
               newTab?: T;
+            };
+        items?:
+          | T
+          | {
+              label?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    newTab?: T;
+                  };
+              items?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          reference?: T;
+                          url?: T;
+                          label?: T;
+                          newTab?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
             };
       };
   contentHash?: T;
