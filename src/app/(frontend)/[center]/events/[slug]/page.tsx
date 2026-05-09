@@ -2,7 +2,7 @@ import { Redirects } from '@/components/Redirects'
 import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 
 import { ButtonLink } from '@/components/ButtonLink'
 import { EventInfo } from '@/components/EventInfo'
@@ -167,6 +167,27 @@ const queryEventBySlug = async ({ center, slug }: { center: string; slug: string
 
   const payload = await getPayload({ config: configPromise })
 
+  const conditions: Where[] = [
+    {
+      'tenant.slug': {
+        equals: center,
+      },
+    },
+    {
+      slug: {
+        equals: slug,
+      },
+    },
+  ]
+
+  if (!draft) {
+    conditions.push({
+      _status: {
+        equals: 'published',
+      },
+    })
+  }
+
   const result = await payload.find({
     collection: 'events',
     draft,
@@ -178,20 +199,7 @@ const queryEventBySlug = async ({ center, slug }: { center: string; slug: string
         name: true,
       },
     },
-    where: {
-      and: [
-        {
-          'tenant.slug': {
-            equals: center,
-          },
-        },
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-      ],
-    },
+    where: { and: conditions },
   })
 
   return result.docs?.[0] || null
