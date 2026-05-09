@@ -1,15 +1,8 @@
-import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-sqlite'
+import { MigrateDownArgs, MigrateUpArgs } from '@payloadcms/db-sqlite'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`ALTER TABLE \`home_pages_blocks_document_block\` ADD \`layout\` text DEFAULT 'download';`)
-  await db.run(sql`ALTER TABLE \`_home_pages_v_blocks_document_block\` ADD \`layout\` text DEFAULT 'download';`)
-  await db.run(sql`ALTER TABLE \`pages_blocks_document_block\` ADD \`layout\` text DEFAULT 'download';`)
-  await db.run(sql`ALTER TABLE \`_pages_v_blocks_document_block\` ADD \`layout\` text DEFAULT 'download';`)
-}
+// No-op: layout column was already added by 20260502_155913.
+// This migration exists only to advance the snapshot so migrate:create
+// no longer detects layout as missing.
+export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {}
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.run(sql`ALTER TABLE \`home_pages_blocks_document_block\` DROP COLUMN \`layout\`;`)
-  await db.run(sql`ALTER TABLE \`_home_pages_v_blocks_document_block\` DROP COLUMN \`layout\`;`)
-  await db.run(sql`ALTER TABLE \`pages_blocks_document_block\` DROP COLUMN \`layout\`;`)
-  await db.run(sql`ALTER TABLE \`_pages_v_blocks_document_block\` DROP COLUMN \`layout\`;`)
-}
+export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {}
