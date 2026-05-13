@@ -94,6 +94,23 @@ test.describe('Announcement popups', () => {
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
 
+  test('popup is permanently dismissed via "Don\'t show this again"', async ({ page }) => {
+    await page.goto(`${TENANT_BASE_URL}/`)
+    await page.waitForLoadState('load')
+
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 })
+
+    await page.getByRole('button', { name: "Don't show this again" }).click()
+
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    // Reload and verify the popup does not reappear
+    await page.reload()
+    await page.waitForLoadState('load')
+    await page.waitForTimeout(2000)
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+  })
+
   test('homepage-only popup does not appear on other pages', async ({ page }) => {
     await page.goto(`${TENANT_BASE_URL}/blog`)
     await page.waitForLoadState('load')
