@@ -5,12 +5,13 @@ import type { Announcement } from '@/payload-types'
 function makeAnnouncement(overrides: Partial<Announcement> = {}): Announcement {
   return {
     id: 1,
+    tenant: 1,
     title: 'Test',
     type: 'popup',
     createdAt: '',
     updatedAt: '',
     ...overrides,
-  } as Announcement
+  }
 }
 
 describe('isExpired', () => {
