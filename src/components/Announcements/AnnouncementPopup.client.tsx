@@ -68,7 +68,7 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
 
     const state = getPopupState(popup.id)
 
-    if (popup.displayFrequency === 'once' && state.dismissed) return
+    if (state.dismissed) return
 
     const newVisitCount = state.visitCount + 1
     setPopupState(popup.id, { ...state, visitCount: newVisitCount })
@@ -95,6 +95,12 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
     [popup.displayFrequency, popup.id],
   )
 
+  const handleDontShowAgain = useCallback(() => {
+    const state = getPopupState(popup.id)
+    setPopupState(popup.id, { ...state, dismissed: true })
+    setOpen(false)
+  }, [popup.id])
+
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (e.target instanceof HTMLElement && e.target.closest('a, button:not([aria-label])')) {
@@ -118,6 +124,12 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
             className="max-w-none [&_.my-4]:my-0"
           />
         )}
+        <button
+          onClick={handleDontShowAgain}
+          className="absolute bottom-2 right-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Don&apos;t show this again
+        </button>
       </DialogContent>
     </Dialog>
   )

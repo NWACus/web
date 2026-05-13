@@ -1,8 +1,9 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { ButtonBlock } from '@/blocks/Button/config'
+import { InlineMediaBlock } from '@/blocks/InlineMedia/config'
 import { MediaBlock } from '@/blocks/Media/config'
-import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
+import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
@@ -72,8 +73,8 @@ export const Announcements: CollectionConfig = {
           return [
             ...rootFeatures,
             BlocksFeature({
-              blocks: [ButtonBlock, MediaBlock],
-              inlineBlocks: DEFAULT_INLINE_BLOCKS,
+              blocks: [ButtonBlock, MediaBlock, SponsorsBlock],
+              inlineBlocks: [InlineMediaBlock],
             }),
             HorizontalRuleFeature(),
             InlineToolbarFeature(),

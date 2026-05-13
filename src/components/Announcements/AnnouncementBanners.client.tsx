@@ -103,7 +103,7 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
         <div ref={contentRef} className="relative bg-callout" onClick={handleContentClick}>
           {activeBanners.map((banner, index) => (
             <Fragment key={banner.id}>
-              {index > 0 && <hr className="container mx-auto border-b-px" />}
+              {index > 0 && <hr className="container mx-auto border-callout-foreground/25" />}
               <div className="bg-callout px-4 py-3 text-callout-foreground">
                 <div className="container mx-auto">
                   <h3 className="mb-1 font-semibold">{banner.title}</h3>
