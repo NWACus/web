@@ -77,15 +77,19 @@ Descriptive names make it easy to understand what each migration does when scann
 
 ### Merging `main` When There Are New Migrations
 
-When you merge `main` into your feature branch and `main` has new migrations, you will get a conflict in `src/migrations/index.ts`. This is expected. Follow this process:
+When you merge `main` into your feature branch and `main` has new migrations, you **must recreate your branch's migrations** — even if there is no merge conflict. The critical reason: each migration's `.json` snapshot must reflect the full schema state at that point, including migrations from `main`. If you skip this step, the snapshot will be missing `main`'s migrations and won't accurately represent the database state.
 
-1. **Merge `main` into your branch** and resolve the conflict in `src/migrations/index.ts` by accepting all incoming changes
+If there **is** a conflict in `src/migrations/index.ts`, resolve it by accepting all incoming changes before proceeding.
+
+Follow this process:
+
+1. **Merge `main` into your branch** and resolve any other conflicts
 2. **Delete your branch's migration files** — remove the migration `.ts` file(s) and their corresponding `.json` snapshot(s) that your branch added
 3. **Remove your migration imports** from `src/migrations/index.ts` — keep only the migrations that came from `main`
-4. **Recreate your migrations** — run `pnpm payload migrate:create <descriptive_name>` again. This generates new migration files with timestamps that are ordered **after** the ones from `main`, and a snapshot that reflects the current schema state
-5. **Verify** — check that `src/migrations/index.ts` has all migrations in correct chronological order and that your migrations were recreated as expected
+4. **Recreate your migrations** — run `pnpm payload migrate:create <descriptive_name>` again. This generates new migration files with timestamps that are ordered **after** the ones from `main`, and a snapshot that reflects the current schema state (including `main`'s migrations)
+5. **Verify** — check that `src/migrations/index.ts` has all migrations in correct chronological order and that your new `.json` snapshot includes `main`'s migrations
 
-This ensures migrations always run in the right order and each migration's snapshot accurately reflects the schema state at that point.
+The most important output of the recreation is the `.json` snapshot file. The `.ts` migration file will typically be identical to the original, but it's simplest to regenerate both.
 
 ## Safely handling relationship fields
 
