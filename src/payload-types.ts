@@ -238,25 +238,6 @@ export interface Announcement {
     };
     [k: string]: unknown;
   } | null;
-  callToAction?: {
-    type?: ('internal' | 'external') | null;
-    newTab?: boolean | null;
-    reference?:
-      | ({
-          relationTo: 'pages';
-          value: number | Page;
-        } | null)
-      | ({
-          relationTo: 'builtInPages';
-          value: number | BuiltInPage;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: number | Post;
-        } | null);
-    url?: string | null;
-    label?: string | null;
-  };
   /**
    * How often the pop-up is shown to the same user
    */
@@ -326,6 +307,113 @@ export interface Tenant {
   };
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homePages".
+ */
+export interface HomePage {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * If quick links are added they will appear to the right of the home page map on desktop and below the home page map on mobile. These are optional.
+   */
+  quickLinks?:
+    | {
+        type?: ('internal' | 'external') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: number | Page;
+            } | null)
+          | ({
+              relationTo: 'builtInPages';
+              value: number | BuiltInPage;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null);
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * This section is displayed prominently below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
+   */
+  highlightedContent: {
+    /**
+     * This controls whether or not this section is displayed.
+     */
+    enabled: boolean;
+    heading?: string | null;
+    backgroundColor: string;
+    columns?:
+      | {
+          richText?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
+   */
+  layout: (
+    | BlogListBlock
+    | ContentBlock
+    | DocumentBlock
+    | EventListBlock
+    | EventTableBlock
+    | FormBlock
+    | GenericEmbedBlock
+    | HeaderBlock
+    | ImageLinkGridBlock
+    | ImageTextBlock
+    | LinkPreviewBlock
+    | MediaBlock
+    | NACMediaBlock
+    | SingleBlogPostBlock
+    | SingleEventBlock
+    | SponsorsBlock
+    | TeamBlock
+  )[];
+  publishedAt?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1518,113 +1606,6 @@ export interface Team {
     | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "homePages".
- */
-export interface HomePage {
-  id: number;
-  tenant: number | Tenant;
-  /**
-   * If quick links are added they will appear to the right of the home page map on desktop and below the home page map on mobile. These are optional.
-   */
-  quickLinks?:
-    | {
-        type?: ('internal' | 'external') | null;
-        newTab?: boolean | null;
-        reference?:
-          | ({
-              relationTo: 'pages';
-              value: number | Page;
-            } | null)
-          | ({
-              relationTo: 'builtInPages';
-              value: number | BuiltInPage;
-            } | null)
-          | ({
-              relationTo: 'posts';
-              value: number | Post;
-            } | null);
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * This section is displayed prominently below the forecast zones map. Use this for important news or other highlighted content. You can hide this section without deleting the content by ensuring the "Show Highlighted Content" checkbox is deselected.
-   */
-  highlightedContent: {
-    /**
-     * This controls whether or not this section is displayed.
-     */
-    enabled: boolean;
-    heading?: string | null;
-    backgroundColor: string;
-    columns?:
-      | {
-          richText?: {
-            root: {
-              type: string;
-              children: {
-                type: any;
-                version: number;
-                [k: string]: unknown;
-              }[];
-              direction: ('ltr' | 'rtl') | null;
-              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-              indent: number;
-              version: number;
-            };
-            [k: string]: unknown;
-          } | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * This is the body of your home page. This content will appear below the forecast zones map and the Highlighted Content section.
-   */
-  layout: (
-    | BlogListBlock
-    | ContentBlock
-    | DocumentBlock
-    | EventListBlock
-    | EventTableBlock
-    | FormBlock
-    | GenericEmbedBlock
-    | HeaderBlock
-    | ImageLinkGridBlock
-    | ImageTextBlock
-    | LinkPreviewBlock
-    | MediaBlock
-    | NACMediaBlock
-    | SingleBlogPostBlock
-    | SingleEventBlock
-    | SponsorsBlock
-    | TeamBlock
-  )[];
-  publishedAt?: string | null;
-  documentReferences?:
-    | {
-        collection?: string | null;
-        docId?: number | null;
-        instances?:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * Note: This information will be displayed on your public provider listing.
@@ -3280,15 +3261,6 @@ export interface AnnouncementsSelect<T extends boolean = true> {
   title?: T;
   type?: T;
   content?: T;
-  callToAction?:
-    | T
-    | {
-        type?: T;
-        newTab?: T;
-        reference?: T;
-        url?: T;
-        label?: T;
-      };
   displayFrequency?: T;
   displayInterval?: T;
   pageScope?: T;

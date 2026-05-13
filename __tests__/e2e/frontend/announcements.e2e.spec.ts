@@ -80,7 +80,6 @@ test.describe('Announcement popups', () => {
     // Seed popup has a 1s delay before appearing
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 })
     await expect(page.getByRole('heading', { name: 'Annual Fundraiser Gala' })).toBeVisible()
-    await expect(page.getByText('Get Tickets')).toBeVisible()
   })
 
   test('popup can be dismissed', async ({ page }) => {

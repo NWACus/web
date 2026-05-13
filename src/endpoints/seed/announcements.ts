@@ -1,5 +1,6 @@
 import type { Tenant } from '@/payload-types'
 import type { RequiredDataFromCollectionSlug } from 'payload'
+import { blockNode, paragraphNode, richTextRoot } from './utilities'
 
 export const getAnnouncementsData = (
   tenant: Tenant,
@@ -20,29 +21,20 @@ export const getAnnouncementsData = (
       type: 'banner',
       tenant: tenant.id,
       startDate: oneMonthAgo.toISOString(),
-
-      content: {
-        root: {
-          type: 'root',
-          children: [
-            {
-              type: 'paragraph',
-              children: [
-                {
-                  type: 'text',
-                  text: 'Due to recent storm damage, the access road to the northern trailhead is closed until further notice. Please use alternate routes.',
-                  version: 1,
-                },
-              ],
-              version: 1,
-            },
-          ],
-          direction: 'ltr',
-          format: '',
-          indent: 0,
-          version: 1,
-        },
-      },
+      content: richTextRoot(
+        paragraphNode(
+          'Due to recent storm damage, the access road to the northern trailhead is closed until further notice. Please use alternate routes.',
+        ),
+        blockNode({
+          blockType: 'buttonBlock',
+          button: {
+            type: 'external',
+            url: 'https://avalanche.org',
+            label: 'View Road Status',
+            variant: 'default',
+          },
+        }),
+      ),
       _status: 'published',
     },
     {
@@ -55,33 +47,20 @@ export const getAnnouncementsData = (
       displayInterval: 3,
       pageScope: 'homepage_only',
       deviceTarget: 'all',
-      content: {
-        root: {
-          type: 'root',
-          children: [
-            {
-              type: 'paragraph',
-              children: [
-                {
-                  type: 'text',
-                  text: 'Join us for our annual fundraiser gala! Your support helps fund avalanche forecasting, education programs, and safety research. Early bird tickets are available now.',
-                  version: 1,
-                },
-              ],
-              version: 1,
-            },
-          ],
-          direction: 'ltr',
-          format: '',
-          indent: 0,
-          version: 1,
-        },
-      },
-      callToAction: {
-        type: 'external',
-        label: 'Get Tickets',
-        url: 'https://avalanche.org',
-      },
+      content: richTextRoot(
+        paragraphNode(
+          'Join us for our annual fundraiser gala! Your support helps fund avalanche forecasting, education programs, and safety research. Early bird tickets are available now.',
+        ),
+        blockNode({
+          blockType: 'buttonBlock',
+          button: {
+            type: 'external',
+            url: 'https://avalanche.org',
+            label: 'Get Tickets',
+            variant: 'default',
+          },
+        }),
+      ),
       _status: 'published',
     },
     {
@@ -90,29 +69,20 @@ export const getAnnouncementsData = (
       tenant: tenant.id,
       startDate: twoMonthsAgo.toISOString(),
       endDate: oneWeekAgo.toISOString(),
-
-      content: {
-        root: {
-          type: 'root',
-          children: [
-            {
-              type: 'paragraph',
-              children: [
-                {
-                  type: 'text',
-                  text: 'The season summary report for the previous winter is now available. Check the blog for a detailed analysis.',
-                  version: 1,
-                },
-              ],
-              version: 1,
-            },
-          ],
-          direction: 'ltr',
-          format: '',
-          indent: 0,
-          version: 1,
-        },
-      },
+      content: richTextRoot(
+        paragraphNode(
+          'The season summary report for the previous winter is now available. Check the blog for a detailed analysis.',
+        ),
+        blockNode({
+          blockType: 'buttonBlock',
+          button: {
+            type: 'external',
+            url: 'https://avalanche.org',
+            label: 'Read Summary',
+            variant: 'default',
+          },
+        }),
+      ),
       _status: 'published',
     },
   ]

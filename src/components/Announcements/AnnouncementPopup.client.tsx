@@ -2,8 +2,7 @@
 
 import type { Announcement } from '@/payload-types'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { ButtonLink } from '../ButtonLink'
+import { useCallback, useEffect, useState } from 'react'
 import RichText from '../RichText'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
 import { matchesPage, shouldShow } from './announcementUtils'
@@ -83,32 +82,41 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
     return () => clearTimeout(timer)
   }, [popup, pathname, center])
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      if (popup.displayFrequency === 'once') {
-        const state = getPopupState(popup.id)
-        setPopupState(popup.id, { ...state, dismissed: true })
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        if (popup.displayFrequency === 'once') {
+          const state = getPopupState(popup.id)
+          setPopupState(popup.id, { ...state, dismissed: true })
+        }
       }
-    }
-    setOpen(isOpen)
-  }
+      setOpen(isOpen)
+    },
+    [popup.displayFrequency, popup.id],
+  )
 
-  const cta = popup.callToAction
+  const handleContentClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (e.target instanceof HTMLElement && e.target.closest('a, button:not([aria-label])')) {
+        handleOpenChange(false)
+      }
+    },
+    [handleOpenChange],
+  )
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[600px]">
+      <DialogContent className="max-w-[600px]" onClick={handleContentClick}>
         <DialogHeader>
-          <DialogTitle>{popup.title}</DialogTitle>
+          <DialogTitle className="text-2xl">{popup.title}</DialogTitle>
           <DialogDescription className="sr-only">Announcement</DialogDescription>
         </DialogHeader>
         {popup.content && (
-          <RichText data={popup.content} enableGutter={false} className="max-w-none" />
-        )}
-        {cta && (cta.url || cta.reference) && (
-          <div className="mt-2">
-            <ButtonLink {...cta} />
-          </div>
+          <RichText
+            data={popup.content}
+            enableGutter={false}
+            className="max-w-none [&_.my-4]:my-0"
+          />
         )}
       </DialogContent>
     </Dialog>

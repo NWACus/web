@@ -8,8 +8,6 @@ import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { Announcement } from '@/payload-types'
-import { getTenantFilter } from '@/utilities/collectionFilters'
-import { validateExternalUrl } from '@/utilities/validateUrl'
 import {
   BlocksFeature,
   HorizontalRuleFeature,
@@ -82,82 +80,6 @@ export const Announcements: CollectionConfig = {
           ]
         },
       }),
-    },
-    {
-      name: 'callToAction',
-      type: 'group',
-      label: 'Call to Action Button',
-      admin: {
-        hideGutter: true,
-      },
-      fields: [
-        {
-          type: 'row',
-          fields: [
-            {
-              name: 'type',
-              type: 'radio',
-              admin: {
-                layout: 'horizontal',
-                width: '50%',
-              },
-              defaultValue: 'internal',
-              options: [
-                { label: 'Internal link', value: 'internal' },
-                { label: 'External link', value: 'external' },
-              ],
-            },
-            {
-              name: 'newTab',
-              type: 'checkbox',
-              label: 'Open in new tab',
-              admin: {
-                style: {
-                  alignSelf: 'flex-end',
-                  alignItems: 'flex-end',
-                  marginBottom: '4px',
-                },
-                width: '50%',
-              },
-            },
-          ],
-        },
-        {
-          type: 'row',
-          fields: [
-            {
-              name: 'reference',
-              type: 'relationship',
-              admin: {
-                condition: (_, siblingData) => siblingData?.type === 'internal',
-                sortOptions: { pages: 'title', builtInPages: 'title', posts: 'title' },
-                width: '50%',
-              },
-              label: 'Select page or post',
-              relationTo: ['pages', 'builtInPages', 'posts'],
-              filterOptions: getTenantFilter,
-            },
-            {
-              name: 'url',
-              type: 'text',
-              admin: {
-                condition: (_, siblingData) => siblingData?.type === 'external',
-                width: '100%',
-              },
-              label: 'External URL',
-              validate: validateExternalUrl,
-            },
-            {
-              name: 'label',
-              type: 'text',
-              admin: {
-                width: '50%',
-              },
-              label: 'Button Label',
-            },
-          ],
-        },
-      ],
     },
     {
       name: 'displayFrequency',

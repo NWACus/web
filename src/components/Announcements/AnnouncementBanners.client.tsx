@@ -3,7 +3,6 @@
 import type { Announcement } from '@/payload-types'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
-import { ButtonLink } from '../ButtonLink'
 import RichText from '../RichText'
 import { isExpired } from './isExpired'
 
@@ -102,31 +101,23 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
         style={{ height: collapsed ? 0 : contentHeight }}
       >
         <div ref={contentRef} className="relative bg-callout" onClick={handleContentClick}>
-          {activeBanners.map((banner, index) => {
-            const cta = banner.callToAction
-            return (
-              <Fragment key={banner.id}>
-                {index > 0 && <hr className="container mx-auto border-b-px" />}
-                <div className="bg-callout px-4 py-3 text-callout-foreground">
-                  <div className="container mx-auto">
-                    <h3 className="mb-1 text-sm font-semibold">{banner.title}</h3>
-                    {banner.content && (
-                      <RichText
-                        data={banner.content}
-                        enableGutter={false}
-                        className="prose-sm max-w-none prose-a:text-callout-foreground prose-a:underline prose-a:decoration-callout-foreground/50 hover:prose-a:decoration-callout-foreground"
-                      />
-                    )}
-                    {cta && (cta.url || cta.reference) && (
-                      <div className="mt-2">
-                        <ButtonLink size="sm" {...cta} />
-                      </div>
-                    )}
-                  </div>
+          {activeBanners.map((banner, index) => (
+            <Fragment key={banner.id}>
+              {index > 0 && <hr className="container mx-auto border-b-px" />}
+              <div className="bg-callout px-4 py-3 text-callout-foreground">
+                <div className="container mx-auto">
+                  <h3 className="mb-1 font-semibold">{banner.title}</h3>
+                  {banner.content && (
+                    <RichText
+                      data={banner.content}
+                      enableGutter={false}
+                      className="prose-sm max-w-none [&_p]:mb-2 [&_p_a]:text-callout-foreground [&_p_a]:underline [&_p_a]:decoration-callout-foreground/50 hover:[&_p_a]:decoration-callout-foreground [&_.my-4]:mt-0 [&_.my-4]:mb-4 [&_.my-4:last-child]:mb-1 [&_.my-4_a]:h-9 [&_.my-4_a]:px-3"
+                    />
+                  )}
                 </div>
-              </Fragment>
-            )
-          })}
+              </div>
+            </Fragment>
+          ))}
           <button
             onClick={handleCollapse}
             className="absolute right-0 top-0 flex items-center gap-1.5 px-4 py-1.5 text-sm text-callout-foreground transition-colors hover:bg-callout-foreground/10"
@@ -142,7 +133,7 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
           onClick={handleExpand}
           className="fixed right-0 top-0 z-40 flex items-center gap-1.5 rounded-bl-md bg-callout px-4 py-1.5 text-sm font-medium text-callout-foreground shadow-md transition-colors hover:bg-callout/90"
         >
-          {activeBanners.length} {activeBanners.length === 1 ? 'announcement' : 'announcements'}
+          {activeBanners.length} {activeBanners.length === 1 ? 'Announcement' : 'Announcements'}
           <ChevronDown className="h-5 w-5" />
         </button>
       )}
