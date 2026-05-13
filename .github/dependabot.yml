@@ -3,13 +3,19 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'monthly'
     open-pull-requests-limit: 3
     groups:
       payloadcms:
         patterns:
           - 'payload'
           - '@payloadcms/*'
+      all-other:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
     allow:
       - dependency-name: 'payload'
       - dependency-name: '@payloadcms/*'
