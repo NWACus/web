@@ -59,8 +59,37 @@ Start by copying `src/collections/collection-template.ts` into a new file in `sr
 4. **Generate types** — Run `pnpm generate:types` to update TypeScript types
 5. **Add seed data** — Add representative test data to the seed script once the schema is finalized
 6. **Run the seed script** — Verify `pnpm seed` completes without errors
-7. **Generate a migration** — Run `pnpm payload migrate:create` and review the output. See `/docs/migration-safety.md` to make sure your migration won't cause unintended data loss
+7. **Generate a migration** — Run `pnpm payload migrate:create <descriptive_name>` and review the output. See `/docs/migration-safety.md` and the [Migrations](#migrations) section below
 8. **Expose via MCP (if appropriate)** — If this collection should be queryable by AI tools, add it to the MCP plugin config in `src/plugins/index.ts`. See `/docs/mcp-server.md` for details
+
+## Migrations
+
+### Naming Migrations
+
+When generating a migration with `pnpm payload migrate:create`, **always provide a descriptive custom name** that summarizes the schema change. For example:
+
+```bash
+pnpm payload migrate:create add_sponsors_block
+pnpm payload migrate:create remove_embed_block_height
+```
+
+Descriptive names make it easy to understand what each migration does when scanning `src/migrations/index.ts` or the migration files on disk.
+
+### Merging `main` When There Are New Migrations
+
+When you merge `main` into your feature branch and `main` has new migrations, you **must recreate your branch's migrations** — even if there is no merge conflict. The critical reason: each migration's `.json` snapshot must reflect the full schema state at that point, including migrations from `main`. If you skip this step, the snapshot will be missing `main`'s migrations and won't accurately represent the database state.
+
+If there **is** a conflict in `src/migrations/index.ts`, resolve it by accepting all incoming changes before proceeding.
+
+Follow this process:
+
+1. **Merge `main` into your branch** and resolve any other conflicts
+2. **Delete your branch's migration files** — remove the migration `.ts` file(s) and their corresponding `.json` snapshot(s) that your branch added
+3. **Remove your migration imports** from `src/migrations/index.ts` — keep only the migrations that came from `main`
+4. **Recreate your migrations** — run `pnpm payload migrate:create <descriptive_name>` again. This generates new migration files with timestamps that are ordered **after** the ones from `main`, and a snapshot that reflects the current schema state (including `main`'s migrations)
+5. **Verify** — check that `src/migrations/index.ts` has all migrations in correct chronological order and that your new `.json` snapshot includes `main`'s migrations
+
+The most important output of the recreation is the `.json` snapshot file. The `.ts` migration file will typically be identical to the original, but it's simplest to regenerate both.
 
 ## Safely handling relationship fields
 
