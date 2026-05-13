@@ -7,6 +7,7 @@ import { build } from 'pino-pretty'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Announcements } from '@/collections/Announcements'
 import { Biographies } from '@/collections/Biographies'
 import { BuiltInPages } from '@/collections/BuiltInPages'
 import { Documents } from '@/collections/Documents'
@@ -158,6 +159,7 @@ export default buildConfig({
   }),
   collections: [
     // Content
+    Announcements,
     HomePages,
     BuiltInPages,
     Pages,

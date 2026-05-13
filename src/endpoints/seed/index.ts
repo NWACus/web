@@ -16,6 +16,7 @@ import type {
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
+import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
@@ -37,6 +38,7 @@ import { seedProviders } from './providers'
 import { sponsors } from './sponsors'
 
 const collections: CollectionSlug[] = [
+  'announcements',
   'settings',
   'biographies',
   'homePages',
@@ -243,6 +245,7 @@ export const seed = async ({
         rules: [
           {
             collections: [
+              'announcements',
               'pages',
               'posts',
               'builtInPages',
@@ -275,6 +278,7 @@ export const seed = async ({
         rules: [
           {
             collections: [
+              'announcements',
               'pages',
               'posts',
               'builtInPages',
@@ -299,6 +303,7 @@ export const seed = async ({
         rules: [
           {
             collections: [
+              'announcements',
               'pages',
               'posts',
               'builtInPages',
@@ -1009,6 +1014,12 @@ export const seed = async ({
           sponsors(tenant, images[tenant.slug]['acmeCorp']),
       ),
     )
+
+    payload.logger.info(`— Seeding announcements...`)
+    await upsert('announcements', payload, incremental, tenantsById, (obj) => obj.title, [
+      ...getAnnouncementsData(tenants['dvac']),
+      ...getAnnouncementsData(tenants['nwac']),
+    ])
 
     const pages = await upsert(
       'pages',

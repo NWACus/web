@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import React from 'react'
 
+import { Announcements } from '@/components/Announcements/Announcements'
 import { Footer } from '@/components/Footer/Footer'
 import { Header } from '@/components/Header/Header'
 
@@ -93,6 +94,7 @@ export default async function RootLayout({ children, params }: Args) {
                 className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}
               >
                 <ThemeSetter theme={center} />
+                <Announcements center={center} />
                 <Header center={center} />
                 <main className="flex-grow">
                   <Breadcrumbs />
