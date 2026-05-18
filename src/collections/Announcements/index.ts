@@ -88,7 +88,7 @@ export const Announcements: CollectionConfig = {
       defaultValue: 'once',
       options: [
         { label: 'Once ever', value: 'once' },
-        { label: 'Every visit', value: 'every_visit' },
+        { label: 'Once per visit', value: 'every_visit' },
         { label: 'Every N visits', value: 'every_n_visits' },
       ],
       admin: {

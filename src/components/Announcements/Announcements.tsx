@@ -12,9 +12,7 @@ export async function Announcements({ center }: AnnouncementsProps) {
   return (
     <>
       {banners.length > 0 && <AnnouncementBanners banners={banners} />}
-      {popups.map((popup) => (
-        <AnnouncementPopup key={popup.id} popup={popup} center={center} />
-      ))}
+      {popups.length > 0 && <AnnouncementPopup popup={popups[0]} center={center} />}
     </>
   )
 }

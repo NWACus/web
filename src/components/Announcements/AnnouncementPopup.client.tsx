@@ -9,6 +9,7 @@ import { matchesPage, shouldShow } from './announcementUtils'
 import { isExpired } from './isExpired'
 
 const STORAGE_KEY_PREFIX = 'announcement-popup-'
+const SESSION_KEY_PREFIX = 'announcement-popup-shown-'
 const POPUP_DELAY_MS = 1000
 const MOBILE_BREAKPOINT = 768
 
@@ -75,6 +76,13 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
 
     if (!shouldShow(popup, newVisitCount - 1)) return
 
+    // For "every_visit", only show once per browser session
+    if (popup.displayFrequency === 'every_visit') {
+      const sessionKey = `${SESSION_KEY_PREFIX}${popup.id}`
+      if (sessionStorage.getItem(sessionKey)) return
+      sessionStorage.setItem(sessionKey, '1')
+    }
+
     const timer = setTimeout(() => {
       setOpen(true)
     }, POPUP_DELAY_MS)
@@ -112,7 +120,11 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[600px]" onClick={handleContentClick}>
+      <DialogContent
+        className="max-w-[600px]"
+        onClick={handleContentClick}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl">{popup.title}</DialogTitle>
           <DialogDescription className="sr-only">Announcement</DialogDescription>
@@ -121,11 +133,12 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
           <RichText
             data={popup.content}
             enableGutter={false}
-            className="max-w-none [&_.my-4]:my-0"
+            className="max-w-none [&_.my-4]:my-0 pb-4"
           />
         )}
         <button
           onClick={handleDontShowAgain}
+          type="button"
           className="absolute bottom-2 right-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           Don&apos;t show this again

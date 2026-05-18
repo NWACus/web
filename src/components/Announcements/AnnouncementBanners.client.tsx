@@ -131,7 +131,7 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
       {collapsed && (
         <button
           onClick={handleExpand}
-          className="fixed right-0 top-0 z-40 flex items-center gap-1.5 rounded-bl-md bg-callout px-4 py-1.5 text-sm font-medium text-callout-foreground shadow-md transition-colors hover:bg-callout/90"
+          className="fixed right-0 top-[64px] z-40 flex items-center gap-1.5 rounded-bl-md bg-callout px-4 py-1.5 text-sm font-medium text-callout-foreground shadow-md transition-colors hover:bg-callout/90 lg:top-0"
         >
           {activeBanners.length} {activeBanners.length === 1 ? 'Announcement' : 'Announcements'}
           <ChevronDown className="h-5 w-5" />
