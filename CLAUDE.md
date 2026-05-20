@@ -391,16 +391,17 @@ Never cast relationship fields - they can be resolved objects, unresolved IDs, o
 
 1. **Check if seed data needs updating** - If you add/change fields, update the seed script to include appropriate test data
 2. **Run the seed script** - After updating, run `pnpm seed` to verify it completes without errors
-3. **Generate a migration** - Run `pnpm payload migrate:create` for schema changes
+3. **Generate a migration** - Run `pnpm payload migrate:create <descriptive_name>` (always provide a descriptive name)
 4. **Check migration safety** - Run `pnpm migrate:check` to detect potentially destructive patterns
 5. **Review `/docs/migration-safety.md`** for guidance on safe migrations
+6. **Review `/docs/coding-guide.md#migrations`** for migration naming and merge workflow
 
 ### When Adding New Collections/Globals
 
 1. **Consider revalidation** - Reference `/docs/revalidation.md` to determine if revalidation hooks are needed
 2. **Add seed data** - Add seed data to the seed script when the schema is finished
 3. **Run the seed script** - Verify `pnpm seed:standalone` completes without errors
-4. **Generate a migration** - Run `pnpm payload migrate:create`
+4. **Generate a migration** - Run `pnpm payload migrate:create <descriptive_name>` (always provide a descriptive name)
 5. **Update type generation** - Run `pnpm generate:types` after schema changes
 
 ### When Adding New Blocks
