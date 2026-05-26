@@ -1,29 +1,15 @@
 import { healColumnLayout } from '@/blocks/Content/hooks/healColumnLayout'
 
-// Minimal mock for FieldHook args
-const createArgs = (overrides: Record<string, unknown>) =>
-  ({
-    collection: {} as never,
-    context: {},
-    data: {},
-    field: {} as never,
-    global: null,
-    indexPath: [],
-    operation: 'update',
-    originalDoc: {},
-    overrideAccess: false,
-    path: [],
-    previousSiblingDoc: {},
-    previousValue: undefined,
-    req: {} as never,
-    schemaPath: [],
-    siblingData: {},
-    siblingDocWithLocales: {},
-    siblingFields: [],
-    value: null,
-    blockData: undefined,
+// Builds a minimal mock of the hook args; only value and siblingData are used by the hook
+function createArgs(overrides: {
+  value: unknown
+  siblingData: Record<string, unknown>
+}): Parameters<typeof healColumnLayout>[0] {
+  // @ts-expect-error - partial mock; only value and siblingData are used by the hook
+  return {
     ...overrides,
-  }) as Parameters<typeof healColumnLayout>[0]
+  }
+}
 
 describe('healColumnLayout', () => {
   it('passes through valid layout values', () => {
