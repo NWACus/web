@@ -410,9 +410,6 @@ export interface Page {
     image?: (number | null) | Media;
     description?: string | null;
   };
-  /**
-   * Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.
-   */
   publishedAt?: string | null;
   slug: string;
   tenant: number | Tenant;
