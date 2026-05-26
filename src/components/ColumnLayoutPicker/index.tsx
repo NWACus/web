@@ -28,7 +28,7 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
   )
 
   const { path, field } = props
-  const { value, setValue } = useField<string>({ path })
+  const { value, setValue, showError, errorMessage } = useField<string>({ path })
   const [layoutSelection, setLayoutSelection] = useState(value || '1_1')
 
   const parentPath = path.split(`.${field.name}`)[0]
@@ -58,6 +58,19 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
       }
     }
   }, [numColumns, layoutSelection, setValue, layoutOptions])
+
+  // When value is null/undefined (e.g., from bad seed data), auto-heal in the UI
+  useEffect(() => {
+    if (!value && numColumns && numColumns > 0) {
+      const validOption = layoutOptions.find(
+        (opt) => parseInt(opt.value.split('_')[0]) === numColumns,
+      )
+      if (validOption) {
+        setValue(validOption.value)
+        setLayoutSelection(validOption.value)
+      }
+    }
+  }, [value, numColumns, setValue, layoutOptions])
 
   if (numColumns === 0) return null
 
@@ -94,6 +107,7 @@ const ColumnLayoutPicker = (props: ColumnLayoutPickerProps) => {
         })}
       </ToggleGroup>
       <div className="field-description">Options update based on the number of columns.</div>
+      {showError && <div className="mt-2 text-sm text-red-500">{errorMessage}</div>}
     </div>
   )
 }
