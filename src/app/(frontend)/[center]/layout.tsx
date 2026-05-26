@@ -94,8 +94,9 @@ export default async function RootLayout({ children, params }: Args) {
                 className={cn('flex flex-col min-h-screen max-w-screen overflow-x-clip', center)}
               >
                 <ThemeSetter theme={center} />
-                <Announcements center={center} />
-                <Header center={center} />
+                <Announcements center={center}>
+                  <Header center={center} />
+                </Announcements>
                 <main className="flex-grow">
                   <Breadcrumbs />
                   {children}

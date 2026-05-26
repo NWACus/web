@@ -1,6 +1,7 @@
 'use client'
 
 import type { Announcement } from '@/payload-types'
+import { useAnnouncementBanners } from '@/providers/AnnouncementBannerProvider'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import RichText from '../RichText'
@@ -37,7 +38,7 @@ interface AnnouncementBannersProps {
 }
 
 export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
-  const [collapsed, setCollapsed] = useState(true)
+  const { collapsed, collapse, expand } = useAnnouncementBanners()
   const [seenIds, setSeenIds] = useState<number[]>([])
   const contentRef = useRef<HTMLDivElement>(null)
   const [contentHeight, setContentHeight] = useState(0)
@@ -60,20 +61,28 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
     const hasUnseenBanners = activeBanners.some((b) => !stored.seenIds.includes(b.id))
 
     if (hasUnseenBanners) {
-      setCollapsed(false)
+      expand()
       const newSeenIds = [...new Set([...stored.seenIds, ...activeBanners.map((b) => b.id)])]
       setSeenIds(newSeenIds)
       setStoredState({ collapsed: false, seenIds: newSeenIds })
     } else {
-      setCollapsed(stored.collapsed)
+      if (stored.collapsed) {
+        collapse()
+      } else {
+        expand()
+      }
       setSeenIds(stored.seenIds)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Persist collapsed state to localStorage
+  useEffect(() => {
+    setStoredState({ collapsed, seenIds })
+  }, [collapsed, seenIds])
+
   const handleCollapse = useCallback(() => {
-    setCollapsed(true)
-    setStoredState({ collapsed: true, seenIds })
-  }, [seenIds])
+    collapse()
+  }, [collapse])
 
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -86,11 +95,6 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
     },
     [handleCollapse],
   )
-
-  const handleExpand = useCallback(() => {
-    setCollapsed(false)
-    setStoredState({ collapsed: false, seenIds })
-  }, [seenIds])
 
   if (activeBanners.length === 0) return null
 
@@ -106,7 +110,7 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
               {index > 0 && <hr className="container mx-auto border-callout-foreground/25" />}
               <div className="bg-callout px-4 py-3 text-callout-foreground">
                 <div className="container mx-auto">
-                  <h3 className="mb-1 font-semibold">{banner.title}</h3>
+                  <h3 className="mb-1 pr-24 font-semibold">{banner.title}</h3>
                   {banner.content && (
                     <RichText
                       data={banner.content}
@@ -130,8 +134,8 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
       </div>
       {collapsed && (
         <button
-          onClick={handleExpand}
-          className="fixed right-0 top-[64px] z-40 flex items-center gap-1.5 rounded-bl-md bg-callout px-4 py-1.5 text-sm font-medium text-callout-foreground shadow-md transition-colors hover:bg-callout/90 lg:top-0"
+          onClick={expand}
+          className="hidden lg:flex fixed right-0 top-0 z-40 items-center gap-1.5 rounded-bl-md bg-callout px-4 py-1.5 text-sm font-medium text-callout-foreground shadow-md transition-colors hover:bg-callout/90"
         >
           {activeBanners.length} {activeBanners.length === 1 ? 'Announcement' : 'Announcements'}
           <ChevronDown className="h-5 w-5" />

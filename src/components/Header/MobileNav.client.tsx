@@ -1,5 +1,6 @@
 'use client'
 import { Media } from '@/payload-types'
+import { useAnnouncementBanners } from '@/providers/AnnouncementBannerProvider'
 import { getImageWidthFromMaxHeight } from '@/utilities/getImageWidthFromMaxHeight'
 import { cn } from '@/utilities/ui'
 import {
@@ -10,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@radix-ui/react-dialog'
+import { Megaphone } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
@@ -30,6 +32,7 @@ export const MobileNav = ({
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [headerHeight, setHeaderHeight] = useState(64) // fallback to the expected height of the mobile nav bar
   const headerRef = useRef<HTMLDivElement>(null)
+  const { count: announcementCount, collapsed, toggle } = useAnnouncementBanners()
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -104,6 +107,22 @@ export const MobileNav = ({
                 />
               )}
             </Link>
+          )}
+          {announcementCount > 0 && (
+            <button
+              onClick={toggle}
+              className={cn(
+                'relative rounded-md p-2 text-header-foreground transition-colors',
+                !collapsed && 'bg-header-foreground/20',
+              )}
+              aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${announcementCount} ${announcementCount === 1 ? 'announcement' : 'announcements'}`}
+              aria-expanded={!collapsed}
+            >
+              <Megaphone className="h-5 w-5" />
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-callout px-1 text-[10px] font-bold text-callout-foreground">
+                {announcementCount}
+              </span>
+            </button>
           )}
         </div>
       </div>
