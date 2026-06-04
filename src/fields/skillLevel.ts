@@ -2,6 +2,7 @@ import { Field } from 'payload'
 
 export const skillLevelOptions = [
   { label: 'Beginner Friendly', value: 'beginner' },
+  { label: 'Prerequisites Suggested', value: 'prerequisites-suggested' },
   { label: 'Prerequisites Required', value: 'pre-req' },
   { label: 'Professional Level', value: 'professional' },
 ]
