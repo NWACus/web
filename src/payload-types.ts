@@ -673,7 +673,7 @@ export interface ContentBlock {
  */
 export interface DocumentBlock {
   document: number | Document;
-  layout?: ('download' | 'embed') | null;
+  displayAs?: ('download' | 'embed') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentBlock';
@@ -3315,7 +3315,7 @@ export interface ContentBlockSelect<T extends boolean = true> {
  */
 export interface DocumentBlockSelect<T extends boolean = true> {
   document?: T;
-  layout?: T;
+  displayAs?: T;
   id?: T;
   blockName?: T;
 }

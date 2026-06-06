@@ -47,12 +47,11 @@ import * as migration_20260131_012456_remove_wrap_in_container from './20260131_
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
 import * as migration_20260319_152951_add_text_wrap_to_image_text_block from './20260319_152951_add_text_wrap_to_image_text_block'
 import * as migration_20260403_204010_mcp_server from './20260403_204010_mcp_server'
-import * as migration_20260502_155913 from './20260502_155913'
 import * as migration_20260504_235946_revalidation_fields_and_widgets_dev_mode from './20260504_235946_revalidation_fields_and_widgets_dev_mode'
 import * as migration_20260505_000519_backfill_document_references from './20260505_000519_backfill_document_references'
 import * as migration_20260505_045158_convert_auto_nav_items from './20260505_045158_convert_auto_nav_items'
 import * as migration_20260505_045200_backfill_nav_builtin_pages from './20260505_045200_backfill_nav_builtin_pages'
-import * as migration_20260509_170253 from './20260509_170253'
+import * as migration_20260606_181122_add_display_as_to_document_block from './20260606_181122_add_display_as_to_document_block'
 
 export const migrations = [
   {
@@ -301,11 +300,6 @@ export const migrations = [
     name: '20260403_204010_mcp_server',
   },
   {
-    up: migration_20260502_155913.up,
-    down: migration_20260502_155913.down,
-    name: '20260502_155913',
-  },
-  {
     up: migration_20260504_235946_revalidation_fields_and_widgets_dev_mode.up,
     down: migration_20260504_235946_revalidation_fields_and_widgets_dev_mode.down,
     name: '20260504_235946_revalidation_fields_and_widgets_dev_mode',
@@ -326,8 +320,8 @@ export const migrations = [
     name: '20260505_045200_backfill_nav_builtin_pages',
   },
   {
-    up: migration_20260509_170253.up,
-    down: migration_20260509_170253.down,
-    name: '20260509_170253',
+    up: migration_20260606_181122_add_display_as_to_document_block.up,
+    down: migration_20260606_181122_add_display_as_to_document_block.down,
+    name: '20260606_181122_add_display_as_to_document_block',
   },
 ]

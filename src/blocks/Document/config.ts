@@ -12,7 +12,7 @@ export const DocumentBlock: Block = {
       required: true,
     },
     {
-      name: 'layout',
+      name: 'displayAs',
       type: 'select',
       defaultValue: 'download',
       options: [
