@@ -135,7 +135,8 @@ jobs:
 
   e2e:
     name: e2e
-    if: github.event_name == 'merge_group'
+    # TEMP: also run on PRs to validate the container e2e fix without the merge queue. Revert to merge_group-only after.
+    if: github.event_name == 'merge_group' || github.event_name == 'pull_request'
     environment: Preview
     runs-on: ubuntu-latest
     timeout-minutes: 20
