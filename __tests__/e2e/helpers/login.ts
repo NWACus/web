@@ -22,12 +22,18 @@ export async function performLogin(page: Page, email: string, password: string):
       const emailInput = page.locator('input[name="email"]')
       const passwordInput = page.locator('input[name="password"]')
 
-      await emailInput.fill(email)
-      await passwordInput.fill(password)
-
-      // Verify fields weren't cleared by a React re-render before submitting
-      await expect(emailInput).toHaveValue(email, { timeout: 5000 })
-      await expect(passwordInput).not.toHaveValue('', { timeout: 5000 })
+      // Filling can race React hydration: the values land in the DOM but not
+      // in react-hook-form's state, so submitting clears the fields and fails
+      // validation. Re-fill, give the hydration render a moment to (maybe) wipe
+      // the inputs, then require the values to have survived - retrying until
+      // they stick, by which point hydration is done and RHF has the values.
+      await expect(async () => {
+        await emailInput.fill(email)
+        await passwordInput.fill(password)
+        await page.waitForTimeout(300)
+        await expect(emailInput).toHaveValue(email)
+        await expect(passwordInput).toHaveValue(password)
+      }).toPass({ timeout: 15000 })
 
       await page.locator('button[type="submit"]').click()
 
@@ -36,23 +42,6 @@ export async function performLogin(page: Page, email: string, password: string):
       return // Login succeeded
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
-
-      // Capture diagnostics for this failed attempt. The enclosing test can
-      // time out mid-retry before the final throw below ever runs, so persist
-      // a screenshot + URL here to make CI failures diagnosable.
-      try {
-        const safeEmail = email.replace(/[^a-z0-9]/gi, '-')
-        await page.screenshot({
-          path: `test-results/login-fail-${safeEmail}-attempt${attempt}.png`,
-          fullPage: true,
-        })
-        console.error(
-          `[performLogin] attempt ${attempt}/${MAX_LOGIN_ATTEMPTS} failed for ${email} at ${page.url()}: ${lastError.message}`,
-        )
-      } catch {
-        // Page may already be closed (e.g. test timeout) - ignore.
-      }
-
       if (attempt < MAX_LOGIN_ATTEMPTS) {
         // Brief pause before retrying
         await page.waitForTimeout(2000)
