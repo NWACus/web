@@ -138,6 +138,8 @@ jobs:
     if: github.event_name == 'merge_group'
     environment: Preview
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: mcr.microsoft.com/playwright:v1.58.0-noble
     env:
       DATABASE_URI: 'file:./dev.db'
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
@@ -157,7 +159,7 @@ jobs:
         run: pnpm ii
         shell: bash
       - name: 🎭 Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install chromium
       - name: 📦 Opt out of image optimization
         run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
         shell: bash
