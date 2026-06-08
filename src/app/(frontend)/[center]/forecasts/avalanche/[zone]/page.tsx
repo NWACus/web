@@ -5,10 +5,16 @@ import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import {
+  getActiveForecastZones,
+  getAvalancheCenterPlatforms,
+  getForecastZoneDanger,
+} from '@/services/nac/nac'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-static'
+// ISR rather than fully static so the og:description travel advice in shared link previews
+// stays current with the daily forecast. The og:image itself is always live (dynamic route).
+export const revalidate = 1800
 export const dynamicParams = false
 
 export async function generateStaticParams() {
@@ -67,7 +73,7 @@ export async function generateMetadata(
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const parentMeta = await parent
-  const { zone } = await params
+  const { center, zone } = await params
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
@@ -81,15 +87,29 @@ export async function generateMetadata(
     .map((word) => `${word.substring(0, 1).toUpperCase()}${word.substring(1)}`)
     .join(' ')
 
+  const danger = await getForecastZoneDanger(center, zone).catch(() => null)
+  const travelAdvice = danger?.travel_advice ?? null
+
+  const title = `${zoneName} - Avalanche Forecast | ${parentTitle}`
+
   return {
-    title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
+    title,
+    ...(travelAdvice ? { description: travelAdvice } : {}),
     alternates: {
       canonical: `/forecasts/avalanche/${zone}`,
     },
     openGraph: {
       ...parentOg,
-      title: `${zoneName} - Avalanche Forecast | ${parentTitle}`,
+      title,
       url: `/forecasts/avalanche/${zone}`,
+      ...(travelAdvice ? { description: travelAdvice } : {}),
+      images: [
+        {
+          url: `/api/${center}/og?route=forecasts/avalanche/${zone}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
   }
 }

@@ -1,4 +1,6 @@
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
+import { getForecastZoneDanger } from '@/services/nac/nac'
+import { MapLayerFeatureProperties } from '@/services/nac/types/schemas'
 import { convertWebpToPng } from '@/utilities/convertWebpToPng'
 import { getURL } from '@/utilities/getURL'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
@@ -10,6 +12,24 @@ import { getPayload } from 'payload'
 
 import { centerColorMap, isKnownCenter } from './centerColorMap'
 
+const toTitleCase = (value: string): string => value.replace(/\b\w/g, (char) => char.toUpperCase())
+
+const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
+
+function getDangerBadge(danger: MapLayerFeatureProperties) {
+  const hasRating = danger.danger_level && danger.danger_level > 0
+  const label = danger.danger ? toTitleCase(danger.danger) : hasRating ? '' : 'No Rating'
+
+  return {
+    level: hasRating ? String(danger.danger_level) : null,
+    label,
+    background: danger.color || '#888888',
+    foreground: danger.font_color || '#ffffff',
+    travelAdvice: danger.travel_advice || null,
+    iconFile: hasRating ? `${danger.danger_level}.png` : 'no-rating.png',
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ center: string }> },
@@ -19,6 +39,11 @@ export async function GET(
   const routeTitle = searchParams.get('routeTitle')
   const title = searchParams.get('title')
   const description = searchParams.get('description')
+  const route = searchParams.get('route')
+  const zone =
+    route && route.startsWith(FORECAST_ZONE_PATH_PREFIX)
+      ? (route.slice(FORECAST_ZONE_PATH_PREFIX.length).split('/').filter(Boolean).pop() ?? null)
+      : null
 
   const payload = await getPayload({ config: configPromise })
 
@@ -95,6 +120,28 @@ export async function GET(
       }
     }
 
+    // Forecast zone shares: fetch the zone's current danger rating + travel advice
+    let dangerBadge: ReturnType<typeof getDangerBadge> | null = null
+    let dangerIconSrc: string | null = null
+    let zoneName: string | null = null
+
+    if (zone) {
+      zoneName = toTitleCase(zone.replace(/-/g, ' '))
+      try {
+        const danger = await getForecastZoneDanger(center, zone)
+        if (danger) {
+          dangerBadge = getDangerBadge(danger)
+          dangerIconSrc = new URL(
+            `/assets/danger-icons/${dangerBadge.iconFile}`,
+            getURL(),
+          ).toString()
+        }
+      } catch (err) {
+        payload.logger.error({ err }, `Failed to fetch danger for OG image (zone: ${zone})`)
+        Sentry.captureException(err)
+      }
+    }
+
     // Load font from public folder using root domain URL
     const fontUrl = new URL('/fonts/Lato-Bold.ttf', getURL())
     const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer())
@@ -142,29 +189,142 @@ export async function GET(
               )}
             </div>
           )}
-          <div tw="flex flex-col items-center text-center">
-            <h1
-              style={{
-                fontSize: '4rem',
-                fontWeight: 'bold',
-                color: colors.headerForeground,
-                marginBottom: '1rem',
-              }}
-            >
-              {title ?? `${tenantName}${routeTitle ? ` - ${routeTitle}` : ''}`}
-            </h1>
-            <p
-              style={{
-                fontSize: '1.75rem',
-                fontWeight: 'bold',
-                color: colors.headerForeground,
-                marginBottom: '1rem',
-                maxWidth: '80%',
-              }}
-            >
-              {description ?? settings.description}
-            </p>
-          </div>
+          {zoneName ? (
+            <div tw="flex flex-col items-center text-center">
+              <h1
+                style={{
+                  fontSize: '3.75rem',
+                  fontWeight: 'bold',
+                  color: colors.headerForeground,
+                  lineHeight: 1.05,
+                }}
+              >
+                {zoneName}
+              </h1>
+              <p
+                style={{
+                  fontSize: '1.6rem',
+                  fontWeight: 'bold',
+                  color: colors.headerForeground,
+                  marginBottom: '1.5rem',
+                }}
+              >
+                Avalanche Forecast
+              </p>
+              {dangerBadge && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: dangerBadge.travelAdvice ? '1.25rem' : 0,
+                  }}
+                >
+                  {dangerIconSrc && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={dangerIconSrc}
+                      alt={
+                        dangerBadge.level
+                          ? `Avalanche danger level ${dangerBadge.level}`
+                          : 'No avalanche danger rating'
+                      }
+                      width={175}
+                      height={150}
+                      style={{ objectFit: 'contain', marginRight: '28px' }}
+                    />
+                  )}
+                  <div
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}
+                  >
+                    {dangerBadge.level && (
+                      <div
+                        style={{
+                          fontSize: '1.35rem',
+                          fontWeight: 'bold',
+                          color: colors.headerForeground,
+                          letterSpacing: '2px',
+                          marginBottom: '6px',
+                        }}
+                      >
+                        DANGER LEVEL
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        background: dangerBadge.background,
+                        color: dangerBadge.foreground,
+                        borderRadius: '14px',
+                        padding: '10px 28px',
+                      }}
+                    >
+                      {dangerBadge.level && (
+                        <div
+                          style={{
+                            fontSize: '3.25rem',
+                            fontWeight: 'bold',
+                            lineHeight: 1,
+                            marginRight: dangerBadge.label ? '1rem' : 0,
+                          }}
+                        >
+                          {dangerBadge.level}
+                        </div>
+                      )}
+                      {dangerBadge.label && (
+                        <div
+                          style={{
+                            fontSize: '1.85rem',
+                            fontWeight: 'bold',
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {dangerBadge.label.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {dangerBadge?.travelAdvice && (
+                <p
+                  style={{
+                    fontSize: '1.3rem',
+                    fontWeight: 'bold',
+                    color: colors.headerForeground,
+                    maxWidth: '80%',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {dangerBadge.travelAdvice}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div tw="flex flex-col items-center text-center">
+              <h1
+                style={{
+                  fontSize: '4rem',
+                  fontWeight: 'bold',
+                  color: colors.headerForeground,
+                  marginBottom: '1rem',
+                }}
+              >
+                {title ?? `${tenantName}${routeTitle ? ` - ${routeTitle}` : ''}`}
+              </h1>
+              <p
+                style={{
+                  fontSize: '1.75rem',
+                  fontWeight: 'bold',
+                  color: colors.headerForeground,
+                  marginBottom: '1rem',
+                  maxWidth: '80%',
+                }}
+              >
+                {description ?? settings.description}
+              </p>
+            </div>
+          )}
         </div>
       ),
       {
