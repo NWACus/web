@@ -178,7 +178,10 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
-          path: playwright-report/
+          # test-results/ holds the per-test traces and screenshots
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 14
 
   migrations-check:

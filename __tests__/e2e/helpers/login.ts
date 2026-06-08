@@ -36,6 +36,23 @@ export async function performLogin(page: Page, email: string, password: string):
       return // Login succeeded
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
+
+      // Capture diagnostics for this failed attempt. The enclosing test can
+      // time out mid-retry before the final throw below ever runs, so persist
+      // a screenshot + URL here to make CI failures diagnosable.
+      try {
+        const safeEmail = email.replace(/[^a-z0-9]/gi, '-')
+        await page.screenshot({
+          path: `test-results/login-fail-${safeEmail}-attempt${attempt}.png`,
+          fullPage: true,
+        })
+        console.error(
+          `[performLogin] attempt ${attempt}/${MAX_LOGIN_ATTEMPTS} failed for ${email} at ${page.url()}: ${lastError.message}`,
+        )
+      } catch {
+        // Page may already be closed (e.g. test timeout) - ignore.
+      }
+
       if (attempt < MAX_LOGIN_ATTEMPTS) {
         // Brief pause before retrying
         await page.waitForTimeout(2000)
