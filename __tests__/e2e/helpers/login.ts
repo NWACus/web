@@ -16,9 +16,6 @@ export async function performLogin(page: Page, email: string, password: string):
       await page.goto('/admin/login')
       await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
 
-      // Wait for all network activity to finish (React hydration scripts, etc.)
-      await page.waitForLoadState('networkidle')
-
       const emailInput = page.locator('input[name="email"]')
       const passwordInput = page.locator('input[name="password"]')
 
