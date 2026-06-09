@@ -135,7 +135,7 @@ jobs:
 
   e2e:
     name: e2e
-    # TEMP: also run on PRs to validate the container e2e fix without the merge queue. Revert to merge_group-only after.
+    # TEMP: also run on PRs to isolate whether removing the networkidle wait fixes the container e2e failures. Revert to merge_group-only after.
     if: github.event_name == 'merge_group' || github.event_name == 'pull_request'
     environment: Preview
     runs-on: ubuntu-latest
@@ -169,30 +169,17 @@ jobs:
       - name: 🔨 Build
         run: pnpm build
       - name: 🚀 Start server
-        # Capture server stdout/stderr so we can see if it crashes/OOMs mid-run.
-        run: pnpm start > /tmp/server.log 2>&1 &
+        run: pnpm start &
       - name: ⏳ Wait for server
         run: timeout 120 bash -c 'until curl -sf http://localhost:3000/admin/login > /dev/null; do sleep 2; done'
       - name: 🧪 Run E2E tests
         run: pnpm test:e2e
-      - name: 🖥 Server logs + resource usage
-        if: ${{ !cancelled() }}
-        run: |
-          echo "===== server.log (tail) ====="
-          tail -n 200 /tmp/server.log || echo "(no server log)"
-          echo "===== is the server still up? ====="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" http://localhost:3000/admin/login || echo "server not responding"
-          echo "===== memory ====="
-          free -m || true
       - name: 📤 Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
-          # test-results/ holds the per-test traces and screenshots
-          path: |
-            playwright-report/
-            test-results/
+          path: playwright-report/
           retention-days: 14
 
   migrations-check:
