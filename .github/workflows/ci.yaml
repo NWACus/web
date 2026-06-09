@@ -169,11 +169,21 @@ jobs:
       - name: 🔨 Build
         run: pnpm build
       - name: 🚀 Start server
-        run: pnpm start &
+        # Capture server stdout/stderr so we can see if it crashes/OOMs mid-run.
+        run: pnpm start > /tmp/server.log 2>&1 &
       - name: ⏳ Wait for server
         run: timeout 120 bash -c 'until curl -sf http://localhost:3000/admin/login > /dev/null; do sleep 2; done'
       - name: 🧪 Run E2E tests
         run: pnpm test:e2e
+      - name: 🖥 Server logs + resource usage
+        if: ${{ !cancelled() }}
+        run: |
+          echo "===== server.log (tail) ====="
+          tail -n 200 /tmp/server.log || echo "(no server log)"
+          echo "===== is the server still up? ====="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" http://localhost:3000/admin/login || echo "server not responding"
+          echo "===== memory ====="
+          free -m || true
       - name: 📤 Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
