@@ -920,7 +920,10 @@ export interface Event {
     };
     [k: string]: unknown;
   } | null;
-  slug: string;
+  /**
+   * Leave blank to auto-generate from the title and start date. Duplicates are numbered automatically.
+   */
+  slug?: string | null;
   type: 'event' | 'awareness' | 'field-class';
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
