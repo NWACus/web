@@ -135,8 +135,7 @@ jobs:
 
   e2e:
     name: e2e
-    # TEMP: also run on PRs to isolate whether removing the networkidle wait fixes the container e2e failures. Revert to merge_group-only after.
-    if: github.event_name == 'merge_group' || github.event_name == 'pull_request'
+    if: github.event_name == 'merge_group'
     environment: Preview
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -169,9 +168,8 @@ jobs:
       - name: 🔨 Build
         run: pnpm build
       - name: 🚀 Start server
-        # Redirect output to a file: backgrounded in a container job, the server's
-        # stdout pipe isn't drained, so the app's per-request logging eventually
-        # fills the buffer and blocks the server (causing net::ERR_ABORTED).
+        # Redirect output so the backgrounded server can't block on a full
+        # stdout pipe in the container (which made it stop responding mid-run).
         run: pnpm start > /tmp/server.log 2>&1 &
       - name: ⏳ Wait for server
         run: timeout 120 bash -c 'until curl -sf http://localhost:3000/admin/login > /dev/null; do sleep 2; done'

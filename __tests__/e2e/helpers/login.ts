@@ -19,11 +19,8 @@ export async function performLogin(page: Page, email: string, password: string):
       const emailInput = page.locator('input[name="email"]')
       const passwordInput = page.locator('input[name="password"]')
 
-      // Filling can race React hydration: the values land in the DOM but not
-      // in react-hook-form's state, so submitting clears the fields and fails
-      // validation. Re-fill, give the hydration render a moment to (maybe) wipe
-      // the inputs, then require the values to have survived - retrying until
-      // they stick, by which point hydration is done and RHF has the values.
+      // Re-fill until the values survive a render tick - filling can race
+      // hydration, leaving them in the DOM but not in react-hook-form's state.
       await expect(async () => {
         await emailInput.fill(email)
         await passwordInput.fill(password)
