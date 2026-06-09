@@ -16,18 +16,18 @@ export async function performLogin(page: Page, email: string, password: string):
       await page.goto('/admin/login')
       await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
 
-      // Wait for all network activity to finish (React hydration scripts, etc.)
-      await page.waitForLoadState('networkidle')
-
       const emailInput = page.locator('input[name="email"]')
       const passwordInput = page.locator('input[name="password"]')
 
-      await emailInput.fill(email)
-      await passwordInput.fill(password)
-
-      // Verify fields weren't cleared by a React re-render before submitting
-      await expect(emailInput).toHaveValue(email, { timeout: 5000 })
-      await expect(passwordInput).not.toHaveValue('', { timeout: 5000 })
+      // Re-fill until the values survive a render tick - filling can race
+      // hydration, leaving them in the DOM but not in react-hook-form's state.
+      await expect(async () => {
+        await emailInput.fill(email)
+        await passwordInput.fill(password)
+        await page.waitForTimeout(300)
+        await expect(emailInput).toHaveValue(email)
+        await expect(passwordInput).toHaveValue(password)
+      }).toPass({ timeout: 15000 })
 
       await page.locator('button[type="submit"]').click()
 
