@@ -901,7 +901,7 @@ export interface Event {
   /**
    * Skill level required for this event
    */
-  skillLevel?: ('beginner' | 'pre-req' | 'professional') | null;
+  skillLevel?: ('beginner' | 'pre-suggested' | 'pre-req' | 'professional') | null;
   content?: {
     root: {
       type: string;
