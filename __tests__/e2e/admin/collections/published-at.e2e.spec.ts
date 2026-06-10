@@ -9,8 +9,6 @@ authTest.describe('publishedAt field behavior', () => {
   authTest.describe.configure({ mode: 'serial', timeout: 90000 })
 
   authTest.describe('Posts collection', () => {
-    let postId: string
-
     authTest('publishedAt is auto-set when publishing a new post', async ({ adminPage }) => {
       const postsUrl = new AdminUrlUtil(SERVER_URL, 'posts')
       await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
@@ -20,11 +18,6 @@ authTest.describe('publishedAt field behavior', () => {
       await adminPage.locator('table tbody tr td a').first().waitFor({ timeout: 15000 })
       await adminPage.locator('table tbody tr td a').first().click()
       await adminPage.waitForURL(/\/collections\/posts\/\d+/)
-
-      // Capture the post ID from URL
-      const url = adminPage.url()
-      const match = url.match(/\/posts\/(\d+)/)
-      if (match) postId = match[1]
 
       // The publishedAt field should exist in the sidebar with dayAndTime picker
       const publishedAtField = adminPage.locator('#field-publishedAt')
