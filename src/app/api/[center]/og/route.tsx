@@ -1,7 +1,7 @@
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { getForecastZoneDanger } from '@/services/nac/nac'
 import { MapLayerFeatureProperties } from '@/services/nac/types/schemas'
-import { convertWebpToPng } from '@/utilities/convertWebpToPng'
+import { getOgImageDataUrl } from '@/utilities/getOgImageDataUrl'
 import { getURL } from '@/utilities/getURL'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
@@ -80,6 +80,9 @@ export async function GET(
 
     const colors = isKnownCenter(center) ? centerColorMap[center] : centerColorMap.default
 
+    // Header logos are smaller on zone pages to leave room for the danger badge below.
+    const logoHeight = zone ? 80 : 150
+
     let bannerImgProps = null
 
     if (
@@ -89,15 +92,10 @@ export async function GET(
       typeof settings.tenant !== 'number'
     ) {
       bannerImgProps = getImgAttrsFromMediaResource(settings.banner, settings.tenant)
-
-      // Convert WebP to PNG if needed
-      // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
-      if (
-        settings.banner.mimeType?.toLowerCase() === 'image/webp' ||
-        settings.banner.filename?.endsWith('.webp')
-      ) {
-        bannerImgProps.src = await convertWebpToPng(settings.banner, settings.tenant)
-      }
+      // Pre-resize with sharp (handles WebP too) so resvg doesn't downscale a large source grainily
+      bannerImgProps.src =
+        (await getOgImageDataUrl(settings.banner, settings.tenant, logoHeight)) ??
+        bannerImgProps.src
     }
 
     let usfsLogoImgProps = null
@@ -109,15 +107,9 @@ export async function GET(
       typeof settings.tenant !== 'number'
     ) {
       usfsLogoImgProps = getImgAttrsFromMediaResource(settings.usfsLogo, settings.tenant)
-
-      // Convert WebP to PNG if needed
-      // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
-      if (
-        settings.usfsLogo.mimeType?.toLowerCase() === 'image/webp' ||
-        settings.usfsLogo.filename?.endsWith('.webp')
-      ) {
-        usfsLogoImgProps.src = await convertWebpToPng(settings.usfsLogo, settings.tenant)
-      }
+      usfsLogoImgProps.src =
+        (await getOgImageDataUrl(settings.usfsLogo, settings.tenant, logoHeight)) ??
+        usfsLogoImgProps.src
     }
 
     // Forecast zone shares: fetch the zone's current danger rating + travel advice
@@ -127,18 +119,19 @@ export async function GET(
 
     if (zone) {
       zoneName = toTitleCase(zone.replace(/-/g, ' '))
+
       try {
         const danger = await getForecastZoneDanger(center, zone)
         if (danger) {
           dangerBadge = getDangerBadge(danger)
-          dangerIconSrc = new URL(
-            `/assets/danger-icons/${dangerBadge.iconFile}`,
-            getURL(),
-          ).toString()
         }
       } catch (err) {
         payload.logger.error({ err }, `Failed to fetch danger for OG image (zone: ${zone})`)
         Sentry.captureException(err)
+      }
+
+      if (dangerBadge) {
+        dangerIconSrc = new URL(`/assets/danger-icons/${dangerBadge.iconFile}`, getURL()).toString()
       }
     }
 
@@ -161,7 +154,7 @@ export async function GET(
           }}
         >
           {settings?.banner && bannerImgProps && (
-            <div tw="flex justify-center mb-8 gap-2 w-fit">
+            <div tw="flex items-center mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={bannerImgProps.src}
@@ -170,8 +163,8 @@ export async function GET(
                 height={bannerImgProps.height}
                 style={{
                   objectFit: 'contain',
-                  height: '150px',
-                  width: (150 * bannerImgProps.width) / bannerImgProps.height,
+                  height: logoHeight,
+                  width: (logoHeight * bannerImgProps.width) / bannerImgProps.height,
                 }}
               />
               {settings?.usfsLogo && usfsLogoImgProps && (
@@ -183,7 +176,10 @@ export async function GET(
                   height={usfsLogoImgProps.height}
                   style={{
                     objectFit: 'contain',
-                    height: '150px',
+                    height: logoHeight,
+                    width: (logoHeight * usfsLogoImgProps.width) / usfsLogoImgProps.height,
+                    // Satori (Yoga) ignores flex `gap`, so space the logo from the banner with margin
+                    marginLeft: 24,
                   }}
                 />
               )}
@@ -193,17 +189,17 @@ export async function GET(
             <div tw="flex flex-col items-center text-center">
               <h1
                 style={{
-                  fontSize: '3.75rem',
+                  fontSize: '3.5rem',
                   fontWeight: 'bold',
                   color: colors.headerForeground,
-                  lineHeight: 1.05,
+                  marginBottom: 0,
                 }}
               >
                 {zoneName}
               </h1>
               <p
                 style={{
-                  fontSize: '1.6rem',
+                  fontSize: '1.75rem',
                   fontWeight: 'bold',
                   color: colors.headerForeground,
                   marginBottom: '1.5rem',
@@ -216,7 +212,7 @@ export async function GET(
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    marginBottom: dangerBadge.travelAdvice ? '1.25rem' : 0,
+                    marginBottom: 0,
                   }}
                 >
                   {dangerIconSrc && (
@@ -292,7 +288,7 @@ export async function GET(
                     fontSize: '1.3rem',
                     fontWeight: 'bold',
                     color: colors.headerForeground,
-                    maxWidth: '80%',
+                    maxWidth: '70%',
                     lineHeight: 1.3,
                   }}
                 >
@@ -304,7 +300,7 @@ export async function GET(
             <div tw="flex flex-col items-center text-center">
               <h1
                 style={{
-                  fontSize: '4rem',
+                  fontSize: '3rem',
                   fontWeight: 'bold',
                   color: colors.headerForeground,
                   marginBottom: '1rem',
