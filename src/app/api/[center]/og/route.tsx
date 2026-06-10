@@ -17,7 +17,7 @@ const toTitleCase = (value: string): string => value.replace(/\b\w/g, (char) => 
 const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
 
 function getDangerBadge(danger: MapLayerFeatureProperties) {
-  const hasRating = danger.danger_level && danger.danger_level > 0
+  const hasRating = danger.danger_level >= 1 && danger.danger_level <= 5
   const label = danger.danger ? toTitleCase(danger.danger) : hasRating ? '' : 'No Rating'
 
   return {
@@ -131,7 +131,7 @@ export async function GET(
       }
 
       if (dangerBadge) {
-        dangerIconSrc = new URL(`/assets/danger-icons/${dangerBadge.iconFile}`, getURL()).toString()
+        dangerIconSrc = new URL(`/assets/dangerIcons/${dangerBadge.iconFile}`, getURL()).toString()
       }
     }
 
