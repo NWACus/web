@@ -1,6 +1,5 @@
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { getForecastZoneDanger } from '@/services/nac/nac'
-import { MapLayerFeatureProperties } from '@/services/nac/types/schemas'
 import { convertWebpToPng } from '@/utilities/convertWebpToPng'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getURL } from '@/utilities/getURL'
@@ -12,22 +11,9 @@ import { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
 import { centerColorMap, isKnownCenter } from './centerColorMap'
+import { getDangerBadge } from './getDangerBadge'
 
 const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
-
-function getDangerBadge(danger: MapLayerFeatureProperties) {
-  const hasRating = danger.danger_level >= 1 && danger.danger_level <= 5
-  const label = danger.danger ? toTitleCase(danger.danger) : hasRating ? '' : 'No Rating'
-
-  return {
-    level: hasRating ? String(danger.danger_level) : null,
-    label,
-    background: danger.color || '#888888',
-    foreground: danger.font_color || '#ffffff',
-    travelAdvice: danger.travel_advice || null,
-    iconFile: hasRating ? `${danger.danger_level}.png` : 'no-rating.png',
-  }
-}
 
 export async function GET(
   request: NextRequest,
