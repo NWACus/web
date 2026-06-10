@@ -1,7 +1,7 @@
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { getForecastZoneDanger } from '@/services/nac/nac'
 import { MapLayerFeatureProperties } from '@/services/nac/types/schemas'
-import { getOgImageDataUrl } from '@/utilities/getOgImageDataUrl'
+import { convertWebpToPng } from '@/utilities/convertWebpToPng'
 import { getURL } from '@/utilities/getURL'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
@@ -92,10 +92,15 @@ export async function GET(
       typeof settings.tenant !== 'number'
     ) {
       bannerImgProps = getImgAttrsFromMediaResource(settings.banner, settings.tenant)
-      // Pre-resize with sharp (handles WebP too) so resvg doesn't downscale a large source grainily
-      bannerImgProps.src =
-        (await getOgImageDataUrl(settings.banner, settings.tenant, logoHeight)) ??
-        bannerImgProps.src
+
+      // Convert WebP to PNG if needed
+      // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
+      if (
+        settings.banner.mimeType?.toLowerCase() === 'image/webp' ||
+        settings.banner.filename?.endsWith('.webp')
+      ) {
+        bannerImgProps.src = await convertWebpToPng(settings.banner, settings.tenant)
+      }
     }
 
     let usfsLogoImgProps = null
@@ -107,9 +112,15 @@ export async function GET(
       typeof settings.tenant !== 'number'
     ) {
       usfsLogoImgProps = getImgAttrsFromMediaResource(settings.usfsLogo, settings.tenant)
-      usfsLogoImgProps.src =
-        (await getOgImageDataUrl(settings.usfsLogo, settings.tenant, logoHeight)) ??
-        usfsLogoImgProps.src
+
+      // Convert WebP to PNG if needed
+      // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
+      if (
+        settings.usfsLogo.mimeType?.toLowerCase() === 'image/webp' ||
+        settings.usfsLogo.filename?.endsWith('.webp')
+      ) {
+        usfsLogoImgProps.src = await convertWebpToPng(settings.usfsLogo, settings.tenant)
+      }
     }
 
     // Forecast zone shares: fetch the zone's current danger rating + travel advice
