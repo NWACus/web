@@ -10,6 +10,7 @@ import {
   getAvalancheCenterPlatforms,
   getForecastZoneDanger,
 } from '@/services/nac/nac'
+import { formatZoneName } from '@/utilities/formatZoneName'
 import { notFound } from 'next/navigation'
 
 // ISR rather than fully static so the og:description travel advice in shared link previews
@@ -82,10 +83,7 @@ export async function generateMetadata(
 
   const parentOg = parentMeta.openGraph
 
-  const zoneName = zone
-    .split('-')
-    .map((word) => `${word.substring(0, 1).toUpperCase()}${word.substring(1)}`)
-    .join(' ')
+  const zoneName = formatZoneName(zone)
 
   const danger = await getForecastZoneDanger(center, zone).catch(() => null)
   const travelAdvice = danger?.travel_advice ?? null

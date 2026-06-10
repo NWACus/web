@@ -2,6 +2,7 @@ import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFrom
 import { getForecastZoneDanger } from '@/services/nac/nac'
 import { MapLayerFeatureProperties } from '@/services/nac/types/schemas'
 import { convertWebpToPng } from '@/utilities/convertWebpToPng'
+import { formatZoneName } from '@/utilities/formatZoneName'
 import { getURL } from '@/utilities/getURL'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
@@ -11,8 +12,6 @@ import { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
 import { centerColorMap, isKnownCenter } from './centerColorMap'
-
-const toTitleCase = (value: string): string => value.replace(/\b\w/g, (char) => char.toUpperCase())
 
 const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
 
@@ -129,7 +128,7 @@ export async function GET(
     let zoneName: string | null = null
 
     if (zone) {
-      zoneName = toTitleCase(zone.replace(/-/g, ' '))
+      zoneName = formatZoneName(zone)
 
       try {
         const danger = await getForecastZoneDanger(center, zone)
