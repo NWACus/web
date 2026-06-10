@@ -135,7 +135,12 @@ jobs:
 
   e2e:
     name: e2e
-    if: github.event_name == 'merge_group'
+    # TODO(fix/stabilize-admin-e2e): remove the head_ref clause before merging.
+    # Temporarily run e2e on this PR (normally it only runs in the merge queue)
+    # to validate the e2e stability changes in real CI.
+    if: >-
+      github.event_name == 'merge_group' ||
+      github.head_ref == 'fix/stabilize-admin-e2e'
     environment: Preview
     runs-on: ubuntu-latest
     timeout-minutes: 20
