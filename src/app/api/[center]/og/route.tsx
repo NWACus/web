@@ -300,7 +300,7 @@ export async function GET(
             <div tw="flex flex-col items-center text-center">
               <h1
                 style={{
-                  fontSize: '3rem',
+                  fontSize: '4rem',
                   fontWeight: 'bold',
                   color: colors.headerForeground,
                   marginBottom: '1rem',
