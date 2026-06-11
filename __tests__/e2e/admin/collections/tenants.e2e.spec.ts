@@ -19,10 +19,7 @@ authTest.describe('Tenants', () => {
 
     authTest('slug dropdown only shows unused slugs', async ({ adminPage }) => {
       await adminPage.goto(tenantsUrl.list)
-      await adminPage.waitForLoadState('networkidle')
-
       await adminPage.goto(tenantsUrl.create)
-      await adminPage.waitForLoadState('networkidle')
       await waitForFormReady(adminPage)
 
       const slugField = adminPage.locator('#field-slug')
@@ -36,7 +33,6 @@ authTest.describe('Tenants', () => {
 
     authTest('selecting a slug auto-fills the name field', async ({ adminPage }) => {
       await adminPage.goto(tenantsUrl.create)
-      await adminPage.waitForLoadState('networkidle')
       await waitForFormReady(adminPage)
 
       const slugField = adminPage.locator('#field-slug')
@@ -63,8 +59,6 @@ authTest.describe('Tenants', () => {
       'slug field shows current value and read-only on existing tenant',
       async ({ adminPage }) => {
         await adminPage.goto(tenantsUrl.list)
-        await adminPage.waitForLoadState('networkidle')
-
         const firstLink = adminPage.locator('table tbody tr td a').first()
         await firstLink.waitFor({ timeout: 15000 })
         await firstLink.click()
@@ -88,8 +82,6 @@ authTest.describe('Tenants', () => {
 
     authTest('shows custom confirmation modal with type-to-confirm', async ({ adminPage }) => {
       await adminPage.goto(tenantsUrl.list)
-      await adminPage.waitForLoadState('networkidle')
-
       // Click the first tenant to open edit view
       const firstLink = adminPage.locator('table tbody tr td a').first()
       await firstLink.waitFor({ timeout: 15000 })
@@ -132,8 +124,6 @@ authTest.describe('Tenants', () => {
 
     authTest('shows error when typing wrong name', async ({ adminPage }) => {
       await adminPage.goto(tenantsUrl.list)
-      await adminPage.waitForLoadState('networkidle')
-
       const firstLink = adminPage.locator('table tbody tr td a').first()
       await firstLink.waitFor({ timeout: 15000 })
       await firstLink.click()
