@@ -19,6 +19,16 @@ const verticalAlignClasses = {
   baseline: 'align-baseline',
 }
 
+// Maps percentage width to a conservative pixel estimate for the sizes attribute.
+// Uses container-relative values instead of viewport-relative (vw) so the browser
+// picks an appropriately sized image when the block is inside a narrower container.
+const sizesForWidth: Record<string, string> = {
+  '25': '(max-width: 640px) 25vw, 192px', // ~25% of a ~768px container
+  '50': '(max-width: 640px) 50vw, 384px', // ~50% of a ~768px container
+  '75': '(max-width: 640px) 75vw, 576px', // ~75% of a ~768px container
+  '100': '(max-width: 640px) 100vw, 768px', // full container width
+}
+
 type WidthSize = keyof typeof widthClasses
 
 function isWidthSize(size: string): size is WidthSize {
@@ -50,8 +60,7 @@ export const InlineMediaComponent = ({
   } else if (isWidthSize(resolvedSize)) {
     sizeClass = widthClasses[resolvedSize]
     imgSizeClass = 'w-full h-auto'
-    // Approximate sizes hint for responsive images
-    sizes = `${resolvedSize}vw`
+    sizes = sizesForWidth[resolvedSize] ?? '100vw'
   } else if (isFixedHeight) {
     imgSizeClass = 'h-full w-auto'
     sizes = '96px'
