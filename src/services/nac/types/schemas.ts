@@ -182,6 +182,35 @@ export const nationalWeatherServiceZoneSchema = z.object({
   zone_state: z.string(),
 })
 
+// `/v2/public/products/map-layer/{CENTER}` returns a GeoJSON FeatureCollection where each
+// feature is a forecast zone. We only need the danger/advice properties, not the polygon geometry.
+export const mapLayerFeaturePropertiesSchema = z.object({
+  name: z.string(),
+  center_id: z.string(),
+  danger: z.string().nullable().optional(),
+  danger_level: z.number(),
+  travel_advice: z.string().nullable().optional(),
+  color: z.string().nullable().optional(),
+  font_color: z.string().nullable().optional(),
+  link: z.string().nullable().optional(),
+  off_season: z.boolean().optional(),
+})
+export type MapLayerFeatureProperties = z.infer<typeof mapLayerFeaturePropertiesSchema>
+
+export const mapLayerFeatureSchema = z.object({
+  type: z.string(),
+  geometry: z.unknown(),
+  properties: mapLayerFeaturePropertiesSchema,
+})
+
+export const mapLayerSchema = z.object({
+  type: z.string(),
+  features: z.array(mapLayerFeatureSchema),
+  start_time: z.string().nullable().optional(),
+  end_time: z.string().nullable().optional(),
+})
+export type MapLayer = z.infer<typeof mapLayerSchema>
+
 export const avalancheCenterSchema = z.object({
   id: z.string(),
   name: z.string(),
