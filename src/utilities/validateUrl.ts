@@ -30,10 +30,10 @@ export const isValidFullUrl = (url?: string | null): boolean => {
       return false
     }
 
-    // Last part (TLD) must be 2-6 characters and contain only letters
-    // This covers common TLDs like .com, .org, .edu, .museum, etc.
+    // Last part (TLD) must be at least 2 characters and contain only letters
+    // Modern TLDs can be long (e.g., .clothing, .photography, .international)
     const tld = parts[parts.length - 1]
-    if (tld.length < 2 || tld.length > 6 || !/^[a-zA-Z]+$/.test(tld)) {
+    if (tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) {
       return false
     }
 
