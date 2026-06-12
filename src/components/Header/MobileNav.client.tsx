@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@radix-ui/react-dialog'
-import { Megaphone } from 'lucide-react'
+import { Megaphone, MegaphoneOff } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
@@ -118,7 +118,7 @@ export const MobileNav = ({
               aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${announcementCount} ${announcementCount === 1 ? 'announcement' : 'announcements'}`}
               aria-expanded={!collapsed}
             >
-              <Megaphone className="h-5 w-5" />
+              {collapsed ? <Megaphone className="h-5 w-5" /> : <MegaphoneOff className="h-5 w-5" />}
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-callout px-1 text-[10px] font-bold text-callout-foreground">
                 {announcementCount}
               </span>
