@@ -297,6 +297,7 @@ export interface HomePage {
     | SingleEventBlock
     | SponsorsBlock
     | TeamBlock
+    | VideoEmbedBlock
   )[];
   publishedAt?: string | null;
   documentReferences?:
@@ -404,6 +405,7 @@ export interface Page {
     | SingleEventBlock
     | SponsorsBlock
     | TeamBlock
+    | VideoEmbedBlock
   )[];
   meta?: {
     /**
@@ -1576,6 +1578,21 @@ export interface Team {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock".
+ */
+export interface VideoEmbedBlock {
+  /**
+   * Paste the embed code (<iframe>) from a video provider such as YouTube or Vimeo. Scripts are not executed in this block. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
+  html: string;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoEmbed';
 }
 /**
  * Note: This information will be displayed on your public provider listing.
@@ -3268,6 +3285,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
+        videoEmbed?: T | VideoEmbedBlockSelect<T>;
       };
   publishedAt?: T;
   documentReferences?:
@@ -3555,6 +3573,17 @@ export interface TeamBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock_select".
+ */
+export interface VideoEmbedBlockSelect<T extends boolean = true> {
+  html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "builtInPages_select".
  */
 export interface BuiltInPagesSelect<T extends boolean = true> {
@@ -3592,6 +3621,7 @@ export interface PagesSelect<T extends boolean = true> {
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
+        videoEmbed?: T | VideoEmbedBlockSelect<T>;
       };
   meta?:
     | T

@@ -20,6 +20,7 @@ import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { VideoEmbedBlock } from '@/blocks/VideoEmbed/config'
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
@@ -101,6 +102,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 EventTableBlock,
                 GenericEmbedBlock,
                 FormEmbedBlock,
+                VideoEmbedBlock,
                 HeaderLexicalBlock,
                 ImageTextBlock,
                 MediaBlock,

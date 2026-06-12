@@ -17,6 +17,7 @@ import { singleBlogPostBlock } from '../blocks/single-blog-post'
 import { singleEventBlock } from '../blocks/single-event'
 import { sponsorsBlock } from '../blocks/sponsors'
 import { teamBlock } from '../blocks/team'
+import { videoEmbed } from '../blocks/video-embed'
 import { headingContent } from '../utilities'
 
 type AllBlocksPageArgs = {
@@ -68,9 +69,11 @@ export const allBlocksPage = ({
       ...contentWithCallout,
       sectionLabel('Generic Embed'),
       ...genericEmbed,
-      sectionLabel('NAC Media Block'),
       sectionLabel('Form Embed'),
       ...formEmbed,
+      sectionLabel('Video Embed'),
+      ...videoEmbed,
+      sectionLabel('NAC Media Block'),
       ...nacMediaBlocks,
       sectionLabel('Blog List (Dynamic)'),
       {

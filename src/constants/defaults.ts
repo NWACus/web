@@ -15,6 +15,7 @@ import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { TeamBlock } from '@/blocks/Team/config'
+import { VideoEmbedBlock } from '@/blocks/VideoEmbed/config'
 
 export const DEFAULT_BLOCKS = [
   BlogListBlock,
@@ -27,6 +28,7 @@ export const DEFAULT_BLOCKS = [
   FormBlock,
   GenericEmbedBlock,
   FormEmbedBlock,
+  VideoEmbedBlock,
   HeaderBlock,
   ImageLinkGridBlock,
   ImageTextBlock,
