@@ -1,7 +1,10 @@
 import type { InlineMediaBlock } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { cssVariables } from '@/cssVariables'
 import { cn } from '@/utilities/ui'
+
+const { breakpoints } = cssVariables
 
 type Props = Omit<InlineMediaBlock, 'blockType' | 'id'>
 
@@ -22,10 +25,10 @@ const verticalAlignClasses = {
 // Maps percentage width to a sizes attribute, using container-relative pixel
 // estimates so the browser picks an appropriately sized image in narrow containers.
 const sizesForWidth: Record<string, string> = {
-  '25': '(max-width: 640px) 25vw, 192px', // ~25% of a ~768px container
-  '50': '(max-width: 640px) 50vw, 384px', // ~50% of a ~768px container
-  '75': '(max-width: 640px) 75vw, 576px', // ~75% of a ~768px container
-  '100': '(max-width: 640px) 100vw, 768px', // full container width
+  '25': `(max-width: ${breakpoints.sm}px) 25vw, 192px`, // ~25% of a ~768px container
+  '50': `(max-width: ${breakpoints.sm}px) 50vw, 384px`, // ~50% of a ~768px container
+  '75': `(max-width: ${breakpoints.sm}px) 75vw, 576px`, // ~75% of a ~768px container
+  '100': `(max-width: ${breakpoints.sm}px) 100vw, 768px`, // full container width
 }
 
 type WidthSize = keyof typeof widthClasses
