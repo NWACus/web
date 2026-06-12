@@ -6,7 +6,10 @@ import { cn } from '@/utilities/ui'
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { cssVariables } from '@/cssVariables'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+
+const { breakpoints } = cssVariables
 
 type Props = MediaBlockProps & {
   isLayoutBlock: boolean
@@ -33,9 +36,8 @@ export const MediaBlockComponent = (props: Props) => {
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  // Uses container query breakpoints (@sm, @md, @lg) so sizing responds to the
-  // parent container width rather than the viewport. This ensures correct
-  // behavior when the block is embedded in a narrower container (e.g. post layout).
+  // Container query breakpoints (@sm, @md, @lg) so sizing tracks the parent
+  // container width rather than the viewport, e.g. when embedded in a post layout.
   const getImageSizeClasses = () => {
     switch (imageSize) {
       case 'small':
@@ -52,17 +54,16 @@ export const MediaBlockComponent = (props: Props) => {
     }
   }
 
-  // sizes prop hints to the browser what image width to request.
-  // Uses conservative estimates based on the container size the block will
-  // actually occupy, rather than the full viewport width.
+  // Hints the image width to request, using conservative estimates based on the
+  // container size the block actually occupies rather than the full viewport.
   const getSizesForImageSize = () => {
     switch (imageSize) {
       case 'small':
-        return '(max-width: 640px) 100vw, 384px' // small caps at max-w-md = 28rem = 448px
+        return `(max-width: ${breakpoints.sm}px) 100vw, 384px` // small caps at max-w-md = 28rem = 448px
       case 'medium':
-        return '(max-width: 640px) 100vw, 672px' // medium caps at max-w-2xl = 42rem = 672px
+        return `(max-width: ${breakpoints.sm}px) 100vw, 672px` // medium caps at max-w-2xl = 42rem = 672px
       case 'large':
-        return '(max-width: 640px) 100vw, 896px' // large caps at max-w-4xl = 56rem = 896px
+        return `(max-width: ${breakpoints.sm}px) 100vw, 896px` // large caps at max-w-4xl = 56rem = 896px
       case 'full':
         return '100vw'
       case 'original':

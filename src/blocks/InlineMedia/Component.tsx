@@ -19,9 +19,8 @@ const verticalAlignClasses = {
   baseline: 'align-baseline',
 }
 
-// Maps percentage width to a conservative pixel estimate for the sizes attribute.
-// Uses container-relative values instead of viewport-relative (vw) so the browser
-// picks an appropriately sized image when the block is inside a narrower container.
+// Maps percentage width to a sizes attribute, using container-relative pixel
+// estimates so the browser picks an appropriately sized image in narrow containers.
 const sizesForWidth: Record<string, string> = {
   '25': '(max-width: 640px) 25vw, 192px', // ~25% of a ~768px container
   '50': '(max-width: 640px) 50vw, 384px', // ~50% of a ~768px container
