@@ -15,19 +15,16 @@ export type EmbedFrameProps = {
   alignContent?: 'left' | 'center' | 'right' | null
   className?: string
   isLayoutBlock?: boolean
-  /** Tags DOMPurify is allowed to keep, beyond its defaults. Defines this embed's security policy. */
+  /** Extra tags DOMPurify keeps — this embed's security policy. */
   addTags: string[]
-  /** Attributes DOMPurify is allowed to keep, beyond its defaults. */
+  /** Extra attributes DOMPurify keeps. */
   addAttr: string[]
-  /** The iframe sandbox policy appropriate for this embed type. */
+  /** Iframe sandbox policy for this embed type. */
   sandbox: string
 }
 
-/**
- * Shared sandboxed renderer for embed blocks. Each embed block (generic, video, form)
- * supplies its own sanitize policy (`addTags`/`addAttr`) and `sandbox` value, keeping the
- * security boundary explicit per block type rather than branching on embed content.
- */
+// Shared sandboxed renderer. Each embed block supplies its own sanitize policy
+// (addTags/addAttr) and sandbox, keeping the security boundary explicit per block type.
 export const EmbedFrame = ({
   id,
   html,
@@ -47,7 +44,7 @@ export const EmbedFrame = ({
   useEffect(() => {
     if (typeof window === 'undefined' || !html) return
 
-    // Normalize problematic quotes that are parsed incorrectly by DOMParser and DOMPurify
+    // Normalize curly quotes that DOMParser/DOMPurify parse incorrectly
     const normalizedHTML = html.replaceAll('“', '"').replaceAll('”', '"')
 
     const sanitized = DOMPurify.sanitize(normalizedHTML, {
@@ -70,10 +67,8 @@ export const EmbedFrame = ({
 
     const fullHtml = `<!DOCTYPE html><html><head></head><body>${sanitized}${styleOverrides}</body></html>`
 
-    // Use a blob URL for embeds with <script> tags because Chromium doesn't re-execute
-    // scripts in srcDoc iframes after SPA client-side navigation (renderer-process MemoryCache).
-    // Use srcDoc for script-free embeds (e.g. YouTube iframes) so the embedding context is
-    // preserved — blob: URLs can cause third-party players to fail their origin/referrer checks.
+    // Scripts: use a blob URL — Chromium won't re-execute srcDoc scripts after SPA navigation.
+    // Script-free (e.g. YouTube): use srcDoc — blob: URLs can fail players' origin/referrer checks.
     if (/<script/i.test(sanitized)) {
       const blob = new Blob([fullHtml], { type: 'text/html' })
       const url = URL.createObjectURL(blob)
@@ -106,7 +101,7 @@ export const EmbedFrame = ({
             : { srcDoc: iframeContent.value })}
           sandbox={sandbox}
           className="w-full border-none m-0 p-0 transition-[height] duration-200 ease-in-out"
-          height={0} // This iframe will resize to its content height - this initial height avoids the browser default 150px
+          height={0} // Resizes to content height; 0 avoids the browser default 150px
         />
       </div>
     </div>
