@@ -285,6 +285,7 @@ export interface HomePage {
     | EventListBlock
     | EventTableBlock
     | FormBlock
+    | FormEmbedBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -391,6 +392,7 @@ export interface Page {
     | EventListBlock
     | EventTableBlock
     | FormBlock
+    | FormEmbedBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -1217,6 +1219,21 @@ export interface Form {
   tenant: number | Tenant;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormEmbedBlock".
+ */
+export interface FormEmbedBlock {
+  /**
+   * For donation and form widgets that ship their own scripts (DonorBox, Classy, Eventbrite, etc.). Paste the provider embed code, including any <script> tags. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
+  html: string;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formEmbed';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3239,6 +3256,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         eventList?: T | EventListBlockSelect<T>;
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        formEmbed?: T | FormEmbedBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
@@ -3372,6 +3390,17 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormEmbedBlock_select".
+ */
+export interface FormEmbedBlockSelect<T extends boolean = true> {
+  html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
   id?: T;
   blockName?: T;
 }
@@ -3551,6 +3580,7 @@ export interface PagesSelect<T extends boolean = true> {
         eventList?: T | EventListBlockSelect<T>;
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        formEmbed?: T | FormEmbedBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;

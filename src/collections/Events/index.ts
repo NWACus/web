@@ -4,6 +4,7 @@ import { BlogListBlock } from '@/blocks/BlogList/config'
 import { DocumentBlock } from '@/blocks/Document/config'
 import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
+import { FormEmbedBlock } from '@/blocks/FormEmbed/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { MediaBlock } from '@/blocks/Media/config'
@@ -161,6 +162,7 @@ export const Events: CollectionConfig = {
                     EventListBlock,
                     EventTableBlock,
                     GenericEmbedBlock,
+                    FormEmbedBlock,
                     HeaderLexicalBlock,
                     MediaBlock,
                     SingleBlogPostBlock,

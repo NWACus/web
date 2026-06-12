@@ -18,6 +18,7 @@ import { CalloutBlockComponent } from '@/blocks/Callout/Component'
 import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
+import { FormEmbedBlockComponent } from '@/blocks/FormEmbed/Component'
 import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
@@ -34,6 +35,7 @@ import type {
   DocumentBlock as DocumentBlockProps,
   EventListBlock as EventListBlockProps,
   EventTableBlock as EventTableBlockProps,
+  FormEmbedBlock as FormEmbedBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
   ImageTextBlock as ImageTextBlockProps,
@@ -82,6 +84,7 @@ type NodeTypes =
       | DocumentBlockProps
       | EventListBlockProps
       | EventTableBlockProps
+      | FormEmbedBlockProps
       | GenericEmbedBlockProps
       | HeaderBlockProps
       | ImageTextBlockProps
@@ -128,6 +131,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     genericEmbed: ({ node }) => (
       <GenericEmbedBlockComponent {...node.fields} isLayoutBlock={false} />
     ),
+    formEmbed: ({ node }) => <FormEmbedBlockComponent {...node.fields} isLayoutBlock={false} />,
     headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLayoutBlock={false} />,
     imageText: ({ node }) => <ImageTextBlockComponent {...node.fields} isLayoutBlock={false} />,
     mediaBlock: ({ node }) => (

@@ -5,6 +5,7 @@ import { contentColumns } from '../blocks/content-columns'
 import { contentWithCallout } from '../blocks/content-with-callout'
 import { eventListBlock } from '../blocks/event-list'
 import { formBlock } from '../blocks/form'
+import { formEmbed } from '../blocks/form-embed'
 import { genericEmbed } from '../blocks/generic-embed'
 import { headerBlock } from '../blocks/header'
 import { imageLinkGrid } from '../blocks/image-link-grid'
@@ -68,6 +69,8 @@ export const allBlocksPage = ({
       sectionLabel('Generic Embed'),
       ...genericEmbed,
       sectionLabel('NAC Media Block'),
+      sectionLabel('Form Embed'),
+      ...formEmbed,
       ...nacMediaBlocks,
       sectionLabel('Blog List (Dynamic)'),
       {

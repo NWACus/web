@@ -1,6 +1,7 @@
 import type { Field, FilterOptionsProps } from 'payload'
 
 import { ButtonBlock } from '@/blocks/Button/config'
+import { FormEmbedBlock } from '@/blocks/FormEmbed/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { MediaBlock } from '@/blocks/Media/config'
 import { eventTypesData } from '@/constants/eventTypes'
@@ -24,7 +25,7 @@ export const defaultStylingFields = (additionalFilters?: Field[]): Field[] => [
         return [
           ...rootFeatures,
           BlocksFeature({
-            blocks: [ButtonBlock, MediaBlock, GenericEmbedBlock],
+            blocks: [ButtonBlock, MediaBlock, GenericEmbedBlock, FormEmbedBlock],
           }),
           HorizontalRuleFeature(),
           InlineToolbarFeature(),

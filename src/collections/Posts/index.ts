@@ -13,6 +13,7 @@ import { ButtonBlock } from '@/blocks/Button/config'
 import { DocumentBlock } from '@/blocks/Document/config'
 import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
+import { FormEmbedBlock } from '@/blocks/FormEmbed/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { MediaBlock } from '@/blocks/Media/config'
@@ -99,6 +100,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 EventListBlock,
                 EventTableBlock,
                 GenericEmbedBlock,
+                FormEmbedBlock,
                 HeaderLexicalBlock,
                 ImageTextBlock,
                 MediaBlock,
