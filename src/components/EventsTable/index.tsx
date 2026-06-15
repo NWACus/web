@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table'
 import type { Event } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import {
   ChevronDown,
   ChevronRight,
@@ -20,7 +21,7 @@ import {
   MapPin,
 } from 'lucide-react'
 import Link from 'next/link'
-import { Fragment, useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { ButtonLink } from '../ButtonLink'
 
 // Move SortIcon outside the component to prevent re-renders
@@ -73,6 +74,14 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     direction: 'asc',
   })
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [browserTz, setBrowserTz] = useState<string | null>(null)
+
+  useEffect(() => {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+    if (TIMEZONE_OPTIONS.some((opt) => opt.value === tz)) {
+      setBrowserTz(tz)
+    }
+  }, [])
 
   // Determine status based on event data
   const getStatus = (event: Event) => {
@@ -102,11 +111,16 @@ export function EventTable({ events = [] }: { events: Event[] }) {
     }
   }
 
-  // Format date and time with timezone
-  const formatEventDateTime = (dateString: string, tz: string) => {
+  // Format date and time with timezone, optionally appending browser local time
+  const formatEventDateTime = (dateString: string, eventTz: string) => {
+    const time = formatDateTime(dateString, eventTz, 'h:mm a zzz')
+    const localTime =
+      browserTz && browserTz !== eventTz
+        ? formatDateTime(dateString, browserTz, 'h:mm a zzz')
+        : null
     return {
-      date: formatDateTime(dateString, tz, 'MMM d, yyyy'),
-      time: formatDateTime(dateString, tz, 'h:mm a zzz'),
+      date: formatDateTime(dateString, eventTz, 'MMM d, yyyy'),
+      time: localTime ? `${time} (${localTime})` : time,
     }
   }
 

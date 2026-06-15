@@ -5,6 +5,7 @@ import type { BuiltInPage, Page, Tenant } from '@/payload-types'
 // the value imports inside function bodies to break the circular dependency.
 // Type imports are erased at runtime and don't contribute to the cycle.
 import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
+import { matchTimezone } from '@/utilities/timezones'
 import type { Payload, PayloadHandler } from 'payload'
 import type { Logger } from 'pino'
 
@@ -243,6 +244,28 @@ export async function provision(payload: Payload, tenant: Tenant) {
   }
 
   const failed: ProvisioningFailed = {}
+
+  // 0. Sync timezone from NAC (also runs in beforeChange on create, but provision
+  //    may be called independently or the NAC fetch may have failed earlier)
+  if (!tenant.timezone) {
+    try {
+      const { getAvalancheCenterMetadata } = await import('@/services/nac/nac')
+      const metadata = await getAvalancheCenterMetadata(tenant.slug)
+      const timezone = matchTimezone(metadata.timezone)
+      if (timezone) {
+        await payload.update({
+          collection: 'tenants',
+          id: tenant.id,
+          data: { timezone },
+        })
+        log.info(`[${tenant.slug}] Set timezone: ${timezone}`)
+      }
+    } catch (err) {
+      log.warn(
+        `[${tenant.slug}] Failed to sync timezone from NAC: ${err instanceof Error ? err.message : err}`,
+      )
+    }
+  }
 
   // 1. Create Website Settings with placeholder brand assets
   log.info(`[${tenant.slug}] Creating website settings...`)

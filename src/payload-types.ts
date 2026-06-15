@@ -354,6 +354,12 @@ export interface Tenant {
     | 'wac'
     | 'wcmac';
   name: string;
+  /**
+   * The IANA timezone for this avalanche center. Auto-populated from NAC on create.
+   */
+  timezone?:
+    | ('America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu')
+    | null;
   contentHash?: string | null;
   provisioning: {
     status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual';
@@ -3999,6 +4005,7 @@ export interface GlobalRoleAssignmentsSelect<T extends boolean = true> {
 export interface TenantsSelect<T extends boolean = true> {
   slug?: T;
   name?: T;
+  timezone?: T;
   contentHash?: T;
   provisioning?:
     | T

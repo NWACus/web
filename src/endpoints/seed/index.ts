@@ -213,21 +213,25 @@ export const seed = async ({
       {
         name: 'Death Valley Avalanche Center',
         slug: 'dvac',
+        timezone: 'America/Los_Angeles',
         provisioning: seededProvisioning,
       },
       {
         name: 'Northwest Avalanche Center',
         slug: 'nwac',
+        timezone: 'America/Los_Angeles',
         provisioning: seededProvisioning,
       },
       {
         name: 'Sierra Avalanche Center',
         slug: 'sac',
+        timezone: 'America/Los_Angeles',
         provisioning: seededProvisioning,
       },
       {
         name: 'Sawtooth Avalanche Center',
         slug: 'snfac',
+        timezone: 'America/Denver',
         provisioning: seededProvisioning,
       },
     ])

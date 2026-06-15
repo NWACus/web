@@ -68,5 +68,15 @@ export const startAndEndDateField = (): RowField => ({
         },
       },
     },
+    {
+      type: 'ui',
+      name: 'timezoneComparisonNotice',
+      admin: {
+        components: {
+          Field:
+            '@/fields/startAndEndDateField/components/TimezoneComparisonNotice#TimezoneComparisonNotice',
+        },
+      },
+    },
   ],
 })

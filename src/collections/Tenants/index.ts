@@ -5,9 +5,11 @@ import {
   revalidateTenantsAfterChange,
   revalidateTenantsAfterDelete,
 } from '@/collections/Tenants/hooks/revalidateTenants'
+import { syncTimezoneFromNac } from '@/collections/Tenants/hooks/syncTimezoneFromNac'
 import { contentHashField } from '@/fields/contentHashField'
 import { hasReadOnlyAccess } from '@/utilities/rbac/hasReadOnlyAccess'
 import { AVALANCHE_CENTERS, VALID_TENANT_SLUGS } from '@/utilities/tenancy/avalancheCenters'
+import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
 import type { CollectionConfig } from 'payload'
 
 export const Tenants: CollectionConfig = {
@@ -34,6 +36,7 @@ export const Tenants: CollectionConfig = {
   // update src/utilities/isTenantValue.ts if this changes
   defaultPopulate: {
     slug: true,
+    timezone: true,
   },
   endpoints: [
     {
@@ -43,6 +46,7 @@ export const Tenants: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [syncTimezoneFromNac],
     afterChange: [revalidateTenantsAfterChange],
     beforeDelete: [deprovisionBeforeDelete],
     afterDelete: [revalidateTenantsAfterDelete],
@@ -73,6 +77,16 @@ export const Tenants: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'timezone',
+      type: 'select',
+      options: TIMEZONE_OPTIONS,
+      admin: {
+        description:
+          'The IANA timezone for this avalanche center. Auto-populated from NAC on create.',
+        position: 'sidebar',
+      },
     },
     contentHashField(),
     {

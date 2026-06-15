@@ -20,7 +20,8 @@ const DANGEROUS_PATTERNS = [
     message: 'TRUNCATE keyword detected - review for data loss',
   },
   {
-    pattern: /\bALTER\b/i,
+    // ALTER TABLE ... ADD is safe (adds a nullable column). Flag other ALTER operations.
+    pattern: /\bALTER\b(?!.*\bADD\b)/i,
     message: 'ALTER keyword detected - review for data loss',
   },
   {

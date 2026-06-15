@@ -15,3 +15,9 @@ export const TIMEZONE_OPTIONS = [
   { label: 'Alaska Time (AKT)', value: US_TIMEZONES.ALASKA },
   { label: 'Island Time (HT)', value: US_TIMEZONES.HAWAII },
 ]
+
+export function matchTimezone(tz: string): USTimezone | undefined {
+  const match = TIMEZONE_OPTIONS.find((opt) => opt.value === tz)
+  if (!match) return undefined
+  return match.value
+}
