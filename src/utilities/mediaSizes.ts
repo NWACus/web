@@ -80,54 +80,21 @@ export function buildColumnSizes(spanClass: string): ContainerSizes {
   return { segments }
 }
 
-// The final (unbounded) interval drops its condition to become the `sizes` default.
-function emitSizes(intervals: { upper: number | null; value: string }[]): string {
-  return intervals
-    .map((iv, idx) =>
-      idx === intervals.length - 1 || iv.upper == null
-        ? iv.value
-        : `(max-width: ${iv.upper}px) ${iv.value}`,
-    )
-    .join(', ')
-}
-
-function mergeIntervals(
-  intervals: { upper: number | null; value: string }[],
-): { upper: number | null; value: string }[] {
-  const merged: { upper: number | null; value: string }[] = []
-  for (const iv of intervals) {
-    const last = merged[merged.length - 1]
-    if (last && last.value === iv.value) last.upper = iv.upper
-    else merged.push({ ...iv })
-  }
-  return merged
-}
-
 // Builds a `sizes` attribute mirroring the cqw CSS: min(container, max(floorPx, percent%)).
-export function buildImageSizes(container: ContainerSizes, spec: SizeSpec): string {
-  const { percent, floorPx } = spec
-  // In a 'full' segment the container tracks the viewport; floor and percent cross here.
-  const floorCrossover = percent > 0 ? Math.round((floorPx * 100) / percent) : 0
-
-  const boundaries = new Set<number>(container.segments.map((s) => s.minViewport))
-  if (floorCrossover > 0) boundaries.add(floorCrossover)
-  const sorted = [...boundaries].sort((a, b) => a - b)
-
-  const widthAt = (vw: number): number | 'full' => {
-    let active: ContainerSizes['segments'][number] | undefined
-    for (const s of container.segments) if (s.minViewport <= vw) active = s
-    return active ? active.width : 'full'
-  }
-
-  const renderedAt = (vw: number): string => {
-    const w = widthAt(vw)
-    if (w === 'full') return vw < floorCrossover ? `${floorPx}px` : `${percent}vw`
-    return `${Math.min(w, Math.max(floorPx, Math.round((percent / 100) * w)))}px`
-  }
-
-  const intervals = sorted.map((start, i) => ({
-    upper: i + 1 < sorted.length ? sorted[i + 1] : null,
-    value: renderedAt(start),
-  }))
-  return emitSizes(mergeIntervals(intervals))
+export function buildImageSizes(
+  { segments }: ContainerSizes,
+  { percent, floorPx }: SizeSpec,
+): string {
+  return segments
+    .map((s, i) => {
+      const value =
+        s.width === 'full'
+          ? floorPx
+            ? `max(${floorPx}px, ${percent}vw)`
+            : `${percent}vw`
+          : `${Math.min(s.width, Math.max(floorPx, Math.round((percent / 100) * s.width)))}px`
+      const next = segments[i + 1]
+      return next ? `(max-width: ${next.minViewport}px) ${value}` : value
+    })
+    .join(', ')
 }
