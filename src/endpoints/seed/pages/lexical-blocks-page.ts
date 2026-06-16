@@ -63,6 +63,15 @@ export const lexicalBlocksPage = ({
                 alignContent: 'center',
               }),
 
+              // Form embed
+              headingNode('Form Embed', 'h3'),
+              blockNode({
+                blockType: 'formEmbed',
+                html: '<script src="https://donorbox.org/widget.js" paypalExpress="false"></script><iframe src="https://donorbox.org/embed/example-campaign" name="donorbox" allowpaymentrequest="allowpaymentrequest" seamless="seamless" frameborder="0" scrolling="no" height="900px" width="100%" style="max-width: 500px; min-width: 250px; max-height:none!important"></iframe>',
+                backgroundColor: 'transparent',
+                alignContent: 'center',
+              }),
+
               // Media block
               headingNode('Media Block', 'h3'),
               blockNode({
