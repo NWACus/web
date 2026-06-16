@@ -51,6 +51,7 @@ import * as migration_20260504_235946_revalidation_fields_and_widgets_dev_mode f
 import * as migration_20260505_000519_backfill_document_references from './20260505_000519_backfill_document_references'
 import * as migration_20260505_045158_convert_auto_nav_items from './20260505_045158_convert_auto_nav_items'
 import * as migration_20260505_045200_backfill_nav_builtin_pages from './20260505_045200_backfill_nav_builtin_pages'
+import * as migration_20260612_185209_split_generic_embed_blocks from './20260612_185209_split_generic_embed_blocks'
 
 export const migrations = [
   {
@@ -317,5 +318,10 @@ export const migrations = [
     up: migration_20260505_045200_backfill_nav_builtin_pages.up,
     down: migration_20260505_045200_backfill_nav_builtin_pages.down,
     name: '20260505_045200_backfill_nav_builtin_pages',
+  },
+  {
+    up: migration_20260612_185209_split_generic_embed_blocks.up,
+    down: migration_20260612_185209_split_generic_embed_blocks.down,
+    name: '20260612_185209_split_generic_embed_blocks',
   },
 ]
