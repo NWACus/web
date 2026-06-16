@@ -8,6 +8,7 @@ export const imageSizeField: (label: string) => Field = (label) => ({
   defaultValue: 'original',
   options: [
     { label: 'Original (Natural size)', value: 'original' },
+    { label: 'Extra small', value: 'xsmall' },
     { label: 'Small', value: 'small' },
     { label: 'Medium', value: 'medium' },
     { label: 'Large', value: 'large' },

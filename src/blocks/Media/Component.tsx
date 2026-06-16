@@ -37,6 +37,8 @@ export const MediaBlockComponent = (props: Props) => {
   // rendered width via `sizes="auto"` (images are lazy-loaded) to pick the resolution.
   const getImageSizeClasses = () => {
     switch (imageSize) {
+      case 'xsmall':
+        return 'max-w-[max(12rem,33cqw)]'
       case 'small':
         return 'max-w-[max(16rem,50cqw)]'
       case 'medium':
