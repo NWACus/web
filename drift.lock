@@ -311,6 +311,36 @@ target = "src/collections/Tenants/endpoints/provisionTenant.ts"
 sig = "22a227eec96485e6"
 
 [[bindings]]
+doc = "docs/decisions/015-national-course-catalog.md"
+target = "src/collections/Courses/index.ts"
+sig = "8f627ebd719644dc"
+
+[[bindings]]
+doc = "docs/decisions/015-national-course-catalog.md"
+target = "src/collections/Providers/index.ts"
+sig = "ef162015be100d91"
+
+[[bindings]]
+doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
+target = "src/collections/HomePages/index.tsx"
+sig = "54909f682b3841aa"
+
+[[bindings]]
+doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
+target = "src/collections/Navigations/index.tsx"
+sig = "7c11051944f82644"
+
+[[bindings]]
+doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
+target = "src/collections/Settings/index.ts"
+sig = "3e50277f603c25bb"
+
+[[bindings]]
+doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
+target = "src/fields/tenantField/index.ts"
+sig = "f36be45edf4c3ced"
+
+[[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.js"
 sig = "3fd5fe0f09863f05"
