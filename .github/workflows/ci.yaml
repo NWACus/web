@@ -133,6 +133,29 @@ jobs:
       - name: 🧪 Run tests
         run: pnpm test
 
+  drift:
+    name: drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 📥 Install drift
+        run: |
+          curl -sL https://github.com/fiberplane/drift/releases/download/v0.10.0/drift-x86_64-linux.tar.gz | tar xz
+          sudo mv drift /usr/local/bin/
+      - name: 📚 Check doc drift
+        run: pnpm drift:check
+
   e2e:
     name: e2e
     if: github.event_name == 'merge_group'
