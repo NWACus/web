@@ -6,10 +6,13 @@ import { cn } from '@/utilities/ui'
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
-import { cssVariables } from '@/cssVariables'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
-
-const { breakpoints } = cssVariables
+import {
+  buildImageSizes,
+  type ContainerSizes,
+  FULL_WIDTH_CONTAINER,
+  IMAGE_SIZE_SPECS,
+} from '@/utilities/mediaSizes'
 
 type Props = MediaBlockProps & {
   isLayoutBlock: boolean
@@ -17,6 +20,8 @@ type Props = MediaBlockProps & {
   className?: string
   imgClassName?: string
   staticImage?: StaticImageData
+  // Column context from a multi-column layout, so `sizes` matches the real container width.
+  containerSizes?: ContainerSizes
 }
 
 export const MediaBlockComponent = (props: Props) => {
@@ -31,21 +36,21 @@ export const MediaBlockComponent = (props: Props) => {
     alignContent = 'left',
     backgroundColor,
     imageSize = 'original',
+    containerSizes,
   } = props
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  // Container query breakpoints (@sm, @md, @lg) so sizing tracks the parent
-  // container width rather than the viewport, e.g. when embedded in a post layout.
+  // `cqw` sizes the image relative to the block's `@container`. Keep in sync with IMAGE_SIZE_SPECS.
   const getImageSizeClasses = () => {
     switch (imageSize) {
       case 'small':
-        return 'max-w-xs @sm:max-w-sm @lg:max-w-md'
+        return 'max-w-[max(16rem,50cqw)]'
       case 'medium':
-        return 'max-w-sm @sm:max-w-lg @lg:max-w-2xl'
+        return 'max-w-[max(20rem,75cqw)]'
       case 'large':
-        return 'max-w-md @sm:max-w-2xl @lg:max-w-4xl'
+        return 'max-w-[max(24rem,90cqw)]'
       case 'full':
         return 'max-w-full'
       case 'original':
@@ -54,22 +59,10 @@ export const MediaBlockComponent = (props: Props) => {
     }
   }
 
-  // Hints the image width to request, using conservative estimates based on the
-  // container size the block actually occupies rather than the full viewport.
   const getSizesForImageSize = () => {
-    switch (imageSize) {
-      case 'small':
-        return `(max-width: ${breakpoints.sm}px) 100vw, 384px` // small caps at max-w-md = 28rem = 448px
-      case 'medium':
-        return `(max-width: ${breakpoints.sm}px) 100vw, 672px` // medium caps at max-w-2xl = 42rem = 672px
-      case 'large':
-        return `(max-width: ${breakpoints.sm}px) 100vw, 896px` // large caps at max-w-4xl = 56rem = 896px
-      case 'full':
-        return '100vw'
-      case 'original':
-      default:
-        return '100vw'
-    }
+    const spec = IMAGE_SIZE_SPECS[imageSize ?? 'original']
+    if (!spec) return '100vw'
+    return buildImageSizes(containerSizes ?? FULL_WIDTH_CONTAINER, spec)
   }
 
   return (

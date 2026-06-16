@@ -1,6 +1,7 @@
 import RichText from '@/components/RichText'
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
+import { buildColumnSizes } from '@/utilities/mediaSizes'
 import { cn } from '@/utilities/ui'
 
 export const ContentBlockComponent = (props: ContentBlockProps) => {
@@ -46,9 +47,12 @@ export const ContentBlockComponent = (props: ContentBlockProps) => {
         <div className="grid grid-cols-6 lg:grid-cols-12 gap-y-6 gap-x-10">
           {columns?.map((col, index) => {
             const { richText } = col
+            const columnSizes = buildColumnSizes(colsSpanClass[index] ?? '')
             return (
               <div className={cn('col-span-6', colsSpanClass[index], textColor)} key={index}>
-                {richText && <RichText data={richText} enableGutter={false} />}
+                {richText && (
+                  <RichText data={richText} enableGutter={false} containerSizes={columnSizes} />
+                )}
               </div>
             )
           })}

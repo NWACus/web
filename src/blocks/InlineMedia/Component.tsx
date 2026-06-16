@@ -1,12 +1,13 @@
 import type { InlineMediaBlock } from '@/payload-types'
 
 import { Media } from '@/components/Media'
-import { cssVariables } from '@/cssVariables'
+import { buildImageSizes, type ContainerSizes, FULL_WIDTH_CONTAINER } from '@/utilities/mediaSizes'
 import { cn } from '@/utilities/ui'
 
-const { breakpoints } = cssVariables
-
-type Props = Omit<InlineMediaBlock, 'blockType' | 'id'>
+type Props = Omit<InlineMediaBlock, 'blockType' | 'id'> & {
+  // Column context from a multi-column layout, so `sizes` matches the real container width.
+  containerSizes?: ContainerSizes
+}
 
 const widthClasses = {
   '25': 'w-1/4',
@@ -22,15 +23,6 @@ const verticalAlignClasses = {
   baseline: 'align-baseline',
 }
 
-// Maps percentage width to a sizes attribute, using container-relative pixel
-// estimates so the browser picks an appropriately sized image in narrow containers.
-const sizesForWidth: Record<string, string> = {
-  '25': `(max-width: ${breakpoints.sm}px) 25vw, 192px`, // ~25% of a ~768px container
-  '50': `(max-width: ${breakpoints.sm}px) 50vw, 384px`, // ~50% of a ~768px container
-  '75': `(max-width: ${breakpoints.sm}px) 75vw, 576px`, // ~75% of a ~768px container
-  '100': `(max-width: ${breakpoints.sm}px) 100vw, 768px`, // full container width
-}
-
 type WidthSize = keyof typeof widthClasses
 
 function isWidthSize(size: string): size is WidthSize {
@@ -44,6 +36,7 @@ export const InlineMediaComponent = ({
   size = 'original',
   fixedHeight,
   caption,
+  containerSizes,
 }: Props) => {
   if (!media || typeof media === 'number' || typeof media === 'string') {
     return null
@@ -62,7 +55,11 @@ export const InlineMediaComponent = ({
   } else if (isWidthSize(resolvedSize)) {
     sizeClass = widthClasses[resolvedSize]
     imgSizeClass = 'w-full h-auto'
-    sizes = sizesForWidth[resolvedSize] ?? '100vw'
+    // Width is `resolvedSize`% of the container, so match `sizes` to that fraction.
+    sizes = buildImageSizes(containerSizes ?? FULL_WIDTH_CONTAINER, {
+      percent: Number(resolvedSize),
+      floorPx: 0,
+    })
   } else if (isFixedHeight) {
     imgSizeClass = 'h-full w-auto'
     sizes = '96px'
