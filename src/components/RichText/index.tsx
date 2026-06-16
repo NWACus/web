@@ -46,7 +46,6 @@ import type {
   SponsorsBlock as SponsorsBlockProps,
 } from '@/payload-types'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
-import type { ContainerSizes } from '@/utilities/mediaSizes'
 import { cn } from '@/utilities/ui'
 
 type LinkDocRelationTo = (typeof LINK_ENABLED_COLLECTIONS)[number]
@@ -114,67 +113,52 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   return url || '/'
 }
 
-// Built as a factory so the Media converters can close over `containerSizes`,
-// which a multi-column Content block passes down for container-accurate `sizes`.
-const makeJsxConverters =
-  (containerSizes?: ContainerSizes): JSXConvertersFunction<NodeTypes> =>
-  ({ defaultConverters }) => ({
-    ...defaultConverters,
-    ...LinkJSXConverter({ internalDocToHref }),
-    // if block has two variants - to make TS happy we fallback to the default for the block variant
-    blocks: {
-      blogList: ({ node }) => <BlogListBlockComponent {...node.fields} isLayoutBlock={false} />,
-      buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
-      calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
-      documentBlock: ({ node }) => (
-        <DocumentBlockComponent {...node.fields} isLayoutBlock={false} />
-      ),
-      eventList: ({ node }) => <EventListBlockComponent {...node.fields} isLayoutBlock={false} />,
-      eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} isLayoutBlock={false} />,
-      singleEvent: ({ node }) => (
-        <SingleEventBlockComponent {...node.fields} isLayoutBlock={false} />
-      ),
-      genericEmbed: ({ node }) => (
-        <GenericEmbedBlockComponent {...node.fields} isLayoutBlock={false} />
-      ),
-      headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLayoutBlock={false} />,
-      imageText: ({ node }) => <ImageTextBlockComponent {...node.fields} isLayoutBlock={false} />,
-      mediaBlock: ({ node }) => (
-        <MediaBlockComponent
-          className="col-start-1 col-span-3"
-          imgClassName="m-0"
-          {...node.fields}
-          isLayoutBlock={false}
-          captionClassName="mx-auto max-w-[48rem]"
-          containerSizes={containerSizes}
-        />
-      ),
-      singleBlogPost: ({ node }) => (
-        <SingleBlogPostBlockComponent {...node.fields} isLayoutBlock={false} />
-      ),
-      sponsorsBlock: ({ node }) => (
-        <SponsorsBlockComponent {...node.fields} isLayoutBlock={false} />
-      ),
-    },
-    inlineBlocks: {
-      inlineMedia: ({ node }) => (
-        <InlineMediaComponent {...node.fields} containerSizes={containerSizes} />
-      ),
-    },
-  })
+const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
+  ...defaultConverters,
+  ...LinkJSXConverter({ internalDocToHref }),
+  // if block has two variants - to make TS happy we fallback to the default for the block variant
+  blocks: {
+    blogList: ({ node }) => <BlogListBlockComponent {...node.fields} isLayoutBlock={false} />,
+    buttonBlock: ({ node }) => <ButtonBlockComponent {...node.fields} />,
+    calloutBlock: ({ node }) => <CalloutBlockComponent {...node.fields} />,
+    documentBlock: ({ node }) => <DocumentBlockComponent {...node.fields} isLayoutBlock={false} />,
+    eventList: ({ node }) => <EventListBlockComponent {...node.fields} isLayoutBlock={false} />,
+    eventTable: ({ node }) => <EventTableBlockComponent {...node.fields} isLayoutBlock={false} />,
+    singleEvent: ({ node }) => <SingleEventBlockComponent {...node.fields} isLayoutBlock={false} />,
+    genericEmbed: ({ node }) => (
+      <GenericEmbedBlockComponent {...node.fields} isLayoutBlock={false} />
+    ),
+    headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLayoutBlock={false} />,
+    imageText: ({ node }) => <ImageTextBlockComponent {...node.fields} isLayoutBlock={false} />,
+    mediaBlock: ({ node }) => (
+      <MediaBlockComponent
+        className="col-start-1 col-span-3"
+        imgClassName="m-0"
+        {...node.fields}
+        isLayoutBlock={false}
+        captionClassName="mx-auto max-w-[48rem]"
+      />
+    ),
+    singleBlogPost: ({ node }) => (
+      <SingleBlogPostBlockComponent {...node.fields} isLayoutBlock={false} />
+    ),
+    sponsorsBlock: ({ node }) => <SponsorsBlockComponent {...node.fields} isLayoutBlock={false} />,
+  },
+  inlineBlocks: {
+    inlineMedia: ({ node }) => <InlineMediaComponent {...node.fields} />,
+  },
+})
 
 type Props = {
   data: SerializedEditorState
   enableGutter?: boolean
-  // Column context from a multi-column layout, forwarded to embedded Media blocks.
-  containerSizes?: ContainerSizes
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableGutter = true, containerSizes, ...rest } = props
+  const { className, enableGutter = true, ...rest } = props
   return (
     <RichTextLexical
-      converters={makeJsxConverters(containerSizes)}
+      converters={jsxConverters}
       className={cn(
         'mx-auto prose md:prose-md dark:prose-invert',
         {

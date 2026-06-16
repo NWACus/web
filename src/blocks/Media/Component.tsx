@@ -7,12 +7,6 @@ import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
-import {
-  buildImageSizes,
-  type ContainerSizes,
-  FULL_WIDTH_CONTAINER,
-  IMAGE_SIZE_SPECS,
-} from '@/utilities/mediaSizes'
 
 type Props = MediaBlockProps & {
   isLayoutBlock: boolean
@@ -20,8 +14,6 @@ type Props = MediaBlockProps & {
   className?: string
   imgClassName?: string
   staticImage?: StaticImageData
-  // Column context from a multi-column layout, so `sizes` matches the real container width.
-  containerSizes?: ContainerSizes
 }
 
 export const MediaBlockComponent = (props: Props) => {
@@ -36,13 +28,13 @@ export const MediaBlockComponent = (props: Props) => {
     alignContent = 'left',
     backgroundColor,
     imageSize = 'original',
-    containerSizes,
   } = props
 
   const bgColorClass = `bg-${backgroundColor}`
   const textColor = getTextColorFromBgColor(backgroundColor)
 
-  // `cqw` sizes the image relative to the block's `@container`. Keep in sync with IMAGE_SIZE_SPECS.
+  // `cqw` sizes the image relative to the block's `@container`; the browser reads the
+  // rendered width via `sizes="auto"` (images are lazy-loaded) to pick the resolution.
   const getImageSizeClasses = () => {
     switch (imageSize) {
       case 'small':
@@ -57,12 +49,6 @@ export const MediaBlockComponent = (props: Props) => {
       default:
         return 'max-w-fit'
     }
-  }
-
-  const getSizesForImageSize = () => {
-    const spec = IMAGE_SIZE_SPECS[imageSize ?? 'original']
-    if (!spec) return '100vw'
-    return buildImageSizes(containerSizes ?? FULL_WIDTH_CONTAINER, spec)
   }
 
   return (
@@ -95,7 +81,7 @@ export const MediaBlockComponent = (props: Props) => {
               )}
               resource={media}
               src={staticImage}
-              sizes={getSizesForImageSize()}
+              sizes="auto"
             />
             {caption && (
               <div className={captionClassName}>

@@ -1,13 +1,9 @@
 import type { InlineMediaBlock } from '@/payload-types'
 
 import { Media } from '@/components/Media'
-import { buildImageSizes, type ContainerSizes, FULL_WIDTH_CONTAINER } from '@/utilities/mediaSizes'
 import { cn } from '@/utilities/ui'
 
-type Props = Omit<InlineMediaBlock, 'blockType' | 'id'> & {
-  // Column context from a multi-column layout, so `sizes` matches the real container width.
-  containerSizes?: ContainerSizes
-}
+type Props = Omit<InlineMediaBlock, 'blockType' | 'id'>
 
 const widthClasses = {
   '25': 'w-1/4',
@@ -36,7 +32,6 @@ export const InlineMediaComponent = ({
   size = 'original',
   fixedHeight,
   caption,
-  containerSizes,
 }: Props) => {
   if (!media || typeof media === 'number' || typeof media === 'string') {
     return null
@@ -47,7 +42,9 @@ export const InlineMediaComponent = ({
 
   let sizeClass = ''
   let imgSizeClass = 'w-auto h-auto'
-  let sizes = '100vw'
+  // Images are lazy-loaded, so `sizes="auto"` lets the browser pick the resolution
+  // from the actual rendered width set by the width/height classes below.
+  const sizes = 'auto'
   const isFixedHeight = resolvedSize === 'fixed-height' && fixedHeight
 
   if (resolvedSize === 'original') {
@@ -55,14 +52,8 @@ export const InlineMediaComponent = ({
   } else if (isWidthSize(resolvedSize)) {
     sizeClass = widthClasses[resolvedSize]
     imgSizeClass = 'w-full h-auto'
-    // Width is `resolvedSize`% of the container, so match `sizes` to that fraction.
-    sizes = buildImageSizes(containerSizes ?? FULL_WIDTH_CONTAINER, {
-      percent: Number(resolvedSize),
-      floorPx: 0,
-    })
   } else if (isFixedHeight) {
     imgSizeClass = 'h-full w-auto'
-    sizes = '96px'
   }
 
   const positionClasses = isFloat
