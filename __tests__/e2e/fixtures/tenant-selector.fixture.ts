@@ -151,6 +151,12 @@ export const tenantSelectorTest = base.extend<TenantSelectorFixtures>({
         selectLocator: selector,
         option: tenantName,
       })
+
+      // Wait until the selection lands in the tenant cookie so callers read
+      // settled state. This is the deterministic signal that replaces the
+      // `waitForLoadState('networkidle')` that used to follow selectTenant.
+      const slug = Object.entries(TenantNames).find(([, name]) => name === tenantName)?.[0]
+      if (slug) await waitForTenantCookie(page, slug)
     }
     // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook
     await use(doSelectTenant)

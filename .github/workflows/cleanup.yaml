@@ -3,7 +3,7 @@ on:
   delete:
 jobs:
   cleanup:
-    if: ${{ github.event_name == 'workflow_dispatch' || (!contains(fromJson('["main", "release"]'), github.event.ref)) }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (!contains(fromJson('["main", "release"]'), github.event.ref) && !startsWith(github.event.ref, 'gh-readonly-queue/') && !startsWith(github.event.ref, 'dependabot/')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Install Turso CLI
@@ -42,8 +42,7 @@ jobs:
             /home/runner/.turso/turso db destroy --yes "${name}"
             echo "[INFO] Successfully deleted database ${name}"
           else
-            echo "[ERROR] Database ${name} does not exist, expected it to be there for cleanup"
-            exit 1
+            echo "[WARN] Database ${name} does not exist, nothing to delete"
           fi
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
