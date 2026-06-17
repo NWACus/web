@@ -91,7 +91,7 @@ export function AnnouncementPopup({ popups, center }: AnnouncementPopupProps) {
 
     // Of those, the ones their frequency rule clears for this view.
     const ready = targeted.filter((popup) => {
-      if (popup.displayFrequency === 'every_visit' && isSessionShown(popup.id)) return false
+      if (popup.displayFrequency === 'every_session' && isSessionShown(popup.id)) return false
       return shouldShow(popup, getPopupState(popup.id).visitCount)
     })
 
@@ -109,8 +109,8 @@ export function AnnouncementPopup({ popups, center }: AnnouncementPopupProps) {
 
     if (!toShow) return
 
-    // For "every_visit", only show once per browser session
-    if (toShow.displayFrequency === 'every_visit') {
+    // For "every_session", only show once per browser session
+    if (toShow.displayFrequency === 'every_session') {
       markSessionShown(toShow.id)
     }
 

@@ -15,11 +15,11 @@ export function matchesPage(
 export function shouldShow(popup: Announcement, visitCount: number): boolean {
   const frequency = popup.displayFrequency ?? 'once'
 
-  if (frequency === 'every_visit') return true
+  if (frequency === 'every_session') return true
 
   if (frequency === 'once') return visitCount === 0
 
-  if (frequency === 'every_n_visits') {
+  if (frequency === 'every_n_views') {
     const interval = popup.displayInterval ?? 3
     return visitCount % interval === 0
   }

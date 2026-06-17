@@ -43,7 +43,7 @@ export const getAnnouncementsData = (
       tenant: tenant.id,
       startDate: oneWeekAgo.toISOString(),
       endDate: oneMonthFromNow.toISOString(),
-      displayFrequency: 'every_n_visits',
+      displayFrequency: 'every_n_views',
       displayInterval: 3,
       pageScope: 'homepage_only',
       deviceTarget: 'all',

@@ -57,14 +57,14 @@ describe('matchesPage', () => {
 })
 
 describe('shouldShow', () => {
-  it('shows on every visit when frequency is every_visit', () => {
-    const popup = makeAnnouncement({ displayFrequency: 'every_visit' })
+  it('always returns true when frequency is every_session', () => {
+    const popup = makeAnnouncement({ displayFrequency: 'every_session' })
     expect(shouldShow(popup, 0)).toBe(true)
     expect(shouldShow(popup, 5)).toBe(true)
     expect(shouldShow(popup, 100)).toBe(true)
   })
 
-  it('shows only on first visit when frequency is once', () => {
+  it('shows only on the first view when frequency is once', () => {
     const popup = makeAnnouncement({ displayFrequency: 'once' })
     expect(shouldShow(popup, 0)).toBe(true)
     expect(shouldShow(popup, 1)).toBe(false)
@@ -77,8 +77,8 @@ describe('shouldShow', () => {
     expect(shouldShow(popup, 1)).toBe(false)
   })
 
-  it('shows every N visits with every_n_visits', () => {
-    const popup = makeAnnouncement({ displayFrequency: 'every_n_visits', displayInterval: 3 })
+  it('shows every N views with every_n_views', () => {
+    const popup = makeAnnouncement({ displayFrequency: 'every_n_views', displayInterval: 3 })
     expect(shouldShow(popup, 0)).toBe(true)
     expect(shouldShow(popup, 1)).toBe(false)
     expect(shouldShow(popup, 2)).toBe(false)
@@ -88,8 +88,15 @@ describe('shouldShow', () => {
     expect(shouldShow(popup, 6)).toBe(true)
   })
 
+  it('shows on every view when displayInterval is 1', () => {
+    const popup = makeAnnouncement({ displayFrequency: 'every_n_views', displayInterval: 1 })
+    expect(shouldShow(popup, 0)).toBe(true)
+    expect(shouldShow(popup, 1)).toBe(true)
+    expect(shouldShow(popup, 2)).toBe(true)
+  })
+
   it('defaults interval to 3 when displayInterval is not set', () => {
-    const popup = makeAnnouncement({ displayFrequency: 'every_n_visits' })
+    const popup = makeAnnouncement({ displayFrequency: 'every_n_views' })
     expect(shouldShow(popup, 0)).toBe(true)
     expect(shouldShow(popup, 1)).toBe(false)
     expect(shouldShow(popup, 2)).toBe(false)

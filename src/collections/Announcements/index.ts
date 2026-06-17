@@ -88,8 +88,8 @@ export const Announcements: CollectionConfig = {
       defaultValue: 'once',
       options: [
         { label: 'Once ever', value: 'once' },
-        { label: 'Once per visit', value: 'every_visit' },
-        { label: 'Every N views', value: 'every_n_visits' },
+        { label: 'Once per session', value: 'every_session' },
+        { label: 'Every N views', value: 'every_n_views' },
       ],
       admin: {
         position: 'sidebar',
@@ -100,12 +100,12 @@ export const Announcements: CollectionConfig = {
     {
       name: 'displayInterval',
       type: 'number',
-      min: 2,
+      min: 1,
       defaultValue: 3,
       admin: {
         position: 'sidebar',
         condition: (_, siblingData) =>
-          siblingData?.type === 'popup' && siblingData?.displayFrequency === 'every_n_visits',
+          siblingData?.type === 'popup' && siblingData?.displayFrequency === 'every_n_views',
         description: 'Show the pop-up every N page views',
       },
     },

@@ -241,7 +241,7 @@ export interface Announcement {
   /**
    * How often the pop-up is shown to the same user
    */
-  displayFrequency?: ('once' | 'every_visit' | 'every_n_visits') | null;
+  displayFrequency?: ('once' | 'every_session' | 'every_n_views') | null;
   /**
    * Show the pop-up every N page views
    */
