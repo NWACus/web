@@ -1,5 +1,10 @@
 /**
  * Compact forecast card for one zone in the all-zones grid.
+ *
+ * The whole card is a single click target: a stretched link over the title
+ * (`after:absolute after:inset-0`) covers the card and navigates to the zone's
+ * forecast page. Interactive children (the warning banner's <details>) are
+ * raised above the overlay with z-10 so they stay usable.
  */
 import Link from 'next/link'
 
@@ -20,6 +25,7 @@ interface ZoneForecastCardProps {
   forecast: ForecastResult | null
   warning: WarningResult | null
   elevationBandNames: ElevationBandNames
+  timezone: string | null | undefined
 }
 
 /** All danger levels ordered for safe index lookup. */
@@ -54,15 +60,19 @@ export function ZoneForecastCard({
   forecast,
   warning,
   elevationBandNames,
+  timezone,
 }: ZoneForecastCardProps) {
   const warningProduct = toWarningProduct(warning)
   const isForecast = forecast?.product_type === ProductType.Forecast
 
   return (
-    <Card>
+    <Card className="relative transition-colors hover:border-primary focus-within:border-primary">
       <CardHeader>
         <CardTitle>
-          <Link href={`/forecasts/avalanche/${zoneSlug}`} className="hover:underline">
+          <Link
+            href={`/forecasts/avalanche/${zoneSlug}`}
+            className="after:absolute after:inset-0 hover:underline focus-visible:underline focus-visible:outline-none"
+          >
             {zoneName}
           </Link>
         </CardTitle>
@@ -72,12 +82,16 @@ export function ZoneForecastCard({
 
         {forecast && (
           <>
-            <ForecastErrorBoundary fallbackMessage="Unable to display warning">
-              <WarningBanner warning={warningProduct} />
-            </ForecastErrorBoundary>
+            {warningProduct && (
+              <div className="relative z-10">
+                <ForecastErrorBoundary fallbackMessage="Unable to display warning">
+                  <WarningBanner warning={warningProduct} />
+                </ForecastErrorBoundary>
+              </div>
+            )}
 
             <ForecastErrorBoundary fallbackMessage="Unable to display forecast metadata">
-              <ForecastHeader forecast={forecast} />
+              <ForecastHeader forecast={forecast} timezone={timezone} />
             </ForecastErrorBoundary>
 
             {isForecast && (
