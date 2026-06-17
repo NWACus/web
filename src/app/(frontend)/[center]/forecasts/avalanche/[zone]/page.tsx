@@ -31,11 +31,21 @@ export async function generateStaticParams() {
   const params: PathArgs[] = []
 
   for (const tenant of tenantsRes.docs) {
-    const activeForecastZones = await getActiveForecastZones(tenant.slug)
+    // A NAC API failure for one center must not abort the whole build. Skip this
+    // center's zones on error; with dynamicParams = false they 404 until the next
+    // successful build rather than rendering on-demand.
+    try {
+      const activeForecastZones = await getActiveForecastZones(tenant.slug)
 
-    activeForecastZones.forEach(({ slug: zoneSlug }) =>
-      params.push({ center: tenant.slug, zone: zoneSlug }),
-    )
+      activeForecastZones.forEach(({ slug: zoneSlug }) =>
+        params.push({ center: tenant.slug, zone: zoneSlug }),
+      )
+    } catch (err) {
+      payload.logger.error(
+        { err, center: tenant.slug },
+        `Failed to resolve forecast zones for ${tenant.slug}; skipping its zone params`,
+      )
+    }
   }
 
   return params
