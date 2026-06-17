@@ -154,25 +154,25 @@ export function AnnouncementPopup({ popups, center }: AnnouncementPopupProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="max-w-[600px]"
+        className="max-w-[600px] gap-0"
         onClick={handleContentClick}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl">{activePopup.title}</DialogTitle>
+          <DialogTitle className="text-2xl pb-4">{activePopup.title}</DialogTitle>
           <DialogDescription className="sr-only">Announcement</DialogDescription>
         </DialogHeader>
         {activePopup.content && (
           <RichText
             data={activePopup.content}
             enableGutter={false}
-            className="max-w-none [&_.my-4]:my-0 pb-4"
+            className="max-w-none [&_.my-4]:my-0"
           />
         )}
         <button
           onClick={handleDontShowAgain}
           type="button"
-          className="absolute bottom-2 right-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          className="justify-self-end text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           Don&apos;t show this again
         </button>
