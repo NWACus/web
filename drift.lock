@@ -223,7 +223,7 @@ sig = "eef97067a5b42a38"
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
 target = "src/middleware.ts"
-sig = "ff301eba57dc04e2"
+sig = "fd722c55fdb3239d"
 
 [[bindings]]
 doc = "docs/decisions/007-dynamic-tenants-middleware.md"
@@ -233,7 +233,7 @@ sig = "2fcb46e02fa2f388"
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "ff301eba57dc04e2"
+sig = "fd722c55fdb3239d"
 
 [[bindings]]
 doc = "docs/decisions/008-edge-config-tenant-lookup.md"
@@ -288,7 +288,7 @@ sig = "0ce7dd3d375aa0fe"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/middleware.ts"
-sig = "ff301eba57dc04e2"
+sig = "fd722c55fdb3239d"
 
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
@@ -333,7 +333,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "3e50277f603c25bb"
+sig = "ce23ea8c0093841c"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -443,7 +443,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "1c3f2d8cd5058617"
+sig = "7c70ed390657b65a"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -598,4 +598,4 @@ sig = "b1d9736649cf9b6a"
 [[bindings]]
 doc = "docs/troubleshooting.md"
 target = "src/middleware.ts"
-sig = "ff301eba57dc04e2"
+sig = "fd722c55fdb3239d"

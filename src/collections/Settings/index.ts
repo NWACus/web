@@ -215,6 +215,18 @@ const brandAssetsFields: Field[] = [
   },
 ]
 
+const featuresFields: Field[] = [
+  {
+    name: 'useNativeForecasts',
+    type: 'checkbox',
+    defaultValue: false,
+    admin: {
+      description:
+        'When enabled, the forecast page renders natively using Next.js server components instead of the embedded widget. This can be toggled per center for incremental rollout.',
+    },
+  },
+]
+
 const socialMediaFields: Field[] = [
   {
     name: 'socialMedia',
@@ -324,6 +336,11 @@ export const Settings: CollectionConfig = {
           description:
             'Images used throughout the website including in the header, footer, browser tabs, and link previews.',
           fields: brandAssetsFields,
+        },
+        {
+          label: 'Features',
+          description: 'Feature flags to control which features are enabled for this center.',
+          fields: featuresFields,
         },
         {
           label: 'Social Media',
