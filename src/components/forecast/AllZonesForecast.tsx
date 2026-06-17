@@ -43,7 +43,7 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
   )
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
+    <div className="container space-y-6 py-6">
       {results.map(({ slug, zone, forecast, warning }) => (
         <ForecastErrorBoundary
           key={zone.id}
