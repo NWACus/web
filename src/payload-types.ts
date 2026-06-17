@@ -1427,7 +1427,7 @@ export interface MediaBlock {
   /**
    * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
    */
-  imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
+  imageSize?: ('original' | 'xsmall' | 'small' | 'medium' | 'large' | 'full') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
