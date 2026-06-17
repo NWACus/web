@@ -32,7 +32,7 @@ tsconfig.tsbuildinfo
 # AI
 .cursor
 .claude/*
-!.claude/skills
+!.claude/skills/
 plans/
 
 # Playwright

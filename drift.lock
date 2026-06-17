@@ -88,7 +88,7 @@ sig = "d292e1dfe3736640"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/testing.md"
-sig = "b3e57640bb7742aa"
+sig = "c407c9e6ba1aa9cb"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -323,7 +323,7 @@ sig = "ef162015be100d91"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/HomePages/index.tsx"
-sig = "54909f682b3841aa"
+sig = "f6aa6a5aca0cba2c"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -573,7 +573,7 @@ sig = "1f83179d9438d2e7"
 [[bindings]]
 doc = "docs/testing.md"
 target = "__tests__/e2e/auth.setup.ts"
-sig = "8fbc8a620bdd5849"
+sig = "80cab69361ad7361"
 
 [[bindings]]
 doc = "docs/testing.md"
@@ -583,12 +583,12 @@ sig = "45315941c7a81fa9"
 [[bindings]]
 doc = "docs/testing.md"
 target = "__tests__/e2e/fixtures/tenant-selector.fixture.ts"
-sig = "14767c158d3a1c8b"
+sig = "f2df6c806063ff53"
 
 [[bindings]]
 doc = "docs/testing.md"
 target = "__tests__/e2e/fixtures/test-users.ts"
-sig = "11c17ebcd911d539"
+sig = "9273f68aefc8cf17"
 
 [[bindings]]
 doc = "docs/testing.md"

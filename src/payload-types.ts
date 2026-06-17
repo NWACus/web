@@ -410,9 +410,6 @@ export interface Page {
     image?: (number | null) | Media;
     description?: string | null;
   };
-  /**
-   * Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.
-   */
   publishedAt?: string | null;
   slug: string;
   tenant: number | Tenant;
@@ -901,7 +898,7 @@ export interface Event {
   /**
    * Skill level required for this event
    */
-  skillLevel?: ('beginner' | 'pre-req' | 'professional') | null;
+  skillLevel?: ('beginner' | 'pre-suggested' | 'pre-req' | 'professional') | null;
   content?: {
     root: {
       type: string;
@@ -1430,7 +1427,7 @@ export interface MediaBlock {
   /**
    * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
    */
-  imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
+  imageSize?: ('original' | 'xsmall' | 'small' | 'medium' | 'large' | 'full') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
