@@ -59,19 +59,19 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
   useEffect(() => {
     const stored = getStoredState()
     const hasUnseenBanners = activeBanners.some((b) => !stored.seenIds.includes(b.id))
+    const activeIds = activeBanners.map((b) => b.id)
 
     if (hasUnseenBanners) {
       expand()
-      const newSeenIds = [...new Set([...stored.seenIds, ...activeBanners.map((b) => b.id)])]
-      setSeenIds(newSeenIds)
-      setStoredState({ collapsed: false, seenIds: newSeenIds })
+      setSeenIds(activeIds)
+      setStoredState({ collapsed: false, seenIds: activeIds })
     } else {
       if (stored.collapsed) {
         collapse()
       } else {
         expand()
       }
-      setSeenIds(stored.seenIds)
+      setSeenIds(activeIds)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
