@@ -14,6 +14,11 @@ async function getChecklist(page: import('@playwright/test').Page) {
   const checklist = page.locator('.rounded-lg', { has: heading })
   await expect(checklist).toBeVisible({ timeout: 10000 })
 
+  // On a tenant edit page the body is gated behind a provisioning-status server
+  // action that renders a "Loading..." spinner until it resolves; wait for that
+  // to clear so the checklist is fully loaded. (No tenant on create = no loader.)
+  await checklist.getByText('Loading...').waitFor({ state: 'hidden', timeout: 20000 })
+
   return checklist
 }
 

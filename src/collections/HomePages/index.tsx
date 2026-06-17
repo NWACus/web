@@ -154,6 +154,9 @@ export const HomePages: CollectionConfig = {
       name: 'publishedAt',
       type: 'date',
       admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
         position: 'sidebar',
       },
     },
