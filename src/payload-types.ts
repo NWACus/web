@@ -243,7 +243,7 @@ export interface Announcement {
    */
   displayFrequency?: ('once' | 'every_visit' | 'every_n_visits') | null;
   /**
-   * Show the pop-up every N visits
+   * Show the pop-up every N page views
    */
   displayInterval?: number | null;
   pageScope?: ('all_pages' | 'homepage_only') | null;
