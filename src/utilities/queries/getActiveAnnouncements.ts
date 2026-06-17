@@ -43,6 +43,8 @@ export const getCachedActiveAnnouncements = (center: string) =>
     },
     [`announcements-${center}`],
     {
+      //The interval ensures announcements activate/expire on schedule.
+      revalidate: 60,
       tags: [`announcements-${center}`],
     },
   )
