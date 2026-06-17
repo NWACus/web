@@ -54,6 +54,24 @@ export const lexicalBlocksPage = ({
                 alignContent: 'center',
               }),
 
+              // Video embed
+              headingNode('Video Embed', 'h3'),
+              blockNode({
+                blockType: 'videoEmbed',
+                html: '<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>',
+                backgroundColor: 'transparent',
+                alignContent: 'center',
+              }),
+
+              // Form embed
+              headingNode('Form Embed', 'h3'),
+              blockNode({
+                blockType: 'formEmbed',
+                html: '<script src="https://donorbox.org/widget.js" paypalExpress="false"></script><iframe src="https://donorbox.org/embed/example-campaign" name="donorbox" allowpaymentrequest="allowpaymentrequest" seamless="seamless" frameborder="0" scrolling="no" height="900px" width="100%" style="max-width: 500px; min-width: 250px; max-height:none!important"></iframe>',
+                backgroundColor: 'transparent',
+                alignContent: 'center',
+              }),
+
               // Media block
               headingNode('Media Block', 'h3'),
               blockNode({

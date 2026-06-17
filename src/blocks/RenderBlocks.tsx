@@ -9,6 +9,7 @@ import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { FormBlockComponent } from '@/blocks/Form/Component'
+import { FormEmbedBlockComponent } from '@/blocks/FormEmbed/Component'
 import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageLinkGridBlockComponent } from '@/blocks/ImageLinkGrid/Component'
@@ -20,6 +21,7 @@ import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
 import { TeamBlockComponent } from '@/blocks/Team/Component'
+import { VideoEmbedBlockComponent } from '@/blocks/VideoEmbed/Component'
 
 export const RenderBlocks = (props: { blocks: Page['layout'][0][]; payload: Payload }) => {
   const { blocks } = props
@@ -61,6 +63,10 @@ export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
       return <FormBlockComponent {...block} />
     case 'genericEmbed':
       return <GenericEmbedBlockComponent {...block} isLayoutBlock={true} />
+    case 'formEmbed':
+      return <FormEmbedBlockComponent {...block} isLayoutBlock={true} />
+    case 'videoEmbed':
+      return <VideoEmbedBlockComponent {...block} isLayoutBlock={true} />
     case 'headerBlock':
       return <HeaderBlockComponent {...block} isLayoutBlock={true} />
     case 'imageLinkGrid':

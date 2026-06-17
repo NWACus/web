@@ -4,6 +4,7 @@ import { DocumentBlock } from '@/blocks/Document/config'
 import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
 import { FormBlock } from '@/blocks/Form/config'
+import { FormEmbedBlock } from '@/blocks/FormEmbed/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderBlock } from '@/blocks/Header/config'
 import { ImageLinkGridBlock } from '@/blocks/ImageLinkGrid/config'
@@ -14,6 +15,7 @@ import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
 import { TeamBlock } from '@/blocks/Team/config'
+import { VideoEmbedBlock } from '@/blocks/VideoEmbed/config'
 
 export const DEFAULT_BLOCKS = [
   BlogListBlock,
@@ -25,6 +27,8 @@ export const DEFAULT_BLOCKS = [
   EventTableBlock,
   FormBlock,
   GenericEmbedBlock,
+  FormEmbedBlock,
+  VideoEmbedBlock,
   HeaderBlock,
   ImageLinkGridBlock,
   ImageTextBlock,
