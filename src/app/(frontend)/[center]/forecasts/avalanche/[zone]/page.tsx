@@ -5,12 +5,17 @@ import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
+import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
 import {
+  fetchForecast,
   getActiveForecastZones,
   getAvalancheCenterPlatforms,
   getForecastZoneDanger,
 } from '@/services/nac/nac'
+import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { ProductType } from '@/services/nac/types/forecastSchemas'
 import { formatZoneName } from '@/utilities/formatZoneName'
+import { getUseNativeForecasts } from '@/utilities/getUseNativeForecasts'
 import { notFound } from 'next/navigation'
 
 // ISR rather than fully static so the og:description travel advice in shared link previews
@@ -59,6 +64,12 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
+  const useNative = await getUseNativeForecasts(center)
+
+  if (useNative) {
+    return <NativeForecastPage centerSlug={center} zoneSlug={zone} />
+  }
+
   return (
     <>
       <WidgetRouterHandler initialPath={`/${zone}/`} widgetPageKey="forecast-zone" />
@@ -84,15 +95,27 @@ export async function generateMetadata(
   const parentOg = parentMeta.openGraph
 
   const zoneName = formatZoneName(zone)
-
-  const danger = await getForecastZoneDanger(center, zone).catch(() => null)
-  const travelAdvice = danger?.travel_advice ?? null
-
   const title = `${zoneName} - Avalanche Forecast | ${parentTitle}`
+
+  // Description: the forecaster's bottom line when native mode is on (richer), otherwise the
+  // map-layer travel advice. The og:image is always the live dynamic OG route.
+  const danger = await getForecastZoneDanger(center, zone).catch(() => null)
+  let description = danger?.travel_advice ?? undefined
+
+  const useNative = await getUseNativeForecasts(center)
+  if (useNative) {
+    const resolved = await resolveZoneFromSlug(center, zone)
+    if (resolved) {
+      const forecast = await fetchForecast(center, resolved.zone.id)
+      if (forecast && forecast.product_type === ProductType.Forecast && forecast.bottom_line) {
+        description = forecast.bottom_line
+      }
+    }
+  }
 
   return {
     title,
-    ...(travelAdvice ? { description: travelAdvice } : {}),
+    ...(description ? { description } : {}),
     alternates: {
       canonical: `/forecasts/avalanche/${zone}`,
     },
@@ -100,7 +123,7 @@ export async function generateMetadata(
       ...parentOg,
       title,
       url: `/forecasts/avalanche/${zone}`,
-      ...(travelAdvice ? { description: travelAdvice } : {}),
+      ...(description ? { description } : {}),
       images: [
         {
           url: `/api/${center}/og?route=forecasts/avalanche/${zone}`,

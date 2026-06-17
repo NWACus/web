@@ -522,6 +522,7 @@ export const seed = async ({
         return {
           tenant: tenant.id,
           description: data.description,
+          useNativeForecasts: false,
           footerForm: {
             type: 'none',
           },

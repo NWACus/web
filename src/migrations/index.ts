@@ -51,6 +51,7 @@ import * as migration_20260504_235946_revalidation_fields_and_widgets_dev_mode f
 import * as migration_20260505_000519_backfill_document_references from './20260505_000519_backfill_document_references'
 import * as migration_20260505_045158_convert_auto_nav_items from './20260505_045158_convert_auto_nav_items'
 import * as migration_20260505_045200_backfill_nav_builtin_pages from './20260505_045200_backfill_nav_builtin_pages'
+import * as migration_20260617_213306_add_use_native_forecasts_to_settings from './20260617_213306_add_use_native_forecasts_to_settings'
 
 export const migrations = [
   {
@@ -317,5 +318,10 @@ export const migrations = [
     up: migration_20260505_045200_backfill_nav_builtin_pages.up,
     down: migration_20260505_045200_backfill_nav_builtin_pages.down,
     name: '20260505_045200_backfill_nav_builtin_pages',
+  },
+  {
+    up: migration_20260617_213306_add_use_native_forecasts_to_settings.up,
+    down: migration_20260617_213306_add_use_native_forecasts_to_settings.down,
+    name: '20260617_213306_add_use_native_forecasts_to_settings',
   },
 ]
