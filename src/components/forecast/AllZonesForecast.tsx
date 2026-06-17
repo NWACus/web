@@ -2,7 +2,12 @@
  * All-zones forecast grid: fetches and renders compact forecast cards
  * for every active zone in a center, in parallel.
  */
-import { fetchForecast, fetchWarning, getActiveForecastZones } from '@/services/nac/nac'
+import {
+  fetchForecast,
+  fetchWarning,
+  getActiveForecastZones,
+  getAvalancheCenterMetadata,
+} from '@/services/nac/nac'
 
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ZoneForecastCard } from './ZoneForecastCard'
@@ -12,7 +17,11 @@ interface AllZonesForecastProps {
 }
 
 export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
-  const zones = await getActiveForecastZones(centerSlug)
+  // Metadata gives us the center timezone for rendering issued/expires times.
+  const [zones, metadata] = await Promise.all([
+    getActiveForecastZones(centerSlug),
+    getAvalancheCenterMetadata(centerSlug),
+  ])
 
   if (zones.length === 0) {
     return (
@@ -46,6 +55,7 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
             forecast={forecast}
             warning={warning}
             elevationBandNames={zone.config.elevation_band_names}
+            timezone={metadata.timezone}
           />
         </ForecastErrorBoundary>
       ))}
