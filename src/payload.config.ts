@@ -159,13 +159,13 @@ export default buildConfig({
   }),
   collections: [
     // Content
-    Announcements,
     HomePages,
     BuiltInPages,
     Pages,
     Posts,
     Media,
     Documents,
+    Announcements,
     Sponsors,
     Tags,
     // Events

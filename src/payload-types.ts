@@ -68,13 +68,13 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    announcements: Announcement;
     homePages: HomePage;
     builtInPages: BuiltInPage;
     pages: Page;
     posts: Post;
     media: Media;
     documents: Document;
+    announcements: Announcement;
     sponsors: Sponsor;
     tags: Tag;
     events: Event;
@@ -120,13 +120,13 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
     builtInPages: BuiltInPagesSelect<false> | BuiltInPagesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
@@ -213,100 +213,6 @@ export interface PayloadMcpApiKeyAuthOperations {
     email: string;
     password: string;
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "announcements".
- */
-export interface Announcement {
-  id: number;
-  tenant: number | Tenant;
-  title: string;
-  type: 'banner' | 'popup';
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * How often the pop-up is shown to the same user
-   */
-  displayFrequency?: ('once' | 'every_session' | 'every_n_views') | null;
-  /**
-   * Show the pop-up every N page views
-   */
-  displayInterval?: number | null;
-  pageScope?: ('all_pages' | 'homepage_only') | null;
-  deviceTarget?: ('all' | 'mobile_only' | 'desktop_only') | null;
-  startDate?: string | null;
-  endDate?: string | null;
-  publishedAt?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants".
- */
-export interface Tenant {
-  id: number;
-  /**
-   * Avalanche center identifier. Used for subdomains and URL paths.
-   */
-  slug:
-    | 'bac'
-    | 'btac'
-    | 'caac'
-    | 'cbac'
-    | 'cnfaic'
-    | 'coaa'
-    | 'dvac'
-    | 'esac'
-    | 'fac'
-    | 'gnfac'
-    | 'hac'
-    | 'hpac'
-    | 'ipac'
-    | 'kpac'
-    | 'msac'
-    | 'mwac'
-    | 'nwac'
-    | 'pac'
-    | 'sac'
-    | 'snfac'
-    | 'tac'
-    | 'vac'
-    | 'wac'
-    | 'wcmac';
-  name: string;
-  contentHash?: string | null;
-  provisioning: {
-    status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual';
-    lastRunAt?: string | null;
-    failed?: {
-      pages?: {
-        [k: string]: string;
-      };
-      homePage?: string;
-      navigation?: string;
-      websiteSettings?: string;
-      timedOut?: string;
-    };
-  };
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -416,6 +322,58 @@ export interface HomePage {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  /**
+   * Avalanche center identifier. Used for subdomains and URL paths.
+   */
+  slug:
+    | 'bac'
+    | 'btac'
+    | 'caac'
+    | 'cbac'
+    | 'cnfaic'
+    | 'coaa'
+    | 'dvac'
+    | 'esac'
+    | 'fac'
+    | 'gnfac'
+    | 'hac'
+    | 'hpac'
+    | 'ipac'
+    | 'kpac'
+    | 'msac'
+    | 'mwac'
+    | 'nwac'
+    | 'pac'
+    | 'sac'
+    | 'snfac'
+    | 'tac'
+    | 'vac'
+    | 'wac'
+    | 'wcmac';
+  name: string;
+  contentHash?: string | null;
+  provisioning: {
+    status: 'not_started' | 'in_progress' | 'complete' | 'partial' | 'manual';
+    lastRunAt?: string | null;
+    failed?: {
+      pages?: {
+        [k: string]: string;
+      };
+      homePage?: string;
+      navigation?: string;
+      websiteSettings?: string;
+      timedOut?: string;
+    };
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1637,6 +1595,48 @@ export interface VideoEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements".
+ */
+export interface Announcement {
+  id: number;
+  tenant: number | Tenant;
+  title: string;
+  type: 'banner' | 'popup';
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * How often the pop-up is shown to the same user
+   */
+  displayFrequency?: ('once' | 'every_session' | 'every_n_views') | null;
+  /**
+   * Show the pop-up every N page views
+   */
+  displayInterval?: number | null;
+  pageScope?: ('all_pages' | 'homepage_only') | null;
+  deviceTarget?: ('all' | 'mobile_only' | 'desktop_only') | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  publishedAt?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * Note: This information will be displayed on your public provider listing.
@@ -3120,10 +3120,6 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'announcements';
-        value: number | Announcement;
-      } | null)
-    | ({
         relationTo: 'homePages';
         value: number | HomePage;
       } | null)
@@ -3146,6 +3142,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'documents';
         value: number | Document;
+      } | null)
+    | ({
+        relationTo: 'announcements';
+        value: number | Announcement;
       } | null)
     | ({
         relationTo: 'sponsors';
@@ -3282,27 +3282,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "announcements_select".
- */
-export interface AnnouncementsSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
-  type?: T;
-  content?: T;
-  displayFrequency?: T;
-  displayInterval?: T;
-  pageScope?: T;
-  deviceTarget?: T;
-  startDate?: T;
-  endDate?: T;
-  publishedAt?: T;
-  contentHash?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3805,6 +3784,27 @@ export interface DocumentsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements_select".
+ */
+export interface AnnouncementsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  type?: T;
+  content?: T;
+  displayFrequency?: T;
+  displayInterval?: T;
+  pageScope?: T;
+  deviceTarget?: T;
+  startDate?: T;
+  endDate?: T;
+  publishedAt?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
