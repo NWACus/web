@@ -27,6 +27,7 @@
     "src/services/nac/types/schemas.ts:NacWidgetConfigurationSchema",
     "src/services/nac/types/schemas.ts:ElevationBandNames",
     "src/services/nac/types/schemas.ts:AvalancheForecastZone",
+    "src/services/nac/types/schemas.ts:MapLayer",
     "src/utilities/timezones.ts:USTimezone"
   ],
   "private_type_leaks": [],
