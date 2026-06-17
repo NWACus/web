@@ -81,12 +81,12 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
-      {/* Page header: zone name + product type (forecast vs off-season summary) */}
+      {/* Page header: zone name. The "Avalanche Forecast" subtitle is only shown for
+          forecast products; summary products carry their own title in the discussion
+          (e.g. NWAC's "Spring Statement"), so we don't impose a label. */}
       <header className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{zone.zone.name}</h1>
-        <p className="text-muted-foreground">
-          {isForecast ? 'Avalanche Forecast' : 'Seasonal Summary'}
-        </p>
+        {isForecast && <p className="text-muted-foreground">Avalanche Forecast</p>}
       </header>
 
       {/* Warning banner */}
