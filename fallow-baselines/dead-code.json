@@ -1,17 +1,7 @@
 {
   "unused_files": [
-    "src/app/(frontend)/[center]/next/exit-preview/GET.ts",
-    "src/app/next/exit-preview/GET.ts",
-    "src/components/PageRange/index.tsx",
-    "src/components/Pagination/index.tsx",
     "src/components/ui/button-group.tsx",
-    "src/endpoints/seed/biographies-all.ts",
-    "src/fields/crmFields.ts",
-    "src/hooks/formatSlug.ts",
-    "src/utilities/getDocumentBySlug.ts",
-    "src/utilities/rbac/hasProviderAccess.ts",
-    "src/utilities/tenancy/defaultTenantIdFromHeaders.ts",
-    "src/utilities/useDebounce.ts"
+    "src/utilities/getDocumentBySlug.ts"
   ],
   "unused_exports": [
     "src/components/AlignContentPicker/index.tsx:default",

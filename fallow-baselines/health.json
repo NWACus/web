@@ -528,19 +528,6 @@
         "count": 1
       }
     },
-    "src/components/PageRange/index.tsx": {
-      "crap_critical": {
-        "count": 1
-      }
-    },
-    "src/components/Pagination/index.tsx": {
-      "complexity_critical": {
-        "count": 1
-      },
-      "crap_critical": {
-        "count": 1
-      }
-    },
     "src/components/PostPreview/index.tsx": {
       "complexity_critical": {
         "count": 1
@@ -716,11 +703,6 @@
         "count": 1
       }
     },
-    "src/hooks/formatSlug.ts": {
-      "crap_high": {
-        "count": 1
-      }
-    },
     "src/hooks/validateEventDates.ts": {
       "complexity_moderate": {
         "count": 1
@@ -835,18 +817,8 @@
         "count": 1
       }
     },
-    "src/utilities/rbac/hasProviderAccess.ts": {
-      "crap_critical": {
-        "count": 1
-      }
-    },
     "src/utilities/rbac/roleAssignmentsForUser.ts": {
       "complexity_moderate": {
-        "count": 1
-      }
-    },
-    "src/utilities/tenancy/defaultTenantIdFromHeaders.ts": {
-      "crap_moderate": {
         "count": 1
       }
     },
@@ -904,13 +876,12 @@
   "runtime_coverage_findings": [],
   "target_keys": [
     "src/components/ui/button-group.tsx:dead code",
-    "src/components/Pagination/index.tsx:complexity",
     "src/collections/Navigations/index.tsx:circular dependency",
     "src/collections/Users/hooks/validateDomainAccessBeforeLogin.ts:circular dependency",
     "src/collections/Tenants/components/OnboardingChecklist.tsx:complexity",
     "src/utilities/generatePreviewPath.ts:circular dependency",
-    "src/collections/Biographies/hooks/revalidateBiography.ts:circular dependency",
     "src/collections/Documents/index.ts:circular dependency",
+    "src/collections/Biographies/hooks/revalidateBiography.ts:circular dependency",
     "src/utilities/generateMeta.ts:untested risk",
     "src/components/Header/utils.ts:circular dependency",
     "src/utilities/tenancy/resolveTenant.ts:circular dependency",
@@ -921,10 +892,10 @@
     "src/blocks/EventList/Component.tsx:complexity",
     "src/utilities/clearLayoutRelationships.ts:complexity",
     "src/blocks/Form/Component.tsx:complexity",
+    "src/blocks/Team/Component.tsx:complexity",
     "src/utilities/extractDocumentReferences.ts:complexity",
     "src/blocks/EventTable/Component.tsx:complexity",
     "src/blocks/BlogList/Component.tsx:complexity",
-    "src/blocks/Team/Component.tsx:complexity",
     "src/utilities/rbac/ruleMatches.ts:high impact",
     "src/collections/Pages/index.ts:circular dependency",
     "src/collections/HomePages/index.tsx:circular dependency",
@@ -933,8 +904,8 @@
     "src/blocks/Media/Component.tsx:circular dependency",
     "src/collections/Users/components/inviteUserAction.ts:complexity",
     "src/payload.config.ts:circular dependency",
-    "src/collections/Events/index.ts:circular dependency",
     "src/app/(frontend)/[center]/page.tsx:complexity",
+    "src/collections/Events/index.ts:circular dependency",
     "src/collections/Events/hooks/revalidateEvent.ts:circular dependency",
     "src/collections/Navigations/hooks/revalidateNavigation.ts:circular dependency",
     "src/components/PostPreview/index.tsx:complexity",
@@ -953,7 +924,6 @@
     "src/collections/Media/index.ts:circular dependency",
     "src/app/(frontend)/[center]/layout.tsx:complexity",
     "src/collections/Users/hooks/setLastLogin.ts:circular dependency",
-    "src/endpoints/seed/biographies-all.ts:dead code",
     "src/endpoints/seed/index.ts:complexity",
     "src/endpoints/seed/upsert.ts:complexity",
     "src/collections/Pages/endpoints/duplicatePageToTenant.ts:circular dependency",

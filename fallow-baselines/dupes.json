@@ -140,7 +140,6 @@
     "src/components/EventsList.tsx:151-182|src/components/PostsList.tsx:133-164",
     "src/components/Media/AvatarImageMedia/index.tsx:44-60|src/components/Media/ImageMedia/index.tsx:54-70",
     "src/components/PostsList.tsx:111-120|src/components/PostsList.tsx:74-83",
-    "src/endpoints/seed/biographies-all.ts:712-1094|src/endpoints/seed/biographies.ts:262-319",
     "src/endpoints/seed/biographies.ts:22-28|src/endpoints/seed/index.ts:423-425",
     "src/endpoints/seed/blocks/image-link-grid.ts:51-80|src/endpoints/seed/blocks/image-link-grid.ts:7-36",
     "src/endpoints/seed/blocks/image-link-grid.ts:41-71|src/endpoints/seed/blocks/image-link-grid.ts:75-105",
@@ -150,7 +149,6 @@
     "src/utilities/extractDocumentReferences.ts:246-254|src/utilities/extractDocumentReferences.ts:368-376",
     "src/utilities/generateMeta.ts:118-152|src/utilities/generateMeta.ts:69-104",
     "src/utilities/queries/getCourses.ts:88-144|src/utilities/queries/getEvents.ts:74-107",
-    "src/utilities/rbac/canManageProviders.ts:24-43|src/utilities/rbac/hasProviderAccess.ts:37-56",
     "src/utilities/revalidateDocument.ts:70-79|src/utilities/revalidateDocument.ts:92-101"
   ]
 }
