@@ -14,7 +14,7 @@ export async function Announcements({ center, children }: AnnouncementsProps) {
   return (
     <AnnouncementBannerProvider count={banners.length}>
       {banners.length > 0 && <AnnouncementBanners banners={banners} />}
-      {popups.length > 0 && <AnnouncementPopup popup={popups[0]} center={center} />}
+      {popups.length > 0 && <AnnouncementPopup popups={popups} center={center} />}
       {children}
     </AnnouncementBannerProvider>
   )

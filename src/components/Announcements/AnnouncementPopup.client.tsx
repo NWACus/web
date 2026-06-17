@@ -37,6 +37,22 @@ function setPopupState(id: number, state: PopupState) {
   }
 }
 
+function isSessionShown(id: number): boolean {
+  try {
+    return sessionStorage.getItem(`${SESSION_KEY_PREFIX}${id}`) !== null
+  } catch {
+    return false
+  }
+}
+
+function markSessionShown(id: number) {
+  try {
+    sessionStorage.setItem(`${SESSION_KEY_PREFIX}${id}`, '1')
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 function isMobile(): boolean {
   if (typeof window === 'undefined') return false
   return window.innerWidth < MOBILE_BREAKPOINT
@@ -50,11 +66,12 @@ function matchesDevice(target: Announcement['deviceTarget']): boolean {
 }
 
 interface AnnouncementPopupProps {
-  popup: Announcement
+  popups: Announcement[]
   center: string
 }
 
-export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
+export function AnnouncementPopup({ popups, center }: AnnouncementPopupProps) {
+  const [activePopup, setActivePopup] = useState<Announcement | null>(null)
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
@@ -63,51 +80,65 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
   }, [pathname])
 
   useEffect(() => {
-    if (isExpired(popup)) return
-    if (!matchesDevice(popup.deviceTarget)) return
-    if (!matchesPage(popup.pageScope, pathname, center)) return
+    // Eligible popups, in priority order.
+    const targeted = popups.filter(
+      (popup) =>
+        !isExpired(popup) &&
+        matchesDevice(popup.deviceTarget) &&
+        matchesPage(popup.pageScope, pathname, center) &&
+        !getPopupState(popup.id).dismissed,
+    )
 
-    const state = getPopupState(popup.id)
+    // Of those, the ones their frequency rule clears for this view.
+    const ready = targeted.filter((popup) => {
+      if (popup.displayFrequency === 'every_visit' && isSessionShown(popup.id)) return false
+      return shouldShow(popup, getPopupState(popup.id).visitCount)
+    })
 
-    if (state.dismissed) return
+    // Show one popup per page view; revisiting rotates to the next one.
+    const toShow = ready[0] ?? null
 
-    const newVisitCount = state.visitCount + 1
-    setPopupState(popup.id, { ...state, visitCount: newVisitCount })
+    // Advance the clock for the shown popup and any throttled by their own rule.
+    // Ready-but-deferred popups keep their turn so they show on the next visit.
+    for (const popup of targeted) {
+      if (popup === toShow || !ready.includes(popup)) {
+        const state = getPopupState(popup.id)
+        setPopupState(popup.id, { ...state, visitCount: state.visitCount + 1 })
+      }
+    }
 
-    if (!shouldShow(popup, newVisitCount - 1)) return
+    if (!toShow) return
 
     // For "every_visit", only show once per browser session
-    if (popup.displayFrequency === 'every_visit') {
-      const sessionKey = `${SESSION_KEY_PREFIX}${popup.id}`
-      if (sessionStorage.getItem(sessionKey)) return
-      sessionStorage.setItem(sessionKey, '1')
+    if (toShow.displayFrequency === 'every_visit') {
+      markSessionShown(toShow.id)
     }
 
     const timer = setTimeout(() => {
+      setActivePopup(toShow)
       setOpen(true)
     }, POPUP_DELAY_MS)
 
     return () => clearTimeout(timer)
-  }, [popup, pathname, center])
+  }, [popups, pathname, center])
 
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
-      if (!isOpen) {
-        if (popup.displayFrequency === 'once') {
-          const state = getPopupState(popup.id)
-          setPopupState(popup.id, { ...state, dismissed: true })
-        }
+      if (!isOpen && activePopup?.displayFrequency === 'once') {
+        const state = getPopupState(activePopup.id)
+        setPopupState(activePopup.id, { ...state, dismissed: true })
       }
       setOpen(isOpen)
     },
-    [popup.displayFrequency, popup.id],
+    [activePopup],
   )
 
   const handleDontShowAgain = useCallback(() => {
-    const state = getPopupState(popup.id)
-    setPopupState(popup.id, { ...state, dismissed: true })
+    if (!activePopup) return
+    const state = getPopupState(activePopup.id)
+    setPopupState(activePopup.id, { ...state, dismissed: true })
     setOpen(false)
-  }, [popup.id])
+  }, [activePopup])
 
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -118,6 +149,8 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
     [handleOpenChange],
   )
 
+  if (!activePopup) return null
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
@@ -126,12 +159,12 @@ export function AnnouncementPopup({ popup, center }: AnnouncementPopupProps) {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl">{popup.title}</DialogTitle>
+          <DialogTitle className="text-2xl">{activePopup.title}</DialogTitle>
           <DialogDescription className="sr-only">Announcement</DialogDescription>
         </DialogHeader>
-        {popup.content && (
+        {activePopup.content && (
           <RichText
-            data={popup.content}
+            data={activePopup.content}
             enableGutter={false}
             className="max-w-none [&_.my-4]:my-0 pb-4"
           />
