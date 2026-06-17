@@ -32,8 +32,6 @@ test.describe('Tenant Cookie Edge Cases', () => {
 
     // Navigate to a tenant-required collection
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Page should load without crashing and show the collection list
     await expect(page.locator('table')).toBeVisible({ timeout: 10000 })
 
@@ -63,8 +61,6 @@ test.describe('Tenant Cookie Edge Cases', () => {
 
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Page should load without crashing
     await expect(page.locator('table')).toBeVisible({ timeout: 10000 })
 
@@ -94,18 +90,13 @@ test.describe('Tenant Cookie Edge Cases', () => {
 
     // Set tenant to DVAC
     await page.goto(pagesUrl.list)
-    await page.waitForLoadState('networkidle')
     await selectTenant(page, TenantNames.dvac)
-    await page.waitForLoadState('networkidle')
-
     // Cookie should be set after selecting a tenant (stores tenant slug)
     const cookieAfterSelect = await getTenantCookie(page)
     expect(cookieAfterSelect).toBeTruthy()
 
     // Navigate to another collection
     await page.goto(postsUrl.list)
-    await page.waitForLoadState('networkidle')
-
     // Cookie should persist with the same value
     const cookieAfterNav = await getTenantCookie(page)
     expect(cookieAfterNav).toBe(cookieAfterSelect)
@@ -128,20 +119,14 @@ test.describe('Tenant Cookie Edge Cases', () => {
 
     // Select a tenant via UI (sets cookie to tenant slug)
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
     await selectTenant(page, TenantNames.snfac)
-    await page.waitForLoadState('networkidle')
-
-    const cookie = await getTenantCookie(page)
-    expect(cookie).toBeTruthy()
+    await expect.poll(() => getTenantCookie(page)).toBeTruthy()
 
     // Clear the cookie
     await setTenantCookie(page, undefined)
 
     // Navigate to admin again - page should load without crashing
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     await expect(page.locator('table')).toBeVisible({ timeout: 10000 })
 
     await page.context().close()
@@ -159,25 +144,17 @@ test.describe('Navigation & State Consistency', () => {
 
     // Select a tenant via UI
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
     await selectTenant(page, TenantNames.nwac)
-    await page.waitForLoadState('networkidle')
-
     const firstRow = page.locator('table tbody tr').first()
     if (await firstRow.isVisible()) {
       await firstRow.click()
-      await page.waitForLoadState('networkidle')
-
       // Get the cookie while viewing the document
       const docTenantCookie = await getTenantCookie(page)
       expect(docTenantCookie).toBe(TenantSlugs.nwac)
 
       // Navigate away and back using browser history
       await page.goBack()
-      await page.waitForLoadState('networkidle')
       await page.goForward()
-      await page.waitForLoadState('networkidle')
-
       // Cookie should still be the same
       const cookieAfterReturn = await getTenantCookie(page)
       expect(cookieAfterReturn).toBe(docTenantCookie)
@@ -195,23 +172,17 @@ test.describe('Navigation & State Consistency', () => {
     // Start at tenant-required collection
     const pagesUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
     await page.goto(pagesUrl.list)
-    await page.waitForLoadState('networkidle')
-
     let isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(true)
 
     // Navigate to non-tenant collection
     const usersUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
     await page.goto(usersUrl.list)
-    await page.waitForLoadState('networkidle')
-
     isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)
 
     // Navigate back to tenant collection
     await page.goto(pagesUrl.list)
-    await page.waitForLoadState('networkidle')
-
     isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(true)
 
@@ -228,8 +199,6 @@ test.describe('Dashboard View', () => {
     const page = await loginAs('superAdmin')
 
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
-
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(true)
 
@@ -247,15 +216,10 @@ test.describe('Dashboard View', () => {
     const page = await loginAs('superAdmin')
 
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
-
     // Select Sawtooth Avalanche Center
     await selectTenant(page, TenantNames.snfac)
-    await page.waitForLoadState('networkidle')
-
     // Cookie should be set after selecting a tenant (stores tenant slug)
-    const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantSlugs.snfac)
+    await expect.poll(() => getTenantCookie(page)).toBe(TenantSlugs.snfac)
 
     await page.context().close()
   })
@@ -267,8 +231,6 @@ test.describe('Dashboard View', () => {
     const page = await loginAs('singleTenantAdmin')
 
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
-
     // Single-tenant user shouldn't see the selector
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)

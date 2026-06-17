@@ -381,6 +381,7 @@ export interface HomePage {
     | EventListBlock
     | EventTableBlock
     | FormBlock
+    | FormEmbedBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -392,6 +393,7 @@ export interface HomePage {
     | SingleEventBlock
     | SponsorsBlock
     | TeamBlock
+    | VideoEmbedBlock
   )[];
   publishedAt?: string | null;
   documentReferences?:
@@ -435,6 +437,7 @@ export interface Page {
     | EventListBlock
     | EventTableBlock
     | FormBlock
+    | FormEmbedBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -446,6 +449,7 @@ export interface Page {
     | SingleEventBlock
     | SponsorsBlock
     | TeamBlock
+    | VideoEmbedBlock
   )[];
   meta?: {
     /**
@@ -454,9 +458,6 @@ export interface Page {
     image?: (number | null) | Media;
     description?: string | null;
   };
-  /**
-   * Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.
-   */
   publishedAt?: string | null;
   slug: string;
   tenant: number | Tenant;
@@ -945,7 +946,7 @@ export interface Event {
   /**
    * Skill level required for this event
    */
-  skillLevel?: ('beginner' | 'pre-req' | 'professional') | null;
+  skillLevel?: ('beginner' | 'pre-suggested' | 'pre-req' | 'professional') | null;
   content?: {
     root: {
       type: string;
@@ -1267,11 +1268,26 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormEmbedBlock".
+ */
+export interface FormEmbedBlock {
+  /**
+   * For donation and form widgets that ship their own scripts (DonorBox, Classy, Eventbrite, etc.). Paste the provider embed code, including any <script> tags. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
+  html: string;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "GenericEmbedBlock".
  */
 export interface GenericEmbedBlock {
   /**
-   * Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   * For arbitrary HTML/iframe embeds. For videos use the Video Embed block, and for donation or form widgets (DonorBox, etc.) use the Form Embed block. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
    */
   html: string;
   backgroundColor: string;
@@ -1474,7 +1490,7 @@ export interface MediaBlock {
   /**
    * Controls the maximum width of the image with responsive behavior. Original uses the image's natural size. Sizes automatically adapt for different screen sizes.
    */
-  imageSize?: ('original' | 'small' | 'medium' | 'large' | 'full') | null;
+  imageSize?: ('original' | 'xsmall' | 'small' | 'medium' | 'large' | 'full') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -1606,6 +1622,21 @@ export interface Team {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock".
+ */
+export interface VideoEmbedBlock {
+  /**
+   * Paste the embed code (<iframe>) from a video provider such as YouTube or Vimeo. Scripts are not executed in this block. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   */
+  html: string;
+  backgroundColor: string;
+  alignContent?: ('left' | 'center' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoEmbed';
 }
 /**
  * Note: This information will be displayed on your public provider listing.
@@ -3311,6 +3342,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         eventList?: T | EventListBlockSelect<T>;
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        formEmbed?: T | FormEmbedBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
@@ -3322,6 +3354,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
+        videoEmbed?: T | VideoEmbedBlockSelect<T>;
       };
   publishedAt?: T;
   documentReferences?:
@@ -3444,6 +3477,17 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormEmbedBlock_select".
+ */
+export interface FormEmbedBlockSelect<T extends boolean = true> {
+  html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
   id?: T;
   blockName?: T;
 }
@@ -3598,6 +3642,17 @@ export interface TeamBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock_select".
+ */
+export interface VideoEmbedBlockSelect<T extends boolean = true> {
+  html?: T;
+  backgroundColor?: T;
+  alignContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "builtInPages_select".
  */
 export interface BuiltInPagesSelect<T extends boolean = true> {
@@ -3623,6 +3678,7 @@ export interface PagesSelect<T extends boolean = true> {
         eventList?: T | EventListBlockSelect<T>;
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        formEmbed?: T | FormEmbedBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
@@ -3634,6 +3690,7 @@ export interface PagesSelect<T extends boolean = true> {
         singleEvent?: T | SingleEventBlockSelect<T>;
         sponsorsBlock?: T | SponsorsBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
+        videoEmbed?: T | VideoEmbedBlockSelect<T>;
       };
   meta?:
     | T

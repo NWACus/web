@@ -5,6 +5,7 @@ import { contentColumns } from '../blocks/content-columns'
 import { contentWithCallout } from '../blocks/content-with-callout'
 import { eventListBlock } from '../blocks/event-list'
 import { formBlock } from '../blocks/form'
+import { formEmbed } from '../blocks/form-embed'
 import { genericEmbed } from '../blocks/generic-embed'
 import { headerBlock } from '../blocks/header'
 import { imageLinkGrid } from '../blocks/image-link-grid'
@@ -16,6 +17,7 @@ import { singleBlogPostBlock } from '../blocks/single-blog-post'
 import { singleEventBlock } from '../blocks/single-event'
 import { sponsorsBlock } from '../blocks/sponsors'
 import { teamBlock } from '../blocks/team'
+import { videoEmbed } from '../blocks/video-embed'
 import { headingContent } from '../utilities'
 
 type AllBlocksPageArgs = {
@@ -67,6 +69,10 @@ export const allBlocksPage = ({
       ...contentWithCallout,
       sectionLabel('Generic Embed'),
       ...genericEmbed,
+      sectionLabel('Form Embed'),
+      ...formEmbed,
+      sectionLabel('Video Embed'),
+      ...videoEmbed,
       sectionLabel('NAC Media Block'),
       ...nacMediaBlocks,
       sectionLabel('Blog List (Dynamic)'),

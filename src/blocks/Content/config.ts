@@ -15,12 +15,15 @@ import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../Document/config'
 import { EventListBlock } from '../EventList/config'
 import { EventTableBlock } from '../EventTable/config'
+import { FormEmbedBlock } from '../FormEmbed/config'
 import { GenericEmbedBlock } from '../GenericEmbed/config'
 import { HeaderLexicalBlock } from '../Header/config'
 import { MediaBlock } from '../Media/config'
 import { SingleBlogPostBlock } from '../SingleBlogPost/config'
 import { SingleEventBlock } from '../SingleEvent/config'
 import { SponsorsBlock } from '../Sponsors/config'
+import { VideoEmbedBlock } from '../VideoEmbed/config'
+import { healColumnLayout } from './hooks/healColumnLayout'
 
 const validateColumnLayout: SelectFieldValidation = (value, args) => {
   const { siblingData } = args
@@ -36,7 +39,6 @@ const validateColumnLayout: SelectFieldValidation = (value, args) => {
     const selectedColCount = parseInt(value.split('_')[0])
 
     if (selectedColCount !== numOfCols) {
-      // TODO - figure out why error is not showing with custom field
       return `Selected layout requires ${selectedColCount} column${selectedColCount !== 1 ? 's' : ''}, but ${numOfCols} column${numOfCols !== 1 ? 's' : ''} exist${numOfCols === 1 ? 's' : ''}`
     }
   }
@@ -96,6 +98,9 @@ export const ContentBlock: Block = {
         },
       },
       validate: validateColumnLayout,
+      hooks: {
+        beforeChange: [healColumnLayout],
+      },
     },
     {
       type: 'ui',
@@ -139,6 +144,8 @@ export const ContentBlock: Block = {
                     EventTableBlock,
                     SingleEventBlock,
                     GenericEmbedBlock,
+                    FormEmbedBlock,
+                    VideoEmbedBlock,
                     HeaderLexicalBlock,
                     MediaBlock,
                     SingleBlogPostBlock,
