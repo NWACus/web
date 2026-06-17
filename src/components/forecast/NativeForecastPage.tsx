@@ -80,7 +80,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   const isForecast = forecastResult.product_type === ProductType.Forecast
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
+    <div className="container space-y-6 py-6">
       {/* Page header: zone name. The "Avalanche Forecast" subtitle is only shown for
           forecast products; summary products carry their own title in the discussion
           (e.g. NWAC's "Spring Statement"), so we don't impose a label. */}
