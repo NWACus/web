@@ -29,6 +29,9 @@ tsconfig.tsbuildinfo
 # Sentry Config File
 .env.sentry-build-plugin
 
+# Fallow runtime cache
+.fallow/
+
 # AI
 .cursor
 .claude
