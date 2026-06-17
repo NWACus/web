@@ -2,7 +2,7 @@
  * Native forecast page composition: assembles all forecast components
  * into a single server-rendered page.
  */
-import { fetchForecast, fetchWarning } from '@/services/nac/nac'
+import { fetchForecast, fetchWarning, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import {
   DangerLevel,
@@ -53,7 +53,11 @@ function toWarningProduct(result: WarningResult | null) {
 }
 
 export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecastPageProps) {
-  const zone = await resolveZoneFromSlug(centerSlug, zoneSlug)
+  // Metadata gives us the center timezone for rendering issued/expires times.
+  const [zone, metadata] = await Promise.all([
+    resolveZoneFromSlug(centerSlug, zoneSlug),
+    getAvalancheCenterMetadata(centerSlug),
+  ])
 
   if (!zone) {
     return <div className="container py-8 text-center text-muted-foreground">Zone not found.</div>
@@ -77,14 +81,22 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
+      {/* Page header: zone name + product type (forecast vs off-season summary) */}
+      <header className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{zone.zone.name}</h1>
+        <p className="text-muted-foreground">
+          {isForecast ? 'Avalanche Forecast' : 'Seasonal Summary'}
+        </p>
+      </header>
+
       {/* Warning banner */}
       <ForecastErrorBoundary fallbackMessage="Unable to display warning information">
         <WarningBanner warning={warning} />
       </ForecastErrorBoundary>
 
-      {/* Header: author, published, expires */}
+      {/* Header: author, issued, expires */}
       <ForecastErrorBoundary fallbackMessage="Unable to display forecast metadata">
-        <ForecastHeader forecast={forecastResult} />
+        <ForecastHeader forecast={forecastResult} timezone={metadata.timezone} />
       </ForecastErrorBoundary>
 
       {/* Danger rating — only for full forecasts (not summary products) */}
