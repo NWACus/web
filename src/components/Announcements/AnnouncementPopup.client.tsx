@@ -71,14 +71,19 @@ interface AnnouncementPopupProps {
 }
 
 export function AnnouncementPopup({ popups, center }: AnnouncementPopupProps) {
-  const [activePopup, setActivePopup] = useState<Announcement | null>(null)
+  // Ready popups for the current page view, shown one at a time in order.
+  const [queue, setQueue] = useState<Announcement[]>([])
+  const [index, setIndex] = useState(0)
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+
+  const activePopup = queue[index] ?? null
 
   useEffect(() => {
     setOpen(false)
   }, [pathname])
 
+  // Build the queue of popups to show on this view.
   useEffect(() => {
     // Eligible popups, in priority order.
     const targeted = popups.filter(
@@ -95,58 +100,79 @@ export function AnnouncementPopup({ popups, center }: AnnouncementPopupProps) {
       return shouldShow(popup, getPopupState(popup.id).visitCount)
     })
 
-    // Show one popup per page view; revisiting rotates to the next one.
-    const toShow = ready[0] ?? null
-
-    // Advance the clock for the shown popup and any throttled by their own rule.
-    // Ready-but-deferred popups keep their turn so they show on the next visit.
+    // Advance the clock for popups throttled by their own rule. Ready popups are
+    // counted only when actually shown, so one the user never reaches keeps its turn.
     for (const popup of targeted) {
-      if (popup === toShow || !ready.includes(popup)) {
+      if (!ready.includes(popup)) {
         const state = getPopupState(popup.id)
         setPopupState(popup.id, { ...state, visitCount: state.visitCount + 1 })
       }
     }
 
-    if (!toShow) return
+    setQueue(ready)
+    setIndex(0)
+  }, [popups, pathname, center])
 
-    // For "every_session", only show once per browser session
-    if (toShow.displayFrequency === 'every_session') {
-      markSessionShown(toShow.id)
-    }
+  // Show the current popup (delayed for the first), counting it as seen now.
+  useEffect(() => {
+    const popup = queue[index]
+    if (!popup) return
 
-    const timer = setTimeout(() => {
-      setActivePopup(toShow)
-      setOpen(true)
-    }, POPUP_DELAY_MS)
+    const timer = setTimeout(
+      () => {
+        const state = getPopupState(popup.id)
+        setPopupState(popup.id, { ...state, visitCount: state.visitCount + 1 })
+        if (popup.displayFrequency === 'every_session') markSessionShown(popup.id)
+        setOpen(true)
+      },
+      index === 0 ? POPUP_DELAY_MS : 0,
+    )
 
     return () => clearTimeout(timer)
-  }, [popups, pathname, center])
+  }, [queue, index])
+
+  // Close the current popup and advance to the next ready one, if any.
+  const dismiss = useCallback(() => {
+    setOpen(false)
+    setIndex((i) => (i + 1 < queue.length ? i + 1 : i))
+  }, [queue.length])
+
+  const markDismissedIfOnce = useCallback(() => {
+    if (activePopup?.displayFrequency === 'once') {
+      const state = getPopupState(activePopup.id)
+      setPopupState(activePopup.id, { ...state, dismissed: true })
+    }
+  }, [activePopup])
 
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
-      if (!isOpen && activePopup?.displayFrequency === 'once') {
-        const state = getPopupState(activePopup.id)
-        setPopupState(activePopup.id, { ...state, dismissed: true })
+      if (isOpen) {
+        setOpen(true)
+        return
       }
-      setOpen(isOpen)
+      markDismissedIfOnce()
+      dismiss()
     },
-    [activePopup],
+    [markDismissedIfOnce, dismiss],
   )
 
   const handleDontShowAgain = useCallback(() => {
     if (!activePopup) return
     const state = getPopupState(activePopup.id)
     setPopupState(activePopup.id, { ...state, dismissed: true })
-    setOpen(false)
-  }, [activePopup])
+    dismiss()
+  }, [activePopup, dismiss])
 
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (e.target instanceof HTMLElement && e.target.closest('a, button:not([aria-label])')) {
-        handleOpenChange(false)
+        // A link/button navigates away; close without advancing — the next page
+        // builds its own queue.
+        markDismissedIfOnce()
+        setOpen(false)
       }
     },
-    [handleOpenChange],
+    [markDismissedIfOnce],
   )
 
   if (!activePopup) return null
