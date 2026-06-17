@@ -39,9 +39,23 @@ const ALLOWED_TAGS = [
 
 const ALLOWED_ATTR = ['href', 'src', 'alt', 'class', 'style']
 
+// Absolute (http/https) and protocol-relative URLs point off the AvyWeb tenant
+// site. All forecast HTML comes from the NAC API, so any absolute link is to
+// another domain; open those in a new tab. Relative links stay in the same tab.
+const isExternalUrl = (href: string | undefined): boolean => !!href && /^(https?:)?\/\//i.test(href)
+
 export function sanitizeHtml(html: string): string {
   return sanitizeHtmlLib(html, {
     allowedTags: ALLOWED_TAGS,
-    allowedAttributes: { '*': ALLOWED_ATTR },
+    allowedAttributes: {
+      '*': ALLOWED_ATTR,
+      a: [...ALLOWED_ATTR, 'target', 'rel'],
+    },
+    transformTags: {
+      a: (tagName, attribs) =>
+        isExternalUrl(attribs.href)
+          ? { tagName, attribs: { ...attribs, target: '_blank', rel: 'noopener noreferrer' } }
+          : { tagName, attribs },
+    },
   })
 }
