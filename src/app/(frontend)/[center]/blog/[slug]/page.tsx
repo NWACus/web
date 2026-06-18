@@ -9,6 +9,7 @@ import { draftMode } from 'next/headers'
 import { getPayload, Where } from 'payload'
 
 import { generateMetaForPost } from '@/utilities/generateMeta'
+import { publishedFilter } from '@/utilities/publishedFilter'
 
 export const dynamic = 'force-static'
 export const dynamicParams = true
@@ -25,12 +26,8 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
-    // Only use published documents (not added by default)
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
+    // Only use published documents that have reached their publish date
+    where: publishedFilter(),
   })
 
   const params: PathArgs[] = []
@@ -130,11 +127,7 @@ const queryPostBySlug = async ({ center, slug }: { center: string; slug: string 
   ]
 
   if (!draft) {
-    conditions.push({
-      _status: {
-        equals: 'published',
-      },
-    })
+    conditions.push(publishedFilter())
   }
 
   const result = await payload.find({

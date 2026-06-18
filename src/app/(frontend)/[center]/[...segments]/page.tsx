@@ -10,6 +10,7 @@ import { cache } from 'react'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { generateMetaForPage } from '@/utilities/generateMeta'
 import { normalizePath } from '@/utilities/path'
+import { publishedFilter } from '@/utilities/publishedFilter'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 
 export const dynamic = 'force-static'
@@ -26,12 +27,8 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
-    // Only use published documents (not added by default)
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
+    // Only use published documents that have reached their publish date
+    where: publishedFilter(),
   })
 
   const params: PathArgs[] = []
@@ -142,11 +139,7 @@ const queryPageBySlug = cache(async ({ center, slug }: { center: string; slug: s
   ]
 
   if (!draft) {
-    conditions.push({
-      _status: {
-        equals: 'published',
-      },
-    })
+    conditions.push(publishedFilter())
   }
 
   const result = await payload.find({

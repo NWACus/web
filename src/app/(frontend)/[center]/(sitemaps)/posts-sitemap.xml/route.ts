@@ -1,4 +1,5 @@
 import { getURL } from '@/utilities/getURL'
+import { publishedFilter } from '@/utilities/publishedFilter'
 import config from '@payload-config'
 import { getServerSideSitemap } from 'next-sitemap'
 import { unstable_cache } from 'next/cache'
@@ -23,12 +24,14 @@ const getPostsSitemap = (center: string) =>
         limit: 1000,
         pagination: false,
         where: {
-          _status: {
-            equals: 'published',
-          },
-          'tenant.slug': {
-            equals: center,
-          },
+          and: [
+            publishedFilter(),
+            {
+              'tenant.slug': {
+                equals: center,
+              },
+            },
+          ],
         },
         select: {
           slug: true,
