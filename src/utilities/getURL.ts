@@ -31,12 +31,12 @@ export const getMediaURL = (
 ): string => {
   if (!url) return ''
 
-  // Check if URL is absolute url
-  if (isAbsoluteUrl(url)) {
-    return cacheTag ? `${url}?${cacheTag}` : url
-  }
+  const fullUrl = isAbsoluteUrl(url) ? url : `${getURL(hostname)}${url}`
+  if (!cacheTag) return fullUrl
 
-  // Otherwise assume it's a relative path and prepend base url
-  const baseUrl = getURL(hostname)
-  return cacheTag ? `${baseUrl}${url}?${cacheTag}` : `${baseUrl}${url}`
+  // Use & if the URL already has a query string (e.g. ?prefix=...) — the cloud
+  // storage plugin appends ?prefix=<envName> to media URLs when a collection
+  // prefix is configured.
+  const separator = fullUrl.includes('?') ? '&' : '?'
+  return `${fullUrl}${separator}${cacheTag}`
 }

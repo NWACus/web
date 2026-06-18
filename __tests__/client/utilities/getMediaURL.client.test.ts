@@ -42,11 +42,11 @@ describe('client-side utilities: getMediaURL', () => {
     expect(result).toBe(expectedUrl)
   })
 
-  it('handles URLs with query parameters correctly', () => {
+  it('appends cache tag with & when URL already has a query string', () => {
     const relativeUrl = '/images/photo.jpg?existing=param'
     const cacheTag = 'v789'
     const result = getMediaURL(relativeUrl, cacheTag)
-    const expectedUrl = `${window.location.origin}${relativeUrl}?${cacheTag}`
+    const expectedUrl = `${window.location.origin}${relativeUrl}&${cacheTag}`
     expect(result).toBe(expectedUrl)
   })
 })

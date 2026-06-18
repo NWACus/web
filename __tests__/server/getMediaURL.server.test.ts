@@ -39,11 +39,18 @@ describe('server-side utilities: getMediaURL', () => {
     expect(result).toBe('http://customhostname.com/images/photo.jpg')
   })
 
-  it('handles URLs with query parameters correctly', () => {
+  it('appends cache tag with & when URL already has a query string', () => {
     const relativeUrl = '/images/photo.jpg?existing=param'
     const cacheTag = 'v789'
     const result = getMediaURL(relativeUrl, cacheTag)
-    expect(result).toBe('http://envvar.localhost:3000/images/photo.jpg?existing=param?v789')
+    expect(result).toBe('http://envvar.localhost:3000/images/photo.jpg?existing=param&v789')
+  })
+
+  it('appends cache tag with & on absolute URL with existing query string', () => {
+    const absoluteUrl = 'https://example.com/image.jpg?prefix=local'
+    const cacheTag = 'v123'
+    const result = getMediaURL(absoluteUrl, cacheTag)
+    expect(result).toBe('https://example.com/image.jpg?prefix=local&v123')
   })
 
   it('handles ftp protocol URLs as absolute', () => {
