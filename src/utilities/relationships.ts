@@ -36,12 +36,13 @@ export function isValidRelationship<T extends { id: string | number }>(
  * }
  */
 export function isValidPublishedRelationship<
-  T extends { id: string | number; _status?: string | null },
+  T extends { id: string | number; _status?: string | null; publishedAt?: string | null },
 >(relationship: T | number | null | undefined): relationship is T {
   return (
     typeof relationship === 'object' &&
     relationship !== null &&
-    (!relationship._status || relationship._status === 'published')
+    (!relationship._status || relationship._status === 'published') &&
+    (!relationship.publishedAt || relationship.publishedAt <= new Date().toISOString())
   )
 }
 
