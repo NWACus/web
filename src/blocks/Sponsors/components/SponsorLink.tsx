@@ -10,11 +10,6 @@ type Props = {
   children: React.ReactNode
 }
 
-/**
- * Wraps a sponsor banner in a tracked link. Fires a `sponsor_impression` PostHog event
- * once when the banner mounts and a `sponsor_click` event on click (both tagged with the
- * active tenant via useAnalytics).
- */
 export function SponsorLink({ sponsor, className, children }: Props) {
   const { captureWithTenant } = useAnalytics()
   const impressionSent = useRef(false)
@@ -28,7 +23,6 @@ export function SponsorLink({ sponsor, className, children }: Props) {
     if (impressionSent.current) return
     impressionSent.current = true
     captureWithTenant('sponsor_impression', eventProperties)
-    // Fire exactly once per mount; sponsor identity is stable for the lifetime of this link
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
