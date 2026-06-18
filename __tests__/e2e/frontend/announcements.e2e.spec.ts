@@ -36,7 +36,7 @@ test.describe('Announcement banners', () => {
 
     await page.getByRole('button', { name: 'Collapse announcements' }).click()
 
-    const expandButton = page.getByRole('button', { name: /\d+ announcement/ })
+    const expandButton = page.getByRole('button', { name: /\d+ announcement/i })
     await expect(expandButton).toBeVisible()
 
     await expandButton.click()
@@ -62,16 +62,7 @@ test.describe('Announcement banners', () => {
 test.describe('Announcement popups', () => {
   test.describe.configure({ timeout: 60000 })
 
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      // Clear all popup state so popups appear fresh
-      const original = Storage.prototype.getItem
-      Storage.prototype.getItem = function (key: string) {
-        if (key.startsWith('announcement-popup-')) return null
-        return original.call(this, key)
-      }
-    })
-  })
+  // Each test runs in an isolated context with empty storage, so popups start fresh.
 
   test('popup appears on the homepage', async ({ page }) => {
     await page.goto(`${TENANT_BASE_URL}/`)
