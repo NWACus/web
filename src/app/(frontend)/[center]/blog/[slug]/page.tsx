@@ -26,7 +26,6 @@ export async function generateStaticParams() {
       tenant: true,
       slug: true,
     },
-    // Only use published documents that have reached their publish date
     where: publishedFilter(),
   })
 

@@ -1,7 +1,7 @@
 import type { Where } from 'payload'
 
-// Where clause matching published documents whose publishedAt is not in the future.
-// Documents without a publishedAt are treated as published immediately.
+// Published documents whose publishedAt is not in the future.
+// Documents without a publishedAt are included.
 export function publishedFilter(): Where {
   return {
     and: [
