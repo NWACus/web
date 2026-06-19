@@ -165,9 +165,9 @@ export default buildConfig({
     Pages,
     Posts,
     Media,
+    Galleries,
     Documents,
     Announcements,
-    Galleries,
     Sponsors,
     Tags,
     // Events

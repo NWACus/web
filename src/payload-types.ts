@@ -73,9 +73,9 @@ export interface Config {
     pages: Page;
     posts: Post;
     media: Media;
+    galleries: Gallery;
     documents: Document;
     announcements: Announcement;
-    galleries: Gallery;
     sponsors: Sponsor;
     tags: Tag;
     events: Event;
@@ -126,9 +126,9 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    galleries: GalleriesSelect<false> | GalleriesSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
-    galleries: GalleriesSelect<false> | GalleriesSelect<true>;
     sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
@@ -3255,16 +3255,16 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'galleries';
+        value: number | Gallery;
+      } | null)
+    | ({
         relationTo: 'documents';
         value: number | Document;
       } | null)
     | ({
         relationTo: 'announcements';
         value: number | Announcement;
-      } | null)
-    | ({
-        relationTo: 'galleries';
-        value: number | Gallery;
       } | null)
     | ({
         relationTo: 'sponsors';
@@ -3901,6 +3901,35 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "galleries_select".
+ */
+export interface GalleriesSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        type?: T;
+        media?: T;
+        youtubeUrl?: T;
+        youtubeTitle?: T;
+        caption?: T;
+        id?: T;
+      };
+  contentHash?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "documents_select".
  */
 export interface DocumentsSelect<T extends boolean = true> {
@@ -3939,35 +3968,6 @@ export interface AnnouncementsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "galleries_select".
- */
-export interface GalleriesSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
-  items?:
-    | T
-    | {
-        type?: T;
-        media?: T;
-        youtubeUrl?: T;
-        youtubeTitle?: T;
-        caption?: T;
-        id?: T;
-      };
-  contentHash?: T;
-  documentReferences?:
-    | T
-    | {
-        collection?: T;
-        docId?: T;
-        instances?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
