@@ -1,6 +1,7 @@
 'use client'
+import { cn } from '@/utilities/ui'
 import { TextFieldClientProps } from 'payload'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import {
   Button,
@@ -32,6 +33,8 @@ export const SlugComponent = ({
   const { value, setValue } = useField<string>({ path: path || field.name })
   const { value: currentSlug } = useField<string>({ path: 'slug' })
 
+  const [spinning, setSpinning] = useState(false)
+
   // Read the source field and the optional date as primitive strings so the subscription stays
   // referentially stable across renders.
   const baseSlug = useFormFields(([fields]) => {
@@ -45,6 +48,8 @@ export const SlugComponent = ({
   const handleGenerate = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
+      setSpinning(true)
+      window.setTimeout(() => setSpinning(false), 300)
       const newSlug = [baseSlug, dateSlug].filter(Boolean).join('-')
       if (newSlug && newSlug !== currentSlug) {
         setValue(newSlug)
@@ -60,11 +65,11 @@ export const SlugComponent = ({
         <FieldLabel htmlFor={`field-${path}`} label={label} required />
 
         <Button
-          className="absolute right-0 bottom-[0.4em] z-[1] m-0 pb-[0.3125rem]"
+          className="absolute right-1 top-9 z-[1] m-0 p-1 bg-[var(--theme-input-bg)]"
           buttonStyle="icon-label"
           onClick={handleGenerate}
         >
-          <RefreshCw className="w-4" />
+          <RefreshCw className={cn('w-4', spinning && 'animate-spin [animation-duration:300ms]')} />
         </Button>
       </div>
 
