@@ -183,7 +183,7 @@ export const Events: CollectionConfig = {
     },
 
     // Sidebar
-    slugField(),
+    slugField('title', { autoGenerateFromDateField: 'startDate' }),
     {
       name: 'type',
       type: 'select',

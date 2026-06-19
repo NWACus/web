@@ -417,6 +417,9 @@ export interface Page {
     description?: string | null;
   };
   publishedAt?: string | null;
+  /**
+   * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
   slug: string;
   tenant: number | Tenant;
   documentReferences?:
@@ -503,6 +506,9 @@ export interface Tag {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
   slug: string;
   contentHash?: string | null;
   updatedAt: string;
@@ -545,6 +551,9 @@ export interface Post {
   showDate?: boolean | null;
   tags?: (number | Tag)[] | null;
   relatedPosts?: (number | Post)[] | null;
+  /**
+   * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
   slug: string;
   documentReferences?:
     | {
@@ -772,6 +781,9 @@ export interface EventGroup {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
   slug: string;
   contentHash?: string | null;
   updatedAt: string;
@@ -920,7 +932,10 @@ export interface Event {
     };
     [k: string]: unknown;
   } | null;
-  slug: string;
+  /**
+   * Leave blank to auto-generate from title + start date. Duplicates get a numbered suffix.
+   */
+  slug?: string | null;
   type: 'event' | 'awareness' | 'field-class';
   eventGroups?: (number | EventGroup)[] | null;
   eventTags?: (number | EventTag)[] | null;
@@ -961,6 +976,9 @@ export interface EventTag {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
   slug: string;
   contentHash?: string | null;
   updatedAt: string;
@@ -1775,6 +1793,9 @@ export interface Provider {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Auto-generated from name. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
   slug: string;
   /**
    * This email will be used for email notifications. Defaults to the contact email if not specified.
@@ -1890,6 +1911,9 @@ export interface Course {
     | 'America/Los_Angeles'
     | 'America/Anchorage'
     | 'Pacific/Honolulu';
+  /**
+   * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
   slug: string;
   courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;

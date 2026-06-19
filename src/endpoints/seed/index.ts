@@ -907,7 +907,7 @@ export const seed = async ({
       payload,
       incremental,
       tenantsById,
-      (obj) => obj.slug,
+      (obj) => obj.slug ?? '',
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
           return getEventsData(
