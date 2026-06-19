@@ -2,7 +2,14 @@
 import { TextFieldClientProps } from 'payload'
 import React, { useCallback } from 'react'
 
-import { Button, FieldLabel, TextInput, useField, useFormFields } from '@payloadcms/ui'
+import {
+  Button,
+  FieldDescription,
+  FieldLabel,
+  TextInput,
+  useField,
+  useFormFields,
+} from '@payloadcms/ui'
 
 import { RefreshCw } from 'lucide-react'
 import { formatDateForSlug, formatSlug } from './formatSlug'
@@ -20,6 +27,7 @@ export const SlugComponent = ({
   readOnly: readOnlyFromProps,
 }: SlugComponentProps) => {
   const { label } = field
+  const description = field?.admin?.description
 
   const { value, setValue } = useField<string>({ path: path || field.name })
   const { value: currentSlug } = useField<string>({ path: 'slug' })
@@ -66,6 +74,8 @@ export const SlugComponent = ({
         path={path || field.name}
         readOnly={Boolean(readOnly)}
       />
+
+      {description && <FieldDescription description={description} path={path || field.name} />}
     </div>
   )
 }
