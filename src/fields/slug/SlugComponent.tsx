@@ -5,15 +5,17 @@ import React, { useCallback } from 'react'
 import { Button, FieldLabel, TextInput, useField, useFormFields } from '@payloadcms/ui'
 
 import { RefreshCw } from 'lucide-react'
-import { formatSlug } from './formatSlug'
+import { formatDateForSlug, formatSlug } from './formatSlug'
 
 type SlugComponentProps = {
   fieldToUse: string
+  dateField?: string
 } & TextFieldClientProps
 
 export const SlugComponent = ({
   field,
   fieldToUse,
+  dateField,
   path,
   readOnly: readOnlyFromProps,
 }: SlugComponentProps) => {
@@ -22,21 +24,25 @@ export const SlugComponent = ({
   const { value, setValue } = useField<string>({ path: path || field.name })
   const { value: currentSlug } = useField<string>({ path: 'slug' })
 
-  // Get the current value of the title field
-  const targetFieldValue = useFormFields(([fields]) => {
-    const value = fields[fieldToUse]?.value
-    return typeof value === 'string' ? value : ''
+  // Read the source field and the optional date as primitive strings so the subscription stays
+  // referentially stable across renders.
+  const baseSlug = useFormFields(([fields]) => {
+    const fieldValue = fields[fieldToUse]?.value
+    return typeof fieldValue === 'string' ? formatSlug(fieldValue) : ''
   })
+  const dateSlug = useFormFields(([fields]) =>
+    dateField ? formatDateForSlug(fields[dateField]?.value) : '',
+  )
 
   const handleGenerate = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
-      const newSlug = formatSlug(targetFieldValue)
-      if (targetFieldValue && newSlug !== currentSlug) {
-        setValue(formatSlug(targetFieldValue))
+      const newSlug = [baseSlug, dateSlug].filter(Boolean).join('-')
+      if (newSlug && newSlug !== currentSlug) {
+        setValue(newSlug)
       }
     },
-    [targetFieldValue, currentSlug, setValue],
+    [baseSlug, dateSlug, currentSlug, setValue],
   )
   const readOnly = readOnlyFromProps || false
 

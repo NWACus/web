@@ -51,6 +51,7 @@ export const slugField = (
           path: '@/fields/slug/SlugComponent#SlugComponent',
           clientProps: {
             fieldToUse,
+            dateField: options.autoGenerateFromDateField,
           },
         },
       },
