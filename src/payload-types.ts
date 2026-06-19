@@ -75,6 +75,7 @@ export interface Config {
     media: Media;
     documents: Document;
     announcements: Announcement;
+    galleries: Gallery;
     sponsors: Sponsor;
     tags: Tag;
     events: Event;
@@ -127,6 +128,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
+    galleries: GalleriesSelect<false> | GalleriesSelect<true>;
     sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
@@ -288,6 +290,7 @@ export interface HomePage {
     | EventTableBlock
     | FormBlock
     | FormEmbedBlock
+    | GalleryBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -396,6 +399,7 @@ export interface Page {
     | EventTableBlock
     | FormBlock
     | FormEmbedBlock
+    | GalleryBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -1256,6 +1260,93 @@ export interface FormEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'formEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  gallery: number | Gallery;
+  /**
+   * Optional heading shown above the gallery.
+   */
+  heading?: string | null;
+  /**
+   * Optional rich text shown above the gallery. Supports links.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  layout: 'grid' | 'masonry';
+  columns: '2' | '3' | '4';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "galleries".
+ */
+export interface Gallery {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * A name to identify this gallery in the admin. Not shown on the page.
+   */
+  title: string;
+  /**
+   * Photos, uploaded videos, and YouTube videos shown in the gallery grid.
+   */
+  items?:
+    | {
+        type: 'upload' | 'youtube';
+        media?: (number | null) | Media;
+        /**
+         * e.g. https://www.youtube.com/watch?v=… or https://youtu.be/…
+         */
+        youtubeUrl?: string | null;
+        /**
+         * Describes the video for screen readers. Important for accessibility.
+         */
+        youtubeTitle?: string | null;
+        /**
+         * Optional. Shown beneath the item in the full-screen view.
+         */
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  contentHash?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3172,6 +3263,10 @@ export interface PayloadLockedDocument {
         value: number | Announcement;
       } | null)
     | ({
+        relationTo: 'galleries';
+        value: number | Gallery;
+      } | null)
+    | ({
         relationTo: 'sponsors';
         value: number | Sponsor;
       } | null)
@@ -3346,6 +3441,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         formEmbed?: T | FormEmbedBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
@@ -3491,6 +3587,19 @@ export interface FormEmbedBlockSelect<T extends boolean = true> {
   html?: T;
   backgroundColor?: T;
   alignContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  gallery?: T;
+  heading?: T;
+  description?: T;
+  layout?: T;
+  columns?: T;
   id?: T;
   blockName?: T;
 }
@@ -3682,6 +3791,7 @@ export interface PagesSelect<T extends boolean = true> {
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         formEmbed?: T | FormEmbedBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
@@ -3829,6 +3939,35 @@ export interface AnnouncementsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "galleries_select".
+ */
+export interface GalleriesSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        type?: T;
+        media?: T;
+        youtubeUrl?: T;
+        youtubeTitle?: T;
+        caption?: T;
+        id?: T;
+      };
+  contentHash?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

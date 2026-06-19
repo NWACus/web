@@ -14,6 +14,7 @@ import { Documents } from '@/collections/Documents'
 import { EventGroups } from '@/collections/EventGroups'
 import { Events } from '@/collections/Events'
 import { EventTags } from '@/collections/EventTags'
+import { Galleries } from '@/collections/Galleries'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { HomePages } from '@/collections/HomePages'
@@ -166,6 +167,7 @@ export default buildConfig({
     Media,
     Documents,
     Announcements,
+    Galleries,
     Sponsors,
     Tags,
     // Events
