@@ -34,7 +34,7 @@ export const Galleries: CollectionConfig = {
         plural: 'Items',
       },
       admin: {
-        initCollapsed: true,
+        initCollapsed: false,
         description: 'Photos, uploaded videos, and YouTube videos shown in the gallery grid.',
       },
       fields: [
