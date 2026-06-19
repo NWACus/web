@@ -31,7 +31,9 @@ export const slugField = (
     // When auto-generating, the slug may be left blank — the hook fills it in before validation.
     required: !autoGenerate,
     hooks: {
-      beforeDuplicate: [setDuplicateSlug],
+      // Auto-generating slugs copy verbatim on duplicate so ensureUniqueSlug resolves the
+      // collision with a numbered suffix (-2, -3, …). Manual slugs append `-copy` to stay valid.
+      beforeDuplicate: autoGenerate ? [] : [setDuplicateSlug],
       beforeValidate: [
         ensureUniqueSlug({
           generateFromField: autoGenerate ? fieldToUse : undefined,
@@ -44,8 +46,8 @@ export const slugField = (
     admin: {
       position: 'sidebar',
       description: autoGenerate
-        ? 'Leave blank to auto-generate from the title and start date. Duplicates are numbered automatically.'
-        : undefined,
+        ? `Leave blank to auto-generate from ${fieldToUse} + start date. Duplicates get a numbered suffix.`
+        : `Auto-generated from ${fieldToUse}. Must be unique; lowercase letters, numbers, and hyphens only.`,
       components: {
         Field: {
           path: '@/fields/slug/SlugComponent#SlugComponent',
