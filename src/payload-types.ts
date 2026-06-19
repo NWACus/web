@@ -1267,6 +1267,8 @@ export interface FormEmbedBlock {
  */
 export interface GalleryBlock {
   gallery: number | Gallery;
+  layout: 'grid' | 'masonry';
+  columns: '2' | '3' | '4';
   /**
    * Optional heading shown above the gallery.
    */
@@ -1289,8 +1291,6 @@ export interface GalleryBlock {
     };
     [k: string]: unknown;
   } | null;
-  layout: 'grid' | 'masonry';
-  columns: '2' | '3' | '4';
   id?: string | null;
   blockName?: string | null;
   blockType: 'gallery';
@@ -3596,10 +3596,10 @@ export interface FormEmbedBlockSelect<T extends boolean = true> {
  */
 export interface GalleryBlockSelect<T extends boolean = true> {
   gallery?: T;
-  heading?: T;
-  description?: T;
   layout?: T;
   columns?: T;
+  heading?: T;
+  description?: T;
   id?: T;
   blockName?: T;
 }

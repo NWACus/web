@@ -19,22 +19,6 @@ export const GalleryBlock: Block = {
       filterOptions: getTenantFilter,
     },
     {
-      name: 'heading',
-      type: 'text',
-      required: false,
-      admin: {
-        description: 'Optional heading shown above the gallery.',
-      },
-    },
-    {
-      name: 'description',
-      type: 'richText',
-      required: false,
-      admin: {
-        description: 'Optional rich text shown above the gallery. Supports links.',
-      },
-    },
-    {
       type: 'row',
       fields: [
         {
@@ -59,6 +43,22 @@ export const GalleryBlock: Block = {
           ],
         },
       ],
+    },
+    {
+      name: 'heading',
+      type: 'text',
+      required: false,
+      admin: {
+        description: 'Optional heading shown above the gallery.',
+      },
+    },
+    {
+      name: 'description',
+      type: 'richText',
+      required: false,
+      admin: {
+        description: 'Optional rich text shown above the gallery. Supports links.',
+      },
     },
   ],
 }
