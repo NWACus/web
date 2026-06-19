@@ -2,7 +2,7 @@ import type { FieldHook, Where } from 'payload'
 
 import { APIError } from 'payload'
 import invariant from 'tiny-invariant'
-import { formatSlug } from './formatSlug'
+import { formatDateForSlug, formatSlug } from './formatSlug'
 
 type EnsureUniqueSlugOptions = {
   // Field to auto-generate the slug from when it's left blank (e.g. 'title').
@@ -12,20 +12,6 @@ type EnsureUniqueSlugOptions = {
   dateField?: string
   // Resolve duplicate slugs by appending `-2`, `-3`, ... instead of throwing an error.
   autoSuffixOnDuplicate?: boolean
-}
-
-// Formats a date value as `YYYY-MM-DD` (UTC) for use in a slug; returns '' if not a valid date.
-const formatDateForSlug = (value: unknown): string => {
-  if (typeof value !== 'string' && !(value instanceof Date)) {
-    return ''
-  }
-
-  const date = new Date(value)
-  if (isNaN(date.getTime())) {
-    return ''
-  }
-
-  return date.toISOString().slice(0, 10)
 }
 
 export const ensureUniqueSlug =
