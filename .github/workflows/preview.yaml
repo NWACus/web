@@ -102,7 +102,23 @@ jobs:
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }} .env
       - name: Run database migrations
-        run: pnpm migrate
+        # Turso can report a successful migration while leaving the schema
+        # incomplete (it ignores `PRAGMA foreign_keys=OFF` inside transactions,
+        # which the generated table-recreation migrations rely on). That only
+        # surfaces later as an opaque "no such table" Vercel build failure, so
+        # verify the schema here, retry once, then fail fast with a clear error.
+        # See docs/migration-safety.md.
+        run: |
+          set -uo pipefail
+          pnpm migrate
+          if ! pnpm verify:schema; then
+            echo "::warning::Schema verification failed after migrate; retrying once (known Turso migration flakiness, see docs/migration-safety.md)"
+            pnpm migrate
+            if ! pnpm verify:schema; then
+              echo "::error::Database schema is incomplete after migration (known Turso migration-application issue, see docs/migration-safety.md). Re-run this job to provision a fresh database."
+              exit 1
+            fi
+          fi
         env:
           DATABASE_URI: '${{ steps.connection.outputs.uri }}'
           DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
