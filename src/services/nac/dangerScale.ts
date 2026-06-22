@@ -5,6 +5,30 @@
  */
 import { DangerLevel } from './types/forecastSchemas'
 
+/**
+ * Coerce a raw numeric `danger_rating` (from the product list endpoint, -1..5) to a
+ * DangerLevel. Out-of-range values fall back to None so callers can color safely.
+ */
+export function dangerLevelFromRating(rating: number): DangerLevel {
+  switch (rating) {
+    case DangerLevel.GeneralInformation:
+      return DangerLevel.GeneralInformation
+    case DangerLevel.Low:
+      return DangerLevel.Low
+    case DangerLevel.Moderate:
+      return DangerLevel.Moderate
+    case DangerLevel.Considerable:
+      return DangerLevel.Considerable
+    case DangerLevel.High:
+      return DangerLevel.High
+    case DangerLevel.Extreme:
+      return DangerLevel.Extreme
+    case DangerLevel.None:
+    default:
+      return DangerLevel.None
+  }
+}
+
 /** Human-readable name for a danger level. */
 export function dangerName(level: DangerLevel): string {
   switch (level) {
