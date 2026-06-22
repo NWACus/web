@@ -26,10 +26,11 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [015](015-national-course-catalog.md)          | National course catalog                             | 2026-06-16 | accepted                                           |
 | [016](016-per-tenant-globals-as-unique-tenant-collections.md) | Per-tenant "globals" are unique-tenant collections | 2026-06-16 | accepted                          |
 | [017](017-form-embeds-in-page.md)              | Form embeds render in the page                      | 2026-09-01 | accepted                                           |
+| [018](018-forecast-glossary.md)                | Forecast glossary (national collection, client-side marking) | 2026-06-22 | accepted                                  |
 | [020](020-center-timezone-is-a-hardcoded-fact.md) | Center timezone is a hardcoded fact; AvyWeb owns AFP-derived values | 2026-09-14 | accepted                          |
 | [021](021-weather-station-pages.md) | Weather Station pages | 2026-09-18 | proposed                          |
 
-> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. `018` and `019` are reserved by the `native-product-pages` branch; new ADRs should continue from `022`.
+> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. `019` is reserved by the `native-product-pages` branch; new ADRs should continue from `022`.
 
 ## Related reading
 
