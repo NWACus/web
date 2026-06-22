@@ -37,14 +37,6 @@
     {
       "file": "src/collections/Roles/index.ts",
       "exports": ["*"]
-    },
-    {
-      "file": "src/fields/slug/index.ts",
-      "exports": ["*"]
-    },
-    {
-      "file": "src/fields/title/index.ts",
-      "exports": ["*"]
     }
   ],
   "rules": {
