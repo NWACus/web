@@ -5,6 +5,7 @@ import { documentReferencesField } from '@/fields/documentReferencesField'
 import { tenantField } from '@/fields/tenantField'
 import { titleField } from '@/fields/title'
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
+import { parseVideoUrl } from '@/utilities/videoEmbed'
 import { CollectionConfig } from 'payload'
 import { revalidateGallery, revalidateGalleryDelete } from './hooks/revalidateGallery'
 
@@ -38,15 +39,27 @@ export const Galleries: CollectionConfig = {
         description:
           'Photos, uploaded videos, and hosted videos (YouTube, Vimeo) shown in the gallery grid.',
       },
+      hooks: {
+        beforeChange: [
+          ({ value }) =>
+            Array.isArray(value)
+              ? value.map((item) =>
+                  item?.type === 'video'
+                    ? { ...item, media: null }
+                    : { ...item, videoUrl: null, videoTitle: null },
+                )
+              : value,
+        ],
+      },
       fields: [
         {
           name: 'type',
-          type: 'select',
+          type: 'radio',
           required: true,
           defaultValue: 'upload',
           options: [
             { label: 'Image or video upload', value: 'upload' },
-            { label: 'Hosted video (YouTube, Vimeo)', value: 'video' },
+            { label: 'Video link (YouTube, Vimeo)', value: 'video' },
           ],
         },
         {
@@ -63,6 +76,13 @@ export const Galleries: CollectionConfig = {
           label: 'Video URL',
           type: 'text',
           required: true,
+          validate: (
+            value: string | null | undefined,
+            { siblingData }: { siblingData: Partial<{ type: string }> },
+          ) => {
+            if (siblingData?.type !== 'video' || !value) return true
+            return parseVideoUrl(value) ? true : 'Enter a valid YouTube or Vimeo URL.'
+          },
           admin: {
             condition: (_, siblingData) => siblingData?.type === 'video',
             description:
