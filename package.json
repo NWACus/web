@@ -36,7 +36,6 @@
     "test:e2e:frontend": "playwright test --project=frontend",
     "test:all": "pnpm test && pnpm test:e2e",
     "migrate": "payload migrate",
-    "verify:schema": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/verify-schema.ts",
     "migrate:check": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/check-migrations.ts",
     "migrate:diff": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/analyze-migration-diff.ts",
     "email:build": "email build",
