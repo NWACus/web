@@ -1072,20 +1072,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "layout": {
           "name": "layout",
           "type": "text",
@@ -1101,6 +1087,20 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'4'"
+        },
+        "heading": {
+          "name": "heading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "block_name": {
           "name": "block_name",
@@ -4094,20 +4094,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "layout": {
           "name": "layout",
           "type": "text",
@@ -4123,6 +4109,20 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'4'"
+        },
+        "heading": {
+          "name": "heading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "_uuid": {
           "name": "_uuid",
@@ -7162,20 +7162,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "layout": {
           "name": "layout",
           "type": "text",
@@ -7191,6 +7177,20 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'4'"
+        },
+        "heading": {
+          "name": "heading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "block_name": {
           "name": "block_name",
@@ -10054,20 +10054,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "layout": {
           "name": "layout",
           "type": "text",
@@ -10083,6 +10069,20 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'4'"
+        },
+        "heading": {
+          "name": "heading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "_uuid": {
           "name": "_uuid",
@@ -13254,6 +13254,261 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "galleries_items": {
+      "name": "galleries_items",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'upload'"
+        },
+        "media_id": {
+          "name": "media_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "video_url": {
+          "name": "video_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "video_title": {
+          "name": "video_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "caption": {
+          "name": "caption",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "galleries_items_order_idx": {
+          "name": "galleries_items_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "galleries_items_parent_id_idx": {
+          "name": "galleries_items_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        },
+        "galleries_items_media_idx": {
+          "name": "galleries_items_media_idx",
+          "columns": ["media_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "galleries_items_media_id_media_id_fk": {
+          "name": "galleries_items_media_id_media_id_fk",
+          "tableFrom": "galleries_items",
+          "tableTo": "media",
+          "columnsFrom": ["media_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "galleries_items_parent_id_fk": {
+          "name": "galleries_items_parent_id_fk",
+          "tableFrom": "galleries_items",
+          "tableTo": "galleries",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "galleries_document_references": {
+      "name": "galleries_document_references",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collection": {
+          "name": "collection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "doc_id": {
+          "name": "doc_id",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "instances": {
+          "name": "instances",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "galleries_document_references_order_idx": {
+          "name": "galleries_document_references_order_idx",
+          "columns": ["_order"],
+          "isUnique": false
+        },
+        "galleries_document_references_parent_id_idx": {
+          "name": "galleries_document_references_parent_id_idx",
+          "columns": ["_parent_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "galleries_document_references_parent_id_fk": {
+          "name": "galleries_document_references_parent_id_fk",
+          "tableFrom": "galleries_document_references",
+          "tableTo": "galleries",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "galleries": {
+      "name": "galleries",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content_hash": {
+          "name": "content_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        }
+      },
+      "indexes": {
+        "galleries_tenant_idx": {
+          "name": "galleries_tenant_idx",
+          "columns": ["tenant_id"],
+          "isUnique": false
+        },
+        "galleries_updated_at_idx": {
+          "name": "galleries_updated_at_idx",
+          "columns": ["updated_at"],
+          "isUnique": false
+        },
+        "galleries_created_at_idx": {
+          "name": "galleries_created_at_idx",
+          "columns": ["created_at"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "galleries_tenant_id_tenants_id_fk": {
+          "name": "galleries_tenant_id_tenants_id_fk",
+          "tableFrom": "galleries",
+          "tableTo": "tenants",
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "documents": {
       "name": "documents",
       "columns": {
@@ -13773,261 +14028,6 @@
           "tableFrom": "_announcements_v",
           "tableTo": "tenants",
           "columnsFrom": ["version_tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "galleries_items": {
-      "name": "galleries_items",
-      "columns": {
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'upload'"
-        },
-        "media_id": {
-          "name": "media_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "youtube_url": {
-          "name": "youtube_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "youtube_title": {
-          "name": "youtube_title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "caption": {
-          "name": "caption",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "galleries_items_order_idx": {
-          "name": "galleries_items_order_idx",
-          "columns": ["_order"],
-          "isUnique": false
-        },
-        "galleries_items_parent_id_idx": {
-          "name": "galleries_items_parent_id_idx",
-          "columns": ["_parent_id"],
-          "isUnique": false
-        },
-        "galleries_items_media_idx": {
-          "name": "galleries_items_media_idx",
-          "columns": ["media_id"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "galleries_items_media_id_media_id_fk": {
-          "name": "galleries_items_media_id_media_id_fk",
-          "tableFrom": "galleries_items",
-          "tableTo": "media",
-          "columnsFrom": ["media_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "galleries_items_parent_id_fk": {
-          "name": "galleries_items_parent_id_fk",
-          "tableFrom": "galleries_items",
-          "tableTo": "galleries",
-          "columnsFrom": ["_parent_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "galleries_document_references": {
-      "name": "galleries_document_references",
-      "columns": {
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "collection": {
-          "name": "collection",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "doc_id": {
-          "name": "doc_id",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "instances": {
-          "name": "instances",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "galleries_document_references_order_idx": {
-          "name": "galleries_document_references_order_idx",
-          "columns": ["_order"],
-          "isUnique": false
-        },
-        "galleries_document_references_parent_id_idx": {
-          "name": "galleries_document_references_parent_id_idx",
-          "columns": ["_parent_id"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "galleries_document_references_parent_id_fk": {
-          "name": "galleries_document_references_parent_id_fk",
-          "tableFrom": "galleries_document_references",
-          "tableTo": "galleries",
-          "columnsFrom": ["_parent_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "galleries": {
-      "name": "galleries",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "content_hash": {
-          "name": "content_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
-        }
-      },
-      "indexes": {
-        "galleries_tenant_idx": {
-          "name": "galleries_tenant_idx",
-          "columns": ["tenant_id"],
-          "isUnique": false
-        },
-        "galleries_updated_at_idx": {
-          "name": "galleries_updated_at_idx",
-          "columns": ["updated_at"],
-          "isUnique": false
-        },
-        "galleries_created_at_idx": {
-          "name": "galleries_created_at_idx",
-          "columns": ["created_at"],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "galleries_tenant_id_tenants_id_fk": {
-          "name": "galleries_tenant_id_tenants_id_fk",
-          "tableFrom": "galleries",
-          "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
           "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
@@ -25793,6 +25793,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "galleries_id": {
+          "name": "galleries_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "documents_id": {
           "name": "documents_id",
           "type": "integer",
@@ -25802,13 +25809,6 @@
         },
         "announcements_id": {
           "name": "announcements_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "galleries_id": {
-          "name": "galleries_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -26003,6 +26003,11 @@
           "columns": ["media_id"],
           "isUnique": false
         },
+        "payload_locked_documents_rels_galleries_id_idx": {
+          "name": "payload_locked_documents_rels_galleries_id_idx",
+          "columns": ["galleries_id"],
+          "isUnique": false
+        },
         "payload_locked_documents_rels_documents_id_idx": {
           "name": "payload_locked_documents_rels_documents_id_idx",
           "columns": ["documents_id"],
@@ -26011,11 +26016,6 @@
         "payload_locked_documents_rels_announcements_id_idx": {
           "name": "payload_locked_documents_rels_announcements_id_idx",
           "columns": ["announcements_id"],
-          "isUnique": false
-        },
-        "payload_locked_documents_rels_galleries_id_idx": {
-          "name": "payload_locked_documents_rels_galleries_id_idx",
-          "columns": ["galleries_id"],
           "isUnique": false
         },
         "payload_locked_documents_rels_sponsors_id_idx": {
@@ -26179,6 +26179,15 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
+        "payload_locked_documents_rels_galleries_fk": {
+          "name": "payload_locked_documents_rels_galleries_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "galleries",
+          "columnsFrom": ["galleries_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "payload_locked_documents_rels_documents_fk": {
           "name": "payload_locked_documents_rels_documents_fk",
           "tableFrom": "payload_locked_documents_rels",
@@ -26193,15 +26202,6 @@
           "tableFrom": "payload_locked_documents_rels",
           "tableTo": "announcements",
           "columnsFrom": ["announcements_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "payload_locked_documents_rels_galleries_fk": {
-          "name": "payload_locked_documents_rels_galleries_fk",
-          "tableFrom": "payload_locked_documents_rels",
-          "tableTo": "galleries",
-          "columnsFrom": ["galleries_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -26776,6 +26776,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "de3cf534-0ff1-410e-8666-60ef99cbf6ed",
+  "id": "5373fb37-ab09-40c6-96ea-7fed34ea6278",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
