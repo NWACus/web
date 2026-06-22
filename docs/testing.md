@@ -73,7 +73,7 @@ pnpm test:e2e -- --workers=1 --headed __tests__/e2e/admin/tenant-selector/non-te
 
 ```
 __tests__/e2e/
-├── auth.setup.ts           # Logs in as each test user and caches browser state
+├── auth.setup.ts           # Authenticates each test user via REST and caches auth state
 ├── admin/                  # Admin panel tests (project: admin)
 │   ├── collections/        # CRUD flow tests for each collection
 │   │   └── tenants.e2e.spec.ts
@@ -115,13 +115,13 @@ test('example', async ({ loginAs, isTenantSelectorVisible }) => {
 
 ### Authentication Caching
 
-The `auth.setup.ts` file runs before all test projects. It logs in as each user role defined in `test-users.ts` via the UI once and saves the browser state (cookies/storage) to `__tests__/e2e/.auth/<role>.json`. Test fixtures then load these files via `storageState` instead of repeating the login flow, saving ~5-15 seconds per test.
+The `auth.setup.ts` file runs before all test projects. It authenticates each role in the `userRoles` list (from `test-users.ts`) once via the REST login endpoint (`POST /api/users/login`) — not the login form — and saves the resulting `payload-token` cookie to `__tests__/e2e/.auth/<role>.json`. Test fixtures then load these files via `storageState` instead of repeating the login flow, saving ~5-15 seconds per test. (The login _form_ itself is covered separately by `admin/login.e2e.spec.ts`.)
 
-If you add a new test user role to `test-users.ts`, it will automatically be included in the setup.
+If you add a new test user role, add it to both `testUsers` and the `userRoles` list in `test-users.ts` so the setup authenticates it.
 
 ### Known Issues
 
-- **Login flakiness in setup**: `performLogin` retries up to 3 times if the dev server is slow to respond (common on the first request of a test run). The auth setup runs serially with a 60-second timeout to avoid overwhelming the dev server. If you see intermittent setup failures, try `--workers=1`.
+- **Login flakiness in the per-test UI fixture**: `performLogin` (used by `auth.fixture`, which drives the actual login form) retries up to 3 times if the dev server is slow to respond — common on the first request of a test run. The `auth.setup.ts` pre-auth step sidesteps this by logging in over REST instead of the form.
 - **Tenant cookie stores IDs, not slugs**: The admin UI stores tenant IDs (e.g., `"1"`) in the `payload-tenant` cookie, not slugs (e.g., `"dvac"`). Use `selectTenant(page, TenantNames.xxx)` via the UI instead of `setTenantCookie(page, TenantSlugs.xxx)` when cookie values need to be valid.
 
 ## Future Plans
