@@ -49,9 +49,10 @@ const imageResource = mediaFixture(1, 'image/jpeg')
 const videoResource = mediaFixture(2, 'video/mp4')
 
 const items: GalleryItem[] = [
-  { id: 'a', type: 'youtube', youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ', youtubeTitle: 'A video' },
+  { id: 'a', type: 'video', videoUrl: 'https://youtu.be/dQw4w9WgXcQ', videoTitle: 'A video' },
   { id: 'b', type: 'upload', media: imageResource, caption: 'A photo' },
   { id: 'c', type: 'upload', media: videoResource },
+  { id: 'd', type: 'video', videoUrl: 'https://vimeo.com/76979871', videoTitle: 'A vimeo clip' },
 ]
 
 beforeEach(() => {
@@ -62,13 +63,20 @@ beforeEach(() => {
 describe('GalleryGrid', () => {
   it('renders one trigger per item', () => {
     render(<GalleryGrid items={items} layout="grid" columns="4" />)
-    expect(screen.getAllByRole('button')).toHaveLength(3)
+    expect(screen.getAllByRole('button')).toHaveLength(4)
   })
 
   it('renders a YouTube thumbnail image for youtube items', () => {
     render(<GalleryGrid items={items} layout="grid" columns="4" />)
     const thumb = screen.getByAltText('A video')
     expect(thumb).toHaveAttribute('src', expect.stringContaining('i.ytimg.com/vi/dQw4w9WgXcQ'))
+  })
+
+  it('renders a placeholder (no static thumbnail) for Vimeo items', () => {
+    render(<GalleryGrid items={items} layout="grid" columns="4" />)
+    // Vimeo has no network-free thumbnail, so the title appears as text, not an <img>.
+    expect(screen.queryByAltText('A vimeo clip')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'A vimeo clip' })).toBeInTheDocument()
   })
 
   it('uses ImageMedia and VideoMedia for the right upload types', () => {

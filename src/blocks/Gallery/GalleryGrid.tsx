@@ -13,7 +13,12 @@ import {
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import type { Gallery, GalleryBlock } from '@/payload-types'
 import { cn } from '@/utilities/ui'
-import { getYouTubeEmbedUrl, getYouTubeId, getYouTubeThumbnail } from '@/utilities/youtube'
+import {
+  getVideoEmbedUrl,
+  getVideoThumbnail,
+  parseVideoUrl,
+  videoProviderLabels,
+} from '@/utilities/videoEmbed'
 import { Play } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -81,24 +86,38 @@ export const GalleryGrid = ({ items, layout, columns }: Props) => {
     : cn(gridColsClass[columns], 'gap-3')
 
   const renderThumbnail = (item: GalleryItem) => {
-    if (item.type === 'youtube') {
-      const id = getYouTubeId(item.youtubeUrl)
-      if (!id) {
+    if (item.type === 'video') {
+      const video = parseVideoUrl(item.videoUrl)
+      if (!video) {
         return (
           <div className="flex aspect-video w-full items-center justify-center bg-muted p-4 text-center text-sm text-muted-foreground">
-            {item.youtubeTitle || 'Video unavailable'}
+            {item.videoTitle || 'Video unavailable'}
           </div>
         )
       }
+      const thumbnail = getVideoThumbnail(video)
+      // YouTube exposes a static thumbnail; Vimeo/TikTok don't, so show a
+      // branded placeholder card with the title instead.
       return (
         <div className="relative aspect-video w-full overflow-hidden bg-black">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={getYouTubeThumbnail(id)}
-            alt={item.youtubeTitle || ''}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
-          />
+          {thumbnail ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={thumbnail}
+              alt={item.videoTitle || ''}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-4 text-center">
+              <span className="text-xs font-medium uppercase tracking-wide text-white/70">
+                {videoProviderLabels[video.provider]}
+              </span>
+              {item.videoTitle && (
+                <span className="line-clamp-2 text-sm text-white">{item.videoTitle}</span>
+              )}
+            </div>
+          )}
           <PlayOverlay />
         </div>
       )
@@ -143,38 +162,48 @@ export const GalleryGrid = ({ items, layout, columns }: Props) => {
   }
 
   const renderLightbox = (item: GalleryItem, index: number) => {
-    if (item.type === 'youtube') {
-      const id = getYouTubeId(item.youtubeUrl)
-      if (!id) {
+    if (item.type === 'video') {
+      const video = parseVideoUrl(item.videoUrl)
+      if (!video) {
         return (
           <a
-            href={item.youtubeUrl || '#'}
+            href={item.videoUrl || '#'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-white underline"
           >
-            {item.youtubeTitle || 'Open video'}
+            {item.videoTitle || 'Open video'}
           </a>
         )
       }
+      // Only mount the iframe for the active slide so off-screen videos don't
+      // autoplay or load; other slides show a placeholder until selected.
       if (index === selectedIndex) {
         return (
           <iframe
             className="aspect-video w-full max-w-5xl"
-            src={getYouTubeEmbedUrl(id, true)}
-            title={item.youtubeTitle || 'YouTube video'}
+            src={getVideoEmbedUrl(video, true)}
+            title={item.videoTitle || `${videoProviderLabels[video.provider]} video`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
         )
       }
-      return (
+      const thumbnail = getVideoThumbnail(video)
+      return thumbnail ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={getYouTubeThumbnail(id)}
-          alt={item.youtubeTitle || ''}
+          src={thumbnail}
+          alt={item.videoTitle || ''}
           className="max-h-full max-w-full object-contain"
         />
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-1 text-center text-white">
+          <span className="text-xs font-medium uppercase tracking-wide text-white/70">
+            {videoProviderLabels[video.provider]}
+          </span>
+          {item.videoTitle && <span className="text-sm">{item.videoTitle}</span>}
+        </div>
       )
     }
 
@@ -204,7 +233,7 @@ export const GalleryGrid = ({ items, layout, columns }: Props) => {
             key={item.id ?? index}
             onClick={() => openAt(index)}
             className="group block w-full cursor-pointer overflow-hidden text-left"
-            aria-label={item.caption || item.youtubeTitle || 'Open item'}
+            aria-label={item.caption || item.videoTitle || 'Open item'}
           >
             {renderThumbnail(item)}
           </button>

@@ -35,7 +35,8 @@ export const Galleries: CollectionConfig = {
       },
       admin: {
         initCollapsed: false,
-        description: 'Photos, uploaded videos, and YouTube videos shown in the gallery grid.',
+        description:
+          'Photos, uploaded videos, and hosted videos (YouTube, Vimeo) shown in the gallery grid.',
       },
       fields: [
         {
@@ -45,7 +46,7 @@ export const Galleries: CollectionConfig = {
           defaultValue: 'upload',
           options: [
             { label: 'Image or video upload', value: 'upload' },
-            { label: 'YouTube video', value: 'youtube' },
+            { label: 'Hosted video (YouTube, Vimeo)', value: 'video' },
           ],
         },
         {
@@ -58,22 +59,23 @@ export const Galleries: CollectionConfig = {
           },
         },
         {
-          name: 'youtubeUrl',
-          label: 'YouTube URL',
+          name: 'videoUrl',
+          label: 'Video URL',
           type: 'text',
           required: true,
           admin: {
-            condition: (_, siblingData) => siblingData?.type === 'youtube',
-            description: 'e.g. https://www.youtube.com/watch?v=… or https://youtu.be/…',
+            condition: (_, siblingData) => siblingData?.type === 'video',
+            description:
+              'A YouTube or Vimeo URL, e.g. https://www.youtube.com/watch?v=… or https://vimeo.com/…',
           },
         },
         {
-          name: 'youtubeTitle',
-          label: 'YouTube title',
+          name: 'videoTitle',
+          label: 'Video title',
           type: 'text',
           required: true,
           admin: {
-            condition: (_, siblingData) => siblingData?.type === 'youtube',
+            condition: (_, siblingData) => siblingData?.type === 'video',
             description: 'Describes the video for screen readers. Important for accessibility.',
           },
         },

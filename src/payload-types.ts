@@ -1307,20 +1307,20 @@ export interface Gallery {
    */
   title: string;
   /**
-   * Photos, uploaded videos, and YouTube videos shown in the gallery grid.
+   * Photos, uploaded videos, and hosted videos (YouTube, Vimeo) shown in the gallery grid.
    */
   items?:
     | {
-        type: 'upload' | 'youtube';
+        type: 'upload' | 'video';
         media?: (number | null) | Media;
         /**
-         * e.g. https://www.youtube.com/watch?v=… or https://youtu.be/…
+         * A YouTube or Vimeo URL, e.g. https://www.youtube.com/watch?v=… or https://vimeo.com/…
          */
-        youtubeUrl?: string | null;
+        videoUrl?: string | null;
         /**
          * Describes the video for screen readers. Important for accessibility.
          */
-        youtubeTitle?: string | null;
+        videoTitle?: string | null;
         /**
          * Optional. Shown beneath the item in the full-screen view.
          */
@@ -3911,8 +3911,8 @@ export interface GalleriesSelect<T extends boolean = true> {
     | {
         type?: T;
         media?: T;
-        youtubeUrl?: T;
-        youtubeTitle?: T;
+        videoUrl?: T;
+        videoTitle?: T;
         caption?: T;
         id?: T;
       };
