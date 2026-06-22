@@ -48,7 +48,7 @@ sig = "670dda646337e58d"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
-sig = "247601da82e8c82c"
+sig = "dd907c0a43e1fd56"
 
 [[bindings]]
 doc = "CLAUDE.md"
