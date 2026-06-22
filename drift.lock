@@ -311,6 +311,11 @@ target = "src/collections/Tenants/endpoints/provisionTenant.ts"
 sig = "22a227eec96485e6"
 
 [[bindings]]
+doc = "docs/doc-drift.md"
+target = "scripts/drift-check.mjs"
+sig = "1109f2020067761a"
+
+[[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.js"
 sig = "3fd5fe0f09863f05"
