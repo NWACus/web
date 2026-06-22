@@ -174,8 +174,10 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm ii
         shell: bash
-      - name: 🧹 Run fallow audit
+      - name: 🧹 Run fallow audit (changed files)
         run: pnpm fallow:audit --changed-since origin/main
+      - name: 🧹 Run fallow check (whole-repo regression)
+        run: pnpm fallow:check
 
   e2e:
     name: e2e
