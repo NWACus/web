@@ -156,6 +156,29 @@ jobs:
       - name: 📚 Check doc drift
         run: pnpm drift:check
 
+  fallow:
+    name: fallow
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history for --changed-since origin/main
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 🧹 Run fallow audit (changed files)
+        run: pnpm fallow:audit --changed-since origin/main
+      - name: 🧹 Run fallow check (whole-repo regression)
+        run: pnpm fallow:check
+
   e2e:
     name: e2e
     if: github.event_name == 'merge_group'

@@ -1,4 +1,4 @@
-import type { NacWidgetsConfig } from 'src/payload-types'
+import type { NacWidgetsConfig } from '@/payload-types'
 
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'

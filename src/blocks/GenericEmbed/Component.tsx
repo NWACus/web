@@ -1,11 +1,11 @@
 'use client'
 
+import type { GenericEmbedBlock as GenericEmbedBlockProps } from '@/payload-types'
 import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
 import { cn } from '@/utilities/ui'
 import { IframeResizer } from '@open-iframe-resizer/react'
 import DOMPurify from 'dompurify'
 import { useEffect, useState } from 'react'
-import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
 
 type Props = GenericEmbedBlockProps & {
   isLayoutBlock: boolean

@@ -2,4 +2,5 @@ pnpm run lint-staged
 pnpm run tsc
 pnpm test
 pnpm drift:check
+pnpm fallow:audit --ci
 .husky/check-migrations

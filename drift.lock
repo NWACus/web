@@ -272,11 +272,6 @@ sig = "ef162015be100d91"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
-target = "src/utilities/rbac/hasProviderAccess.ts"
-sig = "23c68eb9ba9cdd8e"
-
-[[bindings]]
-doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/utilities/rbac/isProviderManager.ts"
 sig = "c708a1c71a5ce59d"
 
