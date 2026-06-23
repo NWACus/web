@@ -3,7 +3,7 @@
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { dangerIconUrl } from '@/services/nac/dangerScale'
-import type { DangerLevel } from '@/services/nac/types/forecastSchemas'
+import type { DangerLevel } from '@/services/nac/model/forecast'
 
 import { sanitizeHtml } from './sanitizeHtml'
 

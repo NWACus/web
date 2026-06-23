@@ -11,7 +11,7 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { MediaType, type MediaItem } from '@/services/nac/types/forecastSchemas'
+import { MediaType, type MediaItem } from '@/services/nac/model/forecast'
 
 import { sanitizeHtml } from './sanitizeHtml'
 

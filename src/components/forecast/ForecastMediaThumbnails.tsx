@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { type MediaItem, MediaType } from '@/services/nac/types/forecastSchemas'
+import { type MediaItem, MediaType } from '@/services/nac/model/forecast'
 
 import { getThumbnailUrl, MediaLightbox } from './MediaLightbox'
 
