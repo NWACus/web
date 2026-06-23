@@ -6,6 +6,16 @@ A Next.js-based multi-tenant platform powering avalanche center websites. Built 
 
 Get up and running in seconds. For more detailed setup options, see [Getting Started](https://github.com/NWACus/web/wiki/Getting-Started).
 
+### Prerequisites
+
+Beyond Node and pnpm, install the [`drift`](https://github.com/fiberplane/drift) doc-freshness tool — pre-commit runs `pnpm drift:check`, which needs the `drift` binary on your PATH:
+
+```bash
+brew install fiberplane/tap/drift   # macOS / Linux
+```
+
+It's a standalone binary, not an npm dependency, so `pnpm install` won't provide it. See [Doc Drift](./docs/doc-drift.md) for the full workflow.
+
 ## About
 
 This project serves multiple avalanche centers from a single codebase using Next.js middleware for dynamic tenant routing. Each center can have its own subdomain or custom domain while sharing the same backend infrastructure.
@@ -26,6 +36,7 @@ Check out our **[Wiki](https://github.com/NWACus/web/wiki)** all documentation
 - **[Contributing](https://github.com/NWACus/web/wiki/Contributing)** - Start here! How to contribute to the project
 - **[Getting Started](https://github.com/NWACus/web/wiki/Getting-Started)** - First-time setup and local development
 - **[Git Workflow](https://github.com/NWACus/web/wiki/Git-Workflow)** - Commit signing and best practices
+- **[Doc Drift](./docs/doc-drift.md)** - How docs stay bound to the code they describe (and what a "stale doc" failure means)
 
 ## Contributing
 

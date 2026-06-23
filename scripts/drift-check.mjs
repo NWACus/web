@@ -19,6 +19,20 @@ const { stdout, status, error } = spawnSync('drift', ['check', '--format', 'json
 })
 
 if (error) {
+  // ENOENT means the `drift` binary isn't on PATH. It's a standalone tool, not an
+  // npm dependency, so a fresh checkout won't have it — point the way to installing it.
+  if (error.code === 'ENOENT') {
+    console.error('drift is not installed (the `drift` binary was not found on your PATH).')
+    console.error('')
+    console.error('Install it, then re-run:')
+    console.error('  brew install fiberplane/tap/drift   # macOS / Linux')
+    console.error(
+      '  # or download v0.10.0 from https://github.com/fiberplane/drift/releases/tag/v0.10.0',
+    )
+    console.error('')
+    console.error('See docs/doc-drift.md for details.')
+    process.exit(1)
+  }
   console.error('failed to run drift:', error.message)
   process.exit(1)
 }
