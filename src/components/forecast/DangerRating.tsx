@@ -3,7 +3,7 @@
  * plus a tomorrow outlook section.
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { type AvalancheDangerForecast, ForecastPeriod } from '@/services/nac/types/forecastSchemas'
+import { type AvalancheDangerForecast, ForecastPeriod } from '@/services/nac/model/forecast'
 import type { ElevationBandNames } from '@/services/nac/types/schemas'
 
 import { DangerElevationBand } from './DangerElevationBand'

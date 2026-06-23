@@ -4,7 +4,7 @@
 import Image from 'next/image'
 
 import { dangerColor, dangerIconUrl, dangerName, dangerTextColor } from '@/services/nac/dangerScale'
-import { DangerLevel } from '@/services/nac/types/forecastSchemas'
+import { DangerLevel } from '@/services/nac/model/forecast'
 
 import { sanitizeHtml } from './sanitizeHtml'
 

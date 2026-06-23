@@ -217,13 +217,32 @@ const brandAssetsFields: Field[] = [
 
 const featuresFields: Field[] = [
   {
-    name: 'useNativeForecasts',
-    type: 'checkbox',
-    defaultValue: false,
+    name: 'nativeProducts',
+    type: 'group',
+    label: 'Native product pages',
     admin: {
       description:
-        'When enabled, the forecast page renders natively using Next.js server components instead of the embedded widget. This can be toggled per center for incremental rollout.',
+        'When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.',
     },
+    fields: [
+      {
+        name: 'forecast',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description: 'Render the avalanche forecast page natively.',
+        },
+      },
+      {
+        name: 'warning',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render warning/watch/special bulletins natively (currently shown as a banner on the native forecast page).',
+        },
+      },
+    ],
   },
 ]
 

@@ -4,7 +4,7 @@
  * SVG path data copied verbatim from the AvyApp source.
  */
 import { dangerColor } from '@/services/nac/dangerScale'
-import { DangerLevel } from '@/services/nac/types/forecastSchemas'
+import { DangerLevel } from '@/services/nac/model/forecast'
 
 interface DangerTriangleProps {
   upper: DangerLevel

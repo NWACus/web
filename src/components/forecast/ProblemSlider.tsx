@@ -6,10 +6,7 @@
  * - Likelihood: 5 labels, single value highlighted (from === to)
  * - Size: 4 labels, min/max range highlighted
  */
-import {
-  AvalancheProblemLikelihood,
-  AvalancheProblemSize,
-} from '@/services/nac/types/forecastSchemas'
+import { AvalancheProblemLikelihood, AvalancheProblemSize } from '@/services/nac/model/forecast'
 
 // ─── Shared slider core ────────────────────────────────────────────────────
 
