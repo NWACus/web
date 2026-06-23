@@ -1,5 +1,8 @@
 # NAC data layer
 
+Code: `src/services/nac/`. For rendering conventions once the data is in hand (danger colors,
+known display discrepancies), see [`nac-data-display.md`](./nac-data-display.md).
+
 Native product pages (forecast, warning, …) read NAC/AFP product data through this layer.
 Pages never touch a raw API response — they consume a **normalized model** produced by a
 **per-product source adapter**. That seam is what lets us:
@@ -9,6 +12,8 @@ Pages never touch a raw API response — they consume a **normalized model** pro
 - roll a product out to native per center, with instant rollback.
 
 ## The pieces
+
+All paths are under `src/services/nac/`.
 
 | Path                       | Role                                                                                                                          |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
