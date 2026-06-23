@@ -7,7 +7,7 @@ import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { AllZonesForecast } from '@/components/forecast/AllZonesForecast'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { getUseNativeForecasts } from '@/utilities/getUseNativeForecasts'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
 import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
 
@@ -43,7 +43,7 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const useNative = await getUseNativeForecasts(center)
+  const useNative = await getNativeProductFlag(center, 'forecast')
 
   if (useNative) {
     return <AllZonesForecast centerSlug={center} />

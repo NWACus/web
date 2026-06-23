@@ -6,16 +6,16 @@ import { getPayload } from 'payload'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
+import { ProductType } from '@/services/nac/model/forecast'
 import {
-  fetchForecast,
   getActiveForecastZones,
   getAvalancheCenterPlatforms,
   getForecastZoneDanger,
 } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { ProductType } from '@/services/nac/types/forecastSchemas'
+import { getForecastSource } from '@/services/nac/sources'
 import { formatZoneName } from '@/utilities/formatZoneName'
-import { getUseNativeForecasts } from '@/utilities/getUseNativeForecasts'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
 
 // ISR rather than fully static so the og:description travel advice in shared link previews
@@ -64,7 +64,7 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const useNative = await getUseNativeForecasts(center)
+  const useNative = await getNativeProductFlag(center, 'forecast')
 
   if (useNative) {
     return <NativeForecastPage centerSlug={center} zoneSlug={zone} />
@@ -102,11 +102,11 @@ export async function generateMetadata(
   const danger = await getForecastZoneDanger(center, zone).catch(() => null)
   let description = danger?.travel_advice ?? undefined
 
-  const useNative = await getUseNativeForecasts(center)
+  const useNative = await getNativeProductFlag(center, 'forecast')
   if (useNative) {
     const resolved = await resolveZoneFromSlug(center, zone)
     if (resolved) {
-      const forecast = await fetchForecast(center, resolved.zone.id)
+      const forecast = await getForecastSource(center).getForecast(center, resolved.zone.id)
       if (forecast && forecast.product_type === ProductType.Forecast && forecast.bottom_line) {
         description = forecast.bottom_line
       }
