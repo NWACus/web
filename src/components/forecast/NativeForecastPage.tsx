@@ -9,28 +9,15 @@ import {
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
-import {
-  fetchForecast,
-  fetchProductArchive,
-  fetchWarning,
-  getAvalancheCenterMetadata,
-} from '@/services/nac/nac'
+import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { type WarningResult } from '@/services/nac/types/forecastSchemas'
+import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 
 import { NativeForecastView } from './NativeForecastView'
 
 interface NativeForecastPageProps {
   centerSlug: string
   zoneSlug: string
-}
-
-/** Narrow a WarningResult to a Warning/Watch/Special or null. */
-function toWarningProduct(result: WarningResult | null) {
-  if (!result) return null
-  // NullWarning has avalanche_center: null
-  if (result.avalanche_center === null) return null
-  return result
 }
 
 export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecastPageProps) {
@@ -44,9 +31,9 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
     return <div className="container py-8 text-center text-muted-foreground">Zone not found.</div>
   }
 
-  const [forecastResult, warningResult] = await Promise.all([
-    fetchForecast(centerSlug, zone.zone.id),
-    fetchWarning(centerSlug, zone.zone.id),
+  const [forecastResult, warning] = await Promise.all([
+    getForecastSource(centerSlug).getForecast(centerSlug, zone.zone.id),
+    getWarningSource(centerSlug).getWarning(centerSlug, zone.zone.id),
   ])
 
   if (!forecastResult) {
@@ -71,7 +58,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       zone={zone}
       timezone={metadata.timezone}
       forecastResult={forecastResult}
-      warning={toWarningProduct(warningResult)}
+      warning={warning}
       initialDates={initialDates}
       initialRange={window}
       currentDate={currentDate}

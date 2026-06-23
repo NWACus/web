@@ -9,8 +9,8 @@
 import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { ForecastResult, WarningResult } from '@/services/nac/types/forecastSchemas'
-import { DangerLevel, ForecastPeriod, ProductType } from '@/services/nac/types/forecastSchemas'
+import type { ForecastResult, WarningProduct } from '@/services/nac/model/forecast'
+import { DangerLevel, ForecastPeriod, ProductType } from '@/services/nac/model/forecast'
 import type { ElevationBandNames } from '@/services/nac/types/schemas'
 
 import { BottomLine } from './BottomLine'
@@ -23,7 +23,7 @@ interface ZoneForecastCardProps {
   zoneName: string
   zoneSlug: string
   forecast: ForecastResult | null
-  warning: WarningResult | null
+  warning: WarningProduct | null
   elevationBandNames: ElevationBandNames
   timezone: string | null | undefined
 }
@@ -47,13 +47,6 @@ function highestDangerLevel(danger: {
   return dangerLevels[max] ?? DangerLevel.None
 }
 
-/** Narrow a WarningResult to a Warning/Watch/Special or null. */
-function toWarningProduct(result: WarningResult | null) {
-  if (!result) return null
-  if (result.avalanche_center === null) return null
-  return result
-}
-
 export function ZoneForecastCard({
   zoneName,
   zoneSlug,
@@ -62,7 +55,7 @@ export function ZoneForecastCard({
   elevationBandNames,
   timezone,
 }: ZoneForecastCardProps) {
-  const warningProduct = toWarningProduct(warning)
+  const warningProduct = warning
   const isForecast = forecast?.product_type === ProductType.Forecast
 
   return (
