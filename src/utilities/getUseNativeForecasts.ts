@@ -1,30 +1,9 @@
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
+import { getNativeProductFlag } from './getNativeProductFlag'
 
 /**
- * Reads the useNativeForecasts feature flag for a given tenant slug.
- * Returns false if the setting is not found or the flag is not set.
+ * Forecast-specific convenience wrapper over {@link getNativeProductFlag}.
+ * Prefer `getNativeProductFlag(center, product)` for new call sites.
  */
 export async function getUseNativeForecasts(centerSlug: string): Promise<boolean> {
-  const payload = await getPayload({ config: configPromise })
-
-  const settingsRes = await payload.find({
-    collection: 'settings',
-    depth: 0,
-    where: {
-      'tenant.slug': {
-        equals: centerSlug,
-      },
-    },
-    select: {
-      useNativeForecasts: true,
-    },
-  })
-
-  const settings = settingsRes.docs[0]
-  if (!settings) {
-    return false
-  }
-
-  return settings.useNativeForecasts ?? false
+  return getNativeProductFlag(centerSlug, 'forecast')
 }
