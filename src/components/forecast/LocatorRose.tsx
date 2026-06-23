@@ -6,7 +6,7 @@
  */
 'use client'
 
-import { AvalancheProblemLocation } from '@/services/nac/types/forecastSchemas'
+import { AvalancheProblemLocation } from '@/services/nac/model/forecast'
 
 interface LocatorRoseProps {
   locations: AvalancheProblemLocation[]
