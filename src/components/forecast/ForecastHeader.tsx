@@ -6,7 +6,7 @@
  * center's timezone (from the NAC metadata) because the page is server-rendered
  * and has no client locale to fall back on.
  */
-import type { Forecast, Summary } from '@/services/nac/types/forecastSchemas'
+import type { Forecast, Summary } from '@/services/nac/model/forecast'
 import { formatDateTime } from '@/utilities/formatDateTime'
 
 interface ForecastHeaderProps {

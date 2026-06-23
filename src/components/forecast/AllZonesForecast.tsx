@@ -2,12 +2,8 @@
  * All-zones forecast grid: fetches and renders compact forecast cards
  * for every active zone in a center, in parallel.
  */
-import {
-  fetchForecast,
-  fetchWarning,
-  getActiveForecastZones,
-  getAvalancheCenterMetadata,
-} from '@/services/nac/nac'
+import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
+import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ZoneForecastCard } from './ZoneForecastCard'
@@ -31,12 +27,14 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
     )
   }
 
-  // Fetch all forecasts and warnings in parallel
+  // Fetch all forecasts and warnings in parallel, through the per-product source adapter.
+  const forecastSource = getForecastSource(centerSlug)
+  const warningSource = getWarningSource(centerSlug)
   const results = await Promise.all(
     zones.map(async ({ slug, zone }) => {
       const [forecast, warning] = await Promise.all([
-        fetchForecast(centerSlug, zone.id),
-        fetchWarning(centerSlug, zone.id),
+        forecastSource.getForecast(centerSlug, zone.id),
+        warningSource.getWarning(centerSlug, zone.id),
       ])
       return { slug, zone, forecast, warning }
     }),
