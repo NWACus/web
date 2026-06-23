@@ -2,6 +2,8 @@
 
 This document captures conventions and known discrepancies for rendering NAC API data (forecasts, warnings, danger ratings) in native Next.js pages rather than the embedded Vue widget.
 
+For how that data is fetched, normalized, and configured (the source adapter, normalized model, and the rollout/data-source controls), see [`nac-data-layer.md`](./nac-data-layer.md).
+
 ## Danger Scale Colors
 
 The canonical danger colors are consistent across the avy app, afp-public-widgets, and our native implementation:
