@@ -8,15 +8,15 @@ import {
   validDateForProduct,
 } from '@/services/nac/archiveDates'
 import {
-  fetchForecast,
   fetchProductArchive,
   fetchProductById,
   getAvalancheCenterMetadata,
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { getForecastSource } from '@/services/nac/sources'
 import { formatZoneName } from '@/utilities/formatZoneName'
-import { getUseNativeForecasts } from '@/utilities/getUseNativeForecasts'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { format, parseISO } from 'date-fns'
 import { notFound } from 'next/navigation'
 
@@ -52,7 +52,7 @@ export default async function Page({ params }: Args) {
   }
 
   // The dated history view is native-only; the legacy widget keeps its own archive.
-  const useNative = await getUseNativeForecasts(center)
+  const useNative = await getNativeProductFlag(center, 'forecast')
   if (!useNative) {
     notFound()
   }
@@ -79,7 +79,7 @@ export default async function Page({ params }: Args) {
   // The current/live product is fetched only to anchor the picker's "return to current" path.
   const [forecastResult, currentProduct] = await Promise.all([
     fetchProductById(productId),
-    fetchForecast(center, resolvedZone.zone.id),
+    getForecastSource(center).getForecast(center, resolvedZone.zone.id),
   ])
 
   if (!forecastResult) {

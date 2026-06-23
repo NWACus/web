@@ -5,17 +5,15 @@
  * data and renders — no data fetching here.
  */
 import type { ZoneArchiveDate } from '@/services/nac/archiveDates'
-import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 import {
   DangerLevel,
   ForecastPeriod,
   ProductType,
   type Forecast,
   type ForecastResult,
-  type Special,
-  type Warning,
-  type Watch,
-} from '@/services/nac/types/forecastSchemas'
+  type WarningProduct,
+} from '@/services/nac/model/forecast'
+import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
@@ -26,8 +24,6 @@ import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
 import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { WarningBanner } from './WarningBanner'
-
-type WarningProduct = Warning | Watch | Special
 
 interface NativeForecastViewProps {
   center: string

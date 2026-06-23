@@ -7,7 +7,7 @@ import {
   AvalancheProblemName,
   MediaType,
   type AvalancheProblem,
-} from '@/services/nac/types/forecastSchemas'
+} from '@/services/nac/model/forecast'
 
 import { LocatorRose } from './LocatorRose'
 import { LikelihoodSlider, SizeSlider } from './ProblemSlider'

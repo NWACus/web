@@ -2,13 +2,10 @@
  * Avalanche warning/watch banner with progressive enhancement.
  * Uses <details>/<summary> — no client JS needed.
  */
-import type { Special, Warning, Watch } from '@/services/nac/types/forecastSchemas'
-import { ProductType } from '@/services/nac/types/forecastSchemas'
+import { ProductType, type WarningProduct } from '@/services/nac/model/forecast'
 import { cn } from '@/utilities/ui'
 
 import { sanitizeHtml } from './sanitizeHtml'
-
-type WarningProduct = Warning | Watch | Special
 
 interface WarningBannerProps {
   warning: WarningProduct | null
