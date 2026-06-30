@@ -110,17 +110,8 @@ export function NativeForecastView({
         <ForecastHeader forecast={forecastResult} timezone={timezone} />
       </ForecastErrorBoundary>
 
-      {/* Danger rating — only for full forecasts (not summary products) */}
-      {isForecast && (
-        <ForecastErrorBoundary fallbackMessage="Unable to display danger rating">
-          <DangerRating
-            danger={forecastResult.danger}
-            elevationBandNames={zone.zone.config.elevation_band_names}
-          />
-        </ForecastErrorBoundary>
-      )}
-
-      {/* Bottom line */}
+      {/* Bottom line — rendered above the danger rating to match the legacy afp widget,
+          which leads with the forecaster's bottom line before the per-band ratings. */}
       {forecastResult.bottom_line && (
         <ForecastErrorBoundary fallbackMessage="Unable to display the bottom line">
           <BottomLine
@@ -130,16 +121,34 @@ export function NativeForecastView({
         </ForecastErrorBoundary>
       )}
 
-      {/* Avalanche problems — only for full forecasts */}
-      {isForecast &&
-        forecastResult.forecast_avalanche_problems.map((problem) => (
-          <ForecastErrorBoundary
-            key={problem.id}
-            fallbackMessage={`Unable to display avalanche problem: ${problem.name}`}
-          >
-            <AvalancheProblemCard problem={problem} />
-          </ForecastErrorBoundary>
-        ))}
+      {/* Danger rating — only for full forecasts (not summary products) */}
+      {isForecast && (
+        <ForecastErrorBoundary fallbackMessage="Unable to display danger rating">
+          <DangerRating
+            danger={forecastResult.danger}
+            elevationBandNames={zone.zone.config.elevation_band_names}
+            publishedTime={forecastResult.published_time}
+            timezone={timezone}
+          />
+        </ForecastErrorBoundary>
+      )}
+
+      {/* Avalanche problems — only for full forecasts, headed by the count to match the widget */}
+      {isForecast && forecastResult.forecast_avalanche_problems.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-xl font-bold tracking-tight">
+            Avalanche Problems ({forecastResult.forecast_avalanche_problems.length})
+          </h2>
+          {forecastResult.forecast_avalanche_problems.map((problem) => (
+            <ForecastErrorBoundary
+              key={problem.id}
+              fallbackMessage={`Unable to display avalanche problem: ${problem.name}`}
+            >
+              <AvalancheProblemCard problem={problem} />
+            </ForecastErrorBoundary>
+          ))}
+        </section>
+      )}
 
       {/* Forecast discussion */}
       {forecastResult.hazard_discussion && (
