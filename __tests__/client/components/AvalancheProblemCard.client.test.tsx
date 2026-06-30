@@ -58,7 +58,7 @@ describe('AvalancheProblemCard', () => {
     expect(screen.getByText('Size')).toBeInTheDocument()
   })
 
-  it('renders a media thumbnail for image type', () => {
+  it('renders the example photo (medium size) with its caption for image type', () => {
     const problem: AvalancheProblem = {
       ...baseProblem,
       media: {
@@ -74,8 +74,22 @@ describe('AvalancheProblemCard', () => {
       },
     }
     render(<AvalancheProblemCard problem={problem} />)
-    const img = document.querySelector('img[src="https://example.com/thumb.jpg"]')
+    const img = document.querySelector('img[src="https://example.com/medium.jpg"]')
     expect(img).toBeInTheDocument()
+    expect(screen.getByText('Storm slab crown')).toBeInTheDocument()
+  })
+
+  it('renders the numbered problem heading', () => {
+    render(<AvalancheProblemCard problem={{ ...baseProblem, rank: 2 }} />)
+    expect(screen.getByText('Problem #2: Storm Slab')).toBeInTheDocument()
+  })
+
+  it('renders the four labeled problem columns', () => {
+    render(<AvalancheProblemCard problem={baseProblem} />)
+    expect(screen.getByText('Problem Type')).toBeInTheDocument()
+    expect(screen.getByText('Aspect/Elevation')).toBeInTheDocument()
+    expect(screen.getByText('Likelihood')).toBeInTheDocument()
+    expect(screen.getByText('Size')).toBeInTheDocument()
   })
 
   it('does not render a thumbnail for unknown media type', () => {
