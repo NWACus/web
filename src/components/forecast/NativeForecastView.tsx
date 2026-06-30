@@ -23,6 +23,7 @@ import { ForecastDiscussion } from './ForecastDiscussion'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
 import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
+import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
 
 interface NativeForecastViewProps {
@@ -103,6 +104,11 @@ export function NativeForecastView({
       {/* Warning banner */}
       <ForecastErrorBoundary fallbackMessage="Unable to display warning information">
         <WarningBanner warning={warning} />
+      </ForecastErrorBoundary>
+
+      {/* Validity-date banner: archived on a dated view, expired on the live view */}
+      <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
+        <ValidityBanner forecast={forecastResult} timezone={timezone} selectedDate={selectedDate} />
       </ForecastErrorBoundary>
 
       {/* Header: author, issued, expires */}
