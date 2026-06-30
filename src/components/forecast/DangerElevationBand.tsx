@@ -3,7 +3,13 @@
  */
 import Image from 'next/image'
 
-import { dangerColor, dangerIconUrl, dangerName, dangerTextColor } from '@/services/nac/dangerScale'
+import {
+  dangerColor,
+  dangerIconUrl,
+  dangerLevelLabel,
+  dangerName,
+  dangerTextColor,
+} from '@/services/nac/dangerScale'
 import { DangerLevel } from '@/services/nac/model/forecast'
 
 import { sanitizeHtml } from './sanitizeHtml'
@@ -28,7 +34,7 @@ export function DangerElevationBand({ label, level }: DangerElevationBandProps) 
         className="flex flex-1 items-center justify-between rounded px-3 py-2"
         style={{ backgroundColor: bgColor, color: textColor }}
       >
-        <span className="text-sm font-medium">{dangerName(level)}</span>
+        <span className="text-sm font-medium">{dangerLevelLabel(level)}</span>
         <Image src={dangerIconUrl(level)} alt={dangerName(level)} width={28} height={28} />
       </div>
     </div>
