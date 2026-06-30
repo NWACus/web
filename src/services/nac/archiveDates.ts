@@ -59,6 +59,22 @@ export function validDateForProduct(
 }
 
 /**
+ * A product's valid date formatted as a day heading (e.g. "Tuesday, April 14, 2026"), in the
+ * center's timezone with the noon-cutover rule, offset by `offsetDays` (1 = the next/outlook day).
+ * Returns null for an unparseable timestamp. Parses the already-resolved `yyyy-MM-dd` valid date
+ * as a plain calendar day so the heading never shifts across a timezone boundary.
+ */
+export function validDateHeading(
+  publishedTime: string,
+  timezone: string | null | undefined,
+  offsetDays = 0,
+): string | null {
+  const valid = validDateForProduct(publishedTime, timezone)
+  if (!valid) return null
+  return format(addDays(parseISO(valid), offsetDays), 'EEEE, MMMM d, yyyy')
+}
+
+/**
  * Build the ordered (newest-first) list of browsable dates for a single zone from the
  * full center archive. Filters to renderable products that cover the zone, collapses
  * each valid date to its most-recently-published product (corrections/re-issues land on
