@@ -11,7 +11,9 @@ import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
 import { ZoneLinkHijacker } from './ZoneLinkHijacker.client'
 
-export const dynamic = 'force-static'
+// Short ISR backstop (5 min) instead of force-static: bare force-static freezes the all-zones
+// grid (per-zone danger + bottom line) at build time, which is unsafe for a daily forecast.
+export const revalidate = 300
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })

@@ -18,9 +18,10 @@ import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
 
-// ISR rather than fully static so the og:description travel advice in shared link previews
-// stays current with the daily forecast. The og:image itself is always live (dynamic route).
-export const revalidate = 1800
+// Short ISR backstop (5 min) so a forecast is never frozen at build time and the og:description
+// travel advice in shared link previews stays current with the daily forecast. The per-view
+// revalidate-on-view path (ForecastFreshness) catches corrections/retractions faster than this.
+export const revalidate = 300
 export const dynamicParams = false
 
 export async function generateStaticParams() {
