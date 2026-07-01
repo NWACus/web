@@ -11,6 +11,7 @@ import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { validDateHeading } from '@/services/nac/archiveDates'
 import {
+  ELEVATION_BANDS_URL,
   dangerIconSize,
   dangerIconUrl,
   dangerLevelLabel,
@@ -26,7 +27,7 @@ import { cn } from '@/utilities/ui'
 
 import { DangerScale } from './DangerScale'
 import { DangerTriangle } from './DangerTriangle'
-import { ElevationBandDescriptions } from './ElevationBandDescriptions'
+import { ExternalLink } from './ExternalLink'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface DangerRatingProps {
@@ -84,7 +85,11 @@ export function DangerRating({
           )}
         </div>
 
-        {dated && <ElevationBandDescriptions elevationBandNames={elevationBandNames} />}
+        {dated && (
+          <ExternalLink href={ELEVATION_BANDS_URL} className="text-sm text-muted-foreground">
+            Elevation Band Descriptions
+          </ExternalLink>
+        )}
         {dated && <DangerScale />}
       </CardContent>
     </Card>
