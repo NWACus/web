@@ -1,0 +1,576 @@
+version = 1
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/a3-embeds.md"
+sig = "999978b9f92288dc"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/coding-guide.md"
+sig = "b6b93c253edb55e5"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/004-rbac.md"
+sig = "fe2a26def2fa4354"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/007-dynamic-tenants-middleware.md"
+sig = "2ecf724c63783519"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/008-edge-config-tenant-lookup.md"
+sig = "9af7916a93a6f2e5"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/011-incremental-static-regeneration.md"
+sig = "2a1b7a7dac63c873"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/012-non-rbac-access-patterns.md"
+sig = "68f56e10db1153f0"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/013-hardcoded-tenant-lookup.md"
+sig = "73fe81bc57c9bb24"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/014-built-in-pages-drive-navigation.md"
+sig = "670dda646337e58d"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/decisions/README.md"
+sig = "247601da82e8c82c"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/error-tracking.md"
+sig = "6fbe219d4009e348"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/events-and-courses.md"
+sig = "808ab876088e8462"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/mcp-server.md"
+sig = "649efa503f3c8f25"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/migration-safety.md"
+sig = "aed73099bb43561f"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/onboarding.md"
+sig = "1305c6039963f400"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/revalidation.md"
+sig = "7bfcb3404abb1915"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/tenant-selector.md"
+sig = "d292e1dfe3736640"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/testing.md"
+sig = "c407c9e6ba1aa9cb"
+
+[[bindings]]
+doc = "CLAUDE.md"
+target = "docs/troubleshooting.md"
+sig = "6e79461aedfcbd64"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/app/(embeds)/a3-globals.css"
+sig = "557bf3262bf05be3"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/app/(embeds)/embeds/courses/CoursesFilters.tsx"
+sig = "d0a25443fa42a1ea"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/app/(embeds)/embeds/courses/CoursesMobileFilters.tsx"
+sig = "bdf7803a6ae13e1f"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/app/(embeds)/embeds/courses/page.tsx"
+sig = "5e5358d572b712a4"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/app/(embeds)/embeds/providers/page.tsx"
+sig = "18d3d099acfc5a89"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/app/(embeds)/layout.tsx"
+sig = "1455813193c0068d"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/components/CoursePreviewSmallRow.tsx"
+sig = "5c4410779285c119"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/components/CoursesList.tsx"
+sig = "0c9d89ddd42a7f7d"
+
+[[bindings]]
+doc = "docs/a3-embeds.md"
+target = "src/components/ProviderPreview.tsx"
+sig = "ca73d8c96121819f"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "jest.config.mjs"
+sig = "b1d9736649cf9b6a"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/app/(frontend)/[center]/theme-preview/page.tsx"
+sig = "9e7de3d13536a518"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/blocks/RenderBlocks.tsx"
+sig = "3cc6ecbf6c46be89"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/collections/collection-template.ts"
+sig = "f9e8741dfcaf1662"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/components/BackgroundColorWrapper.tsx"
+sig = "e4dc2b4ccd50dcc4"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/components/RichText/index.tsx"
+sig = "a6cfb9e47e74a6a0"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/constants/defaults.ts"
+sig = "557a05d0f0247e86"
+
+[[bindings]]
+doc = "docs/coding-guide.md"
+target = "src/utilities/relationships.ts"
+sig = "4da8f7ed095f74dc"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/access/byGlobalRole.ts"
+sig = "072ab06f655b1a17"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/access/byTenantRole.ts"
+sig = "037027282264ba7f"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/collections/GlobalRoleAssignments/index.ts"
+sig = "e3760e128ea08d84"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/collections/GlobalRoles/index.ts"
+sig = "25429bb42839244f"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/collections/RoleAssignments/index.ts"
+sig = "35f1959c281754ad"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/collections/Roles/index.ts"
+sig = "933d96ca51b25f88"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/utilities/rbac/hasGlobalOrTenantRolePermission.ts"
+sig = "319c8c865e834753"
+
+[[bindings]]
+doc = "docs/decisions/004-rbac.md"
+target = "src/utilities/rbac/ruleMatches.ts"
+sig = "eef97067a5b42a38"
+
+[[bindings]]
+doc = "docs/decisions/007-dynamic-tenants-middleware.md"
+target = "src/middleware.ts"
+sig = "ff301eba57dc04e2"
+
+[[bindings]]
+doc = "docs/decisions/007-dynamic-tenants-middleware.md"
+target = "src/utilities/tenancy/tenants.ts"
+sig = "2fcb46e02fa2f388"
+
+[[bindings]]
+doc = "docs/decisions/008-edge-config-tenant-lookup.md"
+target = "src/middleware.ts"
+sig = "ff301eba57dc04e2"
+
+[[bindings]]
+doc = "docs/decisions/008-edge-config-tenant-lookup.md"
+target = "src/utilities/tenancy/resolveTenant.ts"
+sig = "245b56078055381e"
+
+[[bindings]]
+doc = "docs/decisions/011-incremental-static-regeneration.md"
+target = "src/collections/Biographies/hooks/revalidateBiography.ts"
+sig = "b920b03ac8fd82e9"
+
+[[bindings]]
+doc = "docs/decisions/011-incremental-static-regeneration.md"
+target = "src/utilities/extractDocumentReferences.ts"
+sig = "4ac8868f8d8d2ba3"
+
+[[bindings]]
+doc = "docs/decisions/011-incremental-static-regeneration.md"
+target = "src/utilities/revalidateDocument.ts"
+sig = "816b1013b6920bb7"
+
+[[bindings]]
+doc = "docs/decisions/012-non-rbac-access-patterns.md"
+target = "src/access/byProviderRelationship.ts"
+sig = "c995ef0ec2eae6b4"
+
+[[bindings]]
+doc = "docs/decisions/012-non-rbac-access-patterns.md"
+target = "src/collections/Courses/index.ts"
+sig = "8f627ebd719644dc"
+
+[[bindings]]
+doc = "docs/decisions/012-non-rbac-access-patterns.md"
+target = "src/collections/Providers/index.ts"
+sig = "ef162015be100d91"
+
+[[bindings]]
+doc = "docs/decisions/012-non-rbac-access-patterns.md"
+target = "src/utilities/rbac/hasProviderAccess.ts"
+sig = "23c68eb9ba9cdd8e"
+
+[[bindings]]
+doc = "docs/decisions/012-non-rbac-access-patterns.md"
+target = "src/utilities/rbac/isProviderManager.ts"
+sig = "c708a1c71a5ce59d"
+
+[[bindings]]
+doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
+target = "src/collections/Tenants/index.ts"
+sig = "0ce7dd3d375aa0fe"
+
+[[bindings]]
+doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
+target = "src/middleware.ts"
+sig = "ff301eba57dc04e2"
+
+[[bindings]]
+doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
+target = "src/utilities/tenancy/avalancheCenters.ts"
+sig = "3bf6823a594d39d3"
+
+[[bindings]]
+doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
+target = "src/collections/BuiltInPages/index.ts"
+sig = "f99d16de5ee59342"
+
+[[bindings]]
+doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
+target = "src/collections/Navigations/index.tsx"
+sig = "7c11051944f82644"
+
+[[bindings]]
+doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
+target = "src/collections/Tenants/endpoints/provisionTenant.ts"
+sig = "22a227eec96485e6"
+
+[[bindings]]
+doc = "docs/doc-drift.md"
+target = "scripts/drift-check.mjs"
+sig = "1109f2020067761a"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "next.config.js"
+sig = "3fd5fe0f09863f05"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "sentry-base-config.ts"
+sig = "07d1e99ca58658fd"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "src/instrumentation-client.ts"
+sig = "e5b929ccb285db09"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "src/instrumentation.ts"
+sig = "60bbd2c2347a4abd"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "src/plugins/index.ts"
+sig = "d7604222dbe3baf9"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "src/posthog.ts"
+sig = "982bf16b0b4e8dae"
+
+[[bindings]]
+doc = "docs/error-tracking.md"
+target = "src/providers/PostHogProvider.tsx"
+sig = "e3dde955e6e1147b"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/app/(frontend)/[center]/events/page.tsx"
+sig = "05fc3e50378fced9"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/blocks/EventList/config.ts"
+sig = "b2a77f5589152ab4"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/blocks/EventTable/config.ts"
+sig = "42518ac26ff407a6"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/blocks/SingleEvent/config.ts"
+sig = "9fea7eae9c72b62e"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/collections/Courses/index.ts"
+sig = "8f627ebd719644dc"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/collections/EventGroups/index.ts"
+sig = "0e45aba25d0422f8"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/collections/EventTags/index.ts"
+sig = "9a76604864fb2062"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/collections/Events/index.ts"
+sig = "49b0e5c608c241e5"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/collections/Providers/index.ts"
+sig = "ef162015be100d91"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/utilities/queries/getCourses.ts"
+sig = "3ca1fb7994f74406"
+
+[[bindings]]
+doc = "docs/events-and-courses.md"
+target = "src/utilities/queries/getEvents.ts"
+sig = "cdbcb90cb1c106cf"
+
+[[bindings]]
+doc = "docs/mcp-server.md"
+target = "src/plugins/index.ts"
+sig = "d7604222dbe3baf9"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = ".husky/check-migrations"
+sig = "f3230eac010baa8c"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/migrations/index.ts"
+sig = "cb69e6610b10d518"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/scripts/analyze-migration-diff.ts"
+sig = "d4ffb46dc41c80e0"
+
+[[bindings]]
+doc = "docs/migration-safety.md"
+target = "src/scripts/check-migrations.ts"
+sig = "a4824faf89f4051e"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "next.config.js"
+sig = "3fd5fe0f09863f05"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/app/(frontend)/colors.css"
+sig = "456dbff677ffff49"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/app/api/[center]/og/centerColorMap.ts"
+sig = "79343386aa4a9ca1"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/collections/Tenants/endpoints/provisionTenant.ts"
+sig = "22a227eec96485e6"
+
+[[bindings]]
+doc = "docs/onboarding.md"
+target = "src/utilities/tenancy/avalancheCenters.ts"
+sig = "3bf6823a594d39d3"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/collections/Biographies/hooks/revalidateBiography.ts"
+sig = "b920b03ac8fd82e9"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/collections/HomePages/hooks/revalidateHomePage.ts"
+sig = "0c9912ade9c804eb"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/collections/Media/hooks/revalidateMedia.ts"
+sig = "2f208868c49a8afc"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/collections/Pages/hooks/revalidatePage.ts"
+sig = "2a005752996b0bbd"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/collections/Posts/hooks/revalidatePost.ts"
+sig = "451f20e9ac806646"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/collections/Teams/hooks/revalidateTeam.ts"
+sig = "409cffc372032d25"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/globals/NACWidgetsConfig/hooks/revalidateWidgetPages.ts"
+sig = "e67c282176cb5fe1"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/hooks/populateDocumentReferences.ts"
+sig = "d9898d506a06cf2e"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/utilities/extractDocumentReferences.ts"
+sig = "4ac8868f8d8d2ba3"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/utilities/findDocumentsWithReferences.ts"
+sig = "8d4561becad4d144"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/utilities/revalidateDocument.ts"
+sig = "816b1013b6920bb7"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/utilities/revalidateDocumentReferences.ts"
+sig = "4b37baed692be3f7"
+
+[[bindings]]
+doc = "docs/tenant-selector.md"
+target = "src/components/TenantSelector/TenantSelector.client.tsx"
+sig = "137305aca7bd5690"
+
+[[bindings]]
+doc = "docs/tenant-selector.md"
+target = "src/components/TenantSelector/TenantSelector.tsx"
+sig = "38da8de40ecd8ddd"
+
+[[bindings]]
+doc = "docs/tenant-selector.md"
+target = "src/fields/tenantField/TenantFieldComponent.tsx"
+sig = "d4e3fea6b8f97f84"
+
+[[bindings]]
+doc = "docs/tenant-selector.md"
+target = "src/providers/TenantProvider.tsx"
+sig = "16affc66f41d0d61"
+
+[[bindings]]
+doc = "docs/tenant-selector.md"
+target = "src/utilities/tenancy/getTenantFromCookie.ts"
+sig = "4fc2ad0bd4509765"
+
+[[bindings]]
+doc = "docs/testing.md"
+target = ".env.example"
+sig = "1f83179d9438d2e7"
+
+[[bindings]]
+doc = "docs/testing.md"
+target = "__tests__/e2e/auth.setup.ts"
+sig = "80cab69361ad7361"
+
+[[bindings]]
+doc = "docs/testing.md"
+target = "__tests__/e2e/fixtures/auth.fixture.ts"
+sig = "45315941c7a81fa9"
+
+[[bindings]]
+doc = "docs/testing.md"
+target = "__tests__/e2e/fixtures/tenant-selector.fixture.ts"
+sig = "f2df6c806063ff53"
+
+[[bindings]]
+doc = "docs/testing.md"
+target = "__tests__/e2e/fixtures/test-users.ts"
+sig = "9273f68aefc8cf17"
+
+[[bindings]]
+doc = "docs/testing.md"
+target = "jest.config.mjs"
+sig = "b1d9736649cf9b6a"
+
+[[bindings]]
+doc = "docs/troubleshooting.md"
+target = "src/middleware.ts"
+sig = "ff301eba57dc04e2"

@@ -10,7 +10,7 @@ Status: accepted
 
 ## Reasons for this change:
 
-- Our RBAC implementation doesn't align with how Payload's multi-tenancy plugin was intended to be used (see see [RBAC decision doc](./decisions/004-rbac.md) for details)
+- Our RBAC implementation doesn't align with how Payload's multi-tenancy plugin was intended to be used (see [RBAC decision doc](./004-rbac.md) for details)
 - The plugin updates after version 3.48.0 were blocking us, preventing us from upgrading Payload. Moving to local components removes this dependency.
 
 ## Implementation notes:
