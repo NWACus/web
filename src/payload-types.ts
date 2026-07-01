@@ -1270,10 +1270,6 @@ export interface GalleryBlock {
   layout: 'grid' | 'masonry';
   columns: '2' | '3' | '4';
   /**
-   * Optional heading shown above the gallery.
-   */
-  heading?: string | null;
-  /**
    * Optional rich text shown above the gallery. Supports links.
    */
   description?: {
@@ -3598,7 +3594,6 @@ export interface GalleryBlockSelect<T extends boolean = true> {
   gallery?: T;
   layout?: T;
   columns?: T;
-  heading?: T;
   description?: T;
   id?: T;
   blockName?: T;

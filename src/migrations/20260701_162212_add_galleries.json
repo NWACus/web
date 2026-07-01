@@ -1088,13 +1088,6 @@
           "autoincrement": false,
           "default": "'4'"
         },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "description": {
           "name": "description",
           "type": "text",
@@ -4109,13 +4102,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'4'"
-        },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "description": {
           "name": "description",
@@ -7178,13 +7164,6 @@
           "autoincrement": false,
           "default": "'4'"
         },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "description": {
           "name": "description",
           "type": "text",
@@ -10069,13 +10048,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'4'"
-        },
-        "heading": {
-          "name": "heading",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "description": {
           "name": "description",
@@ -26776,6 +26748,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "5373fb37-ab09-40c6-96ea-7fed34ea6278",
+  "id": "79b0acfa-6f4a-40a2-8799-bea2283e56ec",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

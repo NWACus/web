@@ -6,8 +6,8 @@ export const GalleryBlock: Block = {
   interfaceName: 'GalleryBlock',
   imageURL: '/thumbnail/GalleryThumbnail.jpg',
   labels: {
-    singular: 'Gallery',
-    plural: 'Galleries',
+    singular: 'Media Gallery',
+    plural: 'Media Galleries',
   },
   fields: [
     {
@@ -43,14 +43,6 @@ export const GalleryBlock: Block = {
           ],
         },
       ],
-    },
-    {
-      name: 'heading',
-      type: 'text',
-      required: false,
-      admin: {
-        description: 'Optional heading shown above the gallery.',
-      },
     },
     {
       name: 'description',

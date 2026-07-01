@@ -27,7 +27,6 @@ export const DEFAULT_BLOCKS = [
   SingleEventBlock,
   EventTableBlock,
   FormBlock,
-  GalleryBlock,
   GenericEmbedBlock,
   FormEmbedBlock,
   VideoEmbedBlock,
@@ -36,6 +35,7 @@ export const DEFAULT_BLOCKS = [
   ImageTextBlock,
   LinkPreviewBlock,
   MediaBlock,
+  GalleryBlock,
   SponsorsBlock,
   TeamBlock,
 ]

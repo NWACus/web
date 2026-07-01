@@ -5,5 +5,4 @@ export const galleryBlock = (galleryId: number): GalleryBlock => ({
   gallery: galleryId,
   layout: 'masonry',
   columns: '3',
-  heading: 'Season Highlights',
 })

@@ -6,7 +6,6 @@ import { isRenderableItem } from './shared'
 
 export const GalleryBlockComponent = ({
   gallery,
-  heading,
   description,
   layout,
   columns,
@@ -22,7 +21,6 @@ export const GalleryBlockComponent = ({
 
   return (
     <div className="container py-10">
-      {heading && <h2 className="text-3xl font-semi-bold">{heading}</h2>}
       {description && (
         <div className="mt-2 mb-6">
           <RichText data={description} enableGutter={false} />

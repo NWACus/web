@@ -53,7 +53,7 @@ import * as migration_20260505_045158_convert_auto_nav_items from './20260505_04
 import * as migration_20260505_045200_backfill_nav_builtin_pages from './20260505_045200_backfill_nav_builtin_pages'
 import * as migration_20260612_185209_split_generic_embed_blocks from './20260612_185209_split_generic_embed_blocks'
 import * as migration_20260617_215604_add_announcements from './20260617_215604_add_announcements'
-import * as migration_20260622_172114_add_galleries from './20260622_172114_add_galleries'
+import * as migration_20260701_162212_add_galleries from './20260701_162212_add_galleries'
 
 export const migrations = [
   {
@@ -332,8 +332,8 @@ export const migrations = [
     name: '20260617_215604_add_announcements',
   },
   {
-    up: migration_20260622_172114_add_galleries.up,
-    down: migration_20260622_172114_add_galleries.down,
-    name: '20260622_172114_add_galleries',
+    up: migration_20260701_162212_add_galleries.up,
+    down: migration_20260701_162212_add_galleries.down,
+    name: '20260701_162212_add_galleries',
   },
 ]
