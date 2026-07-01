@@ -15,11 +15,13 @@ import {
   type Weather,
 } from '@/services/nac/model/forecast'
 import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
+import { AvalancheCenterType } from '@/services/nac/types/schemas'
 
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
 import { DangerRating } from './DangerRating'
 import { ForecastDatePicker } from './ForecastDatePicker.client'
+import { ForecastDisclaimer } from './ForecastDisclaimer'
 import { ForecastDiscussion } from './ForecastDiscussion'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
@@ -45,6 +47,8 @@ interface NativeForecastViewProps {
   selectedDate: string | null
   /** Tenant-relative zone base path, e.g. `/forecasts/avalanche/west-slopes-north`. */
   basePath: string
+  /** Avalanche center type, for the scope disclaimer's provider wording (USFS vs center name). */
+  centerType: AvalancheCenterType
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
 }
@@ -78,18 +82,20 @@ export function NativeForecastView({
   currentDate,
   selectedDate,
   basePath,
+  centerType,
   weather,
 }: NativeForecastViewProps) {
   const isForecast = forecastResult.product_type === ProductType.Forecast
 
   return (
     <div className="container space-y-6 py-6">
-      {/* Page header: zone name. The "Avalanche Forecast" subtitle is only shown for
-          forecast products; summary products carry their own title in the discussion
-          (e.g. NWAC's "Spring Statement"), so we don't impose a label. */}
+      {/* Page header: zone name + the product-type subtitle, matching the afp product titles
+          ("Backcountry Avalanche Forecast" / "General Avalanche Information"). */}
       <header className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{zone.zone.name}</h1>
-        {isForecast && <p className="text-muted-foreground">Avalanche Forecast</p>}
+        <p className="text-muted-foreground">
+          {isForecast ? 'Backcountry Avalanche Forecast' : 'General Avalanche Information'}
+        </p>
       </header>
 
       {/* Date picker — browse this zone's published forecast history, colored by danger. */}
@@ -108,7 +114,7 @@ export function NativeForecastView({
 
       {/* Warning banner */}
       <ForecastErrorBoundary fallbackMessage="Unable to display warning information">
-        <WarningBanner warning={warning} />
+        <WarningBanner warning={warning} timezone={timezone} />
       </ForecastErrorBoundary>
 
       {/* Validity-date banner: archived on a dated view, expired on the live view */}
@@ -181,6 +187,12 @@ export function NativeForecastView({
           <ForecastMediaThumbnails media={forecastResult.media} />
         </ForecastErrorBoundary>
       )}
+
+      {/* Scope disclaimer — safety/scope language shown under every afp product */}
+      <ForecastDisclaimer
+        centerType={centerType}
+        centerName={forecastResult.avalanche_center.name}
+      />
     </div>
   )
 }
