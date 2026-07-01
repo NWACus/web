@@ -8,11 +8,18 @@
  * vs 404 on miss, datetime offset formatting, etc.) are handled in a sibling v3 mapper that
  * targets the same model, with no change to consumers.
  */
-import type { Forecast, ForecastResult, Summary, WarningProduct } from '../../model/forecast'
+import type {
+  Forecast,
+  ForecastResult,
+  Summary,
+  WarningProduct,
+  Weather,
+} from '../../model/forecast'
 import { ProductType } from '../../model/forecast'
 import type {
   ForecastResult as V2ForecastResult,
   WarningResult as V2WarningResult,
+  Weather as V2Weather,
 } from '../../types/forecastSchemas'
 
 type V2Forecast = Extract<V2ForecastResult, { product_type: ProductType.Forecast }>
@@ -68,6 +75,25 @@ function mapSummary(p: V2Summary): Summary {
 /** Map a v2 forecast/summary product into the normalized model. */
 export function mapV2ForecastResult(wire: V2ForecastResult): ForecastResult {
   return wire.product_type === ProductType.Forecast ? mapForecast(wire) : mapSummary(wire)
+}
+
+/** Map a v2 weather product into the normalized model (structural — the wire shape matches). */
+export function mapV2Weather(p: V2Weather): Weather {
+  return {
+    id: p.id,
+    product_type: p.product_type,
+    status: p.status,
+    author: p.author,
+    published_time: p.published_time,
+    created_at: p.created_at,
+    updated_at: p.updated_at,
+    announcement: p.announcement,
+    danger_level_text: p.danger_level_text,
+    weather_discussion: p.weather_discussion,
+    weather_data: p.weather_data,
+    avalanche_center: p.avalanche_center,
+    forecast_zone: p.forecast_zone,
+  }
 }
 
 function mapWarningProduct(p: V2WarningProduct): WarningProduct {
