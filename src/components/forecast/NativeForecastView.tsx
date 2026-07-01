@@ -174,7 +174,7 @@ export function NativeForecastView({
         </ForecastErrorBoundary>
       )}
 
-      {/* Weather summary — the separately-issued mountain-weather product, inline (live page only) */}
+      {/* Mountain weather — the separately-issued weather product, inline, when one is available */}
       {weather && (
         <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
           <WeatherSummary weather={weather} zoneName={zone.zone.name} timezone={timezone} />
