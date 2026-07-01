@@ -443,7 +443,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "61a959258953543a"
+sig = "ca4bd66e7929ccde"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
