@@ -46,8 +46,9 @@ export function DangerRating({
         <CardTitle>Avalanche Danger</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Side-by-side day columns on the dated view; stacked on the compact card and at <=375px. */}
-        <div className={cn('flex flex-col gap-6', dated && 'min-[376px]:flex-row')}>
+        {/* Side-by-side day columns from lg (two full danger displays need the width); stacked
+            below that and on the compact all-zones card. */}
+        <div className={cn('flex flex-col gap-6', dated && 'lg:flex-row')}>
           {today && (
             <DangerDay
               heading={todayHeading}
@@ -79,16 +80,17 @@ interface DangerDayProps {
 
 function DangerDay({ heading, forecast, elevationBandNames }: DangerDayProps) {
   return (
-    <div className="flex-1 space-y-3">
+    <div className="min-w-0 flex-1 space-y-3">
       <h4 className="text-sm font-semibold">{heading}</h4>
       <div className="flex items-start gap-4">
+        {/* The triangle is redundant with the colored bars; hide it on mobile to reclaim width. */}
         <DangerTriangle
           upper={forecast.upper}
           middle={forecast.middle}
           lower={forecast.lower}
-          className="h-32 w-auto shrink-0"
+          className="hidden h-32 w-auto shrink-0 sm:block"
         />
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <DangerElevationBand label={elevationBandNames.upper} level={forecast.upper} />
           <DangerElevationBand label={elevationBandNames.middle} level={forecast.middle} />
           <DangerElevationBand label={elevationBandNames.lower} level={forecast.lower} />
