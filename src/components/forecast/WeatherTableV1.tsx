@@ -12,7 +12,7 @@ import { WeatherInfoHint } from './WeatherInfoHint'
 /** Static help for the well-known inline fields (hardcoded in the legacy widget). */
 const FIELD_HELP: Record<string, string> = {
   'Ridgeline Wind Speed':
-    'Ridgetop Wind Speed. CALM — no air motion. LIGHT — light to gentle breeze; flags and twigs in motion. MODERATE — fresh breeze; small trees sway, snow begins to drift. STRONG — strong breeze; whole trees in motion. EXTREME — gale force or higher.',
+    'Ridgetop Wind Speed. CALM - No air motion. Smoke rises vertically. LIGHT - Light to gentle breeze, flags and twigs in motion. MODERATE - Fresh breeze. Small trees sway. Flags stretched. Snow begins to drift. STRONG - Strong breeze. Whole trees in motion. EXTREME - Gale force or higher.',
   Snowfall:
     'Snowfall. Values are estimates from middle and upper elevation. 24hr — snow total from yesterday morning through this morning. 12hr — snow total from last night through this morning.',
   'Snow Water Equivalent':
