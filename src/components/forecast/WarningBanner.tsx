@@ -3,13 +3,17 @@
  * Uses <details>/<summary> — no client JS needed.
  */
 import { ProductType, type WarningProduct } from '@/services/nac/model/forecast'
+import { formatDateTime } from '@/utilities/formatDateTime'
 import { cn } from '@/utilities/ui'
 
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface WarningBannerProps {
   warning: WarningProduct | null
+  timezone: string | null | undefined
 }
+
+const DATE_FORMAT = "EEEE, MMMM d, yyyy 'at' h:mm a zzz"
 
 function bannerStyles(productType: ProductType): { bg: string; border: string; text: string } {
   switch (productType) {
@@ -40,24 +44,27 @@ function bannerStyles(productType: ProductType): { bg: string; border: string; t
   }
 }
 
+// Matches the legacy afp warnings widget ("Avalanche Warning in Effect", etc.).
 function productLabel(productType: ProductType): string {
   switch (productType) {
     case ProductType.Warning:
-      return 'Avalanche Warning'
+      return 'Avalanche Warning in Effect'
     case ProductType.Watch:
-      return 'Avalanche Watch'
+      return 'Avalanche Watch in Effect'
     case ProductType.Special:
-      return 'Special Bulletin'
+      return 'Special Avalanche Bulletin in Effect'
     default:
-      return 'Avalanche Alert'
+      return 'Avalanche Warning in Effect'
   }
 }
 
-export function WarningBanner({ warning }: WarningBannerProps) {
+export function WarningBanner({ warning, timezone }: WarningBannerProps) {
   if (!warning) return null
 
   const styles = bannerStyles(warning.product_type)
   const label = productLabel(warning.product_type)
+  const issued = formatDateTime(warning.published_time, timezone, DATE_FORMAT)
+  const expires = formatDateTime(warning.expires_time, timezone, DATE_FORMAT)
 
   return (
     <details className={cn('rounded-lg border', styles.bg, styles.border)}>
@@ -65,6 +72,12 @@ export function WarningBanner({ warning }: WarningBannerProps) {
         ⚠ {label}: {warning.bottom_line}
       </summary>
       <div className={cn('space-y-2 px-4 pb-4 pt-2 text-sm', styles.text)}>
+        <p>
+          <span className="font-medium">Issued:</span> {issued}
+        </p>
+        <p>
+          <span className="font-medium">Expires:</span> {expires}
+        </p>
         {warning.affected_area && (
           <p>
             <span className="font-medium">Affected Area:</span> {warning.affected_area}
