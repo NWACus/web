@@ -38,7 +38,7 @@ export function WeatherSummary({ weather, zoneName, timezone }: WeatherSummaryPr
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Weather Summary</CardTitle>
+        <CardTitle>Mountain Weather</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <ForecastHeader

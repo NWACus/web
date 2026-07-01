@@ -74,6 +74,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
         currentDate={currentDate}
         selectedDate={null}
         basePath={`/forecasts/avalanche/${zoneSlug}`}
+        centerType={metadata.type}
         weather={weather}
       />
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was
