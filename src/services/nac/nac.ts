@@ -56,7 +56,9 @@ export async function nacFetch(path: string, options: Options = {}) {
         : {
             next: {
               revalidate: options?.cachedTime ?? 24 * 60 * 60 * 1000, // hold on to this cached data for a day (in milliseconds)
-              ...(options?.tags && options.tags.length > 0 ? options.tags : []),
+              // Spread as { tags: [...] }; spreading the bare array set numeric keys and never
+              // applied the cache tags (so revalidateTag was a no-op).
+              ...(options?.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
             },
           }),
     })
@@ -273,6 +275,15 @@ export async function getActiveForecastZones(centerSlug: string) {
   return forecastZones
 }
 
+/**
+ * The Next data-cache tag for a zone's current forecast. The revalidate-on-view freshness handler
+ * revalidates this tag when it detects a change, so a router.refresh() re-renders with fresh data
+ * (and the forecast page's route cache is invalidated too). Kept consistent with fetchForecast.
+ */
+export function forecastCacheTag(centerId: string, zoneId: number): string {
+  return `forecast:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
+}
+
 export async function fetchForecast(
   centerId: string,
   zoneId: number,
@@ -282,7 +293,7 @@ export async function fetchForecast(
   try {
     const data = await nacFetch(
       `/v2/public/product?type=forecast&center_id=${centerIdToUse}&zone_id=${zoneId}`,
-      { cachedTime: 300 },
+      { cachedTime: 300, tags: [forecastCacheTag(centerId, zoneId)] },
     )
 
     const parsed = forecastResultSchema.safeParse(data)
@@ -293,6 +304,38 @@ export async function fetchForecast(
     }
 
     return parsed.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The zone's CURRENT forecast fetched fresh from upstream, held only on a short (60s) cache so a
+ * burst of page views shares one upstream request rather than hitting the NAC API per view. Used
+ * only by the revalidate-on-view freshness check to catch corrections/retractions faster than the
+ * page's ISR window. Returns null when none is published or the response doesn't parse.
+ */
+export async function fetchForecastFresh(
+  centerId: string,
+  zoneId: number,
+): Promise<ForecastResult | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  const getCached = unstable_cache(
+    async () => {
+      const data = await nacFetch(
+        `/v2/public/product?type=forecast&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+        { noStore: true },
+      )
+      const parsed = forecastResultSchema.safeParse(data)
+      return parsed.success ? parsed.data : null
+    },
+    ['nac-forecast-fresh', centerIdToUse, String(zoneId)],
+    { revalidate: 60 },
+  )
+
+  try {
+    return await getCached()
   } catch {
     return null
   }
