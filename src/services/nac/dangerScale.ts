@@ -125,6 +125,12 @@ export function dangerLevelLabel(level: DangerLevel): string {
 /** Full North American danger-scale URL the legend links out to. */
 export const DANGER_SCALE_URL = 'https://avalanche.org/avalanche-encyclopedia/danger-scale/'
 
+/**
+ * Explainer for what the elevation bands mean. NWAC-specific for now; when other centers ship
+ * native forecasts this should come from per-center config rather than a hardcoded URL.
+ */
+export const ELEVATION_BANDS_URL = 'https://nwac.us/avalanche-forecasts-elevation-bands/'
+
 /** A row of the North American Public Avalanche Danger Scale, for the legend + its definitions. */
 export interface DangerScaleRow {
   level: DangerLevel
