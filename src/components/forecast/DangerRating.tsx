@@ -10,7 +10,12 @@ import Image from 'next/image'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { validDateHeading } from '@/services/nac/archiveDates'
-import { dangerIconUrl, dangerLevelLabel, dangerName } from '@/services/nac/dangerScale'
+import {
+  dangerIconSize,
+  dangerIconUrl,
+  dangerLevelLabel,
+  dangerName,
+} from '@/services/nac/dangerScale'
 import {
   type AvalancheDangerForecast,
   type DangerLevel,
@@ -105,23 +110,26 @@ function DangerDay({ heading, forecast, elevationBandNames, variant }: DangerDay
       <div className="space-y-3">
         <h4 className="text-sm font-semibold">{heading}</h4>
         <div className="flex flex-col gap-1">
-          {bands.map((band, i) => (
-            <div key={i} className="flex items-center gap-3 rounded bg-muted px-3 py-3">
-              {/* Muted single-line band label (br collapsed) keeps the outlook compact. */}
-              <span
-                className="min-w-0 flex-1 truncate text-xs text-muted-foreground [&_br]:hidden"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
-              />
-              <span className="font-semibold">{dangerLevelLabel(band.level)}</span>
-              <Image
-                src={dangerIconUrl(band.level)}
-                alt={dangerName(band.level)}
-                width={36}
-                height={36}
-                className="shrink-0"
-              />
-            </div>
-          ))}
+          {bands.map((band, i) => {
+            const size = dangerIconSize(band.level)
+            return (
+              <div key={i} className="flex min-h-[64px] items-center gap-3 rounded bg-muted px-3">
+                {/* Muted single-line band label (br collapsed) keeps the outlook compact. */}
+                <span
+                  className="min-w-0 flex-1 truncate text-xs text-muted-foreground [&_br]:hidden"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
+                />
+                <span className="font-semibold">{dangerLevelLabel(band.level)}</span>
+                <Image
+                  src={dangerIconUrl(band.level)}
+                  alt={dangerName(band.level)}
+                  width={size.width}
+                  height={size.height}
+                  className="h-9 w-auto shrink-0"
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
     )
@@ -145,25 +153,28 @@ function DangerDay({ heading, forecast, elevationBandNames, variant }: DangerDay
           className="pointer-events-none absolute left-2 top-0 h-full w-auto"
         />
         <div className="relative flex flex-col gap-1">
-          {bands.map((band, i) => (
-            <div key={i} className="flex min-h-[64px] items-center gap-2 px-2">
-              {/* Elevation labels may contain HTML (e.g. "Upper Elevations <br> 7500-5500ft") */}
-              <span
-                className="max-w-[45%] rounded border bg-background px-2 py-1 text-xs font-semibold leading-tight text-muted-foreground shadow-sm"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
-              />
-              <span className="ml-auto text-base font-bold sm:text-lg">
-                {dangerLevelLabel(band.level)}
-              </span>
-              <Image
-                src={dangerIconUrl(band.level)}
-                alt={dangerName(band.level)}
-                width={44}
-                height={44}
-                className="shrink-0"
-              />
-            </div>
-          ))}
+          {bands.map((band, i) => {
+            const size = dangerIconSize(band.level)
+            return (
+              <div key={i} className="flex min-h-[64px] items-center gap-2 px-2">
+                {/* Elevation labels may contain HTML (e.g. "Upper Elevations <br> 7500-5500ft") */}
+                <span
+                  className="max-w-[45%] rounded border bg-background px-2 py-1 text-xs font-semibold leading-tight text-muted-foreground shadow-sm"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
+                />
+                <span className="ml-auto text-base font-bold sm:text-lg">
+                  {dangerLevelLabel(band.level)}
+                </span>
+                <Image
+                  src={dangerIconUrl(band.level)}
+                  alt={dangerName(band.level)}
+                  width={size.width}
+                  height={size.height}
+                  className="h-11 w-auto shrink-0"
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
