@@ -15,12 +15,14 @@ import { CalloutBlock } from '../Callout/config'
 import { DocumentBlock } from '../Document/config'
 import { EventListBlock } from '../EventList/config'
 import { EventTableBlock } from '../EventTable/config'
+import { FormEmbedBlock } from '../FormEmbed/config'
 import { GenericEmbedBlock } from '../GenericEmbed/config'
 import { HeaderLexicalBlock } from '../Header/config'
 import { MediaBlock } from '../Media/config'
 import { SingleBlogPostBlock } from '../SingleBlogPost/config'
 import { SingleEventBlock } from '../SingleEvent/config'
 import { SponsorsBlock } from '../Sponsors/config'
+import { VideoEmbedBlock } from '../VideoEmbed/config'
 import { healColumnLayout } from './hooks/healColumnLayout'
 
 const validateColumnLayout: SelectFieldValidation = (value, args) => {
@@ -142,6 +144,8 @@ export const ContentBlock: Block = {
                     EventTableBlock,
                     SingleEventBlock,
                     GenericEmbedBlock,
+                    FormEmbedBlock,
+                    VideoEmbedBlock,
                     HeaderLexicalBlock,
                     MediaBlock,
                     SingleBlogPostBlock,
