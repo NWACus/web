@@ -20,7 +20,7 @@ export function ExternalLink({ href, children, className }: ExternalLinkProps) {
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'inline-flex items-center gap-1 underline underline-offset-2 hover:no-underline',
+        'inline-flex items-center gap-1 no-underline underline-offset-2 hover:underline',
         className,
       )}
     >
