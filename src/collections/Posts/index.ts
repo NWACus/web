@@ -13,12 +13,14 @@ import { ButtonBlock } from '@/blocks/Button/config'
 import { DocumentBlock } from '@/blocks/Document/config'
 import { EventListBlock } from '@/blocks/EventList/config'
 import { EventTableBlock } from '@/blocks/EventTable/config'
+import { FormEmbedBlock } from '@/blocks/FormEmbed/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { HeaderLexicalBlock } from '@/blocks/Header/config'
 import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SingleEventBlock } from '@/blocks/SingleEvent/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { VideoEmbedBlock } from '@/blocks/VideoEmbed/config'
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { populateDocumentReferences } from '@/hooks/populateDocumentReferences'
@@ -99,6 +101,8 @@ export const Posts: CollectionConfig<'posts'> = {
                 EventListBlock,
                 EventTableBlock,
                 GenericEmbedBlock,
+                FormEmbedBlock,
+                VideoEmbedBlock,
                 HeaderLexicalBlock,
                 ImageTextBlock,
                 MediaBlock,
