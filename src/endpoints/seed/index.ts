@@ -42,6 +42,7 @@ const collections: CollectionSlug[] = [
   'announcements',
   'settings',
   'biographies',
+  'galleries',
   'homePages',
   'sponsors',
   'media',
@@ -61,7 +62,6 @@ const collections: CollectionSlug[] = [
   'events',
   'eventGroups',
   'eventTags',
-  'galleries',
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
@@ -256,6 +256,7 @@ export const seed = async ({
               'settings',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -287,6 +288,7 @@ export const seed = async ({
               'tags',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -312,6 +314,7 @@ export const seed = async ({
               'tags',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
