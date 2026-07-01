@@ -284,6 +284,15 @@ export function forecastCacheTag(centerId: string, zoneId: number): string {
   return `forecast:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
 }
 
+/**
+ * The Next data-cache tag for a weather product. The freshness handler revalidates this alongside
+ * the forecast when a change is detected, so a forecast-triggered refresh doesn't render fresh
+ * forecast text next to a stale (300s-cached) weather table.
+ */
+export function weatherCacheTag(weatherProductId: number): string {
+  return `weather:${weatherProductId}`
+}
+
 export async function fetchForecast(
   centerId: string,
   zoneId: number,
@@ -464,7 +473,10 @@ export async function fetchProductById(id: number): Promise<ForecastResult | nul
  */
 export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
   try {
-    const data = await nacFetch(`/v2/public/product/${id}`, { cachedTime: 300 })
+    const data = await nacFetch(`/v2/public/product/${id}`, {
+      cachedTime: 300,
+      tags: [weatherCacheTag(id)],
+    })
 
     // v2 returns a 200 null-object (avalanche_center: null, …) when the id is missing or expired.
     // That's "no weather product", not a malformed response, so return null without logging noise.
