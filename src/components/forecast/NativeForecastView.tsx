@@ -113,7 +113,7 @@ export function NativeForecastView({
 
       {/* Validity-date banner: archived on a dated view, expired on the live view */}
       <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
-        <ValidityBanner forecast={forecastResult} timezone={timezone} selectedDate={selectedDate} />
+        <ValidityBanner forecast={forecastResult} selectedDate={selectedDate} basePath={basePath} />
       </ForecastErrorBoundary>
 
       {/* Header: author, issued, expires */}
