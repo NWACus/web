@@ -12,6 +12,7 @@ import {
   type Forecast,
   type ForecastResult,
   type WarningProduct,
+  type Weather,
 } from '@/services/nac/model/forecast'
 import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
 
@@ -25,6 +26,7 @@ import { ForecastHeader } from './ForecastHeader'
 import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
+import { WeatherSummary } from './WeatherSummary'
 
 interface NativeForecastViewProps {
   center: string
@@ -43,6 +45,8 @@ interface NativeForecastViewProps {
   selectedDate: string | null
   /** Tenant-relative zone base path, e.g. `/forecasts/avalanche/west-slopes-north`. */
   basePath: string
+  /** The separately-issued weather product, when one is available (live page only). */
+  weather?: Weather | null
 }
 
 /** All danger levels ordered low to high for safe lookup by numeric value. */
@@ -74,6 +78,7 @@ export function NativeForecastView({
   currentDate,
   selectedDate,
   basePath,
+  weather,
 }: NativeForecastViewProps) {
   const isForecast = forecastResult.product_type === ProductType.Forecast
 
@@ -160,6 +165,13 @@ export function NativeForecastView({
       {forecastResult.hazard_discussion && (
         <ForecastErrorBoundary fallbackMessage="Unable to display forecast discussion">
           <ForecastDiscussion html={forecastResult.hazard_discussion} />
+        </ForecastErrorBoundary>
+      )}
+
+      {/* Weather summary — the separately-issued mountain-weather product, inline (live page only) */}
+      {weather && (
+        <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
+          <WeatherSummary weather={weather} zoneName={zone.zone.name} timezone={timezone} />
         </ForecastErrorBoundary>
       )}
 
