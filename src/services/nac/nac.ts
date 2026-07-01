@@ -423,6 +423,12 @@ export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
   try {
     const data = await nacFetch(`/v2/public/product/${id}`, { cachedTime: 300 })
 
+    // v2 returns a 200 null-object (avalanche_center: null, …) when the id is missing or expired.
+    // That's "no weather product", not a malformed response, so return null without logging noise.
+    if (data && typeof data === 'object' && data.avalanche_center === null) {
+      return null
+    }
+
     const parsed = weatherSchema.safeParse(data)
     if (!parsed.success) {
       const payload = await getPayload({ config })
