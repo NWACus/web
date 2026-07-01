@@ -64,6 +64,7 @@ import { EmbedGenerator as EmbedGenerator_1b7ef53264c103176ad65c34c5002f79 } fro
 import { GettingStartedWidget as GettingStartedWidget_71651c7371b649fc7904c7f1624b31dd } from '@/components/dashboard-widgets/GettingStartedWidget'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
+/** @type import('payload').ImportMap */
 export const importMap = {
   "@/fields/tenantField/TenantFieldComponent#TenantFieldComponent": TenantFieldComponent_504ac17ee612eaea8fbd999a5bf2d5a6,
   "@/components/ColorPicker#default": default_55a7d1ebef7afeed563b856ae2e2cbf4,
