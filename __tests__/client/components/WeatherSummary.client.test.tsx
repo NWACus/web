@@ -18,7 +18,7 @@ describe('WeatherSummary', () => {
         timezone="America/Los_Angeles"
       />,
     )
-    expect(screen.getByText('Weather Summary')).toBeInTheDocument()
+    expect(screen.getByText('Mountain Weather')).toBeInTheDocument()
     // Zone title cell + a row heading from the columns/rows table.
     expect(screen.getByText('Central Sierra Nevada')).toBeInTheDocument()
     expect(screen.getByText('Ridgetop Winds')).toBeInTheDocument()
