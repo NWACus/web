@@ -22,6 +22,7 @@ export enum ProductType {
   Watch = 'watch',
   Summary = 'summary',
   Special = 'special',
+  Weather = 'weather',
 }
 
 export enum ProductStatus {
@@ -321,6 +322,78 @@ export const forecastResultSchema = z.discriminatedUnion('product_type', [
   summarySchema,
 ])
 export type ForecastResult = z.infer<typeof forecastResultSchema>
+
+// ─── Weather product schemas ────────────────────────────────────────────────
+// The weather product is issued separately from the forecast and pointed to by
+// forecast.weather_data.weather_product_id. Its own weather_data is an array of per-zone tables
+// in one of two shapes, chosen by shape detection on a `periods` key. Ported verbatim from
+// avy/types/nationalAvalancheCenter/schemas.ts.
+
+export const weatherPeriodLabelSchema = z.object({
+  colspan: z.number().optional(),
+  heading: z.string(),
+  subheading: z.string().optional(),
+  width: z.number(),
+})
+export type WeatherPeriodLabel = z.infer<typeof weatherPeriodLabelSchema>
+
+export const weatherDataLabelSchema = z.object({
+  field: z.string().nullable(),
+  heading: z.string(),
+  help: z.string().nullable().optional(), // inline HTML here
+  options: z.array(z.string()).nullable(),
+  unit: z.string().nullable(),
+  style: z.string().nullable().optional(),
+})
+export type WeatherDataLabel = z.infer<typeof weatherDataLabelSchema>
+
+export const weatherDatumSchema = z.object({
+  colspan: z.string().or(z.number()).optional(),
+  prefix: z.string().optional(),
+  value: z.string().nullable(),
+})
+export type WeatherDatum = z.infer<typeof weatherDatumSchema>
+
+/** Columns/rows weather table (e.g. sawtoothavalanche .../forecast/1/…/weather). */
+export const rowColumnWeatherDataSchema = z.object({
+  zone_id: z.string(),
+  zone_name: z.string(),
+  columns: z.array(z.array(weatherPeriodLabelSchema)).optional(),
+  rows: z.array(weatherDataLabelSchema).optional(),
+  data: z.array(z.array(weatherDatumSchema)).optional(),
+})
+export type RowColumnWeatherData = z.infer<typeof rowColumnWeatherDataSchema>
+
+/** Inline/periods weather table (e.g. sawtoothavalanche .../forecast/2/…). */
+export const inlineWeatherDataSchema = z.object({
+  zone_id: z.string(),
+  zone_name: z.string(),
+  periods: z.array(z.string()), // inline HTML in these
+  data: z.array(
+    z.object({
+      field: z.string(),
+      unit: z.string(),
+      values: z.array(z.string().or(z.array(z.object({ label: z.string(), value: z.string() })))),
+    }),
+  ),
+})
+export type InlineWeatherData = z.infer<typeof inlineWeatherDataSchema>
+
+export const weatherSchema = forecastSchema
+  .omit({
+    bottom_line: true,
+    expires_time: true,
+    hazard_discussion: true,
+    media: true,
+    danger: true,
+    forecast_avalanche_problems: true,
+  })
+  .extend({
+    product_type: z.literal(ProductType.Weather),
+    weather_data: z.array(rowColumnWeatherDataSchema.or(inlineWeatherDataSchema)),
+    weather_discussion: z.string().optional().nullable(),
+  })
+export type Weather = z.infer<typeof weatherSchema>
 
 // ─── Warning schemas ────────────────────────────────────────────────────────
 

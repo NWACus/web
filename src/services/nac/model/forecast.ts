@@ -39,9 +39,14 @@ export type {
   AvalancheProblem,
   ExternalMediaItem,
   ImageMediaItem,
+  InlineWeatherData,
   MediaItem,
   PhotoMediaItem,
+  RowColumnWeatherData,
   VideoMediaItem,
+  WeatherDataLabel,
+  WeatherDatum,
+  WeatherPeriodLabel,
 } from '../types/forecastSchemas'
 
 import type {
@@ -49,7 +54,9 @@ import type {
   AvalancheDangerForecast,
   AvalancheForecastZoneSummary,
   AvalancheProblem,
+  InlineWeatherData,
   MediaItem,
+  RowColumnWeatherData,
 } from '../types/forecastSchemas'
 import { ProductStatus, ProductType } from '../types/forecastSchemas'
 
@@ -93,6 +100,27 @@ export interface Summary
 
 /** The product served on a zone's current/dated forecast view. */
 export type ForecastResult = Forecast | Summary
+
+/**
+ * A mountain-weather product, issued separately from the forecast and pointed to by
+ * `Forecast.weather_data.weather_product_id`. Its `weather_data` is an array of per-zone tables,
+ * each in one of two shapes (columns/rows or inline/periods) detected by a `periods` key.
+ */
+export interface Weather {
+  id: number
+  product_type: ProductType.Weather
+  status: ProductStatus
+  author: string | null
+  published_time: string
+  created_at: string
+  updated_at: string | null
+  announcement?: string | null
+  danger_level_text?: string | null
+  weather_discussion?: string | null
+  weather_data: (RowColumnWeatherData | InlineWeatherData)[]
+  avalanche_center: AvalancheCenterMetadata
+  forecast_zone: AvalancheForecastZoneSummary[]
+}
 
 /** An active avalanche warning. */
 export interface Warning {
