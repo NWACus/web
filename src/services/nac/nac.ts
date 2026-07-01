@@ -7,8 +7,10 @@ import type { ArchiveProductSummary } from './archiveDates'
 import {
   forecastResultSchema,
   warningResultSchema,
+  weatherSchema,
   type ForecastResult,
   type WarningResult,
+  type Weather,
 } from './types/forecastSchemas'
 import { productListSchema } from './types/productListSchemas'
 import {
@@ -401,6 +403,30 @@ export async function fetchProductById(id: number): Promise<ForecastResult | nul
     if (!parsed.success) {
       const payload = await getPayload({ config })
       payload.logger.error({ err: parsed.error }, 'Failed to parse product-by-id response')
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Fetch a mountain-weather product by id (the id carried on a forecast's
+ * `weather_data.weather_product_id`). Weather is a live product like the forecast, so it uses the
+ * same short 5-minute data cache rather than the immutable archive cache — so repeated views
+ * share one upstream request per window rather than hitting the NAC API per render. Returns null
+ * when the id is missing or the response doesn't parse.
+ */
+export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
+  try {
+    const data = await nacFetch(`/v2/public/product/${id}`, { cachedTime: 300 })
+
+    const parsed = weatherSchema.safeParse(data)
+    if (!parsed.success) {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: parsed.error }, 'Failed to parse weather product response')
       return null
     }
 
