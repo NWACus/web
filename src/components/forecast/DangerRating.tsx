@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { validDateHeading } from '@/services/nac/archiveDates'
 import {
   ELEVATION_BANDS_URL,
+  NO_RATING_ADVICE,
   dangerIconSize,
   dangerIconUrl,
   dangerLevelLabel,
@@ -19,7 +20,7 @@ import {
 } from '@/services/nac/dangerScale'
 import {
   type AvalancheDangerForecast,
-  type DangerLevel,
+  DangerLevel,
   ForecastPeriod,
 } from '@/services/nac/model/forecast'
 import type { ElevationBandNames } from '@/services/nac/types/schemas'
@@ -47,6 +48,13 @@ export function DangerRating({
 }: DangerRatingProps) {
   const today = danger.find((d) => d.valid_day === ForecastPeriod.Current)
   const tomorrow = danger.find((d) => d.valid_day === ForecastPeriod.Tomorrow)
+
+  // No Rating everywhere today → show the legacy explanation pointing to the summary.
+  const todayNoRating =
+    today != null &&
+    today.upper === DangerLevel.None &&
+    today.middle === DangerLevel.None &&
+    today.lower === DangerLevel.None
 
   // The full dated view passes a published time; the compact all-zones card does not.
   const dated = publishedTime != null
@@ -84,6 +92,10 @@ export function DangerRating({
             </div>
           )}
         </div>
+
+        {dated && todayNoRating && (
+          <p className="text-sm text-muted-foreground">{NO_RATING_ADVICE}</p>
+        )}
 
         {dated && (
           <ExternalLink href={ELEVATION_BANDS_URL} className="text-sm text-muted-foreground">

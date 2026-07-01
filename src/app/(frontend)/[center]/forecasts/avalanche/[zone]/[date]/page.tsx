@@ -107,6 +107,7 @@ export default async function Page({ params }: Args) {
       currentDate={currentDate}
       selectedDate={date}
       basePath={`/forecasts/avalanche/${zone}`}
+      centerType={metadata.type}
     />
   )
 }
