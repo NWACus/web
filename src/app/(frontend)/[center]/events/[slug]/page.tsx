@@ -42,7 +42,7 @@ export async function generateStaticParams() {
       payload.logger.error(`got number for event tenant`)
       continue
     }
-    if (event.tenant) {
+    if (event.tenant && event.slug) {
       params.push({ center: event.tenant.slug, slug: event.slug })
     }
   }

@@ -1,6 +1,7 @@
 import { POSTS_LIMIT } from '@/constants/defaults'
 import type { Post } from '@/payload-types'
 import config from '@/payload.config'
+import { publishedFilter } from '@/utilities/publishedFilter'
 import * as Sentry from '@sentry/nextjs'
 import type { Where } from 'payload'
 import { getPayload } from 'payload'
@@ -35,11 +36,7 @@ export async function getPosts(params: GetPostsParams): Promise<GetPostsResult> 
           equals: center,
         },
       },
-      {
-        _status: {
-          equals: 'published',
-        },
-      },
+      publishedFilter(),
     ]
 
     if (tags) {

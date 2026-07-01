@@ -204,11 +204,12 @@ Read these docs for detailed guidance on specific topics:
 - **`/docs/onboarding.md`** - Checklist for new tenant setup
 - **`/docs/troubleshooting.md`** - Common local-dev failures and fixes
 - **`/docs/error-tracking.md`** - Sentry + PostHog setup and wiring
+- **`/docs/doc-drift.md`** - How docs stay bound to code via drift, and how to clear a stale-doc flag
 - **`/docs/decisions/`** - Architectural decision records (see [`/docs/decisions/README.md`](docs/decisions/README.md) for the index)
 
 ## Doc Drift
 
-Docs are bound to the code they describe via `drift.lock`. When bound code changes, drift flags the doc as stale so it gets reviewed. This runs in pre-commit (and should be wired into CI).
+Docs are bound to the code they describe via `drift.lock`. When bound code changes, drift flags the doc as stale so it gets reviewed. This runs in pre-commit (and should be wired into CI). For a human-readable explainer, see [`/docs/doc-drift.md`](docs/doc-drift.md).
 
 - When you **change code** that a doc describes: update the doc, then run `drift link <doc-path> <changed-file> --doc-is-still-accurate`
 - When you **create new code** covered by an existing doc: `drift link <doc-path> <new-file>`
