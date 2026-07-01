@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs live in this repo's GitHub Issues (`NWACus/web`), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `DOMAIN_CONTEXT.md` and `docs/decisions/` at the repo root. See `docs/agents/domain.md`.
+
 ## LLM Documentation References
 
 When working with frameworks in this project, reference the official LLM documentation:
