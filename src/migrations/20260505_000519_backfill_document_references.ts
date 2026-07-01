@@ -11,22 +11,30 @@ const COLLECTIONS = [
 ] as const
 
 /**
- * Backfill the documentReferences field for all existing documents that now have `documentReferences` fields.
- * The populateDocumentReferences beforeChange hook only fires on save, so
- * existing documents need a no-op update to trigger it.
- *
- * If a document has pre-existing invalid data (e.g. a blank required field),
- * the update throws a validation error. Log and skip those documents so the
- * migration doesn't block the entire deploy on one bad record; the skipped
- * doc's documentReferences will populate naturally on its next save.
+ * Backfill documentReferences for existing documents. The populateDocumentReferences
+ * beforeChange hook only fires on save, so each existing doc needs a no-op update.
+ * Docs with pre-existing invalid data are logged and skipped so one bad record can't
+ * block the deploy; their references populate on next save.
  */
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   for (const collection of COLLECTIONS) {
-    const docs = await payload.find({
-      collection,
-      limit: 0,
-      depth: 0,
-    })
+    let docs
+    try {
+      docs = await payload.find({
+        collection,
+        limit: 0,
+        depth: 0,
+      })
+    } catch (err) {
+      // On a fresh DB this find can reference a block table a later migration hasn't
+      // created yet (the Local API queries the current schema). There's nothing to
+      // backfill on an empty DB, so skip — documentReferences populates on next save.
+      payload.logger.warn(
+        { err, collection },
+        `Skipping documentReferences backfill for ${collection} — find failed (likely a fresh database missing block tables added by a later migration).`,
+      )
+      continue
+    }
 
     let succeeded = 0
     let skipped = 0

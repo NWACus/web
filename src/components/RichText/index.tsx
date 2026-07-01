@@ -18,6 +18,7 @@ import { CalloutBlockComponent } from '@/blocks/Callout/Component'
 import { DocumentBlockComponent } from '@/blocks/Document/Component'
 import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
+import { FormEmbedBlockComponent } from '@/blocks/FormEmbed/Component'
 import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageTextBlockComponent } from '@/blocks/ImageText/Component'
@@ -25,6 +26,7 @@ import { InlineMediaComponent } from '@/blocks/InlineMedia/Component'
 import { SingleBlogPostBlockComponent } from '@/blocks/SingleBlogPost/Component'
 import { SingleEventBlockComponent } from '@/blocks/SingleEvent/Component'
 import { SponsorsBlockComponent } from '@/blocks/Sponsors/components'
+import { VideoEmbedBlockComponent } from '@/blocks/VideoEmbed/Component'
 import { LINK_ENABLED_COLLECTIONS } from '@/constants/linkCollections'
 import type {
   BlogListBlock as BlogListBlockProps,
@@ -34,6 +36,7 @@ import type {
   DocumentBlock as DocumentBlockProps,
   EventListBlock as EventListBlockProps,
   EventTableBlock as EventTableBlockProps,
+  FormEmbedBlock as FormEmbedBlockProps,
   GenericEmbedBlock as GenericEmbedBlockProps,
   HeaderBlock as HeaderBlockProps,
   ImageTextBlock as ImageTextBlockProps,
@@ -44,6 +47,7 @@ import type {
   SingleBlogPostBlock as SingleBlogPostBlockProps,
   SingleEventBlock as SingleEventBlockProps,
   SponsorsBlock as SponsorsBlockProps,
+  VideoEmbedBlock as VideoEmbedBlockProps,
 } from '@/payload-types'
 import { handleReferenceURL } from '@/utilities/handleReferenceURL'
 import { cn } from '@/utilities/ui'
@@ -82,6 +86,7 @@ type NodeTypes =
       | DocumentBlockProps
       | EventListBlockProps
       | EventTableBlockProps
+      | FormEmbedBlockProps
       | GenericEmbedBlockProps
       | HeaderBlockProps
       | ImageTextBlockProps
@@ -89,6 +94,7 @@ type NodeTypes =
       | SingleBlogPostBlockProps
       | SingleEventBlockProps
       | SponsorsBlockProps
+      | VideoEmbedBlockProps
     >
   | SerializedInlineBlockNode<InlineMediaBlockProps>
 
@@ -128,6 +134,8 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     genericEmbed: ({ node }) => (
       <GenericEmbedBlockComponent {...node.fields} isLayoutBlock={false} />
     ),
+    formEmbed: ({ node }) => <FormEmbedBlockComponent {...node.fields} isLayoutBlock={false} />,
+    videoEmbed: ({ node }) => <VideoEmbedBlockComponent {...node.fields} isLayoutBlock={false} />,
     headerBlock: ({ node }) => <HeaderBlockComponent {...node.fields} isLayoutBlock={false} />,
     imageText: ({ node }) => <ImageTextBlockComponent {...node.fields} isLayoutBlock={false} />,
     mediaBlock: ({ node }) => (
