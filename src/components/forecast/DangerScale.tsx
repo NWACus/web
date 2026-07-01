@@ -3,6 +3,7 @@
  * strip ("{level} - {Name}") with an expandable table of travel advice / likelihood / size and
  * distribution per level, plus a link out to the full danger-scale explainer.
  */
+import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 
 import {
@@ -14,6 +15,7 @@ import {
   dangerScaleRows,
 } from '@/services/nac/dangerScale'
 
+import { ExternalLink } from './ExternalLink'
 import { sanitizeHtml } from './sanitizeHtml'
 
 export function DangerScale() {
@@ -21,14 +23,7 @@ export function DangerScale() {
     <div className="space-y-2 text-sm">
       <div className="flex items-center justify-between">
         <h4 className="font-semibold">Danger Scale</h4>
-        <a
-          href={DANGER_SCALE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm underline hover:no-underline"
-        >
-          Learn more
-        </a>
+        <ExternalLink href={DANGER_SCALE_URL}>Learn more</ExternalLink>
       </div>
 
       {/* Color strip: levels 1–5, each capped by its danger color. */}
@@ -44,12 +39,16 @@ export function DangerScale() {
         ))}
       </div>
 
-      {/* Expandable definitions table (horizontally scrollable on narrow screens). */}
-      <details className="rounded-md border">
-        <summary className="cursor-pointer select-none px-3 py-2 font-medium">
+      {/* Expandable definitions — a subtle inline toggle rather than a bordered card. */}
+      <details className="group">
+        <summary className="flex w-fit cursor-pointer select-none list-none items-center gap-1 py-1 text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
+          <ChevronRight
+            className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90"
+            aria-hidden="true"
+          />
           Danger scale definitions
         </summary>
-        <div className="overflow-x-auto px-3 pb-3">
+        <div className="overflow-x-auto pt-2">
           <table className="w-full min-w-[640px] border-collapse text-xs">
             <thead>
               <tr>
