@@ -46,7 +46,6 @@ import * as migration_20260128_213937_rename_appearance_to_variant from './20260
 import * as migration_20260131_012456_remove_wrap_in_container from './20260131_012456_remove_wrap_in_container'
 import * as migration_20260303_233752_remove_custom_domain_from_tenants from './20260303_233752_remove_custom_domain_from_tenants'
 import * as migration_20260319_152951_add_text_wrap_to_image_text_block from './20260319_152951_add_text_wrap_to_image_text_block'
-import * as migration_20260401_193304_add_use_native_forecasts_to_settings from './20260401_193304_add_use_native_forecasts_to_settings'
 import * as migration_20260403_204010_mcp_server from './20260403_204010_mcp_server'
 import * as migration_20260504_235946_revalidation_fields_and_widgets_dev_mode from './20260504_235946_revalidation_fields_and_widgets_dev_mode'
 import * as migration_20260505_000519_backfill_document_references from './20260505_000519_backfill_document_references'
@@ -54,8 +53,8 @@ import * as migration_20260505_045158_convert_auto_nav_items from './20260505_04
 import * as migration_20260505_045200_backfill_nav_builtin_pages from './20260505_045200_backfill_nav_builtin_pages'
 import * as migration_20260612_185209_split_generic_embed_blocks from './20260612_185209_split_generic_embed_blocks'
 import * as migration_20260617_215604_add_announcements from './20260617_215604_add_announcements'
-import * as migration_20260622_223300_native_products_flag from './20260622_223300_native_products_flag'
 import * as migration_20260701_162212_add_galleries from './20260701_162212_add_galleries'
+import * as migration_20260701_224854_native_products_flags from './20260701_224854_native_products_flags'
 
 export const migrations = [
   {
@@ -299,11 +298,6 @@ export const migrations = [
     name: '20260319_152951_add_text_wrap_to_image_text_block',
   },
   {
-    up: migration_20260401_193304_add_use_native_forecasts_to_settings.up,
-    down: migration_20260401_193304_add_use_native_forecasts_to_settings.down,
-    name: '20260401_193304_add_use_native_forecasts_to_settings',
-  },
-  {
     up: migration_20260403_204010_mcp_server.up,
     down: migration_20260403_204010_mcp_server.down,
     name: '20260403_204010_mcp_server',
@@ -339,13 +333,13 @@ export const migrations = [
     name: '20260617_215604_add_announcements',
   },
   {
-    up: migration_20260622_223300_native_products_flag.up,
-    down: migration_20260622_223300_native_products_flag.down,
-    name: '20260622_223300_native_products_flag',
-  },
-  {
     up: migration_20260701_162212_add_galleries.up,
     down: migration_20260701_162212_add_galleries.down,
     name: '20260701_162212_add_galleries',
+  },
+  {
+    up: migration_20260701_224854_native_products_flags.up,
+    down: migration_20260701_224854_native_products_flags.down,
+    name: '20260701_224854_native_products_flags',
   },
 ]
