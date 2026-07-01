@@ -11,7 +11,7 @@ import {
 } from '@/services/nac/archiveDates'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { getForecastSource, getWarningSource } from '@/services/nac/sources'
+import { getForecastSource, getWarningSource, getWeatherSource } from '@/services/nac/sources'
 
 import { NativeForecastView } from './NativeForecastView'
 
@@ -49,7 +49,14 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   // that month — so that's the window we must pre-load, or it renders empty until paged.
   const currentDate = validDateForProduct(forecastResult.published_time, metadata.timezone)
   const window = initialArchiveWindow(currentDate)
-  const archive = await fetchProductArchive(centerSlug, window)
+
+  // The mountain-weather product is a separate product the forecast points to; fetch it (in
+  // parallel with the archive) only when the forecast carries a weather_product_id.
+  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
+  const [archive, weather] = await Promise.all([
+    fetchProductArchive(centerSlug, window),
+    weatherProductId ? getWeatherSource(centerSlug).getWeather(weatherProductId) : null,
+  ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 
   return (
@@ -64,6 +71,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       currentDate={currentDate}
       selectedDate={null}
       basePath={`/forecasts/avalanche/${zoneSlug}`}
+      weather={weather}
     />
   )
 }
