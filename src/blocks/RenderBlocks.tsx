@@ -10,6 +10,7 @@ import { EventListBlockComponent } from '@/blocks/EventList/Component'
 import { EventTableBlockComponent } from '@/blocks/EventTable/Component'
 import { FormBlockComponent } from '@/blocks/Form/Component'
 import { FormEmbedBlockComponent } from '@/blocks/FormEmbed/Component'
+import { GalleryBlockComponent } from '@/blocks/Gallery/Component'
 import { GenericEmbedBlockComponent } from '@/blocks/GenericEmbed/Component'
 import { HeaderBlockComponent } from '@/blocks/Header/Component'
 import { ImageLinkGridBlockComponent } from '@/blocks/ImageLinkGrid/Component'
@@ -65,6 +66,8 @@ export const RenderBlock = ({ block }: { block: Page['layout'][0] }) => {
       return <GenericEmbedBlockComponent {...block} isLayoutBlock={true} />
     case 'formEmbed':
       return <FormEmbedBlockComponent {...block} isLayoutBlock={true} />
+    case 'gallery':
+      return <GalleryBlockComponent {...block} />
     case 'videoEmbed':
       return <VideoEmbedBlockComponent {...block} isLayoutBlock={true} />
     case 'headerBlock':
