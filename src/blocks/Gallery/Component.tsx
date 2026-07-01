@@ -2,6 +2,7 @@ import RichText from '@/components/RichText'
 import type { GalleryBlock as GalleryBlockProps } from '@/payload-types'
 import { isValidRelationship } from '@/utilities/relationships'
 import { GalleryGrid } from './GalleryGrid'
+import { isRenderableItem } from './shared'
 
 export const GalleryBlockComponent = ({
   gallery,
@@ -14,7 +15,7 @@ export const GalleryBlockComponent = ({
     return null
   }
 
-  const items = gallery.items ?? []
+  const items = (gallery.items ?? []).filter(isRenderableItem)
   if (items.length === 0) {
     return null
   }

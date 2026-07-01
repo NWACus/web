@@ -97,3 +97,22 @@ describe('GalleryGrid', () => {
     expect(iframe.getAttribute('src')).toContain('autoplay=1')
   })
 })
+
+describe('GalleryGrid — deleted media', () => {
+  it('drops upload items whose media was deleted (null) or is unresolved (id), rendering no space for them', () => {
+    render(
+      <GalleryGrid
+        layout="grid"
+        columns="4"
+        items={[
+          { id: 'ok', type: 'upload', media: imageResource, caption: 'Kept' },
+          { id: 'deleted', type: 'upload', media: null, caption: 'Deleted media' },
+          { id: 'unresolved', type: 'upload', media: 999, caption: 'Unresolved id' },
+        ]}
+      />,
+    )
+    // Only the item with valid, resolved media renders a trigger — no empty slots.
+    expect(screen.getAllByRole('button')).toHaveLength(1)
+    expect(screen.getByRole('button', { name: 'Kept' })).toBeInTheDocument()
+  })
+})

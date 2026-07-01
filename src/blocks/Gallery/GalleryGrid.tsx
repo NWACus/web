@@ -8,7 +8,7 @@ import { getVideoThumbnail, parseVideoUrl, videoProviderLabels } from '@/utiliti
 import { Play } from 'lucide-react'
 import { useState } from 'react'
 import { GalleryLightbox } from './GalleryLightbox'
-import { isVideoResource, type GalleryItem } from './shared'
+import { isRenderableItem, isVideoResource, type GalleryItem } from './shared'
 
 type Props = {
   items: GalleryItem[]
@@ -45,6 +45,10 @@ const PlayOverlay = () => (
 export const GalleryGrid = ({ items, layout, columns }: Props) => {
   const [open, setOpen] = useState(false)
   const [openIndex, setOpenIndex] = useState(0)
+
+  // Drop items whose upload media was deleted so the grid and lightbox stay in
+  // sync and don't render an empty slot for a missing image.
+  const renderableItems = items.filter(isRenderableItem)
 
   const openAt = (index: number) => {
     setOpenIndex(index)
@@ -135,7 +139,7 @@ export const GalleryGrid = ({ items, layout, columns }: Props) => {
   return (
     <>
       <div className={containerClass}>
-        {items.map((item, index) => (
+        {renderableItems.map((item, index) => (
           <button
             type="button"
             key={item.id ?? index}
@@ -148,7 +152,12 @@ export const GalleryGrid = ({ items, layout, columns }: Props) => {
         ))}
       </div>
 
-      <GalleryLightbox items={items} open={open} onOpenChange={setOpen} startIndex={openIndex} />
+      <GalleryLightbox
+        items={renderableItems}
+        open={open}
+        onOpenChange={setOpen}
+        startIndex={openIndex}
+      />
     </>
   )
 }
