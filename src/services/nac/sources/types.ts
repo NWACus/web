@@ -11,6 +11,11 @@ import type { ForecastResult, WarningProduct, Weather } from '../model/forecast'
 export interface ForecastSource {
   /** The zone's current forecast/summary, or `null` when none is published. */
   getForecast(centerId: string, zoneId: number): Promise<ForecastResult | null>
+  /**
+   * The zone's current forecast fetched fresh (short-cached), for the revalidate-on-view freshness
+   * check — so a correction/retraction is caught faster than the page's ISR window.
+   */
+  getForecastFresh(centerId: string, zoneId: number): Promise<ForecastResult | null>
 }
 
 export interface WarningSource {
