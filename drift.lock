@@ -323,7 +323,7 @@ sig = "ef162015be100d91"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/HomePages/index.tsx"
-sig = "f6aa6a5aca0cba2c"
+sig = "161254c8150530d4"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
