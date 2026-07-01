@@ -6,10 +6,12 @@ import { tenantField } from '@/fields/tenantField'
 import type { CollectionConfig } from 'payload'
 
 import { ButtonBlock } from '@/blocks/Button/config'
+import { FormEmbedBlock } from '@/blocks/FormEmbed/config'
 import { GenericEmbedBlock } from '@/blocks/GenericEmbed/config'
 import { MediaBlock } from '@/blocks/Media/config'
 import { SingleBlogPostBlock } from '@/blocks/SingleBlogPost/config'
 import { SponsorsBlock } from '@/blocks/Sponsors/config'
+import { VideoEmbedBlock } from '@/blocks/VideoEmbed/config'
 import { DEFAULT_INLINE_BLOCKS } from '@/constants/defaultInlineBlocks'
 
 import { DocumentBlock } from '@/blocks/Document/config'
@@ -108,6 +110,8 @@ export const HomePages: CollectionConfig = {
                         ButtonBlock,
                         DocumentBlock,
                         GenericEmbedBlock,
+                        FormEmbedBlock,
+                        VideoEmbedBlock,
                         HeaderLexicalBlock,
                         MediaBlock,
                         SingleBlogPostBlock,

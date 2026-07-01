@@ -10,6 +10,20 @@ export const formatSlug = (val: string | null): string => {
     .toLowerCase()
 }
 
+// Formats a date value as `YYYY-MM-DD` (UTC) for use in a slug; returns '' if not a valid date.
+export const formatDateForSlug = (value: unknown): string => {
+  if (typeof value !== 'string' && !(value instanceof Date)) {
+    return ''
+  }
+
+  const date = new Date(value)
+  if (isNaN(date.getTime())) {
+    return ''
+  }
+
+  return date.toISOString().slice(0, 10)
+}
+
 export const formatSlugHook =
   (fallback: string): FieldHook =>
   ({ data, operation, value }) => {

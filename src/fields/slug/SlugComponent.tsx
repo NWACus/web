@@ -1,42 +1,61 @@
 'use client'
+import { cn } from '@/utilities/ui'
 import { TextFieldClientProps } from 'payload'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
-import { Button, FieldLabel, TextInput, useField, useFormFields } from '@payloadcms/ui'
+import {
+  Button,
+  FieldDescription,
+  FieldLabel,
+  TextInput,
+  useField,
+  useFormFields,
+} from '@payloadcms/ui'
 
 import { RefreshCw } from 'lucide-react'
-import { formatSlug } from './formatSlug'
+import { formatDateForSlug, formatSlug } from './formatSlug'
 
 type SlugComponentProps = {
   fieldToUse: string
+  dateField?: string
 } & TextFieldClientProps
 
 export const SlugComponent = ({
   field,
   fieldToUse,
+  dateField,
   path,
   readOnly: readOnlyFromProps,
 }: SlugComponentProps) => {
   const { label } = field
+  const description = field?.admin?.description
 
   const { value, setValue } = useField<string>({ path: path || field.name })
   const { value: currentSlug } = useField<string>({ path: 'slug' })
 
-  // Get the current value of the title field
-  const targetFieldValue = useFormFields(([fields]) => {
-    const value = fields[fieldToUse]?.value
-    return typeof value === 'string' ? value : ''
+  const [spinning, setSpinning] = useState(false)
+
+  // Read the source field and the optional date as primitive strings so the subscription stays
+  // referentially stable across renders.
+  const baseSlug = useFormFields(([fields]) => {
+    const fieldValue = fields[fieldToUse]?.value
+    return typeof fieldValue === 'string' ? formatSlug(fieldValue) : ''
   })
+  const dateSlug = useFormFields(([fields]) =>
+    dateField ? formatDateForSlug(fields[dateField]?.value) : '',
+  )
 
   const handleGenerate = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
-      const newSlug = formatSlug(targetFieldValue)
-      if (targetFieldValue && newSlug !== currentSlug) {
-        setValue(formatSlug(targetFieldValue))
+      setSpinning(true)
+      window.setTimeout(() => setSpinning(false), 300)
+      const newSlug = [baseSlug, dateSlug].filter(Boolean).join('-')
+      if (newSlug && newSlug !== currentSlug) {
+        setValue(newSlug)
       }
     },
-    [targetFieldValue, currentSlug, setValue],
+    [baseSlug, dateSlug, currentSlug, setValue],
   )
   const readOnly = readOnlyFromProps || false
 
@@ -46,11 +65,11 @@ export const SlugComponent = ({
         <FieldLabel htmlFor={`field-${path}`} label={label} required />
 
         <Button
-          className="absolute right-0 bottom-[0.4em] z-[1] m-0 pb-[0.3125rem]"
+          className="absolute right-1 top-9 z-[1] m-0 p-1 bg-[var(--theme-input-bg)]"
           buttonStyle="icon-label"
           onClick={handleGenerate}
         >
-          <RefreshCw className="w-4" />
+          <RefreshCw className={cn('w-4', spinning && 'animate-spin [animation-duration:300ms]')} />
         </Button>
       </div>
 
@@ -60,6 +79,8 @@ export const SlugComponent = ({
         path={path || field.name}
         readOnly={Boolean(readOnly)}
       />
+
+      {description && <FieldDescription description={description} path={path || field.name} />}
     </div>
   )
 }

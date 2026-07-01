@@ -13,17 +13,19 @@ const revalidate = async ({
   payload,
 }: {
   docId: number
-  slug: string
+  slug?: string | null
   tenantSlug: string
   payload: BasePayload
 }) => {
-  const preRewritePath = `/events/${slug}`
-  const eventRewritePath = `/${tenantSlug}${preRewritePath}`
+  if (slug) {
+    const preRewritePath = `/events/${slug}`
+    const eventRewritePath = `/${tenantSlug}${preRewritePath}`
 
-  payload.logger.info(`Revalidating paths: ${[preRewritePath, eventRewritePath].join(', ')}`)
+    payload.logger.info(`Revalidating paths: ${[preRewritePath, eventRewritePath].join(', ')}`)
 
-  revalidatePath(preRewritePath)
-  revalidatePath(eventRewritePath)
+    revalidatePath(preRewritePath)
+    revalidatePath(eventRewritePath)
+  }
 
   await revalidateDocumentReferences({ collection: 'events', id: docId })
 }
