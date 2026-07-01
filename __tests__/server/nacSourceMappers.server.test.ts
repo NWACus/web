@@ -1,9 +1,15 @@
 import { ProductType } from '@/services/nac/model/forecast'
-import { mapV2ForecastResult, mapV2Warning } from '@/services/nac/sources/v2/mappers'
-import { forecastResultSchema, warningResultSchema } from '@/services/nac/types/forecastSchemas'
+import { mapV2ForecastResult, mapV2Warning, mapV2Weather } from '@/services/nac/sources/v2/mappers'
+import {
+  forecastResultSchema,
+  warningResultSchema,
+  weatherSchema,
+} from '@/services/nac/types/forecastSchemas'
+import inlineWeather from './fixtures/inline-weather.json'
 import nwacForecastActive from './fixtures/nwac-forecast-active.json'
 import nwacForecastSummary from './fixtures/nwac-forecast.json'
 import nwacWarning from './fixtures/nwac-warning.json'
+import sacWeather from './fixtures/sac-weather.json'
 
 describe('mapV2ForecastResult', () => {
   it('maps a v2 active forecast into the model, preserving danger and problems', () => {
@@ -90,5 +96,39 @@ describe('mapV2Warning', () => {
 
     const model = mapV2Warning(wire)
     expect(model?.product_type).toBe(ProductType.Watch)
+  })
+})
+
+describe('mapV2Weather', () => {
+  it('parses and maps a columns/rows weather product (SAC)', () => {
+    const wire = weatherSchema.parse(sacWeather)
+    const model = mapV2Weather(wire)
+
+    expect(model.product_type).toBe(ProductType.Weather)
+    expect(model.avalanche_center.id).toBe('SAC')
+    expect(model.weather_data).toHaveLength(1)
+    const table = model.weather_data[0]
+    // Columns/rows format: has `columns`/`rows`, no `periods`.
+    expect('periods' in table).toBe(false)
+    expect('columns' in table).toBe(true)
+    // For v2 the model is shape-identical to the parsed wire response.
+    expect(model).toEqual(wire)
+  })
+
+  it('parses and maps an inline/periods weather product', () => {
+    const wire = weatherSchema.parse(inlineWeather)
+    const model = mapV2Weather(wire)
+
+    expect(model.weather_data).toHaveLength(1)
+    const table = model.weather_data[0]
+    // Inline format: detected by a `periods` key.
+    expect('periods' in table).toBe(true)
+    if ('periods' in table) {
+      expect(table.periods).toHaveLength(3)
+      // A split-cell value (Snowfall) is a nested array of {label,value}.
+      const snowfall = table.data.find((row) => row.field === 'Snowfall')
+      expect(Array.isArray(snowfall?.values[0])).toBe(true)
+    }
+    expect(model).toEqual(wire)
   })
 })
