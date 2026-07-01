@@ -1,7 +1,18 @@
 import { normalizePath } from '@/utilities/path'
 import config from '@payload-config'
+import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
+import type { ArchiveProductSummary } from './archiveDates'
+import {
+  forecastResultSchema,
+  warningResultSchema,
+  weatherSchema,
+  type ForecastResult,
+  type WarningResult,
+  type Weather,
+} from './types/forecastSchemas'
+import { productListSchema } from './types/productListSchemas'
 import {
   allAvalancheCenterCapabilitiesSchema,
   avalancheCenterSchema,
@@ -28,6 +39,10 @@ export class NACError extends Error {
 type Options = {
   tags?: string[]
   cachedTime?: number | false
+  // Skip Next's fetch-level data cache entirely (cache: 'no-store'). Use for responses too
+  // large for the 2MB data cache (e.g. the full product archive), which are cached one layer
+  // up via unstable_cache after being trimmed down.
+  noStore?: boolean
 }
 
 export async function nacFetch(path: string, options: Options = {}) {
@@ -36,10 +51,16 @@ export async function nacFetch(path: string, options: Options = {}) {
 
   try {
     const res = await fetch(url, {
-      next: {
-        revalidate: options?.cachedTime ?? 24 * 60 * 60 * 1000, // hold on to this cached data for a day (in milliseconds)
-        ...(options?.tags && options.tags.length > 0 ? options.tags : []),
-      },
+      ...(options.noStore
+        ? { cache: 'no-store' }
+        : {
+            next: {
+              revalidate: options?.cachedTime ?? 24 * 60 * 60 * 1000, // hold on to this cached data for a day (in milliseconds)
+              // Spread as { tags: [...] }; spreading the bare array set numeric keys and never
+              // applied the cache tags (so revalidateTag was a no-op).
+              ...(options?.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
+            },
+          }),
     })
 
     if (!res.ok) {
@@ -253,3 +274,227 @@ export async function getActiveForecastZones(centerSlug: string) {
 
   return forecastZones
 }
+
+/**
+ * The Next data-cache tag for a zone's current forecast. The revalidate-on-view freshness handler
+ * revalidates this tag when it detects a change, so a router.refresh() re-renders with fresh data
+ * (and the forecast page's route cache is invalidated too). Kept consistent with fetchForecast.
+ */
+export function forecastCacheTag(centerId: string, zoneId: number): string {
+  return `forecast:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
+}
+
+/**
+ * The Next data-cache tag for a weather product. The freshness handler revalidates this alongside
+ * the forecast when a change is detected, so a forecast-triggered refresh doesn't render fresh
+ * forecast text next to a stale (300s-cached) weather table.
+ */
+export function weatherCacheTag(weatherProductId: number): string {
+  return `weather:${weatherProductId}`
+}
+
+export async function fetchForecast(
+  centerId: string,
+  zoneId: number,
+): Promise<ForecastResult | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  try {
+    const data = await nacFetch(
+      `/v2/public/product?type=forecast&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+      { cachedTime: 300, tags: [forecastCacheTag(centerId, zoneId)] },
+    )
+
+    const parsed = forecastResultSchema.safeParse(data)
+    if (!parsed.success) {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: parsed.error }, 'Failed to parse forecast response')
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The zone's CURRENT forecast fetched fresh from upstream, held only on a short (60s) cache so a
+ * burst of page views shares one upstream request rather than hitting the NAC API per view. Used
+ * only by the revalidate-on-view freshness check to catch corrections/retractions faster than the
+ * page's ISR window. Returns null when none is published or the response doesn't parse.
+ */
+export async function fetchForecastFresh(
+  centerId: string,
+  zoneId: number,
+): Promise<ForecastResult | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  const getCached = unstable_cache(
+    async () => {
+      const data = await nacFetch(
+        `/v2/public/product?type=forecast&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+        { noStore: true },
+      )
+      const parsed = forecastResultSchema.safeParse(data)
+      return parsed.success ? parsed.data : null
+    },
+    ['nac-forecast-fresh', centerIdToUse, String(zoneId)],
+    { revalidate: 60 },
+  )
+
+  try {
+    return await getCached()
+  } catch {
+    return null
+  }
+}
+
+export async function fetchWarning(
+  centerId: string,
+  zoneId: number,
+): Promise<WarningResult | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  try {
+    const data = await nacFetch(
+      `/v2/public/product?type=warning&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+      { cachedTime: 300 },
+    )
+
+    const parsed = warningResultSchema.safeParse(data)
+    if (!parsed.success) {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: parsed.error }, 'Failed to parse warning response')
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+/** A `date_start`/`date_end` window (YYYY-MM-DD) used to narrow the archive list server-side. */
+export type ArchiveDateRange = { from: string; to: string }
+
+/**
+ * Fetch + trim the center's product archive (the list endpoint). The endpoint narrows
+ * server-side by date range via `date_start`/`date_end` (the avy app relies on this; the
+ * `type`/`zone_id` params are ignored). The *unfiltered* archive is ~13MB for NWAC — too
+ * large for Next's 2MB fetch-data cache — so we always fetch uncached and immediately trim
+ * to the small slice the date picker needs (cached one layer up via unstable_cache).
+ */
+async function fetchArchiveSummaries(
+  centerSlugUpper: string,
+  range?: ArchiveDateRange,
+): Promise<ArchiveProductSummary[]> {
+  const params = new URLSearchParams({ avalanche_center_id: centerSlugUpper })
+  if (range) {
+    params.set('date_start', range.from)
+    params.set('date_end', range.to)
+  }
+
+  const data = await nacFetch(`/v2/public/products?${params.toString()}`, { noStore: true })
+
+  const parsed = productListSchema.safeParse(data)
+  if (!parsed.success) {
+    const payload = await getPayload({ config })
+    payload.logger.error({ err: parsed.error }, 'Failed to parse product archive response')
+    return []
+  }
+
+  return parsed.data.map((item) => ({
+    id: item.id,
+    product_type: item.product_type,
+    published_time: item.published_time,
+    danger_rating: item.danger_rating ?? 0,
+    forecast_zone: item.forecast_zone.map((zone) => ({ id: zone.id })),
+  }))
+}
+
+/**
+ * The center's product archive for a date window (default: the whole archive), trimmed and
+ * cached server-side so a given window is fetched at most once per 30-minute window rather
+ * than per view. Callers filter the result to a single zone with `buildZoneArchiveDates`.
+ * Returns [] on failure so the page degrades gracefully (no date list) rather than crashing.
+ */
+export async function fetchProductArchive(
+  centerSlug: string,
+  range?: ArchiveDateRange,
+): Promise<ArchiveProductSummary[]> {
+  const centerSlugToUse = normalizeCenterSlug(centerSlug.toLowerCase()).toUpperCase()
+
+  const getCached = unstable_cache(
+    () => fetchArchiveSummaries(centerSlugToUse, range),
+    ['nac-product-archive', centerSlugToUse, range?.from ?? 'all', range?.to ?? 'all'],
+    { revalidate: 30 * 60 },
+  )
+
+  try {
+    return await getCached()
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Fetch a single historical product by id. Historical products are immutable, so this is
+ * cached for a long time and deliberately does NOT use the live revalidate-on-view freshness
+ * path — only the current-forecast view needs that. Returns the forecast/summary product, or
+ * null when the id is missing or the response doesn't parse (e.g. a non-renderable type).
+ */
+export async function fetchProductById(id: number): Promise<ForecastResult | null> {
+  try {
+    const data = await nacFetch(`/v2/public/product/${id}`, {
+      // Immutable: hold for 30 days. Dated views are cached, never freshness-checked.
+      cachedTime: 30 * 24 * 60 * 60,
+    })
+
+    const parsed = forecastResultSchema.safeParse(data)
+    if (!parsed.success) {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: parsed.error }, 'Failed to parse product-by-id response')
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Fetch a mountain-weather product by id (the id carried on a forecast's
+ * `weather_data.weather_product_id`). Weather is a live product like the forecast, so it uses the
+ * same short 5-minute data cache rather than the immutable archive cache — so repeated views
+ * share one upstream request per window rather than hitting the NAC API per render. Returns null
+ * when the id is missing or the response doesn't parse.
+ */
+export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
+  try {
+    const data = await nacFetch(`/v2/public/product/${id}`, {
+      cachedTime: 300,
+      tags: [weatherCacheTag(id)],
+    })
+
+    // v2 returns a 200 null-object (avalanche_center: null, …) when the id is missing or expired.
+    // That's "no weather product", not a malformed response, so return null without logging noise.
+    if (data && typeof data === 'object' && data.avalanche_center === null) {
+      return null
+    }
+
+    const parsed = weatherSchema.safeParse(data)
+    if (!parsed.success) {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: parsed.error }, 'Failed to parse weather product response')
+      return null
+    }
+
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+export { resolveZoneFromSlug } from './resolveZone'
