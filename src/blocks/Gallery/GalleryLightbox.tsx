@@ -47,16 +47,22 @@ export const GalleryLightbox = ({ items, open, onOpenChange, startIndex }: Props
     }
   }, [api])
 
-  // Drag-to-swipe is disabled (it conflicts with image pan), so arrow keys
-  // navigate alongside the prev/next buttons.
+  // Arrow keys drive navigation (drag-to-swipe is disabled to avoid clashing
+  // with image pan). Capture + stopPropagation so the carousel's own arrow-key
+  // handler can't also fire once focus is inside it and advance twice.
   useEffect(() => {
     if (!open || !api) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') api.scrollPrev()
-      else if (e.key === 'ArrowRight') api.scrollNext()
+      if (e.key === 'ArrowLeft') {
+        e.stopPropagation()
+        api.scrollPrev()
+      } else if (e.key === 'ArrowRight') {
+        e.stopPropagation()
+        api.scrollNext()
+      }
     }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('keydown', onKeyDown, true)
+    return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [open, api])
 
   const renderSlide = (item: GalleryItem, index: number) => {
@@ -187,7 +193,12 @@ export const GalleryLightbox = ({ items, open, onOpenChange, startIndex }: Props
               <>
                 <button
                   type="button"
-                  onClick={() => api?.scrollPrev()}
+                  onClick={(e) => {
+                    // Blur on mouse click (detail > 0) to drop the lingering
+                    // focus ring; keep focus on keyboard activation (detail === 0).
+                    if (e.detail > 0) e.currentTarget.blur()
+                    api?.scrollPrev()
+                  }}
                   aria-label="Previous"
                   className="group absolute inset-y-0 left-0 z-50 flex w-[12vw] min-w-16 items-center justify-start pl-4 text-white"
                 >
@@ -195,7 +206,10 @@ export const GalleryLightbox = ({ items, open, onOpenChange, startIndex }: Props
                 </button>
                 <button
                   type="button"
-                  onClick={() => api?.scrollNext()}
+                  onClick={(e) => {
+                    if (e.detail > 0) e.currentTarget.blur()
+                    api?.scrollNext()
+                  }}
                   aria-label="Next"
                   className="group absolute inset-y-0 right-0 z-50 flex w-[12vw] min-w-16 items-center justify-end pr-4 text-white"
                 >
