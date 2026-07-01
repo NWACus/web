@@ -1,0 +1,59 @@
+{
+  "id": 200001,
+  "product_type": "weather",
+  "status": "published",
+  "author": "Test Forecaster",
+  "published_time": "2026-01-15T14:00:00+00:00",
+  "created_at": "2026-01-15T13:45:00+00:00",
+  "updated_at": "2026-01-15T14:00:00+00:00",
+  "announcement": null,
+  "danger_level_text": null,
+  "weather_discussion": "<p>A cold front arrives this afternoon.</p>",
+  "avalanche_center": {
+    "id": "TEST",
+    "name": "Test Avalanche Center",
+    "url": "https://example.com",
+    "city": "Testville",
+    "state": "WA"
+  },
+  "forecast_zone": [
+    {
+      "id": 900,
+      "name": "Test Zone",
+      "url": "https://example.com/zone",
+      "state": "WA",
+      "zone_id": "9"
+    }
+  ],
+  "weather_data": [
+    {
+      "zone_id": "9",
+      "zone_name": "Test Zone",
+      "periods": [
+        "<strong>Today</strong>",
+        "<strong>Tonight</strong>",
+        "<strong>Tomorrow</strong>"
+      ],
+      "data": [
+        { "field": "5000 ft Temperatures", "unit": "°F", "values": ["28", "22", "30"] },
+        { "field": "Ridgeline Wind Speed", "unit": "", "values": ["Moderate", "Strong", "Light"] },
+        {
+          "field": "Snowfall",
+          "unit": "in",
+          "values": [
+            [
+              { "label": "12hr", "value": "3" },
+              { "label": "24hr", "value": "6" }
+            ],
+            [
+              { "label": "12hr", "value": "2" },
+              { "label": "24hr", "value": "5" }
+            ],
+            "0"
+          ]
+        },
+        { "field": "Snow Water Equivalent", "unit": "in", "values": ["0.4", "0.3", "0.0"] }
+      ]
+    }
+  ]
+}
