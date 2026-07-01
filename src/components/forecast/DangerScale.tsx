@@ -8,6 +8,7 @@ import Image from 'next/image'
 import {
   DANGER_SCALE_URL,
   dangerColor,
+  dangerIconSize,
   dangerIconUrl,
   dangerName,
   dangerScaleRows,
@@ -58,9 +59,9 @@ export function DangerScale() {
                     <Image
                       src={dangerIconUrl(row.level)}
                       alt={dangerName(row.level)}
-                      width={36}
-                      height={36}
-                      className="mx-auto"
+                      width={dangerIconSize(row.level).width}
+                      height={dangerIconSize(row.level).height}
+                      className="mx-auto h-9 w-auto"
                     />
                     <div className="pt-1">
                       {row.level} - {row.rating}
