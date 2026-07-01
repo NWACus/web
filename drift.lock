@@ -272,11 +272,6 @@ sig = "ef162015be100d91"
 
 [[bindings]]
 doc = "docs/decisions/012-non-rbac-access-patterns.md"
-target = "src/utilities/rbac/hasProviderAccess.ts"
-sig = "23c68eb9ba9cdd8e"
-
-[[bindings]]
-doc = "docs/decisions/012-non-rbac-access-patterns.md"
 target = "src/utilities/rbac/isProviderManager.ts"
 sig = "c708a1c71a5ce59d"
 
@@ -323,7 +318,7 @@ sig = "ef162015be100d91"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/HomePages/index.tsx"
-sig = "f6aa6a5aca0cba2c"
+sig = "161254c8150530d4"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -339,6 +334,8 @@ sig = "53f3bd23fcacb254"
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/fields/tenantField/index.ts"
 sig = "f36be45edf4c3ced"
+
+[[bindings]]
 doc = "docs/doc-drift.md"
 target = "scripts/drift-check.mjs"
 sig = "1109f2020067761a"
@@ -446,8 +443,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "e2b657763c6d6a16"
-sig = "cb69e6610b10d518"
+sig = "61a959258953543a"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

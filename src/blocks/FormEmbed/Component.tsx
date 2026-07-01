@@ -1,6 +1,6 @@
 import { EmbedFrame } from '@/components/EmbedFrame'
 import { BASE_ADD_ATTR } from '@/components/EmbedFrame/policies'
-import type { FormEmbedBlock as FormEmbedBlockProps } from 'src/payload-types'
+import type { FormEmbedBlock as FormEmbedBlockProps } from '@/payload-types'
 
 type Props = FormEmbedBlockProps & {
   isLayoutBlock: boolean

@@ -1,5 +1,5 @@
+import type { TeamBlock as TeamBlockProps } from '@/payload-types'
 import { format, parseISO } from 'date-fns'
-import type { TeamBlock as TeamBlockProps } from 'src/payload-types'
 
 import { MediaAvatar } from '@/components/Media/AvatarImageMedia'
 import {
