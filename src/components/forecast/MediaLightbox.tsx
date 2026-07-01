@@ -13,6 +13,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { MediaType, type MediaItem } from '@/services/nac/model/forecast'
 
+import { ZoomablePhoto } from './ZoomablePhoto'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface MediaLightboxProps {
@@ -99,7 +100,10 @@ export function MediaLightbox({ media, initialIndex, open, onOpenChange }: Media
         </DialogDescription>
 
         <div className="relative px-14 py-8">
-          <Carousel setApi={setApi} opts={{ startIndex: initialIndex, loop: media.length > 1 }}>
+          <Carousel
+            setApi={setApi}
+            opts={{ startIndex: initialIndex, loop: media.length > 1, watchDrag: false }}
+          >
             <CarouselContent>
               {media.map((item, idx) => (
                 <CarouselItem key={idx}>
@@ -157,14 +161,7 @@ function MediaSlide({ item }: { item: MediaItem }) {
 
   const fullUrl = getFullUrl(item)
   if (fullUrl) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={fullUrl}
-        alt={getCaption(item) ?? ''}
-        className="max-h-[70vh] rounded object-contain"
-      />
-    )
+    return <ZoomablePhoto src={fullUrl} alt={getCaption(item) ?? ''} />
   }
 
   // Unsupported media type — show link fallback
