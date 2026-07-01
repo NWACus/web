@@ -14,7 +14,7 @@ import {
   getAvalancheCenterPlatforms,
 } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { getForecastSource } from '@/services/nac/sources'
+import { getForecastSource, getWeatherSource } from '@/services/nac/sources'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { format, parseISO } from 'date-fns'
@@ -94,6 +94,13 @@ export default async function Page({ params }: Args) {
     ? validDateForProduct(currentProduct.published_time, metadata.timezone)
     : null
 
+  // The archived forecast references the mountain-weather product that was current when it was
+  // issued; fetch that (immutable, by id) so historical views show the matching weather.
+  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
+  const weather = weatherProductId
+    ? await getWeatherSource(center).getWeather(weatherProductId)
+    : null
+
   return (
     <NativeForecastView
       center={center}
@@ -108,6 +115,7 @@ export default async function Page({ params }: Args) {
       selectedDate={date}
       basePath={`/forecasts/avalanche/${zone}`}
       centerType={metadata.type}
+      weather={weather}
     />
   )
 }
