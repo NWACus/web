@@ -2,7 +2,7 @@ import { ensureUniqueSlug } from '@/fields/slug/ensureUniqueSlug'
 import { validateSlug } from '@/utilities/validateSlug'
 import { FieldHook, TextField } from 'payload'
 
-export const setDuplicateSlug: FieldHook = async ({ value }) => {
+const setDuplicateSlug: FieldHook = async ({ value }) => {
   if (!value || typeof value !== 'string') {
     return value
   }
