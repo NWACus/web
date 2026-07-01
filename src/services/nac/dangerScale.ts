@@ -95,6 +95,26 @@ export function dangerIconUrl(level: DangerLevel): string {
 }
 
 /**
+ * Intrinsic pixel dimensions of each danger icon PNG. Icons 3–5 are wider than tall (the cloud /
+ * snow spray), so callers must render at the real aspect ratio (fixed height, auto width) rather
+ * than a square box, or the diamond looks squished. Reserving these dimensions keeps CLS at zero.
+ */
+const DANGER_ICON_SIZES: Record<number, { width: number; height: number }> = {
+  0: { width: 344, height: 345 },
+  1: { width: 201, height: 200 },
+  2: { width: 199, height: 200 },
+  3: { width: 240, height: 200 },
+  4: { width: 278, height: 200 },
+  5: { width: 278, height: 200 },
+}
+
+/** Intrinsic width/height of the danger icon for a level, for aspect-correct, no-CLS rendering. */
+export function dangerIconSize(level: DangerLevel): { width: number; height: number } {
+  const clamped = Math.max(0, Math.min(5, level))
+  return DANGER_ICON_SIZES[clamped] ?? { width: 200, height: 200 }
+}
+
+/**
  * Per-band danger label in the legacy widget's "{level} - {Name}" format, e.g. "4 - High"
  * (and "0 - No Rating"). Mirrors afp's `dangerLevelToText`.
  */
