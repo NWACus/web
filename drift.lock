@@ -153,7 +153,7 @@ sig = "9e7de3d13536a518"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/blocks/RenderBlocks.tsx"
-sig = "04f05834a60cb382"
+sig = "3cc6ecbf6c46be89"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -168,17 +168,17 @@ sig = "e4dc2b4ccd50dcc4"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/components/RichText/index.tsx"
-sig = "f0ac730c14e8de9a"
+sig = "a6cfb9e47e74a6a0"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/constants/defaults.ts"
-sig = "41f2fb9b90461f15"
+sig = "557a05d0f0247e86"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/utilities/relationships.ts"
-sig = "9ebd0d90b8cb2b03"
+sig = "4da8f7ed095f74dc"
 
 [[bindings]]
 doc = "docs/decisions/004-rbac.md"
@@ -388,7 +388,7 @@ sig = "9a76604864fb2062"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Events/index.ts"
-sig = "082fea3d6c80c753"
+sig = "49b0e5c608c241e5"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -418,7 +418,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "1c3f2d8cd5058617"
+sig = "cb69e6610b10d518"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
