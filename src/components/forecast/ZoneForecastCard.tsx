@@ -78,7 +78,7 @@ export function ZoneForecastCard({
             {warningProduct && (
               <div className="relative z-10">
                 <ForecastErrorBoundary fallbackMessage="Unable to display warning">
-                  <WarningBanner warning={warningProduct} />
+                  <WarningBanner warning={warningProduct} timezone={timezone} />
                 </ForecastErrorBoundary>
               </div>
             )}

@@ -131,6 +131,13 @@ export const DANGER_SCALE_URL = 'https://avalanche.org/avalanche-encyclopedia/da
  */
 export const ELEVATION_BANDS_URL = 'https://nwac.us/avalanche-forecasts-elevation-bands/'
 
+/**
+ * Legacy afp advice shown when the danger resolves to No Rating (level 0) — explains why there's
+ * no rating and points to the summary. Verbatim from the afp danger-scale constants.
+ */
+export const NO_RATING_ADVICE =
+  'Insufficient data for issuing of danger ratings, but a summary of avalanche conditions exists. Read the summary for more information.'
+
 /** A row of the North American Public Avalanche Danger Scale, for the legend + its definitions. */
 export interface DangerScaleRow {
   level: DangerLevel
