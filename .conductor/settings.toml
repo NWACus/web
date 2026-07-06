@@ -1,0 +1,15 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# Per-workspace setup + run for Conductor (conductor.build) parallel workspaces.
+# Both scripts are inert for teammates who don't use Conductor — they only run
+# inside a Conductor workspace. See scripts/conductor/ and docs/conductor.md.
+#
+# No `file_include_globs` is set: Conductor's default `.env*` copy already carries
+# the gitignored `.env` (secrets + DATABASE_URI) into each new workspace. The
+# generated .conductor/ports.env is deliberately NOT copied — it's regenerated with
+# unique per-workspace ports on every launch (and is gitignored).
+
+[scripts]
+setup    = "scripts/conductor/setup.sh"
+run      = "scripts/conductor/run.sh"
+run_mode = "concurrent"
