@@ -13,7 +13,11 @@ concurrency:
 jobs:
   deploy:
     if: ${{ github.event_name != 'merge_group' }}
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    # Kept on GitHub-hosted runners: the seed step writes thousands of rows to a
+    # remote Turso DB, and that long, latency-bound stream of round-trips
+    # reproducibly kills Blacksmith runners mid-seed. Revisit once seeding no
+    # longer does per-row remote writes — see NWACus/web#1143.
+    runs-on: ubuntu-latest
     environment: Preview
     env:
       NODE_ENV: production
