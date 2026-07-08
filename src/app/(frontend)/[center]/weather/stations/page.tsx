@@ -42,7 +42,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <div className="flex flex-col gap-6 mb-10">
-      <div className="container flex flex-col gap-3">
+      <div className="container flex justify-between gap-3 pb-4">
         <div className="prose dark:prose-invert max-w-none">
           <h1 className="font-bold">Weather Stations</h1>
         </div>
@@ -54,7 +54,7 @@ export default async function Page({ params }: Args) {
           const groups = WEATHER_STATION_GROUPS.filter((group) => group.region === region)
           if (groups.length === 0) return null
           return (
-            <section key={region} className="mb-4">
+            <section key={region} className="mb-6">
               <h2 className="mb-2 text-lg font-semibold">{region}</h2>
               <ul className="">
                 {groups.map((group) => (
