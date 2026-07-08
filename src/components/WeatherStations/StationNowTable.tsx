@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { StationTable } from '@/services/snowobs'
+import type { StationTable } from '@/services/snowobs/transform'
 import { cn } from '@/utilities/ui'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one

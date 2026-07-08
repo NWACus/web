@@ -1,4 +1,4 @@
-import type { StationColumnConfig } from '@/services/snowobs'
+import type { StationColumnConfig } from '@/services/snowobs/transform'
 
 // Canonical region order for grouping the station index, matching the legacy
 // nwac.us /weatherdata/ directory.
