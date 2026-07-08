@@ -43,8 +43,8 @@ export function StationNowTable({ table }: { table: StationTable }) {
       </TableHeader>
       <TableBody>
         {table.rows.map((row) => (
-          <TableRow key={row.timestamp}>
-            <TableCell className="sticky left-0 z-10 bg-background font-medium whitespace-nowrap">
+          <TableRow key={row.timestamp} className="bg-background even:bg-muted">
+            <TableCell className="sticky left-0 z-10 bg-inherit font-medium whitespace-nowrap">
               {row.display}
             </TableCell>
             {table.columns.map((column) => {
