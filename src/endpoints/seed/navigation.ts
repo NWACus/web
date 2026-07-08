@@ -140,6 +140,16 @@ export const navigationSeed = (
             label: 'Weather Stations',
           }),
         },
+        ...(tenant.slug === 'nwac'
+          ? [
+              {
+                link: builtInPageLink({
+                  url: '/weather/stations',
+                  label: 'Weather Data',
+                }),
+              },
+            ]
+          : []),
         {
           link: pageLink({
             slug: 'weather-tools',
