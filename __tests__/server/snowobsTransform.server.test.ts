@@ -22,7 +22,6 @@ const response: SnowObsTimeseriesResponse = {
       latitude: null,
       longitude: null,
       elevation: 5250,
-      timezone: 'UTC',
       observations: {
         date_time: [T0, T1, T2],
         air_temp: [60, null, 62],
@@ -36,7 +35,6 @@ const response: SnowObsTimeseriesResponse = {
       latitude: null,
       longitude: null,
       elevation: 4200,
-      timezone: 'UTC',
       observations: {
         date_time: [T1, T2, T3],
         air_temp: [40, 41, 42],
