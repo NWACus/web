@@ -87,6 +87,43 @@ function displayUnit(rawUnit: string | undefined): string {
   return UNIT_LABELS[rawUnit] ?? rawUnit
 }
 
+type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
+
+// Numeric series for a config column; computes cumulative precip on the fly.
+function columnSeries(
+  station: ResponseStation | undefined,
+  variable: string,
+): (number | null)[] | undefined {
+  if (!station) return undefined
+  if (variable === PRECIP_CUMSUM) {
+    const hourly = numericSeries(station.observations, PRECIP_HOURLY)
+    return hourly ? computePrecipCumsum(hourly) : undefined
+  }
+  return numericSeries(station.observations, variable)
+}
+
+// Header metadata for a config column.
+function columnMeta(
+  stid: string,
+  variable: string,
+  station: ResponseStation | undefined,
+  longNameByVariable: Map<string, string>,
+  units: Record<string, string>,
+): TableColumn {
+  const isCumsum = variable === PRECIP_CUMSUM
+  return {
+    key: `${stid}_${variable}`,
+    stid,
+    variable,
+    label: SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable),
+    longName: isCumsum
+      ? 'Cumulative Precipitation'
+      : (longNameByVariable.get(variable) ?? variable),
+    unit: isCumsum ? 'in' : displayUnit(units[variable]),
+    elevation: station?.elevation ?? null,
+  }
+}
+
 /**
  * Combine a SnowObs timeseries response with a station group's column config into
  * a render-ready table: newest-first hourly rows aligned across all stations in
@@ -110,32 +147,13 @@ export function buildStationTable(
     if (valueByColumn.has(key)) return // de-dupe (e.g. explicit + auto-inserted cumsum)
 
     const station = stationByStid.get(stid)
-    const series =
-      variable === PRECIP_CUMSUM
-        ? (() => {
-            const hourly = station && numericSeries(station.observations, PRECIP_HOURLY)
-            return hourly ? computePrecipCumsum(hourly) : undefined
-          })()
-        : station && numericSeries(station.observations, variable)
+    const series = columnSeries(station, variable)
 
     // Unknown variable with no data and not in the response's variable list — skip
     // it, mirroring the legacy plugin which logs and drops such columns.
     if (!series && !longNameByVariable.has(variable) && variable !== PRECIP_CUMSUM) return
 
-    const rawUnit = variable === PRECIP_CUMSUM ? UNIT_LABELS.inches : response.UNITS[variable]
-
-    columns.push({
-      key,
-      stid,
-      variable,
-      label: SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable),
-      longName:
-        variable === PRECIP_CUMSUM
-          ? 'Cumulative Precipitation'
-          : (longNameByVariable.get(variable) ?? variable),
-      unit: variable === PRECIP_CUMSUM ? 'in' : displayUnit(rawUnit),
-      elevation: station?.elevation ?? null,
-    })
+    columns.push(columnMeta(stid, variable, station, longNameByVariable, response.UNITS))
 
     const lookup = new Map<string, number | null>()
     if (station && series) {
