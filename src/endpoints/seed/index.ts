@@ -995,6 +995,9 @@ export const seed = async ({
           return [
             ...zonePages,
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+            ...(tenant.slug === 'nwac'
+              ? [builtInPage(tenant, 'Weather Data', '/weather/stations')]
+              : []),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
             builtInPage(tenant, 'Blog', '/blog'),
