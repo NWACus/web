@@ -443,7 +443,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "cb69e6610b10d518"
+sig = "7a7a233c0e7ecf68"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -568,7 +568,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "1f83179d9438d2e7"
+sig = "7f2566ff3043bbca"
 
 [[bindings]]
 doc = "docs/testing.md"
