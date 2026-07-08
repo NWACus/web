@@ -56,7 +56,7 @@ export default async function Page({ params }: Args) {
           return (
             <section key={region}>
               <h2 className="mb-2 text-lg font-semibold">{region}</h2>
-              <ul className="grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="grid gap-x-6 gap-y-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {groups.map((group) => (
                   <li key={group.slug}>
                     <Link

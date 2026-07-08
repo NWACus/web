@@ -86,12 +86,25 @@ export default async function Page({ params, searchParams }: Args) {
     <div className="flex flex-col gap-4">
       <div className="container flex flex-wrap items-start justify-between gap-3">
         <div>
+          <p className="mb-1 text-sm text-muted-foreground">{group.region}</p>
           <div className="prose dark:prose-invert max-w-none">
             <h1 className="font-bold">{group.displayName}</h1>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">{group.region}</p>
         </div>
-        <StationPicker current={group.slug} />
+        <div className="flex flex-col items-end gap-1">
+          <div className="text-xs text-muted-foreground mb-1">
+            {latest ? (
+              <span>
+                Latest observation {latest.display}
+                {table.timezoneLabel ? ` ${table.timezoneLabel}` : ''}
+              </span>
+            ) : (
+              <span>No recent observations</span>
+            )}
+            {isStale && <Badge variant="destructive">Data may be stale</Badge>}
+          </div>
+          <StationPicker current={group.slug} />
+        </div>
       </div>
 
       <div className="container flex flex-col gap-3">
@@ -112,18 +125,6 @@ export default async function Page({ params, searchParams }: Args) {
             </Link>
           ))}
         </nav>
-
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          {latest ? (
-            <span>
-              Latest observation {latest.display}
-              {table.timezoneLabel ? ` ${table.timezoneLabel}` : ''}
-            </span>
-          ) : (
-            <span>No recent observations</span>
-          )}
-          {isStale && <Badge variant="destructive">Data may be stale</Badge>}
-        </div>
 
         <StationNowTable table={table} />
       </div>
