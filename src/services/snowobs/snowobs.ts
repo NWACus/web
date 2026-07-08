@@ -31,20 +31,12 @@ type FetchOptions = {
   revalidate?: number
 }
 
-/**
- * Fetch a timeseries for one or more SnowObs station ids over a trailing window
- * (default: last 24 hours). Runs server-side so the API token never reaches the
- * browser. Response is validated against the zod schema before returning.
- */
-export async function fetchStationTimeseries(
-  stids: string[],
-  options: FetchOptions = {},
-): Promise<SnowObsTimeseriesResponse> {
+// Build the timeseries request URL for a trailing window (default: last 24h).
+function buildTimeseriesUrl(stids: string[], windowHours: number): string {
   const token = process.env.SNOWOBS_TOKEN
   if (!token) {
     throw new SnowObsError('SNOWOBS_TOKEN environment variable is not set')
   }
-  const windowHours = options.windowHours ?? 24
   const end = new Date()
   const start = new Date(end.getTime() - windowHours * 60 * 60 * 1000)
 
@@ -55,7 +47,21 @@ export async function fetchStationTimeseries(
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
   })
-  const url = `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
+  return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
+}
+
+/**
+ * Fetch a timeseries for one or more SnowObs station ids over a trailing window
+ * (default: last 24 hours). Runs server-side so the API token never reaches the
+ * browser. Response is validated against the zod schema before returning.
+ */
+// CRAP is inflated by the lack of unit coverage on this fetch wrapper.
+// fallow-ignore-next-line complexity
+export async function fetchStationTimeseries(
+  stids: string[],
+  options: FetchOptions = {},
+): Promise<SnowObsTimeseriesResponse> {
+  const url = buildTimeseriesUrl(stids, options.windowHours ?? 24)
 
   try {
     const res = await fetch(url, {

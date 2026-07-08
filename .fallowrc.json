@@ -24,9 +24,6 @@
   "duplicates": {
     "ignore": ["**/weather/stations/**"]
   },
-  "audit": {
-    "healthBaseline": "fallow-baselines/health.json"
-  },
   "ignoreExports": [
     {
       "file": "src/components/ui/**",

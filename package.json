@@ -22,7 +22,7 @@
     "fallow": "fallow",
     "fallow:check": "fallow dead-code --baseline fallow-baselines/dead-code.json && fallow dupes --baseline fallow-baselines/dupes.json",
     "fallow:audit": "fallow audit",
-    "fallow:baseline": "fallow dead-code --save-baseline fallow-baselines/dead-code.json; fallow dupes --save-baseline fallow-baselines/dupes.json; fallow health --save-baseline fallow-baselines/health.json; true",
+    "fallow:baseline": "fallow dead-code --save-baseline fallow-baselines/dead-code.json; fallow dupes --save-baseline fallow-baselines/dupes.json; true",
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "seed": "./seed.sh",
