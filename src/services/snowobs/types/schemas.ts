@@ -16,16 +16,16 @@ export const snowObsStationSchema = z.object({
   latitude: z.number().nullish(),
   longitude: z.number().nullish(),
   elevation: z.number().nullish(),
-  timezone: z.string().nullish(),
-  observations: snowObsObservationsSchema,
+  observations: z.preprocess(
+    (value) => (Array.isArray(value) ? {} : value),
+    snowObsObservationsSchema,
+  ),
 })
-export type SnowObsStation = z.infer<typeof snowObsStationSchema>
 
 export const snowObsVariableSchema = z.object({
   variable: z.string(),
   long_name: z.string(),
 })
-export type SnowObsVariable = z.infer<typeof snowObsVariableSchema>
 
 export const snowObsTimeseriesResponseSchema = z.object({
   UNITS: z.record(z.string(), z.string()),
