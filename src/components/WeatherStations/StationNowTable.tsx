@@ -19,24 +19,27 @@ export function StationNowTable({ table }: { table: StationTable }) {
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'
 
   return (
-    <Table className="text-sm">
+    <Table className="mx-auto w-auto text-base">
       <TableHeader>
         <TableRow>
-          <TableHead className="sticky left-0 z-10 bg-background whitespace-nowrap align-bottom">
+          <TableHead className="sticky left-0 z-10 bg-background whitespace-nowrap px-2 align-bottom">
             {timeHeader}
           </TableHead>
           {table.columns.map((column) => (
             <TableHead
               key={column.key}
               title={column.longName}
-              className="text-right align-bottom whitespace-nowrap"
+              className="whitespace-nowrap px-2 text-right align-bottom"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
-              <div className="text-xs font-normal text-muted-foreground">
-                {[column.unit, column.elevation != null ? `${column.elevation}'` : null]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </div>
+              {column.unit && (
+                <div className="text-sm font-normal text-muted-foreground">{column.unit}</div>
+              )}
+              {column.elevation != null && (
+                <div className="text-sm font-normal text-muted-foreground">
+                  {column.elevation}&apos;
+                </div>
+              )}
             </TableHead>
           ))}
         </TableRow>
@@ -44,7 +47,7 @@ export function StationNowTable({ table }: { table: StationTable }) {
       <TableBody>
         {table.rows.map((row) => (
           <TableRow key={row.timestamp} className="bg-background even:bg-muted">
-            <TableCell className="sticky left-0 z-10 bg-inherit font-medium whitespace-nowrap">
+            <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
               {row.display}
             </TableCell>
             {table.columns.map((column) => {
@@ -53,7 +56,7 @@ export function StationNowTable({ table }: { table: StationTable }) {
                 <TableCell
                   key={column.key}
                   className={cn(
-                    'text-right tabular-nums',
+                    'px-2 py-1.5 text-right font-light',
                     value == null && 'text-muted-foreground',
                   )}
                 >

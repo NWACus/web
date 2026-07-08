@@ -83,7 +83,7 @@ export default async function Page({ params, searchParams }: Args) {
     table.latestObservation !== null && Date.now() - table.latestObservation > STALE_THRESHOLD_MS
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mb-10">
       <div className="container flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="mb-1 text-sm text-muted-foreground">{group.region}</p>
