@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { StationNowTable } from '@/components/WeatherStations/StationNowTable'
+import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import { Badge } from '@/components/ui/badge'
 import { getStationGroup, WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
@@ -68,11 +69,14 @@ export default async function Page({ params }: Args) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="container">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">{group.displayName}</h1>
+      <div className="container flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="prose dark:prose-invert max-w-none">
+            <h1 className="font-bold">{group.displayName}</h1>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">{group.region}</p>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">{group.region}</p>
+        <StationPicker current={group.slug} />
       </div>
 
       <div className="container flex flex-col gap-3">
