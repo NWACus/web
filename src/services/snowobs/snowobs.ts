@@ -5,9 +5,6 @@ import { snowObsTimeseriesResponseSchema } from './types/schemas'
 
 const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
 const SOURCE = 'nwac'
-// This token is already served publicly in the nwac.us weather-station page HTML.
-// Prod should set SNOWOBS_TOKEN; the fallback keeps local dev working out of the box.
-const PUBLIC_FALLBACK_TOKEN = 'REDACTED'
 
 export class SnowObsError extends Error {
   constructor(
@@ -43,7 +40,10 @@ export async function fetchStationTimeseries(
   stids: string[],
   options: FetchOptions = {},
 ): Promise<SnowObsTimeseriesResponse> {
-  const token = process.env.SNOWOBS_TOKEN || PUBLIC_FALLBACK_TOKEN
+  const token = process.env.SNOWOBS_TOKEN
+  if (!token) {
+    throw new SnowObsError('SNOWOBS_TOKEN environment variable is not set')
+  }
   const windowHours = options.windowHours ?? 24
   const end = new Date()
   const start = new Date(end.getTime() - windowHours * 60 * 60 * 1000)
