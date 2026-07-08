@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { getStationGroup, WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { buildStationTable, fetchStationTimeseries } from '@/services/snowobs'
+import { cn } from '@/utilities/ui'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 // ISR: regenerate at most every 10 minutes; SnowObs stations report ~hourly.
@@ -17,6 +19,12 @@ export const revalidate = 600
 // Flag the latest reading as stale if it is older than this.
 const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000
 
+// Selectable time windows. The first entry is the default.
+const RANGES = [
+  { key: '24h', label: 'Last 24 Hours', hours: 24 },
+  { key: '7d', label: 'Last 7 Days', hours: 24 * 7 },
+] as const
+
 type PathArgs = {
   center: string
   station: string
@@ -24,6 +32,7 @@ type PathArgs = {
 
 type Args = {
   params: Promise<PathArgs>
+  searchParams: Promise<{ range?: string }>
 }
 
 export async function generateStaticParams() {
@@ -47,8 +56,9 @@ export async function generateStaticParams() {
   return params
 }
 
-export default async function Page({ params }: Args) {
+export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
+  const { range: rangeParam } = await searchParams
 
   const platforms = await getAvalancheCenterPlatforms(center)
   if (!platforms.stations) {
@@ -60,7 +70,12 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  const response = await fetchStationTimeseries(group.stids, { revalidate })
+  const activeRange = RANGES.find((range) => range.key === rangeParam) ?? RANGES[0]
+
+  const response = await fetchStationTimeseries(group.stids, {
+    revalidate,
+    windowHours: activeRange.hours,
+  })
   const table = buildStationTable(response, group.columns)
 
   const latest = table.rows[0]
@@ -80,11 +95,22 @@ export default async function Page({ params }: Args) {
       </div>
 
       <div className="container flex flex-col gap-3">
-        {/* View tabs — only "Last 24 Hours" today; graphs and multi-day land here later. */}
-        <nav className="flex gap-1 border-b" aria-label="Station views">
-          <span className="border-b-2 border-primary px-3 py-2 text-sm font-medium">
-            Last 24 Hours
-          </span>
+        <nav className="flex gap-1 border-b" aria-label="Time range">
+          {RANGES.map((range) => (
+            <Link
+              key={range.key}
+              href={`?range=${range.key}`}
+              aria-current={range.key === activeRange.key ? 'true' : undefined}
+              className={cn(
+                '-mb-px border-b-2 px-3 py-2 text-sm font-medium',
+                range.key === activeRange.key
+                  ? 'border-primary text-foreground'
+                  : 'border-transparent text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {range.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
