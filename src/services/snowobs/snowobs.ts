@@ -31,7 +31,6 @@ type FetchOptions = {
   revalidate?: number
 }
 
-// Build the timeseries request URL for a trailing window (default: last 24h).
 function buildTimeseriesUrl(stids: string[], windowHours: number): string {
   const token = process.env.SNOWOBS_TOKEN
   if (!token) {
@@ -50,12 +49,8 @@ function buildTimeseriesUrl(stids: string[], windowHours: number): string {
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 
-/**
- * Fetch a timeseries for one or more SnowObs station ids over a trailing window
- * (default: last 24 hours). Runs server-side so the API token never reaches the
- * browser. Response is validated against the zod schema before returning.
- */
-// CRAP is inflated by the lack of unit coverage on this fetch wrapper.
+// Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
+// CRAP inflated by lack of unit coverage.
 // fallow-ignore-next-line complexity
 export async function fetchStationTimeseries(
   stids: string[],

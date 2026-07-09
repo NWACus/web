@@ -16,8 +16,6 @@ export const snowObsStationSchema = z.object({
   latitude: z.number().nullish(),
   longitude: z.number().nullish(),
   elevation: z.number().nullish(),
-  // A station with no data comes back as [] (and defensively null/missing)
-  // instead of {}; normalize any of those to an empty observations object.
   observations: z.preprocess(
     (value) => (value == null || Array.isArray(value) ? {} : value),
     snowObsObservationsSchema,

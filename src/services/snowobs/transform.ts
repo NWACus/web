@@ -15,14 +15,14 @@ export type TableColumn = {
   key: string // `${stid}_${variable}`
   stid: string
   variable: string
-  label: string // short header, e.g. "Temp"
-  longName: string // full name, e.g. "Air Temperature"
-  unit: string // display unit, e.g. "°F"
+  label: string
+  longName: string
+  unit: string
   elevation: number | null
 }
 
 export type TableRow = {
-  timestamp: number // ms epoch — stable row key and sort value
+  timestamp: number // ms epoch
   display: string // "MM/DD HH:mm" in DISPLAY_TIMEZONE
   values: Record<string, number | null> // keyed by TableColumn.key
 }
@@ -30,14 +30,11 @@ export type TableRow = {
 export type StationTable = {
   columns: TableColumn[]
   rows: TableRow[]
-  timezoneLabel: string // e.g. "PDT"
-  latestObservation: number | null // ms epoch of the most recent row, or null
+  timezoneLabel: string
+  latestObservation: number | null
 }
 
-/**
- * Running cumulative sum of hourly precipitation. Nulls pass through untouched
- * and do not advance the running total, matching the legacy plugin exactly.
- */
+// Running cumulative precip; nulls pass through and don't advance the total.
 export function computePrecipCumsum(values: (number | null)[]): (number | null)[] {
   let sum = 0
   return values.map((v) => {
@@ -47,14 +44,14 @@ export function computePrecipCumsum(values: (number | null)[]): (number | null)[
   })
 }
 
-// Coerce a raw observation series to numbers, mapping non-numeric entries to null.
+// Raw observation series as numbers (non-numeric entries → null).
 function numericSeries(obs: SnowObsObservations, key: string): (number | null)[] | undefined {
   const raw = obs[key]
   if (!raw) return undefined
   return raw.map((v) => (typeof v === 'number' ? v : null))
 }
 
-// The date_time series as ISO strings, aligned index-for-index with sensor series.
+// date_time as ISO strings, index-aligned with the sensor series.
 function timeSeries(obs: SnowObsObservations): string[] {
   const raw = obs['date_time']
   if (!raw) return []
@@ -124,12 +121,8 @@ function columnMeta(
   }
 }
 
-/**
- * Combine a SnowObs timeseries response with a station group's column config into
- * a render-ready table: newest-first hourly rows aligned across all stations in
- * the group (full outer join on timestamp), with a computed cumulative-precip
- * column auto-inserted after each hourly-precip column.
- */
+// Builds a render-ready table: newest-first rows, full-outer-joined across the
+// group's stations, with a cumulative-precip column after each hourly-precip one.
 export function buildStationTable(
   response: SnowObsTimeseriesResponse,
   columnConfig: StationColumnConfig[],

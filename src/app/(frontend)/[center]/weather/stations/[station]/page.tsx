@@ -39,12 +39,18 @@ export async function generateStaticParams() {
     },
   })
 
+  const tenantPlatforms = await Promise.all(
+    tenants.docs.map(async (tenant) => ({
+      slug: tenant.slug,
+      platforms: await getAvalancheCenterPlatforms(tenant.slug),
+    })),
+  )
+
   const params: PathArgs[] = []
-  for (const tenant of tenants.docs) {
-    const platforms = await getAvalancheCenterPlatforms(tenant.slug)
+  for (const { slug, platforms } of tenantPlatforms) {
     if (!platforms.stations) continue
     for (const group of WEATHER_STATION_GROUPS) {
-      params.push({ center: tenant.slug, station: group.slug })
+      params.push({ center: slug, station: group.slug })
     }
   }
   return params

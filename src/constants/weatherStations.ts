@@ -22,7 +22,6 @@ export const STATION_REGIONS = [
 export type StationRegion = (typeof STATION_REGIONS)[number]
 
 export type WeatherStationGroup = {
-  /** URL slug used at /weather/stations/[station]. */
   slug: string
   /** Old nwac.us /weatherdata/<slug>/now/ slug, kept for future redirects. */
   legacySlug: string
@@ -30,7 +29,6 @@ export type WeatherStationGroup = {
   region: StationRegion
   /** Unique SnowObs station ids fetched for this group. */
   stids: string[]
-  /** Ordered [stid, sensor] table columns. Cumulative precip is derived. */
   columns: StationColumnConfig[]
 }
 
