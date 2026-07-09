@@ -34,6 +34,7 @@ import { Users } from '@/collections/Users'
 
 import { getEmailAdapter } from '@/email-adapter'
 import { defaultLexical } from '@/fields/defaultLexical'
+import { folders } from '@/folders'
 import { DiagnosticsConfig } from '@/globals/Diagnostics/config'
 import { NACWidgetsConfig } from '@/globals/NACWidgetsConfig/config'
 import { plugins } from '@/plugins'
@@ -192,6 +193,7 @@ export default buildConfig({
     Settings,
     Redirects,
   ],
+  folders,
   cors: ['api.avalanche.org', 'api.snowobs.com', getURL(), ...getProductionTenantUrls()].filter(
     Boolean,
   ),

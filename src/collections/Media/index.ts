@@ -18,6 +18,7 @@ const dirname = path.dirname(filename)
 export const Media: CollectionConfig = {
   slug: 'media',
   access: accessByTenantRoleWithPermissiveRead('media'),
+  folders: true,
   admin: {
     baseListFilter: filterByTenant,
     group: 'Content',
