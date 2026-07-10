@@ -1,8 +1,5 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
 import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
 import { StationNowTable } from '@/components/WeatherStations/StationNowTable'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
@@ -10,8 +7,11 @@ import {
   resolveStationRange,
   StationRangeTabs,
 } from '@/components/WeatherStations/StationRangeTabs'
-import { getStationGroup, WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import {
+  getStationGroup,
+  STATIONS_TENANT_SLUG,
+  WEATHER_STATION_GROUPS,
+} from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildStationTable } from '@/services/snowobs/transform'
 import { notFound } from 'next/navigation'
@@ -19,41 +19,16 @@ import { notFound } from 'next/navigation'
 // ISR: regenerate at most every 10 minutes; SnowObs stations report ~hourly.
 export const revalidate = 600
 
-type PathArgs = {
-  center: string
-  station: string
-}
-
 type Args = {
-  params: Promise<PathArgs>
+  params: Promise<{ center: string; station: string }>
   searchParams: Promise<{ range?: string }>
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 0,
-    select: {
-      slug: true,
-    },
-  })
-
-  const tenantPlatforms = await Promise.all(
-    tenants.docs.map(async (tenant) => ({
-      slug: tenant.slug,
-      platforms: await getAvalancheCenterPlatforms(tenant.slug),
-    })),
-  )
-
-  const params: PathArgs[] = []
-  for (const { slug, platforms } of tenantPlatforms) {
-    if (!platforms.stations) continue
-    for (const group of WEATHER_STATION_GROUPS) {
-      params.push({ center: slug, station: group.slug })
-    }
-  }
-  return params
+  return WEATHER_STATION_GROUPS.map((group) => ({
+    center: STATIONS_TENANT_SLUG,
+    station: group.slug,
+  }))
 }
 
 // CRAP is inflated by the lack of unit coverage on this server component.
@@ -62,8 +37,7 @@ export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam } = await searchParams
 
-  const platforms = await getAvalancheCenterPlatforms(center)
-  if (!platforms.stations) {
+  if (center !== STATIONS_TENANT_SLUG) {
     notFound()
   }
 

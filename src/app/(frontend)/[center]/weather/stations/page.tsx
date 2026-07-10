@@ -1,42 +1,28 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import { STATION_REGIONS, WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import {
+  STATION_REGIONS,
+  STATIONS_TENANT_SLUG,
+  WEATHER_STATION_GROUPS,
+} from '@/constants/weatherStations'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-static'
 
-type PathArgs = {
-  center: string
-}
-
 type Args = {
-  params: Promise<PathArgs>
+  params: Promise<{ center: string }>
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 0,
-    select: {
-      slug: true,
-    },
-  })
-
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
+  return [{ center: STATIONS_TENANT_SLUG }]
 }
 
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  const platforms = await getAvalancheCenterPlatforms(center)
-  if (!platforms.stations) {
+  if (center !== STATIONS_TENANT_SLUG) {
     notFound()
   }
 
