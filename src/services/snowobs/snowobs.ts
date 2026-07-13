@@ -79,8 +79,13 @@ export async function fetchStationTimeseries(
     const json = await res.json()
     return snowObsTimeseriesResponseSchema.parse(json)
   } catch (error) {
-    const payload = await getPayload({ config })
-    payload.logger.error({ err: error, stids }, 'fetchStationTimeseries error')
+    // Best-effort logging: bootstrapping payload must never mask the original error.
+    try {
+      const payload = await getPayload({ config })
+      payload.logger.error({ err: error, stids }, 'fetchStationTimeseries error')
+    } catch {
+      console.error('fetchStationTimeseries error (payload logger unavailable)', { stids, error })
+    }
 
     if (error instanceof SnowObsError) {
       throw error
