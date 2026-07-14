@@ -53,9 +53,39 @@ function buildTimeseriesUrl(stids: string[], windowHours: number, bucketSeconds:
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 
+// Best-effort logging: bootstrapping payload must never mask the original error.
+async function logSnowObsError(error: unknown, stids: string[]): Promise<void> {
+  try {
+    const payload = await getPayload({ config })
+    payload.logger.error({ err: error, stids }, 'fetchStationTimeseries error')
+  } catch {
+    console.error('fetchStationTimeseries error (payload logger unavailable)', { stids, error })
+  }
+}
+
+// Validates an HTTP response into a typed timeseries, throwing SnowObsError on non-2xx.
+async function parseTimeseriesResponse(
+  res: Response,
+  stids: string[],
+): Promise<SnowObsTimeseriesResponse> {
+  if (!res.ok) {
+    throw new SnowObsError(`SnowObs request failed with status ${res.status}`, null, {
+      stids,
+      status: res.status,
+      statusText: res.statusText,
+    })
+  }
+  return snowObsTimeseriesResponseSchema.parse(await res.json())
+}
+
+// Preserves an existing SnowObsError; wraps anything else (network, zod, etc.).
+function toSnowObsError(error: unknown, stids: string[]): SnowObsError {
+  return error instanceof SnowObsError
+    ? error
+    : new SnowObsError('Failed to fetch SnowObs station timeseries', error, { stids })
+}
+
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
-// CRAP inflated by lack of unit coverage.
-// fallow-ignore-next-line complexity
 export async function fetchStationTimeseries(
   stids: string[],
   options: FetchOptions = {},
@@ -64,32 +94,10 @@ export async function fetchStationTimeseries(
   const url = buildTimeseriesUrl(stids, options.windowHours ?? 24, revalidate)
 
   try {
-    const res = await fetch(url, {
-      next: { revalidate },
-    })
-
-    if (!res.ok) {
-      throw new SnowObsError(`SnowObs request failed with status ${res.status}`, null, {
-        stids,
-        status: res.status,
-        statusText: res.statusText,
-      })
-    }
-
-    const json = await res.json()
-    return snowObsTimeseriesResponseSchema.parse(json)
+    const res = await fetch(url, { next: { revalidate } })
+    return await parseTimeseriesResponse(res, stids)
   } catch (error) {
-    // Best-effort logging: bootstrapping payload must never mask the original error.
-    try {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: error, stids }, 'fetchStationTimeseries error')
-    } catch {
-      console.error('fetchStationTimeseries error (payload logger unavailable)', { stids, error })
-    }
-
-    if (error instanceof SnowObsError) {
-      throw error
-    }
-    throw new SnowObsError('Failed to fetch SnowObs station timeseries', error, { stids })
+    await logSnowObsError(error, stids)
+    throw toSnowObsError(error, stids)
   }
 }
