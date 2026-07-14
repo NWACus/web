@@ -198,6 +198,48 @@
   --nav-underline: var(--callout);
 }
 
+/* Payette Avalanche Center */
+.pac {
+  /* PAC BRAND COLORS */
+  --teal: hsl(178 83% 35%); /* rgb(15 166 162) - primary accent from links/logo */
+  --slate: hsl(210 9% 14%); /* rgb(32 35 38) - body text / dark */
+  --slate-gray: hsl(0 0% 22%); /* rgb(55 55 55) - footer */
+  /*--------------------------*/
+
+  --brand-50: hsl(178 60% 96%);
+  --brand-100: hsl(178 64% 90%);
+  --brand-200: hsl(178 68% 78%);
+  --brand-300: hsl(178 73% 60%);
+  --brand-400: hsl(178 79% 44%);
+  --brand-500: var(--teal);
+  --brand-600: hsl(178 83% 29%);
+  --brand-700: hsl(181 58% 22%);
+  --brand-800: hsl(198 22% 18%);
+  --brand-900: var(--slate);
+  --brand-950: hsl(210 12% 10%);
+
+  --primary: var(--teal);
+  --primary-hover: hsla(178 83% 35% / 0.85);
+
+  --secondary: var(--slate);
+  --secondary-hover: hsla(210 9% 14% / 0.85);
+  --secondary-foreground: hsl(0 0% 98%);
+
+  --header: hsl(0 0% 100%);
+  --header-foreground: var(--slate);
+  --header-foreground-highlight: var(--brand-700);
+
+  --footer: var(--slate-gray);
+  --footer-foreground: hsl(0 0% 100%);
+  --header-foreground-highlight: var(--brand-700);
+
+  --callout: var(--teal);
+  --callout-hover: hsla(178 83% 35% / 0.85);
+  --callout-foreground: hsl(0 0% 100%);
+
+  --nav-underline: var(--teal);
+}
+
 .a3 {
   /* A3 BRAND COLORS */
   --mountain-slate: hsl(220 25% 20%); /* RGB: 38 / 46 / 63 */
