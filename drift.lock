@@ -343,7 +343,7 @@ sig = "1109f2020067761a"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.js"
-sig = "3fd5fe0f09863f05"
+sig = "68597c16ef37fc12"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -458,17 +458,17 @@ sig = "a4824faf89f4051e"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.js"
-sig = "3fd5fe0f09863f05"
+sig = "68597c16ef37fc12"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/(frontend)/colors.css"
-sig = "456dbff677ffff49"
+sig = "15e0c2130028a5ab"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/api/[center]/og/centerColorMap.ts"
-sig = "79343386aa4a9ca1"
+sig = "73076591cf7c80aa"
 
 [[bindings]]
 doc = "docs/onboarding.md"
