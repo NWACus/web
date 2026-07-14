@@ -3,8 +3,6 @@ import type { StationTable } from '@/services/snowobs/transform'
 
 const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000
 
-// CRAP is inflated by the lack of unit coverage on this component.
-// fallow-ignore-next-line complexity
 export function StationLatestObservation({ table }: { table: StationTable }) {
   const latest = table.rows[0]
   const isStale =
