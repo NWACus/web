@@ -1,12 +1,7 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
-import { StationNowTable } from '@/components/WeatherStations/StationNowTable'
-import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import {
-  resolveStationRange,
-  StationRangeTabs,
-} from '@/components/WeatherStations/StationRangeTabs'
+import { StationPageView } from '@/components/WeatherStations/StationPageView'
+import { resolveStationRange } from '@/components/WeatherStations/StationRangeTabs'
 import {
   getStationGroup,
   STATIONS_TENANT_SLUG,
@@ -31,8 +26,6 @@ export async function generateStaticParams() {
   }))
 }
 
-// CRAP is inflated by the lack of unit coverage on this server component.
-// fallow-ignore-next-line complexity
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam } = await searchParams
@@ -53,27 +46,7 @@ export default async function Page({ params, searchParams }: Args) {
   })
   const table = buildStationTable(response, group.columns)
 
-  return (
-    <div className="mb-10 flex flex-col gap-4">
-      <div className="container flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="mb-1 text-sm text-muted-foreground">{group.region}</p>
-          <div className="prose dark:prose-invert max-w-none">
-            <h1 className="font-bold">{group.displayName}</h1>
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <StationLatestObservation table={table} />
-          <StationPicker current={group.slug} />
-        </div>
-      </div>
-
-      <div className="container flex flex-col gap-3">
-        <StationRangeTabs activeKey={activeRange.key} />
-        <StationNowTable table={table} />
-      </div>
-    </div>
-  )
+  return <StationPageView group={group} table={table} activeRange={activeRange} />
 }
 
 function resolveParentTitle(parent: ResolvedMetadata): Metadata['title'] {
