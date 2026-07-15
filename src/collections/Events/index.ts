@@ -62,8 +62,9 @@ export const Events: CollectionConfig = {
     {
       name: 'description',
       type: 'textarea',
+      maxLength: 200,
       admin: {
-        description: 'Short description/summary for event previews',
+        description: 'Short description/summary for event previews. Limit 200 characters.',
       },
     },
     startAndEndDateField(),
