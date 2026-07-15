@@ -16,7 +16,7 @@ concurrency:
 jobs:
   lint:
     name: lint
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
@@ -38,7 +38,7 @@ jobs:
   build:
     name: build
     environment: Preview
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
 
   prettier:
     name: prettier
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
@@ -116,7 +116,7 @@ jobs:
 
   test:
     name: test
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
@@ -135,7 +135,7 @@ jobs:
 
   drift:
     name: drift
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
@@ -158,7 +158,7 @@ jobs:
 
   fallow:
     name: fallow
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
@@ -183,7 +183,7 @@ jobs:
     name: e2e
     if: github.event_name == 'merge_group'
     environment: Preview
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 20
     container: mcr.microsoft.com/playwright:v1.58.0-noble
     env:
@@ -231,7 +231,7 @@ jobs:
 
   migrations-check:
     name: migrations-check
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v4
@@ -266,7 +266,7 @@ jobs:
 
   migration-safety:
     name: migration-safety
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     permissions:
       pull-requests: write
     steps:

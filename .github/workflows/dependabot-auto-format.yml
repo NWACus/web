@@ -14,7 +14,7 @@ concurrency:
 jobs:
   prettify:
     if: github.actor == 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
