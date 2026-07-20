@@ -28,6 +28,8 @@ export const GRAPH_WINDOWS: GraphWindow[] = [
   { key: '24h', label: '24 hours', hours: 24 },
   { key: '7d', label: '7 days', hours: 7 * 24 },
   { key: '30d', label: '30 days', hours: 30 * 24 },
+  { key: '3m', label: '3 months', hours: 91 * 24 },
+  { key: '6m', label: '6 months', hours: 182 * 24 },
   // "Season" = back to Oct 1; approximated as a trailing window server-side.
   { key: 'season', label: 'Season', hours: 0 },
 ]
