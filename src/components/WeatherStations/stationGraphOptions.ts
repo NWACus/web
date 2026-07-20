@@ -77,14 +77,24 @@ export function buildChartOption(data: GraphData, title: string): EChartOption {
     return s.kind === 'raw' ? rawSeries(s, yAxisIndex) : dailySeries(s, yAxisIndex)
   })
   return {
-    title: { text: title, left: 0, textStyle: { fontSize: 14 } },
+    // Title top-left, legend on its own row below — they no longer collide.
+    title: { text: title, left: 0, top: 0, textStyle: { fontSize: 15, fontWeight: 600 } },
     tooltip: { trigger: 'axis' },
-    legend: { top: 0, right: 0, data: data.series.map((s) => s.label) },
-    grid: { left: 48, right: 48, top: 40, bottom: 56 },
-    xAxis: { type: 'time' },
+    legend: { top: 26, left: 0, type: 'scroll', data: data.series.map((s) => s.label) },
+    grid: { left: 64, right: 64, top: 64, bottom: 64 },
+    xAxis: {
+      type: 'time',
+      axisLabel: { hideOverlap: true },
+    },
+    // Unit reads along the axis (rotated, centered) instead of a clipped label
+    // floating above the axis top.
     yAxis: axes.map((unit, i) => ({
       type: 'value',
       name: unit,
+      nameLocation: 'middle',
+      nameGap: 44,
+      nameRotate: i === 0 ? 90 : -90,
+      nameTextStyle: { fontSize: 12 },
       position: i === 0 ? 'left' : 'right',
       scale: true,
       splitLine: { show: i === 0 },
