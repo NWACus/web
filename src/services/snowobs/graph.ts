@@ -75,9 +75,11 @@ function rawPoints(station: ResponseStation, variable: string): [number, number 
 }
 
 // Collapse raw points into per-day [dayStart, min, mean, max] rows (display
-// timezone days); days with no numeric observations are omitted.
+// timezone days); days with no numeric observations are omitted. Circular
+// variables get a vector mean with min/max pinned to it (no meaningful band).
 export function aggregateDaily(
   points: [number, number | null][],
+  circular = false,
 ): [number, number, number, number][] {
   const byDay = new Map<string, { t: number; values: number[] }>()
   for (const [t, v] of points) {
@@ -93,17 +95,35 @@ export function aggregateDaily(
   }
   return Array.from(byDay.values())
     .sort((a, b) => a.t - b.t)
-    .map(({ t, values }) => {
-      const min = Math.min(...values)
-      const max = Math.max(...values)
-      const mean = values.reduce((acc, v) => acc + v, 0) / values.length
-      return [t, round2(min), round2(mean), round2(max)]
-    })
+    .map(({ t, values }) => dayRow(t, values, circular))
+}
+
+function dayRow(t: number, values: number[], circular: boolean): [number, number, number, number] {
+  if (circular) {
+    const mean = vectorMeanDegrees(values)
+    return [t, mean, mean, mean]
+  }
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const mean = values.reduce((acc, v) => acc + v, 0) / values.length
+  return [t, round2(min), round2(mean), round2(max)]
 }
 
 function round2(v: number): number {
   return Number(v.toFixed(2))
 }
+
+// Vector (circular) mean of compass degrees — 350° and 10° average to 0°, not
+// 180°. Ports the legacy compute_aggregates _vector_mean behavior.
+export function vectorMeanDegrees(values: number[]): number {
+  const toRad = Math.PI / 180
+  const x = values.reduce((acc, d) => acc + Math.cos(d * toRad), 0)
+  const y = values.reduce((acc, d) => acc + Math.sin(d * toRad), 0)
+  const deg = (Math.atan2(y, x) * 180) / Math.PI
+  return round2((deg + 360) % 360)
+}
+
+const CIRCULAR_VARIABLES = new Set(['wind_direction'])
 
 function buildSeries(
   station: ResponseStation,
@@ -121,7 +141,13 @@ function buildSeries(
     label: seriesLabel(station.name ?? station.stid, variable),
     unit: seriesUnit(units, variable),
   }
-  if (aggregated) return { kind: 'daily', ...base, days: aggregateDaily(points) }
+  if (aggregated) {
+    return {
+      kind: 'daily',
+      ...base,
+      days: aggregateDaily(points, CIRCULAR_VARIABLES.has(variable)),
+    }
+  }
   return { kind: 'raw', ...base, points }
 }
 
