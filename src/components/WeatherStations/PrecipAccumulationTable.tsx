@@ -18,10 +18,12 @@ import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-// Totals come from the API in inches; mm is a display conversion.
-type Unit = 'in' | 'mm'
+// Totals come from the API in inches, elevation in feet; metric converts on display.
+type Unit = 'imperial' | 'metric'
+const PRECIP_UNIT: Record<Unit, string> = { imperial: 'in', metric: 'mm' }
+const ELEVATION_UNIT: Record<Unit, string> = { imperial: 'ft', metric: 'm' }
 function formatTotal(value: number, unit: Unit): string {
-  return unit === 'mm' ? (value * 25.4).toFixed(1) : value.toFixed(2)
+  return unit === 'metric' ? (value * 25.4).toFixed(1) : value.toFixed(2)
 }
 
 // Sortable columns: station name, each trailing window (by hours), and the
@@ -142,8 +144,10 @@ function formatLongitude(row: PrecipAccumulationRow): string {
   return row.longitude != null ? Math.abs(row.longitude).toFixed(4) : '–'
 }
 
-function formatElevation(row: PrecipAccumulationRow): string {
-  return row.elevation != null ? row.elevation.toLocaleString() : '–'
+function formatElevation(row: PrecipAccumulationRow, unit: Unit): string {
+  if (row.elevation == null) return '–'
+  const value = unit === 'metric' ? Math.round(row.elevation * 0.3048) : row.elevation
+  return value.toLocaleString()
 }
 
 function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
@@ -164,7 +168,9 @@ function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
       </TableCell>
       <TableCell className="px-2 py-1.5 text-right font-light">{formatLatitude(row)}</TableCell>
       <TableCell className="px-2 py-1.5 text-right font-light">{formatLongitude(row)}</TableCell>
-      <TableCell className="px-2 py-1.5 text-right font-light">{formatElevation(row)}</TableCell>
+      <TableCell className="px-2 py-1.5 text-right font-light">
+        {formatElevation(row, unit)}
+      </TableCell>
     </TableRow>
   )
 }
@@ -207,10 +213,20 @@ function UnitToggle({ unit, onChange }: { unit: Unit; onChange: (u: Unit) => voi
         variant="outline"
         value={unit}
         onValueChange={(v) => v && onChange(v as Unit)}
-        aria-label="Precipitation units"
+        aria-label="Units"
       >
-        <ToggleGroupItem value="in">in</ToggleGroupItem>
-        <ToggleGroupItem value="mm">mm</ToggleGroupItem>
+        <ToggleGroupItem
+          value="imperial"
+          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+        >
+          Imperial
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="metric"
+          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+        >
+          Metric
+        </ToggleGroupItem>
       </ToggleGroup>
     </div>
   )
@@ -236,7 +252,12 @@ function HeaderRow({
     <TableRow>
       <SortableHead label="Station" state={stateFor('name')} sticky />
       {PRECIP_ACCUMULATION_WINDOWS.map((hours) => (
-        <SortableHead key={hours} label={`${hours}H`} sublabel={unit} state={stateFor(hours)} />
+        <SortableHead
+          key={hours}
+          label={`${hours}H`}
+          sublabel={PRECIP_UNIT[unit]}
+          state={stateFor(hours)}
+        />
       ))}
       <SortableHead
         label="Last update"
@@ -245,7 +266,11 @@ function HeaderRow({
       />
       <SortableHead label="Latitude" sublabel="°N" state={stateFor('latitude')} />
       <SortableHead label="Longitude" sublabel="°W" state={stateFor('longitude')} />
-      <SortableHead label="Elevation" sublabel="ft" state={stateFor('elevation')} />
+      <SortableHead
+        label="Elevation"
+        sublabel={ELEVATION_UNIT[unit]}
+        state={stateFor('elevation')}
+      />
     </TableRow>
   )
 }
@@ -256,7 +281,7 @@ function HeaderRow({
 // the server; clicking a header sorts client-side, toggling direction.
 export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationData }) {
   const [sort, setSort] = useState<SortState | null>(null)
-  const [unit, setUnit] = useState<Unit>('in')
+  const [unit, setUnit] = useState<Unit>('imperial')
 
   const onSort = (key: SortKey) =>
     setSort((prev) =>
