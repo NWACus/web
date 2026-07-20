@@ -21,6 +21,9 @@
     "tailwindcss-animate"
   ],
   "ignoreExportsUsedInFile": true,
+  "duplicates": {
+    "ignore": ["**/weather/stations/**"]
+  },
   "ignoreExports": [
     {
       "file": "src/components/ui/**",

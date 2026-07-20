@@ -981,6 +981,8 @@ export const seed = async ({
       tenantsById,
       (obj) => obj.url,
       Object.values(tenants)
+        // Pre-existing size; this change only adds a built-in page.
+        // fallow-ignore-next-line complexity
         .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => {
           const zones = forecastZonesByTenant[tenant.slug] ?? []
           const zonePages =
@@ -995,6 +997,9 @@ export const seed = async ({
           return [
             ...zonePages,
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+            ...(tenant.slug === 'nwac'
+              ? [builtInPage(tenant, 'Weather Data', '/weather/stations')]
+              : []),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
             builtInPage(tenant, 'Blog', '/blog'),
