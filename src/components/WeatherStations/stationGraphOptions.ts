@@ -149,6 +149,27 @@ function degreeAxisOverrides(symbolsOnly: boolean): object {
   }
 }
 
+// Preset-pinned axis bounds (RH 0-100, ...), matching the legacy plot specs.
+function presetAxisOverrides(preset: GraphPreset): object {
+  if (!preset.axis) return {}
+  return { ...preset.axis, scale: false }
+}
+
+// Legacy-style horizontal reference line (32°F freezing on temperature),
+// attached to the first series.
+function refLineFor(preset: GraphPreset): object {
+  if (preset.refLine === undefined) return {}
+  return {
+    markLine: {
+      silent: true,
+      symbol: 'none',
+      lineStyle: { type: 'dashed', color: '#94a3b8' },
+      label: { position: 'insideEndTop', formatter: String(preset.refLine) },
+      data: [{ yAxis: preset.refLine }],
+    },
+  }
+}
+
 // Tooltip values as "SW (225°)" on direction charts.
 function directionTooltip(symbolsOnly: boolean): object {
   if (!symbolsOnly) return {}
@@ -167,7 +188,9 @@ export function buildChartOption(data: GraphData, preset: GraphPreset): EChartOp
   const series = data.series.flatMap((s, i) => {
     const yAxisIndex = axisIndexFor(s.unit, axes)
     const color = SERIES_COLORS[i % SERIES_COLORS.length]
-    return seriesFor(s, yAxisIndex, color, symbolsOnly)
+    const built = seriesFor(s, yAxisIndex, color, symbolsOnly)
+    if (i === 0) Object.assign(built[0], refLineFor(preset))
+    return built
   })
   return {
     // Title top-left, legend on its own row below — they no longer collide.
@@ -203,6 +226,7 @@ export function buildChartOption(data: GraphData, preset: GraphPreset): EChartOp
       scale: true,
       splitLine: { show: i === 0 },
       ...degreeAxisOverrides(symbolsOnly),
+      ...presetAxisOverrides(preset),
     })),
     dataZoom: [
       { type: 'inside', xAxisIndex: 0 },

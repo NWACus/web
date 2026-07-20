@@ -10,11 +10,20 @@ export type GraphPreset = {
   variables: string[]
   /** Dots instead of a connected line (wind direction wraps at 360°). */
   symbolsOnly?: boolean
+  /** Fixed y-axis bounds (legacy pins some, e.g. RH 0-100). */
+  axis?: { min?: number; max?: number }
+  /** Horizontal reference line (legacy: 32°F freezing line on temperature). */
+  refLine?: number
 }
 
 const PRESETS: GraphPreset[] = [
-  { key: 'temp', title: 'Temperature', variables: ['air_temp'] },
-  { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] },
+  { key: 'temp', title: 'Temperature', variables: ['air_temp'], refLine: 32 },
+  {
+    key: 'rh',
+    title: 'Relative Humidity',
+    variables: ['relative_humidity'],
+    axis: { min: 0, max: 100 },
+  },
   {
     key: 'wind',
     title: 'Wind Speed',
@@ -26,8 +35,12 @@ const PRESETS: GraphPreset[] = [
   { key: 'snow24', title: '24 Hour Snow Total', variables: ['snow_depth_24h', 'snow_depth_24hr'] },
   { key: 'intersnow', title: 'Intermittent Snow', variables: ['intermittent_snow'] },
   { key: 'precip', title: 'Precipitation', variables: ['precip_accum_one_hour'] },
-  { key: 'solar', title: 'Solar Radiation', variables: ['solar_radiation'] },
+  // Legacy naming per the WP plugin's snowobs mapping: "Solar Radiation" is the
+  // net_solar sensor; "Solar Pyranometer" is snowobs solar_radiation.
+  { key: 'solar', title: 'Solar Radiation', variables: ['net_solar'] },
+  { key: 'pyranometer', title: 'Solar Pyranometer', variables: ['solar_radiation'] },
   { key: 'pressure', title: 'Barometric Pressure', variables: ['pressure'] },
+  { key: 'battery', title: 'Battery Voltage', variables: ['battery_voltage'] },
   { key: 'equiptemp', title: 'Equipment Temperature', variables: ['equip_temperature'] },
 ]
 
