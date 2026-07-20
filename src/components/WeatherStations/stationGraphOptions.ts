@@ -84,7 +84,18 @@ export function buildChartOption(data: GraphData, title: string): EChartOption {
     grid: { left: 64, right: 64, top: 64, bottom: 64 },
     xAxis: {
       type: 'time',
-      axisLabel: { hideOverlap: true },
+      axisLabel: {
+        hideOverlap: true,
+        // Lead date-level ticks with the day of week ("Mon Jul 20"; hourly
+        // ticks "Mon 14:00") — forecasters think in storm days.
+        formatter: {
+          year: '{yyyy}',
+          month: '{MMM} {yyyy}',
+          day: '{ee} {MMM} {d}',
+          hour: '{ee} {HH}:{mm}',
+          minute: '{HH}:{mm}',
+        },
+      },
     },
     // Unit reads along the axis (rotated, centered) instead of a clipped label
     // floating above the axis top.
