@@ -5,6 +5,10 @@ import type { EChartOption } from './EChart'
 // Raw series render as lines; daily-aggregated series render as a mean line
 // plus a shaded min→max band (two stacked helper series).
 
+// Fixed palette so a series' min-max band always shades in ITS line's color
+// (auto-assignment gave the invisible band helpers their own colors).
+const SERIES_COLORS = ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#0891b2']
+
 // Series grouped onto up to two y-axes by unit (°F and % on one chart, etc.).
 function unitAxes(series: GraphSeries[]): string[] {
   const units: string[] = []
@@ -19,11 +23,12 @@ function axisIndexFor(unit: string, axes: string[]): number {
   return index === -1 ? 0 : index
 }
 
-function rawSeries(s: GraphSeries & { kind: 'raw' }, yAxisIndex: number): object[] {
+function rawSeries(s: GraphSeries & { kind: 'raw' }, yAxisIndex: number, color: string): object[] {
   return [
     {
       name: s.label,
       type: 'line',
+      color,
       yAxisIndex,
       showSymbol: false,
       connectNulls: false,
@@ -34,12 +39,17 @@ function rawSeries(s: GraphSeries & { kind: 'raw' }, yAxisIndex: number): object
 
 // Mean line + min→max band: a transparent "floor" line at min, stacked with
 // (max − min) area on top.
-function dailySeries(s: GraphSeries & { kind: 'daily' }, yAxisIndex: number): object[] {
+function dailySeries(
+  s: GraphSeries & { kind: 'daily' },
+  yAxisIndex: number,
+  color: string,
+): object[] {
   const stack = `band-${s.label}`
   return [
     {
       name: s.label,
       type: 'line',
+      color,
       yAxisIndex,
       showSymbol: false,
       data: s.days.map(([t, , mean]) => [t, mean]),
@@ -47,24 +57,28 @@ function dailySeries(s: GraphSeries & { kind: 'daily' }, yAxisIndex: number): ob
     {
       name: `${s.label} range`,
       type: 'line',
+      color,
       yAxisIndex,
       stack,
       showSymbol: false,
       lineStyle: { opacity: 0 },
       tooltip: { show: false },
       legendHoverLink: false,
+      silent: true,
       data: s.days.map(([t, min]) => [t, min]),
     },
     {
       name: `${s.label} range`,
       type: 'line',
+      color,
       yAxisIndex,
       stack,
       showSymbol: false,
       lineStyle: { opacity: 0 },
-      areaStyle: { opacity: 0.15 },
+      areaStyle: { color, opacity: 0.14 },
       tooltip: { show: false },
       legendHoverLink: false,
+      silent: true,
       data: s.days.map(([t, min, , max]) => [t, max - min]),
     },
   ]
@@ -72,9 +86,10 @@ function dailySeries(s: GraphSeries & { kind: 'daily' }, yAxisIndex: number): ob
 
 export function buildChartOption(data: GraphData, title: string): EChartOption {
   const axes = unitAxes(data.series)
-  const series = data.series.flatMap((s) => {
+  const series = data.series.flatMap((s, i) => {
     const yAxisIndex = axisIndexFor(s.unit, axes)
-    return s.kind === 'raw' ? rawSeries(s, yAxisIndex) : dailySeries(s, yAxisIndex)
+    const color = SERIES_COLORS[i % SERIES_COLORS.length]
+    return s.kind === 'raw' ? rawSeries(s, yAxisIndex, color) : dailySeries(s, yAxisIndex, color)
   })
   return {
     // Title top-left, legend on its own row below — they no longer collide.
