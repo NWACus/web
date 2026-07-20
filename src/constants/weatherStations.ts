@@ -607,3 +607,13 @@ const STATION_GROUPS_BY_SLUG = new Map(WEATHER_STATION_GROUPS.map((g) => [g.slug
 export function getStationGroup(slug: string): WeatherStationGroup | undefined {
   return STATION_GROUPS_BY_SLUG.get(slug)
 }
+
+// Every station with a configured hourly-precip column — the row set for the
+// Accumulated Precipitation page (legacy /data-portal/accumulations/precipitation/).
+export const PRECIP_STATION_STIDS = Array.from(
+  new Set(
+    WEATHER_STATION_GROUPS.flatMap((g) => g.columns)
+      .filter(([, variable]) => variable === 'precip_accum_one_hour')
+      .map(([stid]) => stid),
+  ),
+)
