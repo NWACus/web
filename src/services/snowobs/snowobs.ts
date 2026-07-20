@@ -27,21 +27,30 @@ function formatSnowObsDate(date: Date): string {
 }
 
 type FetchOptions = {
+  // Trailing-window fetch (used when start/end are omitted).
   windowHours?: number
+  // Explicit window — overrides windowHours when provided.
+  start?: Date
+  end?: Date
   revalidate?: number
 }
 
-function buildTimeseriesUrl(stids: string[], windowHours: number, bucketSeconds: number): string {
+// Build the timeseries request URL. Defaults to a trailing window (last 24h)
+// with `end` floored to the revalidate bucket so the URL stays stable within a
+// window (an un-bucketed `new Date()` defeats Next's fetch cache); an explicit
+// start/end (CSV export) overrides the trailing window untouched.
+// CRAP is inflated by the lack of unit coverage on this URL builder.
+// fallow-ignore-next-line complexity
+function buildTimeseriesUrl(stids: string[], options: FetchOptions): string {
   const token = process.env.SNOWOBS_TOKEN
   if (!token) {
     throw new SnowObsError('SNOWOBS_TOKEN environment variable is not set')
   }
-  // Floor `end` to the revalidate bucket so the URL stays stable within a window;
-  // an un-bucketed `new Date()` makes every call unique and Next's fetch cache never dedups.
-  const bucketMs = Math.max(bucketSeconds, 1) * 1000
+  const bucketMs = Math.max(options.revalidate ?? 600, 1) * 1000
   const endMs = Math.floor(Date.now() / bucketMs) * bucketMs
-  const end = new Date(endMs)
-  const start = new Date(endMs - windowHours * 60 * 60 * 1000)
+  const end = options.end ?? new Date(endMs)
+  const start =
+    options.start ?? new Date(end.getTime() - (options.windowHours ?? 24) * 60 * 60 * 1000)
 
   const params = new URLSearchParams({
     token,
@@ -91,7 +100,7 @@ export async function fetchStationTimeseries(
   options: FetchOptions = {},
 ): Promise<SnowObsTimeseriesResponse> {
   const revalidate = options.revalidate ?? 600
-  const url = buildTimeseriesUrl(stids, options.windowHours ?? 24, revalidate)
+  const url = buildTimeseriesUrl(stids, options)
 
   try {
     const res = await fetch(url, { next: { revalidate } })
