@@ -2,6 +2,7 @@ import {
   aggregateDaily,
   buildGraphData,
   DECIMATION_THRESHOLD_DAYS,
+  vectorMeanDegrees,
   windowExceedsThreshold,
 } from '../../src/services/snowobs/graph'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
@@ -82,5 +83,25 @@ describe('windowExceedsThreshold', () => {
     const over = new Date(T0 + (DECIMATION_THRESHOLD_DAYS + 1) * 24 * HOUR)
     expect(windowExceedsThreshold(from, under)).toBe(false)
     expect(windowExceedsThreshold(from, over)).toBe(true)
+  })
+})
+
+describe('vectorMeanDegrees', () => {
+  it('averages across the north wrap correctly', () => {
+    // Arithmetic mean of 350 and 10 is 180 (dead wrong); vector mean is 0.
+    expect(vectorMeanDegrees([350, 10])).toBe(0)
+    expect(vectorMeanDegrees([90, 90])).toBe(90)
+    expect(vectorMeanDegrees([0, 90])).toBe(45)
+  })
+
+  it('pins min/max to the vector mean in circular aggregation', () => {
+    const days = aggregateDaily(
+      [
+        [Date.UTC(2026, 0, 10, 12), 350],
+        [Date.UTC(2026, 0, 10, 13), 10],
+      ],
+      true,
+    )
+    expect(days[0].slice(1)).toEqual([0, 0, 0])
   })
 })
