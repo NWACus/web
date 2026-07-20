@@ -100,7 +100,7 @@ function PresetChart({
   const notice = chartNotice(preset.title, error, data)
   if (notice) return <p className="text-sm text-muted-foreground">{notice}</p>
   if (!option) return <div className="h-80 animate-pulse rounded-md bg-muted" />
-  return <EChart option={option} />
+  return <EChart option={option} group="station-graphs" />
 }
 
 // The station page's Graphs tab: fixed preset charts for this station group,
