@@ -14,22 +14,36 @@ export function resolveStationRange(param: string | undefined): StationRange {
 
 export function StationRangeTabs({ activeKey }: { activeKey: string }) {
   return (
-    <nav className="flex gap-1 border-b" aria-label="Time range">
-      {STATION_RANGES.map((range) => (
-        <Link
-          key={range.key}
-          href={`?range=${range.key}`}
-          aria-current={range.key === activeKey ? 'true' : undefined}
-          className={cn(
-            '-mb-px border-b-2 px-3 py-2 text-sm font-medium',
-            range.key === activeKey
-              ? 'border-primary text-foreground'
-              : 'border-transparent text-muted-foreground hover:text-foreground',
-          )}
-        >
-          {range.label}
-        </Link>
-      ))}
+    <nav className="flex gap-1 border-b" aria-label="Station views">
+      <>
+        {STATION_RANGES.map((range) => (
+          <Link
+            key={range.key}
+            href={`?range=${range.key}`}
+            aria-current={range.key === activeKey ? 'true' : undefined}
+            className={cn(
+              '-mb-px border-b-2 px-3 py-2 text-sm font-medium',
+              range.key === activeKey
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {range.label}
+          </Link>
+        ))}
+      </>
+      <Link
+        href={`?range=csv`}
+        aria-current={'csv' === activeKey ? 'true' : undefined}
+        className={cn(
+          '-mb-px ml-auto border-b-2 px-3 py-2 text-sm font-medium',
+          'csv' === activeKey
+            ? 'border-primary text-foreground'
+            : 'border-transparent text-muted-foreground hover:text-foreground',
+        )}
+      >
+        Download CSV
+      </Link>
     </nav>
   )
 }
