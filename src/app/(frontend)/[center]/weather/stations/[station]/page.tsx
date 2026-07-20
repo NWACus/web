@@ -1,11 +1,13 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
+import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveStationRange } from '@/components/WeatherStations/StationRangeTabs'
 import {
   getStationGroup,
   STATIONS_TENANT_SLUG,
   WEATHER_STATION_GROUPS,
+  type WeatherStationGroup,
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildStationTable } from '@/services/snowobs/transform'
@@ -26,6 +28,31 @@ export async function generateStaticParams() {
   }))
 }
 
+// Datalogger dropdown options for the CSV form: the group's stids labeled with
+// each logger's name + elevation (from a cheap 1-hour metadata fetch).
+async function loadDataloggers(
+  group: WeatherStationGroup,
+): Promise<{ stid: string; label: string }[]> {
+  const meta = await fetchStationTimeseries(group.stids, { windowHours: 1 })
+  return group.stids.map((stid) => {
+    const station = meta.STATION.find((s) => s.stid === stid)
+    if (!station?.name) return { stid, label: stid }
+    return {
+      stid,
+      label: station.elevation != null ? `${station.name}, ${station.elevation}'` : station.name,
+    }
+  })
+}
+
+function csvYears(): number[] {
+  const current = new Date().getUTCFullYear()
+  const years: number[] = []
+  for (let year = current; year >= 2016; year--) years.push(year)
+  return years
+}
+
+// CRAP is inflated by the lack of unit coverage on this server component.
+// fallow-ignore-next-line complexity
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam } = await searchParams
@@ -39,14 +66,31 @@ export default async function Page({ params, searchParams }: Args) {
     notFound()
   }
 
+  const isCsv = rangeParam === 'csv'
   const activeRange = resolveStationRange(rangeParam)
-  const response = await fetchStationTimeseries(group.stids, {
-    revalidate,
-    windowHours: activeRange.hours,
-  })
-  const table = buildStationTable(response, group.columns)
 
-  return <StationPageView group={group} table={table} activeRange={activeRange} />
+  let table = null
+  if (!isCsv) {
+    const response = await fetchStationTimeseries(group.stids, {
+      revalidate,
+      windowHours: activeRange.hours,
+    })
+    table = buildStationTable(response, group.columns)
+  }
+  const dataloggers = isCsv ? await loadDataloggers(group) : []
+
+  return (
+    <StationPageView
+      group={group}
+      table={table}
+      activeKey={isCsv ? 'csv' : activeRange.key}
+      csvForm={
+        isCsv ? (
+          <StationCsvForm slug={group.slug} dataloggers={dataloggers} years={csvYears()} />
+        ) : undefined
+      }
+    />
+  )
 }
 
 function resolveParentTitle(parent: ResolvedMetadata): Metadata['title'] {
