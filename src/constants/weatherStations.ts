@@ -8,7 +8,7 @@ export const STATIONS_TENANT_SLUG = 'nwac'
 export const STATION_REGIONS = [
   'Olympics',
   'Mt Baker',
-  'West',
+  'SR20 West',
   'Mountain Loop',
   'Stevens Pass',
   'Snoqualmie Pass',
@@ -80,7 +80,7 @@ export const WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     slug: 'newhalem',
     legacySlug: 'newhalem',
     displayName: 'Newhalem',
-    region: 'West',
+    region: 'SR20 West',
     stids: ['59'],
     columns: [
       ['59', 'air_temp'],
