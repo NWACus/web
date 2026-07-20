@@ -11,7 +11,8 @@ export type GraphPreset = {
 }
 
 const PRESETS: GraphPreset[] = [
-  { key: 'temp', title: 'Temperature & Humidity', variables: ['air_temp', 'relative_humidity'] },
+  { key: 'temp', title: 'Temperature', variables: ['air_temp'] },
+  { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] },
   { key: 'wind', title: 'Wind', variables: ['wind_speed', 'wind_gust'] },
   {
     key: 'snow',
