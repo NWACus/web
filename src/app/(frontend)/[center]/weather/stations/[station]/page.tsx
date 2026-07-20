@@ -1,6 +1,8 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
+import { presetsForGroup } from '@/components/WeatherStations/stationGraphPresets'
+import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveStationRange } from '@/components/WeatherStations/StationRangeTabs'
 import {
@@ -67,10 +69,11 @@ export default async function Page({ params, searchParams }: Args) {
   }
 
   const isCsv = rangeParam === 'csv'
+  const isGraphs = rangeParam === 'graphs'
   const activeRange = resolveStationRange(rangeParam)
 
   let table = null
-  if (!isCsv) {
+  if (!isCsv && !isGraphs) {
     const response = await fetchStationTimeseries(group.stids, {
       revalidate,
       windowHours: activeRange.hours,
@@ -79,17 +82,16 @@ export default async function Page({ params, searchParams }: Args) {
   }
   const dataloggers = isCsv ? await loadDataloggers(group) : []
 
+  let tabContent = undefined
+  if (isCsv) {
+    tabContent = <StationCsvForm slug={group.slug} dataloggers={dataloggers} years={csvYears()} />
+  } else if (isGraphs) {
+    tabContent = <StationGraphs stids={group.stids} presets={presetsForGroup(group)} />
+  }
+
+  const activeKey = isCsv ? 'csv' : isGraphs ? 'graphs' : activeRange.key
   return (
-    <StationPageView
-      group={group}
-      table={table}
-      activeKey={isCsv ? 'csv' : activeRange.key}
-      csvForm={
-        isCsv ? (
-          <StationCsvForm slug={group.slug} dataloggers={dataloggers} years={csvYears()} />
-        ) : undefined
-      }
-    />
+    <StationPageView group={group} table={table} activeKey={activeKey} tabContent={tabContent} />
   )
 }
 

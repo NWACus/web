@@ -12,38 +12,43 @@ export function resolveStationRange(param: string | undefined): StationRange {
   return STATION_RANGES.find((range) => range.key === param) ?? STATION_RANGES[0]
 }
 
+function TabLink({
+  tabKey,
+  label,
+  activeKey,
+  className,
+}: {
+  tabKey: string
+  label: string
+  activeKey: string
+  className?: string
+}) {
+  const active = tabKey === activeKey
+  return (
+    <Link
+      href={`?range=${tabKey}`}
+      aria-current={active ? 'true' : undefined}
+      className={cn(
+        '-mb-px border-b-2 px-3 py-2 text-sm font-medium',
+        active
+          ? 'border-primary text-foreground'
+          : 'border-transparent text-muted-foreground hover:text-foreground',
+        className,
+      )}
+    >
+      {label}
+    </Link>
+  )
+}
+
 export function StationRangeTabs({ activeKey }: { activeKey: string }) {
   return (
     <nav className="flex gap-1 border-b" aria-label="Station views">
-      <>
-        {STATION_RANGES.map((range) => (
-          <Link
-            key={range.key}
-            href={`?range=${range.key}`}
-            aria-current={range.key === activeKey ? 'true' : undefined}
-            className={cn(
-              '-mb-px border-b-2 px-3 py-2 text-sm font-medium',
-              range.key === activeKey
-                ? 'border-primary text-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground',
-            )}
-          >
-            {range.label}
-          </Link>
-        ))}
-      </>
-      <Link
-        href={`?range=csv`}
-        aria-current={'csv' === activeKey ? 'true' : undefined}
-        className={cn(
-          '-mb-px ml-auto border-b-2 px-3 py-2 text-sm font-medium',
-          'csv' === activeKey
-            ? 'border-primary text-foreground'
-            : 'border-transparent text-muted-foreground hover:text-foreground',
-        )}
-      >
-        Download CSV
-      </Link>
+      {STATION_RANGES.map((range) => (
+        <TabLink key={range.key} tabKey={range.key} label={range.label} activeKey={activeKey} />
+      ))}
+      <TabLink tabKey="graphs" label="Graphs" activeKey={activeKey} />
+      <TabLink tabKey="csv" label="Download CSV" activeKey={activeKey} className="ml-auto" />
     </nav>
   )
 }

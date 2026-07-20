@@ -11,13 +11,19 @@ type StationPageViewProps = {
   // Null on the CSV tab (no table fetch there).
   table: StationTable | null
   activeKey: string
-  // Rendered instead of the table (the CSV export form).
-  csvForm?: ReactNode
+  // Rendered instead of the table (CSV export form, graphs, ...).
+  tabContent?: ReactNode
 }
 
 // The tab body: the CSV form when on the CSV tab, else the observations table.
-function StationContent({ table, csvForm }: { table: StationTable | null; csvForm?: ReactNode }) {
-  if (csvForm) return <>{csvForm}</>
+function StationContent({
+  table,
+  tabContent,
+}: {
+  table: StationTable | null
+  tabContent?: ReactNode
+}) {
+  if (tabContent) return <>{tabContent}</>
   return table ? <StationNowTable table={table} /> : null
 }
 
@@ -44,13 +50,13 @@ function StationHeader({
   )
 }
 
-export function StationPageView({ group, table, activeKey, csvForm }: StationPageViewProps) {
+export function StationPageView({ group, table, activeKey, tabContent }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
       <StationHeader group={group} table={table} />
       <div className="container flex flex-col gap-3">
         <StationRangeTabs activeKey={activeKey} />
-        <StationContent table={table} csvForm={csvForm} />
+        <StationContent table={table} tabContent={tabContent} />
       </div>
     </div>
   )
