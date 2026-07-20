@@ -16,10 +16,10 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb'
 
+// /weather/stations has a real index page now, so its crumb links.
 const knownPathsWithoutPages = [
   '/forecasts',
   '/weather',
-  '/weather/stations',
   '/weather/accumulations',
   '/observations/avalanches',
 ]
