@@ -26,7 +26,7 @@ function formatTotal(value: number, unit: Unit): string {
 
 // Sortable columns: station name, each trailing window (by hours), and the
 // metadata columns. Numbers default to descending, name to ascending.
-type SortKey = 'name' | 'lastUpdate' | 'latitude' | 'elevation' | number
+type SortKey = 'name' | 'lastUpdate' | 'latitude' | 'longitude' | 'elevation' | number
 type SortState = { key: SortKey; desc: boolean }
 
 function sortValue(row: PrecipAccumulationRow, key: SortKey): string | number | null {
@@ -137,8 +137,13 @@ function formatLatitude(row: PrecipAccumulationRow): string {
   return row.latitude != null ? row.latitude.toFixed(4) : '–'
 }
 
+// Displayed as an absolute value under a °W sublabel (all NWAC stations are west).
+function formatLongitude(row: PrecipAccumulationRow): string {
+  return row.longitude != null ? Math.abs(row.longitude).toFixed(4) : '–'
+}
+
 function formatElevation(row: PrecipAccumulationRow): string {
-  return row.elevation != null ? `${row.elevation}'` : '–'
+  return row.elevation != null ? row.elevation.toLocaleString() : '–'
 }
 
 function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
@@ -158,6 +163,7 @@ function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
         {noReport ? 'no report in 72H' : row.lastUpdate}
       </TableCell>
       <TableCell className="px-2 py-1.5 text-right font-light">{formatLatitude(row)}</TableCell>
+      <TableCell className="px-2 py-1.5 text-right font-light">{formatLongitude(row)}</TableCell>
       <TableCell className="px-2 py-1.5 text-right font-light">{formatElevation(row)}</TableCell>
     </TableRow>
   )
@@ -221,7 +227,6 @@ function HeaderRow({
   unit: Unit
   timezoneLabel: string
 }) {
-  const lastUpdateLabel = timezoneLabel ? `Last update (${timezoneLabel})` : 'Last update'
   const stateFor = (key: SortKey): HeadSortState => ({
     active: sort?.key === key,
     desc: sort?.key === key ? sort.desc : false,
@@ -233,9 +238,14 @@ function HeaderRow({
       {PRECIP_ACCUMULATION_WINDOWS.map((hours) => (
         <SortableHead key={hours} label={`${hours}H`} sublabel={unit} state={stateFor(hours)} />
       ))}
-      <SortableHead label={lastUpdateLabel} state={stateFor('lastUpdate')} />
-      <SortableHead label="Latitude" state={stateFor('latitude')} />
-      <SortableHead label="Elevation" state={stateFor('elevation')} />
+      <SortableHead
+        label="Last update"
+        sublabel={timezoneLabel || undefined}
+        state={stateFor('lastUpdate')}
+      />
+      <SortableHead label="Latitude" sublabel="°N" state={stateFor('latitude')} />
+      <SortableHead label="Longitude" sublabel="°W" state={stateFor('longitude')} />
+      <SortableHead label="Elevation" sublabel="ft" state={stateFor('elevation')} />
     </TableRow>
   )
 }
