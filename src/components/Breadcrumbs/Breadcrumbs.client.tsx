@@ -16,12 +16,8 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb'
 
-const knownPathsWithoutPages = [
-  '/forecasts',
-  '/weather',
-  '/weather/stations',
-  '/observations/avalanches',
-]
+// /weather/stations has a real index page now, so its crumb links.
+const knownPathsWithoutPages = ['/forecasts', '/weather', '/observations/avalanches']
 
 type BreadcrumbType = {
   name: string
