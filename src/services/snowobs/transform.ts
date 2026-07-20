@@ -1,10 +1,10 @@
 import {
-  DISPLAY_TIMEZONE,
   fallbackSensorLabel,
   PRECIP_CUMSUM,
   PRECIP_HOURLY,
   SENSOR_LABELS,
   UNIT_LABELS,
+  zonedParts,
 } from './constants'
 import type { SnowObsObservations, SnowObsTimeseriesResponse } from './types/schemas'
 
@@ -59,24 +59,18 @@ function timeSeries(obs: SnowObsObservations): string[] {
 }
 
 function formatDisplay(iso: string): string {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: DISPLAY_TIMEZONE,
+  const get = zonedParts(new Date(iso), {
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     hourCycle: 'h23',
-  }).formatToParts(new Date(iso))
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+  })
   return `${get('month')}/${get('day')} ${get('hour')}:${get('minute')}`
 }
 
 function timezoneLabelFor(iso: string): string {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: DISPLAY_TIMEZONE,
-    timeZoneName: 'short',
-  }).formatToParts(new Date(iso))
-  return parts.find((p) => p.type === 'timeZoneName')?.value ?? ''
+  return zonedParts(new Date(iso), { timeZoneName: 'short' })('timeZoneName')
 }
 
 function displayUnit(rawUnit: string | undefined): string {

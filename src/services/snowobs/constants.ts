@@ -46,3 +46,16 @@ export function fallbackSensorLabel(variable: string): string {
   const matches = variable.replace(/_/g, ' ').match(/\b(\w)/g)
   return matches ? matches.join('').toUpperCase() : variable
 }
+
+// Format a date in the display timezone and return a getter for individual parts
+// (e.g. get('hour')). Shared by the table and CSV timestamp formatters.
+export function zonedParts(
+  date: Date,
+  options: Intl.DateTimeFormatOptions,
+): (type: string) => string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: DISPLAY_TIMEZONE,
+    ...options,
+  }).formatToParts(date)
+  return (type) => parts.find((part) => part.type === type)?.value ?? ''
+}
