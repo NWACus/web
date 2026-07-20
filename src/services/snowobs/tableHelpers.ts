@@ -130,6 +130,7 @@ export type PrecipAccumulationRow = {
   stid: string
   name: string
   latitude: number | null
+  longitude: number | null
   elevation: number | null
   /** Latest report in DISPLAY_TIMEZONE ("MM/DD HH:mm"), '' when never reported. */
   lastUpdate: string
@@ -192,6 +193,7 @@ function accumulationRow(
     stid,
     name: station.name ?? stid,
     latitude: station.latitude ?? null,
+    longitude: station.longitude ?? null,
     elevation: station.elevation ?? null,
     lastUpdate: lastMs > 0 ? formatDisplay(new Date(lastMs).toISOString()) : '',
     lastUpdateMs: lastMs > 0 ? lastMs : null,
