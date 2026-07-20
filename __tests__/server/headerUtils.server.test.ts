@@ -1,4 +1,5 @@
 import {
+  convertToNavLink,
   extractAllInternalUrls,
   findNavigationItemBySlug,
   getCanonicalUrlsFromNavigation,
@@ -731,6 +732,52 @@ describe('Header Utilities', () => {
     it('returns empty array when the tab is missing', () => {
       // NavTab is an optional field — confirm the function handles undefined gracefully
       expect(topLevelNavItem({ tab: undefined, label: 'Weather' })).toEqual([])
+    })
+  })
+
+  describe('convertToNavLink', () => {
+    it('does not render draft page references', () => {
+      const result = convertToNavLink({
+        type: 'internal',
+        reference: {
+          relationTo: 'pages',
+          value: {
+            id: 1,
+            slug: 'who-we-are',
+            title: 'Who We Are',
+            tenant: 1,
+            layout: [],
+            updatedAt: '2026-07-01T00:00:00.000Z',
+            createdAt: '2026-07-01T00:00:00.000Z',
+            _status: 'draft',
+          },
+        },
+      })
+
+      expect(result).toBeUndefined()
+    })
+
+    it('renders built-in page references without draft filtering', () => {
+      const result = convertToNavLink({
+        type: 'internal',
+        reference: {
+          relationTo: 'builtInPages',
+          value: {
+            id: 1,
+            title: 'Forecasts',
+            url: '/forecasts/avalanche',
+            tenant: 1,
+            updatedAt: '2026-07-01T00:00:00.000Z',
+            createdAt: '2026-07-01T00:00:00.000Z',
+          },
+        },
+      })
+
+      expect(result).toEqual({
+        type: 'internal',
+        label: 'Forecasts',
+        url: '/forecasts/avalanche',
+      })
     })
   })
 })

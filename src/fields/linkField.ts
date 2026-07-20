@@ -1,5 +1,5 @@
 import { clearIrrelevantLinkValues } from '@/utilities/clearIrrelevantLinkValues'
-import { getTenantFilter } from '@/utilities/collectionFilters'
+import { getTenantAndPublishedFilter } from '@/utilities/collectionFilters'
 import { validateExternalUrl } from '@/utilities/validateUrl'
 import { Field, NamedGroupField, TextFieldSingleValidation } from 'payload'
 import { text } from 'payload/shared'
@@ -65,7 +65,7 @@ const buildLinkFields = ({
     label: 'Select page or post',
     relationTo: ['pages', 'builtInPages', 'posts'],
     required: true,
-    filterOptions: getTenantFilter,
+    filterOptions: getTenantAndPublishedFilter,
   }
 
   const urlField: Field = {
