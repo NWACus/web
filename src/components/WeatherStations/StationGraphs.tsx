@@ -95,11 +95,22 @@ function ChartFrame({ loading, children }: { loading: boolean; children: ReactNo
   )
 }
 
-// Error / empty-window notice text, or null when the chart should render.
-function chartNotice(title: string, error: string | null, data: GraphData | null): string | null {
-  if (error) return `Couldn't load ${title}: ${error}`
-  if (data && data.series.length === 0) return `${title}: no data in this window.`
-  return null
+// Everything a chart renders before it's ready: error notice, hidden (absent
+// sensor — most stations report a subset of the preset list), or skeleton.
+const isEmpty = (data: GraphData | null) => data !== null && data.series.length === 0
+
+function preChartState(
+  title: string,
+  error: string | null,
+  data: GraphData | null,
+  option: object | null,
+): ReactNode | 'ready' {
+  if (error) {
+    return <p className="text-sm text-muted-foreground">{`Couldn't load ${title}: ${error}`}</p>
+  }
+  if (isEmpty(data)) return null
+  if (!option) return <div className="h-80 animate-pulse rounded-md bg-muted" />
+  return 'ready'
 }
 
 function PresetChart({
@@ -112,14 +123,11 @@ function PresetChart({
   windowKey: string
 }) {
   const { data, error, loading } = useGraphData(preset, stids, windowKey)
-  const option = useMemo(
-    () => (data ? buildChartOption(data, preset.title) : null),
-    [data, preset.title],
-  )
+  const option = useMemo(() => (data ? buildChartOption(data, preset) : null), [data, preset])
 
-  const notice = chartNotice(preset.title, error, data)
-  if (notice) return <p className="text-sm text-muted-foreground">{notice}</p>
-  if (!option) return <div className="h-80 animate-pulse rounded-md bg-muted" />
+  const state = preChartState(preset.title, error, data, option)
+  if (state !== 'ready') return state
+  if (!option) return null // unreachable: preChartState returns the skeleton
   return (
     <ChartFrame loading={loading}>
       <EChart option={option} group="station-graphs" />
