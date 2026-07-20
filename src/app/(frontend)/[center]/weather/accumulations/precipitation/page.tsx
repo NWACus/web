@@ -1,6 +1,5 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import { PageAutoRefresh } from '@/components/WeatherStations/PageAutoRefresh'
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
 import { PRECIP_STATION_STIDS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
@@ -38,7 +37,6 @@ export default async function Page({ params }: Args) {
   return (
     <div className="container my-8 space-y-4">
       <h1 className="text-3xl font-bold">{ROUTE_TITLE}</h1>
-      <PageAutoRefresh seconds={revalidate} />
       <div className="overflow-x-auto">
         <PrecipAccumulationTable table={table} />
       </div>
@@ -47,7 +45,6 @@ export default async function Page({ params }: Args) {
           Data not quality controlled. Accumulated precipitation does not reflect weather station
           outages or other technical errors.
         </p>
-        <p>This page refreshes every 5 minutes</p>
       </div>
     </div>
   )
