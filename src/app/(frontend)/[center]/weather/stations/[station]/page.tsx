@@ -1,6 +1,8 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
+import { presetsForGroup } from '@/components/WeatherStations/stationGraphPresets'
+import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveStationRange } from '@/components/WeatherStations/StationRangeTabs'
 import {
@@ -56,20 +58,28 @@ function csvYears(): number[] {
 type TabView = {
   key: string
   table: StationTable | null
-  csvForm?: ReactNode
+  tabContent?: ReactNode
 }
 
 async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
   return {
     key: 'csv',
     table: null,
-    csvForm: (
+    tabContent: (
       <StationCsvForm
         slug={group.slug}
         dataloggers={await loadDataloggers(group)}
         years={csvYears()}
       />
     ),
+  }
+}
+
+function graphsTabView(group: WeatherStationGroup): TabView {
+  return {
+    key: 'graphs',
+    table: null,
+    tabContent: <StationGraphs stids={group.stids} presets={presetsForGroup(group)} />,
   }
 }
 
@@ -82,8 +92,10 @@ async function rangeTabView(group: WeatherStationGroup, rangeParam?: string): Pr
   return { key: range.key, table: buildStationTable(response, group.columns) }
 }
 
-function resolveTabView(group: WeatherStationGroup, rangeParam?: string): Promise<TabView> {
-  return rangeParam === 'csv' ? csvTabView(group) : rangeTabView(group, rangeParam)
+async function resolveTabView(group: WeatherStationGroup, rangeParam?: string): Promise<TabView> {
+  if (rangeParam === 'csv') return csvTabView(group)
+  if (rangeParam === 'graphs') return graphsTabView(group)
+  return rangeTabView(group, rangeParam)
 }
 
 export default async function Page({ params, searchParams }: Args) {
@@ -102,7 +114,7 @@ export default async function Page({ params, searchParams }: Args) {
   const view = await resolveTabView(group, rangeParam)
 
   return (
-    <StationPageView group={group} table={view.table} activeKey={view.key} csvForm={view.csvForm} />
+    <StationPageView group={group} table={view.table} activeKey={view.key} tabContent={view.tabContent} />
   )
 }
 
