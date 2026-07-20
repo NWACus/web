@@ -442,11 +442,6 @@ sig = "f3230eac010baa8c"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
-target = "src/migrations/index.ts"
-sig = "cb69e6610b10d518"
-
-[[bindings]]
-doc = "docs/migration-safety.md"
 target = "src/scripts/analyze-migration-diff.ts"
 sig = "d4ffb46dc41c80e0"
 
