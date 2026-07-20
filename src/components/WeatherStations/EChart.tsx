@@ -5,6 +5,7 @@ import {
   DataZoomComponent,
   GridComponent,
   LegendComponent,
+  TitleComponent,
   TooltipComponent,
 } from 'echarts/components'
 import type { ComposeOption } from 'echarts/core'
@@ -17,6 +18,7 @@ import { useEffect, useRef } from 'react'
 echarts.use([
   LineChart,
   GridComponent,
+  TitleComponent,
   TooltipComponent,
   LegendComponent,
   DataZoomComponent,
@@ -25,7 +27,16 @@ echarts.use([
 
 export type EChartOption = ComposeOption<never> & Record<string, unknown>
 
-export function EChart({ option, height = 320 }: { option: EChartOption; height?: number }) {
+export function EChart({
+  option,
+  height = 380,
+  group,
+}: {
+  option: EChartOption
+  height?: number
+  /** Charts sharing a group id zoom/pan together (echarts.connect). */
+  group?: string
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<echarts.ECharts | null>(null)
 
@@ -34,6 +45,10 @@ export function EChart({ option, height = 320 }: { option: EChartOption; height?
     if (!container) return
     const chart = echarts.init(container)
     chartRef.current = chart
+    if (group) {
+      chart.group = group
+      echarts.connect(group)
+    }
     const observer = new ResizeObserver(() => chart.resize())
     observer.observe(container)
     return () => {
@@ -41,7 +56,7 @@ export function EChart({ option, height = 320 }: { option: EChartOption; height?
       chart.dispose()
       chartRef.current = null
     }
-  }, [])
+  }, [group])
 
   useEffect(() => {
     // notMerge so a range switch fully replaces series instead of layering.
