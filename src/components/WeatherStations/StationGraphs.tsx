@@ -2,7 +2,9 @@
 
 import type { GraphData } from '@/services/snowobs/graph'
 import { cn } from '@/utilities/ui'
+import { Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
@@ -54,25 +56,43 @@ function WindowPicker({ active, onChange }: { active: string; onChange: (key: st
   )
 }
 
-// Fetches graph-data for one preset; re-fetches on window change, aborts stale requests.
+// Fetches graph-data for one preset; re-fetches on window change, aborts stale
+// requests. `loading` stays true through refetches so the UI can signal them.
 function useGraphData(preset: GraphPreset, stids: string[], windowKey: string) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const { from, to } = windowRange(windowKey)
     const controller = new AbortController()
     setError(null)
+    setLoading(true)
     fetch(graphDataUrl(stids, preset.variables, from, to), { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then(setData)
       .catch((err: unknown) => {
         if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'failed')
       })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false)
+      })
     return () => controller.abort()
   }, [preset, stids, windowKey])
 
-  return { data, error }
+  return { data, error, loading }
+}
+
+// Dims the current chart and overlays a spinner while a refetch is in flight.
+function ChartFrame({ loading, children }: { loading: boolean; children: ReactNode }) {
+  return (
+    <div className="relative" aria-busy={loading}>
+      <div className={cn('transition-opacity', loading && 'opacity-40')}>{children}</div>
+      {loading && (
+        <Loader2 className="absolute inset-0 m-auto h-6 w-6 animate-spin text-muted-foreground" />
+      )}
+    </div>
+  )
 }
 
 // Error / empty-window notice text, or null when the chart should render.
@@ -91,7 +111,7 @@ function PresetChart({
   stids: string[]
   windowKey: string
 }) {
-  const { data, error } = useGraphData(preset, stids, windowKey)
+  const { data, error, loading } = useGraphData(preset, stids, windowKey)
   const option = useMemo(
     () => (data ? buildChartOption(data, preset.title) : null),
     [data, preset.title],
@@ -100,7 +120,11 @@ function PresetChart({
   const notice = chartNotice(preset.title, error, data)
   if (notice) return <p className="text-sm text-muted-foreground">{notice}</p>
   if (!option) return <div className="h-80 animate-pulse rounded-md bg-muted" />
-  return <EChart option={option} group="station-graphs" />
+  return (
+    <ChartFrame loading={loading}>
+      <EChart option={option} group="station-graphs" />
+    </ChartFrame>
+  )
 }
 
 // The station page's Graphs tab: fixed preset charts for this station group,
