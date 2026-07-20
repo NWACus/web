@@ -8,18 +8,27 @@ export type GraphPreset = {
   key: string
   title: string
   variables: string[]
+  /** Dots instead of a connected line (wind direction wraps at 360°). */
+  symbolsOnly?: boolean
 }
 
 const PRESETS: GraphPreset[] = [
   { key: 'temp', title: 'Temperature', variables: ['air_temp'] },
   { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] },
-  { key: 'wind', title: 'Wind', variables: ['wind_speed', 'wind_gust'] },
   {
-    key: 'snow',
-    title: 'Snow Depth & Precipitation',
-    variables: ['snow_depth', 'snow_depth_24h', 'precip_accum_one_hour'],
+    key: 'wind',
+    title: 'Wind Speed',
+    variables: ['wind_speed_min', 'wind_speed', 'wind_gust'],
   },
+  { key: 'winddir', title: 'Wind Direction', variables: ['wind_direction'], symbolsOnly: true },
+  { key: 'snowdepth', title: 'Total Snow Depth', variables: ['snow_depth'] },
+  // Both 24h-snow sensor spellings exist across the registry.
+  { key: 'snow24', title: '24 Hour Snow Total', variables: ['snow_depth_24h', 'snow_depth_24hr'] },
+  { key: 'intersnow', title: 'Intermittent Snow', variables: ['intermittent_snow'] },
+  { key: 'precip', title: 'Precipitation', variables: ['precip_accum_one_hour'] },
   { key: 'solar', title: 'Solar Radiation', variables: ['solar_radiation'] },
+  { key: 'pressure', title: 'Barometric Pressure', variables: ['pressure'] },
+  { key: 'equiptemp', title: 'Equipment Temperature', variables: ['equip_temperature'] },
 ]
 
 export type GraphWindow = { key: string; label: string; hours: number }
@@ -41,12 +50,9 @@ export function seasonHours(now: Date): number {
   return Math.max(24, Math.ceil((now.getTime() - seasonStart.getTime()) / (60 * 60 * 1000)))
 }
 
-// The presets a station group supports, with variables trimmed to what its
-// registry columns configure.
-export function presetsForGroup(group: WeatherStationGroup): GraphPreset[] {
-  const configured = new Set(group.columns.map(([, variable]) => variable))
-  return PRESETS.flatMap((preset) => {
-    const variables = preset.variables.filter((v) => configured.has(v))
-    return variables.length > 0 ? [{ ...preset, variables }] : []
-  })
+// All presets are offered to every station: the registry's columns only cover
+// the NOW-table subset, while loggers report more sensors (pressure, equip
+// temp, ...). Charts whose fetch returns no series hide themselves instead.
+export function presetsForGroup(_group: WeatherStationGroup): GraphPreset[] {
+  return PRESETS
 }
