@@ -46,8 +46,7 @@ function rawSeries(
   ]
 }
 
-// Mean line + min→max band: a transparent "floor" line at min, stacked with
-// (max − min) area on top.
+// Daily vector-mean dots for direction charts on aggregated windows.
 function dailyMeanDots(
   s: GraphSeries & { kind: 'daily' },
   yAxisIndex: number,
@@ -68,12 +67,13 @@ function dailyMeanDots(
   ]
 }
 
+// Daily-aggregated series render as the mean line (the min→max band was
+// dropped in review — it read as a stray shadow).
 function dailySeries(
   s: GraphSeries & { kind: 'daily' },
   yAxisIndex: number,
   color: string,
 ): object[] {
-  const stack = `band-${s.label}`
   return [
     {
       name: s.label,
@@ -82,33 +82,6 @@ function dailySeries(
       yAxisIndex,
       showSymbol: false,
       data: s.days.map(([t, , mean]) => [t, mean]),
-    },
-    {
-      name: `${s.label} range`,
-      type: 'line',
-      color,
-      yAxisIndex,
-      stack,
-      showSymbol: false,
-      lineStyle: { opacity: 0 },
-      tooltip: { show: false },
-      legendHoverLink: false,
-      silent: true,
-      data: s.days.map(([t, min]) => [t, min]),
-    },
-    {
-      name: `${s.label} range`,
-      type: 'line',
-      color,
-      yAxisIndex,
-      stack,
-      showSymbol: false,
-      lineStyle: { opacity: 0 },
-      areaStyle: { color, opacity: 0.14 },
-      tooltip: { show: false },
-      legendHoverLink: false,
-      silent: true,
-      data: s.days.map(([t, min, , max]) => [t, max - min]),
     },
   ]
 }
