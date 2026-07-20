@@ -5,6 +5,7 @@ import {
   DataZoomComponent,
   GridComponent,
   LegendComponent,
+  MarkLineComponent,
   TitleComponent,
   TooltipComponent,
 } from 'echarts/components'
@@ -18,6 +19,7 @@ import { useEffect, useRef } from 'react'
 echarts.use([
   LineChart,
   GridComponent,
+  MarkLineComponent,
   TitleComponent,
   TooltipComponent,
   LegendComponent,
