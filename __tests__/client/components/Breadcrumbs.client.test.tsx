@@ -40,9 +40,10 @@ describe('Breadcrumbs', () => {
     )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
-    // weather and stations are in knownPathsWithoutPages, so not clickable
+    // weather is in knownPathsWithoutPages, so not clickable
     expect(screen.getByText('weather')).not.toHaveAttribute('href')
-    expect(screen.getByText('stations')).not.toHaveAttribute('href')
+    // stations has a real index page, so its crumb links
+    expect(screen.getByText('stations').closest('a')).toHaveAttribute('href', '/weather/stations')
     // map is the last segment, not clickable
     expect(screen.getByText('map')).not.toHaveAttribute('href')
   })
