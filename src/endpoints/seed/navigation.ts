@@ -150,12 +150,6 @@ export const navigationSeed = (
                   label: 'Weather Data',
                 }),
               },
-              {
-                link: builtInPageLink({
-                  url: '/weather/accumulations/precipitation',
-                  label: 'Accumulated Precipitation',
-                }),
-              },
             ]
           : []),
         {
