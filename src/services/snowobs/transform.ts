@@ -121,6 +121,121 @@ function columnMeta(
   }
 }
 
+// --- Accumulated Precipitation (legacy /data-portal/accumulations/) --------
+
+// Trailing windows shown as columns, matching the legacy page.
+export const PRECIP_ACCUMULATION_WINDOWS = [1, 3, 6, 12, 24, 48, 72] as const
+
+export type PrecipAccumulationRow = {
+  stid: string
+  name: string
+  latitude: number | null
+  longitude: number | null
+  elevation: number | null
+  /** Latest report in DISPLAY_TIMEZONE ("MM/DD HH:mm"), '' when never reported. */
+  lastUpdate: string
+  /** Latest report as ms epoch (null when never reported) — sortable form. */
+  lastUpdateMs: number | null
+  /** Window hours -> inches summed over the trailing window; null = no
+   * observations inside that window. */
+  totals: Record<number, number | null>
+  /** False when the station reported nothing in the widest window ("missing"). */
+  hasData: boolean
+}
+
+export type PrecipAccumulationTable = {
+  rows: PrecipAccumulationRow[]
+  timezoneLabel: string
+}
+
+// One row per requested station, sorted north -> south (latitude desc, like the
+// legacy table), summing hourly precip over each trailing window. Windows are
+// anchored at the newest observation across ALL stations so a lagging logger
+// shows a stale lastUpdate rather than shifting everyone's window.
+// Newest valid timestamp in a series (0 when none).
+function latestMs(times: string[]): number {
+  return times.reduce((max, iso) => {
+    const t = new Date(iso).getTime()
+    return Number.isFinite(t) && t > max ? t : max
+  }, 0)
+}
+
+// Sum of non-null hourly values observed after `cutoff`; null when none.
+function trailingSum(times: string[], hourly: (number | null)[], cutoff: number): number | null {
+  let sum = 0
+  let observed = false
+  times.forEach((iso, i) => {
+    const v = hourly[i]
+    if (v === null || v === undefined) return
+    const t = new Date(iso).getTime()
+    if (!Number.isFinite(t) || t <= cutoff) return
+    sum += v
+    observed = true
+  })
+  return observed ? Number(sum.toFixed(2)) : null
+}
+
+function accumulationRow(
+  stid: string,
+  station: ResponseStation,
+  anchorMs: number,
+): PrecipAccumulationRow {
+  const times = timeSeries(station.observations)
+  const hourly = numericSeries(station.observations, PRECIP_HOURLY) ?? []
+  const lastMs = latestMs(times)
+
+  const totals: Record<number, number | null> = {}
+  for (const hours of PRECIP_ACCUMULATION_WINDOWS) {
+    totals[hours] = trailingSum(times, hourly, anchorMs - hours * 60 * 60 * 1000)
+  }
+
+  return {
+    stid,
+    name: station.name ?? stid,
+    latitude: station.latitude ?? null,
+    longitude: station.longitude ?? null,
+    elevation: station.elevation ?? null,
+    lastUpdate: lastMs > 0 ? formatDisplay(new Date(lastMs).toISOString()) : '',
+    lastUpdateMs: lastMs > 0 ? lastMs : null,
+    totals,
+    hasData: Object.values(totals).some((v) => v !== null),
+  }
+}
+
+// North -> south; stations without a latitude sink to the bottom by name.
+function northToSouth(a: PrecipAccumulationRow, b: PrecipAccumulationRow): number {
+  if (a.latitude != null && b.latitude != null) return b.latitude - a.latitude
+  if (a.latitude != null) return -1
+  if (b.latitude != null) return 1
+  return a.name.localeCompare(b.name)
+}
+
+export function buildPrecipAccumulationTable(
+  response: SnowObsTimeseriesResponse,
+  stids: string[],
+): PrecipAccumulationTable {
+  const stationByStid = new Map(response.STATION.map((s) => [s.stid, s]))
+  const stations = Array.from(new Set(stids)).flatMap((stid) => {
+    const station = stationByStid.get(stid)
+    return station ? [{ stid, station }] : []
+  })
+
+  // Windows anchor at the newest observation across ALL stations, so a lagging
+  // logger shows a stale lastUpdate rather than shifting everyone's window.
+  const anchorMs = Math.max(
+    0,
+    ...stations.map(({ station }) => latestMs(timeSeries(station.observations))),
+  )
+  const withTimes = stations.find(({ station }) => timeSeries(station.observations).length > 0)
+
+  return {
+    rows: stations
+      .map(({ stid, station }) => accumulationRow(stid, station, anchorMs))
+      .sort(northToSouth),
+    timezoneLabel: withTimes ? timezoneLabelFor(timeSeries(withTimes.station.observations)[0]) : '',
+  }
+}
+
 // Builds a render-ready table: newest-first rows, full-outer-joined across the
 // group's stations, with a cumulative-precip column after each hourly-precip one.
 export function buildStationTable(
