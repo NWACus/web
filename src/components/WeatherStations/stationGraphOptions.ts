@@ -201,10 +201,13 @@ export function buildChartOption(data: GraphData, preset: GraphPreset): EChartOp
       ...degreeAxisOverrides(symbolsOnly),
       ...presetAxisOverrides(preset),
     })),
-    dataZoom: [
-      { type: 'inside', xAxisIndex: 0 },
-      { type: 'slider', xAxisIndex: 0, height: 18, bottom: 8 },
-    ],
+    dataZoom: (() => {
+      const minValueSpan = (data.aggregated ? 6 * 24 : 6) * 60 * 60 * 1000
+      return [
+        { type: 'inside', xAxisIndex: 0, minValueSpan },
+        { type: 'slider', xAxisIndex: 0, height: 18, bottom: 8, minValueSpan },
+      ]
+    })(),
     series,
   }
 }
