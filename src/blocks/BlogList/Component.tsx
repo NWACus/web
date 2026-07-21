@@ -41,29 +41,25 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
       const tenantSlug = typeof tenant === 'object' && tenant?.slug
       if (!tenantSlug) return
 
-      const params = new URLSearchParams({
-        limit: String(maxPosts || 4),
-      })
-
-      // params supported by the posts page
-      const postsPageParams = new URLSearchParams()
-
       const filterByTagsSlugs = filterValidRelationships(filterByTags).map(({ slug }) => slug)
 
-      const blogLinkQueryParams = new URLSearchParams()
-      if (sortBy !== undefined) {
-        blogLinkQueryParams.set('sort', sortBy)
+      // Filters shared by both the posts API fetch and the "View all" /blog link.
+      // The /blog listing page reads the same `sort` and `tags` query params.
+      const filterParams = new URLSearchParams()
+      if (sortBy) {
+        filterParams.set('sort', sortBy)
+      }
+      if (filterByTagsSlugs.length > 0) {
+        filterParams.set('tags', filterByTagsSlugs.join(','))
       }
 
-      if (filterByTagsSlugs && filterByTagsSlugs.length > 0) {
-        blogLinkQueryParams.set('tags', filterByTagsSlugs.join(','))
-      }
+      setPostsPageParams(filterParams.toString())
 
-      setPostsPageParams(postsPageParams.toString())
+      // The API fetch additionally needs the result limit.
+      const apiParams = new URLSearchParams(filterParams)
+      apiParams.set('limit', String(maxPosts || 4))
 
-      const allParams = new URLSearchParams([...params, ...postsPageParams])
-
-      const response = await fetch(`/api/${tenantSlug}/posts?${allParams.toString()}`, {
+      const response = await fetch(`/api/${tenantSlug}/posts?${apiParams.toString()}`, {
         cache: 'no-store',
       })
 
@@ -76,7 +72,7 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
     }
 
     fetchPosts()
-  }, [tenant, postsPageParams, filterByTags, sortBy, postOptions, maxPosts])
+  }, [tenant, filterByTags, sortBy, postOptions, maxPosts])
 
   let posts: Post[] = filterValidPublishedRelationships(staticPosts)
 
