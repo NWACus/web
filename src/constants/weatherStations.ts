@@ -5,7 +5,7 @@ export const STATIONS_TENANT_SLUG = 'nwac'
 
 // Canonical region order for grouping the station index, matching the legacy
 // nwac.us /weatherdata/ directory.
-export const STATION_REGIONS = [
+export const NWAC_STATION_REGIONS = [
   'Olympics',
   'Mt Baker',
   'SR20 West',
@@ -22,7 +22,7 @@ export const STATION_REGIONS = [
   'Mt Hood',
 ] as const
 
-export type StationRegion = (typeof STATION_REGIONS)[number]
+export type StationRegion = (typeof NWAC_STATION_REGIONS)[number]
 
 export type WeatherStationGroup = {
   slug: string
@@ -36,7 +36,7 @@ export type WeatherStationGroup = {
 }
 
 // Ported from the legacy nwac_weatherstation plugin's station_group_tables_config.
-export const WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
+export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
   {
     slug: 'hurricane-ridge',
     legacySlug: 'hurricaneridge',
@@ -602,7 +602,7 @@ export const WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
   },
 ]
 
-const STATION_GROUPS_BY_SLUG = new Map(WEATHER_STATION_GROUPS.map((g) => [g.slug, g]))
+const STATION_GROUPS_BY_SLUG = new Map(NWAC_WEATHER_STATION_GROUPS.map((g) => [g.slug, g]))
 
 export function getStationGroup(slug: string): WeatherStationGroup | undefined {
   return STATION_GROUPS_BY_SLUG.get(slug)

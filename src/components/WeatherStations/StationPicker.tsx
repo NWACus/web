@@ -1,6 +1,6 @@
 'use client'
 
-import { STATION_REGIONS, WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
+import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
 
@@ -22,8 +22,8 @@ export function StationPicker({ current, className }: { current?: string; classN
         <option value="" disabled>
           Jump to a station…
         </option>
-        {STATION_REGIONS.map((region) => {
-          const groups = WEATHER_STATION_GROUPS.filter((group) => group.region === region)
+        {NWAC_STATION_REGIONS.map((region) => {
+          const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
           if (groups.length === 0) return null
           return (
             <optgroup key={region} label={region}>

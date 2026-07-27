@@ -4,8 +4,8 @@ import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveStationRange } from '@/components/WeatherStations/StationRangeTabs'
 import {
   getStationGroup,
+  NWAC_WEATHER_STATION_GROUPS,
   STATIONS_TENANT_SLUG,
-  WEATHER_STATION_GROUPS,
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildStationTable } from '@/services/snowobs/transform'
@@ -20,7 +20,7 @@ type Args = {
 }
 
 export async function generateStaticParams() {
-  return WEATHER_STATION_GROUPS.map((group) => ({
+  return NWAC_WEATHER_STATION_GROUPS.map((group) => ({
     center: STATIONS_TENANT_SLUG,
     station: group.slug,
   }))

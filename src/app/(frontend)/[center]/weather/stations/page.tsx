@@ -2,9 +2,9 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import {
-  STATION_REGIONS,
+  NWAC_STATION_REGIONS,
+  NWAC_WEATHER_STATION_GROUPS,
   STATIONS_TENANT_SLUG,
-  WEATHER_STATION_GROUPS,
 } from '@/constants/weatherStations'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -36,8 +36,8 @@ export default async function Page({ params }: Args) {
       </div>
 
       <div className="container grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-4">
-        {STATION_REGIONS.map((region) => {
-          const groups = WEATHER_STATION_GROUPS.filter((group) => group.region === region)
+        {NWAC_STATION_REGIONS.map((region) => {
+          const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
           if (groups.length === 0) return null
           return (
             <section key={region} className="mb-6">
