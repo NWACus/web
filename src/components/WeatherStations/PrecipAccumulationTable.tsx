@@ -212,7 +212,7 @@ function UnitToggle({ unit, onChange }: { unit: Unit; onChange: (u: Unit) => voi
         size="sm"
         variant="outline"
         value={unit}
-        onValueChange={(v) => v && onChange(v as Unit)}
+        onValueChange={(v) => (v === 'imperial' || v === 'metric') && onChange(v)}
         aria-label="Units"
       >
         <ToggleGroupItem
