@@ -12,8 +12,8 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type {
   PrecipAccumulationTable as PrecipAccumulationData,
   PrecipAccumulationRow,
-} from '@/services/snowobs/transform'
-import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/transform'
+} from '@/services/snowobs/tableHelpers'
+import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'

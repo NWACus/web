@@ -612,7 +612,7 @@ export function getStationGroup(slug: string): WeatherStationGroup | undefined {
 // Accumulated Precipitation page (legacy /data-portal/accumulations/precipitation/).
 export const PRECIP_STATION_STIDS = Array.from(
   new Set(
-    WEATHER_STATION_GROUPS.flatMap((g) => g.columns)
+    NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.columns)
       .filter(([, variable]) => variable === 'precip_accum_one_hour')
       .map(([stid]) => stid),
   ),

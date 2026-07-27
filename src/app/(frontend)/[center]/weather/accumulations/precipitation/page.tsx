@@ -3,7 +3,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
 import { PRECIP_STATION_STIDS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
-import { buildPrecipAccumulationTable } from '@/services/snowobs/transform'
+import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 
 // ISR every 5 minutes, matching the legacy page's refresh cadence.

@@ -132,7 +132,7 @@ export type PrecipAccumulationRow = {
   latitude: number | null
   longitude: number | null
   elevation: number | null
-  /** Latest report in DISPLAY_TIMEZONE ("MM/DD HH:mm"), '' when never reported. */
+  /** Latest report in NWAC_DISPLAY_TIMEZONE ("MM/DD HH:mm"), '' when never reported. */
   lastUpdate: string
   /** Latest report as ms epoch (null when never reported) — sortable form. */
   lastUpdateMs: number | null

@@ -1,4 +1,4 @@
-import { buildPrecipAccumulationTable } from '../../src/services/snowobs/transform'
+import { buildPrecipAccumulationTable } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
 
 // Three stations: one reporting normally, one lagging (stale lastUpdate but
