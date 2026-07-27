@@ -4,7 +4,7 @@ import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import type { StationRange } from '@/components/WeatherStations/StationRangeTabs'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import type { WeatherStationGroup } from '@/constants/weatherStations'
-import type { StationTable } from '@/services/snowobs/transform'
+import type { StationTable } from '@/services/snowobs/tableHelpers'
 
 type StationPageViewProps = {
   group: WeatherStationGroup

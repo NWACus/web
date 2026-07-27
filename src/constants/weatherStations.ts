@@ -1,4 +1,4 @@
-import type { StationColumnConfig } from '@/services/snowobs/transform'
+import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 
 // These station groups are NWAC's SnowObs loggers, so the pages are NWAC-only.
 export const STATIONS_TENANT_SLUG = 'nwac'

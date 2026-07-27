@@ -1,4 +1,4 @@
-import { buildStationTable, computePrecipCumsum } from '../../src/services/snowobs/transform'
+import { buildStationTable, computePrecipCumsum } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
 
 // Two stations with deliberately misaligned timestamps to exercise the full

@@ -8,7 +8,7 @@ import {
   STATIONS_TENANT_SLUG,
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
-import { buildStationTable } from '@/services/snowobs/transform'
+import { buildStationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 
 // ISR: regenerate at most every 10 minutes; SnowObs stations report ~hourly.

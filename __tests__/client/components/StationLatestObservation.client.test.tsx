@@ -1,5 +1,5 @@
 import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
-import type { StationTable } from '@/services/snowobs/transform'
+import type { StationTable } from '@/services/snowobs/tableHelpers'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 

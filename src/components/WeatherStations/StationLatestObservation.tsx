@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge'
-import type { StationTable } from '@/services/snowobs/transform'
+import type { StationTable } from '@/services/snowobs/tableHelpers'
 
 const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000
 
