@@ -1,6 +1,6 @@
 import {
-  DISPLAY_TIMEZONE,
   fallbackSensorLabel,
+  NWAC_DISPLAY_TIMEZONE,
   PRECIP_CUMSUM,
   PRECIP_HOURLY,
   SENSOR_LABELS,
@@ -23,7 +23,7 @@ export type TableColumn = {
 
 export type TableRow = {
   timestamp: number // ms epoch
-  display: string // "MM/DD HH:mm" in DISPLAY_TIMEZONE
+  display: string // "MM/DD HH:mm" in NWAC_DISPLAY_TIMEZONE
   values: Record<string, number | null> // keyed by TableColumn.key
 }
 
@@ -60,7 +60,7 @@ function timeSeries(obs: SnowObsObservations): string[] {
 
 function formatDisplay(iso: string): string {
   const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: DISPLAY_TIMEZONE,
+    timeZone: NWAC_DISPLAY_TIMEZONE,
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
@@ -73,7 +73,7 @@ function formatDisplay(iso: string): string {
 
 function timezoneLabelFor(iso: string): string {
   const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: DISPLAY_TIMEZONE,
+    timeZone: NWAC_DISPLAY_TIMEZONE,
     timeZoneName: 'short',
   }).formatToParts(new Date(iso))
   return parts.find((p) => p.type === 'timeZoneName')?.value ?? ''

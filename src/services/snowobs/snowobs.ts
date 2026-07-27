@@ -4,7 +4,7 @@ import type { SnowObsTimeseriesResponse } from './types/schemas'
 import { snowObsTimeseriesResponseSchema } from './types/schemas'
 
 const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
-const SOURCE = 'nwac'
+const NWAC_SOURCE = 'nwac'
 
 export class SnowObsError extends Error {
   constructor(
@@ -45,7 +45,7 @@ function buildTimeseriesUrl(stids: string[], windowHours: number, bucketSeconds:
 
   const params = new URLSearchParams({
     token,
-    source: SOURCE,
+    source: NWAC_SOURCE,
     stid: stids.join(','),
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),

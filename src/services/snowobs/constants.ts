@@ -38,7 +38,7 @@ export const UNIT_LABELS: Record<string, string> = {
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'
 
-export const DISPLAY_TIMEZONE = 'America/Vancouver'
+export const NWAC_DISPLAY_TIMEZONE = 'America/Vancouver'
 
 // Derive a fallback header label the way the legacy plugin did: initials of the
 // underscore/space-separated variable name, uppercased (e.g. "foo_bar" -> "FB").
