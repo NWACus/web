@@ -13,7 +13,13 @@ type StationPageViewProps = {
   tabContent?: ReactNode
 }
 
-function StationView({ table, tabContent }: { table: StationTable | null; tabContent?: ReactNode }) {
+function StationView({
+  table,
+  tabContent,
+}: {
+  table: StationTable | null
+  tabContent?: ReactNode
+}) {
   if (tabContent) return <>{tabContent}</>
   return table ? <StationNowTable table={table} /> : null
 }

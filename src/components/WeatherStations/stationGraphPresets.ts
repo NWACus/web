@@ -1,4 +1,5 @@
 import type { WeatherStationGroup } from '@/constants/weatherStations'
+import { differenceInHours } from 'date-fns'
 
 // Fixed public presets for the station Graphs tab (grill-me 2026-07-20): each
 // chart names the variables it wants; a station only gets the charts (and
@@ -64,7 +65,7 @@ export const GRAPH_WINDOWS: GraphWindow[] = [
 export function seasonHours(now: Date): number {
   const year = now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1
   const seasonStart = new Date(Date.UTC(year, 9, 1))
-  return Math.max(24, Math.ceil((now.getTime() - seasonStart.getTime()) / (60 * 60 * 1000)))
+  return Math.max(24, differenceInHours(now, seasonStart, { roundingMethod: 'ceil' }))
 }
 
 // All presets are offered to every station: the registry's columns only cover

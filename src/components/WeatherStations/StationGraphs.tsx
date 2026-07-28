@@ -3,6 +3,7 @@
 import { NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import { cn } from '@/utilities/ui'
+import { subHours } from 'date-fns'
 import { ChevronDown, ChevronUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
@@ -23,7 +24,7 @@ function windowRange(key: string): { from: Date; to: Date } {
   const to = new Date()
   const window = GRAPH_WINDOWS.find((w) => w.key === key) ?? GRAPH_WINDOWS[1]
   const hours = window.key === 'season' ? seasonHours(to) : window.hours
-  return { from: new Date(to.getTime() - hours * 60 * 60 * 1000), to }
+  return { from: subHours(to, hours), to }
 }
 
 function graphDataUrl(stids: string[], variables: string[], from: Date, to: Date): string {
