@@ -1,5 +1,8 @@
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
 import {
   fallbackSensorLabel,
+  NWAC_DISPLAY_TIMEZONE,
   PRECIP_CUMSUM,
   PRECIP_HOURLY,
   SENSOR_LABELS,
@@ -59,14 +62,7 @@ function timeSeries(obs: SnowObsObservations): string[] {
 }
 
 function formatDisplay(iso: string): string {
-  const get = zonedParts(new Date(iso), {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  })
-  return `${get('month')}/${get('day')} ${get('hour')}:${get('minute')}`
+  return format(new Date(iso), 'MM/dd HH:mm', { in: tz(NWAC_DISPLAY_TIMEZONE) })
 }
 
 function timezoneLabelFor(iso: string): string {

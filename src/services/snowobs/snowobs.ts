@@ -1,4 +1,6 @@
+import { tz } from '@date-fns/tz'
 import config from '@payload-config'
+import { format, subHours } from 'date-fns'
 import { getPayload } from 'payload'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 import { snowObsTimeseriesResponseSchema } from './types/schemas'
@@ -19,11 +21,7 @@ export class SnowObsError extends Error {
 
 // SnowObs expects UTC timestamps formatted as YYYYMMDDHHmm.
 function formatSnowObsDate(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return (
-    `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}` +
-    `${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}`
-  )
+  return format(date, 'yyyyMMddHHmm', { in: tz('UTC') })
 }
 
 type FetchOptions = {
@@ -49,8 +47,7 @@ function buildTimeseriesUrl(stids: string[], options: FetchOptions): string {
   const bucketMs = Math.max(options.revalidate ?? 600, 1) * 1000
   const endMs = Math.floor(Date.now() / bucketMs) * bucketMs
   const end = options.end ?? new Date(endMs)
-  const start =
-    options.start ?? new Date(end.getTime() - (options.windowHours ?? 24) * 60 * 60 * 1000)
+  const start = options.start ?? subHours(end, options.windowHours ?? 24)
 
   const params = new URLSearchParams({
     token,

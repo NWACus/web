@@ -1,17 +1,11 @@
-import { UNIT_LABELS, zonedParts } from './constants'
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
+import { NWAC_DISPLAY_TIMEZONE, UNIT_LABELS } from './constants'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
 // Full Pacific-local timestamp (YYYY-MM-DD HH:mm) for a CSV row.
 function formatCsvTimestamp(iso: string): string {
-  const get = zonedParts(new Date(iso), {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  })
-  return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}`
+  return format(new Date(iso), 'yyyy-MM-dd HH:mm', { in: tz(NWAC_DISPLAY_TIMEZONE) })
 }
 
 // Quote a CSV field only when it contains a comma, quote, or newline.
