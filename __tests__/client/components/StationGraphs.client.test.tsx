@@ -52,9 +52,8 @@ describe('buildChartOption comparison styling', () => {
 })
 
 describe('StationGraphs compare picker', () => {
-  const current = NWAC_WEATHER_STATION_GROUPS[0]
-  const other = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug !== current.slug)
-  if (!other) throw new Error('registry needs at least two groups')
+  const [current, other, third, fourth, fifth] = NWAC_WEATHER_STATION_GROUPS
+  if (!fifth) throw new Error('registry needs at least five groups')
 
   const emptyData: GraphData = { series: [], aggregated: false, timezone: 'x' }
 
@@ -82,23 +81,41 @@ describe('StationGraphs compare picker', () => {
     expect(values).toContain(other.slug)
   })
 
-  it('refetches with the comparison stids appended', () => {
+  it('refetches with the stids of each added station appended', () => {
     renderGraphs()
-    fireEvent.change(screen.getByLabelText(/Compare with/), { target: { value: other.slug } })
+    const select = screen.getByLabelText(/Compare with/)
+    fireEvent.change(select, { target: { value: other.slug } })
+    fireEvent.change(select, { target: { value: third.slug } })
 
-    const expected = [...current.stids, ...other.stids].join(',')
+    const expected = [...current.stids, ...other.stids, ...third.stids].join(',')
     expect(fetchedUrls().some((url) => url.includes(`stids=${encodeURIComponent(expected)}`))).toBe(
       true,
     )
   })
 
-  it('drops back to the base stids when compare is cleared', () => {
+  it('removes a station via its chip', () => {
     renderGraphs()
     const select = screen.getByLabelText(/Compare with/)
     fireEvent.change(select, { target: { value: other.slug } })
-    fireEvent.change(select, { target: { value: '' } })
+    fireEvent.change(select, { target: { value: third.slug } })
+    fireEvent.click(screen.getByLabelText(`Remove ${other.displayName}`))
 
     const urls = fetchedUrls()
-    expect(urls[urls.length - 1]).toContain(`stids=${encodeURIComponent(current.stids.join(','))}`)
+    const expected = [...current.stids, ...third.stids].join(',')
+    expect(urls[urls.length - 1]).toContain(`stids=${encodeURIComponent(expected)}`)
+  })
+
+  it('hides selected stations from the options and disables the select at the cap', () => {
+    renderGraphs()
+    const select = screen.getByLabelText(/Compare with/)
+    fireEvent.change(select, { target: { value: other.slug } })
+
+    const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
+    expect(values).not.toContain(other.slug)
+    expect(select).not.toBeDisabled()
+
+    fireEvent.change(select, { target: { value: third.slug } })
+    fireEvent.change(select, { target: { value: fourth.slug } })
+    expect(select).toBeDisabled()
   })
 })

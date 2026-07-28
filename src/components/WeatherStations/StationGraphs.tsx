@@ -3,7 +3,7 @@
 import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import { cn } from '@/utilities/ui'
-import { Loader2 } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
@@ -114,43 +114,81 @@ function preChartState(
   return 'ready'
 }
 
-// Overlays another station's series on every chart. Region-grouped like the
-// StationPicker; the page's own station is excluded.
+// Keeps every chart legible and total stids within the graph-data route's cap.
+const MAX_COMPARE_STATIONS = 3
+
+// Overlays other stations' series on every chart: an add-select plus removable
+// chips. Region-grouped like the StationPicker; the page's own station and
+// already-selected stations are excluded.
 function CompareStationPicker({
   currentSlug,
-  compareSlug,
-  onChange,
+  compareSlugs,
+  onAdd,
+  onRemove,
 }: {
   currentSlug: string
-  compareSlug: string
-  onChange: (slug: string) => void
+  compareSlugs: string[]
+  onAdd: (slug: string) => void
+  onRemove: (slug: string) => void
 }) {
+  const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
+  const selected = compareSlugs.flatMap((slug) => {
+    const group = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === slug)
+    return group ? [group] : []
+  })
+
   return (
-    <label className="inline-flex items-center gap-2 text-sm">
-      <span className="text-muted-foreground">Compare with</span>
-      <select
-        value={compareSlug}
-        onChange={(event) => onChange(event.target.value)}
-        className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
-      >
-        <option value="">None</option>
-        {NWAC_STATION_REGIONS.map((region) => {
-          const groups = NWAC_WEATHER_STATION_GROUPS.filter(
-            (group) => group.region === region && group.slug !== currentSlug,
-          )
-          if (groups.length === 0) return null
-          return (
-            <optgroup key={region} label={region}>
-              {groups.map((group) => (
-                <option key={group.slug} value={group.slug}>
-                  {group.displayName}
-                </option>
-              ))}
-            </optgroup>
-          )
-        })}
-      </select>
-    </label>
+    <div className="flex flex-wrap items-center gap-2">
+      {selected.map((group) => (
+        <span
+          key={group.slug}
+          className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm"
+        >
+          {group.displayName}
+          <button
+            type="button"
+            aria-label={`Remove ${group.displayName}`}
+            onClick={() => onRemove(group.slug)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </span>
+      ))}
+      <label className="inline-flex items-center gap-2 text-sm">
+        <span className="text-muted-foreground">Compare with</span>
+        <select
+          value=""
+          disabled={atCap}
+          onChange={(event) => {
+            if (event.target.value) onAdd(event.target.value)
+          }}
+          className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+        >
+          <option value="">
+            {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+          </option>
+          {NWAC_STATION_REGIONS.map((region) => {
+            const groups = NWAC_WEATHER_STATION_GROUPS.filter(
+              (group) =>
+                group.region === region &&
+                group.slug !== currentSlug &&
+                !compareSlugs.includes(group.slug),
+            )
+            if (groups.length === 0) return null
+            return (
+              <optgroup key={region} label={region}>
+                {groups.map((group) => (
+                  <option key={group.slug} value={group.slug}>
+                    {group.displayName}
+                  </option>
+                ))}
+              </optgroup>
+            )
+          })}
+        </select>
+      </label>
+    </div>
   )
 }
 
@@ -182,7 +220,7 @@ function PresetChart({
 }
 
 // The station page's Graphs tab: fixed preset charts for this station group,
-// with a shared time-window picker and an optional comparison station whose
+// with a shared time-window picker and optional comparison stations whose
 // series overlay every chart as dashed lines. The v2 self-serve builder renders
 // the same charts from a user-built config instead of presets.
 export function StationGraphs({
@@ -195,14 +233,19 @@ export function StationGraphs({
   currentSlug: string
 }) {
   const [windowKey, setWindowKey] = useState('7d')
-  const [compareSlug, setCompareSlug] = useState('')
+  const [compareSlugs, setCompareSlugs] = useState<string[]>([])
 
-  // The comparison group's stids, minus any the page's own group already plots.
+  // Base stids plus each comparison group's, deduped in selection order.
   const allStids = useMemo(() => {
-    const compareGroup = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === compareSlug)
-    if (!compareGroup) return stids
-    return [...stids, ...compareGroup.stids.filter((stid) => !stids.includes(stid))]
-  }, [stids, compareSlug])
+    const combined = [...stids]
+    for (const slug of compareSlugs) {
+      const group = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === slug)
+      for (const stid of group?.stids ?? []) {
+        if (!combined.includes(stid)) combined.push(stid)
+      }
+    }
+    return combined
+  }, [stids, compareSlugs])
 
   if (presets.length === 0) {
     return <p className="text-muted-foreground">This station has no graphable sensors.</p>
@@ -214,8 +257,9 @@ export function StationGraphs({
         <WindowPicker active={windowKey} onChange={setWindowKey} />
         <CompareStationPicker
           currentSlug={currentSlug}
-          compareSlug={compareSlug}
-          onChange={setCompareSlug}
+          compareSlugs={compareSlugs}
+          onAdd={(slug) => setCompareSlugs((prev) => [...prev, slug])}
+          onRemove={(slug) => setCompareSlugs((prev) => prev.filter((s) => s !== slug))}
         />
       </div>
       {presets.map((preset) => (
