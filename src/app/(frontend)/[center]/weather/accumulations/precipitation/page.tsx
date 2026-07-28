@@ -16,10 +16,8 @@ type Args = {
   params: Promise<{ center: string }>
 }
 
-export async function generateStaticParams() {
-  return [{ center: STATIONS_TENANT_SLUG }]
-}
-
+// No generateStaticParams: prerendering would call SnowObs at build time, where
+// SNOWOBS_TOKEN isn't available (CI). First request renders it, then ISR caches.
 export default async function Page({ params }: Args) {
   const { center } = await params
 
