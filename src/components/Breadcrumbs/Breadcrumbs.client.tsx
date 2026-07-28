@@ -20,6 +20,7 @@ const knownPathsWithoutPages = [
   '/forecasts',
   '/weather',
   '/weather/stations',
+  '/weather/accumulations',
   '/observations/avalanches',
 ]
 
