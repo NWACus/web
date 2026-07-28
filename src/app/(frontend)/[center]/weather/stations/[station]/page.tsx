@@ -10,8 +10,10 @@ import {
   type WeatherStationGroup,
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { buildStationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
+import type { ReactNode } from 'react'
 
 // ISR: regenerate at most every 10 minutes; SnowObs stations report ~hourly.
 export const revalidate = 600
@@ -51,8 +53,41 @@ function csvYears(): number[] {
   return years
 }
 
-// CRAP is inflated by the lack of unit coverage on this server component.
-// fallow-ignore-next-line complexity
+// What one tab renders: its tab key, the observations table (range tabs only),
+// and the CSV form when on the CSV tab.
+type TabView = {
+  key: string
+  table: StationTable | null
+  csvForm?: ReactNode
+}
+
+async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
+  return {
+    key: 'csv',
+    table: null,
+    csvForm: (
+      <StationCsvForm
+        slug={group.slug}
+        dataloggers={await loadDataloggers(group)}
+        years={csvYears()}
+      />
+    ),
+  }
+}
+
+async function rangeTabView(group: WeatherStationGroup, rangeParam?: string): Promise<TabView> {
+  const range = resolveStationRange(rangeParam)
+  const response = await fetchStationTimeseries(group.stids, {
+    revalidate,
+    windowHours: range.hours,
+  })
+  return { key: range.key, table: buildStationTable(response, group.columns) }
+}
+
+function resolveTabView(group: WeatherStationGroup, rangeParam?: string): Promise<TabView> {
+  return rangeParam === 'csv' ? csvTabView(group) : rangeTabView(group, rangeParam)
+}
+
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam } = await searchParams
@@ -66,30 +101,10 @@ export default async function Page({ params, searchParams }: Args) {
     notFound()
   }
 
-  const isCsv = rangeParam === 'csv'
-  const activeRange = resolveStationRange(rangeParam)
-
-  let table = null
-  if (!isCsv) {
-    const response = await fetchStationTimeseries(group.stids, {
-      revalidate,
-      windowHours: activeRange.hours,
-    })
-    table = buildStationTable(response, group.columns)
-  }
-  const dataloggers = isCsv ? await loadDataloggers(group) : []
+  const view = await resolveTabView(group, rangeParam)
 
   return (
-    <StationPageView
-      group={group}
-      table={table}
-      activeKey={isCsv ? 'csv' : activeRange.key}
-      csvForm={
-        isCsv ? (
-          <StationCsvForm slug={group.slug} dataloggers={dataloggers} years={csvYears()} />
-        ) : undefined
-      }
-    />
+    <StationPageView group={group} table={view.table} activeKey={view.key} csvForm={view.csvForm} />
   )
 }
 
