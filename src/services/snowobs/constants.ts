@@ -34,6 +34,11 @@ export const UNIT_LABELS: Record<string, string> = {
   volt: 'V',
 }
 
+export function displayUnit(rawUnit: string | undefined): string {
+  if (!rawUnit) return ''
+  return UNIT_LABELS[rawUnit] ?? rawUnit
+}
+
 // Variable name of the computed running-total precipitation column.
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'

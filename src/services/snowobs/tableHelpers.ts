@@ -1,12 +1,12 @@
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import {
+  displayUnit,
   fallbackSensorLabel,
   NWAC_DISPLAY_TIMEZONE,
   PRECIP_CUMSUM,
   PRECIP_HOURLY,
   SENSOR_LABELS,
-  UNIT_LABELS,
   zonedParts,
 } from './constants'
 import type { SnowObsObservations, SnowObsTimeseriesResponse } from './types/schemas'
@@ -67,11 +67,6 @@ function formatDisplay(iso: string): string {
 
 function timezoneLabelFor(iso: string): string {
   return zonedParts(new Date(iso), { timeZoneName: 'short' })('timeZoneName')
-}
-
-function displayUnit(rawUnit: string | undefined): string {
-  if (!rawUnit) return ''
-  return UNIT_LABELS[rawUnit] ?? rawUnit
 }
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
