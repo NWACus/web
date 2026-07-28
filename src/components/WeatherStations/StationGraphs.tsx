@@ -1,15 +1,17 @@
 'use client'
 
-import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
+import { NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import { cn } from '@/utilities/ui'
-import { Loader2, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { GRAPH_WINDOWS, seasonHours } from './stationGraphPresets'
+import { StationOptGroups } from './StationPicker'
+import { useChartArrangement } from './useChartArrangement'
 
 // ECharts only loads when the Graphs tab actually renders.
 const EChart = dynamic(() => import('./EChart').then((m) => m.EChart), {
@@ -117,78 +119,138 @@ function preChartState(
 // Keeps every chart legible and total stids within the graph-data route's cap.
 const MAX_COMPARE_STATIONS = 3
 
-// Overlays other stations' series on every chart: an add-select plus removable
-// chips. Region-grouped like the StationPicker; the page's own station and
-// already-selected stations are excluded.
+// Adds another station to overlay on every chart. Region-grouped like the
+// StationPicker; the page's own station and already-selected stations are
+// excluded.
 function CompareStationPicker({
   currentSlug,
   compareSlugs,
   onAdd,
-  onRemove,
 }: {
   currentSlug: string
   compareSlugs: string[]
   onAdd: (slug: string) => void
-  onRemove: (slug: string) => void
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
+  return (
+    <label className="inline-flex items-center gap-2 text-sm">
+      <span className="text-muted-foreground">Compare with</span>
+      <select
+        value=""
+        disabled={atCap}
+        onChange={(event) => {
+          if (event.target.value) onAdd(event.target.value)
+        }}
+        className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+      >
+        <option value="">
+          {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+        </option>
+        <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+      </select>
+    </label>
+  )
+}
+
+// The selected comparison stations as removable chips.
+function CompareChips({
+  compareSlugs,
+  onRemove,
+}: {
+  compareSlugs: string[]
+  onRemove: (slug: string) => void
+}) {
   const selected = compareSlugs.flatMap((slug) => {
     const group = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === slug)
     return group ? [group] : []
   })
 
+  return selected.map((group) => (
+    <span
+      key={group.slug}
+      className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm"
+    >
+      {group.displayName}
+      <button
+        type="button"
+        aria-label={`Remove ${group.displayName}`}
+        onClick={() => onRemove(group.slug)}
+        className="text-muted-foreground hover:text-foreground"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </span>
+  ))
+}
+
+// Move/hide controls for one rendered chart, top-right above the canvas.
+function ChartControls({
+  title,
+  canUp,
+  canDown,
+  onMove,
+  onHide,
+}: {
+  title: string
+  canUp: boolean
+  canDown: boolean
+  onMove: (direction: -1 | 1) => void
+  onHide: () => void
+}) {
+  const buttonClass =
+    'rounded-md p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground'
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {selected.map((group) => (
-        <span
-          key={group.slug}
-          className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm"
-        >
-          {group.displayName}
-          <button
-            type="button"
-            aria-label={`Remove ${group.displayName}`}
-            onClick={() => onRemove(group.slug)}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </span>
-      ))}
-      <label className="inline-flex items-center gap-2 text-sm">
-        <span className="text-muted-foreground">Compare with</span>
-        <select
-          value=""
-          disabled={atCap}
-          onChange={(event) => {
-            if (event.target.value) onAdd(event.target.value)
-          }}
-          className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-        >
-          <option value="">
-            {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
-          </option>
-          {NWAC_STATION_REGIONS.map((region) => {
-            const groups = NWAC_WEATHER_STATION_GROUPS.filter(
-              (group) =>
-                group.region === region &&
-                group.slug !== currentSlug &&
-                !compareSlugs.includes(group.slug),
-            )
-            if (groups.length === 0) return null
-            return (
-              <optgroup key={region} label={region}>
-                {groups.map((group) => (
-                  <option key={group.slug} value={group.slug}>
-                    {group.displayName}
-                  </option>
-                ))}
-              </optgroup>
-            )
-          })}
-        </select>
-      </label>
+    <div className="flex justify-end gap-1">
+      <button
+        type="button"
+        aria-label={`Move ${title} up`}
+        disabled={!canUp}
+        onClick={() => onMove(-1)}
+        className={buttonClass}
+      >
+        <ChevronUp className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        aria-label={`Move ${title} down`}
+        disabled={!canDown}
+        onClick={() => onMove(1)}
+        className={buttonClass}
+      >
+        <ChevronDown className="h-4 w-4" />
+      </button>
+      <button type="button" aria-label={`Hide ${title}`} onClick={onHide} className={buttonClass}>
+        <EyeOff className="h-4 w-4" />
+      </button>
     </div>
+  )
+}
+
+// Hidden charts as chips that restore on click.
+function HiddenChartChips({
+  presets,
+  onShow,
+}: {
+  presets: GraphPreset[]
+  onShow: (key: string) => void
+}) {
+  if (presets.length === 0) return null
+  return (
+    <>
+      <span className="text-sm text-muted-foreground">Hidden:</span>
+      {presets.map((preset) => (
+        <button
+          key={preset.key}
+          type="button"
+          aria-label={`Show ${preset.title}`}
+          onClick={() => onShow(preset.key)}
+          className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <Eye className="h-3.5 w-3.5" />
+          {preset.title}
+        </button>
+      ))}
+    </>
   )
 }
 
@@ -197,11 +259,15 @@ function PresetChart({
   stids,
   primaryStids,
   windowKey,
+  controls,
+  onEmptyChange,
 }: {
   preset: GraphPreset
   stids: string[]
   primaryStids: string[]
   windowKey: string
+  controls: ReactNode
+  onEmptyChange: (key: string, empty: boolean) => void
 }) {
   const { data, error, loading } = useGraphData(preset, stids, windowKey)
   const option = useMemo(
@@ -209,13 +275,65 @@ function PresetChart({
     [data, preset, primaryStids],
   )
 
+  // Report no-data charts so move up/down skips over them.
+  useEffect(() => {
+    onEmptyChange(preset.key, isEmpty(data))
+    return () => onEmptyChange(preset.key, false)
+  }, [data, preset.key, onEmptyChange])
+
   const state = preChartState(preset.title, error, data, option)
   if (state !== 'ready') return state
   if (!option) return null // unreachable: preChartState returns the skeleton
   return (
-    <ChartFrame loading={loading}>
-      <EChart option={option} group="station-graphs" />
-    </ChartFrame>
+    // Controls overlay the canvas's top-right, level with the ECharts title.
+    <div className="relative">
+      <div className="absolute right-0 top-0 z-10">{controls}</div>
+      <ChartFrame loading={loading}>
+        <EChart option={option} group="station-graphs" />
+      </ChartFrame>
+    </div>
+  )
+}
+
+// Window picker, compare-station picker, and the chip row (comparison stations
+// + hidden charts) above the charts.
+function GraphsToolbar({
+  windowKey,
+  onWindowChange,
+  currentSlug,
+  compareSlugs,
+  onCompareChange,
+  hiddenPresets,
+  onShowChart,
+}: {
+  windowKey: string
+  onWindowChange: (key: string) => void
+  currentSlug: string
+  compareSlugs: string[]
+  onCompareChange: (slugs: string[]) => void
+  hiddenPresets: GraphPreset[]
+  onShowChart: (key: string) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <WindowPicker active={windowKey} onChange={onWindowChange} />
+        <CompareStationPicker
+          currentSlug={currentSlug}
+          compareSlugs={compareSlugs}
+          onAdd={(slug) => onCompareChange([...compareSlugs, slug])}
+        />
+      </div>
+      {(compareSlugs.length > 0 || hiddenPresets.length > 0) && (
+        <div className="flex flex-wrap items-center gap-2">
+          <CompareChips
+            compareSlugs={compareSlugs}
+            onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+          />
+          <HiddenChartChips presets={hiddenPresets} onShow={onShowChart} />
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -234,6 +352,7 @@ export function StationGraphs({
 }) {
   const [windowKey, setWindowKey] = useState('7d')
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
+  const arrangement = useChartArrangement(presets)
 
   // Base stids plus each comparison group's, deduped in selection order.
   const allStids = useMemo(() => {
@@ -253,22 +372,32 @@ export function StationGraphs({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <WindowPicker active={windowKey} onChange={setWindowKey} />
-        <CompareStationPicker
-          currentSlug={currentSlug}
-          compareSlugs={compareSlugs}
-          onAdd={(slug) => setCompareSlugs((prev) => [...prev, slug])}
-          onRemove={(slug) => setCompareSlugs((prev) => prev.filter((s) => s !== slug))}
-        />
-      </div>
-      {presets.map((preset) => (
+      <GraphsToolbar
+        windowKey={windowKey}
+        onWindowChange={setWindowKey}
+        currentSlug={currentSlug}
+        compareSlugs={compareSlugs}
+        onCompareChange={setCompareSlugs}
+        hiddenPresets={arrangement.hiddenPresets}
+        onShowChart={arrangement.showChart}
+      />
+      {arrangement.visiblePresets.map((preset) => (
         <PresetChart
           key={preset.key}
           preset={preset}
           stids={allStids}
           primaryStids={stids}
           windowKey={windowKey}
+          onEmptyChange={arrangement.onEmptyChange}
+          controls={
+            <ChartControls
+              title={preset.title}
+              canUp={arrangement.canMove(preset.key, -1)}
+              canDown={arrangement.canMove(preset.key, 1)}
+              onMove={(direction) => arrangement.moveChart(preset.key, direction)}
+              onHide={() => arrangement.hideChart(preset.key)}
+            />
+          }
         />
       ))}
     </div>

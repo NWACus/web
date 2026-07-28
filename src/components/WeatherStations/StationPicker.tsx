@@ -4,6 +4,25 @@ import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/w
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
 
+// Region-grouped station options, shared by every station select.
+export function StationOptGroups({ excludeSlugs = [] }: { excludeSlugs?: string[] }) {
+  return NWAC_STATION_REGIONS.map((region) => {
+    const groups = NWAC_WEATHER_STATION_GROUPS.filter(
+      (group) => group.region === region && !excludeSlugs.includes(group.slug),
+    )
+    if (groups.length === 0) return null
+    return (
+      <optgroup key={region} label={region}>
+        {groups.map((group) => (
+          <option key={group.slug} value={group.slug}>
+            {group.displayName}
+          </option>
+        ))}
+      </optgroup>
+    )
+  })
+}
+
 // Region-grouped dropdown that navigates to a station's page. Reused on both the
 // stations index and the per-station detail page.
 export function StationPicker({ current, className }: { current?: string; className?: string }) {
@@ -22,19 +41,7 @@ export function StationPicker({ current, className }: { current?: string; classN
         <option value="" disabled>
           Jump to a station…
         </option>
-        {NWAC_STATION_REGIONS.map((region) => {
-          const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
-          if (groups.length === 0) return null
-          return (
-            <optgroup key={region} label={region}>
-              {groups.map((group) => (
-                <option key={group.slug} value={group.slug}>
-                  {group.displayName}
-                </option>
-              ))}
-            </optgroup>
-          )
-        })}
+        <StationOptGroups />
       </select>
     </label>
   )
