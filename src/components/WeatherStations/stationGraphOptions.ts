@@ -29,6 +29,7 @@ function rawSeries(
   yAxisIndex: number,
   color: string,
   symbolsOnly: boolean,
+  dashed: boolean,
 ): object[] {
   return [
     {
@@ -38,7 +39,7 @@ function rawSeries(
       yAxisIndex,
       showSymbol: symbolsOnly,
       symbolSize: 4,
-      lineStyle: symbolsOnly ? { opacity: 0 } : undefined,
+      lineStyle: symbolsOnly ? { opacity: 0 } : dashed ? { type: 'dashed' } : undefined,
       connectNulls: false,
       data: s.points,
       ...directionTooltip(symbolsOnly),
@@ -73,6 +74,7 @@ function dailySeries(
   s: GraphSeries & { kind: 'daily' },
   yAxisIndex: number,
   color: string,
+  dashed: boolean,
 ): object[] {
   return [
     {
@@ -81,6 +83,7 @@ function dailySeries(
       color,
       yAxisIndex,
       showSymbol: false,
+      lineStyle: dashed ? { type: 'dashed' } : undefined,
       data: s.days.map(([t, , mean]) => [t, mean]),
     },
   ]
@@ -91,9 +94,12 @@ function seriesFor(
   yAxisIndex: number,
   color: string,
   symbolsOnly: boolean,
+  dashed: boolean,
 ): object[] {
-  if (s.kind === 'raw') return rawSeries(s, yAxisIndex, color, symbolsOnly)
-  return symbolsOnly ? dailyMeanDots(s, yAxisIndex, color) : dailySeries(s, yAxisIndex, color)
+  if (s.kind === 'raw') return rawSeries(s, yAxisIndex, color, symbolsOnly, dashed)
+  return symbolsOnly
+    ? dailyMeanDots(s, yAxisIndex, color)
+    : dailySeries(s, yAxisIndex, color, dashed)
 }
 
 const AXIS_CARDINALS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
@@ -154,14 +160,21 @@ function directionTooltip(symbolsOnly: boolean): object {
   }
 }
 
-export function buildChartOption(data: GraphData, preset: GraphPreset): EChartOption {
+// `primaryStids` marks the page's own station(s); series from any other station
+// (a comparison pick) render dashed so overlapping stations stay readable.
+export function buildChartOption(
+  data: GraphData,
+  preset: GraphPreset,
+  primaryStids?: string[],
+): EChartOption {
   const title = preset.title
   const symbolsOnly = preset.symbolsOnly ?? false
   const axes = unitAxes(data.series)
   const series = data.series.flatMap((s, i) => {
     const yAxisIndex = axisIndexFor(s.unit, axes)
     const color = SERIES_COLORS[i % SERIES_COLORS.length]
-    const built = seriesFor(s, yAxisIndex, color, symbolsOnly)
+    const dashed = primaryStids !== undefined && !primaryStids.includes(s.stid)
+    const built = seriesFor(s, yAxisIndex, color, symbolsOnly, dashed)
     if (i === 0) Object.assign(built[0], refLineFor(preset))
     return built
   })

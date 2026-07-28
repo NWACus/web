@@ -1,5 +1,6 @@
 'use client'
 
+import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import { cn } from '@/utilities/ui'
 import { Loader2 } from 'lucide-react'
@@ -113,17 +114,62 @@ function preChartState(
   return 'ready'
 }
 
+// Overlays another station's series on every chart. Region-grouped like the
+// StationPicker; the page's own station is excluded.
+function CompareStationPicker({
+  currentSlug,
+  compareSlug,
+  onChange,
+}: {
+  currentSlug: string
+  compareSlug: string
+  onChange: (slug: string) => void
+}) {
+  return (
+    <label className="inline-flex items-center gap-2 text-sm">
+      <span className="text-muted-foreground">Compare with</span>
+      <select
+        value={compareSlug}
+        onChange={(event) => onChange(event.target.value)}
+        className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="">None</option>
+        {NWAC_STATION_REGIONS.map((region) => {
+          const groups = NWAC_WEATHER_STATION_GROUPS.filter(
+            (group) => group.region === region && group.slug !== currentSlug,
+          )
+          if (groups.length === 0) return null
+          return (
+            <optgroup key={region} label={region}>
+              {groups.map((group) => (
+                <option key={group.slug} value={group.slug}>
+                  {group.displayName}
+                </option>
+              ))}
+            </optgroup>
+          )
+        })}
+      </select>
+    </label>
+  )
+}
+
 function PresetChart({
   preset,
   stids,
+  primaryStids,
   windowKey,
 }: {
   preset: GraphPreset
   stids: string[]
+  primaryStids: string[]
   windowKey: string
 }) {
   const { data, error, loading } = useGraphData(preset, stids, windowKey)
-  const option = useMemo(() => (data ? buildChartOption(data, preset) : null), [data, preset])
+  const option = useMemo(
+    () => (data ? buildChartOption(data, preset, primaryStids) : null),
+    [data, preset, primaryStids],
+  )
 
   const state = preChartState(preset.title, error, data, option)
   if (state !== 'ready') return state
@@ -136,10 +182,27 @@ function PresetChart({
 }
 
 // The station page's Graphs tab: fixed preset charts for this station group,
-// with a shared time-window picker. The v2 self-serve builder renders the same
-// charts from a user-built config instead of presets.
-export function StationGraphs({ stids, presets }: { stids: string[]; presets: GraphPreset[] }) {
+// with a shared time-window picker and an optional comparison station whose
+// series overlay every chart as dashed lines. The v2 self-serve builder renders
+// the same charts from a user-built config instead of presets.
+export function StationGraphs({
+  stids,
+  presets,
+  currentSlug,
+}: {
+  stids: string[]
+  presets: GraphPreset[]
+  currentSlug: string
+}) {
   const [windowKey, setWindowKey] = useState('7d')
+  const [compareSlug, setCompareSlug] = useState('')
+
+  // The comparison group's stids, minus any the page's own group already plots.
+  const allStids = useMemo(() => {
+    const compareGroup = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === compareSlug)
+    if (!compareGroup) return stids
+    return [...stids, ...compareGroup.stids.filter((stid) => !stids.includes(stid))]
+  }, [stids, compareSlug])
 
   if (presets.length === 0) {
     return <p className="text-muted-foreground">This station has no graphable sensors.</p>
@@ -147,9 +210,22 @@ export function StationGraphs({ stids, presets }: { stids: string[]; presets: Gr
 
   return (
     <div className="flex flex-col gap-6">
-      <WindowPicker active={windowKey} onChange={setWindowKey} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <WindowPicker active={windowKey} onChange={setWindowKey} />
+        <CompareStationPicker
+          currentSlug={currentSlug}
+          compareSlug={compareSlug}
+          onChange={setCompareSlug}
+        />
+      </div>
       {presets.map((preset) => (
-        <PresetChart key={preset.key} preset={preset} stids={stids} windowKey={windowKey} />
+        <PresetChart
+          key={preset.key}
+          preset={preset}
+          stids={allStids}
+          primaryStids={stids}
+          windowKey={windowKey}
+        />
       ))}
     </div>
   )

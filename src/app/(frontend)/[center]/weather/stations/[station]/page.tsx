@@ -79,7 +79,13 @@ function graphsTabView(group: WeatherStationGroup): TabView {
   return {
     key: 'graphs',
     table: null,
-    tabContent: <StationGraphs stids={group.stids} presets={presetsForGroup(group)} />,
+    tabContent: (
+      <StationGraphs
+        stids={group.stids}
+        presets={presetsForGroup(group)}
+        currentSlug={group.slug}
+      />
+    ),
   }
 }
 
@@ -114,7 +120,12 @@ export default async function Page({ params, searchParams }: Args) {
   const view = await resolveTabView(group, rangeParam)
 
   return (
-    <StationPageView group={group} table={view.table} activeKey={view.key} tabContent={view.tabContent} />
+    <StationPageView
+      group={group}
+      table={view.table}
+      activeKey={view.key}
+      tabContent={view.tabContent}
+    />
   )
 }
 

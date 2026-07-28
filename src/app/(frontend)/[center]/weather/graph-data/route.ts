@@ -9,6 +9,8 @@ import { NextResponse } from 'next/server'
 // 30 days to daily min/mean/max.
 
 const KNOWN_STIDS = new Set(NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.stids))
+// Must fit two full station groups (largest is 3 stids): the Graphs tab's
+// compare picker requests the page's group plus one comparison group.
 const MAX_STATIONS = 6
 const MAX_VARIABLES = 8
 const MAX_WINDOW_MS = 5 * 366 * 24 * 60 * 60 * 1000 // ~5 years, verified against SnowObs
