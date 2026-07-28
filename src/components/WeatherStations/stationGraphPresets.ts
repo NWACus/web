@@ -14,6 +14,9 @@ export type GraphPreset = {
   axis?: { min?: number; max?: number }
   /** Horizontal reference line (legacy: 32°F freezing line on temperature). */
   refLine?: number
+  /** Render these two variables as a shaded band instead of their own lines
+   * (wind: min→gust around the speed line). */
+  band?: { lower: string; upper: string }
 }
 
 const PRESETS: GraphPreset[] = [
@@ -28,6 +31,7 @@ const PRESETS: GraphPreset[] = [
     key: 'wind',
     title: 'Wind Speed',
     variables: ['wind_speed_min', 'wind_speed', 'wind_gust'],
+    band: { lower: 'wind_speed_min', upper: 'wind_gust' },
   },
   { key: 'winddir', title: 'Wind Direction', variables: ['wind_direction'], symbolsOnly: true },
   { key: 'snowdepth', title: 'Total Snow Depth', variables: ['snow_depth'] },

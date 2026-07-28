@@ -149,6 +149,62 @@ function refLineFor(preset: GraphPreset): object {
   }
 }
 
+// Mean points regardless of series kind — daily series band on their means.
+function meanPoints(s: GraphSeries): [number, number | null][] {
+  if (s.kind === 'raw') return s.points
+  return s.days.map(([t, , mean]) => [t, mean])
+}
+
+type BandPair = { lower: GraphSeries; upper: GraphSeries }
+
+// Per station: when both band edges are present they render as a shaded band
+// instead of their own lines. Stations missing an edge keep plain lines.
+function bandPairsByStid(
+  series: GraphSeries[],
+  band: NonNullable<GraphPreset['band']>,
+): Map<string, BandPair> {
+  const pairs = new Map<string, BandPair>()
+  for (const s of series) {
+    if (pairs.has(s.stid)) continue
+    const lower = series.find((c) => c.stid === s.stid && c.variable === band.lower)
+    const upper = series.find((c) => c.stid === s.stid && c.variable === band.upper)
+    if (lower && upper) pairs.set(s.stid, { lower, upper })
+  }
+  return pairs
+}
+
+// Lower→upper shaded band: a transparent "floor" line at the lower edge,
+// stacked with (upper − lower) area on top. Aligned by timestamp; gaps in
+// either edge break the band rather than guessing.
+function bandSeries(pair: BandPair, yAxisIndex: number, color: string): object[] {
+  const lowerByTime = new Map(meanPoints(pair.lower))
+  const points = meanPoints(pair.upper).map(([t, upper]) => {
+    const lower = lowerByTime.get(t) ?? null
+    return { t, lower, delta: lower !== null && upper !== null ? upper - lower : null }
+  })
+  const stack = `band-${pair.lower.stid}`
+  const helper = {
+    type: 'line',
+    color,
+    yAxisIndex,
+    stack,
+    showSymbol: false,
+    lineStyle: { opacity: 0 },
+    tooltip: { show: false },
+    legendHoverLink: false,
+    silent: true,
+  }
+  return [
+    { ...helper, name: `${pair.lower.label} band`, data: points.map((p) => [p.t, p.lower]) },
+    {
+      ...helper,
+      name: `${pair.upper.label} band`,
+      areaStyle: { color, opacity: 0.14 },
+      data: points.map((p) => [p.t, p.delta]),
+    },
+  ]
+}
+
 // Tooltip values as "SW (225°)" on direction charts.
 function directionTooltip(symbolsOnly: boolean): object {
   if (!symbolsOnly) return {}
@@ -169,20 +225,34 @@ export function buildChartOption(
 ): EChartOption {
   const title = preset.title
   const symbolsOnly = preset.symbolsOnly ?? false
-  const axes = unitAxes(data.series)
-  const series = data.series.flatMap((s, i) => {
+  const bands = preset.band
+    ? bandPairsByStid(data.series, preset.band)
+    : new Map<string, BandPair>()
+  const lineSeries = data.series.filter((s) => {
+    const pair = bands.get(s.stid)
+    return !pair || (s !== pair.lower && s !== pair.upper)
+  })
+  const axes = unitAxes(lineSeries)
+  const colorFor = (i: number) => SERIES_COLORS[i % SERIES_COLORS.length]
+  const series = lineSeries.flatMap((s, i) => {
     const yAxisIndex = axisIndexFor(s.unit, axes)
-    const color = SERIES_COLORS[i % SERIES_COLORS.length]
     const dashed = primaryStids !== undefined && !primaryStids.includes(s.stid)
-    const built = seriesFor(s, yAxisIndex, color, symbolsOnly, dashed)
+    const built = seriesFor(s, yAxisIndex, colorFor(i), symbolsOnly, dashed)
     if (i === 0) Object.assign(built[0], refLineFor(preset))
     return built
   })
+  // Each band shades in the color of its station's line so they read as one.
+  for (const [stid, pair] of bands) {
+    const lineIndex = lineSeries.findIndex((s) => s.stid === stid)
+    series.push(
+      ...bandSeries(pair, axisIndexFor(pair.lower.unit, axes), colorFor(Math.max(lineIndex, 0))),
+    )
+  }
   return {
     // Title top-left, legend on its own row below — they no longer collide.
     title: { text: title, left: 0, top: 0, textStyle: { fontSize: 15, fontWeight: 600 } },
     tooltip: { trigger: 'axis' },
-    legend: { top: 26, left: 0, type: 'scroll', data: data.series.map((s) => s.label) },
+    legend: { top: 26, left: 0, type: 'scroll', data: lineSeries.map((s) => s.label) },
     grid: { left: 64, right: 64, top: 64, bottom: 64 },
     xAxis: {
       type: 'time',
