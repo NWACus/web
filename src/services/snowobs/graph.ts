@@ -1,4 +1,4 @@
-import { DISPLAY_TIMEZONE, fallbackSensorLabel, SENSOR_LABELS, UNIT_LABELS } from './constants'
+import { fallbackSensorLabel, NWAC_DISPLAY_TIMEZONE, SENSOR_LABELS, UNIT_LABELS } from './constants'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
 // The graph engine's data contract (grill-me 2026-07-20): one shape feeds both
@@ -42,7 +42,7 @@ type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
 
 // yyyy-mm-dd in the display timezone — the daily-aggregation bucket key.
 const dayFormatter = new Intl.DateTimeFormat('en-CA', {
-  timeZone: DISPLAY_TIMEZONE,
+  timeZone: NWAC_DISPLAY_TIMEZONE,
   year: 'numeric',
   month: '2-digit',
   day: '2-digit',
@@ -173,5 +173,5 @@ export function buildGraphData(
       if (built) series.push(built)
     }
   }
-  return { series, aggregated, timezone: DISPLAY_TIMEZONE }
+  return { series, aggregated, timezone: NWAC_DISPLAY_TIMEZONE }
 }

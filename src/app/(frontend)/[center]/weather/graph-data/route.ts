@@ -1,4 +1,4 @@
-import { STATIONS_TENANT_SLUG, WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
+import { NWAC_WEATHER_STATION_GROUPS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import { NextResponse } from 'next/server'
@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server'
 // live server-side (token stays hidden), auto-aggregates windows longer than
 // 30 days to daily min/mean/max.
 
-const KNOWN_STIDS = new Set(WEATHER_STATION_GROUPS.flatMap((g) => g.stids))
+const KNOWN_STIDS = new Set(NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.stids))
 const MAX_STATIONS = 6
 const MAX_VARIABLES = 8
 const MAX_WINDOW_MS = 5 * 366 * 24 * 60 * 60 * 1000 // ~5 years, verified against SnowObs
