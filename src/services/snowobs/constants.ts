@@ -34,7 +34,13 @@ export const UNIT_LABELS: Record<string, string> = {
   volt: 'V',
 }
 
-// Variable name of the computed running-total precipitation column.
+export function displayUnit(rawUnit: string | undefined): string {
+  if (!rawUnit) return ''
+  return UNIT_LABELS[rawUnit] ?? rawUnit
+}
+
+// The hourly precip variable SnowObs reports, and the running-total column the
+// table computes from it (not fetched from SnowObs).
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'
 
@@ -45,4 +51,18 @@ export const NWAC_DISPLAY_TIMEZONE = 'America/Vancouver'
 export function fallbackSensorLabel(variable: string): string {
   const matches = variable.replace(/_/g, ' ').match(/\b(\w)/g)
   return matches ? matches.join('').toUpperCase() : variable
+}
+
+// Format a date in the display timezone and return a getter for individual
+// parts (e.g. get('timeZoneName') -> "PDT") — Intl is the only way to get the
+// zone abbreviation, which date-fns `format` can't produce.
+export function zonedParts(
+  date: Date,
+  options: Intl.DateTimeFormatOptions,
+): (type: string) => string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: NWAC_DISPLAY_TIMEZONE,
+    ...options,
+  }).formatToParts(date)
+  return (type) => parts.find((part) => part.type === type)?.value ?? ''
 }
