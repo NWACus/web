@@ -1,18 +1,24 @@
-import { NWAC_WEATHER_STATION_GROUPS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
+import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
+import {
+  MAX_COMPARE_STATIONS,
+  NWAC_WEATHER_STATION_GROUPS,
+  STATIONS_TENANT_SLUG,
+} from '@/constants/weatherStations'
 import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import { NextResponse } from 'next/server'
 
-// The graph engine's data endpoint (grill-me 2026-07-20): serves both the
-// public station Graphs tab and the future self-serve builder. Reads SnowObs
-// live server-side (token stays hidden), auto-aggregates windows longer than
-// 30 days to daily min/mean/max.
+// The graph engine's data endpoint: serves both the public station Graphs tab
+// and the future self-serve builder. Reads SnowObs live server-side (token
+// stays hidden), auto-aggregates windows longer than 30 days to daily
+// min/mean/max.
 
 const KNOWN_STIDS = new Set(NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.stids))
-// Must fit the page's station group plus the Graphs tab's comparison picks:
-// up to 4 full groups (largest is 3 stids).
-const MAX_STATIONS = 12
-const MAX_VARIABLES = 8
+// Derived caps: the page's station group plus every comparison pick, and the
+// union of all preset variables (the Graphs tab fetches them in one request).
+const MAX_GROUP_STIDS = Math.max(...NWAC_WEATHER_STATION_GROUPS.map((g) => g.stids.length))
+const MAX_STATIONS = (1 + MAX_COMPARE_STATIONS) * MAX_GROUP_STIDS
+const MAX_VARIABLES = new Set(STATION_GRAPH_PRESETS.flatMap((p) => p.variables)).size
 const MAX_WINDOW_MS = 5 * 366 * 24 * 60 * 60 * 1000 // ~5 years, verified against SnowObs
 const REVALIDATE_SECONDS = 300
 
@@ -29,7 +35,6 @@ function badRequest(message: string): NextResponse {
   return NextResponse.json({ error: message }, { status: 400 })
 }
 
-// Each validator returns an error message or null; parseQuery composes them.
 function listBounds(name: string, values: string[], max: number): string | null {
   return values.length === 0 || values.length > max ? `${name} must list 1-${max} entries` : null
 }
@@ -60,7 +65,6 @@ function dateParam(url: URL, name: string): Date {
   return new Date(url.searchParams.get(name) ?? '')
 }
 
-// Parse + bound the query surface. Returns an error response or the parsed inputs.
 function parseQuery(
   url: URL,
 ): NextResponse | { stids: string[]; vars: string[]; from: Date; to: Date } {
@@ -72,8 +76,7 @@ function parseQuery(
   return error ? badRequest(error) : { stids, vars, from, to }
 }
 
-// Branches are the tenant gate + validation + upstream error mapping — splitting
-// further would scatter one request's flow. CRAP inflated by no route-level UT.
+// CRAP is inflated by the lack of unit coverage on this route handler.
 // fallow-ignore-next-line complexity
 export async function GET(
   request: Request,

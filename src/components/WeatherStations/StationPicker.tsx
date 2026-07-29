@@ -4,6 +4,10 @@ import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/w
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
 
+// Shared styling for every station select (padding varies per site).
+export const stationSelectClass =
+  'rounded-md border border-input bg-background text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring'
+
 // Region-grouped station options, shared by every station select.
 export function StationOptGroups({ excludeSlugs = [] }: { excludeSlugs?: string[] }) {
   return NWAC_STATION_REGIONS.map((region) => {
@@ -36,7 +40,7 @@ export function StationPicker({ current, className }: { current?: string; classN
         onChange={(event) => {
           if (event.target.value) router.push(`/weather/stations/${event.target.value}`)
         }}
-        className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        className={cn(stationSelectClass, 'px-3 py-2')}
       >
         <option value="" disabled>
           Jump to a station…

@@ -1,6 +1,5 @@
 // Per-browser chart arrangement for the station Graphs tab: preset order plus
-// hidden charts, persisted to localStorage. The reconciled shape is the seed of
-// the v2 self-serve builder's chart config.
+// hidden charts, persisted to localStorage.
 
 export type ChartPrefs = { order: string[]; hidden: string[] }
 

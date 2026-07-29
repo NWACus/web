@@ -1,9 +1,10 @@
-import { fallbackSensorLabel, NWAC_DISPLAY_TIMEZONE, SENSOR_LABELS, UNIT_LABELS } from './constants'
+import { differenceInHours } from 'date-fns'
+import { displayUnit, fallbackSensorLabel, NWAC_DISPLAY_TIMEZONE, SENSOR_LABELS } from './constants'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
-// The graph engine's data contract (grill-me 2026-07-20): one shape feeds both
-// the public station Graphs tab and the future self-serve builder. Series come
-// back either raw (hourly points) or daily-aggregated — windows longer than
+// The graph engine's data contract: one shape feeds both the public station
+// Graphs tab and the future self-serve builder. Series come back either raw
+// (hourly points) or daily-aggregated — windows longer than
 // DECIMATION_THRESHOLD_DAYS auto-aggregate server-side, no client knob.
 
 export const DECIMATION_THRESHOLD_DAYS = 30
@@ -41,6 +42,8 @@ export type GraphData = {
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
 
 // yyyy-mm-dd in the display timezone — the daily-aggregation bucket key.
+// A cached Intl formatter (not date-fns `format` + tz) because this runs per
+// point in the aggregation loop.
 const dayFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: NWAC_DISPLAY_TIMEZONE,
   year: 'numeric',
@@ -52,26 +55,31 @@ function seriesLabel(stationName: string, variable: string): string {
   return `${stationName} · ${SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable)}`
 }
 
-function seriesUnit(units: Record<string, string>, variable: string): string {
-  const raw = units[variable]
-  return raw ? (UNIT_LABELS[raw] ?? raw) : ''
+// The station's date_time series parsed and time-sorted once, so building
+// points doesn't re-parse and re-sort it for every variable.
+type ParsedTimes = { t: number; i: number }[]
+
+function parsedTimes(station: ResponseStation): ParsedTimes {
+  const times = station.observations['date_time'] ?? []
+  const parsed: ParsedTimes = []
+  times.forEach((iso, i) => {
+    const t = typeof iso === 'string' ? new Date(iso).getTime() : NaN
+    if (Number.isFinite(t)) parsed.push({ t, i })
+  })
+  parsed.sort((a, b) => a.t - b.t)
+  return parsed
 }
 
 // Time-ascending [ms, value] pairs for one station variable; null values kept
 // so gaps render as gaps rather than interpolated lines.
-function rawPoints(station: ResponseStation, variable: string): [number, number | null][] {
-  const obs = station.observations
-  const times = obs['date_time'] ?? []
-  const values = obs[variable] ?? []
-  const points: [number, number | null][] = []
-  times.forEach((iso, i) => {
-    const t = typeof iso === 'string' ? new Date(iso).getTime() : NaN
-    if (!Number.isFinite(t)) return
+function rawPoints(
+  times: ParsedTimes,
+  values: (string | number | null)[],
+): [number, number | null][] {
+  return times.map(({ t, i }) => {
     const v = values[i]
-    points.push([t, typeof v === 'number' ? v : null])
+    return [t, typeof v === 'number' ? v : null]
   })
-  points.sort((a, b) => a[0] - b[0])
-  return points
 }
 
 // Collapse raw points into per-day [dayStart, min, mean, max] rows (display
@@ -127,19 +135,21 @@ const CIRCULAR_VARIABLES = new Set(['wind_direction'])
 
 function buildSeries(
   station: ResponseStation,
+  times: ParsedTimes,
   variable: string,
   units: Record<string, string>,
   aggregated: boolean,
 ): GraphSeries | null {
-  if (!station.observations[variable]) return null
-  const points = rawPoints(station, variable)
+  const values = station.observations[variable]
+  if (!values) return null
+  const points = rawPoints(times, values)
   if (points.length === 0) return null
   const base = {
     stid: station.stid,
     stationName: station.name ?? station.stid,
     variable,
     label: seriesLabel(station.name ?? station.stid, variable),
-    unit: seriesUnit(units, variable),
+    unit: displayUnit(units[variable]),
   }
   if (aggregated) {
     return {
@@ -152,8 +162,7 @@ function buildSeries(
 }
 
 export function windowExceedsThreshold(from: Date, to: Date): boolean {
-  const days = (to.getTime() - from.getTime()) / (24 * 60 * 60 * 1000)
-  return days > DECIMATION_THRESHOLD_DAYS
+  return differenceInHours(to, from, { roundingMethod: 'ceil' }) > DECIMATION_THRESHOLD_DAYS * 24
 }
 
 // One series per requested (station, variable) pair that actually has data.
@@ -168,8 +177,9 @@ export function buildGraphData(
   for (const stid of stids) {
     const station = stationByStid.get(stid)
     if (!station) continue
+    const times = parsedTimes(station)
     for (const variable of variables) {
-      const built = buildSeries(station, variable, response.UNITS, aggregated)
+      const built = buildSeries(station, times, variable, response.UNITS, aggregated)
       if (built) series.push(built)
     }
   }

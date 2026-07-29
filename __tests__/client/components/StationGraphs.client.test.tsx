@@ -8,48 +8,55 @@ import { fireEvent, render, screen } from '@testing-library/react'
 const TEMP_PRESET = { key: 'temp', title: 'Temperature', variables: ['air_temp'] }
 const RH_PRESET = { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] }
 
-// The ECharts canvas never mounts in these tests (fetches resolve to empty data).
+// The ECharts canvas never mounts in these tests.
 jest.mock('next/dynamic', () => () => {
   const Noop = () => null
   return Noop
 })
 
-const PRESET = { key: 'temp', title: 'Temperature', variables: ['air_temp'] }
-
-function series(stid: string): GraphData['series'][number] {
+function series(stid: string, variable = 'air_temp'): GraphData['series'][number] {
   return {
     kind: 'raw',
     stid,
     stationName: `Station ${stid}`,
-    variable: 'air_temp',
-    label: `Station ${stid} Temp`,
+    variable,
+    label: `Station ${stid} ${variable}`,
     unit: '°F',
     points: [[1_700_000_000_000, 30]],
   }
 }
 
-type LineSeries = { lineStyle?: { type?: string } }
+type ChartSeries = {
+  name?: string
+  lineStyle?: { type?: string }
+  areaStyle?: { opacity?: number }
+  data?: unknown
+}
 
-function isLineSeriesArray(value: unknown): value is LineSeries[] {
+function isSeriesArray(value: unknown): value is ChartSeries[] {
   return Array.isArray(value) && value.every((s) => typeof s === 'object' && s !== null)
+}
+
+function chartSeries(option: Record<string, unknown>): ChartSeries[] {
+  if (!isSeriesArray(option.series)) throw new Error('expected a series array')
+  return option.series
 }
 
 // The rendered series' lineStyle.type values, in order.
 function seriesLineTypes(option: Record<string, unknown>): (string | undefined)[] {
-  if (!isLineSeriesArray(option.series)) throw new Error('expected a series array')
-  return option.series.map((s) => s.lineStyle?.type)
+  return chartSeries(option).map((s) => s.lineStyle?.type)
 }
 
 describe('buildChartOption comparison styling', () => {
   const data: GraphData = { series: [series('1'), series('9')], aggregated: false, timezone: 'x' }
 
   it('dashes series from stations outside primaryStids', () => {
-    const option = buildChartOption(data, PRESET, ['1'])
+    const option = buildChartOption(data, TEMP_PRESET, ['1'])
     expect(seriesLineTypes(option)).toEqual([undefined, 'dashed'])
   })
 
   it('leaves everything solid when primaryStids is omitted', () => {
-    const option = buildChartOption(data, PRESET)
+    const option = buildChartOption(data, TEMP_PRESET)
     expect(seriesLineTypes(option)).toEqual([undefined, undefined])
   })
 })
@@ -73,17 +80,6 @@ describe('buildChartOption wind band', () => {
       unit: 'mph',
       points: [[T, value]],
     }
-  }
-
-  type BandSeries = LineSeries & { name?: string; areaStyle?: { opacity?: number }; data?: unknown }
-
-  function isBandSeriesArray(value: unknown): value is BandSeries[] {
-    return Array.isArray(value) && value.every((s) => typeof s === 'object' && s !== null)
-  }
-
-  function chartSeries(option: Record<string, unknown>): BandSeries[] {
-    if (!isBandSeriesArray(option.series)) throw new Error('expected a series array')
-    return option.series
   }
 
   it('collapses min and gust into a shaded band around the speed line', () => {
@@ -146,7 +142,9 @@ describe('StationGraphs compare picker', () => {
   })
 
   function renderGraphs() {
-    render(<StationGraphs stids={current.stids} presets={[PRESET]} currentSlug={current.slug} />)
+    render(
+      <StationGraphs stids={current.stids} presets={[TEMP_PRESET]} currentSlug={current.slug} />,
+    )
   }
 
   it('excludes the current station from the compare options', () => {
@@ -200,7 +198,12 @@ describe('StationGraphs compare picker', () => {
 describe('StationGraphs chart arrangement', () => {
   const current = NWAC_WEATHER_STATION_GROUPS[0]
   const fetchMock = jest.fn()
-  const dataWithSeries: GraphData = { series: [series('1')], aggregated: false, timezone: 'x' }
+  // One response serves both charts: a series per preset variable.
+  const dataWithSeries: GraphData = {
+    series: [series('1', 'air_temp'), series('1', 'relative_humidity')],
+    aggregated: false,
+    timezone: 'x',
+  }
 
   beforeEach(() => {
     window.localStorage.clear()
@@ -248,5 +251,15 @@ describe('StationGraphs chart arrangement', () => {
 
     const stored = window.localStorage.getItem('nwac-station-graph-prefs') ?? ''
     expect(stored).toContain('"hidden":["temp"]')
+  })
+
+  it('drops charts whose variables no station reports', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ ...dataWithSeries, series: [series('1', 'air_temp')] }),
+    })
+    renderGraphs()
+    await expectChartOrder(['Temperature'])
+    expect(screen.queryByLabelText('Hide Relative Humidity')).not.toBeInTheDocument()
   })
 })

@@ -1,7 +1,7 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
-import { presetsForGroup } from '@/components/WeatherStations/stationGraphPresets'
+import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveStationRange } from '@/components/WeatherStations/StationRangeTabs'
@@ -80,11 +80,7 @@ function graphsTabView(group: WeatherStationGroup): TabView {
     key: 'graphs',
     table: null,
     tabContent: (
-      <StationGraphs
-        stids={group.stids}
-        presets={presetsForGroup(group)}
-        currentSlug={group.slug}
-      />
+      <StationGraphs stids={group.stids} presets={STATION_GRAPH_PRESETS} currentSlug={group.slug} />
     ),
   }
 }

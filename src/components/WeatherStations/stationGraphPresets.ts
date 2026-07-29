@@ -1,9 +1,6 @@
-import type { WeatherStationGroup } from '@/constants/weatherStations'
+import { NWAC_DISPLAY_TIMEZONE } from '@/services/snowobs/constants'
+import { TZDate } from '@date-fns/tz'
 import { differenceInHours } from 'date-fns'
-
-// Fixed public presets for the station Graphs tab (grill-me 2026-07-20): each
-// chart names the variables it wants; a station only gets the charts (and
-// variables) its registry columns actually configure.
 
 export type GraphPreset = {
   key: string
@@ -20,7 +17,10 @@ export type GraphPreset = {
   band?: { lower: string; upper: string }
 }
 
-const PRESETS: GraphPreset[] = [
+// Every station gets the full preset list: the registry's columns only cover
+// the NOW-table subset, while loggers report more sensors (pressure, equip
+// temp, ...). Charts whose variables come back without data hide themselves.
+export const STATION_GRAPH_PRESETS: GraphPreset[] = [
   { key: 'temp', title: 'Temperature', variables: ['air_temp'], refLine: 32 },
   {
     key: 'rh',
@@ -49,28 +49,25 @@ const PRESETS: GraphPreset[] = [
   { key: 'equiptemp', title: 'Equipment Temperature', variables: ['equip_temperature'] },
 ]
 
-export type GraphWindow = { key: string; label: string; hours: number }
-
-export const GRAPH_WINDOWS: GraphWindow[] = [
-  { key: '24h', label: '24 hours', hours: 24 },
-  { key: '7d', label: '7 days', hours: 7 * 24 },
-  { key: '30d', label: '30 days', hours: 30 * 24 },
-  { key: '3m', label: '3 months', hours: 91 * 24 },
-  { key: '6m', label: '6 months', hours: 182 * 24 },
-  // "Season" = back to Oct 1; approximated as a trailing window server-side.
-  { key: 'season', label: 'Season', hours: 0 },
-]
-
-// Hours back to the most recent Oct 1 (the season anchor).
+// Hours back to the most recent Oct 1 (the season anchor, display timezone).
 export function seasonHours(now: Date): number {
-  const year = now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1
-  const seasonStart = new Date(Date.UTC(year, 9, 1))
+  const local = new TZDate(now.getTime(), NWAC_DISPLAY_TIMEZONE)
+  const year = local.getMonth() >= 9 ? local.getFullYear() : local.getFullYear() - 1
+  const seasonStart = new TZDate(year, 9, 1, NWAC_DISPLAY_TIMEZONE)
   return Math.max(24, differenceInHours(now, seasonStart, { roundingMethod: 'ceil' }))
 }
 
-// All presets are offered to every station: the registry's columns only cover
-// the NOW-table subset, while loggers report more sensors (pressure, equip
-// temp, ...). Charts whose fetch returns no series hide themselves instead.
-export function presetsForGroup(_group: WeatherStationGroup): GraphPreset[] {
-  return PRESETS
-}
+export type GraphWindow = { key: string; label: string; hoursBack: (now: Date) => number }
+
+const WEEK_WINDOW: GraphWindow = { key: '7d', label: '7 days', hoursBack: () => 7 * 24 }
+
+export const GRAPH_WINDOWS: GraphWindow[] = [
+  { key: '24h', label: '24 hours', hoursBack: () => 24 },
+  WEEK_WINDOW,
+  { key: '30d', label: '30 days', hoursBack: () => 30 * 24 },
+  { key: '3m', label: '3 months', hoursBack: () => 91 * 24 },
+  { key: '6m', label: '6 months', hoursBack: () => 182 * 24 },
+  { key: 'season', label: 'Season', hoursBack: seasonHours },
+]
+
+export const DEFAULT_GRAPH_WINDOW = WEEK_WINDOW

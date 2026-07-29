@@ -24,82 +24,28 @@ function axisIndexFor(unit: string, axes: string[]): number {
   return index === -1 ? 0 : index
 }
 
-function rawSeries(
-  s: GraphSeries & { kind: 'raw' },
-  yAxisIndex: number,
-  color: string,
-  symbolsOnly: boolean,
-  dashed: boolean,
-): object[] {
-  return [
-    {
-      name: s.label,
-      type: 'line',
-      color,
-      yAxisIndex,
-      showSymbol: symbolsOnly,
-      symbolSize: 4,
-      lineStyle: symbolsOnly ? { opacity: 0 } : dashed ? { type: 'dashed' } : undefined,
-      connectNulls: false,
-      data: s.points,
-      ...directionTooltip(symbolsOnly),
-    },
-  ]
-}
-
-// Daily vector-mean dots for direction charts on aggregated windows.
-function dailyMeanDots(
-  s: GraphSeries & { kind: 'daily' },
-  yAxisIndex: number,
-  color: string,
-): object[] {
-  return [
-    {
-      name: s.label,
-      type: 'line',
-      color,
-      yAxisIndex,
-      showSymbol: true,
-      symbolSize: 4,
-      lineStyle: { opacity: 0 },
-      data: s.days.map(([t, , mean]) => [t, mean]),
-      ...directionTooltip(true),
-    },
-  ]
-}
-
-// Daily-aggregated series render as the mean line (the min→max band was
-// dropped in review — it read as a stray shadow).
-function dailySeries(
-  s: GraphSeries & { kind: 'daily' },
-  yAxisIndex: number,
-  color: string,
-  dashed: boolean,
-): object[] {
-  return [
-    {
-      name: s.label,
-      type: 'line',
-      color,
-      yAxisIndex,
-      showSymbol: false,
-      lineStyle: dashed ? { type: 'dashed' } : undefined,
-      data: s.days.map(([t, , mean]) => [t, mean]),
-    },
-  ]
-}
-
+// One ECharts line per series. Raw series plot their points; daily-aggregated
+// series plot their mean line. symbolsOnly (direction charts) renders
+// disconnected dots instead of a line.
 function seriesFor(
   s: GraphSeries,
   yAxisIndex: number,
   color: string,
   symbolsOnly: boolean,
   dashed: boolean,
-): object[] {
-  if (s.kind === 'raw') return rawSeries(s, yAxisIndex, color, symbolsOnly, dashed)
-  return symbolsOnly
-    ? dailyMeanDots(s, yAxisIndex, color)
-    : dailySeries(s, yAxisIndex, color, dashed)
+): object {
+  return {
+    name: s.label,
+    type: 'line',
+    color,
+    yAxisIndex,
+    showSymbol: symbolsOnly,
+    symbolSize: 4,
+    lineStyle: symbolsOnly ? { opacity: 0 } : dashed ? { type: 'dashed' } : undefined,
+    connectNulls: false,
+    data: meanPoints(s),
+    ...directionTooltip(symbolsOnly),
+  }
 }
 
 const AXIS_CARDINALS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
@@ -135,21 +81,26 @@ function presetAxisOverrides(preset: GraphPreset): object {
 }
 
 // Legacy-style horizontal reference line (32°F freezing on temperature),
-// attached to the first series.
-function refLineFor(preset: GraphPreset): object {
-  if (preset.refLine === undefined) return {}
-  return {
-    markLine: {
+// carried by its own empty series so it never inherits a real series' identity.
+function refLineSeries(preset: GraphPreset): object[] {
+  if (preset.refLine === undefined) return []
+  return [
+    {
+      type: 'line',
+      data: [],
       silent: true,
-      symbol: 'none',
-      lineStyle: { type: 'dashed', color: '#94a3b8' },
-      label: { position: 'insideEndTop', formatter: String(preset.refLine) },
-      data: [{ yAxis: preset.refLine }],
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { type: 'dashed', color: '#94a3b8' },
+        label: { position: 'insideEndTop', formatter: String(preset.refLine) },
+        data: [{ yAxis: preset.refLine }],
+      },
     },
-  }
+  ]
 }
 
-// Mean points regardless of series kind — daily series band on their means.
+// Mean points regardless of series kind — daily series plot and band on their means.
 function meanPoints(s: GraphSeries): [number, number | null][] {
   if (s.kind === 'raw') return s.points
   return s.days.map(([t, , mean]) => [t, mean])
@@ -225,6 +176,7 @@ export function buildChartOption(
 ): EChartOption {
   const title = preset.title
   const symbolsOnly = preset.symbolsOnly ?? false
+  const minValueSpan = (data.aggregated ? 6 * 24 : 6) * 60 * 60 * 1000
   const bands = preset.band
     ? bandPairsByStid(data.series, preset.band)
     : new Map<string, BandPair>()
@@ -234,13 +186,12 @@ export function buildChartOption(
   })
   const axes = unitAxes(lineSeries)
   const colorFor = (i: number) => SERIES_COLORS[i % SERIES_COLORS.length]
-  const series = lineSeries.flatMap((s, i) => {
+  const series: object[] = lineSeries.map((s, i) => {
     const yAxisIndex = axisIndexFor(s.unit, axes)
     const dashed = primaryStids !== undefined && !primaryStids.includes(s.stid)
-    const built = seriesFor(s, yAxisIndex, colorFor(i), symbolsOnly, dashed)
-    if (i === 0) Object.assign(built[0], refLineFor(preset))
-    return built
+    return seriesFor(s, yAxisIndex, colorFor(i), symbolsOnly, dashed)
   })
+  series.push(...refLineSeries(preset))
   // Each band shades in the color of its station's line so they read as one.
   for (const [stid, pair] of bands) {
     const lineIndex = lineSeries.findIndex((s) => s.stid === stid)
@@ -284,13 +235,10 @@ export function buildChartOption(
       ...degreeAxisOverrides(symbolsOnly),
       ...presetAxisOverrides(preset),
     })),
-    dataZoom: (() => {
-      const minValueSpan = (data.aggregated ? 6 * 24 : 6) * 60 * 60 * 1000
-      return [
-        { type: 'inside', xAxisIndex: 0, minValueSpan },
-        { type: 'slider', xAxisIndex: 0, height: 18, bottom: 8, minValueSpan },
-      ]
-    })(),
+    dataZoom: [
+      { type: 'inside', xAxisIndex: 0, minValueSpan },
+      { type: 'slider', xAxisIndex: 0, height: 18, bottom: 8, minValueSpan },
+    ],
     series,
   }
 }
