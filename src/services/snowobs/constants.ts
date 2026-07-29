@@ -39,7 +39,8 @@ export function displayUnit(rawUnit: string | undefined): string {
   return UNIT_LABELS[rawUnit] ?? rawUnit
 }
 
-// Variable name of the computed running-total precipitation column.
+// The hourly precip variable SnowObs reports, and the running-total column the
+// table computes from it (not fetched from SnowObs).
 export const PRECIP_HOURLY = 'precip_accum_one_hour'
 export const PRECIP_CUMSUM = 'precip_cumsum'
 
@@ -52,8 +53,9 @@ export function fallbackSensorLabel(variable: string): string {
   return matches ? matches.join('').toUpperCase() : variable
 }
 
-// Format a date in the display timezone and return a getter for individual parts
-// (e.g. get('hour')). Shared by the table and CSV timestamp formatters.
+// Format a date in the display timezone and return a getter for individual
+// parts (e.g. get('timeZoneName') -> "PDT") — Intl is the only way to get the
+// zone abbreviation, which date-fns `format` can't produce.
 export function zonedParts(
   date: Date,
   options: Intl.DateTimeFormatOptions,

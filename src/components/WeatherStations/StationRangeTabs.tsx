@@ -33,7 +33,7 @@ export function StationRangeTabs({ activeKey }: { activeKey: string }) {
         ))}
       </>
       <Link
-        href={`?range=csv`}
+        href="?range=csv"
         aria-current={'csv' === activeKey ? 'true' : undefined}
         className={cn(
           '-mb-px ml-auto border-b-2 px-3 py-2 text-sm font-medium',

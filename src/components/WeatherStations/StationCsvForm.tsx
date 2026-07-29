@@ -1,7 +1,5 @@
 type Datalogger = { stid: string; label: string }
 
-// Plain GET form → the CSV route handler, which streams the file as a download.
-// No client JS needed: the browser navigates and the attachment downloads.
 export function StationCsvForm({
   slug,
   dataloggers,

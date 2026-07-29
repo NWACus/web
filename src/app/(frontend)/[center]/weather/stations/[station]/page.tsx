@@ -30,7 +30,7 @@ export async function generateStaticParams() {
   }))
 }
 
-// Datalogger dropdown options for the CSV form: the group's stids labeled with
+// Datalogger dropdown options for the CSV form: the group's station ids labeled with
 // each logger's name + elevation (from a cheap 1-hour metadata fetch).
 async function loadDataloggers(
   group: WeatherStationGroup,
@@ -53,8 +53,6 @@ function csvYears(): number[] {
   return years
 }
 
-// What one tab renders: its tab key, the observations table (range tabs only),
-// and the CSV form when on the CSV tab.
 type TabView = {
   key: string
   table: StationTable | null
