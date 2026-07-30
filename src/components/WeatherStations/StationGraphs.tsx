@@ -236,8 +236,8 @@ function HiddenChartChips({
           onClick={() => onShow(preset.key)}
           className={cn(chipClass, 'text-muted-foreground hover:text-foreground')}
         >
-          <Eye className="h-3.5 w-3.5" />
           {preset.title}
+          <Eye className="h-3.5 w-3.5" />
         </button>
       ))}
     </>

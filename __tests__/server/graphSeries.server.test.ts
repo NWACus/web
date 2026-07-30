@@ -42,7 +42,7 @@ describe('buildGraphData', () => {
     expect(data.series).toHaveLength(2)
     const temp = data.series[0]
     if (temp.kind !== 'raw') throw new Error('expected raw series')
-    expect(temp.label).toBe('Hurricane Ridge · Temp')
+    expect(temp.label).toBe("Hurricane Ridge (5,250')")
     expect(temp.unit).toBe('°F')
     expect(temp.points.map(([, v]) => v)).toEqual([30, null, 34])
   })

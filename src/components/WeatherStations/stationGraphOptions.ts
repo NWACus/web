@@ -146,10 +146,14 @@ function bandSeries(pair: BandPair, yAxisIndex: number, color: string): object[]
     silent: true,
   }
   return [
-    { ...helper, name: `${pair.lower.label} band`, data: points.map((p) => [p.t, p.lower]) },
     {
       ...helper,
-      name: `${pair.upper.label} band`,
+      name: `${pair.lower.label} ${pair.lower.variable}`,
+      data: points.map((p) => [p.t, p.lower]),
+    },
+    {
+      ...helper,
+      name: `${pair.upper.label} ${pair.upper.variable}`,
       areaStyle: { color, opacity: 0.14 },
       data: points.map((p) => [p.t, p.delta]),
     },
@@ -204,7 +208,8 @@ export function buildChartOption(
     title: { text: title, left: 0, top: 0, textStyle: { fontSize: 15, fontWeight: 600 } },
     tooltip: { trigger: 'axis' },
     legend: { top: 26, left: 0, type: 'scroll', data: lineSeries.map((s) => s.label) },
-    grid: { left: 64, right: 64, top: 64, bottom: 64 },
+    // Right gutter only when a second y-axis sits there.
+    grid: { left: 64, right: axes.length > 1 ? 64 : 16, top: 64, bottom: 64 },
     xAxis: {
       type: 'time',
       axisLabel: {

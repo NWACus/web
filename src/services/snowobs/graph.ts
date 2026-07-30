@@ -1,5 +1,5 @@
 import { differenceInHours } from 'date-fns'
-import { displayUnit, fallbackSensorLabel, NWAC_DISPLAY_TIMEZONE, SENSOR_LABELS } from './constants'
+import { displayUnit, NWAC_DISPLAY_TIMEZONE } from './constants'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
 // The graph engine's data contract: one shape feeds both the public station
@@ -51,8 +51,11 @@ const dayFormatter = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 })
 
-function seriesLabel(stationName: string, variable: string): string {
-  return `${stationName} · ${SENSOR_LABELS[variable] ?? fallbackSensorLabel(variable)}`
+// Station + elevation (feet) only, e.g. "Hurricane Ridge (5,250')" — the chart
+// title already names the variable, so the legend just distinguishes stations.
+function seriesLabel(station: ResponseStation): string {
+  const name = station.name ?? station.stid
+  return station.elevation != null ? `${name} (${station.elevation.toLocaleString()}')` : name
 }
 
 // The station's date_time series parsed and time-sorted once, so building
@@ -148,7 +151,7 @@ function buildSeries(
     stid: station.stid,
     stationName: station.name ?? station.stid,
     variable,
-    label: seriesLabel(station.name ?? station.stid, variable),
+    label: seriesLabel(station),
     unit: displayUnit(units[variable]),
   }
   if (aggregated) {

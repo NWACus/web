@@ -20,7 +20,7 @@ function series(stid: string, variable = 'air_temp'): GraphData['series'][number
     stid,
     stationName: `Station ${stid}`,
     variable,
-    label: `Station ${stid} ${variable}`,
+    label: `Station ${stid}`,
     unit: '°F',
     points: [[1_700_000_000_000, 30]],
   }
@@ -76,7 +76,7 @@ describe('buildChartOption wind band', () => {
       stid: '1',
       stationName: 'Station 1',
       variable,
-      label: `Station 1 ${variable}`,
+      label: 'Station 1',
       unit: 'mph',
       points: [[T, value]],
     }
@@ -92,9 +92,9 @@ describe('buildChartOption wind band', () => {
     const series = chartSeries(option)
 
     expect(series.map((s) => s.name)).toEqual([
-      'Station 1 wind_speed',
-      'Station 1 wind_speed_min band',
-      'Station 1 wind_gust band',
+      'Station 1',
+      'Station 1 wind_speed_min',
+      'Station 1 wind_gust',
     ])
     const area = series.find((s) => s.areaStyle)
     expect(area?.data).toEqual([[T, 15]])
@@ -108,7 +108,7 @@ describe('buildChartOption wind band', () => {
     }
     const series = chartSeries(buildChartOption(data, WIND_PRESET))
 
-    expect(series.map((s) => s.name)).toEqual(['Station 1 wind_speed_min', 'Station 1 wind_speed'])
+    expect(series.map((s) => s.name)).toEqual(['Station 1', 'Station 1'])
     expect(series.some((s) => s.areaStyle)).toBe(false)
   })
 
