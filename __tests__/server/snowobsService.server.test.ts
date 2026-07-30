@@ -50,6 +50,19 @@ describe('fetchStationTimeseries', () => {
     expect(result.STATION[0].observations.air_temp).toEqual([30])
   })
 
+  it('requests unrounded values only when rawData is set', async () => {
+    const seenParams: (string | null)[] = []
+    server.use(
+      http.get(TIMESERIES_URL, ({ request }) => {
+        seenParams.push(new URL(request.url).searchParams.get('raw_data'))
+        return HttpResponse.json(validResponse)
+      }),
+    )
+    await fetchStationTimeseries(['4'], { rawData: true })
+    await fetchStationTimeseries(['4'])
+    expect(seenParams).toEqual(['true', null])
+  })
+
   it('throws SnowObsError with the status on a non-2xx response', async () => {
     server.use(http.get(TIMESERIES_URL, () => new HttpResponse(null, { status: 500 })))
     await expect(fetchStationTimeseries(['4'])).rejects.toThrow(SnowObsError)

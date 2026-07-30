@@ -17,8 +17,6 @@ export type GraphPreset = {
   band?: { lower: string; upper: string }
   /** Bars instead of a line (legacy renders precipitation as a bar plot). */
   bar?: boolean
-  /** Tooltip decimal places; defaults to 1 (legacy line-plot hover), 2 on bars. */
-  decimals?: number
 }
 
 // Every station gets the full preset list: the registry's columns only cover

@@ -96,6 +96,7 @@ export async function GET(
       start: from,
       end: to,
       revalidate: REVALIDATE_SECONDS,
+      rawData: true,
     })
     const data = buildGraphData(response, stids, vars, windowExceedsThreshold(from, to))
     return NextResponse.json(data, {

@@ -31,6 +31,7 @@ type ChartSeries = {
   type?: string
   lineStyle?: { type?: string }
   areaStyle?: { opacity?: number }
+  tooltip?: { valueFormatter?: unknown }
   data?: unknown
 }
 
@@ -66,17 +67,40 @@ describe('buildChartOption precision and bar rendering', () => {
   const data: GraphData = { series: [series('1')], aggregated: false, timezone: 'x' }
   const BAR_PRESET = { key: 'precip', title: 'Precipitation', variables: ['air_temp'], bar: true }
 
+  // Walks a key path through nested plain objects without type assertions.
+  function nested(value: unknown, keys: string[]): unknown {
+    let current = value
+    for (const key of keys) {
+      if (typeof current !== 'object' || current === null) return undefined
+      current = Object.entries(current).find(([k]) => k === key)?.[1]
+    }
+    return current
+  }
+
   function tooltipFormat(option: Record<string, unknown>, value: number): string {
-    const tooltip = option.tooltip
-    if (typeof tooltip !== 'object' || tooltip === null) throw new Error('expected tooltip')
-    const formatter = Object.entries(tooltip).find(([k]) => k === 'valueFormatter')?.[1]
+    const formatter = chartSeries(option)[0].tooltip?.valueFormatter
     if (typeof formatter !== 'function') throw new Error('expected valueFormatter')
     return String(formatter(value))
   }
 
-  it('formats line-chart tooltips to one decimal, bars to two', () => {
-    expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), 31.26)).toBe('31.3')
-    expect(tooltipFormat(buildChartOption(data, BAR_PRESET), 0.125)).toBe('0.13')
+  // Digs the axis-pointer label formatter out of the chart-level tooltip.
+  function dateHeaderFormat(option: Record<string, unknown>, value: number): string {
+    const formatter = nested(option, ['tooltip', 'axisPointer', 'label', 'formatter'])
+    if (typeof formatter !== 'function') throw new Error('expected axis pointer formatter')
+    return String(formatter({ value }))
+  }
+
+  it('formats tooltip values to one decimal with the unit appended', () => {
+    expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), 31.26)).toBe('31.3 °F')
+    expect(tooltipFormat(buildChartOption(data, BAR_PRESET), 0.16)).toBe('0.2 °F')
+    expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), Number.NaN)).toBe('–')
+  })
+
+  it('formats the tooltip date header human-readably', () => {
+    const t = new Date(2026, 0, 10, 14, 30).getTime()
+    expect(dateHeaderFormat(buildChartOption(data, TEMP_PRESET), t)).toBe('Sat Jan 10, 14:30')
+    const daily: GraphData = { ...data, aggregated: true }
+    expect(dateHeaderFormat(buildChartOption(daily, TEMP_PRESET), t)).toBe('Sat Jan 10, 2026')
   })
 
   it('renders bar presets as bar series', () => {

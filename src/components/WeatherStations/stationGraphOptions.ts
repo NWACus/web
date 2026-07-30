@@ -1,4 +1,5 @@
 import type { GraphData, GraphSeries } from '@/services/snowobs/graph'
+import { format } from 'date-fns'
 import type { EChartOption } from './EChart'
 import type { GraphPreset } from './stationGraphPresets'
 
@@ -41,6 +42,7 @@ function seriesFor(
     color,
     yAxisIndex,
     data: meanPoints(s),
+    ...(symbolsOnly ? directionTooltip() : unitTooltip(s.unit)),
   }
   if (preset.bar) {
     return { ...base, type: 'bar', itemStyle: dashed ? { opacity: 0.6 } : undefined }
@@ -52,7 +54,6 @@ function seriesFor(
     symbolSize: 4,
     lineStyle: symbolsOnly ? { opacity: 0 } : dashed ? { type: 'dashed' } : undefined,
     connectNulls: false,
-    ...directionTooltip(symbolsOnly),
   }
 }
 
@@ -169,12 +170,23 @@ function bandSeries(pair: BandPair, yAxisIndex: number, color: string): object[]
 }
 
 // Tooltip values as "SW (225°)" on direction charts.
-function directionTooltip(symbolsOnly: boolean): object {
-  if (!symbolsOnly) return {}
+function directionTooltip(): object {
   return {
     tooltip: {
       valueFormatter: (deg: unknown) =>
         typeof deg === 'number' ? `${degreesToRose(deg)} (${Math.round(deg)}°)` : '–',
+    },
+  }
+}
+
+// Tooltip values as "31.3 °F": one decimal everywhere, the series' unit appended.
+function unitTooltip(unit: string): object {
+  return {
+    tooltip: {
+      valueFormatter: (value: unknown) =>
+        typeof value === 'number' && Number.isFinite(value)
+          ? `${value.toFixed(1)}${unit ? ` ${unit}` : ''}`
+          : '–',
     },
   }
 }
@@ -214,12 +226,18 @@ export function buildChartOption(
   return {
     // Title top-left, legend on its own row below — they no longer collide.
     title: { text: title, left: 0, top: 0, textStyle: { fontSize: 15, fontWeight: 600 } },
-    // Legacy hover precision: line plots 1 decimal, bar plots (precip) 2.
-    // Direction charts override per-series with the wind-rose formatter.
+    // Values format per-series (unit appended); the header date formats here —
+    // hourly charts "Wed Jul 30, 14:00", daily-aggregated charts date-only.
     tooltip: {
       trigger: 'axis',
-      valueFormatter: (value: unknown) =>
-        typeof value === 'number' ? value.toFixed(preset.decimals ?? (preset.bar ? 2 : 1)) : '–',
+      axisPointer: {
+        label: {
+          formatter: (params: { value: unknown }) =>
+            typeof params.value === 'number'
+              ? format(params.value, data.aggregated ? 'EEE MMM d, yyyy' : 'EEE MMM d, HH:mm')
+              : '',
+        },
+      },
     },
     legend: { top: 26, left: 0, type: 'scroll', data: lineSeries.map((s) => s.label) },
     // Right gutter only when a second y-axis sits there.
