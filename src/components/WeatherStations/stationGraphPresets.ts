@@ -15,6 +15,10 @@ export type GraphPreset = {
   /** Render these two variables as a shaded band instead of their own lines
    * (wind: min→gust around the speed line). */
   band?: { lower: string; upper: string }
+  /** Bars instead of a line (legacy renders precipitation as a bar plot). */
+  bar?: boolean
+  /** Tooltip decimal places; defaults to 1 (legacy line-plot hover), 2 on bars. */
+  decimals?: number
 }
 
 // Every station gets the full preset list: the registry's columns only cover
@@ -39,7 +43,7 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
   // Both 24h-snow sensor spellings exist across the registry.
   { key: 'snow24', title: '24 Hour Snow Total', variables: ['snow_depth_24h', 'snow_depth_24hr'] },
   { key: 'intersnow', title: 'Intermittent Snow', variables: ['intermittent_snow'] },
-  { key: 'precip', title: 'Precipitation', variables: ['precip_accum_one_hour'] },
+  { key: 'precip', title: 'Precipitation', variables: ['precip_accum_one_hour'], bar: true },
   // Legacy naming per the WP plugin's snowobs mapping: "Solar Radiation" is the
   // net_solar sensor; "Solar Pyranometer" is snowobs solar_radiation.
   { key: 'solar', title: 'Solar Radiation', variables: ['net_solar'] },

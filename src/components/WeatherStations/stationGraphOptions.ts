@@ -24,26 +24,34 @@ function axisIndexFor(unit: string, axes: string[]): number {
   return index === -1 ? 0 : index
 }
 
-// One ECharts line per series. Raw series plot their points; daily-aggregated
-// series plot their mean line. symbolsOnly (direction charts) renders
-// disconnected dots instead of a line.
+// One ECharts series per data series. Raw series plot their points;
+// daily-aggregated series plot their mean line. symbolsOnly (direction charts)
+// renders disconnected dots instead of a line; bar presets (precipitation)
+// render bars. Comparison stations dash their lines / fade their bars.
 function seriesFor(
   s: GraphSeries,
   yAxisIndex: number,
   color: string,
-  symbolsOnly: boolean,
+  preset: GraphPreset,
   dashed: boolean,
 ): object {
-  return {
+  const symbolsOnly = preset.symbolsOnly ?? false
+  const base = {
     name: s.label,
-    type: 'line',
     color,
     yAxisIndex,
+    data: meanPoints(s),
+  }
+  if (preset.bar) {
+    return { ...base, type: 'bar', itemStyle: dashed ? { opacity: 0.6 } : undefined }
+  }
+  return {
+    ...base,
+    type: 'line',
     showSymbol: symbolsOnly,
     symbolSize: 4,
     lineStyle: symbolsOnly ? { opacity: 0 } : dashed ? { type: 'dashed' } : undefined,
     connectNulls: false,
-    data: meanPoints(s),
     ...directionTooltip(symbolsOnly),
   }
 }
@@ -193,7 +201,7 @@ export function buildChartOption(
   const series: object[] = lineSeries.map((s, i) => {
     const yAxisIndex = axisIndexFor(s.unit, axes)
     const dashed = primaryStids !== undefined && !primaryStids.includes(s.stid)
-    return seriesFor(s, yAxisIndex, colorFor(i), symbolsOnly, dashed)
+    return seriesFor(s, yAxisIndex, colorFor(i), preset, dashed)
   })
   series.push(...refLineSeries(preset))
   // Each band shades in the color of its station's line so they read as one.
@@ -206,7 +214,13 @@ export function buildChartOption(
   return {
     // Title top-left, legend on its own row below — they no longer collide.
     title: { text: title, left: 0, top: 0, textStyle: { fontSize: 15, fontWeight: 600 } },
-    tooltip: { trigger: 'axis' },
+    // Legacy hover precision: line plots 1 decimal, bar plots (precip) 2.
+    // Direction charts override per-series with the wind-rose formatter.
+    tooltip: {
+      trigger: 'axis',
+      valueFormatter: (value: unknown) =>
+        typeof value === 'number' ? value.toFixed(preset.decimals ?? (preset.bar ? 2 : 1)) : '–',
+    },
     legend: { top: 26, left: 0, type: 'scroll', data: lineSeries.map((s) => s.label) },
     // Right gutter only when a second y-axis sits there.
     grid: { left: 64, right: axes.length > 1 ? 64 : 16, top: 64, bottom: 64 },

@@ -1,6 +1,6 @@
 'use client'
 
-import { LineChart } from 'echarts/charts'
+import { BarChart, LineChart } from 'echarts/charts'
 import {
   DataZoomComponent,
   GridComponent,
@@ -14,10 +14,11 @@ import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useEffect, useRef } from 'react'
 
-// Thin tree-shaken ECharts wrapper: line charts + grid/tooltip/legend/dataZoom
-// only, canvas renderer. Register once at module load.
+// Thin tree-shaken ECharts wrapper: line/bar charts + grid/tooltip/legend/
+// dataZoom only, canvas renderer. Register once at module load.
 echarts.use([
   LineChart,
+  BarChart,
   GridComponent,
   MarkLineComponent,
   TitleComponent,

@@ -28,6 +28,7 @@ function series(stid: string, variable = 'air_temp'): GraphData['series'][number
 
 type ChartSeries = {
   name?: string
+  type?: string
   lineStyle?: { type?: string }
   areaStyle?: { opacity?: number }
   data?: unknown
@@ -58,6 +59,29 @@ describe('buildChartOption comparison styling', () => {
   it('leaves everything solid when primaryStids is omitted', () => {
     const option = buildChartOption(data, TEMP_PRESET)
     expect(seriesLineTypes(option)).toEqual([undefined, undefined])
+  })
+})
+
+describe('buildChartOption precision and bar rendering', () => {
+  const data: GraphData = { series: [series('1')], aggregated: false, timezone: 'x' }
+  const BAR_PRESET = { key: 'precip', title: 'Precipitation', variables: ['air_temp'], bar: true }
+
+  function tooltipFormat(option: Record<string, unknown>, value: number): string {
+    const tooltip = option.tooltip
+    if (typeof tooltip !== 'object' || tooltip === null) throw new Error('expected tooltip')
+    const formatter = Object.entries(tooltip).find(([k]) => k === 'valueFormatter')?.[1]
+    if (typeof formatter !== 'function') throw new Error('expected valueFormatter')
+    return String(formatter(value))
+  }
+
+  it('formats line-chart tooltips to one decimal, bars to two', () => {
+    expect(tooltipFormat(buildChartOption(data, TEMP_PRESET), 31.26)).toBe('31.3')
+    expect(tooltipFormat(buildChartOption(data, BAR_PRESET), 0.125)).toBe('0.13')
+  })
+
+  it('renders bar presets as bar series', () => {
+    expect(chartSeries(buildChartOption(data, BAR_PRESET)).map((s) => s.type)).toEqual(['bar'])
+    expect(chartSeries(buildChartOption(data, TEMP_PRESET)).map((s) => s.type)).toEqual(['line'])
   })
 })
 
