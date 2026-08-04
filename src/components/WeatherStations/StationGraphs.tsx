@@ -12,7 +12,7 @@ import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset, GraphWindow } from './stationGraphPresets'
 import { DEFAULT_GRAPH_WINDOW, GRAPH_WINDOWS } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
-import { StationOptGroups, stationSelectClass } from './StationPicker'
+import { StationOptGroups } from './StationPicker'
 import type { UnitSystem } from './UnitToggle'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
@@ -125,17 +125,19 @@ function CompareStationPicker({
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
   return (
+    // A native select styled as a button: the closed control reads as
+    // "+ Add a station", clicking it still opens the region-grouped menu.
     <select
       value=""
       disabled={atCap}
-      aria-label="Compare with"
+      aria-label="Compare with another station"
       onChange={(event) => {
         if (event.target.value) onAdd(event.target.value)
       }}
-      className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
+      className="cursor-pointer appearance-none rounded-md bg-muted px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground disabled:cursor-default disabled:opacity-50"
     >
       <option value="">
-        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Compare with a station…'}
+        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : '+ Add a station'}
       </option>
       <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
     </select>
