@@ -4,7 +4,7 @@ import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStatio
 import type { GraphData } from '@/services/snowobs/graph'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { ChevronDown, ChevronUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
@@ -198,7 +198,7 @@ function ChartControls({
         onClick={() => onMove(-1)}
         className={buttonClass}
       >
-        <ChevronUp className="h-4 w-4" />
+        <ArrowUp className="h-4 w-4" />
       </button>
       <button
         type="button"
@@ -207,7 +207,7 @@ function ChartControls({
         onClick={() => onMove(1)}
         className={buttonClass}
       >
-        <ChevronDown className="h-4 w-4" />
+        <ArrowDown className="h-4 w-4" />
       </button>
       <button type="button" aria-label={`Hide ${title}`} onClick={onHide} className={buttonClass}>
         <EyeOff className="h-4 w-4" />
