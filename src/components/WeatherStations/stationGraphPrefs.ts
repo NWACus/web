@@ -1,3 +1,5 @@
+import { readLocalStorage, writeLocalStorage } from '@/utilities/safeLocalStorage'
+
 // Per-browser chart arrangement for the station Graphs tab: preset order plus
 // hidden charts, persisted to localStorage.
 
@@ -36,23 +38,20 @@ export function reconcileChartPrefs(stored: ChartPrefs, presetKeys: string[]): C
 }
 
 export function loadChartPrefs(presetKeys: string[]): ChartPrefs {
+  const raw = readLocalStorage(STORAGE_KEY)
+  if (!raw) return defaultChartPrefs(presetKeys)
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return defaultChartPrefs(presetKeys)
     const parsed: unknown = JSON.parse(raw)
-    if (!isStoredPrefs(parsed)) return defaultChartPrefs(presetKeys)
-    return reconcileChartPrefs(parsed, presetKeys)
+    return isStoredPrefs(parsed)
+      ? reconcileChartPrefs(parsed, presetKeys)
+      : defaultChartPrefs(presetKeys)
   } catch {
     return defaultChartPrefs(presetKeys)
   }
 }
 
 export function saveChartPrefs(prefs: ChartPrefs): void {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs))
-  } catch {
-    // Private mode / quota errors just lose persistence, never the feature.
-  }
+  writeLocalStorage(STORAGE_KEY, JSON.stringify(prefs))
 }
 
 // Swaps `key` with its nearest non-skippable neighbor in `direction`;

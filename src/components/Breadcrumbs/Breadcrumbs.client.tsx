@@ -17,47 +17,10 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb'
 
-const knownPathsWithoutPages = [
-  '/forecasts',
-  '/weather',
-  '/weather/accumulations',
-  '/observations/avalanches',
-]
-
 type BreadcrumbType = {
   name: string
   isLast: boolean
   href: string | null
-}
-
-const createBreadcrumbItem = (
-  name: string,
-  href: string | null,
-  isLast: boolean,
-  unlinkedPaths: string[],
-): BreadcrumbType => ({
-  name: name.replace(/-/g, ' '),
-  href: href && unlinkedPaths.includes(href) ? null : href,
-  isLast,
-})
-
-const processNestedSegments = (
-  nestedSegments: string[],
-  index: number,
-  totalSegments: number,
-  unlinkedPaths: string[],
-): BreadcrumbType[] => {
-  const prependedSegments = nestedSegments
-    .slice(0, -1)
-    .map((segment) => createBreadcrumbItem(segment, null, false, unlinkedPaths))
-
-  const lastNestedSegment = nestedSegments[nestedSegments.length - 1]
-  const href = '/' + [...nestedSegments.slice(0, index), lastNestedSegment].join('/')
-  const isLast = index === totalSegments - 1
-
-  const mainSegment = createBreadcrumbItem(lastNestedSegment, href, isLast, unlinkedPaths)
-
-  return [...prependedSegments, mainSegment]
 }
 
 export function Breadcrumbs() {
@@ -71,22 +34,47 @@ export function Breadcrumbs() {
 
   if (decodedSegments.length === 0 || isNotFound) return null
 
+  const knownPathsWithoutPages = [
+    '/forecasts',
+    '/weather',
+    '/weather/accumulations',
+    '/observations/avalanches',
+  ]
   // Only NWAC has a /weather/stations index page, so only its crumb links.
-  const unlinkedPaths =
-    tenant?.slug === 'nwac'
-      ? knownPathsWithoutPages
-      : [...knownPathsWithoutPages, '/weather/stations']
+  if (tenant?.slug !== 'nwac') knownPathsWithoutPages.push('/weather/stations')
+
+  const createBreadcrumbItem = (
+    name: string,
+    href: string | null,
+    isLast: boolean,
+  ): BreadcrumbType => ({
+    name: name.replace(/-/g, ' '),
+    href: href && knownPathsWithoutPages.includes(href) ? null : href,
+    isLast,
+  })
+
+  const processNestedSegments = (nestedSegments: string[], index: number): BreadcrumbType[] => {
+    const prependedSegments = nestedSegments
+      .slice(0, -1)
+      .map((segment) => createBreadcrumbItem(segment, null, false))
+
+    const lastNestedSegment = nestedSegments[nestedSegments.length - 1]
+    const href = '/' + [...nestedSegments.slice(0, index), lastNestedSegment].join('/')
+    const isLast = index === decodedSegments.length - 1
+
+    return [...prependedSegments, createBreadcrumbItem(lastNestedSegment, href, isLast)]
+  }
 
   const breadcrumbItems: BreadcrumbType[] = decodedSegments.flatMap((segment, index) => {
     const nestedSegments = segment.split('/').filter((seg) => seg !== '')
 
     if (nestedSegments.length > 1) {
-      return processNestedSegments(nestedSegments, index, decodedSegments.length, unlinkedPaths)
+      return processNestedSegments(nestedSegments, index)
     } else {
       const href = '/' + decodedSegments.slice(0, index + 1).join('/')
       const isLast = index === decodedSegments.length - 1
 
-      return [createBreadcrumbItem(segment, href, isLast, unlinkedPaths)]
+      return [createBreadcrumbItem(segment, href, isLast)]
     }
   })
 

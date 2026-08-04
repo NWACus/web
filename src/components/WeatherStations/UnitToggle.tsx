@@ -1,5 +1,6 @@
 'use client'
 
+import { readLocalStorage, writeLocalStorage } from '@/utilities/safeLocalStorage'
 import { cn } from '@/utilities/ui'
 import { useEffect, useState } from 'react'
 
@@ -7,26 +8,16 @@ export type UnitSystem = 'imperial' | 'metric'
 
 const STORAGE_KEY = 'nwac-station-graph-units'
 
-function loadUnitSystem(): UnitSystem {
-  try {
-    return window.localStorage.getItem(STORAGE_KEY) === 'metric' ? 'metric' : 'imperial'
-  } catch {
-    return 'imperial'
-  }
-}
-
 // Unit choice persisted per browser; localStorage is browser-only, so the
 // stored choice loads after mount.
 export function useUnitSystem(): [UnitSystem, (system: UnitSystem) => void] {
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('imperial')
-  useEffect(() => setUnitSystem(loadUnitSystem()), [])
+  useEffect(() => {
+    setUnitSystem(readLocalStorage(STORAGE_KEY) === 'metric' ? 'metric' : 'imperial')
+  }, [])
   const changeUnitSystem = (system: UnitSystem) => {
     setUnitSystem(system)
-    try {
-      window.localStorage.setItem(STORAGE_KEY, system)
-    } catch {
-      // Private mode / quota errors just lose persistence, never the feature.
-    }
+    writeLocalStorage(STORAGE_KEY, system)
   }
   return [unitSystem, changeUnitSystem]
 }
