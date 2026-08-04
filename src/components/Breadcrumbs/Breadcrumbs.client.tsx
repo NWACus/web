@@ -2,6 +2,7 @@
 
 import { useBreadcrumbs } from '@/providers/BreadcrumbProvider'
 import { useNotFound } from '@/providers/NotFoundProvider'
+import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
 import { useAnalytics } from '@/utilities/useAnalytics'
 import Link from 'next/link'
@@ -16,46 +17,10 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb'
 
-const knownPathsWithoutPages = [
-  '/forecasts',
-  '/weather',
-  '/weather/stations',
-  '/weather/accumulations',
-  '/observations/avalanches',
-]
-
 type BreadcrumbType = {
   name: string
   isLast: boolean
   href: string | null
-}
-
-const createBreadcrumbItem = (
-  name: string,
-  href: string | null,
-  isLast: boolean,
-): BreadcrumbType => ({
-  name: name.replace(/-/g, ' '),
-  href: href && knownPathsWithoutPages.includes(href) ? null : href,
-  isLast,
-})
-
-const processNestedSegments = (
-  nestedSegments: string[],
-  index: number,
-  totalSegments: number,
-): BreadcrumbType[] => {
-  const prependedSegments = nestedSegments
-    .slice(0, -1)
-    .map((segment) => createBreadcrumbItem(segment, null, false))
-
-  const lastNestedSegment = nestedSegments[nestedSegments.length - 1]
-  const href = '/' + [...nestedSegments.slice(0, index), lastNestedSegment].join('/')
-  const isLast = index === totalSegments - 1
-
-  const mainSegment = createBreadcrumbItem(lastNestedSegment, href, isLast)
-
-  return [...prependedSegments, mainSegment]
 }
 
 export function Breadcrumbs() {
@@ -65,14 +30,46 @@ export function Breadcrumbs() {
   const { isNotFound } = useNotFound()
   const { pageLabel } = useBreadcrumbs()
   const { captureWithTenant } = useAnalytics()
+  const { tenant } = useTenant()
 
   if (decodedSegments.length === 0 || isNotFound) return null
+
+  const knownPathsWithoutPages = [
+    '/forecasts',
+    '/weather',
+    '/weather/accumulations',
+    '/observations/avalanches',
+  ]
+  // Only NWAC has a /weather/stations index page, so only its crumb links.
+  if (tenant?.slug !== 'nwac') knownPathsWithoutPages.push('/weather/stations')
+
+  const createBreadcrumbItem = (
+    name: string,
+    href: string | null,
+    isLast: boolean,
+  ): BreadcrumbType => ({
+    name: name.replace(/-/g, ' '),
+    href: href && knownPathsWithoutPages.includes(href) ? null : href,
+    isLast,
+  })
+
+  const processNestedSegments = (nestedSegments: string[], index: number): BreadcrumbType[] => {
+    const prependedSegments = nestedSegments
+      .slice(0, -1)
+      .map((segment) => createBreadcrumbItem(segment, null, false))
+
+    const lastNestedSegment = nestedSegments[nestedSegments.length - 1]
+    const href = '/' + [...nestedSegments.slice(0, index), lastNestedSegment].join('/')
+    const isLast = index === decodedSegments.length - 1
+
+    return [...prependedSegments, createBreadcrumbItem(lastNestedSegment, href, isLast)]
+  }
 
   const breadcrumbItems: BreadcrumbType[] = decodedSegments.flatMap((segment, index) => {
     const nestedSegments = segment.split('/').filter((seg) => seg !== '')
 
     if (nestedSegments.length > 1) {
-      return processNestedSegments(nestedSegments, index, decodedSegments.length)
+      return processNestedSegments(nestedSegments, index)
     } else {
       const href = '/' + decodedSegments.slice(0, index + 1).join('/')
       const isLast = index === decodedSegments.length - 1

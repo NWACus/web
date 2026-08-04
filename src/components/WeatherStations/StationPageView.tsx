@@ -10,11 +10,17 @@ type StationPageViewProps = {
   group: WeatherStationGroup
   table: StationTable | null
   activeKey: string
-  csvForm?: ReactNode
+  tabContent?: ReactNode
 }
 
-function StationView({ table, csvForm }: { table: StationTable | null; csvForm?: ReactNode }) {
-  if (csvForm) return <>{csvForm}</>
+function StationView({
+  table,
+  tabContent,
+}: {
+  table: StationTable | null
+  tabContent?: ReactNode
+}) {
+  if (tabContent) return <>{tabContent}</>
   return table ? <StationNowTable table={table} /> : null
 }
 
@@ -41,13 +47,13 @@ function StationHeader({
   )
 }
 
-export function StationPageView({ group, table, activeKey, csvForm }: StationPageViewProps) {
+export function StationPageView({ group, table, activeKey, tabContent }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
       <StationHeader group={group} table={table} />
       <div className="container flex flex-col gap-3">
         <StationRangeTabs activeKey={activeKey} />
-        <StationView table={table} csvForm={csvForm} />
+        <StationView table={table} tabContent={tabContent} />
       </div>
     </div>
   )

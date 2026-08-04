@@ -608,6 +608,9 @@ export function getStationGroup(slug: string): WeatherStationGroup | undefined {
   return STATION_GROUPS_BY_SLUG.get(slug)
 }
 
+// Graphs-tab comparison cap; the graph-data route derives its station cap from this.
+export const MAX_COMPARE_STATIONS = 3
+
 // Every station with a configured hourly-precip column — the row set for the
 // Accumulated Precipitation page (legacy /data-portal/accumulations/precipitation/).
 export const PRECIP_STATION_STIDS = Array.from(

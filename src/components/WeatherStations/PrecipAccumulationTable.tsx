@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type {
   PrecipAccumulationTable as PrecipAccumulationData,
   PrecipAccumulationRow,
@@ -17,9 +16,11 @@ import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import type { UnitSystem } from './UnitToggle'
+import { UnitToggle } from './UnitToggle'
 
 // Totals come from the API in inches, elevation in feet; metric converts on display.
-type Unit = 'imperial' | 'metric'
+type Unit = UnitSystem
 const PRECIP_UNIT: Record<Unit, string> = { imperial: 'in', metric: 'mm' }
 const ELEVATION_UNIT: Record<Unit, string> = { imperial: 'ft', metric: 'm' }
 function formatTotal(value: number, unit: Unit): string {
@@ -204,34 +205,6 @@ function AccumulationCells({ row, unit }: { row: PrecipAccumulationRow; unit: Un
   })
 }
 
-function UnitToggle({ unit, onChange }: { unit: Unit; onChange: (u: Unit) => void }) {
-  return (
-    <div className="mb-2 flex justify-end">
-      <ToggleGroup
-        type="single"
-        size="sm"
-        variant="outline"
-        value={unit}
-        onValueChange={(v) => (v === 'imperial' || v === 'metric') && onChange(v)}
-        aria-label="Units"
-      >
-        <ToggleGroupItem
-          value="imperial"
-          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-        >
-          Imperial
-        </ToggleGroupItem>
-        <ToggleGroupItem
-          value="metric"
-          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-        >
-          Metric
-        </ToggleGroupItem>
-      </ToggleGroup>
-    </div>
-  )
-}
-
 function HeaderRow({
   sort,
   onSort,
@@ -299,7 +272,9 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
 
   return (
     <div>
-      <UnitToggle unit={unit} onChange={setUnit} />
+      <div className="mb-2 flex justify-end">
+        <UnitToggle unit={unit} onChange={setUnit} />
+      </div>
       <Table className="mx-auto w-auto text-base">
         <TableHeader>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />

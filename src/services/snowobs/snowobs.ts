@@ -31,6 +31,8 @@ type FetchOptions = {
   start?: Date
   end?: Date
   revalidate?: number
+  // Skip SnowObs' default integer rounding (graphs want full precision).
+  rawData?: boolean
 }
 
 // Build the timeseries request URL. Defaults to a trailing window (last 24h)
@@ -56,6 +58,7 @@ function buildTimeseriesUrl(stids: string[], options: FetchOptions): string {
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
   })
+  if (options.rawData) params.set('raw_data', 'true')
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 
