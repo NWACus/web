@@ -17,13 +17,16 @@ export type GraphPreset = {
   band?: { lower: string; upper: string }
   /** Bars instead of a line (legacy renders precipitation as a bar plot). */
   bar?: boolean
+  /** Sub-zero readings are real (temperature); everywhere else they're sensor
+   * noise and clamp to zero. */
+  allowNegative?: boolean
 }
 
 // Every station gets the full preset list: the registry's columns only cover
 // the NOW-table subset, while loggers report more sensors (pressure, equip
 // temp, ...). Charts whose variables come back without data hide themselves.
 export const STATION_GRAPH_PRESETS: GraphPreset[] = [
-  { key: 'temp', title: 'Temperature', variables: ['air_temp'], refLine: 32 },
+  { key: 'temp', title: 'Temperature', variables: ['air_temp'], refLine: 32, allowNegative: true },
   {
     key: 'rh',
     title: 'Relative Humidity',
