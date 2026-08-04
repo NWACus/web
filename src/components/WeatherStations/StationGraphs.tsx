@@ -11,7 +11,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset, GraphWindow } from './stationGraphPresets'
 import { DEFAULT_GRAPH_WINDOW, GRAPH_WINDOWS } from './stationGraphPresets'
+import { convertGraphData, convertPreset } from './stationGraphUnits'
 import { StationOptGroups, stationSelectClass } from './StationPicker'
+import type { UnitSystem } from './UnitToggle'
+import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
 function ChartSkeleton() {
@@ -238,11 +241,13 @@ function PresetChart({
   preset,
   data,
   primaryStids,
+  unitSystem,
   controls,
 }: {
   preset: GraphPreset
   data: GraphData
   primaryStids: string[]
+  unitSystem: UnitSystem
   controls: ReactNode
 }) {
   const presetData = useMemo(
@@ -250,8 +255,8 @@ function PresetChart({
     [data, preset],
   )
   const option = useMemo(
-    () => buildChartOption(presetData, preset, primaryStids),
-    [presetData, preset, primaryStids],
+    () => buildChartOption(presetData, convertPreset(preset, unitSystem), primaryStids),
+    [presetData, preset, unitSystem, primaryStids],
   )
   return (
     <div className="relative">
@@ -297,6 +302,7 @@ function GraphsCharts({
   data,
   error,
   loading,
+  unitSystem,
 }: {
   presets: GraphPreset[]
   primaryStids: string[]
@@ -304,6 +310,7 @@ function GraphsCharts({
   data: GraphData | null
   error: string | null
   loading: boolean
+  unitSystem: UnitSystem
 }) {
   if (error) {
     return <p className="text-sm text-muted-foreground">{`Couldn't load station data: ${error}`}</p>
@@ -323,6 +330,7 @@ function GraphsCharts({
             preset={preset}
             data={data}
             primaryStids={primaryStids}
+            unitSystem={unitSystem}
             controls={
               <ChartControls
                 title={preset.title}
@@ -339,6 +347,59 @@ function GraphsCharts({
   )
 }
 
+function GraphsToolbar({
+  graphWindow,
+  onWindowChange,
+  unitSystem,
+  onUnitChange,
+  currentSlug,
+  compareSlugs,
+  onCompareChange,
+  arrangement,
+}: {
+  graphWindow: GraphWindow
+  onWindowChange: (window: GraphWindow) => void
+  unitSystem: UnitSystem
+  onUnitChange: (system: UnitSystem) => void
+  currentSlug: string
+  compareSlugs: string[]
+  onCompareChange: (slugs: string[]) => void
+  arrangement: ReturnType<typeof useChartArrangement>
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <WindowPicker active={graphWindow} onChange={onWindowChange} />
+          <UnitToggle unit={unitSystem} onChange={onUnitChange} />
+        </div>
+        <CompareStationPicker
+          currentSlug={currentSlug}
+          compareSlugs={compareSlugs}
+          onAdd={(slug) => onCompareChange([...compareSlugs, slug])}
+        />
+      </div>
+      <GraphsChipRow
+        compareSlugs={compareSlugs}
+        onCompareChange={onCompareChange}
+        hiddenPresets={arrangement.hiddenPresets}
+        onShow={arrangement.showChart}
+      />
+    </div>
+  )
+}
+
+// The page's stids plus each comparison group's, deduped in selection order.
+function combinedStids(stids: string[], compareSlugs: string[]): string[] {
+  const combined = [...stids]
+  for (const slug of compareSlugs) {
+    for (const stid of getStationGroup(slug)?.stids ?? []) {
+      if (!combined.includes(stid)) combined.push(stid)
+    }
+  }
+  return combined
+}
+
 export function StationGraphs({
   stids,
   presets,
@@ -350,23 +411,20 @@ export function StationGraphs({
 }) {
   const [graphWindow, setGraphWindow] = useState(DEFAULT_GRAPH_WINDOW)
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
+  const [unitSystem, changeUnitSystem] = useUnitSystem()
 
-  const allStids = useMemo(() => {
-    const combined = [...stids]
-    for (const slug of compareSlugs) {
-      for (const stid of getStationGroup(slug)?.stids ?? []) {
-        if (!combined.includes(stid)) combined.push(stid)
-      }
-    }
-    return combined
-  }, [stids, compareSlugs])
-
-  const variables = useMemo(() => {
-    const unique = new Set(presets.flatMap((p) => p.variables))
-    return Array.from(unique)
-  }, [presets])
+  const allStids = useMemo(() => combinedStids(stids, compareSlugs), [stids, compareSlugs])
+  const variables = useMemo(
+    () => Array.from(new Set(presets.flatMap((p) => p.variables))),
+    [presets],
+  )
 
   const { data, error, loading } = useGraphData(allStids, variables, graphWindow)
+
+  const displayData = useMemo(
+    () => (data ? convertGraphData(data, unitSystem) : null),
+    [data, unitSystem],
+  )
 
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
 
@@ -378,29 +436,24 @@ export function StationGraphs({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <WindowPicker active={graphWindow} onChange={setGraphWindow} />
-          <CompareStationPicker
-            currentSlug={currentSlug}
-            compareSlugs={compareSlugs}
-            onAdd={(slug) => setCompareSlugs([...compareSlugs, slug])}
-          />
-        </div>
-        <GraphsChipRow
-          compareSlugs={compareSlugs}
-          onCompareChange={setCompareSlugs}
-          hiddenPresets={arrangement.hiddenPresets}
-          onShow={arrangement.showChart}
-        />
-      </div>
+      <GraphsToolbar
+        graphWindow={graphWindow}
+        onWindowChange={setGraphWindow}
+        unitSystem={unitSystem}
+        onUnitChange={changeUnitSystem}
+        currentSlug={currentSlug}
+        compareSlugs={compareSlugs}
+        onCompareChange={setCompareSlugs}
+        arrangement={arrangement}
+      />
       <GraphsCharts
         presets={presets}
         primaryStids={stids}
         arrangement={arrangement}
-        data={data}
+        data={displayData}
         error={error}
         loading={loading}
+        unitSystem={unitSystem}
       />
     </div>
   )
