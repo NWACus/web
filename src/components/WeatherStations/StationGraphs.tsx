@@ -4,7 +4,7 @@ import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStatio
 import type { GraphData } from '@/services/snowobs/graph'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, Plus, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
@@ -125,22 +125,34 @@ function CompareStationPicker({
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
   return (
-    // A native select styled as a button: the closed control reads as
-    // "+ Add a station", clicking it still opens the region-grouped menu.
-    <select
-      value=""
-      disabled={atCap}
-      aria-label="Compare with another station"
-      onChange={(event) => {
-        if (event.target.value) onAdd(event.target.value)
-      }}
-      className="cursor-pointer appearance-none rounded-md bg-muted px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground disabled:cursor-default disabled:opacity-50"
-    >
-      <option value="">
-        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : '+ Add a station'}
-      </option>
-      <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
-    </select>
+    // A button-looking span with an invisible native select stacked on top,
+    // so the control is content-width but clicking still opens the
+    // region-grouped menu.
+    <div className="group relative inline-flex">
+      <span
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors',
+          atCap
+            ? 'bg-muted text-muted-foreground opacity-50'
+            : 'bg-primary text-primary-foreground group-hover:bg-primary/90',
+        )}
+      >
+        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station'}
+        {!atCap && <Plus className="h-4 w-4" />}
+      </span>
+      <select
+        value=""
+        disabled={atCap}
+        aria-label="Compare with another station"
+        onChange={(event) => {
+          if (event.target.value) onAdd(event.target.value)
+        }}
+        className="absolute inset-0 cursor-pointer opacity-0 disabled:cursor-default"
+      >
+        <option value="" />
+        <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+      </select>
+    </div>
   )
 }
 
