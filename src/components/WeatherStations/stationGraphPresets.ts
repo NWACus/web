@@ -47,7 +47,6 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
   { key: 'solar', title: 'Solar Radiation', variables: ['net_solar'] },
   { key: 'pyranometer', title: 'Solar Pyranometer', variables: ['solar_radiation'] },
   { key: 'pressure', title: 'Barometric Pressure', variables: ['pressure'] },
-  { key: 'battery', title: 'Battery Voltage', variables: ['battery_voltage'] },
   { key: 'equiptemp', title: 'Equipment Temperature', variables: ['equip_temperature'] },
 ]
 
