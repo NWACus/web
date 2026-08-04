@@ -125,22 +125,20 @@ function CompareStationPicker({
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
   return (
-    <label className="inline-flex items-center gap-2 text-sm">
-      <span className="text-muted-foreground">Compare with</span>
-      <select
-        value=""
-        disabled={atCap}
-        onChange={(event) => {
-          if (event.target.value) onAdd(event.target.value)
-        }}
-        className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
-      >
-        <option value="">
-          {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
-        </option>
-        <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
-      </select>
-    </label>
+    <select
+      value=""
+      disabled={atCap}
+      aria-label="Compare with"
+      onChange={(event) => {
+        if (event.target.value) onAdd(event.target.value)
+      }}
+      className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
+    >
+      <option value="">
+        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Compare with a station…'}
+      </option>
+      <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+    </select>
   )
 }
 
