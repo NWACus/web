@@ -2,6 +2,7 @@
 
 import { useBreadcrumbs } from '@/providers/BreadcrumbProvider'
 import { useNotFound } from '@/providers/NotFoundProvider'
+import { useTenant } from '@/providers/TenantProvider'
 import { cn } from '@/utilities/ui'
 import { useAnalytics } from '@/utilities/useAnalytics'
 import Link from 'next/link'
@@ -16,7 +17,6 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb'
 
-// /weather/stations has a real index page now, so its crumb links.
 const knownPathsWithoutPages = [
   '/forecasts',
   '/weather',
@@ -34,9 +34,10 @@ const createBreadcrumbItem = (
   name: string,
   href: string | null,
   isLast: boolean,
+  unlinkedPaths: string[],
 ): BreadcrumbType => ({
   name: name.replace(/-/g, ' '),
-  href: href && knownPathsWithoutPages.includes(href) ? null : href,
+  href: href && unlinkedPaths.includes(href) ? null : href,
   isLast,
 })
 
@@ -44,16 +45,17 @@ const processNestedSegments = (
   nestedSegments: string[],
   index: number,
   totalSegments: number,
+  unlinkedPaths: string[],
 ): BreadcrumbType[] => {
   const prependedSegments = nestedSegments
     .slice(0, -1)
-    .map((segment) => createBreadcrumbItem(segment, null, false))
+    .map((segment) => createBreadcrumbItem(segment, null, false, unlinkedPaths))
 
   const lastNestedSegment = nestedSegments[nestedSegments.length - 1]
   const href = '/' + [...nestedSegments.slice(0, index), lastNestedSegment].join('/')
   const isLast = index === totalSegments - 1
 
-  const mainSegment = createBreadcrumbItem(lastNestedSegment, href, isLast)
+  const mainSegment = createBreadcrumbItem(lastNestedSegment, href, isLast, unlinkedPaths)
 
   return [...prependedSegments, mainSegment]
 }
@@ -65,19 +67,26 @@ export function Breadcrumbs() {
   const { isNotFound } = useNotFound()
   const { pageLabel } = useBreadcrumbs()
   const { captureWithTenant } = useAnalytics()
+  const { tenant } = useTenant()
 
   if (decodedSegments.length === 0 || isNotFound) return null
+
+  // Only NWAC has a /weather/stations index page, so only its crumb links.
+  const unlinkedPaths =
+    tenant?.slug === 'nwac'
+      ? knownPathsWithoutPages
+      : [...knownPathsWithoutPages, '/weather/stations']
 
   const breadcrumbItems: BreadcrumbType[] = decodedSegments.flatMap((segment, index) => {
     const nestedSegments = segment.split('/').filter((seg) => seg !== '')
 
     if (nestedSegments.length > 1) {
-      return processNestedSegments(nestedSegments, index, decodedSegments.length)
+      return processNestedSegments(nestedSegments, index, decodedSegments.length, unlinkedPaths)
     } else {
       const href = '/' + decodedSegments.slice(0, index + 1).join('/')
       const isLast = index === decodedSegments.length - 1
 
-      return [createBreadcrumbItem(segment, href, isLast)]
+      return [createBreadcrumbItem(segment, href, isLast, unlinkedPaths)]
     }
   })
 
