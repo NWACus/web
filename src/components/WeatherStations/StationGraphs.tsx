@@ -135,7 +135,7 @@ function CompareStationPicker({
       className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
     >
       <option value="">
-        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Compare with a station…'}
+        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
       </option>
       <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
     </select>
