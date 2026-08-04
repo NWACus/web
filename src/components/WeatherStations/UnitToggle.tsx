@@ -1,6 +1,6 @@
 'use client'
 
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { cn } from '@/utilities/ui'
 import { useEffect, useState } from 'react'
 
 export type UnitSystem = 'imperial' | 'metric'
@@ -38,27 +38,31 @@ export function UnitToggle({
   unit: UnitSystem
   onChange: (unit: UnitSystem) => void
 }) {
-  return (
-    <ToggleGroup
-      type="single"
-      size="sm"
-      variant="outline"
-      value={unit}
-      onValueChange={(v) => (v === 'imperial' || v === 'metric') && onChange(v)}
-      aria-label="Units"
+  const chip = (system: UnitSystem, text: string) => (
+    <button
+      type="button"
+      onClick={() => onChange(system)}
+      aria-pressed={unit === system}
+      className={cn(
+        'relative z-10 w-20 rounded-md py-1.5 text-center text-sm transition-colors',
+        unit === system ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+      )}
     >
-      <ToggleGroupItem
-        value="imperial"
-        className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-      >
-        Imperial
-      </ToggleGroupItem>
-      <ToggleGroupItem
-        value="metric"
-        className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-      >
-        Metric
-      </ToggleGroupItem>
-    </ToggleGroup>
+      {text}
+    </button>
+  )
+  return (
+    <div role="group" aria-label="Units" className="relative inline-flex rounded-md bg-muted p-1">
+      {/* The active-chip background, sliding between the fixed-width chips. */}
+      <span
+        aria-hidden
+        className={cn(
+          'absolute inset-y-1 left-1 w-20 rounded-md bg-primary transition-transform duration-200',
+          unit === 'metric' && 'translate-x-20',
+        )}
+      />
+      {chip('imperial', 'Imperial')}
+      {chip('metric', 'Metric')}
+    </div>
   )
 }

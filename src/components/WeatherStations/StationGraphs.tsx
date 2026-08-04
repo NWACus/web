@@ -373,15 +373,13 @@ function GraphsToolbar({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <WindowPicker active={graphWindow} onChange={onWindowChange} />
-          <UnitToggle unit={unitSystem} onChange={onUnitChange} />
-        </div>
+        <WindowPicker active={graphWindow} onChange={onWindowChange} />
         <CompareStationPicker
           currentSlug={currentSlug}
           compareSlugs={compareSlugs}
           onAdd={(slug) => onCompareChange([...compareSlugs, slug])}
         />
+        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
       </div>
       <GraphsChipRow
         compareSlugs={compareSlugs}
