@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset, GraphWindow } from './stationGraphPresets'
 import { DEFAULT_GRAPH_WINDOW, GRAPH_WINDOWS } from './stationGraphPresets'
-import { convertGraphData, convertPreset } from './stationGraphUnits'
+import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import { StationOptGroups, stationSelectClass } from './StationPicker'
 import type { UnitSystem } from './UnitToggle'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
@@ -250,10 +250,14 @@ function PresetChart({
   unitSystem: UnitSystem
   controls: ReactNode
 }) {
-  const presetData = useMemo(
-    () => ({ ...data, series: data.series.filter((s) => preset.variables.includes(s.variable)) }),
-    [data, preset],
-  )
+  const presetData = useMemo(() => {
+    const filtered = {
+      ...data,
+      series: data.series.filter((s) => preset.variables.includes(s.variable)),
+    }
+    const clamped = preset.allowNegative ? filtered : clampNegativeValues(filtered)
+    return convertGraphData(clamped, unitSystem)
+  }, [data, preset, unitSystem])
   const option = useMemo(
     () => buildChartOption(presetData, convertPreset(preset, unitSystem), primaryStids),
     [presetData, preset, unitSystem, primaryStids],
@@ -421,11 +425,6 @@ export function StationGraphs({
 
   const { data, error, loading } = useGraphData(allStids, variables, graphWindow)
 
-  const displayData = useMemo(
-    () => (data ? convertGraphData(data, unitSystem) : null),
-    [data, unitSystem],
-  )
-
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
 
   const arrangement = useChartArrangement(presets, emptyKeys)
@@ -450,7 +449,7 @@ export function StationGraphs({
         presets={presets}
         primaryStids={stids}
         arrangement={arrangement}
-        data={displayData}
+        data={data}
         error={error}
         loading={loading}
         unitSystem={unitSystem}

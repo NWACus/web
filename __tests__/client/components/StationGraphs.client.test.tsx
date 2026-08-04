@@ -109,35 +109,6 @@ describe('buildChartOption precision and bar rendering', () => {
   })
 })
 
-describe('buildChartOption negative clamping', () => {
-  const T = 1_700_000_000_000
-  const negative: GraphData = {
-    series: [
-      {
-        kind: 'raw',
-        stid: '1',
-        stationName: 'Station 1',
-        variable: 'snow_depth',
-        label: 'Station 1',
-        unit: 'in',
-        points: [[T, -0.4]],
-      },
-    ],
-    aggregated: false,
-    timezone: 'x',
-  }
-
-  it('clamps sub-zero values to zero unless the preset allows negatives', () => {
-    const SNOW_PRESET = { key: 'snowdepth', title: 'Total Snow Depth', variables: ['snow_depth'] }
-    expect(chartSeries(buildChartOption(negative, SNOW_PRESET))[0].data).toEqual([[T, 0]])
-  })
-
-  it('keeps negatives on presets flagged allowNegative', () => {
-    const preset = { ...TEMP_PRESET, allowNegative: true }
-    expect(chartSeries(buildChartOption(negative, preset))[0].data).toEqual([[T, -0.4]])
-  })
-})
-
 describe('buildChartOption wind band', () => {
   const WIND_PRESET = {
     key: 'wind',

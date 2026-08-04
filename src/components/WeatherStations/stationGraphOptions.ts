@@ -34,7 +34,7 @@ function seriesFor(
     name: s.label,
     color,
     yAxisIndex,
-    data: meanPoints(s, preset.allowNegative ?? false),
+    data: meanPoints(s),
     ...(symbolsOnly ? directionTooltip() : unitTooltip(s.unit)),
   }
   if (preset.bar) {
@@ -101,13 +101,10 @@ function refLineSeries(preset: GraphPreset): object[] {
   ]
 }
 
-// Daily series plot and band on their means. Sub-zero readings are sensor
-// noise except on temperature; clamp to zero.
-function meanPoints(s: GraphSeries, allowNegative: boolean): [number, number | null][] {
-  const points: [number, number | null][] =
-    s.kind === 'raw' ? s.points : s.days.map(([t, , mean]) => [t, mean])
-  if (allowNegative) return points
-  return points.map(([t, v]) => [t, v === null ? v : Math.max(0, v)])
+// Daily series plot and band on their means.
+function meanPoints(s: GraphSeries): [number, number | null][] {
+  if (s.kind === 'raw') return s.points
+  return s.days.map(([t, , mean]) => [t, mean])
 }
 
 type BandPair = { lower: GraphSeries; upper: GraphSeries }
@@ -131,14 +128,9 @@ function bandPairsByStid(
 // Lower→upper shaded band: a transparent "floor" line at the lower edge,
 // stacked with (upper − lower) area on top. Aligned by timestamp; gaps in
 // either edge break the band rather than guessing.
-function bandSeries(
-  pair: BandPair,
-  yAxisIndex: number,
-  color: string,
-  allowNegative: boolean,
-): object[] {
-  const lowerByTime = new Map(meanPoints(pair.lower, allowNegative))
-  const points = meanPoints(pair.upper, allowNegative).map(([t, upper]) => {
+function bandSeries(pair: BandPair, yAxisIndex: number, color: string): object[] {
+  const lowerByTime = new Map(meanPoints(pair.lower))
+  const points = meanPoints(pair.upper).map(([t, upper]) => {
     const lower = lowerByTime.get(t) ?? null
     return { t, lower, delta: lower !== null && upper !== null ? upper - lower : null }
   })
@@ -222,12 +214,7 @@ export function buildChartOption(
   for (const [stid, pair] of bands) {
     const lineIndex = lineSeries.findIndex((s) => s.stid === stid)
     series.push(
-      ...bandSeries(
-        pair,
-        axisIndexFor(pair.lower.unit, axes),
-        colorFor(Math.max(lineIndex, 0)),
-        preset.allowNegative ?? false,
-      ),
+      ...bandSeries(pair, axisIndexFor(pair.lower.unit, axes), colorFor(Math.max(lineIndex, 0))),
     )
   }
   return {

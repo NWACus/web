@@ -49,7 +49,12 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
   { key: 'solar', title: 'Solar Radiation', variables: ['net_solar'] },
   { key: 'pyranometer', title: 'Solar Pyranometer', variables: ['solar_radiation'] },
   { key: 'pressure', title: 'Barometric Pressure', variables: ['pressure'] },
-  { key: 'equiptemp', title: 'Equipment Temperature', variables: ['equip_temperature'] },
+  {
+    key: 'equiptemp',
+    title: 'Equipment Temperature',
+    variables: ['equip_temperature'],
+    allowNegative: true,
+  },
 ]
 
 // Hours back to the most recent Oct 1 (the season anchor, display timezone).
