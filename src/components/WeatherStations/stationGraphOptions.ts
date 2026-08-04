@@ -154,15 +154,17 @@ function bandSeries(pair: BandPair, yAxisIndex: number, color: string): object[]
     legendHoverLink: false,
     silent: true,
   }
+  // Helpers share the station's legend name so hiding the station via the
+  // legend hides its band too.
   return [
     {
       ...helper,
-      name: `${pair.lower.label} ${pair.lower.variable}`,
+      name: pair.lower.label,
       data: points.map((p) => [p.t, p.lower]),
     },
     {
       ...helper,
-      name: `${pair.upper.label} ${pair.upper.variable}`,
+      name: pair.upper.label,
       areaStyle: { color, opacity: 0.14 },
       data: points.map((p) => [p.t, p.delta]),
     },

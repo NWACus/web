@@ -139,11 +139,9 @@ describe('buildChartOption wind band', () => {
     const option = buildChartOption(data, WIND_PRESET)
     const series = chartSeries(option)
 
-    expect(series.map((s) => s.name)).toEqual([
-      'Station 1',
-      'Station 1 wind_speed_min',
-      'Station 1 wind_gust',
-    ])
+    // Band helpers share the station's legend name so legend-hiding the
+    // station hides its band too.
+    expect(series.map((s) => s.name)).toEqual(['Station 1', 'Station 1', 'Station 1'])
     const area = series.find((s) => s.areaStyle)
     expect(area?.data).toEqual([[T, 15]])
   })
