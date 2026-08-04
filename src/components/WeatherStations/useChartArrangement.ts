@@ -10,11 +10,10 @@ import {
 } from './stationGraphPrefs'
 import type { GraphPreset } from './stationGraphPresets'
 
-// Chart order and visibility for the Graphs tab, persisted per browser.
-// Prefs load after mount (localStorage is browser-only); saves wait for that
-// load so defaults never clobber a stored arrangement. Prefs track every
-// preset — `emptyKeys` (sensors absent on this station) only filters what
-// renders, so one station's missing sensors never rewrite the stored order.
+// Chart order and visibility, persisted per browser. Saves wait for the
+// post-mount localStorage load so defaults never clobber a stored arrangement.
+// `emptyKeys` (sensors absent on this station) only filters what renders, so
+// one station's missing sensors never rewrite the stored order.
 export function useChartArrangement(presets: GraphPreset[], emptyKeys: ReadonlySet<string>) {
   const presetKeys = useMemo(() => presets.map((p) => p.key), [presets])
   const [prefs, setPrefs] = useState<ChartPrefs>(() => defaultChartPrefs(presetKeys))

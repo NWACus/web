@@ -31,8 +31,7 @@ type FetchOptions = {
   start?: Date
   end?: Date
   revalidate?: number
-  // Skip SnowObs' server-side rounding (values come back integer-rounded by
-  // default). Graphs want full precision; tables keep the rounded default.
+  // Skip SnowObs' default integer rounding (graphs want full precision).
   rawData?: boolean
 }
 

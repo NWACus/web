@@ -18,15 +18,13 @@ function ChartSkeleton() {
   return <div className="h-80 animate-pulse rounded-md bg-muted" />
 }
 
-// ECharts only loads when the Graphs tab actually renders.
 const EChart = dynamic(() => import('./EChart').then((m) => m.EChart), {
   ssr: false,
   loading: () => <ChartSkeleton />,
 })
 
-// "Now" is bucketed to the route's cache window so request URLs stay stable
-// across charts, remounts, and users — a fresh Date would make every URL
-// unique and defeat the route's CDN caching.
+// "Now" is bucketed so request URLs stay stable across charts and users —
+// a fresh Date per request would defeat the route's CDN caching.
 const CACHE_BUCKET_MS = 5 * 60 * 1000
 
 function windowRange(window: GraphWindow): { from: Date; to: Date } {
@@ -45,8 +43,7 @@ function graphDataUrl(stids: string[], variables: string[], from: Date, to: Date
 }
 
 // One fetch serves every chart: the union of all preset variables for all
-// selected stations. Re-fetches on window/station change, aborts stale
-// requests; `loading` stays true through refetches so the UI can signal them.
+// selected stations.
 function useGraphData(stids: string[], variables: string[], window: GraphWindow) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -101,7 +98,6 @@ function WindowPicker({
   )
 }
 
-// Dims the charts and overlays a spinner while a refetch is in flight.
 function ChartFrame({ loading, children }: { loading: boolean; children: ReactNode }) {
   return (
     <div className="relative" aria-busy={loading}>
@@ -115,9 +111,6 @@ function ChartFrame({ loading, children }: { loading: boolean; children: ReactNo
 
 const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
 
-// Adds another station to overlay on every chart. Region-grouped like the
-// StationPicker; the page's own station and already-selected stations are
-// excluded.
 function CompareStationPicker({
   currentSlug,
   compareSlugs,
@@ -148,7 +141,6 @@ function CompareStationPicker({
   )
 }
 
-// The selected comparison stations as removable chips.
 function CompareChips({
   compareSlugs,
   onRemove,
@@ -173,7 +165,6 @@ function CompareChips({
   ))
 }
 
-// Move/hide controls for one rendered chart, top-right above the canvas.
 function ChartControls({
   title,
   canUp,
@@ -216,7 +207,6 @@ function ChartControls({
   )
 }
 
-// Hidden charts as chips that restore on click.
 function HiddenChartChips({
   presets,
   onShow,
@@ -264,7 +254,6 @@ function PresetChart({
     [presetData, preset, primaryStids],
   )
   return (
-    // Controls overlay the canvas's top-right, level with the ECharts title.
     <div className="relative">
       <div className="absolute right-0 top-0 z-10">{controls}</div>
       <EChart option={option} group="station-graphs" />
@@ -272,7 +261,6 @@ function PresetChart({
   )
 }
 
-// The chip row under the toolbar: comparison stations and hidden charts.
 function GraphsChipRow({
   compareSlugs,
   onCompareChange,
@@ -296,15 +284,12 @@ function GraphsChipRow({
   )
 }
 
-// Keys of presets none of the selected stations report (their charts hide).
 function emptyPresetKeys(data: GraphData | null, presets: GraphPreset[]): Set<string> {
   if (!data) return new Set()
   const reported = new Set(data.series.map((s) => s.variable))
   return new Set(presets.filter((p) => !p.variables.some((v) => reported.has(v))).map((p) => p.key))
 }
 
-// The fetch's charts area: error notice, loading skeletons, no-data notice, or
-// the arranged charts dimmed while a refetch is in flight.
 function GraphsCharts({
   presets,
   primaryStids,
@@ -354,9 +339,6 @@ function GraphsCharts({
   )
 }
 
-// The station page's Graphs tab: fixed preset charts for this station group,
-// with a shared time-window picker and optional comparison stations whose
-// series overlay every chart as dashed lines.
 export function StationGraphs({
   stids,
   presets,
@@ -369,7 +351,6 @@ export function StationGraphs({
   const [graphWindow, setGraphWindow] = useState(DEFAULT_GRAPH_WINDOW)
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
 
-  // Base stids plus each comparison group's, deduped in selection order.
   const allStids = useMemo(() => {
     const combined = [...stids]
     for (const slug of compareSlugs) {

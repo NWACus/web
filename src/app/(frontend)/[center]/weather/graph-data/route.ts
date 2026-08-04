@@ -8,14 +8,12 @@ import { buildGraphData, windowExceedsThreshold } from '@/services/snowobs/graph
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import { NextResponse } from 'next/server'
 
-// The graph engine's data endpoint: serves both the public station Graphs tab
-// and the future self-serve builder. Reads SnowObs live server-side (token
-// stays hidden), auto-aggregates windows longer than 30 days to daily
-// min/mean/max.
+// Serves the station Graphs tab. Reads SnowObs server-side (token stays
+// hidden); windows longer than 30 days aggregate to daily min/mean/max.
 
 const KNOWN_STIDS = new Set(NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.stids))
-// Derived caps: the page's station group plus every comparison pick, and the
-// union of all preset variables (the Graphs tab fetches them in one request).
+// Caps sized to the Graphs tab's single fetch: the page's station group plus
+// every comparison pick, and the union of all preset variables.
 const MAX_GROUP_STIDS = Math.max(...NWAC_WEATHER_STATION_GROUPS.map((g) => g.stids.length))
 const MAX_STATIONS = (1 + MAX_COMPARE_STATIONS) * MAX_GROUP_STIDS
 const MAX_VARIABLES = new Set(STATION_GRAPH_PRESETS.flatMap((p) => p.variables)).size

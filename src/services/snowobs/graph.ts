@@ -2,10 +2,9 @@ import { differenceInHours } from 'date-fns'
 import { displayUnit, NWAC_DISPLAY_TIMEZONE } from './constants'
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
-// The graph engine's data contract: one shape feeds both the public station
-// Graphs tab and the future self-serve builder. Series come back either raw
-// (hourly points) or daily-aggregated — windows longer than
-// DECIMATION_THRESHOLD_DAYS auto-aggregate server-side, no client knob.
+// The graph-data contract: series come back either raw (hourly points) or
+// daily-aggregated — windows longer than DECIMATION_THRESHOLD_DAYS
+// auto-aggregate server-side, no client knob.
 
 export const DECIMATION_THRESHOLD_DAYS = 30
 
@@ -41,9 +40,8 @@ export type GraphData = {
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
 
-// yyyy-mm-dd in the display timezone — the daily-aggregation bucket key.
-// A cached Intl formatter (not date-fns `format` + tz) because this runs per
-// point in the aggregation loop.
+// Daily-aggregation bucket key (yyyy-mm-dd, display timezone). A cached Intl
+// formatter because this runs per point in the aggregation loop.
 const dayFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: NWAC_DISPLAY_TIMEZONE,
   year: 'numeric',
@@ -51,15 +49,14 @@ const dayFormatter = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 })
 
-// Station + elevation (feet) only, e.g. "Hurricane Ridge (5,250')" — the chart
-// title already names the variable, so the legend just distinguishes stations.
+// e.g. "Hurricane Ridge (5,250')" — the chart title already names the
+// variable, so the legend just distinguishes stations.
 function seriesLabel(station: ResponseStation): string {
   const name = station.name ?? station.stid
   return station.elevation != null ? `${name} (${station.elevation.toLocaleString()}')` : name
 }
 
-// The station's date_time series parsed and time-sorted once, so building
-// points doesn't re-parse and re-sort it for every variable.
+// date_time parsed and sorted once per station, not per variable.
 type ParsedTimes = { t: number; i: number }[]
 
 function parsedTimes(station: ResponseStation): ParsedTimes {
@@ -73,8 +70,7 @@ function parsedTimes(station: ResponseStation): ParsedTimes {
   return parsed
 }
 
-// Time-ascending [ms, value] pairs for one station variable; null values kept
-// so gaps render as gaps rather than interpolated lines.
+// Nulls kept so gaps render as gaps rather than interpolated lines.
 function rawPoints(
   times: ParsedTimes,
   values: (string | number | null)[],
@@ -85,8 +81,7 @@ function rawPoints(
   })
 }
 
-// Collapse raw points into per-day [dayStart, min, mean, max] rows (display
-// timezone days); days with no numeric observations are omitted. Circular
+// Per-day [dayStart, min, mean, max] rows (display-timezone days). Circular
 // variables get a vector mean with min/max pinned to it (no meaningful band).
 export function aggregateDaily(
   points: [number, number | null][],
@@ -168,7 +163,6 @@ export function windowExceedsThreshold(from: Date, to: Date): boolean {
   return differenceInHours(to, from, { roundingMethod: 'ceil' }) > DECIMATION_THRESHOLD_DAYS * 24
 }
 
-// One series per requested (station, variable) pair that actually has data.
 export function buildGraphData(
   response: SnowObsTimeseriesResponse,
   stids: string[],

@@ -55,9 +55,8 @@ export function saveChartPrefs(prefs: ChartPrefs): void {
   }
 }
 
-// Swaps `key` with its nearest neighbor in `direction`, skipping keys the
-// caller marks unswappable (hidden charts, charts with no data on this
-// station). Returns `order` unchanged when there is no such neighbor.
+// Swaps `key` with its nearest non-skippable neighbor in `direction`;
+// returns `order` unchanged when there is none.
 export function swapWithNeighbor(
   order: string[],
   key: string,

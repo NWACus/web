@@ -22,9 +22,8 @@ export type GraphPreset = {
   allowNegative?: boolean
 }
 
-// Every station gets the full preset list: the registry's columns only cover
-// the NOW-table subset, while loggers report more sensors (pressure, equip
-// temp, ...). Charts whose variables come back without data hide themselves.
+// Every station gets the full preset list — loggers report more sensors than
+// the registry's NOW-table columns. Charts with no data hide themselves.
 export const STATION_GRAPH_PRESETS: GraphPreset[] = [
   { key: 'temp', title: 'Temperature', variables: ['air_temp'], refLine: 32, allowNegative: true },
   {

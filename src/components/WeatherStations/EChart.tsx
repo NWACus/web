@@ -14,8 +14,7 @@ import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useEffect, useRef } from 'react'
 
-// Thin tree-shaken ECharts wrapper: line/bar charts + grid/tooltip/legend/
-// dataZoom only, canvas renderer. Register once at module load.
+// Tree-shaken ECharts: only what the station charts use.
 echarts.use([
   LineChart,
   BarChart,

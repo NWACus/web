@@ -4,14 +4,11 @@ import type { EChartOption } from './EChart'
 import type { GraphPreset } from './stationGraphPresets'
 
 // Builds the ECharts option for one preset chart from the graph-data response.
-// Raw series render as lines; daily-aggregated series render as a mean line
-// plus a shaded min→max band (two stacked helper series).
 
-// Fixed palette so a series' min-max band always shades in ITS line's color
-// (auto-assignment gave the invisible band helpers their own colors).
+// Fixed palette so a band always shades in its line's color (auto-assignment
+// gave the invisible band helpers their own colors).
 const SERIES_COLORS = ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#0891b2']
 
-// Series grouped onto up to two y-axes by unit (°F and % on one chart, etc.).
 function unitAxes(series: GraphSeries[]): string[] {
   const units: string[] = []
   for (const s of series) {
@@ -25,10 +22,6 @@ function axisIndexFor(unit: string, axes: string[]): number {
   return index === -1 ? 0 : index
 }
 
-// One ECharts series per data series. Raw series plot their points;
-// daily-aggregated series plot their mean line. symbolsOnly (direction charts)
-// renders disconnected dots instead of a line; bar presets (precipitation)
-// render bars. Comparison stations dash their lines / fade their bars.
 function seriesFor(
   s: GraphSeries,
   yAxisIndex: number,
@@ -72,7 +65,6 @@ export function degreesToRose(deg: number): string {
   return ROSE_16[Math.round(deg / 22.5) % 16]
 }
 
-// Compass scale for wind direction: cardinal tick labels every 45°.
 function degreeAxisOverrides(symbolsOnly: boolean): object {
   if (!symbolsOnly) return {}
   return {
@@ -83,14 +75,14 @@ function degreeAxisOverrides(symbolsOnly: boolean): object {
   }
 }
 
-// Preset-pinned axis bounds (RH 0-100, ...), matching the legacy plot specs.
+// Legacy-pinned axis bounds (RH 0-100, ...).
 function presetAxisOverrides(preset: GraphPreset): object {
   if (!preset.axis) return {}
   return { ...preset.axis, scale: false }
 }
 
-// Legacy-style horizontal reference line (32°F freezing on temperature),
-// carried by its own empty series so it never inherits a real series' identity.
+// Reference line (32°F freezing on temperature) on its own empty series so it
+// never inherits a real series' identity.
 function refLineSeries(preset: GraphPreset): object[] {
   if (preset.refLine === undefined) return []
   return [
@@ -109,9 +101,8 @@ function refLineSeries(preset: GraphPreset): object[] {
   ]
 }
 
-// Mean points regardless of series kind — daily series plot and band on their means.
-// Unless the preset allows negatives (temperature), sub-zero readings are
-// sensor noise and clamp to zero.
+// Daily series plot and band on their means. Sub-zero readings are sensor
+// noise except on temperature; clamp to zero.
 function meanPoints(s: GraphSeries, allowNegative: boolean): [number, number | null][] {
   const points: [number, number | null][] =
     s.kind === 'raw' ? s.points : s.days.map(([t, , mean]) => [t, mean])
@@ -240,10 +231,9 @@ export function buildChartOption(
     )
   }
   return {
-    // Title top-left, legend on its own row below — they no longer collide.
+    // Legend on its own row below the title so they don't collide.
     title: { text: title, left: 0, top: 0, textStyle: { fontSize: 15, fontWeight: 600 } },
-    // Values format per-series (unit appended); the header date formats here —
-    // hourly charts "Wed Jul 30, 14:00", daily-aggregated charts date-only.
+    // Values format per-series; the header date formats here.
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -262,8 +252,7 @@ export function buildChartOption(
       type: 'time',
       axisLabel: {
         hideOverlap: true,
-        // Lead date-level ticks with the day of week ("Mon Jul 20"; hourly
-        // ticks "Mon 14:00") — forecasters think in storm days.
+        // Ticks lead with the day of week — forecasters think in storm days.
         formatter: {
           year: '{yyyy}',
           month: '{MMM} {yyyy}',
@@ -273,8 +262,7 @@ export function buildChartOption(
         },
       },
     },
-    // Unit reads along the axis (rotated, centered) instead of a clipped label
-    // floating above the axis top.
+    // Unit reads along the axis — a name above the axis top gets clipped.
     yAxis: axes.map((unit, i) => ({
       type: 'value',
       name: unit,
