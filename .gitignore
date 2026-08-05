@@ -32,6 +32,9 @@ tsconfig.tsbuildinfo
 # Fallow runtime cache
 .fallow/
 
+# Conductor per-workspace ports (regenerated each launch; keep settings.toml tracked)
+.conductor/ports.env
+
 # AI
 .cursor
 .claude/*

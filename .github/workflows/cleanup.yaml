@@ -4,7 +4,7 @@ on:
 jobs:
   cleanup:
     if: ${{ github.event_name == 'workflow_dispatch' || (!contains(fromJson('["main", "release"]'), github.event.ref) && !startsWith(github.event.ref, 'gh-readonly-queue/') && !startsWith(github.event.ref, 'dependabot/')) }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Install Turso CLI
         run: curl -sSfL https://get.tur.so/install.sh | bash
