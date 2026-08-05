@@ -11,9 +11,7 @@ import { convertStationTable } from './stationTableUnits'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 
 // Scales the table down to the viewport width instead of horizontally
-// scrolling (phones pinch-zoom back in). scrollWidth sees through the table
-// wrapper's overflow, so it measures the table's natural width even before
-// any explicit width is applied.
+// scrolling (scrollWidth sees through the table wrapper's overflow).
 function FitToWidth({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)

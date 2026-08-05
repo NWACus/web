@@ -14,8 +14,6 @@ declare global {
   }
 }
 
-// Whether the form may submit: true immediately when no captcha is configured,
-// otherwise tracks the checkbox via reCAPTCHA's global callbacks.
 function useCaptchaGate(siteKey: string | undefined): boolean {
   const [solved, setSolved] = useState(!siteKey)
   useEffect(() => {

@@ -11,8 +11,6 @@ export const TABLE_WINDOWS: GraphWindow[] = GRAPH_WINDOWS.filter((w) =>
   TABLE_WINDOW_KEYS.includes(w.key),
 )
 
-// Legacy `?range=24h`/`?range=7d` URLs resolve as window keys, so old links
-// land on the right table window.
 export function resolveTableWindow(param: string | undefined): GraphWindow {
   return TABLE_WINDOWS.find((w) => w.key === param) ?? TABLE_WINDOWS[0]
 }

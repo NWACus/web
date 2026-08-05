@@ -107,7 +107,6 @@ async function resolveTabView(
 ): Promise<TabView> {
   if (rangeParam === 'csv') return csvTabView(group)
   if (rangeParam === 'graphs') return graphsTabView(group)
-  // Legacy `?range=24h`/`?range=7d` URLs resolve as table windows.
   return tableTabView(group, windowParam ?? rangeParam)
 }
 
