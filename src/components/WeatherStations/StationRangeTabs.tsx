@@ -51,7 +51,7 @@ export function StationRangeTabs({ activeKey }: { activeKey: string }) {
     <nav className="flex gap-1 border-b" aria-label="Station views">
       <TabLink tabKey="table" label="Table" activeKey={activeKey} />
       <TabLink tabKey="graphs" label="Graphs" activeKey={activeKey} />
-      <TabLink tabKey="csv" label="Download CSV" activeKey={activeKey} className="ml-auto" />
+      <TabLink tabKey="csv" label="Download" activeKey={activeKey} />
     </nav>
   )
 }

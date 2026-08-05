@@ -568,7 +568,7 @@ sig = "4fc2ad0bd4509765"
 [[bindings]]
 doc = "docs/testing.md"
 target = ".env.example"
-sig = "7ee7b8ace3219b54"
+sig = "a66edbfe2f037c17"
 
 [[bindings]]
 doc = "docs/testing.md"

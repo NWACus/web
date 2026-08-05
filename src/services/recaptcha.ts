@@ -1,10 +1,11 @@
-// Cloudflare Turnstile verification. Inert (always passes) until
-// TURNSTILE_SECRET_KEY is configured, so the captcha ships dark.
+// Google reCAPTCHA v2 verification, matching the legacy nwac.us data-portal
+// captcha. Inert (always passes) until RECAPTCHA_SECRET_KEY is configured, so
+// the captcha ships dark.
 export async function passesCaptcha(token: string | null): Promise<boolean> {
-  const secret = process.env.TURNSTILE_SECRET_KEY
+  const secret = process.env.RECAPTCHA_SECRET_KEY
   if (!secret) return true
   if (!token) return false
-  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+  const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
     method: 'POST',
     body: new URLSearchParams({ secret, response: token }),
   })
