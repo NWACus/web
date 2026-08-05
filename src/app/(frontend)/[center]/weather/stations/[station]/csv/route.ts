@@ -1,6 +1,7 @@
 import { getStationGroup } from '@/constants/weatherStations'
 import { buildStationCsv } from '@/services/snowobs/csv'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { passesCaptcha } from '@/services/turnstile'
 import { TZDate } from '@date-fns/tz'
 
 const TZ = 'America/Vancouver'
@@ -35,6 +36,9 @@ export async function GET(request: Request, { params }: Args) {
   const units = url.searchParams.get('units') ?? 'imperial'
   if (units !== 'imperial' && units !== 'metric') {
     return new Response('Invalid units', { status: 400 })
+  }
+  if (!(await passesCaptcha(url.searchParams.get('cf-turnstile-response')))) {
+    return new Response('Captcha verification failed', { status: 403 })
   }
 
   // Calendar year in Pacific time, as UTC instants for the SnowObs request.
