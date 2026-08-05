@@ -1,3 +1,9 @@
+// fallow-ignore-file dynamic-segment-name-conflict
+// False positive: fallow flags `[center]` (this custom API tree) as conflicting with
+// Payload's catch-all `(payload)/api/[...slug]` at `/api`. Next.js permits a catch-all
+// alongside more-specific named segments (the specific route wins), so both coexist and
+// serve traffic — the conflict rule only applies to two *named* siblings. Pre-existing
+// across all `/api/[center]/*` routes; not introduced by this change.
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { getForecastZoneDanger } from '@/services/nac/nac'
 import { convertWebpToPng } from '@/utilities/convertWebpToPng'
@@ -10,10 +16,16 @@ import { ImageResponse } from '@vercel/og'
 import { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
+import type { OgDocType } from './buildOgImageUrl'
 import { centerColorMap, isKnownCenter } from './centerColorMap'
 import { getDangerBadge } from './getDangerBadge'
+import { getOgDocData, type OgDocData } from './getOgDocData'
+import { OgDocContent } from './OgDocContent'
 
 const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
+
+const isOgDocType = (value: string | null): value is OgDocType =>
+  value === 'post' || value === 'event'
 
 export async function GET(
   request: NextRequest,
@@ -29,6 +41,11 @@ export async function GET(
     route && route.startsWith(FORECAST_ZONE_PATH_PREFIX)
       ? (route.slice(FORECAST_ZONE_PATH_PREFIX.length).split('/').filter(Boolean).pop() ?? null)
       : null
+
+  // Blog post / event shares: `?type=post&slug=...` or `?type=event&slug=...`
+  const docTypeParam = searchParams.get('type')
+  const docSlug = searchParams.get('slug')
+  const docType = isOgDocType(docTypeParam) ? docTypeParam : null
 
   const payload = await getPayload({ config: configPromise })
 
@@ -108,6 +125,24 @@ export async function GET(
       }
     }
 
+    // Blog post / event shares: fetch and normalize the document for a content-specific image
+    let docData: OgDocData | null = null
+
+    if (docType && docSlug && settings.tenant && typeof settings.tenant !== 'number') {
+      try {
+        docData = await getOgDocData({
+          payload,
+          center,
+          type: docType,
+          slug: docSlug,
+          tenant: settings.tenant,
+        })
+      } catch (err) {
+        payload.logger.error({ err }, `Failed to load ${docType} for OG image (slug: ${docSlug})`)
+        Sentry.captureException(err)
+      }
+    }
+
     // Forecast zone shares: fetch the zone's current danger rating + travel advice
     let dangerBadge: ReturnType<typeof getDangerBadge> | null = null
     let dangerIconSrc: string | null = null
@@ -136,7 +171,14 @@ export async function GET(
     const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer())
 
     return new ImageResponse(
-      (
+      docData ? (
+        <OgDocContent
+          colors={colors}
+          bannerImgProps={bannerImgProps}
+          usfsLogoImgProps={usfsLogoImgProps}
+          data={docData}
+        />
+      ) : (
         <div
           style={{
             height: '100%',
