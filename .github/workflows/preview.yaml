@@ -75,6 +75,12 @@ jobs:
           DATABASE_URI: 'file:./preview-seed.db'
           PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
           PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+          # Seeding now runs before `vercel env pull`, so the `.env` that
+          # `payload run` loads doesn't exist yet and this token has to be passed
+          # explicitly. Without it `vercelBlobStorage` is disabled and seeded
+          # uploads are written to the runner's disk instead of Vercel Blob,
+          # leaving every seeded image and document 404ing in the preview.
+          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
       - name: Create the preview database from the seeded file
         # Bulk-import the seeded local DB into a fresh Turso DB in one operation.
         # We use `--from-dump` (plain SQL) rather than `--from-file`: the latter
