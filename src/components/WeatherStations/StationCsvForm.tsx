@@ -2,44 +2,60 @@
 
 import Script from 'next/script'
 import type { ReactNode } from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type Datalogger = { stid: string; label: string }
 
-// reCAPTCHA's data-callback attributes only take global function names.
+type RecaptchaRenderParams = {
+  sitekey: string
+  callback: () => void
+  'expired-callback': () => void
+}
+
 declare global {
   interface Window {
-    csvRecaptchaSolved?: () => void
-    csvRecaptchaExpired?: () => void
+    grecaptcha?: { render: (container: HTMLElement, params: RecaptchaRenderParams) => number }
+    csvRecaptchaOnload?: () => void
   }
 }
 
-function useCaptchaGate(siteKey: string | undefined): boolean {
-  const [solved, setSolved] = useState(!siteKey)
+// Rendered explicitly: api.js only auto-scans on its first execution, which
+// breaks widgets remounted by client-side navigation. The solved token
+// submits with the form as a hidden g-recaptcha-response input.
+function RecaptchaWidget({
+  siteKey,
+  onChange,
+}: {
+  siteKey: string
+  onChange: (solved: boolean) => void
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const renderedRef = useRef(false)
+  const onChangeRef = useRef(onChange)
+  onChangeRef.current = onChange
+
   useEffect(() => {
-    if (!siteKey) return
-    window.csvRecaptchaSolved = () => setSolved(true)
-    window.csvRecaptchaExpired = () => setSolved(false)
+    const renderWidget = () => {
+      const container = containerRef.current
+      if (renderedRef.current || !container || !window.grecaptcha) return
+      renderedRef.current = true
+      window.grecaptcha.render(container, {
+        sitekey: siteKey,
+        callback: () => onChangeRef.current(true),
+        'expired-callback': () => onChangeRef.current(false),
+      })
+    }
+    if (window.grecaptcha) renderWidget()
+    else window.csvRecaptchaOnload = renderWidget
     return () => {
-      delete window.csvRecaptchaSolved
-      delete window.csvRecaptchaExpired
+      delete window.csvRecaptchaOnload
     }
   }, [siteKey])
-  return solved
-}
 
-// The checkbox widget appends a hidden g-recaptcha-response input that
-// submits with the form; the CSV route verifies it.
-function RecaptchaWidget({ siteKey }: { siteKey: string }) {
   return (
     <>
-      <Script src="https://www.google.com/recaptcha/api.js" async defer />
-      <div
-        className="g-recaptcha"
-        data-sitekey={siteKey}
-        data-callback="csvRecaptchaSolved"
-        data-expired-callback="csvRecaptchaExpired"
-      />
+      <Script src="https://www.google.com/recaptcha/api.js?onload=csvRecaptchaOnload&render=explicit" />
+      <div ref={containerRef} />
     </>
   )
 }
@@ -76,7 +92,7 @@ export function StationCsvForm({
   years: number[]
 }) {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-  const captchaSolved = useCaptchaGate(siteKey)
+  const [captchaSolved, setCaptchaSolved] = useState(!siteKey)
 
   return (
     <form
@@ -104,7 +120,7 @@ export function StationCsvForm({
           <option value="metric">Metric</option>
         </FormSelect>
       </div>
-      {siteKey && <RecaptchaWidget siteKey={siteKey} />}
+      {siteKey && <RecaptchaWidget siteKey={siteKey} onChange={setCaptchaSolved} />}
       <button
         type="submit"
         disabled={!captchaSolved}
