@@ -64,8 +64,15 @@ describe('convertStationTable', () => {
     })
   })
 
-  it('returns the table untouched for imperial', () => {
-    expect(convertStationTable(table, 'imperial')).toBe(table)
+  it('rounds imperial display values to one decimal without converting', () => {
+    const raw = {
+      ...table,
+      rows: [{ ...table.rows[0], values: { ...table.rows[0].values, '4_air_temp': 29.33 } }],
+    }
+    const imperial = convertStationTable(raw, 'imperial')
+    expect(imperial.columns.map((c) => c.unit)).toEqual(['°F', 'in', '%'])
+    expect(imperial.columns[0].elevation).toBe(5250)
+    expect(imperial.rows[0].values['4_air_temp']).toBe(29.3)
   })
 })
 

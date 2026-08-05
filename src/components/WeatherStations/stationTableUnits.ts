@@ -4,12 +4,11 @@ import type { StationTable } from '@/services/snowobs/tableHelpers'
 
 const FEET_TO_METERS = 0.3048
 
-// Converted readings round to one decimal so the table stays scannable;
-// elevations round to whole meters.
+// The table is fed unrounded SnowObs values; readings round to one decimal in
+// either system so the table stays scannable. Elevations round to whole meters.
 export function convertStationTable(table: StationTable, system: UnitSystem): StationTable {
-  if (system === 'imperial') return table
   const conversionByKey = new Map(
-    table.columns.map((c) => [c.key, metricConversionFor(c.variable)]),
+    table.columns.map((c) => [c.key, system === 'metric' ? metricConversionFor(c.variable) : null]),
   )
   return {
     ...table,
@@ -18,18 +17,19 @@ export function convertStationTable(table: StationTable, system: UnitSystem): St
       return {
         ...column,
         unit: conversion ? conversion.unit : column.unit,
-        elevation: column.elevation === null ? null : Math.round(column.elevation * FEET_TO_METERS),
+        elevation:
+          column.elevation === null || system === 'imperial'
+            ? column.elevation
+            : Math.round(column.elevation * FEET_TO_METERS),
       }
     }),
     rows: table.rows.map((row) => ({
       ...row,
       values: Object.fromEntries(
         Object.entries(row.values).map(([key, value]) => {
+          if (value === null) return [key, value]
           const conversion = conversionByKey.get(key)
-          return [
-            key,
-            value === null || !conversion ? value : Number(conversion.convert(value).toFixed(1)),
-          ]
+          return [key, Number((conversion ? conversion.convert(value) : value).toFixed(1))]
         }),
       ),
     })),

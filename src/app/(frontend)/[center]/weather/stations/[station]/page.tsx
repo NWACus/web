@@ -91,6 +91,7 @@ async function tableTabView(group: WeatherStationGroup, windowParam?: string): P
   const response = await fetchStationTimeseries(group.stids, {
     revalidate,
     windowHours: window.hoursBack(new Date()),
+    rawData: true,
   })
   const table = buildStationTable(response, group.columns)
   return {
