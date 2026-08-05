@@ -106,7 +106,7 @@ describe('buildStationCsv metric', () => {
   }
 
   it('converts header units and values when metric', () => {
-    const [header, row] = buildStationCsv(response, '4', true).split('\n')
+    const [header, row] = buildStationCsv(response, '4', 'metric').split('\n')
     expect(header).toBe('Time (Pacific),air_temp (°C),snow_depth (cm)')
     expect(row.endsWith(',0,25.4')).toBe(true)
   })

@@ -46,7 +46,7 @@ export async function GET(request: Request, { params }: Args) {
   const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, TZ).getTime())
 
   const response = await fetchStationTimeseries([stid], { start, end, revalidate: 3600 })
-  const csv = buildStationCsv(response, stid, units === 'metric')
+  const csv = buildStationCsv(response, stid, units)
 
   return new Response(csv, {
     headers: {

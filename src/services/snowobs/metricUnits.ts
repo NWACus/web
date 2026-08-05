@@ -2,6 +2,8 @@
 // everywhere; display layers (graphs, tables, CSV) convert on demand. Keyed by
 // variable rather than unit so inches can become cm (snow) or mm (precip).
 
+export type UnitSystem = 'imperial' | 'metric'
+
 export type MetricConversion = { unit: string; convert: (v: number) => number }
 
 const toCelsius: MetricConversion = { unit: '°C', convert: (v) => ((v - 32) * 5) / 9 }
