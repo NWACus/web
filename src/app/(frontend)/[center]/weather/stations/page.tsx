@@ -35,12 +35,12 @@ export default async function Page({ params }: Args) {
         <StationPicker />
       </div>
 
-      <div className="container grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4">
         {NWAC_STATION_REGIONS.map((region) => {
           const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
           if (groups.length === 0) return null
           return (
-            <section key={region} className="mb-6">
+            <section key={region} className="mb-16 break-inside-avoid">
               <h2 className="mb-2 text-lg font-semibold">{region}</h2>
               <ul className="">
                 {groups.map((group) => (

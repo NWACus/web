@@ -1,10 +1,9 @@
 'use client'
 
+import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { readLocalStorage, writeLocalStorage } from '@/utilities/safeLocalStorage'
 import { cn } from '@/utilities/ui'
 import { useEffect, useState } from 'react'
-
-export type UnitSystem = 'imperial' | 'metric'
 
 const STORAGE_KEY = 'nwac-station-graph-units'
 

@@ -1,4 +1,5 @@
 import { getStationGroup } from '@/constants/weatherStations'
+import { passesCaptcha } from '@/services/recaptcha'
 import { buildStationCsv } from '@/services/snowobs/csv'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { TZDate } from '@date-fns/tz'
@@ -32,13 +33,25 @@ export async function GET(request: Request, { params }: Args) {
   if (!Number.isInteger(year) || year < MIN_YEAR || year > currentYear) {
     return new Response('Invalid year', { status: 400 })
   }
+  const units = url.searchParams.get('units') ?? 'imperial'
+  if (units !== 'imperial' && units !== 'metric') {
+    return new Response('Invalid units', { status: 400 })
+  }
+  if (!(await passesCaptcha(url.searchParams.get('g-recaptcha-response')))) {
+    return new Response('Captcha verification failed', { status: 403 })
+  }
 
   // Calendar year in Pacific time, as UTC instants for the SnowObs request.
   const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, TZ).getTime())
   const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, TZ).getTime())
 
-  const response = await fetchStationTimeseries([stid], { start, end, revalidate: 3600 })
-  const csv = buildStationCsv(response, stid)
+  const response = await fetchStationTimeseries([stid], {
+    start,
+    end,
+    revalidate: 3600,
+    rawData: true,
+  })
+  const csv = buildStationCsv(response, stid, units)
 
   return new Response(csv, {
     headers: {

@@ -16,7 +16,6 @@ export const NWAC_STATION_REGIONS = [
   'Mt Rainier',
   'Chinook Pass',
   'White Pass',
-  'Mt St Helens',
   'Washington Pass',
   'Lake Wenatchee to Mission Ridge',
   'Mt Hood',
@@ -154,9 +153,9 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'stevens-pass-grace-lakes',
+    slug: 'grace-lakes',
     legacySlug: 'gracelakes',
-    displayName: 'Stevens Pass - Grace Lakes & Old Faithful',
+    displayName: 'Grace Lakes & Old Faithful',
     region: 'Stevens Pass',
     stids: ['14', '51'],
     columns: [
@@ -171,9 +170,9 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'stevens-pass-ski-area',
+    slug: 'stevens-ski-area',
     legacySlug: 'stevensskiarea',
-    displayName: 'Stevens Pass Ski Area',
+    displayName: 'Stevens Pass Ski Area - Tye Mill Chair, Skyline Chair',
     region: 'Stevens Pass',
     stids: ['18', '17'],
     columns: [
@@ -187,7 +186,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'alpental-ski-area',
+    slug: 'alpental',
     legacySlug: 'alpental',
     displayName: 'Alpental Ski Area',
     region: 'Snoqualmie Pass',
@@ -354,7 +353,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
   {
     slug: 'white-pass',
     legacySlug: 'whitepass',
-    displayName: 'White Pass',
+    displayName: 'White Pass Ski Area',
     region: 'White Pass',
     stids: ['39', '37', '49'],
     columns: [
@@ -369,22 +368,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
       ['39', 'precip_accum_one_hour'],
       ['39', 'snow_depth_24h'],
       ['39', 'snow_depth'],
-    ],
-  },
-  {
-    slug: 'mt-st-helens',
-    legacySlug: 'mtsthelens',
-    displayName: 'Mt. St. Helens',
-    region: 'Mt St Helens',
-    stids: ['40'],
-    columns: [
-      ['40', 'air_temp'],
-      ['40', 'relative_humidity'],
-      ['40', 'wind_speed_min'],
-      ['40', 'wind_speed'],
-      ['40', 'wind_gust'],
-      ['40', 'wind_direction'],
-      ['40', 'precip_accum_one_hour'],
     ],
   },
   {
@@ -442,9 +425,9 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'dirtyface-summit',
+    slug: 'dirtyface-mtn',
     legacySlug: 'dirtyfacemtn',
-    displayName: 'Dirtyface Summit',
+    displayName: 'Dirtyface Mt',
     region: 'Lake Wenatchee to Mission Ridge',
     stids: ['10'],
     columns: [
@@ -471,7 +454,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'mission-ridge-ski-area',
+    slug: 'mission-ridge',
     legacySlug: 'missionridge',
     displayName: 'Mission Ridge Ski Area',
     region: 'Lake Wenatchee to Mission Ridge',
@@ -492,7 +475,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'tumwater-leavenworth',
+    slug: 'tumwater',
     legacySlug: 'tumwater',
     displayName: 'Tumwater Mt. & Leavenworth',
     region: 'Lake Wenatchee to Mission Ridge',
@@ -513,7 +496,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'mt-hood-meadows-ski-area',
+    slug: 'mt-hood-meadows',
     legacySlug: 'mthoodmeadows',
     displayName: 'Mt. Hood Meadows Ski Area',
     region: 'Mt Hood',
@@ -534,7 +517,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'mt-hood-meadows-cascade-express',
+    slug: 'cascade-express',
     legacySlug: 'cascade_express',
     displayName: 'Mt. Hood Meadows - Cascade Express',
     region: 'Mt Hood',
@@ -549,7 +532,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'timberline-lodge',
+    slug: 'timberline-base',
     legacySlug: 'timberlinebase',
     displayName: 'Timberline Lodge',
     region: 'Mt Hood',
@@ -567,9 +550,9 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
-    slug: 'timberline-magic-mile',
+    slug: 'timberline-upper',
     legacySlug: 'timberlineupper',
-    displayName: 'Timberline - Magic Mile',
+    displayName: 'Timberline - Magic Mile Chair',
     region: 'Mt Hood',
     stids: ['45'],
     columns: [
@@ -584,7 +567,7 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
   {
     slug: 'skibowl-ski-area',
     legacySlug: 'skibowlgovtcamp',
-    displayName: 'Skibowl Ski Area',
+    displayName: 'Skibowl Ski Area - Government Camp',
     region: 'Mt Hood',
     stids: ['47', '46'],
     columns: [

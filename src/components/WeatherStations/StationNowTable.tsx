@@ -11,33 +11,42 @@ import { cn } from '@/utilities/ui'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
-export function StationNowTable({ table }: { table: StationTable }) {
+export function StationNowTable({
+  table,
+  elevationUnit = "'",
+}: {
+  table: StationTable
+  elevationUnit?: string
+}) {
   if (table.rows.length === 0) {
-    return <p className="text-muted-foreground">No station observations in the last 24 hours.</p>
+    return <p className="text-muted-foreground">No station observations in this period.</p>
   }
 
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'
 
   return (
-    <Table className="mx-auto w-auto text-base">
+    <Table className="mx-auto w-auto text-xs sm:text-base">
       <TableHeader>
         <TableRow>
-          <TableHead className="sticky left-0 z-10 bg-background whitespace-nowrap px-2 align-bottom">
+          <TableHead className="sticky left-0 z-10 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
             {timeHeader}
           </TableHead>
           {table.columns.map((column) => (
             <TableHead
               key={column.key}
               title={column.longName}
-              className="whitespace-nowrap px-2 text-right align-bottom"
+              className="whitespace-nowrap px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
               {column.unit && (
-                <div className="text-sm font-normal text-muted-foreground">{column.unit}</div>
+                <div className="text-xs font-normal text-muted-foreground sm:text-sm">
+                  {column.unit}
+                </div>
               )}
               {column.elevation != null && (
-                <div className="text-sm font-normal text-muted-foreground">
-                  {column.elevation}&apos;
+                <div className="text-xs font-normal text-muted-foreground sm:text-sm">
+                  {column.elevation}
+                  {elevationUnit}
                 </div>
               )}
             </TableHead>
@@ -47,7 +56,7 @@ export function StationNowTable({ table }: { table: StationTable }) {
       <TableBody>
         {table.rows.map((row) => (
           <TableRow key={row.timestamp} className="bg-background even:bg-muted">
-            <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
+            <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-1 py-1 font-medium sm:px-2 sm:py-1.5">
               {row.display}
             </TableCell>
             {table.columns.map((column) => {
@@ -56,7 +65,7 @@ export function StationNowTable({ table }: { table: StationTable }) {
                 <TableCell
                   key={column.key}
                   className={cn(
-                    'px-2 py-1.5 text-right font-light',
+                    'px-1 py-1 text-right font-light sm:px-2 sm:py-1.5',
                     value == null && 'text-muted-foreground',
                   )}
                 >
