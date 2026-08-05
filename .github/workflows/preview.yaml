@@ -90,9 +90,24 @@ jobs:
           sqlite3 ./preview-seed.db .dump > ./preview-seed.sql
 
           /home/runner/.turso/turso org switch nwac
-          if /home/runner/.turso/turso db show "${name}"; then
+
+          # Don't probe with `db show`: it exits non-zero both when the database
+          # is absent and when the API is merely unhealthy, so a transient error
+          # reads as "absent", skips the destroy, and then fails the create with
+          # "already exists". `db list` fails only on a real error, so treat any
+          # failure as fatal rather than guessing. Non-interactive `db list`
+          # walks every page and prints a table whose first column is the name.
+          if ! databases=$(/home/runner/.turso/turso db list); then
+            echo "Could not list Turso databases; refusing to guess whether ${name} exists." >&2
+            exit 1
+          fi
+
+          # Match the NAME column exactly; a substring match would target a
+          # different database whose name merely starts with this one.
+          if awk -v name="${name}" '$1 == name { found = 1 } END { exit !found }' <<<"${databases}"; then
             /home/runner/.turso/turso db destroy "${name}" --yes
           fi
+
           /home/runner/.turso/turso db create "${name}" --from-dump ./preview-seed.sql --wait
           /home/runner/.turso/turso db shell "${name}" .tables
         env:
