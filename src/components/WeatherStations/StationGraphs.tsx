@@ -9,6 +9,7 @@ import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { ChipGroup } from './ChipGroup'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset, GraphWindow } from './stationGraphPresets'
 import { DEFAULT_GRAPH_WINDOW, GRAPH_WINDOWS } from './stationGraphPresets'
@@ -72,6 +73,8 @@ function useGraphData(stids: string[], variables: string[], window: GraphWindow)
   return { data, error, loading }
 }
 
+const GRAPH_WINDOW_CHIPS = GRAPH_WINDOWS.map((w) => ({ key: w.key, label: w.label }))
+
 function WindowPicker({
   active,
   onChange,
@@ -80,24 +83,11 @@ function WindowPicker({
   onChange: (window: GraphWindow) => void
 }) {
   return (
-    <div className="flex gap-1">
-      {GRAPH_WINDOWS.map((w) => (
-        <button
-          key={w.key}
-          type="button"
-          onClick={() => onChange(w)}
-          aria-pressed={w === active}
-          className={cn(
-            'rounded-md px-3 py-1.5 text-sm',
-            w === active
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:text-foreground',
-          )}
-        >
-          {w.label}
-        </button>
-      ))}
-    </div>
+    <ChipGroup
+      chips={GRAPH_WINDOW_CHIPS}
+      activeKey={active.key}
+      onSelect={(key) => onChange(GRAPH_WINDOWS.find((w) => w.key === key) ?? DEFAULT_GRAPH_WINDOW)}
+    />
   )
 }
 
