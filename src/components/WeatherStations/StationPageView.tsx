@@ -1,7 +1,6 @@
 import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
-import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import type { WeatherStationGroup } from '@/constants/weatherStations'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import type { ReactNode } from 'react'
@@ -13,15 +12,8 @@ type StationPageViewProps = {
   tabContent?: ReactNode
 }
 
-function StationView({
-  table,
-  tabContent,
-}: {
-  table: StationTable | null
-  tabContent?: ReactNode
-}) {
-  if (tabContent) return <>{tabContent}</>
-  return table ? <StationTableView table={table} /> : null
+function StationView({ tabContent }: { tabContent?: ReactNode }) {
+  return tabContent ? <>{tabContent}</> : null
 }
 
 function StationHeader({
@@ -53,7 +45,7 @@ export function StationPageView({ group, table, activeKey, tabContent }: Station
       <StationHeader group={group} table={table} />
       <div className="container flex flex-col gap-3">
         <StationRangeTabs activeKey={activeKey} />
-        <StationView table={table} tabContent={tabContent} />
+        <StationView tabContent={tabContent} />
       </div>
     </div>
   )

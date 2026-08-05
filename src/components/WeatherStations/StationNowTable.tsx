@@ -19,7 +19,7 @@ export function StationNowTable({
   elevationUnit?: string
 }) {
   if (table.rows.length === 0) {
-    return <p className="text-muted-foreground">No station observations in the last 24 hours.</p>
+    return <p className="text-muted-foreground">No station observations in this window.</p>
   }
 
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'

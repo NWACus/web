@@ -4,7 +4,8 @@ import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
 import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
-import { resolveStationRange } from '@/components/WeatherStations/StationRangeTabs'
+import { resolveTableWindow } from '@/components/WeatherStations/StationRangeTabs'
+import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import {
   getStationGroup,
   NWAC_WEATHER_STATION_GROUPS,
@@ -22,7 +23,7 @@ export const revalidate = 600
 
 type Args = {
   params: Promise<{ center: string; station: string }>
-  searchParams: Promise<{ range?: string }>
+  searchParams: Promise<{ range?: string; window?: string }>
 }
 
 export async function generateStaticParams() {
@@ -85,24 +86,34 @@ function graphsTabView(group: WeatherStationGroup): TabView {
   }
 }
 
-async function rangeTabView(group: WeatherStationGroup, rangeParam?: string): Promise<TabView> {
-  const range = resolveStationRange(rangeParam)
+async function tableTabView(group: WeatherStationGroup, windowParam?: string): Promise<TabView> {
+  const window = resolveTableWindow(windowParam)
   const response = await fetchStationTimeseries(group.stids, {
     revalidate,
-    windowHours: range.hours,
+    windowHours: window.hoursBack(new Date()),
   })
-  return { key: range.key, table: buildStationTable(response, group.columns) }
+  const table = buildStationTable(response, group.columns)
+  return {
+    key: 'table',
+    table,
+    tabContent: <StationTableView table={table} activeWindowKey={window.key} />,
+  }
 }
 
-async function resolveTabView(group: WeatherStationGroup, rangeParam?: string): Promise<TabView> {
+async function resolveTabView(
+  group: WeatherStationGroup,
+  rangeParam?: string,
+  windowParam?: string,
+): Promise<TabView> {
   if (rangeParam === 'csv') return csvTabView(group)
   if (rangeParam === 'graphs') return graphsTabView(group)
-  return rangeTabView(group, rangeParam)
+  // Legacy `?range=24h`/`?range=7d` URLs resolve as table windows.
+  return tableTabView(group, windowParam ?? rangeParam)
 }
 
 export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
-  const { range: rangeParam } = await searchParams
+  const { range: rangeParam, window: windowParam } = await searchParams
 
   if (center !== STATIONS_TENANT_SLUG) {
     notFound()
@@ -113,7 +124,7 @@ export default async function Page({ params, searchParams }: Args) {
     notFound()
   }
 
-  const view = await resolveTabView(group, rangeParam)
+  const view = await resolveTabView(group, rangeParam, windowParam)
 
   return (
     <StationPageView
