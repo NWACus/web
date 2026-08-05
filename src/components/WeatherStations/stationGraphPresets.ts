@@ -1,7 +1,3 @@
-import { NWAC_DISPLAY_TIMEZONE } from '@/services/snowobs/constants'
-import { TZDate } from '@date-fns/tz'
-import { differenceInHours } from 'date-fns'
-
 export type GraphPreset = {
   key: string
   title: string
@@ -56,26 +52,3 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     allowNegative: true,
   },
 ]
-
-// Hours back to the most recent Oct 1 (the season anchor, display timezone).
-export function seasonHours(now: Date): number {
-  const local = new TZDate(now.getTime(), NWAC_DISPLAY_TIMEZONE)
-  const year = local.getMonth() >= 9 ? local.getFullYear() : local.getFullYear() - 1
-  const seasonStart = new TZDate(year, 9, 1, NWAC_DISPLAY_TIMEZONE)
-  return Math.max(24, differenceInHours(now, seasonStart, { roundingMethod: 'ceil' }))
-}
-
-export type GraphWindow = { key: string; label: string; hoursBack: (now: Date) => number }
-
-const WEEK_WINDOW: GraphWindow = { key: '7d', label: '7 days', hoursBack: () => 7 * 24 }
-
-export const GRAPH_WINDOWS: GraphWindow[] = [
-  { key: '24h', label: '24 hours', hoursBack: () => 24 },
-  WEEK_WINDOW,
-  { key: '30d', label: '30 days', hoursBack: () => 30 * 24 },
-  { key: '3m', label: '3 months', hoursBack: () => 91 * 24 },
-  { key: '6m', label: '6 months', hoursBack: () => 182 * 24 },
-  { key: 'season', label: 'Season', hoursBack: seasonHours },
-]
-
-export const DEFAULT_GRAPH_WINDOW = WEEK_WINDOW

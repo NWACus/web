@@ -11,9 +11,10 @@ import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { ChipGroup } from './ChipGroup'
 import { buildChartOption } from './stationGraphOptions'
-import type { GraphPreset, GraphWindow } from './stationGraphPresets'
-import { DEFAULT_GRAPH_WINDOW, GRAPH_WINDOWS } from './stationGraphPresets'
+import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
+import type { StationPeriod } from './stationPeriods'
+import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
 import { StationOptGroups, stationSelectClass } from './StationPicker'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
@@ -31,9 +32,9 @@ const EChart = dynamic(() => import('./EChart').then((m) => m.EChart), {
 // a fresh Date per request would defeat the route's CDN caching.
 const CACHE_BUCKET_MS = 5 * 60 * 1000
 
-function windowRange(window: GraphWindow): { from: Date; to: Date } {
+function periodRange(period: StationPeriod): { from: Date; to: Date } {
   const to = new Date(Math.floor(Date.now() / CACHE_BUCKET_MS) * CACHE_BUCKET_MS)
-  return { from: subHours(to, window.hoursBack(to)), to }
+  return { from: subHours(to, period.hoursBack(to)), to }
 }
 
 function graphDataUrl(stids: string[], variables: string[], from: Date, to: Date): string {
@@ -48,13 +49,13 @@ function graphDataUrl(stids: string[], variables: string[], from: Date, to: Date
 
 // One fetch serves every chart: the union of all preset variables for all
 // selected stations.
-function useGraphData(stids: string[], variables: string[], window: GraphWindow) {
+function useGraphData(stids: string[], variables: string[], period: StationPeriod) {
   const [data, setData] = useState<GraphData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const { from, to } = windowRange(window)
+    const { from, to } = periodRange(period)
     const controller = new AbortController()
     setError(null)
     setLoading(true)
@@ -68,25 +69,25 @@ function useGraphData(stids: string[], variables: string[], window: GraphWindow)
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [stids, variables, window])
+  }, [stids, variables, period])
 
   return { data, error, loading }
 }
 
-const GRAPH_WINDOW_CHIPS = GRAPH_WINDOWS.map((w) => ({ key: w.key, label: w.label }))
+const GRAPH_PERIOD_CHIPS = GRAPH_PERIODS.map((p) => ({ key: p.key, label: p.label }))
 
-function WindowPicker({
+function PeriodPicker({
   active,
   onChange,
 }: {
-  active: GraphWindow
-  onChange: (window: GraphWindow) => void
+  active: StationPeriod
+  onChange: (period: StationPeriod) => void
 }) {
   return (
     <ChipGroup
-      chips={GRAPH_WINDOW_CHIPS}
+      chips={GRAPH_PERIOD_CHIPS}
       activeKey={active.key}
-      onSelect={(key) => onChange(GRAPH_WINDOWS.find((w) => w.key === key) ?? DEFAULT_GRAPH_WINDOW)}
+      onSelect={(key) => onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)}
     />
   )
 }
@@ -311,7 +312,7 @@ function GraphsCharts({
     return presets.map((preset) => <ChartSkeleton key={preset.key} />)
   }
   if (data.series.length === 0) {
-    return <p className="text-muted-foreground">No data reported for this window.</p>
+    return <p className="text-muted-foreground">No data reported for this period.</p>
   }
   return (
     <ChartFrame loading={loading}>
@@ -340,8 +341,8 @@ function GraphsCharts({
 }
 
 function GraphsToolbar({
-  graphWindow,
-  onWindowChange,
+  graphPeriod,
+  onPeriodChange,
   unitSystem,
   onUnitChange,
   currentSlug,
@@ -349,8 +350,8 @@ function GraphsToolbar({
   onCompareChange,
   arrangement,
 }: {
-  graphWindow: GraphWindow
-  onWindowChange: (window: GraphWindow) => void
+  graphPeriod: StationPeriod
+  onPeriodChange: (period: StationPeriod) => void
   unitSystem: UnitSystem
   onUnitChange: (system: UnitSystem) => void
   currentSlug: string
@@ -361,7 +362,7 @@ function GraphsToolbar({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <WindowPicker active={graphWindow} onChange={onWindowChange} />
+        <PeriodPicker active={graphPeriod} onChange={onPeriodChange} />
         <CompareStationPicker
           currentSlug={currentSlug}
           compareSlugs={compareSlugs}
@@ -399,7 +400,7 @@ export function StationGraphs({
   presets: GraphPreset[]
   currentSlug: string
 }) {
-  const [graphWindow, setGraphWindow] = useState(DEFAULT_GRAPH_WINDOW)
+  const [graphPeriod, setStationPeriod] = useState(DEFAULT_GRAPH_PERIOD)
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
   const [unitSystem, changeUnitSystem] = useUnitSystem()
 
@@ -409,7 +410,7 @@ export function StationGraphs({
     [presets],
   )
 
-  const { data, error, loading } = useGraphData(allStids, variables, graphWindow)
+  const { data, error, loading } = useGraphData(allStids, variables, graphPeriod)
 
   const emptyKeys = useMemo(() => emptyPresetKeys(data, presets), [data, presets])
 
@@ -422,8 +423,8 @@ export function StationGraphs({
   return (
     <div className="flex flex-col gap-6">
       <GraphsToolbar
-        graphWindow={graphWindow}
-        onWindowChange={setGraphWindow}
+        graphPeriod={graphPeriod}
+        onPeriodChange={setStationPeriod}
         unitSystem={unitSystem}
         onUnitChange={changeUnitSystem}
         currentSlug={currentSlug}

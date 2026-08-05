@@ -1,7 +1,7 @@
 import {
-  resolveTableWindow,
-  TABLE_WINDOWS,
-} from '../../src/components/WeatherStations/StationRangeTabs'
+  resolveTablePeriod,
+  TABLE_PERIODS,
+} from '../../src/components/WeatherStations/stationPeriods'
 import { convertStationTable } from '../../src/components/WeatherStations/stationTableUnits'
 import { buildStationCsv } from '../../src/services/snowobs/csv'
 import type { StationTable } from '../../src/services/snowobs/tableHelpers'
@@ -76,15 +76,15 @@ describe('convertStationTable', () => {
   })
 })
 
-describe('resolveTableWindow', () => {
-  it('resolves window keys and defaults to 24h', () => {
-    expect(resolveTableWindow('7d').key).toBe('7d')
-    expect(resolveTableWindow(undefined).key).toBe('24h')
-    expect(resolveTableWindow('nonsense').key).toBe('24h')
+describe('resolveTablePeriod', () => {
+  it('resolves period keys and defaults to 24h', () => {
+    expect(resolveTablePeriod('7d').key).toBe('7d')
+    expect(resolveTablePeriod(undefined).key).toBe('24h')
+    expect(resolveTablePeriod('nonsense').key).toBe('24h')
   })
 
-  it('caps table windows at 30 days', () => {
-    expect(TABLE_WINDOWS.map((w) => w.key)).toEqual(['24h', '7d', '30d'])
+  it('caps table periods at 30 days', () => {
+    expect(TABLE_PERIODS.map((p) => p.key)).toEqual(['24h', '7d', '30d'])
   })
 })
 
