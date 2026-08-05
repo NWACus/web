@@ -5,8 +5,8 @@ import {
 } from '../../src/constants/weatherStations'
 
 describe('weather station registry', () => {
-  it('has 32 station groups', () => {
-    expect(NWAC_WEATHER_STATION_GROUPS).toHaveLength(32)
+  it('has 31 station groups', () => {
+    expect(NWAC_WEATHER_STATION_GROUPS).toHaveLength(31)
   })
 
   it('has unique slugs and legacy slugs', () => {
