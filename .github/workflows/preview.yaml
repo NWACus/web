@@ -13,13 +13,7 @@ concurrency:
 jobs:
   deploy:
     if: ${{ github.event_name != 'merge_group' }}
-    # Still on GitHub-hosted runners, but no longer out of necessity: seeding now
-    # writes to a local SQLite file that is bulk-imported into the fresh Turso
-    # preview DB in one operation, so it no longer streams the thousands of
-    # latency-bound round-trips that reproducibly killed Blacksmith runners
-    # mid-seed. Moving this job onto a Blacksmith runner is now a trivial
-    # follow-up — see NWACus/web#1143.
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     environment: Preview
     env:
       NODE_ENV: production
