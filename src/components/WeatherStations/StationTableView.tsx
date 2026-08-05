@@ -3,11 +3,62 @@
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
-import { useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { StationNowTable } from './StationNowTable'
 import { TABLE_WINDOWS } from './StationRangeTabs'
 import { convertStationTable } from './stationTableUnits'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
+
+// Scales the table down to the viewport width instead of horizontally
+// scrolling (phones pinch-zoom back in). scrollWidth sees through the table
+// wrapper's overflow, so it measures the table's natural width even before
+// any explicit width is applied.
+function FitToWidth({ children }: { children: ReactNode }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [layout, setLayout] = useState<{ scale: number; width: number; height: number } | null>(
+    null,
+  )
+
+  useEffect(() => {
+    const container = containerRef.current
+    const content = contentRef.current
+    if (!container || !content) return
+    const update = () => {
+      const natural = Math.max(content.scrollWidth, content.offsetWidth)
+      const scale = container.clientWidth / natural
+      setLayout(scale < 1 ? { scale, width: natural, height: content.offsetHeight * scale } : null)
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(container)
+    observer.observe(content)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={containerRef}
+      style={layout ? { height: layout.height, overflow: 'hidden' } : undefined}
+    >
+      <div
+        ref={contentRef}
+        style={
+          layout
+            ? {
+                width: layout.width,
+                transform: `scale(${layout.scale})`,
+                transformOrigin: 'top left',
+              }
+            : undefined
+        }
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
 
 // Window changes navigate (the table is server-built per window); unit changes
 // convert client-side.
@@ -48,7 +99,12 @@ export function StationTableView({
         <TableWindowPicker activeKey={activeWindowKey} />
         <UnitToggle unit={unitSystem} onChange={changeUnitSystem} />
       </div>
-      <StationNowTable table={display} elevationUnit={unitSystem === 'metric' ? ' m' : undefined} />
+      <FitToWidth>
+        <StationNowTable
+          table={display}
+          elevationUnit={unitSystem === 'metric' ? ' m' : undefined}
+        />
+      </FitToWidth>
     </div>
   )
 }
