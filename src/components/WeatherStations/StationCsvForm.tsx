@@ -41,6 +41,16 @@ export function StationCsvForm({
           ))}
         </select>
       </label>
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="font-medium">Units</span>
+        <select
+          name="units"
+          className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm"
+        >
+          <option value="imperial">Imperial</option>
+          <option value="metric">Metric</option>
+        </select>
+      </label>
       <button
         type="submit"
         className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"

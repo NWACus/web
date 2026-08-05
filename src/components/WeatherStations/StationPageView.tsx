@@ -1,7 +1,7 @@
 import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
-import { StationNowTable } from '@/components/WeatherStations/StationNowTable'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
+import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import type { WeatherStationGroup } from '@/constants/weatherStations'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import type { ReactNode } from 'react'
@@ -21,7 +21,7 @@ function StationView({
   tabContent?: ReactNode
 }) {
   if (tabContent) return <>{tabContent}</>
-  return table ? <StationNowTable table={table} /> : null
+  return table ? <StationTableView table={table} /> : null
 }
 
 function StationHeader({

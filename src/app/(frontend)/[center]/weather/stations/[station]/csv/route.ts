@@ -32,13 +32,17 @@ export async function GET(request: Request, { params }: Args) {
   if (!Number.isInteger(year) || year < MIN_YEAR || year > currentYear) {
     return new Response('Invalid year', { status: 400 })
   }
+  const units = url.searchParams.get('units') ?? 'imperial'
+  if (units !== 'imperial' && units !== 'metric') {
+    return new Response('Invalid units', { status: 400 })
+  }
 
   // Calendar year in Pacific time, as UTC instants for the SnowObs request.
   const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, TZ).getTime())
   const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, TZ).getTime())
 
   const response = await fetchStationTimeseries([stid], { start, end, revalidate: 3600 })
-  const csv = buildStationCsv(response, stid)
+  const csv = buildStationCsv(response, stid, units === 'metric')
 
   return new Response(csv, {
     headers: {

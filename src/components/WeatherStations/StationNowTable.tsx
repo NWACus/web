@@ -11,7 +11,13 @@ import { cn } from '@/utilities/ui'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
-export function StationNowTable({ table }: { table: StationTable }) {
+export function StationNowTable({
+  table,
+  elevationUnit = "'",
+}: {
+  table: StationTable
+  elevationUnit?: string
+}) {
   if (table.rows.length === 0) {
     return <p className="text-muted-foreground">No station observations in the last 24 hours.</p>
   }
@@ -37,7 +43,8 @@ export function StationNowTable({ table }: { table: StationTable }) {
               )}
               {column.elevation != null && (
                 <div className="text-sm font-normal text-muted-foreground">
-                  {column.elevation}&apos;
+                  {column.elevation}
+                  {elevationUnit}
                 </div>
               )}
             </TableHead>
