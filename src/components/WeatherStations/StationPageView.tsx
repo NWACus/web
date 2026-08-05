@@ -12,10 +12,6 @@ type StationPageViewProps = {
   tabContent?: ReactNode
 }
 
-function StationView({ tabContent }: { tabContent?: ReactNode }) {
-  return tabContent ? <>{tabContent}</> : null
-}
-
 function StationHeader({
   group,
   table,
@@ -45,7 +41,7 @@ export function StationPageView({ group, table, activeKey, tabContent }: Station
       <StationHeader group={group} table={table} />
       <div className="container flex flex-col gap-3">
         <StationRangeTabs activeKey={activeKey} />
-        <StationView tabContent={tabContent} />
+        {tabContent}
       </div>
     </div>
   )
