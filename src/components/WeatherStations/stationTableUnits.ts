@@ -1,6 +1,6 @@
+import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { metricConversionFor } from '@/services/snowobs/metricUnits'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
-import type { UnitSystem } from './UnitToggle'
 
 const FEET_TO_METERS = 0.3048
 

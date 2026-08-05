@@ -1,8 +1,7 @@
 import type { GraphData, GraphSeries } from '@/services/snowobs/graph'
-import type { MetricConversion } from '@/services/snowobs/metricUnits'
+import type { MetricConversion, UnitSystem } from '@/services/snowobs/metricUnits'
 import { metricConversionFor } from '@/services/snowobs/metricUnits'
 import type { GraphPreset } from './stationGraphPresets'
-import type { UnitSystem } from './UnitToggle'
 
 // Metric display for the Graphs tab: charts convert client-side so toggling is
 // instant and the graph-data CDN cache stays single-variant.

@@ -2,6 +2,7 @@
 
 import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
+import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
 import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
@@ -13,7 +14,6 @@ import type { GraphPreset, GraphWindow } from './stationGraphPresets'
 import { DEFAULT_GRAPH_WINDOW, GRAPH_WINDOWS } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import { StationOptGroups, stationSelectClass } from './StationPicker'
-import type { UnitSystem } from './UnitToggle'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 

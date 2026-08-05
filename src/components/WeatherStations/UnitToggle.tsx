@@ -5,8 +5,6 @@ import { readLocalStorage, writeLocalStorage } from '@/utilities/safeLocalStorag
 import { cn } from '@/utilities/ui'
 import { useEffect, useState } from 'react'
 
-export type { UnitSystem }
-
 const STORAGE_KEY = 'nwac-station-graph-units'
 
 // Unit choice persisted per browser; localStorage is browser-only, so the
