@@ -5,6 +5,7 @@ import type { ChartPrefs } from './stationGraphPrefs'
 import {
   defaultChartPrefs,
   loadChartPrefs,
+  moveToKey,
   saveChartPrefs,
   swapWithNeighbor,
 } from './stationGraphPrefs'
@@ -32,24 +33,24 @@ export function useChartArrangement(presets: GraphPreset[], emptyKeys: ReadonlyS
     [prefs.order, presetByKey],
   )
 
-  const isSkippable = (key: string) => prefs.hidden.includes(key) || emptyKeys.has(key)
-
   return {
+    orderedPresets,
     visiblePresets: orderedPresets.filter(
       (p) => !prefs.hidden.includes(p.key) && !emptyKeys.has(p.key),
     ),
     hiddenPresets: orderedPresets.filter(
       (p) => prefs.hidden.includes(p.key) && !emptyKeys.has(p.key),
     ),
+    isHidden: (key: string) => prefs.hidden.includes(key),
     canMove: (key: string, direction: -1 | 1) =>
-      swapWithNeighbor(prefs.order, key, direction, isSkippable) !== prefs.order,
+      swapWithNeighbor(prefs.order, key, direction) !== prefs.order,
     moveChart: (key: string, direction: -1 | 1) =>
-      setPrefs((prev) => ({
-        ...prev,
-        order: swapWithNeighbor(prev.order, key, direction, isSkippable),
-      })),
+      setPrefs((prev) => ({ ...prev, order: swapWithNeighbor(prev.order, key, direction) })),
+    reorderChart: (key: string, overKey: string) =>
+      setPrefs((prev) => ({ ...prev, order: moveToKey(prev.order, key, overKey) })),
     hideChart: (key: string) => setPrefs((prev) => ({ ...prev, hidden: [...prev.hidden, key] })),
     showChart: (key: string) =>
       setPrefs((prev) => ({ ...prev, hidden: prev.hidden.filter((k) => k !== key) })),
+    resetArrangement: () => setPrefs(defaultChartPrefs(presetKeys)),
   }
 }
