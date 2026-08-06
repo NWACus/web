@@ -190,7 +190,7 @@ export async function getAvalancheCenterMetadata(centerSlug: string) {
   return parsed.data
 }
 
-function zoneSlugFromUrl(url: string): string | undefined {
+export function zoneSlugFromUrl(url: string): string | undefined {
   return url.split('/').filter(Boolean).pop()
 }
 
@@ -293,6 +293,16 @@ export function weatherCacheTag(weatherProductId: number): string {
   return `weather:${weatherProductId}`
 }
 
+/**
+ * The Next data-cache tag for a zone's active warning/watch/special. The warning freshness handler
+ * revalidates this when a zone's alert changes, which also invalidates the route cache of any page
+ * that rendered it — notably the (statically generated) home-page banner. Kept consistent with
+ * fetchWarning.
+ */
+export function warningCacheTag(centerId: string, zoneId: number): string {
+  return `warning:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
+}
+
 export async function fetchForecast(
   centerId: string,
   zoneId: number,
@@ -359,7 +369,7 @@ export async function fetchWarning(
   try {
     const data = await nacFetch(
       `/v2/public/product?type=warning&center_id=${centerIdToUse}&zone_id=${zoneId}`,
-      { cachedTime: 300 },
+      { cachedTime: 300, tags: [warningCacheTag(centerId, zoneId)] },
     )
 
     const parsed = warningResultSchema.safeParse(data)
@@ -370,6 +380,38 @@ export async function fetchWarning(
     }
 
     return parsed.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The zone's CURRENT warning fetched fresh from upstream, held only on a short (60s) cache so a
+ * burst of page views shares one upstream request rather than hitting the NAC API per view. Used
+ * only by the warning freshness check, which catches an alert issued or lifted after the (ISR)
+ * home page was rendered. Returns the v2 null-object or null exactly as fetchWarning does.
+ */
+export async function fetchWarningFresh(
+  centerId: string,
+  zoneId: number,
+): Promise<WarningResult | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  const getCached = unstable_cache(
+    async () => {
+      const data = await nacFetch(
+        `/v2/public/product?type=warning&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+        { noStore: true },
+      )
+      const parsed = warningResultSchema.safeParse(data)
+      return parsed.success ? parsed.data : null
+    },
+    ['nac-warning-fresh', centerIdToUse, String(zoneId)],
+    { revalidate: 60 },
+  )
+
+  try {
+    return await getCached()
   } catch {
     return null
   }
@@ -496,5 +538,3 @@ export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
     return null
   }
 }
-
-export { resolveZoneFromSlug } from './resolveZone'
