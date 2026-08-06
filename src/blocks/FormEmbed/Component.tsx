@@ -7,9 +7,9 @@ type Props = FormEmbedBlockProps & {
   className?: string
 }
 
-const FORM_EMBED_POLICY = {
+export const FORM_EMBED_POLICY = {
   addTags: ['iframe', 'script', 'style', 'dbox-widget'],
-  addAttr: [...BASE_ADD_ATTR, 'allowpaymentrequest', 'campaign', 'enable-auto-scroll'],
+  addAttr: [...BASE_ADD_ATTR, 'allowpaymentrequest', 'campaign', 'classy', 'enable-auto-scroll'],
   sandbox:
     'allow-scripts allow-presentation allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox',
 }
