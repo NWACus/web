@@ -14,7 +14,8 @@ import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource, getWarningSource, getWeatherSource } from '@/services/nac/sources'
 
-import { ForecastFreshness } from './ForecastFreshness.client'
+import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
+
 import { NativeForecastView } from './NativeForecastView'
 
 interface NativeForecastPageProps {
@@ -79,9 +80,8 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       />
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was
           rendered and refreshes the viewer's page. Live route only — the dated archive is immutable. */}
-      <ForecastFreshness
-        center={centerSlug}
-        zoneSlug={zoneSlug}
+      <RevalidateOnView
+        endpoint={`/api/${centerSlug}/forecast-freshness?zone=${encodeURIComponent(zoneSlug)}`}
         initialEtag={forecastFingerprint(forecastResult)}
       />
     </>
