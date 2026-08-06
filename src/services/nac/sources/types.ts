@@ -21,6 +21,12 @@ export interface ForecastSource {
 export interface WarningSource {
   /** The zone's active warning/watch/special bulletin, or `null` when none is active. */
   getWarning(centerId: string, zoneId: number): Promise<WarningProduct | null>
+  /**
+   * The zone's active alert fetched fresh (short-cached), for the revalidate-on-view freshness
+   * check — so an alert issued or lifted after the page was rendered is caught faster than the
+   * page's ISR window.
+   */
+  getWarningFresh(centerId: string, zoneId: number): Promise<WarningProduct | null>
 }
 
 export interface WeatherSource {
