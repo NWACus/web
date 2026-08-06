@@ -98,6 +98,16 @@ A curated, named series or collection of Events with its own page (slugged), e.g
 **EventTag**:
 A lightweight, slugged filter label for browsing Events. Categorizes for filtering; not a destination page.
 
+## Forecast Glossary
+
+This cluster is **national/shared** — standard avalanche vocabulary, not center-specific, so it lives outside per-Tenant isolation (like the Avalanche Education cluster).
+
+**Glossary Term**:
+A standard avalanche-vocabulary entry — the word(s) it matches, a short plain-language definition, and an avalanche.org encyclopedia link. National/shared (one set across all Avalanche Centers), not tenant-scoped. Surfaced as a tooltip when its word appears in forecast prose. Replaces the legacy widget's hardcoded term list (sourced from the avalanche.org encyclopedia, which has no API).
+
+**Glossary tooltip**:
+The rendered hover affordance on a forecast page — a Glossary Term's word marked up in the forecast prose, showing its definition and linking to avalanche.org. Surfaced on every native forecast whenever the national Glossary Terms set is non-empty (no per-Tenant toggle — the vocabulary is universal). Applied client-side over the server-rendered prose, so it never enters the forecast page cache.
+
 ## Content & Site Configuration
 
 **Tenant-scoped global**:
