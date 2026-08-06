@@ -3,7 +3,7 @@ import { buildChartOption } from '@/components/WeatherStations/stationGraphOptio
 import { NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const TEMP_PRESET = { key: 'temp', title: 'Temperature', variables: ['air_temp'] }
 const RH_PRESET = { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] }
@@ -268,44 +268,72 @@ describe('StationGraphs chart arrangement', () => {
     )
   }
 
-  async function expectChartOrder(titles: string[]): Promise<void> {
+  function openEditView() {
+    fireEvent.click(screen.getByRole('button', { name: /Edit view/ }))
+  }
+
+  function graphCheckbox(title: string): HTMLElement {
+    return screen.getByRole('checkbox', { name: title })
+  }
+
+  async function expectRowOrder(titles: string[]): Promise<void> {
     const buttons = await screen.findAllByLabelText(/^Move .* down$/)
     const labels = buttons.map((b) => b.getAttribute('aria-label') ?? '')
     expect(labels).toEqual(titles.map((title) => `Move ${title} down`))
   }
 
-  it('moves a chart down past its neighbor', async () => {
+  it('moves a graph down past its neighbor', async () => {
     renderGraphs()
-    await expectChartOrder(['Temperature', 'Relative Humidity'])
+    openEditView()
+    await expectRowOrder(['Temperature', 'Relative Humidity'])
 
     fireEvent.click(screen.getByLabelText('Move Temperature down'))
-    await expectChartOrder(['Relative Humidity', 'Temperature'])
+    await expectRowOrder(['Relative Humidity', 'Temperature'])
   })
 
-  it('hides a chart into a restorable chip', async () => {
+  it('hides a graph into a restorable chip', async () => {
     renderGraphs()
-    fireEvent.click(await screen.findByLabelText('Hide Temperature'))
-    expect(screen.queryByLabelText('Hide Temperature')).not.toBeInTheDocument()
+    openEditView()
+    fireEvent.click(graphCheckbox('Temperature'))
+    expect(graphCheckbox('Temperature')).not.toBeChecked()
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }))
 
     fireEvent.click(screen.getByLabelText('Show Temperature'))
-    expect(await screen.findByLabelText('Hide Temperature')).toBeInTheDocument()
+    openEditView()
+    expect(graphCheckbox('Temperature')).toBeChecked()
   })
 
   it('persists the arrangement to localStorage', async () => {
     renderGraphs()
-    fireEvent.click(await screen.findByLabelText('Hide Temperature'))
+    openEditView()
+    fireEvent.click(graphCheckbox('Temperature'))
 
     const stored = window.localStorage.getItem('nwac-station-graph-prefs') ?? ''
     expect(stored).toContain('"hidden":["temp"]')
   })
 
-  it('drops charts whose variables no station reports', async () => {
+  it('resets order and visibility to defaults', async () => {
+    renderGraphs()
+    openEditView()
+    fireEvent.click(screen.getByLabelText('Move Temperature down'))
+    fireEvent.click(graphCheckbox('Relative Humidity'))
+    await expectRowOrder(['Relative Humidity', 'Temperature'])
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset to defaults' }))
+    await expectRowOrder(['Temperature', 'Relative Humidity'])
+    expect(graphCheckbox('Relative Humidity')).toBeChecked()
+  })
+
+  it('disables graphs whose variables no station reports', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({ ...dataWithSeries, series: [series('1', 'air_temp')] }),
     })
     renderGraphs()
-    await expectChartOrder(['Temperature'])
-    expect(screen.queryByLabelText('Hide Relative Humidity')).not.toBeInTheDocument()
+    openEditView()
+    const rh = () => screen.getByRole('checkbox', { name: /Relative Humidity/ })
+    await waitFor(() => expect(rh()).toBeDisabled())
+    expect(rh()).not.toBeChecked()
+    expect(screen.getByText('No data')).toBeInTheDocument()
   })
 })

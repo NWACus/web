@@ -5,18 +5,19 @@ import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
+import { Eye, Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { ChipGroup } from './ChipGroup'
+import { EditViewDialog } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
 import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
 import { StationOptGroups, stationSelectClass } from './StationPicker'
-import { UnitToggle, useUnitSystem } from './UnitToggle'
+import { useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
 function ChartSkeleton() {
@@ -157,48 +158,6 @@ function CompareChips({
   ))
 }
 
-function ChartControls({
-  title,
-  canUp,
-  canDown,
-  onMove,
-  onHide,
-}: {
-  title: string
-  canUp: boolean
-  canDown: boolean
-  onMove: (direction: -1 | 1) => void
-  onHide: () => void
-}) {
-  const buttonClass =
-    'rounded-md p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground'
-  return (
-    <div className="flex justify-end gap-1">
-      <button
-        type="button"
-        aria-label={`Move ${title} up`}
-        disabled={!canUp}
-        onClick={() => onMove(-1)}
-        className={buttonClass}
-      >
-        <ArrowUp className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        aria-label={`Move ${title} down`}
-        disabled={!canDown}
-        onClick={() => onMove(1)}
-        className={buttonClass}
-      >
-        <ArrowDown className="h-4 w-4" />
-      </button>
-      <button type="button" aria-label={`Hide ${title}`} onClick={onHide} className={buttonClass}>
-        <EyeOff className="h-4 w-4" />
-      </button>
-    </div>
-  )
-}
-
 function HiddenChartChips({
   presets,
   onShow,
@@ -231,13 +190,11 @@ function PresetChart({
   data,
   primaryStids,
   unitSystem,
-  controls,
 }: {
   preset: GraphPreset
   data: GraphData
   primaryStids: string[]
   unitSystem: UnitSystem
-  controls: ReactNode
 }) {
   const presetData = useMemo(() => {
     const filtered = {
@@ -251,12 +208,7 @@ function PresetChart({
     () => buildChartOption(presetData, convertPreset(preset, unitSystem), primaryStids),
     [presetData, preset, unitSystem, primaryStids],
   )
-  return (
-    <div className="relative">
-      <div className="absolute right-0 top-0 z-10">{controls}</div>
-      <EChart option={option} group="station-graphs" />
-    </div>
-  )
+  return <EChart option={option} group="station-graphs" />
 }
 
 function GraphsChipRow({
@@ -324,15 +276,6 @@ function GraphsCharts({
             data={data}
             primaryStids={primaryStids}
             unitSystem={unitSystem}
-            controls={
-              <ChartControls
-                title={preset.title}
-                canUp={arrangement.canMove(preset.key, -1)}
-                canDown={arrangement.canMove(preset.key, 1)}
-                onMove={(direction) => arrangement.moveChart(preset.key, direction)}
-                onHide={() => arrangement.hideChart(preset.key)}
-              />
-            }
           />
         ))}
       </div>
@@ -349,6 +292,7 @@ function GraphsToolbar({
   compareSlugs,
   onCompareChange,
   arrangement,
+  emptyKeys,
 }: {
   graphPeriod: StationPeriod
   onPeriodChange: (period: StationPeriod) => void
@@ -358,6 +302,7 @@ function GraphsToolbar({
   compareSlugs: string[]
   onCompareChange: (slugs: string[]) => void
   arrangement: ReturnType<typeof useChartArrangement>
+  emptyKeys: ReadonlySet<string>
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -368,7 +313,12 @@ function GraphsToolbar({
           compareSlugs={compareSlugs}
           onAdd={(slug) => onCompareChange([...compareSlugs, slug])}
         />
-        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
+        <EditViewDialog
+          arrangement={arrangement}
+          emptyKeys={emptyKeys}
+          unitSystem={unitSystem}
+          onUnitChange={onUnitChange}
+        />
       </div>
       <GraphsChipRow
         compareSlugs={compareSlugs}
@@ -431,6 +381,7 @@ export function StationGraphs({
         compareSlugs={compareSlugs}
         onCompareChange={setCompareSlugs}
         arrangement={arrangement}
+        emptyKeys={emptyKeys}
       />
       <GraphsCharts
         presets={presets}
