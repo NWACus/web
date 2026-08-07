@@ -1,28 +1,21 @@
 'use client'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
+import { getStationGroup } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { Loader2, X } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import { EditViewDialog } from './EditViewDialog'
+import type { EditViewProps } from './EditViewDialog'
+import { CompareChips, CompareSelect, EditViewDialog, PeriodSelect } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
-import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
-import { StationSelectGroups, stationSelectTriggerClass } from './StationPicker'
+import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
@@ -90,88 +83,6 @@ function ChartFrame({ loading, children }: { loading: boolean; children: ReactNo
       )}
     </div>
   )
-}
-
-const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
-
-function PeriodSelect({
-  active,
-  onChange,
-}: {
-  active: StationPeriod
-  onChange: (period: StationPeriod) => void
-}) {
-  return (
-    <Select
-      value={active.key}
-      onValueChange={(key) =>
-        onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)
-      }
-    >
-      <SelectTrigger aria-label="Date range" className={cn(stationSelectTriggerClass, 'py-1.5')}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent position="item-aligned">
-        {GRAPH_PERIODS.map((period) => (
-          <SelectItem key={period.key} value={period.key}>
-            {period.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}
-
-function CompareSelect({
-  currentSlug,
-  compareSlugs,
-  onCompareChange,
-}: {
-  currentSlug: string
-  compareSlugs: string[]
-  onCompareChange: (slugs: string[]) => void
-}) {
-  const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
-  return (
-    <Select
-      value=""
-      disabled={atCap}
-      onValueChange={(slug) => onCompareChange([...compareSlugs, slug])}
-    >
-      <SelectTrigger aria-label="Compare with" className={cn(stationSelectTriggerClass, 'py-1.5')}>
-        <SelectValue
-          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
-        />
-      </SelectTrigger>
-      <SelectContent position="item-aligned">
-        <StationSelectGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
-      </SelectContent>
-    </Select>
-  )
-}
-
-function CompareChips({
-  compareSlugs,
-  onRemove,
-}: {
-  compareSlugs: string[]
-  onRemove: (slug: string) => void
-}) {
-  const selected = compareSlugs.flatMap((slug) => getStationGroup(slug) ?? [])
-
-  return selected.map((group) => (
-    <span key={group.slug} className={chipClass}>
-      {group.displayName}
-      <button
-        type="button"
-        aria-label={`Remove ${group.displayName}`}
-        onClick={() => onRemove(group.slug)}
-        className="text-muted-foreground hover:text-foreground"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
-    </span>
-  ))
 }
 
 function PresetChart({
@@ -249,49 +160,36 @@ function GraphsCharts({
   )
 }
 
-function GraphsToolbar({
-  graphPeriod,
-  onPeriodChange,
-  unitSystem,
-  onUnitChange,
-  currentSlug,
-  compareSlugs,
-  onCompareChange,
-  arrangement,
-  emptyKeys,
-}: {
-  graphPeriod: StationPeriod
-  onPeriodChange: (period: StationPeriod) => void
-  unitSystem: UnitSystem
-  onUnitChange: (system: UnitSystem) => void
-  currentSlug: string
-  compareSlugs: string[]
-  onCompareChange: (slugs: string[]) => void
-  arrangement: ReturnType<typeof useChartArrangement>
-  emptyKeys: ReadonlySet<string>
-}) {
+// On small screens the toolbar collapses to the Edit graphs button (plus any
+// compare chips); the dialog then hosts the period/units/compare controls.
+function GraphsToolbar(props: EditViewProps) {
+  const { compareSlugs, onCompareChange } = props
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
-      <div className="flex flex-wrap items-center gap-4">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+      <div className="hidden sm:contents">
         <CompareSelect
-          currentSlug={currentSlug}
+          currentSlug={props.currentSlug}
           compareSlugs={compareSlugs}
           onCompareChange={onCompareChange}
         />
-        {compareSlugs.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            <CompareChips
-              compareSlugs={compareSlugs}
-              onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
-            />
-          </div>
-        )}
       </div>
-      <div className="flex flex-wrap items-center gap-4">
-        <PeriodSelect active={graphPeriod} onChange={onPeriodChange} />
-        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
-        <EditViewDialog arrangement={arrangement} emptyKeys={emptyKeys} />
+      {compareSlugs.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <CompareChips
+            compareSlugs={compareSlugs}
+            onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+          />
+        </div>
+      )}
+      <div className="hidden sm:contents">
+        <PeriodSelect
+          active={props.graphPeriod}
+          onChange={props.onPeriodChange}
+          className="sm:ml-auto"
+        />
+        <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
       </div>
+      <EditViewDialog {...props} />
     </div>
   )
 }
