@@ -51,7 +51,10 @@ export function StationPicker({ current, className }: { current?: string; classN
         aria-label="Jump to a weather station"
         className={cn(stationSelectTriggerClass, 'min-w-48', className)}
       >
-        <SelectValue placeholder="Jump to a station…" />
+        {/* Static label: the page already shows the station name, and long
+            names balloon the trigger. The list still checkmarks the current
+            station via the Select value. */}
+        <SelectValue placeholder="Jump to a station…">Jump to a station…</SelectValue>
       </SelectTrigger>
       <SelectContent position="item-aligned">
         <StationSelectGroups />
