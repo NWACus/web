@@ -264,7 +264,7 @@ export function buildChartOption(
       ...presetAxisOverrides(preset),
     })),
     dataZoom: [
-      { type: 'inside', xAxisIndex: 0, minValueSpan },
+      { type: 'inside', xAxisIndex: 0, minValueSpan, zoomOnMouseWheel: 'ctrl' },
       { type: 'slider', xAxisIndex: 0, height: 18, bottom: 8, minValueSpan },
     ],
     series,
