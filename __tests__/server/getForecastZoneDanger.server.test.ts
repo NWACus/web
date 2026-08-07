@@ -7,6 +7,7 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+import { nacApiHost } from '@/services/nac/hosts'
 import { getForecastZoneDanger } from '@/services/nac/nac'
 
 const stevensPass = {
@@ -46,7 +47,7 @@ const mapLayerResponse = {
 const requestedCenters: string[] = []
 
 const server = setupServer(
-  http.get('https://api.avalanche.org/v2/public/products/map-layer/:center', ({ params }) => {
+  http.get(`${nacApiHost}/v2/public/products/map-layer/:center`, ({ params }) => {
     requestedCenters.push(String(params.center))
     return HttpResponse.json(mapLayerResponse)
   }),
