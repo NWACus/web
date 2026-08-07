@@ -4,6 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
+import { afpApiHost, nacApiHost } from './hosts'
 import {
   forecastResultSchema,
   warningResultSchema,
@@ -18,9 +19,6 @@ import {
   avalancheCenterSchema,
   mapLayerSchema,
 } from './types/schemas'
-
-const host = process.env.NAC_HOST || 'https://api.avalanche.org'
-const wordpressHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
 
 // DVAC shares NWAC's upstream data, so map its slug to nwac for all NAC/AFP lookups.
 const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nwac' : centerSlug)
@@ -47,7 +45,7 @@ type Options = {
 
 export async function nacFetch(path: string, options: Options = {}) {
   const normalizedPath = normalizePath(path)
-  const url = `${host}/${normalizedPath}`
+  const url = `${nacApiHost}/${normalizedPath}`
 
   try {
     const res = await fetch(url, {
@@ -95,7 +93,7 @@ export async function afpFetch(path: string, options: Options = {}) {
     rest_route: `/${normalizedPath}`,
   }
   const querystring = qs.stringify(params)
-  const url = `${wordpressHost}?${querystring}`
+  const url = `${afpApiHost}?${querystring}`
 
   try {
     const res = await fetch(url, {
