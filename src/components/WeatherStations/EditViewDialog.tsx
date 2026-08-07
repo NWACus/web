@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -30,13 +31,107 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { ArrowDown, ArrowUp, GripVertical, SlidersHorizontal } from 'lucide-react'
+import { ArrowDown, ArrowUp, GripVertical, SlidersHorizontal, X } from 'lucide-react'
+import { ChipGroup } from './ChipGroup'
 import type { GraphPreset } from './stationGraphPresets'
+import type { StationPeriod } from './stationPeriods'
+import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
+import { StationOptGroups, stationSelectClass } from './StationPicker'
 import { UnitToggle } from './UnitToggle'
 import type { useChartArrangement } from './useChartArrangement'
 
+export const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
+
+const sectionLabelClass = 'text-sm font-medium'
+
 const rowButtonClass =
   'rounded-md p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground'
+
+const GRAPH_PERIOD_CHIPS = GRAPH_PERIODS.map((p) => ({ key: p.key, label: p.label }))
+
+function PeriodSection({
+  active,
+  onChange,
+}: {
+  active: StationPeriod
+  onChange: (period: StationPeriod) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span className={sectionLabelClass}>Date range</span>
+      <ChipGroup
+        chips={GRAPH_PERIOD_CHIPS}
+        activeKey={active.key}
+        onSelect={(key) =>
+          onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)
+        }
+      />
+    </div>
+  )
+}
+
+export function CompareChips({
+  compareSlugs,
+  onRemove,
+}: {
+  compareSlugs: string[]
+  onRemove: (slug: string) => void
+}) {
+  const selected = compareSlugs.flatMap((slug) => getStationGroup(slug) ?? [])
+
+  return selected.map((group) => (
+    <span key={group.slug} className={chipClass}>
+      {group.displayName}
+      <button
+        type="button"
+        aria-label={`Remove ${group.displayName}`}
+        onClick={() => onRemove(group.slug)}
+        className="text-muted-foreground hover:text-foreground"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </span>
+  ))
+}
+
+function CompareSection({
+  currentSlug,
+  compareSlugs,
+  onCompareChange,
+}: {
+  currentSlug: string
+  compareSlugs: string[]
+  onCompareChange: (slugs: string[]) => void
+}) {
+  const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
+  return (
+    <div className="flex flex-col gap-2">
+      <span className={sectionLabelClass}>Compare stations</span>
+      <select
+        value=""
+        disabled={atCap}
+        aria-label="Compare with"
+        onChange={(event) => {
+          if (event.target.value) onCompareChange([...compareSlugs, event.target.value])
+        }}
+        className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
+      >
+        <option value="">
+          {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+        </option>
+        <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+      </select>
+      {compareSlugs.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <CompareChips
+            compareSlugs={compareSlugs}
+            onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
 
 function GraphRow({
   preset,
@@ -146,32 +241,43 @@ function GraphList({
   )
 }
 
-type EditViewProps = {
-  arrangement: ReturnType<typeof useChartArrangement>
-  emptyKeys: ReadonlySet<string>
+export type EditViewProps = {
+  graphPeriod: StationPeriod
+  onPeriodChange: (period: StationPeriod) => void
   unitSystem: UnitSystem
   onUnitChange: (system: UnitSystem) => void
+  currentSlug: string
+  compareSlugs: string[]
+  onCompareChange: (slugs: string[]) => void
+  arrangement: ReturnType<typeof useChartArrangement>
+  emptyKeys: ReadonlySet<string>
 }
 
-function EditViewPanel({ arrangement, emptyKeys, unitSystem, onUnitChange }: EditViewProps) {
+function EditViewPanel(props: EditViewProps) {
   return (
     <>
       <DialogHeader>
         <DialogTitle>Edit view</DialogTitle>
         <DialogDescription>
-          Choose units, show or hide graphs, and drag to reorder them.
+          Choose the date range, units, comparison stations, and graphs shown.
         </DialogDescription>
       </DialogHeader>
+      <PeriodSection active={props.graphPeriod} onChange={props.onPeriodChange} />
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-medium">Units</span>
-        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
+        <span className={sectionLabelClass}>Units</span>
+        <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
       </div>
+      <CompareSection
+        currentSlug={props.currentSlug}
+        compareSlugs={props.compareSlugs}
+        onCompareChange={props.onCompareChange}
+      />
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <span className="text-sm font-medium">Graphs</span>
-        <GraphList arrangement={arrangement} emptyKeys={emptyKeys} />
+        <span className={sectionLabelClass}>Graphs</span>
+        <GraphList arrangement={props.arrangement} emptyKeys={props.emptyKeys} />
       </div>
       <DialogFooter className="sm:justify-between">
-        <Button variant="ghost" size="sm" onClick={arrangement.resetArrangement}>
+        <Button variant="ghost" size="sm" onClick={props.arrangement.resetArrangement}>
           Reset to defaults
         </Button>
         <DialogClose asChild>

@@ -14,6 +14,10 @@ jest.mock('next/dynamic', () => () => {
   return Noop
 })
 
+function openEditView() {
+  fireEvent.click(screen.getByRole('button', { name: /Edit view/ }))
+}
+
 function series(stid: string, variable = 'air_temp'): GraphData['series'][number] {
   return {
     kind: 'raw',
@@ -195,6 +199,7 @@ describe('StationGraphs compare picker', () => {
 
   it('excludes the current station from the compare options', () => {
     renderGraphs()
+    openEditView()
     const select = screen.getByLabelText(/Compare with/)
     const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
     expect(values).not.toContain(current.slug)
@@ -203,6 +208,7 @@ describe('StationGraphs compare picker', () => {
 
   function renderWithCompares(...slugs: string[]): HTMLElement {
     renderGraphs()
+    openEditView()
     const select = screen.getByLabelText(/Compare with/)
     for (const slug of slugs) {
       fireEvent.change(select, { target: { value: slug } })
@@ -226,6 +232,11 @@ describe('StationGraphs compare picker', () => {
     const urls = fetchedUrls()
     const expected = [...current.stids, ...third.stids].join(',')
     expect(urls[urls.length - 1]).toContain(`stids=${encodeURIComponent(expected)}`)
+  })
+
+  it('summarizes compared stations in the toolbar', () => {
+    renderWithCompares(other.slug, third.slug)
+    expect(screen.getByText(`· vs ${other.displayName}, ${third.displayName}`)).toBeInTheDocument()
   })
 
   it('hides selected stations from the options and disables the select at the cap', () => {
@@ -266,10 +277,6 @@ describe('StationGraphs chart arrangement', () => {
         currentSlug={current.slug}
       />,
     )
-  }
-
-  function openEditView() {
-    fireEvent.click(screen.getByRole('button', { name: /Edit view/ }))
   }
 
   function graphCheckbox(title: string): HTMLElement {

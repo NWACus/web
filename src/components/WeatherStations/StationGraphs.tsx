@@ -1,22 +1,21 @@
 'use client'
 
-import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
+import { getStationGroup } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { Eye, Loader2, X } from 'lucide-react'
+import { Eye, Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import { ChipGroup } from './ChipGroup'
-import { EditViewDialog } from './EditViewDialog'
+import type { EditViewProps } from './EditViewDialog'
+import { chipClass, EditViewDialog } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
-import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
-import { StationOptGroups, stationSelectClass } from './StationPicker'
+import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
 import { useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
@@ -75,24 +74,6 @@ function useGraphData(stids: string[], variables: string[], period: StationPerio
   return { data, error, loading }
 }
 
-const GRAPH_PERIOD_CHIPS = GRAPH_PERIODS.map((p) => ({ key: p.key, label: p.label }))
-
-function PeriodPicker({
-  active,
-  onChange,
-}: {
-  active: StationPeriod
-  onChange: (period: StationPeriod) => void
-}) {
-  return (
-    <ChipGroup
-      chips={GRAPH_PERIOD_CHIPS}
-      activeKey={active.key}
-      onSelect={(key) => onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)}
-    />
-  )
-}
-
 function ChartFrame({ loading, children }: { loading: boolean; children: ReactNode }) {
   return (
     <div className="relative" aria-busy={loading}>
@@ -102,60 +83,6 @@ function ChartFrame({ loading, children }: { loading: boolean; children: ReactNo
       )}
     </div>
   )
-}
-
-const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
-
-function CompareStationPicker({
-  currentSlug,
-  compareSlugs,
-  onAdd,
-}: {
-  currentSlug: string
-  compareSlugs: string[]
-  onAdd: (slug: string) => void
-}) {
-  const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
-  return (
-    <select
-      value=""
-      disabled={atCap}
-      aria-label="Compare with"
-      onChange={(event) => {
-        if (event.target.value) onAdd(event.target.value)
-      }}
-      className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
-    >
-      <option value="">
-        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
-      </option>
-      <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
-    </select>
-  )
-}
-
-function CompareChips({
-  compareSlugs,
-  onRemove,
-}: {
-  compareSlugs: string[]
-  onRemove: (slug: string) => void
-}) {
-  const selected = compareSlugs.flatMap((slug) => getStationGroup(slug) ?? [])
-
-  return selected.map((group) => (
-    <span key={group.slug} className={chipClass}>
-      {group.displayName}
-      <button
-        type="button"
-        aria-label={`Remove ${group.displayName}`}
-        onClick={() => onRemove(group.slug)}
-        className="text-muted-foreground hover:text-foreground"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
-    </span>
-  ))
 }
 
 function HiddenChartChips({
@@ -211,29 +138,6 @@ function PresetChart({
   return <EChart option={option} group="station-graphs" />
 }
 
-function GraphsChipRow({
-  compareSlugs,
-  onCompareChange,
-  hiddenPresets,
-  onShow,
-}: {
-  compareSlugs: string[]
-  onCompareChange: (slugs: string[]) => void
-  hiddenPresets: GraphPreset[]
-  onShow: (key: string) => void
-}) {
-  if (compareSlugs.length === 0 && hiddenPresets.length === 0) return null
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <CompareChips
-        compareSlugs={compareSlugs}
-        onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
-      />
-      <HiddenChartChips presets={hiddenPresets} onShow={onShow} />
-    </div>
-  )
-}
-
 function emptyPresetKeys(data: GraphData | null, presets: GraphPreset[]): Set<string> {
   if (!data) return new Set()
   const reported = new Set(data.series.map((s) => s.variable))
@@ -283,49 +187,17 @@ function GraphsCharts({
   )
 }
 
-function GraphsToolbar({
-  graphPeriod,
-  onPeriodChange,
-  unitSystem,
-  onUnitChange,
-  currentSlug,
-  compareSlugs,
-  onCompareChange,
-  arrangement,
-  emptyKeys,
-}: {
-  graphPeriod: StationPeriod
-  onPeriodChange: (period: StationPeriod) => void
-  unitSystem: UnitSystem
-  onUnitChange: (system: UnitSystem) => void
-  currentSlug: string
-  compareSlugs: string[]
-  onCompareChange: (slugs: string[]) => void
-  arrangement: ReturnType<typeof useChartArrangement>
-  emptyKeys: ReadonlySet<string>
-}) {
+function GraphsToolbar(props: EditViewProps) {
+  const { graphPeriod, compareSlugs, arrangement } = props
+  const compareNames = compareSlugs.flatMap((slug) => getStationGroup(slug)?.displayName ?? [])
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <PeriodPicker active={graphPeriod} onChange={onPeriodChange} />
-        <CompareStationPicker
-          currentSlug={currentSlug}
-          compareSlugs={compareSlugs}
-          onAdd={(slug) => onCompareChange([...compareSlugs, slug])}
-        />
-        <EditViewDialog
-          arrangement={arrangement}
-          emptyKeys={emptyKeys}
-          unitSystem={unitSystem}
-          onUnitChange={onUnitChange}
-        />
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <span>{graphPeriod.label}</span>
+        {compareNames.length > 0 && <span>· vs {compareNames.join(', ')}</span>}
+        <HiddenChartChips presets={arrangement.hiddenPresets} onShow={arrangement.showChart} />
       </div>
-      <GraphsChipRow
-        compareSlugs={compareSlugs}
-        onCompareChange={onCompareChange}
-        hiddenPresets={arrangement.hiddenPresets}
-        onShow={arrangement.showChart}
-      />
+      <EditViewDialog {...props} />
     </div>
   )
 }
