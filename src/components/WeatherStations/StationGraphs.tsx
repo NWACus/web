@@ -1,5 +1,12 @@
 'use client'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
@@ -15,7 +22,7 @@ import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
 import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
-import { StationOptGroups, stationSelectClass } from './StationPicker'
+import { StationSelectGroups, stationSelectTriggerClass } from './StationPicker'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
@@ -95,20 +102,23 @@ function PeriodSelect({
   onChange: (period: StationPeriod) => void
 }) {
   return (
-    <select
+    <Select
       value={active.key}
-      aria-label="Date range"
-      onChange={(event) =>
-        onChange(GRAPH_PERIODS.find((p) => p.key === event.target.value) ?? DEFAULT_GRAPH_PERIOD)
+      onValueChange={(key) =>
+        onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)
       }
-      className={cn(stationSelectClass, 'px-3 py-1.5')}
     >
-      {GRAPH_PERIODS.map((period) => (
-        <option key={period.key} value={period.key}>
-          {period.label}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger aria-label="Date range" className={cn(stationSelectTriggerClass, 'py-1.5')}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent position="item-aligned">
+        {GRAPH_PERIODS.map((period) => (
+          <SelectItem key={period.key} value={period.key}>
+            {period.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }
 
@@ -123,20 +133,20 @@ function CompareSelect({
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
   return (
-    <select
+    <Select
       value=""
       disabled={atCap}
-      aria-label="Compare with"
-      onChange={(event) => {
-        if (event.target.value) onCompareChange([...compareSlugs, event.target.value])
-      }}
-      className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
+      onValueChange={(slug) => onCompareChange([...compareSlugs, slug])}
     >
-      <option value="">
-        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
-      </option>
-      <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
-    </select>
+      <SelectTrigger aria-label="Compare with" className={cn(stationSelectTriggerClass, 'py-1.5')}>
+        <SelectValue
+          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+        />
+      </SelectTrigger>
+      <SelectContent position="item-aligned">
+        <StationSelectGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+      </SelectContent>
+    </Select>
   )
 }
 
