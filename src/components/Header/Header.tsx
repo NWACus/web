@@ -45,10 +45,12 @@ export async function Header({ center }: { center: string }) {
   const { topLevelNavItems } = await getCachedTopLevelNavItems(center, draft)()
 
   return (
-    <header className="bg-header lg:shadow-sm lg:border-b">
+    // Below lg the header pins to the top of the viewport as the page scrolls. It has to be the
+    // sticky element itself: a sticky child only stays put while its containing block is in view,
+    // and the nav's containing block is this header, which is barely taller than the nav.
+    // Announcement banners sit above it in flow and scroll away, which is intended.
+    <header className="sticky top-0 z-50 bg-header lg:static lg:z-auto lg:shadow-sm lg:border-b">
       <MobileNav topLevelNavItems={topLevelNavItems} banner={banner} usfsLogo={usfsLogo} />
-      {/* content padding since mobile nav is position: fixed */}
-      <div className="lg:hidden h-[64px] bg-background" />
 
       <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-4">
         {banner && (
