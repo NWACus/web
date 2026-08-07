@@ -201,12 +201,15 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
-    uses: BuilderIO/agent-native/.github/workflows/pr-visual-recap-reusable.yml@main
+    # TEMPORARY e2e test of BuilderIO/agent-native#2741: run the recap against
+    # the fork branch with ONLY the subscription token. Revert to @main +
+    # ANTHROPIC_API_KEY before merge.
+    uses: busbyk/agent-native/.github/workflows/pr-visual-recap-reusable.yml@recap-claude-oauth-token
     with:
       model: claude-opus-5
     secrets:
       PLAN_RECAP_TOKEN: ${{ secrets.PLAN_RECAP_TOKEN }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
   publicize-recap:
     name: Make recap public
