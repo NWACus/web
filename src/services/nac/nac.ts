@@ -23,6 +23,24 @@ import {
 // DVAC shares NWAC's upstream data, so map its slug to nwac for all NAC/AFP lookups.
 const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nwac' : centerSlug)
 
+/**
+ * Log an upstream failure without letting the logging become the failure.
+ *
+ * These paths run where the Payload logger may not be available — a suite that mocks `getPayload`,
+ * or a failure early enough that the config never resolved. Previously a logger that came back
+ * undefined threw a TypeError *from inside the catch block*, replacing the real cause (an upstream
+ * 500, a misdirected host) with "Cannot read properties of undefined (reading 'logger')". Logging
+ * is best-effort; the caller's own error handling is what callers depend on.
+ */
+async function logNacError(err: unknown, message: string): Promise<void> {
+  try {
+    const payload = await getPayload({ config })
+    payload?.logger?.error({ err }, message)
+  } catch {
+    // Intentionally swallowed — see above.
+  }
+}
+
 export class NACError extends Error {
   constructor(
     message: string,
@@ -72,8 +90,7 @@ export async function nacFetch(path: string, options: Options = {}) {
     const data = await res.json()
     return data
   } catch (error) {
-    const payload = await getPayload({ config })
-    payload.logger.error({ err: error }, 'nacFetch error')
+    await logNacError(error, 'nacFetch error')
 
     if (error instanceof NACError) {
       throw error
@@ -126,8 +143,7 @@ export async function afpFetch(path: string, options: Options = {}) {
     const data = await res.json()
     return data
   } catch (error) {
-    const payload = await getPayload({ config })
-    payload.logger.error({ err: error }, 'afpFetch error')
+    await logNacError(error, 'afpFetch error')
 
     if (error instanceof NACError) {
       throw error
@@ -315,8 +331,7 @@ export async function fetchForecast(
 
     const parsed = forecastResultSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse forecast response')
+      await logNacError(parsed.error, 'Failed to parse forecast response')
       return null
     }
 
@@ -372,8 +387,7 @@ export async function fetchWarning(
 
     const parsed = warningResultSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse warning response')
+      await logNacError(parsed.error, 'Failed to parse warning response')
       return null
     }
 
@@ -439,8 +453,7 @@ async function fetchArchiveSummaries(
 
   const parsed = productListSchema.safeParse(data)
   if (!parsed.success) {
-    const payload = await getPayload({ config })
-    payload.logger.error({ err: parsed.error }, 'Failed to parse product archive response')
+    await logNacError(parsed.error, 'Failed to parse product archive response')
     return []
   }
 
@@ -493,8 +506,7 @@ export async function fetchProductById(id: number): Promise<ForecastResult | nul
 
     const parsed = forecastResultSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse product-by-id response')
+      await logNacError(parsed.error, 'Failed to parse product-by-id response')
       return null
     }
 
@@ -526,8 +538,7 @@ export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
 
     const parsed = weatherSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse weather product response')
+      await logNacError(parsed.error, 'Failed to parse weather product response')
       return null
     }
 
