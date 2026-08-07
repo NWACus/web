@@ -1,12 +1,5 @@
 'use client'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
@@ -22,7 +15,7 @@ import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
 import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
-import { StationSelectGroups, stationSelectTriggerClass } from './StationPicker'
+import { StationOptGroups, stationSelectClass } from './StationPicker'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
@@ -102,23 +95,20 @@ function PeriodSelect({
   onChange: (period: StationPeriod) => void
 }) {
   return (
-    <Select
+    <select
       value={active.key}
-      onValueChange={(key) =>
-        onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)
+      aria-label="Date range"
+      onChange={(event) =>
+        onChange(GRAPH_PERIODS.find((p) => p.key === event.target.value) ?? DEFAULT_GRAPH_PERIOD)
       }
+      className={cn(stationSelectClass, 'px-3 py-1.5')}
     >
-      <SelectTrigger aria-label="Date range" className={cn(stationSelectTriggerClass, 'py-1.5')}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {GRAPH_PERIODS.map((period) => (
-          <SelectItem key={period.key} value={period.key}>
-            {period.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      {GRAPH_PERIODS.map((period) => (
+        <option key={period.key} value={period.key}>
+          {period.label}
+        </option>
+      ))}
+    </select>
   )
 }
 
@@ -133,20 +123,20 @@ function CompareSelect({
 }) {
   const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
   return (
-    <Select
+    <select
       value=""
       disabled={atCap}
-      onValueChange={(slug) => onCompareChange([...compareSlugs, slug])}
+      aria-label="Compare with"
+      onChange={(event) => {
+        if (event.target.value) onCompareChange([...compareSlugs, event.target.value])
+      }}
+      className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
     >
-      <SelectTrigger aria-label="Compare with" className={cn(stationSelectTriggerClass, 'py-1.5')}>
-        <SelectValue
-          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
-        />
-      </SelectTrigger>
-      <SelectContent>
-        <StationSelectGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
-      </SelectContent>
-    </Select>
+      <option value="">
+        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+      </option>
+      <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+    </select>
   )
 }
 
@@ -271,25 +261,27 @@ function GraphsToolbar({
   emptyKeys: ReadonlySet<string>
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <PeriodSelect active={graphPeriod} onChange={onPeriodChange} />
-        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <CompareSelect
           currentSlug={currentSlug}
           compareSlugs={compareSlugs}
           onCompareChange={onCompareChange}
         />
+        {compareSlugs.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <CompareChips
+              compareSlugs={compareSlugs}
+              onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+            />
+          </div>
+        )}
+      </div>
+      <div className="flex flex-wrap items-center gap-4">
+        <PeriodSelect active={graphPeriod} onChange={onPeriodChange} />
+        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
         <EditViewDialog arrangement={arrangement} emptyKeys={emptyKeys} />
       </div>
-      {compareSlugs.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <CompareChips
-            compareSlugs={compareSlugs}
-            onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
-          />
-        </div>
-      )}
     </div>
   )
 }

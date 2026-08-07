@@ -14,29 +14,8 @@ jest.mock('next/dynamic', () => () => {
   return Noop
 })
 
-// jsdom lacks the layout APIs Radix Select's popper positioning touches.
-beforeAll(() => {
-  window.HTMLElement.prototype.scrollIntoView = jest.fn()
-  class ResizeObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-  globalThis.ResizeObserver = ResizeObserverStub
-})
-
 function openEditView() {
   fireEvent.click(screen.getByRole('button', { name: /Edit graphs/ }))
-}
-
-// Radix Select: a click (initial pointer type "touch") both opens the
-// trigger and commits an option.
-function openSelect(name: string) {
-  fireEvent.click(screen.getByRole('combobox', { name }))
-}
-
-function pickOption(name: string) {
-  fireEvent.click(screen.getByRole('option', { name }))
 }
 
 function series(stid: string, variable = 'air_temp'): GraphData['series'][number] {
@@ -220,21 +199,23 @@ describe('StationGraphs compare picker', () => {
 
   it('excludes the current station from the compare options', () => {
     renderGraphs()
-    openSelect('Compare with')
-    expect(screen.queryByRole('option', { name: current.displayName })).not.toBeInTheDocument()
-    expect(screen.getByRole('option', { name: other.displayName })).toBeInTheDocument()
+    const select = screen.getByLabelText(/Compare with/)
+    const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
+    expect(values).not.toContain(current.slug)
+    expect(values).toContain(other.slug)
   })
 
-  function renderWithCompares(...groups: (typeof current)[]) {
+  function renderWithCompares(...slugs: string[]): HTMLElement {
     renderGraphs()
-    for (const group of groups) {
-      openSelect('Compare with')
-      pickOption(group.displayName)
+    const select = screen.getByLabelText(/Compare with/)
+    for (const slug of slugs) {
+      fireEvent.change(select, { target: { value: slug } })
     }
+    return select
   }
 
   it('refetches with the stids of each added station appended', () => {
-    renderWithCompares(other, third)
+    renderWithCompares(other.slug, third.slug)
 
     const expected = [...current.stids, ...other.stids, ...third.stids].join(',')
     expect(fetchedUrls().some((url) => url.includes(`stids=${encodeURIComponent(expected)}`))).toBe(
@@ -243,7 +224,7 @@ describe('StationGraphs compare picker', () => {
   })
 
   it('removes a station via its toolbar chip', () => {
-    renderWithCompares(other, third)
+    renderWithCompares(other.slug, third.slug)
     fireEvent.click(screen.getByLabelText(`Remove ${other.displayName}`))
 
     const urls = fetchedUrls()
@@ -252,23 +233,21 @@ describe('StationGraphs compare picker', () => {
   })
 
   it('shows removable chips for compared stations in the toolbar', () => {
-    renderWithCompares(other, third)
+    renderWithCompares(other.slug, third.slug)
     expect(screen.getByLabelText(`Remove ${other.displayName}`)).toBeInTheDocument()
     expect(screen.getByLabelText(`Remove ${third.displayName}`)).toBeInTheDocument()
   })
 
   it('hides selected stations from the options and disables the select at the cap', () => {
-    renderWithCompares(other)
-    const combobox = () => screen.getByRole('combobox', { name: 'Compare with' })
-    expect(combobox()).not.toBeDisabled()
+    const select = renderWithCompares(other.slug)
 
-    openSelect('Compare with')
-    expect(screen.queryByRole('option', { name: other.displayName })).not.toBeInTheDocument()
-    pickOption(third.displayName)
+    const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
+    expect(values).not.toContain(other.slug)
+    expect(select).not.toBeDisabled()
 
-    openSelect('Compare with')
-    pickOption(fourth.displayName)
-    expect(combobox()).toBeDisabled()
+    fireEvent.change(select, { target: { value: third.slug } })
+    fireEvent.change(select, { target: { value: fourth.slug } })
+    expect(select).toBeDisabled()
   })
 })
 
