@@ -192,11 +192,14 @@ jobs:
     name: Generate visual recap
     needs: size-gate
     if: needs.size-gate.outputs.recap == 'true'
+    # Must grant everything the reusable workflow's jobs declare, or the run
+    # fails at startup before any job executes.
     permissions:
+      actions: write
       checks: write
       contents: read
       issues: write
-      pull-requests: read
+      pull-requests: write
     uses: BuilderIO/agent-native/.github/workflows/pr-visual-recap-reusable.yml@main
     with:
       model: claude-opus-5
