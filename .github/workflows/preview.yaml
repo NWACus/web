@@ -13,11 +13,7 @@ concurrency:
 jobs:
   deploy:
     if: ${{ github.event_name != 'merge_group' }}
-    # Kept on GitHub-hosted runners: the seed step writes thousands of rows to a
-    # remote Turso DB, and that long, latency-bound stream of round-trips
-    # reproducibly kills Blacksmith runners mid-seed. Revisit once seeding no
-    # longer does per-row remote writes — see NWACus/web#1143.
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     environment: Preview
     env:
       NODE_ENV: production
@@ -26,7 +22,7 @@ jobs:
         run: curl -sSfL https://get.tur.so/install.sh | bash
         env:
           TURSO_INSTALL_SKIP_SIGNUP: 'true'
-      - name: Create a new database for the preview
+      - name: Compute the preview database name
         id: database
         run: |
           set -o errexit
@@ -46,13 +42,74 @@ jobs:
           echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
 
           name="payloadcms-preview-${ref}"
+          echo "name=${name}" >> "${GITHUB_OUTPUT}"
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: Seed a local SQLite database
+        # Seed against a local file instead of streaming thousands of per-row
+        # writes to remote Turso. This is the same fast path the CI build job
+        # uses: NODE_ENV is overridden off `production` so the SQLite adapter
+        # runs in push mode and builds the current schema directly from the
+        # Payload config (running migrations from zero isn't viable — a data
+        # migration reads collections whose block tables a later migration
+        # adds). The resulting schema matches what the deployed preview expects.
+        run: pnpm seed:standalone
+        env:
+          NODE_ENV: development
+          DATABASE_URI: 'file:./preview-seed.db'
+          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
+          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
+          # Seeding now runs before `vercel env pull`, so the `.env` that
+          # `payload run` loads doesn't exist yet and this token has to be passed
+          # explicitly. Without it `vercelBlobStorage` is disabled and seeded
+          # uploads are written to the runner's disk instead of Vercel Blob,
+          # leaving every seeded image and document 404ing in the preview.
+          VERCEL_BLOB_READ_WRITE_TOKEN: '${{ secrets.VERCEL_BLOB_READ_WRITE_TOKEN }}'
+      - name: Create the preview database from the seeded file
+        # Bulk-import the seeded local DB into a fresh Turso DB in one operation.
+        # We use `--from-dump` (plain SQL) rather than `--from-file`: the latter
+        # requires WAL mode and mis-parses valid WAL databases on sqlite3 >= 3.50
+        # (tursodatabase/turso-cli#1030), whereas a `.dump` is runner-agnostic.
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          name="${{ steps.database.outputs.name }}"
+
+          sqlite3 ./preview-seed.db .dump > ./preview-seed.sql
+
           /home/runner/.turso/turso org switch nwac
-          if /home/runner/.turso/turso db show "${name}"; then
+
+          # Don't probe with `db show`: it exits non-zero both when the database
+          # is absent and when the API is merely unhealthy, so a transient error
+          # reads as "absent", skips the destroy, and then fails the create with
+          # "already exists". `db list` fails only on a real error, so treat any
+          # failure as fatal rather than guessing. Non-interactive `db list`
+          # walks every page and prints a table whose first column is the name.
+          if ! databases=$(/home/runner/.turso/turso db list); then
+            echo "Could not list Turso databases; refusing to guess whether ${name} exists." >&2
+            exit 1
+          fi
+
+          # Match the NAME column exactly; a substring match would target a
+          # different database whose name merely starts with this one.
+          if awk -v name="${name}" '$1 == name { found = 1 } END { exit !found }' <<<"${databases}"; then
             /home/runner/.turso/turso db destroy "${name}" --yes
           fi
-          /home/runner/.turso/turso db create "${name}" --wait
+
+          /home/runner/.turso/turso db create "${name}" --from-dump ./preview-seed.sql --wait
           /home/runner/.turso/turso db shell "${name}" .tables
-          echo "name=${name}" >> "${GITHUB_OUTPUT}"
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: Record database connection URI and token
@@ -66,18 +123,6 @@ jobs:
           echo "token=$(/home/runner/.turso/turso db tokens create "${{ steps.database.outputs.name }}")" >> "${GITHUB_OUTPUT}"
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
-      - name: 🏗 Setup repo
-        uses: actions/checkout@v4
-      - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24.x
-          cache: pnpm
-      - name: 📦 Install dependencies
-        run: pnpm ii
-        shell: bash
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Generate preview domain names
@@ -105,19 +150,6 @@ jobs:
         run: echo -n "${{ steps.domains.outputs.preview_alias }}" | vercel env add NEXT_PUBLIC_ROOT_DOMAIN preview ${{ github.head_ref }} --no-sensitive --force --token=${{ secrets.VERCEL_TOKEN }}
       - name: Pull Vercel Environment Variables into .env file
         run: vercel env pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }} .env
-      - name: Run database migrations
-        run: pnpm migrate
-        env:
-          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
-          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
-      - name: Seed the database
-        run: pnpm seed:standalone
-        env:
-          DATABASE_URI: '${{ steps.connection.outputs.uri }}'
-          DATABASE_AUTH_TOKEN: '${{ steps.connection.outputs.token }}'
-          PAYLOAD_SEED_PASSWORD: '${{ secrets.PAYLOAD_SEED_PASSWORD }}'
-          PAYLOAD_SECRET: '${{ secrets.PAYLOAD_SECRET }}'
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --git-branch="${{ github.head_ref }}" --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
