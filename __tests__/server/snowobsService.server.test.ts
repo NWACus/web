@@ -1,6 +1,8 @@
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
+import { setupMswLifecycle } from '../helpers/mswLifecycle'
+
 jest.mock('../../src/payload.config', () => ({}))
 
 jest.mock('payload', () => ({
@@ -30,9 +32,7 @@ const validResponse: SnowObsTimeseriesResponse = {
 
 const server = setupServer(http.get(TIMESERIES_URL, () => HttpResponse.json(validResponse)))
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
+setupMswLifecycle(server)
 
 beforeEach(() => {
   process.env.SNOWOBS_TOKEN = 'test-token'
