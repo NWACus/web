@@ -5,17 +5,23 @@ import { getPayload } from 'payload'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
+import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
+import { ProductType } from '@/services/nac/model/forecast'
 import {
   getActiveForecastZones,
   getAvalancheCenterPlatforms,
   getForecastZoneDanger,
 } from '@/services/nac/nac'
+import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
+import { getForecastSource } from '@/services/nac/sources'
 import { formatZoneName } from '@/utilities/formatZoneName'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
 
-// ISR rather than fully static so the og:description travel advice in shared link previews
-// stays current with the daily forecast. The og:image itself is always live (dynamic route).
-export const revalidate = 1800
+// Short ISR backstop (5 min) so a forecast is never frozen at build time and the og:description
+// travel advice in shared link previews stays current with the daily forecast. The per-view
+// revalidate-on-view path (ForecastFreshness) catches corrections/retractions faster than this.
+export const revalidate = 300
 export const dynamicParams = false
 
 export async function generateStaticParams() {
@@ -59,6 +65,12 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
+  const useNative = await getNativeProductFlag(center, 'forecast')
+
+  if (useNative) {
+    return <NativeForecastPage centerSlug={center} zoneSlug={zone} />
+  }
+
   return (
     <>
       <WidgetRouterHandler initialPath={`/${zone}/`} widgetPageKey="forecast-zone" />
@@ -84,15 +96,27 @@ export async function generateMetadata(
   const parentOg = parentMeta.openGraph
 
   const zoneName = formatZoneName(zone)
-
-  const danger = await getForecastZoneDanger(center, zone).catch(() => null)
-  const travelAdvice = danger?.travel_advice ?? null
-
   const title = `${zoneName} - Avalanche Forecast | ${parentTitle}`
+
+  // Description: the forecaster's bottom line when native mode is on (richer), otherwise the
+  // map-layer travel advice. The og:image is always the live dynamic OG route.
+  const danger = await getForecastZoneDanger(center, zone).catch(() => null)
+  let description = danger?.travel_advice ?? undefined
+
+  const useNative = await getNativeProductFlag(center, 'forecast')
+  if (useNative) {
+    const resolved = await resolveZoneFromSlug(center, zone)
+    if (resolved) {
+      const forecast = await getForecastSource(center).getForecast(center, resolved.zone.id)
+      if (forecast && forecast.product_type === ProductType.Forecast && forecast.bottom_line) {
+        description = forecast.bottom_line
+      }
+    }
+  }
 
   return {
     title,
-    ...(travelAdvice ? { description: travelAdvice } : {}),
+    ...(description ? { description } : {}),
     alternates: {
       canonical: `/forecasts/avalanche/${zone}`,
     },
@@ -100,7 +124,7 @@ export async function generateMetadata(
       ...parentOg,
       title,
       url: `/forecasts/avalanche/${zone}`,
-      ...(travelAdvice ? { description: travelAdvice } : {}),
+      ...(description ? { description } : {}),
       images: [
         {
           url: `/api/${center}/og?route=forecasts/avalanche/${zone}`,

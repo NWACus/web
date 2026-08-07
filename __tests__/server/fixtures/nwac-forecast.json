@@ -1,0 +1,36 @@
+{
+  "id": 184066,
+  "published_time": "2026-03-30T01:30:00+00:00",
+  "expires_time": "2026-04-20T01:30:00+00:00",
+  "created_at": "2026-03-29T23:12:44+00:00",
+  "updated_at": "2026-03-29T23:35:19+00:00",
+  "author": "Sam Clairmont",
+  "product_type": "summary",
+  "bottom_line": null,
+  "hazard_discussion": "<p><strong>Avalanche forecasts have ended for the 2025-26 season in the Olympic Mountains. Daily afternoon <a href=\"https:\/\/nwac.us\/mountain-weather-forecast\/\" target=\"_blank\" rel=\"noopener\">Mountain Weather Forecasts<\/a> will continue through early May.&nbsp;<\/strong><\/p>\n<p>Longer days and the potential for more sunshine make the mountains an inviting place in the spring. However, <a href=\"https:\/\/www.avalanche.state.co.us\/accidents\/statistics-and-reporting\/\" target=\"_blank\" rel=\"noopener\">avalanche accidents and fatalities can occur on snow-covered mountains in April<\/a>. Make sure you have the experience and skills to evaluate avalanche terrain, snowpack conditions, and weather observations to decide when, where, and how to travel in the mountains.<\/p>\n<p><strong>During winter-like storms:&nbsp;<\/strong><\/p>\n<ul>\n<li>Winter-like slab avalanches can occur during and immediately following storms.&nbsp;<\/li>\n<li>Avoid slopes greater than 35 degrees when you find more than 6-8&rdquo; of new snow, during times of heavy snowfall, and when you see wind drifting snow.<\/li>\n<li>New snow changes quickly as it warms up. Danger may increase rapidly when sunny weather or warmer temperatures follow a storm, and result in natural avalanches.<\/li>\n<li>Limit your exposure to areas where avalanches can run and stop during these big swings in the weather.&nbsp;<\/li>\n<\/ul>\n<p><strong>During periods of cold clear nights and warm sunny days:<\/strong><\/p>\n<ul>\n<li>Avalanche danger is often lowest in the morning.<\/li>\n<li>Plan your day to travel and return early<\/li>\n<li>Wet snow avalanches may occur with daytime warming and sunshine.<\/li>\n<li>If you see recent avalanches or new rollerballs avoid similar slopes.&nbsp;<\/li>\n<li>Very large and destructive wet slab avalanches may fail on significant crusts or weak layers.<\/li>\n<\/ul>\n<p><strong>Other springtime hazards:&nbsp;<\/strong><\/p>\n<ul>\n<li>Exposed ground, including dirt, rocks, tree limbs, etc. can become submerged by fresh snowfall, creating typical &ldquo;early season&rdquo; travel hazards in April, particularly on southerly aspects and near exposed ridges.<\/li>\n<li>Glide cracks can form on steep smooth slopes as water reaches the ground. These slopes can release without warning at any time of the day or night.<\/li>\n<li>Creeks are opening and snow bridges are weakening. Fatalities involving open creek holes or collapsed snow bridges can occur.<\/li>\n<li>Cornices will sag and can fail during periods of warmer weather. Falling cornices can entrain significant amounts of snow or trigger other avalanches.&nbsp;<\/li>\n<li>Choose routes that help limit the amount of time you spend on, near, and under any of these springtime hazards.&nbsp;<\/li>\n<\/ul>\n<p>Even though avalanche forecasting has ended for the season, NWAC will continue to track snow and weather conditions. Large spring storms and\/or widespread avalanche cycles may cause us to issue special avalanche bulletins, avalanche warnings, or other spring statements to keep you informed.<\/p>\n<p>You can help your backcountry community by continuing to <a href=\"https:\/\/nwac.us\/observations\/submit\/\" target=\"_blank\" rel=\"noopener\">submit observations on our public site<\/a>.&nbsp;<\/p>\n<p>Have a fun and safe spring playing in the mountains!<\/p>\n<p><strong>Contact NWAC<br><\/strong>You can reach us at the forecast desk daily from 8 AM to 4 PM:<br>Email:&nbsp;<a href=\"mailto:forecasters@nwac.us\" target=\"_blank\" rel=\"noopener\">forecasters@nwac.us<\/a>&nbsp;<br>Phone: 206-526-6164 (Office voicemail)<br>Mail: Northwest Avalanche Center<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7600 Sandpoint Way NE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Seattle, Washington 98115<\/p>",
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [],
+  "weather_data": null,
+  "json_data": null,
+  "avalanche_center": {
+    "id": "NWAC",
+    "name": "Northwest Avalanche Center",
+    "url": "https:\/\/www.nwac.us\/",
+    "city": "Seattle",
+    "state": "WA"
+  },
+  "forecast_avalanche_problems": [],
+  "danger": [],
+  "forecast_zone": [
+    {
+      "id": 1645,
+      "name": "Olympics",
+      "url": "http:\/\/www.nwac.us\/avalanche-forecast\/#\/olympics",
+      "state": "WA",
+      "zone_id": "1",
+      "config": null
+    }
+  ]
+}
