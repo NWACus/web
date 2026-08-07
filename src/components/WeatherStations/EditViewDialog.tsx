@@ -143,8 +143,6 @@ export function CompareChips({
   ))
 }
 
-// The toolbar controls, repeated inside the dialog for small screens where
-// the toolbar shows only the Edit graphs button.
 function MobileViewControls(props: EditViewProps) {
   return (
     <div className="flex flex-col gap-4 sm:hidden">

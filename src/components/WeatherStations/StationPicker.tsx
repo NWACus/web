@@ -13,8 +13,7 @@ import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/w
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
 
-// Overrides on the shadcn SelectTrigger that keep the native-select look:
-// soft corners, subtle shadow, content-sized, no focus-ring offset.
+// Restores the native-select look on the shadcn SelectTrigger.
 export const stationSelectTriggerClass =
   'h-auto w-auto gap-2 rounded-md text-sm shadow-sm focus:ring-offset-0'
 
@@ -51,9 +50,7 @@ export function StationPicker({ current, className }: { current?: string; classN
         aria-label="Jump to a weather station"
         className={cn(stationSelectTriggerClass, 'min-w-48', className)}
       >
-        {/* Static label: the page already shows the station name, and long
-            names balloon the trigger. The list still checkmarks the current
-            station via the Select value. */}
+        {/* Static label — long station names balloon the trigger otherwise. */}
         <SelectValue placeholder="Jump to a station…">Jump to a station…</SelectValue>
       </SelectTrigger>
       <SelectContent position="item-aligned">
