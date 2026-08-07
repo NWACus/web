@@ -89,4 +89,18 @@ describe('services: getForecastZoneDanger', () => {
     await getForecastZoneDanger('dvac', 'stevens-pass')
     expect(requestedCenters).toContain('NWAC')
   })
+
+  it('surfaces the upstream failure, not a crash from its own logging', async () => {
+    // getPayload is mocked to resolve undefined, so the error path has no logger. The caller must
+    // still see the real NACError — logging must never replace the cause it is reporting.
+    server.use(
+      http.get(`${nacApiHost}/v2/public/products/map-layer/:center`, () =>
+        HttpResponse.json({ error: 'boom' }, { status: 500 }),
+      ),
+    )
+
+    await expect(getForecastZoneDanger('nwac', 'stevens-pass')).rejects.toThrow(
+      /NAC API request failed with status 500/,
+    )
+  })
 })
