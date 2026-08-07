@@ -12,29 +12,12 @@
 import { AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 
-import type { AlertProductType, CenterWarningGroup } from '@/services/nac/centerWarnings'
-import { dangerColor } from '@/services/nac/dangerScale'
-import { DangerLevel, ProductType } from '@/services/nac/model/forecast'
+import type { CenterWarningGroup } from '@/services/nac/centerWarnings'
+
+import { warningBannerColor, warningBannerHeading } from './warningPresentation'
 
 interface CenterWarningsBannerProps {
   groups: CenterWarningGroup[]
-}
-
-/** Legacy colors: warnings and watches take the danger scale's High red, specials take blue. */
-function bannerColor(productType: AlertProductType): string {
-  return productType === ProductType.Special ? '#0000ff' : dangerColor(DangerLevel.High)
-}
-
-// Matches the legacy afp warnings widget ("Avalanche Warning in Effect", etc.).
-function bannerHeading(productType: AlertProductType): string {
-  switch (productType) {
-    case ProductType.Watch:
-      return 'Avalanche Watch in Effect'
-    case ProductType.Special:
-      return 'Special Avalanche Bulletin in Effect'
-    default:
-      return 'Avalanche Warning in Effect'
-  }
 }
 
 export function CenterWarningsBanner({ groups }: CenterWarningsBannerProps) {
@@ -52,7 +35,7 @@ export function CenterWarningsBanner({ groups }: CenterWarningsBannerProps) {
             key={group.productType}
             role="alert"
             className="px-4 py-3 text-white"
-            style={{ backgroundColor: bannerColor(group.productType) }}
+            style={{ backgroundColor: warningBannerColor(group.productType) }}
           >
             <div className="container flex flex-col gap-3 sm:flex-row sm:items-center">
               <AlertTriangle
@@ -62,7 +45,7 @@ export function CenterWarningsBanner({ groups }: CenterWarningsBannerProps) {
               />
               <div className="grow">
                 <h2 className="mb-1 text-base font-semibold sm:text-lg">
-                  {bannerHeading(group.productType)}
+                  {warningBannerHeading(group.productType)}
                 </h2>
                 <ul>
                   {group.entries.map((entry) => (
