@@ -1,22 +1,29 @@
 'use client'
 
-import { getStationGroup } from '@/constants/weatherStations'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { Eye, Loader2 } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import type { EditViewProps } from './EditViewDialog'
-import { chipClass, EditViewDialog } from './EditViewDialog'
+import { EditViewDialog } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
-import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
-import { useUnitSystem } from './UnitToggle'
+import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
+import { StationSelectGroups, stationSelectTriggerClass } from './StationPicker'
+import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
 function ChartSkeleton() {
@@ -85,31 +92,86 @@ function ChartFrame({ loading, children }: { loading: boolean; children: ReactNo
   )
 }
 
-function HiddenChartChips({
-  presets,
-  onShow,
+const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
+
+function PeriodSelect({
+  active,
+  onChange,
 }: {
-  presets: GraphPreset[]
-  onShow: (key: string) => void
+  active: StationPeriod
+  onChange: (period: StationPeriod) => void
 }) {
-  if (presets.length === 0) return null
   return (
-    <>
-      <span className="text-sm text-muted-foreground">Hidden:</span>
-      {presets.map((preset) => (
-        <button
-          key={preset.key}
-          type="button"
-          aria-label={`Show ${preset.title}`}
-          onClick={() => onShow(preset.key)}
-          className={cn(chipClass, 'text-muted-foreground hover:text-foreground')}
-        >
-          {preset.title}
-          <Eye className="h-3.5 w-3.5" />
-        </button>
-      ))}
-    </>
+    <Select
+      value={active.key}
+      onValueChange={(key) =>
+        onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)
+      }
+    >
+      <SelectTrigger aria-label="Date range" className={cn(stationSelectTriggerClass, 'py-1.5')}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {GRAPH_PERIODS.map((period) => (
+          <SelectItem key={period.key} value={period.key}>
+            {period.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
+}
+
+function CompareSelect({
+  currentSlug,
+  compareSlugs,
+  onCompareChange,
+}: {
+  currentSlug: string
+  compareSlugs: string[]
+  onCompareChange: (slugs: string[]) => void
+}) {
+  const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
+  return (
+    <Select
+      value=""
+      disabled={atCap}
+      onValueChange={(slug) => onCompareChange([...compareSlugs, slug])}
+    >
+      <SelectTrigger aria-label="Compare with" className={cn(stationSelectTriggerClass, 'py-1.5')}>
+        <SelectValue
+          placeholder={atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
+        />
+      </SelectTrigger>
+      <SelectContent>
+        <StationSelectGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+      </SelectContent>
+    </Select>
+  )
+}
+
+function CompareChips({
+  compareSlugs,
+  onRemove,
+}: {
+  compareSlugs: string[]
+  onRemove: (slug: string) => void
+}) {
+  const selected = compareSlugs.flatMap((slug) => getStationGroup(slug) ?? [])
+
+  return selected.map((group) => (
+    <span key={group.slug} className={chipClass}>
+      {group.displayName}
+      <button
+        type="button"
+        aria-label={`Remove ${group.displayName}`}
+        onClick={() => onRemove(group.slug)}
+        className="text-muted-foreground hover:text-foreground"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </span>
+  ))
 }
 
 function PresetChart({
@@ -187,17 +249,47 @@ function GraphsCharts({
   )
 }
 
-function GraphsToolbar(props: EditViewProps) {
-  const { graphPeriod, compareSlugs, arrangement } = props
-  const compareNames = compareSlugs.flatMap((slug) => getStationGroup(slug)?.displayName ?? [])
+function GraphsToolbar({
+  graphPeriod,
+  onPeriodChange,
+  unitSystem,
+  onUnitChange,
+  currentSlug,
+  compareSlugs,
+  onCompareChange,
+  arrangement,
+  emptyKeys,
+}: {
+  graphPeriod: StationPeriod
+  onPeriodChange: (period: StationPeriod) => void
+  unitSystem: UnitSystem
+  onUnitChange: (system: UnitSystem) => void
+  currentSlug: string
+  compareSlugs: string[]
+  onCompareChange: (slugs: string[]) => void
+  arrangement: ReturnType<typeof useChartArrangement>
+  emptyKeys: ReadonlySet<string>
+}) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <span>{graphPeriod.label}</span>
-        {compareNames.length > 0 && <span>· vs {compareNames.join(', ')}</span>}
-        <HiddenChartChips presets={arrangement.hiddenPresets} onShow={arrangement.showChart} />
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <PeriodSelect active={graphPeriod} onChange={onPeriodChange} />
+        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
+        <CompareSelect
+          currentSlug={currentSlug}
+          compareSlugs={compareSlugs}
+          onCompareChange={onCompareChange}
+        />
+        <EditViewDialog arrangement={arrangement} emptyKeys={emptyKeys} />
       </div>
-      <EditViewDialog {...props} />
+      {compareSlugs.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <CompareChips
+            compareSlugs={compareSlugs}
+            onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+          />
+        </div>
+      )}
     </div>
   )
 }

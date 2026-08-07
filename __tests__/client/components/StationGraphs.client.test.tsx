@@ -14,8 +14,29 @@ jest.mock('next/dynamic', () => () => {
   return Noop
 })
 
+// jsdom lacks the layout APIs Radix Select's popper positioning touches.
+beforeAll(() => {
+  window.HTMLElement.prototype.scrollIntoView = jest.fn()
+  class ResizeObserverStub {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver = ResizeObserverStub
+})
+
 function openEditView() {
-  fireEvent.click(screen.getByRole('button', { name: /Edit view/ }))
+  fireEvent.click(screen.getByRole('button', { name: /Edit graphs/ }))
+}
+
+// Radix Select: a click (initial pointer type "touch") both opens the
+// trigger and commits an option.
+function openSelect(name: string) {
+  fireEvent.click(screen.getByRole('combobox', { name }))
+}
+
+function pickOption(name: string) {
+  fireEvent.click(screen.getByRole('option', { name }))
 }
 
 function series(stid: string, variable = 'air_temp'): GraphData['series'][number] {
@@ -199,25 +220,21 @@ describe('StationGraphs compare picker', () => {
 
   it('excludes the current station from the compare options', () => {
     renderGraphs()
-    openEditView()
-    const select = screen.getByLabelText(/Compare with/)
-    const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
-    expect(values).not.toContain(current.slug)
-    expect(values).toContain(other.slug)
+    openSelect('Compare with')
+    expect(screen.queryByRole('option', { name: current.displayName })).not.toBeInTheDocument()
+    expect(screen.getByRole('option', { name: other.displayName })).toBeInTheDocument()
   })
 
-  function renderWithCompares(...slugs: string[]): HTMLElement {
+  function renderWithCompares(...groups: (typeof current)[]) {
     renderGraphs()
-    openEditView()
-    const select = screen.getByLabelText(/Compare with/)
-    for (const slug of slugs) {
-      fireEvent.change(select, { target: { value: slug } })
+    for (const group of groups) {
+      openSelect('Compare with')
+      pickOption(group.displayName)
     }
-    return select
   }
 
   it('refetches with the stids of each added station appended', () => {
-    renderWithCompares(other.slug, third.slug)
+    renderWithCompares(other, third)
 
     const expected = [...current.stids, ...other.stids, ...third.stids].join(',')
     expect(fetchedUrls().some((url) => url.includes(`stids=${encodeURIComponent(expected)}`))).toBe(
@@ -225,8 +242,8 @@ describe('StationGraphs compare picker', () => {
     )
   })
 
-  it('removes a station via its chip', () => {
-    renderWithCompares(other.slug, third.slug)
+  it('removes a station via its toolbar chip', () => {
+    renderWithCompares(other, third)
     fireEvent.click(screen.getByLabelText(`Remove ${other.displayName}`))
 
     const urls = fetchedUrls()
@@ -234,21 +251,24 @@ describe('StationGraphs compare picker', () => {
     expect(urls[urls.length - 1]).toContain(`stids=${encodeURIComponent(expected)}`)
   })
 
-  it('summarizes compared stations in the toolbar', () => {
-    renderWithCompares(other.slug, third.slug)
-    expect(screen.getByText(`· vs ${other.displayName}, ${third.displayName}`)).toBeInTheDocument()
+  it('shows removable chips for compared stations in the toolbar', () => {
+    renderWithCompares(other, third)
+    expect(screen.getByLabelText(`Remove ${other.displayName}`)).toBeInTheDocument()
+    expect(screen.getByLabelText(`Remove ${third.displayName}`)).toBeInTheDocument()
   })
 
   it('hides selected stations from the options and disables the select at the cap', () => {
-    const select = renderWithCompares(other.slug)
+    renderWithCompares(other)
+    const combobox = () => screen.getByRole('combobox', { name: 'Compare with' })
+    expect(combobox()).not.toBeDisabled()
 
-    const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
-    expect(values).not.toContain(other.slug)
-    expect(select).not.toBeDisabled()
+    openSelect('Compare with')
+    expect(screen.queryByRole('option', { name: other.displayName })).not.toBeInTheDocument()
+    pickOption(third.displayName)
 
-    fireEvent.change(select, { target: { value: third.slug } })
-    fireEvent.change(select, { target: { value: fourth.slug } })
-    expect(select).toBeDisabled()
+    openSelect('Compare with')
+    pickOption(fourth.displayName)
+    expect(combobox()).toBeDisabled()
   })
 })
 
@@ -298,16 +318,20 @@ describe('StationGraphs chart arrangement', () => {
     await expectRowOrder(['Relative Humidity', 'Temperature'])
   })
 
-  it('hides a graph into a restorable chip', async () => {
+  it('hides a graph, counts it on the trigger, and restores it from the dialog', async () => {
     renderGraphs()
     openEditView()
     fireEvent.click(graphCheckbox('Temperature'))
     expect(graphCheckbox('Temperature')).not.toBeChecked()
     fireEvent.click(screen.getByRole('button', { name: 'Done' }))
 
-    fireEvent.click(screen.getByLabelText('Show Temperature'))
+    expect(screen.getByRole('button', { name: 'Edit graphs 1 hidden' })).toBeInTheDocument()
+
     openEditView()
+    fireEvent.click(graphCheckbox('Temperature'))
     expect(graphCheckbox('Temperature')).toBeChecked()
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }))
+    expect(screen.getByRole('button', { name: 'Edit graphs' })).toBeInTheDocument()
   })
 
   it('persists the arrangement to localStorage', async () => {
