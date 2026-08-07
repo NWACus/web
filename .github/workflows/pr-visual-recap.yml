@@ -31,9 +31,11 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: pr-visual-recap-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+# No workflow-level concurrency here: the called reusable workflow declares the
+# same pr-visual-recap-<PR> group internally, and holding it from the caller
+# deadlocks the workflow call ("Canceling since a deadlock"). The reusable
+# workflow's own group still cancels superseded recap runs per PR; the size
+# gate is cheap enough to run unguarded on rapid pushes.
 
 jobs:
   size-gate:
