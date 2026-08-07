@@ -17,8 +17,12 @@ name: PR Visual Recap
 #      (The recap CLI hard-codes org-only visibility on publish.)
 #
 # Required repo secrets:
-#   PLAN_RECAP_TOKEN  — minted by `npx @agent-native/core@latest recap setup`
-#   ANTHROPIC_API_KEY — used by both the Sonnet gate and the Opus recap
+#   PLAN_RECAP_TOKEN        — org-scoped service token for plan.agent-native.com
+#   CLAUDE_CODE_OAUTH_TOKEN — Claude subscription token (`claude setup-token`);
+#                             authenticates the Sonnet size gate
+#   ANTHROPIC_API_KEY       — usage-billed key for the Opus recap only; needed
+#                             until BuilderIO/agent-native#2741 lets the
+#                             reusable workflow accept the subscription token
 
 on:
   pull_request:
@@ -35,7 +39,7 @@ jobs:
   size-gate:
     name: Size gate
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: read
@@ -46,7 +50,7 @@ jobs:
       - id: decide
         uses: actions/github-script@v7
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -111,10 +115,12 @@ jobs:
               return decide(true, `large diff (${fileCount} files, ${totalLines} lines)`);
             }
 
-            // Borderline: ask Sonnet. Numeric fallback if the API is unavailable.
+            // Borderline: ask Sonnet via the Claude Code CLI, which bills the
+            // Claude subscription (raw Messages API calls can't use subscription
+            // tokens). Numeric fallback if the token or CLI is unavailable.
             const numericFallback = fileCount >= 10 || totalLines >= 300;
-            if (!process.env.ANTHROPIC_API_KEY) {
-              return decide(numericFallback, 'ANTHROPIC_API_KEY unavailable; numeric fallback');
+            if (!process.env.CLAUDE_CODE_OAUTH_TOKEN) {
+              return decide(numericFallback, 'CLAUDE_CODE_OAUTH_TOKEN unavailable; numeric fallback');
             }
 
             let budget = 60000;
@@ -129,6 +135,9 @@ jobs:
             });
 
             const prompt = [
+              'Respond with ONLY a JSON object of the shape {"recap": boolean, "reason": string} and no other text.',
+              'Do not use any tools — answer directly from the information below.',
+              '',
               'You decide whether a pull request is worth generating an interactive visual recap for.',
               'Recaps are worth it for PRs that are large, multi-file, UI-heavy, or touch database schema,',
               'API contracts, permissions/access control, architecture, or review-critical behavior.',
@@ -149,40 +158,27 @@ jobs:
             ].join('\n');
 
             try {
-              const res = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: {
-                  'x-api-key': process.env.ANTHROPIC_API_KEY,
-                  'anthropic-version': '2023-06-01',
-                  'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                  model: 'claude-sonnet-5',
-                  max_tokens: 4000,
-                  output_config: {
-                    effort: 'low',
-                    format: {
-                      type: 'json_schema',
-                      schema: {
-                        type: 'object',
-                        properties: {
-                          recap: { type: 'boolean' },
-                          reason: { type: 'string' },
-                        },
-                        required: ['recap', 'reason'],
-                        additionalProperties: false,
-                      },
-                    },
-                  },
-                  messages: [{ role: 'user', content: prompt }],
-                }),
-              });
-              if (!res.ok) throw new Error(`Anthropic API ${res.status}: ${(await res.text()).slice(0, 300)}`);
-              const message = await res.json();
-              if (message.stop_reason === 'refusal') throw new Error('model refused');
-              const text = message.content.find((b) => b.type === 'text')?.text;
-              if (!text) throw new Error('no text block in response');
-              const verdict = JSON.parse(text);
+              // Prompt goes over stdin to avoid argv length limits on large diffs.
+              const { exitCode, stdout, stderr } = await exec.getExecOutput(
+                'npx',
+                [
+                  '-y',
+                  '@anthropic-ai/claude-code@2',
+                  '-p',
+                  '--model',
+                  'claude-sonnet-5',
+                  '--output-format',
+                  'json',
+                  '--permission-mode',
+                  'dontAsk',
+                ],
+                { input: Buffer.from(prompt), ignoreReturnCode: true, silent: true }
+              );
+              if (exitCode !== 0) throw new Error(`claude CLI exited ${exitCode}: ${stderr.slice(0, 300)}`);
+              const envelope = JSON.parse(stdout);
+              // Strip an optional ```json ... ``` fence wrapping the model's answer
+              const answer = String(envelope.result || '').replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, '');
+              const verdict = JSON.parse(answer);
               return decide(Boolean(verdict.recap), `Sonnet: ${verdict.reason}`);
             } catch (e) {
               return decide(numericFallback, `Sonnet gate failed (${e.message}); numeric fallback`);
@@ -192,6 +188,9 @@ jobs:
     name: Generate visual recap
     needs: size-gate
     if: needs.size-gate.outputs.recap == 'true'
+    # Still authenticates with the usage-billed ANTHROPIC_API_KEY: the reusable
+    # workflow's secrets contract doesn't accept a subscription token yet.
+    # Switch to CLAUDE_CODE_OAUTH_TOKEN once BuilderIO/agent-native#2741 lands.
     # Must grant everything the reusable workflow's jobs declare, or the run
     # fails at startup before any job executes.
     permissions:
