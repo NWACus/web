@@ -28,7 +28,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <div className="flex flex-col gap-6 mb-10">
-      <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
+      <div className="container flex flex-wrap items-end justify-between gap-3 pb-4">
         <div className="prose dark:prose-invert max-w-none">
           <h1 className="font-bold">Weather Stations</h1>
         </div>

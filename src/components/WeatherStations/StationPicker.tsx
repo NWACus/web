@@ -49,7 +49,7 @@ export function StationPicker({ current, className }: { current?: string; classN
     >
       <SelectTrigger
         aria-label="Jump to a weather station"
-        className={cn(stationSelectTriggerClass, className)}
+        className={cn(stationSelectTriggerClass, 'min-w-48', className)}
       >
         <SelectValue placeholder="Jump to a station…" />
       </SelectTrigger>
