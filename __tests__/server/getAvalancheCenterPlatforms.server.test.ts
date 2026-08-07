@@ -7,7 +7,9 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+import { afpApiHost } from '@/services/nac/hosts'
 import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
+import { setupMswLifecycle } from '../helpers/mswLifecycle'
 
 const afpCentersResponse = {
   centers: [
@@ -36,13 +38,9 @@ const afpCentersResponse = {
   ],
 }
 
-const server = setupServer(
-  http.get('https://forecasts.avalanche.org/', () => HttpResponse.json(afpCentersResponse)),
-)
+const server = setupServer(http.get(`${afpApiHost}/`, () => HttpResponse.json(afpCentersResponse)))
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
+setupMswLifecycle(server)
 
 describe('services: getAvalancheCenterPlatforms', () => {
   it('returns platforms for a matching center slug', async () => {
