@@ -1,0 +1,35 @@
+# TEMPORARY — delete before merging #1180.
+#
+# `issues` / `issue_comment` workflows only run from the default branch, so
+# claude.yml's OAuth change can't be exercised by an @claude mention until it
+# lands on main. `push` events do run from the pushed ref, so this proves the
+# CLAUDE_CODE_OAUTH_TOKEN secret authenticates from a runner.
+#
+# Calls the CLI directly rather than via claude-code-action: the action's
+# action.yml already forwards its `claude_code_oauth_token` input straight to
+# CLAUDE_CODE_OAUTH_TOKEN in the CLI's env, so the token is the only unknown.
+
+name: OAuth smoke test
+
+on:
+  push:
+    branches: [busbyk/claude-oauth-token-auth]
+
+jobs:
+  smoke:
+    name: Verify subscription auth
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - name: Run Claude Code with the OAuth token
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          npx -y @anthropic-ai/claude-code@2 \
+            -p 'reply with exactly: OAUTH OK' \
+            --output-format json > result.json
+          cat result.json
+          # Auth failures can still exit 0 with an error payload, so assert on
+          # the model's actual output rather than trusting the exit code.
+          grep -q 'OAUTH OK' result.json
