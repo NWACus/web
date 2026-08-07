@@ -3,7 +3,7 @@ import { buildChartOption } from '@/components/WeatherStations/stationGraphOptio
 import { NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const TEMP_PRESET = { key: 'temp', title: 'Temperature', variables: ['air_temp'] }
 const RH_PRESET = { key: 'rh', title: 'Relative Humidity', variables: ['relative_humidity'] }
@@ -13,6 +13,31 @@ jest.mock('next/dynamic', () => () => {
   const Noop = () => null
   return Noop
 })
+
+// jsdom lacks the layout APIs Radix Select's positioning touches.
+beforeAll(() => {
+  window.HTMLElement.prototype.scrollIntoView = jest.fn()
+  class ResizeObserverStub {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver = ResizeObserverStub
+})
+
+function openEditView() {
+  fireEvent.click(screen.getByRole('button', { name: /Edit graphs/ }))
+}
+
+// Radix Select: a click (initial pointer type "touch") both opens the
+// trigger and commits an option.
+function openSelect(name: string) {
+  fireEvent.click(screen.getByRole('combobox', { name }))
+}
+
+function pickOption(name: string) {
+  fireEvent.click(screen.getByRole('option', { name }))
+}
 
 function series(stid: string, variable = 'air_temp'): GraphData['series'][number] {
   return {
@@ -195,23 +220,21 @@ describe('StationGraphs compare picker', () => {
 
   it('excludes the current station from the compare options', () => {
     renderGraphs()
-    const select = screen.getByLabelText(/Compare with/)
-    const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
-    expect(values).not.toContain(current.slug)
-    expect(values).toContain(other.slug)
+    openSelect('Compare with')
+    expect(screen.queryByRole('option', { name: current.displayName })).not.toBeInTheDocument()
+    expect(screen.getByRole('option', { name: other.displayName })).toBeInTheDocument()
   })
 
-  function renderWithCompares(...slugs: string[]): HTMLElement {
+  function renderWithCompares(...groups: (typeof current)[]) {
     renderGraphs()
-    const select = screen.getByLabelText(/Compare with/)
-    for (const slug of slugs) {
-      fireEvent.change(select, { target: { value: slug } })
+    for (const group of groups) {
+      openSelect('Compare with')
+      pickOption(group.displayName)
     }
-    return select
   }
 
   it('refetches with the stids of each added station appended', () => {
-    renderWithCompares(other.slug, third.slug)
+    renderWithCompares(other, third)
 
     const expected = [...current.stids, ...other.stids, ...third.stids].join(',')
     expect(fetchedUrls().some((url) => url.includes(`stids=${encodeURIComponent(expected)}`))).toBe(
@@ -219,8 +242,8 @@ describe('StationGraphs compare picker', () => {
     )
   })
 
-  it('removes a station via its chip', () => {
-    renderWithCompares(other.slug, third.slug)
+  it('removes a station via its toolbar chip', () => {
+    renderWithCompares(other, third)
     fireEvent.click(screen.getByLabelText(`Remove ${other.displayName}`))
 
     const urls = fetchedUrls()
@@ -228,16 +251,24 @@ describe('StationGraphs compare picker', () => {
     expect(urls[urls.length - 1]).toContain(`stids=${encodeURIComponent(expected)}`)
   })
 
+  it('shows removable chips for compared stations in the toolbar', () => {
+    renderWithCompares(other, third)
+    expect(screen.getByLabelText(`Remove ${other.displayName}`)).toBeInTheDocument()
+    expect(screen.getByLabelText(`Remove ${third.displayName}`)).toBeInTheDocument()
+  })
+
   it('hides selected stations from the options and disables the select at the cap', () => {
-    const select = renderWithCompares(other.slug)
+    renderWithCompares(other)
+    const combobox = () => screen.getByRole('combobox', { name: 'Compare with' })
+    expect(combobox()).not.toBeDisabled()
 
-    const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
-    expect(values).not.toContain(other.slug)
-    expect(select).not.toBeDisabled()
+    openSelect('Compare with')
+    expect(screen.queryByRole('option', { name: other.displayName })).not.toBeInTheDocument()
+    pickOption(third.displayName)
 
-    fireEvent.change(select, { target: { value: third.slug } })
-    fireEvent.change(select, { target: { value: fourth.slug } })
-    expect(select).toBeDisabled()
+    openSelect('Compare with')
+    pickOption(fourth.displayName)
+    expect(combobox()).toBeDisabled()
   })
 })
 
@@ -268,44 +299,72 @@ describe('StationGraphs chart arrangement', () => {
     )
   }
 
-  async function expectChartOrder(titles: string[]): Promise<void> {
+  function graphCheckbox(title: string): HTMLElement {
+    return screen.getByRole('checkbox', { name: title })
+  }
+
+  async function expectRowOrder(titles: string[]): Promise<void> {
     const buttons = await screen.findAllByLabelText(/^Move .* down$/)
     const labels = buttons.map((b) => b.getAttribute('aria-label') ?? '')
     expect(labels).toEqual(titles.map((title) => `Move ${title} down`))
   }
 
-  it('moves a chart down past its neighbor', async () => {
+  it('moves a graph down past its neighbor', async () => {
     renderGraphs()
-    await expectChartOrder(['Temperature', 'Relative Humidity'])
+    openEditView()
+    await expectRowOrder(['Temperature', 'Relative Humidity'])
 
     fireEvent.click(screen.getByLabelText('Move Temperature down'))
-    await expectChartOrder(['Relative Humidity', 'Temperature'])
+    await expectRowOrder(['Relative Humidity', 'Temperature'])
   })
 
-  it('hides a chart into a restorable chip', async () => {
+  it('hides a graph, counts it on the trigger, and restores it from the dialog', async () => {
     renderGraphs()
-    fireEvent.click(await screen.findByLabelText('Hide Temperature'))
-    expect(screen.queryByLabelText('Hide Temperature')).not.toBeInTheDocument()
+    openEditView()
+    fireEvent.click(graphCheckbox('Temperature'))
+    expect(graphCheckbox('Temperature')).not.toBeChecked()
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }))
 
-    fireEvent.click(screen.getByLabelText('Show Temperature'))
-    expect(await screen.findByLabelText('Hide Temperature')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Edit graphs 1 hidden' })).toBeInTheDocument()
+
+    openEditView()
+    fireEvent.click(graphCheckbox('Temperature'))
+    expect(graphCheckbox('Temperature')).toBeChecked()
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }))
+    expect(screen.getByRole('button', { name: 'Edit graphs' })).toBeInTheDocument()
   })
 
   it('persists the arrangement to localStorage', async () => {
     renderGraphs()
-    fireEvent.click(await screen.findByLabelText('Hide Temperature'))
+    openEditView()
+    fireEvent.click(graphCheckbox('Temperature'))
 
     const stored = window.localStorage.getItem('nwac-station-graph-prefs') ?? ''
     expect(stored).toContain('"hidden":["temp"]')
   })
 
-  it('drops charts whose variables no station reports', async () => {
+  it('resets order and visibility to defaults', async () => {
+    renderGraphs()
+    openEditView()
+    fireEvent.click(screen.getByLabelText('Move Temperature down'))
+    fireEvent.click(graphCheckbox('Relative Humidity'))
+    await expectRowOrder(['Relative Humidity', 'Temperature'])
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset to defaults' }))
+    await expectRowOrder(['Temperature', 'Relative Humidity'])
+    expect(graphCheckbox('Relative Humidity')).toBeChecked()
+  })
+
+  it('disables graphs whose variables no station reports', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({ ...dataWithSeries, series: [series('1', 'air_temp')] }),
     })
     renderGraphs()
-    await expectChartOrder(['Temperature'])
-    expect(screen.queryByLabelText('Hide Relative Humidity')).not.toBeInTheDocument()
+    openEditView()
+    const rh = () => screen.getByRole('checkbox', { name: /Relative Humidity/ })
+    await waitFor(() => expect(rh()).toBeDisabled())
+    expect(rh()).not.toBeChecked()
+    expect(screen.getByText('No data')).toBeInTheDocument()
   })
 })
