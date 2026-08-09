@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs live in this repo's GitHub Issues (`NWACus/web`), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `DOMAIN_CONTEXT.md` and `docs/decisions/` at the repo root. See `docs/agents/domain.md`.
+
 ## LLM Documentation References
 
 When working with frameworks in this project, reference the official LLM documentation:
@@ -188,7 +202,22 @@ Read these docs for detailed guidance on specific topics:
 - **`/docs/revalidation.md`** - ISR and cache invalidation strategy
 - **`/docs/migration-safety.md`** - Automated checks for destructive migrations
 - **`/docs/onboarding.md`** - Checklist for new tenant setup
-- **`/docs/decisions/`** - Architectural decision records
+- **`/docs/troubleshooting.md`** - Common local-dev failures and fixes
+- **`/docs/error-tracking.md`** - Sentry + PostHog setup and wiring
+- **`/docs/fallow.md`** - Dead-code/code-health tooling: commands, `audit` vs full scan, baselines
+- **`/docs/doc-drift.md`** - How docs stay bound to code via drift, and how to clear a stale-doc flag
+- **`/docs/decisions/`** - Architectural decision records (see [`/docs/decisions/README.md`](docs/decisions/README.md) for the index)
+
+## Doc Drift
+
+Docs are bound to the code they describe via `drift.lock`. When bound code changes, drift flags the doc as stale so it gets reviewed. This runs in pre-commit (and should be wired into CI). For a human-readable explainer, see [`/docs/doc-drift.md`](docs/doc-drift.md).
+
+- When you **change code** that a doc describes: update the doc, then run `drift link <doc-path> <changed-file> --doc-is-still-accurate`
+- When you **create new code** covered by an existing doc: `drift link <doc-path> <new-file>`
+- When you **create a new doc**: link it to the code it references with `drift link`
+- When you **delete or rename code**: `drift unlink` the old path, `drift link` the new one
+- Run `drift refs <file>` to find which docs reference a file
+- **To verify all docs are current, run `pnpm drift:check` — never raw `drift check`.** The `pnpm` script wraps drift (via `scripts/drift-check.mjs`) to exclude vendored Claude skill bundles under `.agents/skills/` and `.claude/skills/`, whose internal cross-links otherwise show up as false-positive broken links. Pre-commit and CI use the wrapper.
 
 ## Development Environment
 
@@ -469,4 +498,5 @@ Before marking work complete, verify:
 - [ ] No TypeScript errors (`pnpm tsc`)
 - [ ] No lint errors (`pnpm lint`)
 - [ ] Tests pass if applicable (`pnpm test`)
+- [ ] No new dead code or duplication introduced (`pnpm fallow:audit`, and `pnpm fallow:check` for whole-repo regression — see [`/docs/fallow.md`](docs/fallow.md))
 - [ ] No unrelated changes included

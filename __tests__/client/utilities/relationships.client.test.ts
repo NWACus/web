@@ -44,6 +44,26 @@ describe('isValidPublishedRelationship', () => {
     expect(isValidPublishedRelationship({ id: 1, _status: 'draft' })).toBe(false)
   })
 
+  it('returns true for a published object with a past publishedAt', () => {
+    expect(
+      isValidPublishedRelationship({
+        id: 1,
+        _status: 'published',
+        publishedAt: '2020-01-01T00:00:00.000Z',
+      }),
+    ).toBe(true)
+  })
+
+  it('returns false for a published object with a future publishedAt', () => {
+    expect(
+      isValidPublishedRelationship({
+        id: 1,
+        _status: 'published',
+        publishedAt: '2999-01-01T00:00:00.000Z',
+      }),
+    ).toBe(false)
+  })
+
   it('returns false for a number (unresolved ID)', () => {
     expect(isValidPublishedRelationship(42)).toBe(false)
   })

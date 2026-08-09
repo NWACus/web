@@ -5,6 +5,8 @@ import { contentColumns } from '../blocks/content-columns'
 import { contentWithCallout } from '../blocks/content-with-callout'
 import { eventListBlock } from '../blocks/event-list'
 import { formBlock } from '../blocks/form'
+import { formEmbed } from '../blocks/form-embed'
+import { galleryBlock } from '../blocks/gallery'
 import { genericEmbed } from '../blocks/generic-embed'
 import { headerBlock } from '../blocks/header'
 import { imageLinkGrid } from '../blocks/image-link-grid'
@@ -16,6 +18,7 @@ import { singleBlogPostBlock } from '../blocks/single-blog-post'
 import { singleEventBlock } from '../blocks/single-event'
 import { sponsorsBlock } from '../blocks/sponsors'
 import { teamBlock } from '../blocks/team'
+import { videoEmbed } from '../blocks/video-embed'
 import { headingContent } from '../utilities'
 
 type AllBlocksPageArgs = {
@@ -26,6 +29,7 @@ type AllBlocksPageArgs = {
   contactForm: Form
   teams: Team[]
   sponsor: Sponsor
+  galleryId: number
 }
 
 const sectionLabel = (text: string): RequiredDataFromCollectionSlug<'pages'>['layout'][0] => ({
@@ -43,6 +47,7 @@ export const allBlocksPage = ({
   contactForm,
   teams,
   sponsor,
+  galleryId,
 }: AllBlocksPageArgs): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: 'blocks',
@@ -67,6 +72,10 @@ export const allBlocksPage = ({
       ...contentWithCallout,
       sectionLabel('Generic Embed'),
       ...genericEmbed,
+      sectionLabel('Form Embed'),
+      ...formEmbed,
+      sectionLabel('Video Embed'),
+      ...videoEmbed,
       sectionLabel('NAC Media Block'),
       ...nacMediaBlocks,
       sectionLabel('Blog List (Dynamic)'),
@@ -130,6 +139,8 @@ export const allBlocksPage = ({
         blockType: 'eventTable',
         backgroundColor: 'transparent',
       },
+      sectionLabel('Gallery'),
+      galleryBlock(galleryId),
       sectionLabel('Form Block'),
       formBlock(contactForm),
       sectionLabel('Sponsors Block'),

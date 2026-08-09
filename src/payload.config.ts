@@ -7,12 +7,14 @@ import { build } from 'pino-pretty'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Announcements } from '@/collections/Announcements'
 import { Biographies } from '@/collections/Biographies'
 import { BuiltInPages } from '@/collections/BuiltInPages'
 import { Documents } from '@/collections/Documents'
 import { EventGroups } from '@/collections/EventGroups'
 import { Events } from '@/collections/Events'
 import { EventTags } from '@/collections/EventTags'
+import { Galleries } from '@/collections/Galleries'
 import { GlobalRoleAssignments } from '@/collections/GlobalRoleAssignments'
 import { GlobalRoles } from '@/collections/GlobalRoles'
 import { HomePages } from '@/collections/HomePages'
@@ -163,7 +165,9 @@ export default buildConfig({
     Pages,
     Posts,
     Media,
+    Galleries,
     Documents,
+    Announcements,
     Sponsors,
     Tags,
     // Events

@@ -5,9 +5,11 @@ import colorPickerField from '@/fields/color'
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { BlogListBlock } from '../BlogList/config'
 import { ButtonBlock } from '../Button/config'
+import { FormEmbedBlock } from '../FormEmbed/config'
 import { GenericEmbedBlock } from '../GenericEmbed/config'
 import { MediaBlock } from '../Media/config'
 import { SingleBlogPostBlock } from '../SingleBlogPost/config'
+import { VideoEmbedBlock } from '../VideoEmbed/config'
 
 export const CalloutBlock: Block = {
   slug: 'calloutBlock',
@@ -28,6 +30,8 @@ export const CalloutBlock: Block = {
                 BlogListBlock,
                 ButtonBlock,
                 GenericEmbedBlock,
+                FormEmbedBlock,
+                VideoEmbedBlock,
                 MediaBlock,
                 SingleBlogPostBlock,
               ],
