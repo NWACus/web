@@ -16,12 +16,14 @@ import type {
 
 import { coursesByExternalProvidersPage } from '@/endpoints/seed/pages/courses-by-external-providers-page'
 import { whoWeArePage } from '@/endpoints/seed/pages/who-we-are-page'
+import { getAnnouncementsData } from './announcements'
 import { seedStaff } from './biographies'
 import { builtInPage } from './built-in-page'
 import { contactForm as contactFormData } from './contact-form'
 import { seedCourses } from './courses'
 import { getEventsData } from './events'
 import { forecastZonesByTenant } from './forecast-zones'
+import { getGalleriesData } from './galleries'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
@@ -37,8 +39,10 @@ import { seedProviders } from './providers'
 import { sponsors } from './sponsors'
 
 const collections: CollectionSlug[] = [
+  'announcements',
   'settings',
   'biographies',
+  'galleries',
   'homePages',
   'sponsors',
   'media',
@@ -247,6 +251,7 @@ export const seed = async ({
         rules: [
           {
             collections: [
+              'announcements',
               'pages',
               'posts',
               'builtInPages',
@@ -255,6 +260,7 @@ export const seed = async ({
               'settings',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -279,12 +285,14 @@ export const seed = async ({
         rules: [
           {
             collections: [
+              'announcements',
               'pages',
               'posts',
               'builtInPages',
               'tags',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -303,12 +311,14 @@ export const seed = async ({
         rules: [
           {
             collections: [
+              'announcements',
               'pages',
               'posts',
               'builtInPages',
               'tags',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -906,7 +916,7 @@ export const seed = async ({
       payload,
       incremental,
       tenantsById,
-      (obj) => obj.slug,
+      (obj) => obj.slug ?? '',
       Object.values(tenants)
         .map((tenant): RequiredDataFromCollectionSlug<'events'>[] => {
           return getEventsData(
@@ -975,6 +985,8 @@ export const seed = async ({
       tenantsById,
       (obj) => obj.url,
       Object.values(tenants)
+        // Pre-existing size; this change only adds a built-in page.
+        // fallow-ignore-next-line complexity
         .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => {
           const zones = forecastZonesByTenant[tenant.slug] ?? []
           const zonePages =
@@ -989,6 +1001,9 @@ export const seed = async ({
           return [
             ...zonePages,
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+            ...(tenant.slug === 'nwac'
+              ? [builtInPage(tenant, 'Weather Data', '/weather/stations')]
+              : []),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
             builtInPage(tenant, 'Blog', '/blog'),
@@ -1014,6 +1029,31 @@ export const seed = async ({
       ),
     )
 
+    payload.logger.info(`— Seeding announcements...`)
+    await upsert('announcements', payload, incremental, tenantsById, (obj) => obj.title, [
+      ...getAnnouncementsData(tenants['dvac']),
+      ...getAnnouncementsData(tenants['nwac']),
+    ])
+
+    payload.logger.info(`— Seeding galleries...`)
+    const galleries = await upsert(
+      'galleries',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.title,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'galleries'>[] =>
+          getGalleriesData(
+            tenant,
+            images[tenant.slug]['image1'],
+            images[tenant.slug]['image2'],
+            images[tenant.slug]['imageMountain'],
+          ),
+        )
+        .flat(),
+    )
+
     const pages = await upsert(
       'pages',
       payload,
@@ -1031,6 +1071,7 @@ export const seed = async ({
             contactForm: contactForms[tenant.name],
             teams: teams[tenant.slug] || [],
             sponsor: seededSponsors[tenant.slug]['sponsors'],
+            galleryId: galleries[tenant.slug]['Season Highlights'].id,
           }),
           lexicalBlocksPage({
             tenant,

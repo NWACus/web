@@ -1,12 +1,13 @@
 import { FieldHook, TextField } from 'payload'
 
-export const setDuplicateSlug: FieldHook = async ({ value }) => {
+const setDuplicateSlug: FieldHook = async ({ value }) => {
   if (!value || typeof value !== 'string') {
     return value
   }
 
   return `${value} - Copy`
 }
+
 export const titleField = ({
   isRequired = true,
   description,

@@ -1,4 +1,5 @@
 import { HomePage } from '@/payload-types'
+import { publishedFilter } from '@/utilities/publishedFilter'
 import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload, Where } from 'payload'
@@ -17,11 +18,7 @@ export const getCachedHomePage = (center: string, draft: boolean = false) =>
       ]
 
       if (!draft) {
-        conditions.push({
-          _status: {
-            equals: 'published',
-          },
-        })
+        conditions.push(publishedFilter())
       }
 
       const homePageRes = await payload.find({

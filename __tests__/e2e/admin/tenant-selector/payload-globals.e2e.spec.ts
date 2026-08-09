@@ -28,8 +28,6 @@ test.describe('Payload Global', () => {
       const url = new AdminUrlUtil('http://localhost:3000', '')
 
       await page.goto(url.global(GlobalSlugs.a3Management))
-      await page.waitForLoadState('networkidle')
-
       const isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(false)
 
@@ -43,24 +41,16 @@ test.describe('Payload Global', () => {
 
       // Select NWAC tenant via UI
       await page.goto(settingsUrl.list)
-      await page.waitForLoadState('networkidle')
       await selectTenant(page, TenantNames.nwac)
-      await page.waitForLoadState('networkidle')
-
       // Visit global - should load successfully
       await page.goto(globalUrl.global(GlobalSlugs.a3Management))
-      await page.waitForLoadState('networkidle')
       await expect(page.locator('h1')).toContainText('A3 Management', { timeout: 10000 })
 
       // Switch to SNFAC tenant via UI
       await page.goto(settingsUrl.list)
-      await page.waitForLoadState('networkidle')
       await selectTenant(page, TenantNames.snfac)
-      await page.waitForLoadState('networkidle')
-
       // Visit global again - should still load successfully
       await page.goto(globalUrl.global(GlobalSlugs.a3Management))
-      await page.waitForLoadState('networkidle')
       await expect(page.locator('h1')).toContainText('A3 Management', { timeout: 10000 })
 
       await page.context().close()
@@ -73,8 +63,6 @@ test.describe('Payload Global', () => {
       const url = new AdminUrlUtil('http://localhost:3000', '')
 
       await page.goto(url.global(GlobalSlugs.nacWidgetsConfig))
-      await page.waitForLoadState('networkidle')
-
       const isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(false)
 
@@ -88,8 +76,6 @@ test.describe('Payload Global', () => {
       const url = new AdminUrlUtil('http://localhost:3000', '')
 
       await page.goto(url.global(GlobalSlugs.diagnostics))
-      await page.waitForLoadState('networkidle')
-
       const isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(false)
 
@@ -111,17 +97,12 @@ test.describe('Payload Global', () => {
 
       // Set a valid tenant cookie via UI
       await page.goto(settingsUrl.list)
-      await page.waitForLoadState('networkidle')
       await selectTenant(page, TenantNames.nwac)
-      await page.waitForLoadState('networkidle')
-
       const cookieBefore = await getTenantCookie(page)
       expect(cookieBefore).toBeTruthy()
 
       // Visit a global
       await page.goto(globalUrl.global(GlobalSlugs.a3Management))
-      await page.waitForLoadState('networkidle')
-
       // Selector should be hidden on globals
       const isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(false)
@@ -132,8 +113,6 @@ test.describe('Payload Global', () => {
 
       // Navigate to a tenant collection
       await page.goto(pagesUrl.list)
-      await page.waitForLoadState('networkidle')
-
       // Cookie should still be preserved
       const cookieAfterCollection = await getTenantCookie(page)
       expect(cookieAfterCollection).toBe(cookieBefore)

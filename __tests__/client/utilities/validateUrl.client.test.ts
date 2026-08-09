@@ -67,4 +67,16 @@ describe('isValidFullUrl', () => {
   it('rejects a URL with a numeric TLD', () => {
     expect(isValidFullUrl('https://example.123')).toBe(false)
   })
+
+  it('accepts a URL with a long TLD like .clothing', () => {
+    expect(isValidFullUrl('https://www.woolly.clothing/')).toBe(true)
+  })
+
+  it('accepts a URL with .photography TLD', () => {
+    expect(isValidFullUrl('https://example.photography')).toBe(true)
+  })
+
+  it('accepts a URL with .international TLD', () => {
+    expect(isValidFullUrl('https://example.international')).toBe(true)
+  })
 })

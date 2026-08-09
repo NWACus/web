@@ -23,8 +23,6 @@ test.describe('Super Admin', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     const options = await getTenantOptions(page)
 
     // Super admin should see all seeded tenants
@@ -46,23 +44,18 @@ test.describe('Super Admin', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Switch to NWAC
     await selectTenant(page, TenantNames.nwac)
-    await page.waitForLoadState('networkidle')
     let selected = await getSelectedTenant(page)
     expect(selected).toBe(TenantNames.nwac)
 
     // Switch to SNFAC
     await selectTenant(page, TenantNames.snfac)
-    await page.waitForLoadState('networkidle')
     selected = await getSelectedTenant(page)
     expect(selected).toBe(TenantNames.snfac)
 
     // Switch to DVAC
     await selectTenant(page, TenantNames.dvac)
-    await page.waitForLoadState('networkidle')
     selected = await getSelectedTenant(page)
     expect(selected).toBe(TenantNames.dvac)
 
@@ -78,21 +71,18 @@ test.describe('Super Admin', () => {
     // Access tenant collection
     const pagesUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
     await page.goto(pagesUrl.list)
-    await page.waitForLoadState('networkidle')
     let isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(true)
 
     // Access non-tenant collection
     const usersUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.users)
     await page.goto(usersUrl.list)
-    await page.waitForLoadState('networkidle')
     isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)
 
     // Access global roles (non-tenant)
     const rolesUrl = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.globalRoles)
     await page.goto(rolesUrl.list)
-    await page.waitForLoadState('networkidle')
     isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)
 
@@ -107,8 +97,6 @@ test.describe('Multi-Center Admin', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     const options = await getTenantOptions(page)
 
     // Should see NWAC and SNFAC
@@ -131,17 +119,13 @@ test.describe('Multi-Center Admin', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Switch to NWAC
     await selectTenant(page, TenantNames.nwac)
-    await page.waitForLoadState('networkidle')
     let selected = await getSelectedTenant(page)
     expect(selected).toBe(TenantNames.nwac)
 
     // Switch to SNFAC
     await selectTenant(page, TenantNames.snfac)
-    await page.waitForLoadState('networkidle')
     selected = await getSelectedTenant(page)
     expect(selected).toBe(TenantNames.snfac)
 
@@ -159,8 +143,6 @@ test.describe('Single-Center Admin', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Tenant selector should be hidden when user has only 1 tenant
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)
@@ -176,11 +158,8 @@ test.describe('Single-Center Admin', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Cookie should be set to their tenant (nwac)
-    const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantSlugs.nwac)
+    await expect.poll(() => getTenantCookie(page)).toBe(TenantSlugs.nwac)
 
     await page.context().close()
   })
@@ -197,10 +176,7 @@ test.describe('Single-Center Admin', () => {
     for (const slug of collectionsToCheck) {
       const url = new AdminUrlUtil('http://localhost:3000', slug)
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
-      const cookie = await getTenantCookie(page)
-      expect(cookie).toBe(TenantSlugs.nwac)
+      await expect.poll(() => getTenantCookie(page)).toBe(TenantSlugs.nwac)
     }
 
     await page.context().close()
@@ -218,15 +194,12 @@ test.describe('Forecaster Role', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Tenant selector should be hidden (only 1 tenant)
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)
 
     // Cookie should be set to NWAC
-    const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantSlugs.nwac)
+    await expect.poll(() => getTenantCookie(page)).toBe(TenantSlugs.nwac)
 
     await page.context().close()
   })
@@ -243,15 +216,12 @@ test.describe('Staff Role', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.list)
-    await page.waitForLoadState('networkidle')
-
     // Tenant selector should be hidden (only 1 tenant)
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)
 
     // Cookie should be set to NWAC
-    const cookie = await getTenantCookie(page)
-    expect(cookie).toBe(TenantSlugs.nwac)
+    await expect.poll(() => getTenantCookie(page)).toBe(TenantSlugs.nwac)
 
     await page.context().close()
   })

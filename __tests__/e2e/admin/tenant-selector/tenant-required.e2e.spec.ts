@@ -33,8 +33,6 @@ test.describe('Tenant-Required Collection', () => {
       const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       const isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(true)
 
@@ -54,21 +52,16 @@ test.describe('Tenant-Required Collection', () => {
       const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       // Select NWAC tenant
       await selectTenant(page, TenantNames.nwac)
 
       // Wait for page to refresh/filter
-      await page.waitForLoadState('networkidle')
-
       // Verify tenant selector shows NWAC
       const selectedTenant = await getSelectedTenant(page)
       expect(selectedTenant).toBe(TenantNames.nwac)
 
       // Verify cookie was updated
-      const cookie = await getTenantCookie(page)
-      expect(cookie).toBe(TenantSlugs.nwac)
+      await expect.poll(() => getTenantCookie(page)).toBe(TenantSlugs.nwac)
 
       await page.context().close()
     })
@@ -82,17 +75,12 @@ test.describe('Tenant-Required Collection', () => {
 
       // Set tenant to NWAC first
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
       await selectTenant(page, TenantNames.nwac)
-      await page.waitForLoadState('networkidle')
-
       // Get count of NWAC pages
       const nwacRows = await page.locator('table tbody tr').count()
 
       // Switch to SNFAC
       await selectTenant(page, TenantNames.snfac)
-      await page.waitForLoadState('networkidle')
-
       // Get count of SNFAC pages (should be different or at least reflect filtering)
       const snfacRows = await page.locator('table tbody tr').count()
 
@@ -118,16 +106,11 @@ test.describe('Tenant-Required Collection', () => {
 
         // Select a tenant first so the list is filtered
         await page.goto(url.list)
-        await page.waitForLoadState('networkidle')
         await selectTenant(page, TenantNames.nwac)
-        await page.waitForLoadState('networkidle')
-
         // Click the first document link in the list
         const firstLink = page.locator('table tbody tr td a').first()
         await expect(firstLink).toBeVisible()
         await firstLink.click()
-        await page.waitForLoadState('networkidle')
-
         const isVisible = await isTenantSelectorVisible(page)
         expect(isVisible).toBe(true)
 
@@ -144,10 +127,7 @@ test.describe('Tenant-Required Collection', () => {
 
         // Select NWAC via UI so the cookie has a valid tenant ID
         await page.goto(url.list)
-        await page.waitForLoadState('networkidle')
         await selectTenant(page, TenantNames.nwac)
-        await page.waitForLoadState('networkidle')
-
         const cookieBefore = await getTenantCookie(page)
         expect(cookieBefore).toBeTruthy()
 
@@ -155,8 +135,6 @@ test.describe('Tenant-Required Collection', () => {
         const firstLink = page.locator('table tbody tr td a').first()
         await expect(firstLink).toBeVisible()
         await firstLink.click()
-        await page.waitForLoadState('networkidle')
-
         // Cookie should still be set after navigating to the document
         const cookieAfter = await getTenantCookie(page)
         expect(cookieAfter).toBe(cookieBefore)
@@ -174,16 +152,11 @@ test.describe('Tenant-Required Collection', () => {
 
         // Select NWAC via UI
         await page.goto(url.list)
-        await page.waitForLoadState('networkidle')
         await selectTenant(page, TenantNames.nwac)
-        await page.waitForLoadState('networkidle')
-
         // Click the first document link
         const firstLink = page.locator('table tbody tr td a').first()
         await expect(firstLink).toBeVisible()
         await firstLink.click()
-        await page.waitForLoadState('networkidle')
-
         // Tenant selector should show NWAC (matching the filtered list)
         const selectorTenant = await getSelectedTenant(page)
         expect(selectorTenant).toBe(TenantNames.nwac)
@@ -204,13 +177,8 @@ test.describe('Tenant-Required Collection', () => {
 
         // Select NWAC tenant via UI before navigating to create
         await page.goto(url.list)
-        await page.waitForLoadState('networkidle')
         await selectTenant(page, TenantNames.nwac)
-        await page.waitForLoadState('networkidle')
-
         await page.goto(url.create)
-        await page.waitForLoadState('networkidle')
-
         const isVisible = await isTenantSelectorVisible(page)
         expect(isVisible).toBe(true)
 
@@ -230,13 +198,8 @@ test.describe('Tenant-Required Collection', () => {
 
         // Select NWAC tenant via UI before navigating to create
         await page.goto(url.list)
-        await page.waitForLoadState('networkidle')
         await selectTenant(page, TenantNames.nwac)
-        await page.waitForLoadState('networkidle')
-
         await page.goto(url.create)
-        await page.waitForLoadState('networkidle')
-
         // Tenant selector should show NWAC
         const selectedTenant = await getSelectedTenant(page)
         expect(selectedTenant).toBe(TenantNames.nwac)

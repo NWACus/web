@@ -6,27 +6,32 @@ export const populatePublishedAt: CollectionBeforeChangeHook = ({
   originalDoc,
   req,
 }) => {
+  // On create: auto-set publishedAt if not provided
   if (operation === 'create' && req.data && !req.data.publishedAt) {
-    const now = new Date()
     return {
       ...data,
-      publishedAt: now,
+      publishedAt: new Date(),
     }
   }
 
-  if (operation === 'update') {
-    let publishedAtDate
-    if (req.data && !req.data.publishedAt) {
-      publishedAtDate = new Date()
+  if (operation === 'update' && req.data) {
+    // When transitioning from published to draft, clear the date
+    if (req.data._status === 'draft' && originalDoc._status === 'published') {
+      return {
+        ...data,
+        publishedAt: null,
+      }
     }
-    if (req.data && req.data._status === 'draft' && originalDoc._status === 'published') {
-      publishedAtDate = null
-    }
-    return {
-      ...data,
-      publishedAt: publishedAtDate,
+
+    // If no publishedAt provided, auto-set to now
+    if (!req.data.publishedAt) {
+      return {
+        ...data,
+        publishedAt: new Date(),
+      }
     }
   }
 
+  // Otherwise, preserve whatever is in data (including user-provided dates)
   return data
 }

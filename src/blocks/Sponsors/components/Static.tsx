@@ -1,6 +1,7 @@
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { cssVariables } from '@/cssVariables'
 import { Sponsor } from '@/payload-types'
+import { SponsorLink } from './SponsorLink'
 
 const { breakpoints } = cssVariables
 
@@ -28,13 +29,13 @@ export const SponsorsBlockStatic = ({ sponsors }: { sponsors: Sponsor[] }) => {
       {typeof sponsors === 'object' &&
         sponsors.map((sponsor, index: number) => (
           <div className={`${colSpanName} p-4 md:px-8`} key={`${sponsor.id}_${index}`}>
-            <a href={sponsor.link} target="_blank">
+            <SponsorLink sponsor={sponsor}>
               <ImageMedia
                 imgClassName="w-full h-auto overflow-hidden"
                 resource={sponsor.photo}
                 sizes={sizes}
               />
-            </a>
+            </SponsorLink>
           </div>
         ))}
     </>

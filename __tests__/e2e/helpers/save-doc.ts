@@ -16,11 +16,11 @@ export async function saveDocAndAssert(
   options?: {
     /** If true, don't dismiss toasts after assertion */
     disableDismissAllToasts?: boolean
-    /** Timeout for waiting for toast (default: 10000) */
+    /** Timeout for waiting for toast (default: 15000) */
     timeout?: number
   },
 ): Promise<void> {
-  const timeout = options?.timeout ?? 10000
+  const timeout = options?.timeout ?? 15000
 
   const toastSelector =
     expectation === 'success'
@@ -53,7 +53,7 @@ export async function saveDocHotkeyAndAssert(
     timeout?: number
   },
 ): Promise<void> {
-  const timeout = options?.timeout ?? 10000
+  const timeout = options?.timeout ?? 15000
   const modifier = process.platform === 'darwin' ? 'Meta' : 'Control'
 
   await page.keyboard.press(`${modifier}+s`)

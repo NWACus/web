@@ -122,9 +122,10 @@ export const Pages: CollectionConfig<'pages'> = {
       name: 'publishedAt',
       type: 'date',
       admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
         position: 'sidebar',
-        description:
-          "Set when this page was or should be published. This affects the page's visibility and can be used for scheduling future publications.",
       },
     },
     slugField(),

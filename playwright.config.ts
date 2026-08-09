@@ -9,6 +9,9 @@ export default defineConfig({
   workers: process.env.CI ? 4 : undefined,
   reporter: process.env.CI ? 'github' : 'html',
   timeout: 30000,
+  // The Payload admin can take more than Playwright's 5s default to settle under
+  // CI load, so give implicit assertion waits more headroom.
+  expect: { timeout: 10000 },
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',

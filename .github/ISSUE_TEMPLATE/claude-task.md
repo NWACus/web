@@ -2,7 +2,7 @@
 name: Claude Task
 about: Request a code change that Claude can implement
 title: ''
-labels: claude
+labels: ready-for-agent
 assignees: ''
 ---
 

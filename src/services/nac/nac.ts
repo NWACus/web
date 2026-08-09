@@ -2,10 +2,17 @@ import { normalizePath } from '@/utilities/path'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
-import { allAvalancheCenterCapabilitiesSchema, avalancheCenterSchema } from './types/schemas'
+import {
+  allAvalancheCenterCapabilitiesSchema,
+  avalancheCenterSchema,
+  mapLayerSchema,
+} from './types/schemas'
 
 const host = process.env.NAC_HOST || 'https://api.avalanche.org'
 const wordpressHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
+
+// DVAC shares NWAC's upstream data, so map its slug to nwac for all NAC/AFP lookups.
+const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nwac' : centerSlug)
 
 export class NACError extends Error {
   constructor(
@@ -130,7 +137,7 @@ export async function getAllAvalancheCenterCapabilities() {
 
 export async function getAvalancheCenterPlatforms(centerSlug: string) {
   const allAvalancheCenterCapabilities = await getAllAvalancheCenterCapabilities()
-  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const centerSlugToUse = normalizeCenterSlug(centerSlug)
 
   const foundAvalancheCenterBySlug = allAvalancheCenterCapabilities.centers.find(
     (center) => center.id === centerSlugToUse.toUpperCase(),
@@ -149,7 +156,7 @@ export async function getAvalancheCenterPlatforms(centerSlug: string) {
 }
 
 export async function getAvalancheCenterMetadata(centerSlug: string) {
-  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const centerSlugToUse = normalizeCenterSlug(centerSlug)
   const metadata = await nacFetch(`/v2/public/avalanche-center/${centerSlugToUse.toUpperCase()}`)
 
   const parsed = avalancheCenterSchema.safeParse(metadata)
@@ -160,6 +167,37 @@ export async function getAvalancheCenterMetadata(centerSlug: string) {
   }
 
   return parsed.data
+}
+
+function zoneSlugFromUrl(url: string): string | undefined {
+  return url.split('/').filter(Boolean).pop()
+}
+
+export async function getMapLayer(centerSlug: string) {
+  const centerSlugToUse = normalizeCenterSlug(centerSlug)
+  const data = await nacFetch(
+    `/v2/public/products/map-layer/${centerSlugToUse.toUpperCase()}`,
+    // Forecasts publish roughly daily; keep link previews current.
+    { cachedTime: 30 * 60 },
+  )
+
+  const parsed = mapLayerSchema.safeParse(data)
+
+  if (!parsed.success) {
+    throw new NACError(`Failed to parse nac map-layer response: ${parsed.error.message}`)
+  }
+
+  return parsed.data
+}
+
+export async function getForecastZoneDanger(centerSlug: string, zoneSlug: string) {
+  const mapLayer = await getMapLayer(centerSlug)
+
+  const feature = mapLayer.features.find(
+    (f) => f.properties.link && zoneSlugFromUrl(f.properties.link) === zoneSlug,
+  )
+
+  return feature?.properties ?? null
 }
 
 export type ActiveZone = Extract<
@@ -173,7 +211,7 @@ export type ActiveForecastZoneWithSlug = {
 }
 
 export async function getActiveForecastZones(centerSlug: string) {
-  const centerSlugToUse = centerSlug === 'dvac' ? 'nwac' : centerSlug
+  const centerSlugToUse = normalizeCenterSlug(centerSlug)
 
   const avalancheCenterMetadata = await getAvalancheCenterMetadata(centerSlugToUse)
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(centerSlugToUse)
@@ -187,7 +225,7 @@ export async function getActiveForecastZones(centerSlug: string) {
 
     if (activeZones.length > 0) {
       if (activeZones.length === 1) {
-        const zoneSlug = activeZones[0].url.split('/').filter(Boolean).pop()
+        const zoneSlug = zoneSlugFromUrl(activeZones[0].url)
 
         if (zoneSlug) {
           forecastZones.push({
@@ -200,7 +238,7 @@ export async function getActiveForecastZones(centerSlug: string) {
           (zoneA, zoneB) => (zoneA.rank ?? Infinity) - (zoneB.rank ?? Infinity),
         )
         zoneLinks.forEach((zone) => {
-          const zoneSlug = zone.url.split('/').filter(Boolean).pop()
+          const zoneSlug = zoneSlugFromUrl(zone.url)
 
           if (zoneSlug) {
             forecastZones.push({

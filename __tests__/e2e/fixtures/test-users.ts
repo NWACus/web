@@ -93,3 +93,19 @@ export function getTestUser(role: UserRole): TestUser {
 
 /** All user roles for parameterized tests */
 export const allUserRoles = Object.keys(testUsers)
+
+/**
+ * Typed list of every role. Iterate this (rather than Object.keys/entries,
+ * which TypeScript widens to `string`) when you need each role typed as
+ * `UserRole` without a cast.
+ */
+export const userRoles: readonly UserRole[] = [
+  'superAdmin',
+  'providerManager',
+  'multiTenantAdmin',
+  'singleTenantAdmin',
+  'singleTenantForecaster',
+  'singleTenantStaff',
+  'providerUser',
+  'multiProviderUser',
+]

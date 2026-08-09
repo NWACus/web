@@ -1,5 +1,5 @@
 import { ButtonLink } from '@/components/ButtonLink'
-import type { ButtonBlock as ButtonBlockProps } from 'src/payload-types'
+import type { ButtonBlock as ButtonBlockProps } from '@/payload-types'
 
 export const ButtonBlockComponent = ({ button }: ButtonBlockProps) => {
   return (

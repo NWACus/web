@@ -29,9 +29,16 @@ tsconfig.tsbuildinfo
 # Sentry Config File
 .env.sentry-build-plugin
 
+# Fallow runtime cache
+.fallow/
+
+# Conductor per-workspace ports (regenerated each launch; keep settings.toml tracked)
+.conductor/ports.env
+
 # AI
 .cursor
-.claude
+.claude/*
+!.claude/skills/
 plans/
 
 # Playwright

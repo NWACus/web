@@ -23,8 +23,6 @@ test.describe('Tenant selector on dashboard', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.dashboard)
-    await page.waitForLoadState('networkidle')
-
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(true)
 
@@ -43,8 +41,6 @@ test.describe('Tenant selector on dashboard', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.dashboard)
-    await page.waitForLoadState('networkidle')
-
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(true)
 
@@ -62,8 +58,6 @@ test.describe('Tenant selector on dashboard', () => {
     const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.pages)
 
     await page.goto(url.dashboard)
-    await page.waitForLoadState('networkidle')
-
     // Single-tenant users have only 1 option, so selector is hidden
     const isVisible = await isTenantSelectorVisible(page)
     expect(isVisible).toBe(false)

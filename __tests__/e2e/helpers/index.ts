@@ -19,6 +19,9 @@ export {
 // Admin URL construction
 export { AdminUrlUtil, CollectionSlugs, GlobalSlugs } from './admin-url'
 
+// Document creation/cleanup via in-page fetch
+export { MINIMAL_LEXICAL, createDraftDoc, deleteDoc } from './create-doc'
+
 // Tenant cookie management
 export {
   TENANT_COOKIE_NAME,

@@ -32,8 +32,6 @@ test.describe('Global Collection', () => {
       const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.settings)
 
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       const isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(true)
 
@@ -52,12 +50,8 @@ test.describe('Global Collection', () => {
       const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.settings)
 
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       // Select NWAC tenant
       await selectTenant(page, TenantNames.nwac)
-      await page.waitForLoadState('networkidle')
-
       // Verify tenant selector shows NWAC
       const selectedTenant = await getSelectedTenant(page)
       expect(selectedTenant).toBe(TenantNames.nwac)
@@ -77,13 +71,9 @@ test.describe('Global Collection', () => {
 
       // Go to list and click first document
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       const firstRow = page.locator('table tbody tr').first()
       if (await firstRow.isVisible()) {
         await firstRow.click()
-        await page.waitForLoadState('networkidle')
-
         const isVisible = await isTenantSelectorVisible(page)
         expect(isVisible).toBe(true)
 
@@ -100,13 +90,9 @@ test.describe('Global Collection', () => {
       const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.settings)
 
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       const firstRow = page.locator('table tbody tr').first()
       if (await firstRow.isVisible()) {
         await firstRow.click()
-        await page.waitForLoadState('networkidle')
-
         const selector = await getTenantSelector(page)
         if (selector) {
           // Check that clear indicator is not visible (isClearable should be false in document view)
@@ -129,23 +115,16 @@ test.describe('Global Collection', () => {
 
       // Navigate to list and select NWAC via UI
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
       await selectTenant(page, TenantNames.nwac)
-      await page.waitForLoadState('networkidle')
-
       // Click first document (should be NWAC's settings)
       const firstRow = page.locator('table tbody tr').first()
       if (await firstRow.isVisible()) {
         await firstRow.click()
-        await page.waitForLoadState('networkidle')
-
         // Get current URL before switching
         const urlBeforeSwitch = page.url()
 
         // Change tenant selector to Sawtooth
         await selectTenant(page, TenantNames.snfac)
-        await page.waitForLoadState('networkidle')
-
         // URL should have changed (redirected to SNFAC's settings document)
         const urlAfterSwitch = page.url()
         expect(urlAfterSwitch).not.toBe(urlBeforeSwitch)
@@ -169,8 +148,6 @@ test.describe('Global Collection', () => {
       const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.navigations)
 
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       // List view
       let isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(true)
@@ -182,8 +159,6 @@ test.describe('Global Collection', () => {
       const firstRow = page.locator('table tbody tr').first()
       if (await firstRow.isVisible()) {
         await firstRow.click()
-        await page.waitForLoadState('networkidle')
-
         isVisible = await isTenantSelectorVisible(page)
         expect(isVisible).toBe(true)
 
@@ -205,8 +180,6 @@ test.describe('Global Collection', () => {
       const url = new AdminUrlUtil('http://localhost:3000', CollectionSlugs.homePages)
 
       await page.goto(url.list)
-      await page.waitForLoadState('networkidle')
-
       // List view
       let isVisible = await isTenantSelectorVisible(page)
       expect(isVisible).toBe(true)
@@ -218,8 +191,6 @@ test.describe('Global Collection', () => {
       const firstRow = page.locator('table tbody tr').first()
       if (await firstRow.isVisible()) {
         await firstRow.click()
-        await page.waitForLoadState('networkidle')
-
         isVisible = await isTenantSelectorVisible(page)
         expect(isVisible).toBe(true)
 

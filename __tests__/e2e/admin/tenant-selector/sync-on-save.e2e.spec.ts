@@ -84,7 +84,11 @@ async function createTenant(
 
   // Fill name after slug selection — AutoFillNameFromSlug overwrites name on slug change
   await page.locator('#field-name').fill(name)
-  await saveDocAndAssert(page)
+  // A successful create redirects to the new tenant's edit page. Wait for that
+  // rather than the success toast: creating a tenant immediately kicks off
+  // provisioning, whose own toast can replace the save toast before we see it.
+  await page.click('#action-save')
+  await page.waitForURL(/\/collections\/tenants\/\d+/, { timeout: 30000 })
 
   return slug
 }
@@ -131,10 +135,11 @@ test.describe('Tenant selector syncs on save', () => {
     try {
       slug = await createTenant(page, TEMP_TENANT_NAME)
 
-      // We're already on the edit page after creation — rename the tenant
+      // We're already on the edit page after creation — rename the tenant.
+      // Provisioning from the create may still be settling, so allow extra time.
       await waitForFormReady(page)
       await page.locator('#field-name').fill(UPDATED_TENANT_NAME)
-      await saveDocAndAssert(page)
+      await saveDocAndAssert(page, '#action-save', 'success', { timeout: 30000 })
 
       // Navigate to a tenant-scoped collection via client-side nav link (NOT page.goto)
       await openNav(page)
