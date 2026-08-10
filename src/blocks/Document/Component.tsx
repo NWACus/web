@@ -7,20 +7,8 @@ import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant
 import { cn } from '@/utilities/ui'
 import { FileDown } from 'lucide-react'
 
-// MIME types that browsers can reliably render in an iframe
-const EMBEDDABLE_MIME_TYPES = new Set([
-  'application/pdf',
-  'text/html',
-  'text/plain',
-  'text/xml',
-  'application/xml',
-  'application/vnd.google-earth.kml+xml',
-])
-
 type Props = DocumentBlockProps & {
   isLayoutBlock: boolean
-  // displayAs is present in the block config but absent from generated types until pnpm generate:types is run
-  displayAs?: 'download' | 'embed' | null
 }
 
 export const DocumentBlockComponent = (props: Props) => {
@@ -34,10 +22,7 @@ export const DocumentBlockComponent = (props: Props) => {
   const src = getMediaURL(document.url, null, getHostnameFromTenant(tenant))
   const filename = document.filename ?? 'Download'
 
-  const isEmbeddable = document.mimeType != null && EMBEDDABLE_MIME_TYPES.has(document.mimeType)
-  const resolvedDisplay = displayAs === 'embed' && isEmbeddable ? 'embed' : 'download'
-
-  if (resolvedDisplay === 'embed') {
+  if (displayAs === 'embed') {
     return (
       <div className={cn('my-4', { container: isLayoutBlock })}>
         <iframe src={src} width="100%" height="600px" title="Document" />

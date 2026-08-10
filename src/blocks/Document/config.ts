@@ -15,6 +15,7 @@ export const DocumentBlock: Block = {
       name: 'displayAs',
       type: 'select',
       defaultValue: 'download',
+      required: true,
       options: [
         { label: 'Download Link', value: 'download' },
         { label: 'Embed (iframe)', value: 'embed' },

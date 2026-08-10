@@ -689,7 +689,7 @@ export interface ContentBlock {
  */
 export interface DocumentBlock {
   document: number | Document;
-  displayAs?: ('download' | 'embed') | null;
+  displayAs: 'download' | 'embed';
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentBlock';

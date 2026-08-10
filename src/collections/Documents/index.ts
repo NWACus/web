@@ -10,7 +10,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { prefixFilenameWithTenant } from '../Media/hooks/prefixFilenameWithTenant'
 import { revalidateDocuments, revalidateDocumentsDelete } from './hooks/revalidateDocuments'
-import { validateNotImageOrVideo } from './hooks/validateNotImageOrVideo'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -39,9 +38,21 @@ export const Documents: CollectionConfig = {
   ],
   upload: {
     staticDir: path.resolve(dirname, '../../../public/documents'),
+    // An explicit allowlist bypasses Payload's built-in restricted-type blocklist (which rejects
+    // text/html), while keeping executables and the image/video types owned by Media out.
+    mimeTypes: [
+      'application/pdf',
+      'application/xml',
+      'text/xml',
+      'application/octet-stream',
+      'application/vnd.google-earth.kml+xml',
+      '.kml',
+      'text/html',
+      'text/csv',
+    ],
   },
   hooks: {
-    beforeOperation: [validateNotImageOrVideo, prefixFilenameWithTenant],
+    beforeOperation: [prefixFilenameWithTenant],
     afterChange: [revalidateDocuments],
     afterDelete: [revalidateDocumentsDelete],
   },
