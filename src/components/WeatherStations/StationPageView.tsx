@@ -20,7 +20,7 @@ function StationHeader({
   table: StationTable | null
 }) {
   return (
-    <div className="container flex flex-wrap items-start justify-between gap-3">
+    <div className="container flex flex-wrap items-end justify-between gap-3">
       <div>
         <p className="mb-1 text-sm text-muted-foreground">{group.region}</p>
         <div className="prose dark:prose-invert max-w-none">

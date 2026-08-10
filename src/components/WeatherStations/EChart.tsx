@@ -53,7 +53,14 @@ export function EChart({
     }
     const observer = new ResizeObserver(() => chart.resize())
     observer.observe(container)
+
+    const gateWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey) event.stopPropagation()
+    }
+    container.addEventListener('wheel', gateWheel, { capture: true, passive: true })
+
     return () => {
+      container.removeEventListener('wheel', gateWheel, { capture: true })
       observer.disconnect()
       chart.dispose()
       chartRef.current = null

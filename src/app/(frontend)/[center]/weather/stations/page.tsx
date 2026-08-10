@@ -28,11 +28,13 @@ export default async function Page({ params }: Args) {
 
   return (
     <div className="flex flex-col gap-6 mb-10">
-      <div className="container flex justify-between gap-3 pb-4">
+      <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
         <div className="prose dark:prose-invert max-w-none">
           <h1 className="font-bold">Weather Stations</h1>
         </div>
-        <StationPicker />
+        <div className="flex flex-col items-end">
+          <StationPicker />
+        </div>
       </div>
 
       <div className="container columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4">

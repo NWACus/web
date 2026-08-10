@@ -1,5 +1,6 @@
 import {
   loadChartPrefs,
+  moveToKey,
   reconcileChartPrefs,
   saveChartPrefs,
   swapWithNeighbor,
@@ -30,21 +31,27 @@ describe('load/save round trip', () => {
 })
 
 describe('swapWithNeighbor', () => {
-  const none = () => false
-
   it('swaps with the adjacent key', () => {
-    expect(swapWithNeighbor(['a', 'b', 'c'], 'b', -1, none)).toEqual(['b', 'a', 'c'])
-  })
-
-  it('skips keys the caller marks unswappable', () => {
-    const skipB = (key: string) => key === 'b'
-    expect(swapWithNeighbor(['a', 'b', 'c'], 'a', 1, skipB)).toEqual(['c', 'b', 'a'])
+    expect(swapWithNeighbor(['a', 'b', 'c'], 'b', -1)).toEqual(['b', 'a', 'c'])
   })
 
   it('returns the order untouched at a boundary', () => {
     const order = ['a', 'b']
-    expect(swapWithNeighbor(order, 'a', -1, none)).toBe(order)
-    const skipA = (key: string) => key === 'a'
-    expect(swapWithNeighbor(order, 'b', -1, skipA)).toBe(order)
+    expect(swapWithNeighbor(order, 'a', -1)).toBe(order)
+    expect(swapWithNeighbor(order, 'b', 1)).toBe(order)
+  })
+})
+
+describe('moveToKey', () => {
+  it('moves a key to the target position, shifting the keys between', () => {
+    expect(moveToKey(['a', 'b', 'c', 'd'], 'a', 'c')).toEqual(['b', 'c', 'a', 'd'])
+    expect(moveToKey(['a', 'b', 'c', 'd'], 'd', 'b')).toEqual(['a', 'd', 'b', 'c'])
+  })
+
+  it('returns the order untouched for unknown or identical keys', () => {
+    const order = ['a', 'b']
+    expect(moveToKey(order, 'a', 'a')).toBe(order)
+    expect(moveToKey(order, 'x', 'a')).toBe(order)
+    expect(moveToKey(order, 'a', 'x')).toBe(order)
   })
 })
