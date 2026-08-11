@@ -5,6 +5,7 @@ import { RenderBlocks } from '@/blocks/RenderBlocks'
 import HighlightedContent from '@/collections/HomePages/components/HighlightedContent'
 import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
+import { HomeWarnings } from '@/components/warnings/HomeWarnings'
 import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
@@ -74,7 +75,7 @@ export default async function Page({ params }: Args) {
 
   return (
     <>
-      <NACWidget center={center} widget="warnings" />
+      <HomeWarnings centerSlug={center} />
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
           <div

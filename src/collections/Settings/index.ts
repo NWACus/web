@@ -239,7 +239,7 @@ const featuresFields: Field[] = [
         defaultValue: false,
         admin: {
           description:
-            'Render warning/watch/special bulletins natively (currently shown as a banner on the native forecast page).',
+            'Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.',
         },
       },
     ],

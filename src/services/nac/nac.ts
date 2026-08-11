@@ -4,6 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import * as qs from 'qs-esm'
 import type { ArchiveProductSummary } from './archiveDates'
+import { afpApiHost, nacApiHost } from './hosts'
 import {
   forecastResultSchema,
   warningResultSchema,
@@ -19,11 +20,26 @@ import {
   mapLayerSchema,
 } from './types/schemas'
 
-const host = process.env.NAC_HOST || 'https://api.avalanche.org'
-const wordpressHost = process.env.AFP_HOST || 'https://forecasts.avalanche.org'
-
 // DVAC shares NWAC's upstream data, so map its slug to nwac for all NAC/AFP lookups.
 const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nwac' : centerSlug)
+
+/**
+ * Log an upstream failure without letting the logging become the failure.
+ *
+ * These paths run where the Payload logger may not be available — a suite that mocks `getPayload`,
+ * or a failure early enough that the config never resolved. Previously a logger that came back
+ * undefined threw a TypeError *from inside the catch block*, replacing the real cause (an upstream
+ * 500, a misdirected host) with "Cannot read properties of undefined (reading 'logger')". Logging
+ * is best-effort; the caller's own error handling is what callers depend on.
+ */
+async function logNacError(err: unknown, message: string): Promise<void> {
+  try {
+    const payload = await getPayload({ config })
+    payload?.logger?.error({ err }, message)
+  } catch {
+    // Intentionally swallowed — see above.
+  }
+}
 
 export class NACError extends Error {
   constructor(
@@ -47,7 +63,7 @@ type Options = {
 
 export async function nacFetch(path: string, options: Options = {}) {
   const normalizedPath = normalizePath(path)
-  const url = `${host}/${normalizedPath}`
+  const url = `${nacApiHost}/${normalizedPath}`
 
   try {
     const res = await fetch(url, {
@@ -74,8 +90,7 @@ export async function nacFetch(path: string, options: Options = {}) {
     const data = await res.json()
     return data
   } catch (error) {
-    const payload = await getPayload({ config })
-    payload.logger.error({ err: error }, 'nacFetch error')
+    await logNacError(error, 'nacFetch error')
 
     if (error instanceof NACError) {
       throw error
@@ -95,7 +110,7 @@ export async function afpFetch(path: string, options: Options = {}) {
     rest_route: `/${normalizedPath}`,
   }
   const querystring = qs.stringify(params)
-  const url = `${wordpressHost}?${querystring}`
+  const url = `${afpApiHost}?${querystring}`
 
   try {
     const res = await fetch(url, {
@@ -128,8 +143,7 @@ export async function afpFetch(path: string, options: Options = {}) {
     const data = await res.json()
     return data
   } catch (error) {
-    const payload = await getPayload({ config })
-    payload.logger.error({ err: error }, 'afpFetch error')
+    await logNacError(error, 'afpFetch error')
 
     if (error instanceof NACError) {
       throw error
@@ -190,7 +204,7 @@ export async function getAvalancheCenterMetadata(centerSlug: string) {
   return parsed.data
 }
 
-function zoneSlugFromUrl(url: string): string | undefined {
+export function zoneSlugFromUrl(url: string): string | undefined {
   return url.split('/').filter(Boolean).pop()
 }
 
@@ -293,6 +307,16 @@ export function weatherCacheTag(weatherProductId: number): string {
   return `weather:${weatherProductId}`
 }
 
+/**
+ * The Next data-cache tag for a zone's active warning/watch/special. The warning freshness handler
+ * revalidates this when a zone's alert changes, which also invalidates the route cache of any page
+ * that rendered it — notably the (statically generated) home-page banner. Kept consistent with
+ * fetchWarning.
+ */
+export function warningCacheTag(centerId: string, zoneId: number): string {
+  return `warning:${normalizeCenterSlug(centerId.toLowerCase())}:${zoneId}`
+}
+
 export async function fetchForecast(
   centerId: string,
   zoneId: number,
@@ -307,8 +331,7 @@ export async function fetchForecast(
 
     const parsed = forecastResultSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse forecast response')
+      await logNacError(parsed.error, 'Failed to parse forecast response')
       return null
     }
 
@@ -359,17 +382,48 @@ export async function fetchWarning(
   try {
     const data = await nacFetch(
       `/v2/public/product?type=warning&center_id=${centerIdToUse}&zone_id=${zoneId}`,
-      { cachedTime: 300 },
+      { cachedTime: 300, tags: [warningCacheTag(centerId, zoneId)] },
     )
 
     const parsed = warningResultSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse warning response')
+      await logNacError(parsed.error, 'Failed to parse warning response')
       return null
     }
 
     return parsed.data
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The zone's CURRENT warning fetched fresh from upstream, held only on a short (60s) cache so a
+ * burst of page views shares one upstream request rather than hitting the NAC API per view. Used
+ * only by the warning freshness check, which catches an alert issued or lifted after the (ISR)
+ * home page was rendered. Returns the v2 null-object or null exactly as fetchWarning does.
+ */
+export async function fetchWarningFresh(
+  centerId: string,
+  zoneId: number,
+): Promise<WarningResult | null> {
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
+
+  const getCached = unstable_cache(
+    async () => {
+      const data = await nacFetch(
+        `/v2/public/product?type=warning&center_id=${centerIdToUse}&zone_id=${zoneId}`,
+        { noStore: true },
+      )
+      const parsed = warningResultSchema.safeParse(data)
+      return parsed.success ? parsed.data : null
+    },
+    ['nac-warning-fresh', centerIdToUse, String(zoneId)],
+    { revalidate: 60 },
+  )
+
+  try {
+    return await getCached()
   } catch {
     return null
   }
@@ -399,8 +453,7 @@ async function fetchArchiveSummaries(
 
   const parsed = productListSchema.safeParse(data)
   if (!parsed.success) {
-    const payload = await getPayload({ config })
-    payload.logger.error({ err: parsed.error }, 'Failed to parse product archive response')
+    await logNacError(parsed.error, 'Failed to parse product archive response')
     return []
   }
 
@@ -453,8 +506,7 @@ export async function fetchProductById(id: number): Promise<ForecastResult | nul
 
     const parsed = forecastResultSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse product-by-id response')
+      await logNacError(parsed.error, 'Failed to parse product-by-id response')
       return null
     }
 
@@ -486,8 +538,7 @@ export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
 
     const parsed = weatherSchema.safeParse(data)
     if (!parsed.success) {
-      const payload = await getPayload({ config })
-      payload.logger.error({ err: parsed.error }, 'Failed to parse weather product response')
+      await logNacError(parsed.error, 'Failed to parse weather product response')
       return null
     }
 
@@ -496,5 +547,3 @@ export async function fetchWeatherProduct(id: number): Promise<Weather | null> {
     return null
   }
 }
-
-export { resolveZoneFromSlug } from './resolveZone'

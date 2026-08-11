@@ -7,6 +7,7 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+import { nacApiHost } from '@/services/nac/hosts'
 import { getForecastZoneDanger } from '@/services/nac/nac'
 
 const stevensPass = {
@@ -46,7 +47,7 @@ const mapLayerResponse = {
 const requestedCenters: string[] = []
 
 const server = setupServer(
-  http.get('https://api.avalanche.org/v2/public/products/map-layer/:center', ({ params }) => {
+  http.get(`${nacApiHost}/v2/public/products/map-layer/:center`, ({ params }) => {
     requestedCenters.push(String(params.center))
     return HttpResponse.json(mapLayerResponse)
   }),
@@ -87,5 +88,19 @@ describe('services: getForecastZoneDanger', () => {
   it('maps the dvac center to nwac upstream', async () => {
     await getForecastZoneDanger('dvac', 'stevens-pass')
     expect(requestedCenters).toContain('NWAC')
+  })
+
+  it('surfaces the upstream failure, not a crash from its own logging', async () => {
+    // getPayload is mocked to resolve undefined, so the error path has no logger. The caller must
+    // still see the real NACError — logging must never replace the cause it is reporting.
+    server.use(
+      http.get(`${nacApiHost}/v2/public/products/map-layer/:center`, () =>
+        HttpResponse.json({ error: 'boom' }, { status: 500 }),
+      ),
+    )
+
+    await expect(getForecastZoneDanger('nwac', 'stevens-pass')).rejects.toThrow(
+      /NAC API request failed with status 500/,
+    )
   })
 })
