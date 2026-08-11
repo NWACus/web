@@ -44,11 +44,18 @@ export const MobileNav = ({
 
     updateHeaderHeight()
 
-    window.addEventListener('resize', updateHeaderHeight)
+    if (!mobileNavOpen) return
 
-    return () => {
-      window.removeEventListener('resize', updateHeaderHeight)
-    }
+    // The open menu hangs off the bottom of the header, so its offset has to survive anything that
+    // moves the header while it's open: an orientation change, the announcement banners animating
+    // open or closed, the sticky header pinning as the page scrolls. Measuring on a frame covers
+    // all of them, and only runs for as long as the menu is open.
+    let frame = requestAnimationFrame(function trackHeaderHeight() {
+      updateHeaderHeight()
+      frame = requestAnimationFrame(trackHeaderHeight)
+    })
+
+    return () => cancelAnimationFrame(frame)
   }, [mobileNavOpen])
 
   useEffect(
@@ -132,8 +139,8 @@ export const MobileNav = ({
           onClick={() => setMobileNavOpen(false)}
         />
         <DialogContent
-          className="lg:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top"
-          style={{ top: `${headerHeight}px` }}
+          className="lg:hidden overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top"
+          style={{ top: `${headerHeight}px`, maxHeight: `calc(100dvh - ${headerHeight}px)` }}
         >
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
