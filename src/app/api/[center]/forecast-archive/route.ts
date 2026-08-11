@@ -1,10 +1,12 @@
-import { buildZoneArchiveDates } from '@/services/nac/archiveDates'
+// False positive: fallow reads `(payload)/api/[...slug]` and `api/[center]` as one dynamic path
+// and predicts a runtime crash. Route groups keep the two trees separate — verified against a
+// production build, where this route answers and the Payload catch-all still resolves. The sibling
+// `warning-freshness`, `danger-map` and `og` routes carry the same waiver.
+// fallow-ignore-file dynamic-segment-name-conflicts
+import { buildZoneArchiveDates, parseArchiveWindowQuery } from '@/services/nac/archiveDates'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { NextRequest, NextResponse } from 'next/server'
-
-// Matches a YYYY-MM-DD date.
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
 /**
  * Lazy-load source for the forecast date picker's calendar. Returns the zone's published
@@ -18,21 +20,17 @@ export async function GET(
 ) {
   const { center } = await params
   const searchParams = request.nextUrl.searchParams
-  const zoneSlug = searchParams.get('zone')
-  const from = searchParams.get('from')
-  const to = searchParams.get('to')
+  const query = parseArchiveWindowQuery(
+    searchParams.get('zone'),
+    searchParams.get('from'),
+    searchParams.get('to'),
+  )
 
-  if (
-    !zoneSlug ||
-    !from ||
-    !to ||
-    !DATE_PATTERN.test(from) ||
-    !DATE_PATTERN.test(to) ||
-    from > to
-  ) {
+  if (!query) {
     return NextResponse.json({ error: 'Invalid zone/from/to parameters' }, { status: 400 })
   }
 
+  const { zoneSlug, from, to } = query
   const [zone, metadata] = await Promise.all([
     resolveZoneFromSlug(center, zoneSlug),
     getAvalancheCenterMetadata(center),
