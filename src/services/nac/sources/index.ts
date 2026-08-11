@@ -9,7 +9,6 @@ import { mapLayerSourceV2 } from './v2/mapLayerSourceV2'
 import { warningSourceV2 } from './v2/warningSourceV2'
 import { weatherSourceV2 } from './v2/weatherSourceV2'
 
-export { getProductDataSource } from './config'
 export type {
   ForecastSource,
   MapLayerQuery,
