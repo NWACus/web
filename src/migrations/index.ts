@@ -55,6 +55,7 @@ import * as migration_20260612_185209_split_generic_embed_blocks from './2026061
 import * as migration_20260617_215604_add_announcements from './20260617_215604_add_announcements'
 import * as migration_20260701_162212_add_galleries from './20260701_162212_add_galleries'
 import * as migration_20260701_224854_native_products_flags from './20260701_224854_native_products_flags'
+import * as migration_20260807_190252_native_danger_map_flag from './20260807_190252_native_danger_map_flag'
 
 export const migrations = [
   {
@@ -341,5 +342,10 @@ export const migrations = [
     up: migration_20260701_224854_native_products_flags.up,
     down: migration_20260701_224854_native_products_flags.down,
     name: '20260701_224854_native_products_flags',
+  },
+  {
+    up: migration_20260807_190252_native_danger_map_flag.up,
+    down: migration_20260807_190252_native_danger_map_flag.down,
+    name: '20260807_190252_native_danger_map_flag',
   },
 ]
