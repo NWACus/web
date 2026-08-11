@@ -1,10 +1,16 @@
 import { ProductType } from '@/services/nac/model/forecast'
-import { mapV2ForecastResult, mapV2Warning, mapV2Weather } from '@/services/nac/sources/v2/mappers'
+import {
+  mapV2ForecastResult,
+  mapV2MapLayer,
+  mapV2Warning,
+  mapV2Weather,
+} from '@/services/nac/sources/v2/mappers'
 import {
   forecastResultSchema,
   warningResultSchema,
   weatherSchema,
 } from '@/services/nac/types/forecastSchemas'
+import { mapLayerSchema } from '@/services/nac/types/schemas'
 import inlineWeather from './fixtures/inline-weather.json'
 import nwacForecastActive from './fixtures/nwac-forecast-active.json'
 import nwacForecastSummary from './fixtures/nwac-forecast.json'
@@ -130,5 +136,71 @@ describe('mapV2Weather', () => {
       expect(Array.isArray(snowfall?.values[0])).toBe(true)
     }
     expect(model).toEqual(wire)
+  })
+})
+
+describe('mapV2MapLayer', () => {
+  const wire = (features: unknown) =>
+    mapLayerSchema.parse({ type: 'FeatureCollection', features, start_time: null, end_time: null })
+
+  const feature = {
+    type: 'Feature',
+    id: 1655,
+    geometry: { type: 'Polygon', coordinates: [[[-121, 47]]] },
+    properties: {
+      name: 'East Slopes Central',
+      center: 'Northwest Avalanche Center',
+      center_link: 'https://www.nwac.us/',
+      timezone: 'America/Los_Angeles',
+      center_id: 'NWAC',
+      state: 'WA',
+      off_season: false,
+      travel_advice: 'Careful snowpack evaluation is essential.',
+      danger: 'considerable',
+      danger_level: 3,
+      color: '#f7941e',
+      stroke: '#104efb',
+      font_color: '#ffffff',
+      link: 'http://www.nwac.us/avalanche-forecast/#/east-slopes-central',
+      start_date: '2026-01-14T01:30:00',
+      end_date: '2026-01-15T01:30:00',
+      fillOpacity: 0.5,
+      fillIncrement: 0.1,
+      warning: { product: null },
+    },
+  }
+
+  it('maps a zone feature into the model, keeping the id and geometry Mapbox needs', () => {
+    const [zone] = mapV2MapLayer(wire([feature])).features
+
+    expect(zone.id).toBe(1655)
+    expect(zone.geometry).toEqual(feature.geometry)
+    expect(zone.properties.name).toBe('East Slopes Central')
+    expect(zone.properties.danger_level).toBe(3)
+    expect(zone.properties.stroke).toBe('#104efb')
+    expect(zone.properties.warning).toEqual({ product: null })
+  })
+
+  // v2 aggregates with json_agg, which returns null rather than [] for a center with no active
+  // zones. v3 returns []. Consumers must never have to know which backend they got.
+  it('collapses a null feature list to an empty array', () => {
+    expect(mapV2MapLayer(wire(null)).features).toEqual([])
+  })
+
+  it('fills absent optional properties with null rather than leaving them missing', () => {
+    const sparse = {
+      type: 'Feature',
+      geometry: {},
+      properties: { name: 'Somewhere', center_id: 'NWAC', danger_level: -1 },
+    }
+
+    const [zone] = mapV2MapLayer(wire([sparse])).features
+
+    expect(zone.id).toBeNull()
+    expect(zone.properties.timezone).toBeNull()
+    expect(zone.properties.stroke).toBeNull()
+    expect(zone.properties.end_date).toBeNull()
+    expect(zone.properties.off_season).toBe(false)
+    expect(zone.properties.warning).toEqual({ product: null })
   })
 })

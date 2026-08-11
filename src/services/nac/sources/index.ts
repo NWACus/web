@@ -3,13 +3,20 @@
  * Components/pages call these — they never touch a raw fetcher or a specific backend impl.
  */
 import { getProductDataSource } from './config'
-import type { ForecastSource, WarningSource, WeatherSource } from './types'
+import type { ForecastSource, MapLayerSource, WarningSource, WeatherSource } from './types'
 import { forecastSourceV2 } from './v2/forecastSourceV2'
+import { mapLayerSourceV2 } from './v2/mapLayerSourceV2'
 import { warningSourceV2 } from './v2/warningSourceV2'
 import { weatherSourceV2 } from './v2/weatherSourceV2'
 
 export { getProductDataSource } from './config'
-export type { ForecastSource, WarningSource, WeatherSource } from './types'
+export type {
+  ForecastSource,
+  MapLayerQuery,
+  MapLayerSource,
+  WarningSource,
+  WeatherSource,
+} from './types'
 
 /** The configured forecast source for a center (defaults to v2; see Control 2 in `./config`). */
 export function getForecastSource(centerSlug: string): ForecastSource {
@@ -30,6 +37,16 @@ export function getWarningSource(centerSlug: string): WarningSource {
       return warningSourceV2
     case 'v3':
       throw new Error('NAC v3 warning source is not implemented yet')
+  }
+}
+
+/** The configured map-layer source for a center (defaults to v2; see Control 2 in `./config`). */
+export function getMapLayerSource(centerSlug: string): MapLayerSource {
+  switch (getProductDataSource('mapLayer', centerSlug)) {
+    case 'v2':
+      return mapLayerSourceV2
+    case 'v3':
+      throw new Error('NAC v3 map layer source is not implemented yet')
   }
 }
 

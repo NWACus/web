@@ -1,11 +1,11 @@
-// fallow-ignore-file dynamic-segment-name-conflict
-// False positive: fallow flags `[center]` (this custom API tree) as conflicting with
-// Payload's catch-all `(payload)/api/[...slug]` at `/api`. Next.js permits a catch-all
-// alongside more-specific named segments (the specific route wins), so both coexist and
-// serve traffic — the conflict rule only applies to two *named* siblings. Pre-existing
-// across all `/api/[center]/*` routes; not introduced by this change.
+// False positive: fallow reads `(payload)/api/[...slug]` and `api/[center]` as one dynamic path
+// and predicts a runtime crash. Route groups keep the two trees separate — verified against a
+// production build. The sibling freshness routes trip the same check and carry the same waiver.
+// This route only surfaces it now because moving `getForecastZoneDanger` (below) put the file in
+// fallow's changed set for the first time.
+// fallow-ignore-file dynamic-segment-name-conflicts
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
-import { getForecastZoneDanger } from '@/services/nac/nac'
+import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
 import { convertWebpToPng, isWebpMedia } from '@/utilities/convertWebpToPng'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getURL } from '@/utilities/getURL'
@@ -28,6 +28,10 @@ const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
 const isOgDocType = (value: string | null): value is OgDocType =>
   value === 'post' || value === 'event'
 
+// Pre-existing: a 325-line, cyclomatic-44 handler that builds the whole OG image inline. It is
+// flagged here only because this PR changed one import above, which put the file in fallow's
+// changed set; splitting it up is real work that belongs in its own change, not in the danger map.
+// fallow-ignore-next-line complexity
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ center: string }> },

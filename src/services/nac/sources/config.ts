@@ -8,15 +8,21 @@
  * with no presentation change once v3 is confirmed deployed.
  *
  * Env (all optional; default v2):
- * - `NAC_FORECAST_SOURCE` / `NAC_WARNING_SOURCE` — `v2` | `v3`, the uniform default per product.
- * - `NAC_FORECAST_V3_CANARY_CENTERS` / `NAC_WARNING_V3_CANARY_CENTERS` — comma-separated center
- *   slugs that use v3 regardless of the default (a per-center canary allowlist).
+ * - `NAC_FORECAST_SOURCE` / `NAC_WARNING_SOURCE` / `NAC_MAP_LAYER_SOURCE` — `v2` | `v3`, the
+ *   uniform default per product.
+ * - `NAC_FORECAST_V3_CANARY_CENTERS` / `NAC_WARNING_V3_CANARY_CENTERS` /
+ *   `NAC_MAP_LAYER_V3_CANARY_CENTERS` — comma-separated center slugs that use v3 regardless of
+ *   the default (a per-center canary allowlist).
+ *
+ * The map layer is the product closest to being ready to flip: dashboard-v2 already reads v3 in
+ * production, and v3 adds `Cache-Control`/ETag handling plus `as_of` on top of the `?day=` param
+ * v2 already honors. It still defaults to v2 so every native product page reads from one backend.
  */
 
 export type ProductDataSource = 'v2' | 'v3'
 
-/** Products fetched through the source adapter today (forecast + warning first). */
-export type AdaptedProduct = 'forecast' | 'warning'
+/** Products fetched through the source adapter today. */
+export type AdaptedProduct = 'forecast' | 'warning' | 'mapLayer'
 
 const DEFAULT_SOURCE: ProductDataSource = 'v2'
 
@@ -42,6 +48,10 @@ const config: Record<AdaptedProduct, { default: ProductDataSource; v3Canary: Set
   warning: {
     default: parseSource(process.env.NAC_WARNING_SOURCE),
     v3Canary: parseCanary(process.env.NAC_WARNING_V3_CANARY_CENTERS),
+  },
+  mapLayer: {
+    default: parseSource(process.env.NAC_MAP_LAYER_SOURCE),
+    v3Canary: parseCanary(process.env.NAC_MAP_LAYER_V3_CANARY_CENTERS),
   },
 }
 
