@@ -6,12 +6,9 @@ import { getPayload } from 'payload'
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
 import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
+import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
 import { ProductType } from '@/services/nac/model/forecast'
-import {
-  getActiveForecastZones,
-  getAvalancheCenterPlatforms,
-  getForecastZoneDanger,
-} from '@/services/nac/nac'
+import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
 import { formatZoneName } from '@/utilities/formatZoneName'
