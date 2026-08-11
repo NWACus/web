@@ -10,6 +10,7 @@ import {
   validDateForProduct,
 } from '@/services/nac/archiveDates'
 import { forecastFingerprint } from '@/services/nac/forecastFingerprint'
+import type { ForecastResult } from '@/services/nac/model/forecast'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource, getWarningSource, getWeatherSource } from '@/services/nac/sources'
@@ -21,6 +22,18 @@ import { NativeForecastView } from './NativeForecastView'
 interface NativeForecastPageProps {
   centerSlug: string
   zoneSlug: string
+}
+
+/**
+ * The mountain-weather product is issued separately and pointed to by the forecast; fetch it only
+ * when the forecast carries a `weather_product_id`. Returns a promise so the caller can run it in
+ * parallel with the archive fetch.
+ */
+async function fetchWeatherFor(centerSlug: string, forecastResult: ForecastResult) {
+  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
+  if (weatherProductId === null) return null
+
+  return getWeatherSource(centerSlug).getWeather(weatherProductId)
 }
 
 export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecastPageProps) {
@@ -53,12 +66,9 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   const currentDate = validDateForProduct(forecastResult.published_time, metadata.timezone)
   const window = initialArchiveWindow(currentDate)
 
-  // The mountain-weather product is a separate product the forecast points to; fetch it (in
-  // parallel with the archive) only when the forecast carries a weather_product_id.
-  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
   const [archive, weather] = await Promise.all([
     fetchProductArchive(centerSlug, window),
-    weatherProductId ? getWeatherSource(centerSlug).getWeather(weatherProductId) : null,
+    fetchWeatherFor(centerSlug, forecastResult),
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 
