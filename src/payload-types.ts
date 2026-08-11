@@ -3021,6 +3021,10 @@ export interface Setting {
      * Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.
      */
     warning?: boolean | null;
+    /**
+     * Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.
+     */
+    dangerMap?: boolean | null;
   };
   socialMedia?: {
     instagram?: string | null;
@@ -4827,6 +4831,7 @@ export interface SettingsSelect<T extends boolean = true> {
     | {
         forecast?: T;
         warning?: T;
+        dangerMap?: T;
       };
   socialMedia?:
     | T
