@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import RichText from '../RichText'
 import { isExpired } from './isExpired'
+import { scrollAnnouncementsIntoView } from './scrollAnnouncementsIntoView'
 
 const STORAGE_KEY = 'announcement-banners'
 
@@ -84,6 +85,11 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
     collapse()
   }, [collapse])
 
+  const handleExpand = useCallback(() => {
+    expand()
+    scrollAnnouncementsIntoView()
+  }, [expand])
+
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (
@@ -134,7 +140,7 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
       </div>
       {collapsed && (
         <button
-          onClick={expand}
+          onClick={handleExpand}
           className="hidden lg:flex fixed right-0 top-0 z-40 items-center gap-1.5 rounded-bl-md bg-callout px-4 py-1.5 text-sm font-medium text-callout-foreground shadow-md transition-colors hover:bg-callout/90"
         >
           {activeBanners.length} {activeBanners.length === 1 ? 'Announcement' : 'Announcements'}

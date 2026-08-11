@@ -15,6 +15,7 @@ import { Megaphone, MegaphoneOff } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
+import { scrollAnnouncementsIntoView } from '../Announcements/scrollAnnouncementsIntoView'
 import { ImageMedia } from '../Media/ImageMedia'
 import { Accordion } from '../ui/accordion'
 import { MobileNavItem } from './MobileNavItem'
@@ -119,7 +120,11 @@ export const MobileNav = ({
           )}
           {announcementCount > 0 && (
             <button
-              onClick={toggle}
+              onClick={() => {
+                toggle()
+
+                if (collapsed) scrollAnnouncementsIntoView()
+              }}
               className={cn(
                 'col-start-3 justify-self-end relative rounded-md p-2 text-header-foreground transition-colors',
                 !collapsed && 'bg-header-foreground/20',
