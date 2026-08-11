@@ -4,24 +4,11 @@ import { useState } from 'react'
 
 import { type MediaItem, MediaType } from '@/services/nac/model/forecast'
 
-import { getThumbnailUrl, MediaLightbox } from './MediaLightbox'
+import { MediaLightbox } from './MediaLightbox'
+import { displayableMedia, getThumbnailUrl } from './mediaItem'
 
 interface ForecastMediaThumbnailsProps {
   media: MediaItem[]
-}
-
-/** Filter to media items that have something to display in the lightbox */
-function displayableMedia(items: MediaItem[]): MediaItem[] {
-  return items.filter((item): item is MediaItem & { type: MediaType } => {
-    const t = item.type
-    return (
-      t === MediaType.Image ||
-      t === MediaType.Video ||
-      t === MediaType.Photo ||
-      t === MediaType.External ||
-      t === MediaType.PDF
-    )
-  })
 }
 
 export function ForecastMediaThumbnails({ media }: ForecastMediaThumbnailsProps) {

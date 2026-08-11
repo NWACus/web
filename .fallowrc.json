@@ -40,6 +40,14 @@
     {
       "file": "src/collections/Roles/index.ts",
       "exports": ["*"]
+    },
+    {
+      "file": "src/services/nac/model/**",
+      "exports": ["*"]
+    },
+    {
+      "file": "src/services/nac/types/forecastSchemas.ts",
+      "exports": ["*"]
     }
   ],
   "rules": {

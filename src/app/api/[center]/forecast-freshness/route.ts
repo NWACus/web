@@ -1,3 +1,8 @@
+// False positive: fallow reads `(payload)/api/[...slug]` and `api/[center]` as one dynamic path
+// and predicts a runtime crash. Route groups keep the two trees separate — verified against a
+// production build, where this route answers and the Payload catch-all still resolves. The sibling
+// `warning-freshness`, `danger-map` and `og` routes carry the same waiver.
+// fallow-ignore-file dynamic-segment-name-conflicts
 import { forecastFingerprint } from '@/services/nac/forecastFingerprint'
 import { forecastCacheTag, weatherCacheTag } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
