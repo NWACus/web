@@ -7,6 +7,7 @@
  * implementation per product is chosen by code/env config (see `./config`), not by tenant.
  */
 import type { ForecastResult, WarningProduct, Weather } from '../model/forecast'
+import type { ZoneMapLayer } from '../model/mapLayer'
 
 export interface ForecastSource {
   /** The zone's current forecast/summary, or `null` when none is published. */
@@ -27,6 +28,21 @@ export interface WarningSource {
    * page's ISR window.
    */
   getWarningFresh(centerId: string, zoneId: number): Promise<WarningProduct | null>
+}
+
+export interface MapLayerQuery {
+  /** Historical danger for a past day (`YYYY-MM-DD`); omit for today's. */
+  day?: string
+  /** Draw every NAC center's zones rather than just this center's. */
+  allCenters?: boolean
+}
+
+export interface MapLayerSource {
+  /**
+   * The center's forecast zones with their danger overlay — geometry, ratings, colors, popup
+   * copy and warning flags in one response. This is the danger map's only data dependency.
+   */
+  getMapLayer(centerSlug: string, query?: MapLayerQuery): Promise<ZoneMapLayer>
 }
 
 export interface WeatherSource {
