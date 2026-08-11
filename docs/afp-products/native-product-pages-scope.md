@@ -151,6 +151,6 @@ The finish line above is parity, which by design changes nothing a reader would 
 For anyone who wants the detail behind this document.
 
 - [**Parity ledger**](parity-ledger.md) — the row-by-row inventory of every legacy widget behavior and whether the native replacement covers it, including the deliberate departures. The artifact that makes the finish line checkable.
-- [**Architecture decisions**](../decisions/README.md) — the reasoning behind the data layer, the rollout controls and the freshness mechanism, recorded as ADRs alongside the platform's other architectural decisions.
+- [**Architecture**](architecture.md) — how the data layer, the control axes, caching and the freshness mechanism actually work, and why. Engineering-facing.
 - **Functional reference** — a description of how the legacy widgets actually behave. Maintained alongside the widget code in the `afp-public-widgets` repository and shared with the AFP team, so it stays accurate as the widgets change.
 - **GitHub issues** — the [work breakdown](#work-breakdown) items, where day-to-day status lives.
