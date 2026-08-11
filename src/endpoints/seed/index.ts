@@ -549,6 +549,7 @@ export const seed = async ({
           nativeProducts: {
             forecast: false,
             warning: false,
+            dangerMap: false,
           },
           footerForm: {
             type: 'none',
