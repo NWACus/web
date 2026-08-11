@@ -7,6 +7,7 @@ import {
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
+import type { ForecastResult } from '@/services/nac/model/forecast'
 import {
   fetchProductArchive,
   fetchProductById,
@@ -39,9 +40,11 @@ type PathArgs = {
   date: string
 }
 
-export default async function Page({ params }: Args) {
-  const { center, zone, date } = await params
-
+/**
+ * 404 unless this is a well-formed date on a center that publishes forecasts natively — the dated
+ * history view is native-only, since the legacy widget keeps its own archive.
+ */
+async function assertDatedForecastAvailable(center: string, date: string) {
   if (!DATE_PATTERN.test(date)) {
     notFound()
   }
@@ -51,11 +54,40 @@ export default async function Page({ params }: Args) {
     notFound()
   }
 
-  // The dated history view is native-only; the legacy widget keeps its own archive.
   const useNative = await getNativeProductFlag(center, 'forecast')
   if (!useNative) {
     notFound()
   }
+}
+
+/**
+ * The archived forecast references the mountain-weather product that was current when it was
+ * issued; fetch that (immutable, by id) so historical views show the matching weather.
+ */
+async function fetchArchivedWeather(center: string, forecastResult: ForecastResult) {
+  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
+  if (weatherProductId === null) return null
+
+  return getWeatherSource(center).getWeather(weatherProductId)
+}
+
+/**
+ * The valid date of the current/live product, which anchors the picker's "return to current" path.
+ * Null when the center has no live product at all.
+ */
+function liveProductDate(
+  currentProduct: { published_time: string } | null,
+  timezone: string | null | undefined,
+) {
+  if (!currentProduct) return null
+
+  return validDateForProduct(currentProduct.published_time, timezone)
+}
+
+export default async function Page({ params }: Args) {
+  const { center, zone, date } = await params
+
+  await assertDatedForecastAvailable(center, date)
 
   const [resolvedZone, metadata] = await Promise.all([
     resolveZoneFromSlug(center, zone),
@@ -90,16 +122,8 @@ export default async function Page({ params }: Args) {
     )
   }
 
-  const currentDate = currentProduct
-    ? validDateForProduct(currentProduct.published_time, metadata.timezone)
-    : null
-
-  // The archived forecast references the mountain-weather product that was current when it was
-  // issued; fetch that (immutable, by id) so historical views show the matching weather.
-  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
-  const weather = weatherProductId
-    ? await getWeatherSource(center).getWeather(weatherProductId)
-    : null
+  const currentDate = liveProductDate(currentProduct, metadata.timezone)
+  const weather = await fetchArchivedWeather(center, forecastResult)
 
   return (
     <NativeForecastView
