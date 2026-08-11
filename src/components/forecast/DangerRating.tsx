@@ -9,7 +9,6 @@
 import Image from 'next/image'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { validDateHeading } from '@/services/nac/archiveDates'
 import {
   ELEVATION_BANDS_URL,
   NO_RATING_ADVICE,
@@ -19,9 +18,9 @@ import {
   dangerName,
 } from '@/services/nac/dangerScale'
 import {
-  type AvalancheDangerForecast,
   DangerLevel,
   ForecastPeriod,
+  type AvalancheDangerForecast,
 } from '@/services/nac/model/forecast'
 import type { ElevationBandNames } from '@/services/nac/types/schemas'
 import { cn } from '@/utilities/ui'
@@ -29,6 +28,7 @@ import { cn } from '@/utilities/ui'
 import { DangerScale } from './DangerScale'
 import { DangerTriangle } from './DangerTriangle'
 import { ExternalLink } from './ExternalLink'
+import { dangerHeadings, isNoRatingDay, type DangerHeadings } from './dangerRatingLayout'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface DangerRatingProps {
@@ -48,20 +48,7 @@ export function DangerRating({
 }: DangerRatingProps) {
   const today = danger.find((d) => d.valid_day === ForecastPeriod.Current)
   const tomorrow = danger.find((d) => d.valid_day === ForecastPeriod.Tomorrow)
-
-  // No Rating everywhere today → show the legacy explanation pointing to the summary.
-  const todayNoRating =
-    today != null &&
-    today.upper === DangerLevel.None &&
-    today.middle === DangerLevel.None &&
-    today.lower === DangerLevel.None
-
-  // The full dated view passes a published time; the compact all-zones card does not.
-  const dated = publishedTime != null
-  const todayHeading = dated ? (validDateHeading(publishedTime, timezone, 0) ?? 'Today') : 'Today'
-  const tomorrowHeading = dated
-    ? (validDateHeading(publishedTime, timezone, 1) ?? 'Tomorrow')
-    : 'Tomorrow'
+  const headings = dangerHeadings(publishedTime, timezone)
 
   return (
     <Card>
@@ -69,42 +56,74 @@ export function DangerRating({
         <CardTitle>Avalanche Danger</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Today is wider/detailed; tomorrow is a compact outlook. Side by side from lg. */}
-        <div className={cn('flex flex-col gap-6', dated && 'lg:flex-row lg:gap-8')}>
-          {today && (
-            <div className="lg:flex-[3]">
-              <DangerDay
-                heading={todayHeading}
-                forecast={today}
-                elevationBandNames={elevationBandNames}
-                variant={dated ? 'detailed' : 'compact'}
-              />
-            </div>
-          )}
-          {tomorrow && (
-            <div className="lg:flex-[2]">
-              <DangerDay
-                heading={tomorrowHeading}
-                forecast={tomorrow}
-                elevationBandNames={elevationBandNames}
-                variant="compact"
-              />
-            </div>
-          )}
-        </div>
-
-        {dated && todayNoRating && (
-          <p className="text-sm text-muted-foreground">{NO_RATING_ADVICE}</p>
-        )}
-
-        {dated && (
-          <ExternalLink href={ELEVATION_BANDS_URL} className="text-sm text-muted-foreground">
-            Elevation Band Descriptions
-          </ExternalLink>
-        )}
-        {dated && <DangerScale />}
+        <DangerDayColumns
+          today={today}
+          tomorrow={tomorrow}
+          headings={headings}
+          elevationBandNames={elevationBandNames}
+          // Today is wider/detailed on the dated view; the compact card renders both days compactly.
+          className={cn('flex flex-col gap-6', headings.dated && 'lg:flex-row lg:gap-8')}
+          todayVariant={headings.dated ? 'detailed' : 'compact'}
+        />
+        {headings.dated && <DatedDangerExtras noRatingToday={isNoRatingDay(today)} />}
       </CardContent>
     </Card>
+  )
+}
+
+/** Today is wider/detailed; tomorrow is a compact outlook. Side by side from lg. */
+function DangerDayColumns({
+  today,
+  tomorrow,
+  headings,
+  elevationBandNames,
+  className,
+  todayVariant,
+}: {
+  today: AvalancheDangerForecast | undefined
+  tomorrow: AvalancheDangerForecast | undefined
+  headings: DangerHeadings
+  elevationBandNames: ElevationBandNames
+  className: string
+  todayVariant: 'detailed' | 'compact'
+}) {
+  return (
+    <div className={className}>
+      {today && (
+        <div className="lg:flex-[3]">
+          <DangerDay
+            heading={headings.today}
+            forecast={today}
+            elevationBandNames={elevationBandNames}
+            variant={todayVariant}
+          />
+        </div>
+      )}
+      {tomorrow && (
+        <div className="lg:flex-[2]">
+          <DangerDay
+            heading={headings.tomorrow}
+            forecast={tomorrow}
+            elevationBandNames={elevationBandNames}
+            variant="compact"
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** The explanatory material shown only on the full dated view, not the compact all-zones card. */
+function DatedDangerExtras({ noRatingToday }: { noRatingToday: boolean }) {
+  return (
+    <>
+      {/* No Rating everywhere today → show the legacy explanation pointing to the summary. */}
+      {noRatingToday && <p className="text-sm text-muted-foreground">{NO_RATING_ADVICE}</p>}
+      <ExternalLink href={ELEVATION_BANDS_URL} className="text-sm text-muted-foreground">
+        Elevation Band Descriptions
+      </ExternalLink>
+      <DangerScale />
+    </>
   )
 }
 

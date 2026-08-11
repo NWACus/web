@@ -136,3 +136,28 @@ export function initialArchiveWindow(anchor: string | null): { from: string; to:
     to: format(endOfMonth(date), 'yyyy-MM-dd'),
   }
 }
+
+// Matches a YYYY-MM-DD date.
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+export interface ArchiveWindowQuery {
+  zoneSlug: string
+  from: string
+  to: string
+}
+
+/**
+ * Validate the `zone`/`from`/`to` query the archive endpoint is called with. Returns `null` when
+ * anything is missing, malformed, or the window runs backwards — the caller answers 400.
+ */
+export function parseArchiveWindowQuery(
+  zoneSlug: string | null,
+  from: string | null,
+  to: string | null,
+): ArchiveWindowQuery | null {
+  if (!zoneSlug || !from || !to) return null
+  if (!DATE_PATTERN.test(from) || !DATE_PATTERN.test(to)) return null
+  if (from > to) return null
+
+  return { zoneSlug, from, to }
+}
