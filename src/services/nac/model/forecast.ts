@@ -6,7 +6,7 @@
  * maps each backend's response into this model, so swapping a product from legacy v2
  * to NAC v3 is a config change behind the adapter, not a change to presentation.
  *
- * Design (per ADR 018, "Native product page architecture"):
+ * Design (per ADR 019, "Native product page architecture"):
  * - **Top-level product types are owned here** (`Forecast`, `Summary`, `Warning`, …).
  *   This is where v2↔v3 deviations get absorbed by the mappers — e.g. v2 represents a
  *   "no active warning" as a null-object, which the model represents as plain `null`.

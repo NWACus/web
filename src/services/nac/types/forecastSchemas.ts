@@ -25,7 +25,16 @@ export enum ProductType {
   Weather = 'weather',
 }
 
+/**
+ * A product's publication state.
+ *
+ * `Published` is load-bearing through `z.nativeEnum(ProductStatus)` on `status` in the product
+ * schemas below: zod validates against the member *value*, so dropping it would make zod reject
+ * every real product. It is only ever used as a type (`ProductStatus` in the model), never
+ * referenced by name as a value, which is why it reads as unused.
+ */
 export enum ProductStatus {
+  // fallow-ignore-next-line unused-enum-member
   Published = 'published',
 }
 
@@ -34,15 +43,31 @@ export enum ForecastPeriod {
   Tomorrow = 'tomorrow',
 }
 
+/**
+ * Upstream's numeric avalanche-problem id.
+ *
+ * Every member is load-bearing through `z.nativeEnum(AvalancheProblemType)` on
+ * `avalanche_problem_id` below: zod validates against the member *values*, so dropping `WindSlab`
+ * would make zod reject every forecast carrying a wind-slab problem. Only `StormSlab` is referenced
+ * by name, which is why the other eight read as unused.
+ */
 export enum AvalancheProblemType {
+  // fallow-ignore-next-line unused-enum-member
   DryLoose = 1,
   StormSlab,
+  // fallow-ignore-next-line unused-enum-member
   WindSlab,
+  // fallow-ignore-next-line unused-enum-member
   PersistentSlab,
+  // fallow-ignore-next-line unused-enum-member
   DeepPersistentSlab,
+  // fallow-ignore-next-line unused-enum-member
   WetLoose,
+  // fallow-ignore-next-line unused-enum-member
   WetSlab,
+  // fallow-ignore-next-line unused-enum-member
   CorniceFall,
+  // fallow-ignore-next-line unused-enum-member
   Glide,
 }
 
@@ -112,9 +137,19 @@ export enum MediaType {
   None = '',
 }
 
+/**
+ * Upstream's kind of externally-hosted media.
+ *
+ * Every member is load-bearing through `z.nativeEnum(ExternalMediaType)` on the video and external
+ * media schemas below: zod validates against the member *values*, so dropping `Instagram` would
+ * make zod reject a forecast carrying an embedded Instagram post. Only `Video` is referenced by
+ * name (from tests), which is why the other two read as unused.
+ */
 export enum ExternalMediaType {
+  // fallow-ignore-next-line unused-enum-member
   Image = 'image',
   Video = 'video',
+  // fallow-ignore-next-line unused-enum-member
   Instagram = 'instagram',
 }
 

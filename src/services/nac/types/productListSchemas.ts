@@ -30,6 +30,4 @@ export const productListItemSchema = z
   })
   // Tolerate the many archive columns we don't consume (danger, bottom_line, ...).
   .passthrough()
-export type ProductListItem = z.infer<typeof productListItemSchema>
-
 export const productListSchema = z.array(productListItemSchema)

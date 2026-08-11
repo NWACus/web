@@ -15,34 +15,36 @@ import sacWarning from './fixtures/sac-warning.json'
 import snfacForecast from './fixtures/snfac-forecast.json'
 import snfacWarning from './fixtures/snfac-warning.json'
 
+/**
+ * Parse a fixture as a full forecast, asserting the product type narrowed, and check that every
+ * avalanche problem's size came through as a number — several centers return string sizes on the
+ * wire, which the schema transforms.
+ */
+function parseForecastWithNumericSizes(fixture: unknown) {
+  const result = forecastResultSchema.parse(fixture)
+  expect(result.product_type).toBe(ProductType.Forecast)
+  if (result.product_type !== ProductType.Forecast) throw new Error('expected a forecast')
+
+  expect(result.forecast_avalanche_problems.length).toBeGreaterThan(0)
+  for (const problem of result.forecast_avalanche_problems) {
+    for (const size of problem.size) {
+      expect(typeof size).toBe('number')
+    }
+  }
+
+  return result
+}
+
 describe('forecastResultSchema', () => {
   it('parses an active NWAC forecast with string-typed sizes', () => {
-    const result = forecastResultSchema.parse(nwacForecastActive)
-    expect(result.product_type).toBe(ProductType.Forecast)
-    if (result.product_type === ProductType.Forecast) {
-      expect(result.forecast_avalanche_problems.length).toBeGreaterThan(0)
-      // NWAC returns string sizes — verify they are transformed to numbers
-      for (const problem of result.forecast_avalanche_problems) {
-        for (const size of problem.size) {
-          expect(typeof size).toBe('number')
-        }
-      }
-      expect(result.danger.length).toBeGreaterThan(0)
-      expect(result.danger[0].valid_day).toBe(ForecastPeriod.Current)
-    }
+    const result = parseForecastWithNumericSizes(nwacForecastActive)
+
+    expect(result.danger.length).toBeGreaterThan(0)
+    expect(result.danger[0].valid_day).toBe(ForecastPeriod.Current)
   })
 
   it('parses an SAC forecast with string-typed sizes', () => {
-    const result = forecastResultSchema.parse(sacForecast)
-    expect(result.product_type).toBe(ProductType.Forecast)
-    if (result.product_type === ProductType.Forecast) {
-      expect(result.forecast_avalanche_problems.length).toBeGreaterThan(0)
-      for (const problem of result.forecast_avalanche_problems) {
-        for (const size of problem.size) {
-          expect(typeof size).toBe('number')
-        }
-      }
-    }
+    parseForecastWithNumericSizes(sacForecast)
   })
 
   it('parses an SNFAC forecast', () => {

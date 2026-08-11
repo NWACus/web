@@ -1,44 +1,22 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
-import { getAvalancheCenterPlatforms } from '@/services/nac/nac'
-import { notFound } from 'next/navigation'
+import {
+  assertCenterPlatform,
+  centerRouteMetadata,
+  centerStaticParams,
+  type CenterRouteArgs,
+} from '@/utilities/centerRoutePage'
 
 export const dynamic = 'force-static'
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 0,
-    select: {
-      slug: true,
-    },
-  })
+export const generateStaticParams = centerStaticParams
 
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
-}
-
-type Args = {
-  params: Promise<PathArgs>
-}
-
-type PathArgs = {
-  center: string
-}
-
-export default async function Page({ params }: Args) {
+export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
 
-  const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
-
-  if (!avalancheCenterPlatforms.weather) {
-    notFound()
-  }
+  await assertCenterPlatform(center, 'weather')
 
   return (
     <>
@@ -56,31 +34,15 @@ export default async function Page({ params }: Args) {
 }
 
 export async function generateMetadata(
-  props: Args,
+  props: CenterRouteArgs,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const { center } = await props.params
-  const parentMeta = await parent
 
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
-  const parentOg = parentMeta.openGraph
-
-  return {
-    title: `Mountain Weather | ${parentTitle}`,
-    alternates: {
-      canonical: '/weather/forecast',
-    },
-    openGraph: {
-      ...parentOg,
-      title: `Mountain Weather | ${parentTitle}`,
-      url: '/weather/forecast',
-      images: [
-        { url: `/api/${center}/og?routeTitle=Mountain%20Weather`, width: 1200, height: 630 },
-      ],
-    },
-  }
+  return centerRouteMetadata({
+    parent,
+    label: 'Mountain Weather',
+    path: '/weather/forecast',
+    center,
+  })
 }

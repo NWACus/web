@@ -1,7 +1,7 @@
 /**
  * Normalized map-layer model — the forecast-zone geometry + danger overlay the danger map draws.
  *
- * The map layer is a Product in the ADR-018 sense, so it goes through a source adapter like
+ * The map layer is a Product in the ADR-019 sense, so it goes through a source adapter like
  * forecast and warning do (see `../sources/`). Consumers depend on this model, never on a v2 or
  * v3 response.
  *

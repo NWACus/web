@@ -1,6 +1,7 @@
 import {
   buildZoneArchiveDates,
   findProductIdForDate,
+  parseArchiveWindowQuery,
   validDateForProduct,
   type ArchiveProductSummary,
 } from '@/services/nac/archiveDates'
@@ -108,5 +109,41 @@ describe('findProductIdForDate', () => {
 
   it('returns null for a date with no product', () => {
     expect(findProductIdForDate(dates, '2026-01-07')).toBeNull()
+  })
+})
+
+describe('parseArchiveWindowQuery', () => {
+  it('accepts a well-formed window', () => {
+    expect(parseArchiveWindowQuery('west-slopes-north', '2026-02-01', '2026-02-28')).toEqual({
+      zoneSlug: 'west-slopes-north',
+      from: '2026-02-01',
+      to: '2026-02-28',
+    })
+  })
+
+  it('accepts a single-day window', () => {
+    expect(parseArchiveWindowQuery('zone', '2026-02-01', '2026-02-01')).not.toBeNull()
+  })
+
+  it.each([
+    ['a missing zone', null, '2026-02-01', '2026-02-28'],
+    ['an empty zone', '', '2026-02-01', '2026-02-28'],
+    ['a missing from', 'zone', null, '2026-02-28'],
+    ['a missing to', 'zone', '2026-02-01', null],
+  ])('rejects %s', (_label, zone, from, to) => {
+    expect(parseArchiveWindowQuery(zone, from, to)).toBeNull()
+  })
+
+  it.each([
+    ['a non-date from', 'zone', '01-02-2026', '2026-02-28'],
+    ['a non-date to', 'zone', '2026-02-01', 'yesterday'],
+    ['a short year', 'zone', '26-02-01', '2026-02-28'],
+    ['a timestamp rather than a date', 'zone', '2026-02-01T00:00:00Z', '2026-02-28'],
+  ])('rejects %s', (_label, zone, from, to) => {
+    expect(parseArchiveWindowQuery(zone, from, to)).toBeNull()
+  })
+
+  it('rejects a window that runs backwards', () => {
+    expect(parseArchiveWindowQuery('zone', '2026-03-01', '2026-02-01')).toBeNull()
   })
 })

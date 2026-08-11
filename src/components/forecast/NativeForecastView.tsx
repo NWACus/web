@@ -6,16 +6,13 @@
  */
 import type { ZoneArchiveDate } from '@/services/nac/archiveDates'
 import {
-  DangerLevel,
-  ForecastPeriod,
   ProductType,
-  type Forecast,
   type ForecastResult,
   type WarningProduct,
   type Weather,
 } from '@/services/nac/model/forecast'
 import type { ActiveForecastZoneWithSlug } from '@/services/nac/nac'
-import { AvalancheCenterType } from '@/services/nac/types/schemas'
+import type { AvalancheCenterType, ElevationBandNames } from '@/services/nac/types/schemas'
 
 import { AvalancheProblemCard } from './AvalancheProblemCard'
 import { BottomLine } from './BottomLine'
@@ -29,6 +26,7 @@ import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
 import { WeatherSummary } from './WeatherSummary'
+import { bottomLineDangerLevel } from './zoneCardDanger'
 
 interface NativeForecastViewProps {
   center: string
@@ -51,24 +49,6 @@ interface NativeForecastViewProps {
   centerType: AvalancheCenterType
   /** The separately-issued weather product, when one is available (live page only). */
   weather?: Weather | null
-}
-
-/** All danger levels ordered low to high for safe lookup by numeric value. */
-const dangerLevels: DangerLevel[] = [
-  DangerLevel.None,
-  DangerLevel.Low,
-  DangerLevel.Moderate,
-  DangerLevel.Considerable,
-  DangerLevel.High,
-  DangerLevel.Extreme,
-]
-
-/** Extract the highest danger level from a forecast's current-day danger array. */
-function highestDangerLevel(forecast: Forecast): DangerLevel {
-  const today = forecast.danger.find((d) => d.valid_day === ForecastPeriod.Current)
-  if (!today) return DangerLevel.None
-  const max = Math.max(today.upper, today.middle, today.lower)
-  return dangerLevels[max] ?? DangerLevel.None
 }
 
 export function NativeForecastView({
@@ -98,6 +78,76 @@ export function NativeForecastView({
         </p>
       </header>
 
+      <ForecastMasthead
+        center={center}
+        zone={zone}
+        timezone={timezone}
+        forecastResult={forecastResult}
+        warning={warning}
+        initialDates={initialDates}
+        initialRange={initialRange}
+        currentDate={currentDate}
+        selectedDate={selectedDate}
+        basePath={basePath}
+      />
+
+      <ForecastLead
+        forecastResult={forecastResult}
+        elevationBandNames={zone.zone.config.elevation_band_names}
+        timezone={timezone}
+      />
+
+      <AvalancheProblems forecastResult={forecastResult} />
+
+      <ForecastSupplements
+        forecastResult={forecastResult}
+        weather={weather}
+        zoneName={zone.zone.name}
+        timezone={timezone}
+      />
+
+      <ForecastMedia media={forecastResult.media} />
+
+      {/* Scope disclaimer — safety/scope language shown under every afp product */}
+      <ForecastDisclaimer
+        centerType={centerType}
+        centerName={forecastResult.avalanche_center.name}
+      />
+    </div>
+  )
+}
+
+/**
+ * Everything between the page heading and the forecast content: the history picker, any active
+ * warning, the validity banner, and the product's metadata. Each is independently boundaried so
+ * one malformed field degrades that strip only.
+ */
+function ForecastMasthead({
+  center,
+  zone,
+  timezone,
+  forecastResult,
+  warning,
+  initialDates,
+  initialRange,
+  currentDate,
+  selectedDate,
+  basePath,
+}: Pick<
+  NativeForecastViewProps,
+  | 'center'
+  | 'zone'
+  | 'timezone'
+  | 'forecastResult'
+  | 'warning'
+  | 'initialDates'
+  | 'initialRange'
+  | 'currentDate'
+  | 'selectedDate'
+  | 'basePath'
+>) {
+  return (
+    <>
       {/* Date picker — browse this zone's published forecast history, colored by danger. */}
       <ForecastErrorBoundary fallbackMessage="Unable to display the date picker">
         <ForecastDatePicker
@@ -126,73 +176,125 @@ export function NativeForecastView({
       <ForecastErrorBoundary fallbackMessage="Unable to display forecast metadata">
         <ForecastHeader forecast={forecastResult} timezone={timezone} />
       </ForecastErrorBoundary>
+    </>
+  )
+}
 
-      {/* Bottom line — rendered above the danger rating to match the legacy afp widget,
-          which leads with the forecaster's bottom line before the per-band ratings. */}
+/**
+ * The bottom line and the per-band danger ratings. The bottom line is rendered above the ratings
+ * to match the legacy afp widget, which leads with the forecaster's summary.
+ */
+function ForecastLead({
+  forecastResult,
+  elevationBandNames,
+  timezone,
+}: {
+  forecastResult: ForecastResult
+  elevationBandNames: ElevationBandNames
+  timezone: string | null | undefined
+}) {
+  return (
+    <>
       {forecastResult.bottom_line && (
         <ForecastErrorBoundary fallbackMessage="Unable to display the bottom line">
           <BottomLine
             html={forecastResult.bottom_line}
-            dangerLevel={isForecast ? highestDangerLevel(forecastResult) : DangerLevel.None}
+            dangerLevel={bottomLineDangerLevel(forecastResult)}
           />
         </ForecastErrorBoundary>
       )}
 
-      {/* Danger rating — only for full forecasts (not summary products) */}
-      {isForecast && (
-        <ForecastErrorBoundary fallbackMessage="Unable to display danger rating">
-          <DangerRating
-            danger={forecastResult.danger}
-            elevationBandNames={zone.zone.config.elevation_band_names}
-            publishedTime={forecastResult.published_time}
-            timezone={timezone}
-          />
+      <DangerRatingSection
+        forecastResult={forecastResult}
+        elevationBandNames={elevationBandNames}
+        timezone={timezone}
+      />
+    </>
+  )
+}
+
+/** Only for full forecasts — summary products carry no per-band ratings. */
+function DangerRatingSection({
+  forecastResult,
+  elevationBandNames,
+  timezone,
+}: {
+  forecastResult: ForecastResult
+  elevationBandNames: ElevationBandNames
+  timezone: string | null | undefined
+}) {
+  if (forecastResult.product_type !== ProductType.Forecast) return null
+
+  return (
+    <ForecastErrorBoundary fallbackMessage="Unable to display danger rating">
+      <DangerRating
+        danger={forecastResult.danger}
+        elevationBandNames={elevationBandNames}
+        publishedTime={forecastResult.published_time}
+        timezone={timezone}
+      />
+    </ForecastErrorBoundary>
+  )
+}
+
+/** Only for full forecasts, headed by the count to match the widget. */
+function AvalancheProblems({ forecastResult }: { forecastResult: ForecastResult }) {
+  if (forecastResult.product_type !== ProductType.Forecast) return null
+  if (forecastResult.forecast_avalanche_problems.length === 0) return null
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-xl font-bold tracking-tight">
+        Avalanche Problems ({forecastResult.forecast_avalanche_problems.length})
+      </h2>
+      {forecastResult.forecast_avalanche_problems.map((problem) => (
+        <ForecastErrorBoundary
+          key={problem.id}
+          fallbackMessage={`Unable to display avalanche problem: ${problem.name}`}
+        >
+          <AvalancheProblemCard problem={problem} />
         </ForecastErrorBoundary>
-      )}
+      ))}
+    </section>
+  )
+}
 
-      {/* Avalanche problems — only for full forecasts, headed by the count to match the widget */}
-      {isForecast && forecastResult.forecast_avalanche_problems.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-bold tracking-tight">
-            Avalanche Problems ({forecastResult.forecast_avalanche_problems.length})
-          </h2>
-          {forecastResult.forecast_avalanche_problems.map((problem) => (
-            <ForecastErrorBoundary
-              key={problem.id}
-              fallbackMessage={`Unable to display avalanche problem: ${problem.name}`}
-            >
-              <AvalancheProblemCard problem={problem} />
-            </ForecastErrorBoundary>
-          ))}
-        </section>
-      )}
-
-      {/* Forecast discussion */}
+/** The discussion, and the separately-issued weather product when one is available. */
+function ForecastSupplements({
+  forecastResult,
+  weather,
+  zoneName,
+  timezone,
+}: {
+  forecastResult: ForecastResult
+  weather: Weather | null | undefined
+  zoneName: string
+  timezone: string | null | undefined
+}) {
+  return (
+    <>
       {forecastResult.hazard_discussion && (
         <ForecastErrorBoundary fallbackMessage="Unable to display forecast discussion">
           <ForecastDiscussion html={forecastResult.hazard_discussion} />
         </ForecastErrorBoundary>
       )}
 
-      {/* Mountain weather — the separately-issued weather product, inline, when one is available */}
       {weather && (
         <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
-          <WeatherSummary weather={weather} zoneName={zone.zone.name} timezone={timezone} />
+          <WeatherSummary weather={weather} zoneName={zoneName} timezone={timezone} />
         </ForecastErrorBoundary>
       )}
+    </>
+  )
+}
 
-      {/* Forecast-level media */}
-      {forecastResult.media && forecastResult.media.length > 0 && (
-        <ForecastErrorBoundary fallbackMessage="Unable to display forecast media">
-          <ForecastMediaThumbnails media={forecastResult.media} />
-        </ForecastErrorBoundary>
-      )}
+/** Forecast-level media, as a thumbnail grid opening the lightbox. */
+function ForecastMedia({ media }: { media: ForecastResult['media'] }) {
+  if (!media || media.length === 0) return null
 
-      {/* Scope disclaimer — safety/scope language shown under every afp product */}
-      <ForecastDisclaimer
-        centerType={centerType}
-        centerName={forecastResult.avalanche_center.name}
-      />
-    </div>
+  return (
+    <ForecastErrorBoundary fallbackMessage="Unable to display forecast media">
+      <ForecastMediaThumbnails media={media} />
+    </ForecastErrorBoundary>
   )
 }
