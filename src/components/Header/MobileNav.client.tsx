@@ -74,8 +74,10 @@ export const MobileNav = ({
   return (
     <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
       <div ref={headerRef} className="lg:hidden py-1.5 bg-header shadow-sm">
-        <div className="container flex justify-between items-center gap-5">
-          <DialogTrigger className="p-2">
+        {/* Three tracks so the logo stays centered whether or not the announcements toggle is
+            rendered. The outer tracks are equal by definition, empty or not. */}
+        <div className="container grid grid-cols-[1fr_auto_1fr] items-center gap-5">
+          <DialogTrigger className="col-start-1 justify-self-start p-2">
             <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">
               <span
                 className={`bg-header-foreground h-[2px] w-full rounded transition-all duration-300 ease-in-out ${
@@ -96,7 +98,7 @@ export const MobileNav = ({
             <span className="sr-only">Toggle menu</span>
           </DialogTrigger>
           {banner && (
-            <Link href="/" className="w-fit flex gap-4">
+            <Link href="/" className="col-start-2 justify-self-center w-fit flex gap-4">
               <ImageMedia
                 resource={banner}
                 loading="eager"
@@ -119,7 +121,7 @@ export const MobileNav = ({
             <button
               onClick={toggle}
               className={cn(
-                'relative rounded-md p-2 text-header-foreground transition-colors',
+                'col-start-3 justify-self-end relative rounded-md p-2 text-header-foreground transition-colors',
                 !collapsed && 'bg-header-foreground/20',
               )}
               aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${announcementCount} ${announcementCount === 1 ? 'announcement' : 'announcements'}`}
