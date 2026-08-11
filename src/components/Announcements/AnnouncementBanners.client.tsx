@@ -106,8 +106,10 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
 
   return (
     <>
+      {/* Capped below lg because the banners are pinned there: a long announcement would otherwise
+          take the whole phone screen and leave nowhere to read the page. Past the cap it scrolls. */}
       <div
-        className="overflow-hidden transition-[height] duration-300 ease-in-out"
+        className="max-h-[35dvh] overflow-x-hidden overflow-y-auto transition-[height] duration-300 ease-in-out lg:max-h-none lg:overflow-y-hidden"
         style={{ height: collapsed ? 0 : contentHeight }}
       >
         <div ref={contentRef} className="relative bg-callout" onClick={handleContentClick}>
