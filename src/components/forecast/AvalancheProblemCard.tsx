@@ -63,59 +63,80 @@ export function AvalancheProblemCard({ problem }: AvalancheProblemCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Four labeled columns, matching the widget: Problem Type, Aspect/Elevation,
-            Likelihood, Size. Two-up at small widths, four-up from lg. */}
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h5 className="text-sm font-semibold">Problem Type</h5>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={problemIconUrl(problem.name)}
-              alt=""
-              className="h-20 w-20"
-              aria-hidden="true"
-            />
-            <span className="text-sm font-medium">{problem.name}</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h5 className="text-sm font-semibold">Aspect/Elevation</h5>
-            <LocatorRose locations={problem.location} className="w-28" />
-          </div>
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h5 className="text-sm font-semibold">Likelihood</h5>
-            <LikelihoodSlider likelihood={problem.likelihood} className="h-32" />
-          </div>
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h5 className="text-sm font-semibold">Size</h5>
-            <SizeSlider size={problem.size} className="h-32" />
-          </div>
-        </div>
+        <ProblemAttributes problem={problem} />
 
-        {/* Discussion with the example photo floated inline to the right (wraps on md+);
-            overflow-hidden contains the float within the card. */}
         {(photo || problem.discussion) && (
-          <div className="overflow-hidden">
-            {photo && (
-              <figure className="mb-3 md:float-right md:mb-2 md:ml-6 md:w-1/2 lg:w-1/3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.src} alt="" className="w-full rounded-md" />
-                {photo.caption && (
-                  <figcaption
-                    className="pt-2 text-center text-sm italic text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(photo.caption) }}
-                  />
-                )}
-              </figure>
-            )}
-            {problem.discussion && (
-              <div
-                className="prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(problem.discussion) }}
-              />
-            )}
-          </div>
+          <ProblemDiscussion photo={photo} discussion={problem.discussion} />
         )}
       </CardContent>
     </Card>
+  )
+}
+
+/**
+ * Four labeled columns, matching the widget: Problem Type, Aspect/Elevation, Likelihood, Size.
+ * Two-up at small widths, four-up from lg.
+ */
+function ProblemAttributes({ problem }: { problem: AvalancheProblem }) {
+  return (
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h5 className="text-sm font-semibold">Problem Type</h5>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={problemIconUrl(problem.name)} alt="" className="h-20 w-20" aria-hidden="true" />
+        <span className="text-sm font-medium">{problem.name}</span>
+      </div>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h5 className="text-sm font-semibold">Aspect/Elevation</h5>
+        <LocatorRose locations={problem.location} className="w-28" />
+      </div>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h5 className="text-sm font-semibold">Likelihood</h5>
+        <LikelihoodSlider likelihood={problem.likelihood} className="h-32" />
+      </div>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h5 className="text-sm font-semibold">Size</h5>
+        <SizeSlider size={problem.size} className="h-32" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * The discussion with the example photo floated inline to its right (wraps on md+);
+ * overflow-hidden contains the float within the card.
+ */
+function ProblemDiscussion({
+  photo,
+  discussion,
+}: {
+  photo: { src: string; caption: string | null } | null
+  discussion: string | null
+}) {
+  return (
+    <div className="overflow-hidden">
+      {photo && <ProblemPhoto photo={photo} />}
+      {discussion && (
+        <div
+          className="prose prose-sm max-w-none dark:prose-invert"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(discussion) }}
+        />
+      )}
+    </div>
+  )
+}
+
+function ProblemPhoto({ photo }: { photo: { src: string; caption: string | null } }) {
+  return (
+    <figure className="mb-3 md:float-right md:mb-2 md:ml-6 md:w-1/2 lg:w-1/3">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={photo.src} alt="" className="w-full rounded-md" />
+      {photo.caption && (
+        <figcaption
+          className="pt-2 text-center text-sm italic text-muted-foreground"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(photo.caption) }}
+        />
+      )}
+    </figure>
   )
 }

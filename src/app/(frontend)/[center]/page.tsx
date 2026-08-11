@@ -6,6 +6,7 @@ import HighlightedContent from '@/collections/HomePages/components/HighlightedCo
 import QuickLinkButton from '@/components/QuickLinkButton'
 import { HomeDangerMap } from '@/components/dangerMap/HomeDangerMap'
 import { HomeWarnings } from '@/components/warnings/HomeWarnings'
+import { centerStaticParams } from '@/utilities/centerRoutePage'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { draftMode } from 'next/headers'
@@ -15,18 +16,7 @@ export const dynamic = 'force-static'
 export const revalidate = 3600 // Next.js requires a static literal here
 export const dynamicParams = true
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 1000,
-    select: {
-      slug: true,
-    },
-  })
-
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
-}
+export const generateStaticParams = centerStaticParams
 
 type Args = {
   params: Promise<PathArgs>
