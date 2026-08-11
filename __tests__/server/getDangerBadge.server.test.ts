@@ -1,15 +1,24 @@
 import { getDangerBadge } from '@/app/api/[center]/og/getDangerBadge'
-import { MapLayerFeatureProperties } from '@/services/nac/types/schemas'
+import type { ZoneProperties } from '@/services/nac/model/mapLayer'
 
-const danger = (overrides: Partial<MapLayerFeatureProperties>): MapLayerFeatureProperties => ({
+const danger = (overrides: Partial<ZoneProperties>): ZoneProperties => ({
   name: 'Stevens Pass',
+  center: null,
+  center_link: null,
+  timezone: null,
   center_id: 'NWAC',
+  state: null,
+  off_season: false,
   danger: null,
   danger_level: 0,
   travel_advice: null,
   color: null,
+  stroke: null,
   font_color: null,
   link: null,
+  start_date: null,
+  end_date: null,
+  warning: { product: null },
   ...overrides,
 })
 
