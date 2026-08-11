@@ -142,6 +142,8 @@ export const NO_RATING_ADVICE =
 export interface DangerScaleRow {
   level: DangerLevel
   rating: string
+  /** Shortened rating for narrow screens, where the full names collide (as in the legacy legend). */
+  abbreviation: string
   /** Travel advice — contains <strong>, render as sanitized HTML. */
   advice: string
   likelihood: string
@@ -153,6 +155,7 @@ export const dangerScaleRows: DangerScaleRow[] = [
   {
     level: DangerLevel.Low,
     rating: 'Low',
+    abbreviation: 'Low',
     advice:
       '<strong>Generally safe avalanche conditions.</strong> Watch for unstable snow on isolated terrain features.',
     likelihood: 'Natural and human-triggered avalanches unlikely.',
@@ -161,6 +164,7 @@ export const dangerScaleRows: DangerScaleRow[] = [
   {
     level: DangerLevel.Moderate,
     rating: 'Moderate',
+    abbreviation: 'Mod',
     advice:
       '<strong>Heightened avalanche conditions on specific terrain features.</strong> Evaluate snow and terrain carefully; identify features of concern.',
     likelihood: 'Natural avalanches unlikely; human-triggered avalanches possible.',
@@ -169,6 +173,7 @@ export const dangerScaleRows: DangerScaleRow[] = [
   {
     level: DangerLevel.Considerable,
     rating: 'Considerable',
+    abbreviation: 'Cons',
     advice:
       '<strong>Dangerous avalanche conditions.</strong> Careful snowpack evaluation, cautious route-finding and conservative decision-making essential.',
     likelihood: 'Natural avalanches possible; human-triggered avalanches likely.',
@@ -178,6 +183,7 @@ export const dangerScaleRows: DangerScaleRow[] = [
   {
     level: DangerLevel.High,
     rating: 'High',
+    abbreviation: 'High',
     advice:
       '<strong>Very dangerous avalanche conditions.</strong> Travel in avalanche terrain not recommended.',
     likelihood: 'Natural avalanches likely; human-triggered avalanches very likely.',
@@ -186,6 +192,7 @@ export const dangerScaleRows: DangerScaleRow[] = [
   {
     level: DangerLevel.Extreme,
     rating: 'Extreme',
+    abbreviation: 'Extr',
     advice:
       '<strong>Extraordinarily dangerous avalanche conditions.</strong> Avoid all avalanche terrain.',
     likelihood: 'Natural and human-triggered avalanches certain.',
