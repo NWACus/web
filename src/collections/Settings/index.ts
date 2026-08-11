@@ -242,6 +242,15 @@ const featuresFields: Field[] = [
             'Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.',
         },
       },
+      {
+        name: 'dangerMap',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.',
+        },
+      },
     ],
   },
 ]
