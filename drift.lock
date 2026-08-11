@@ -558,7 +558,7 @@ sig = "e3dde955e6e1147b"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/app/(frontend)/[center]/events/page.tsx"
-sig = "123312ea0418834d"
+sig = "4836c72cf57814e5"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
