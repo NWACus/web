@@ -7,8 +7,8 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
 import { nacApiHost } from '@/services/nac/hosts'
-import { getForecastZoneDanger } from '@/services/nac/nac'
 
 const stevensPass = {
   name: 'Stevens Pass',
