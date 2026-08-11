@@ -18,6 +18,13 @@ import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
 import { DangerMapLoader } from './DangerMapLoader.client'
 
+/**
+ * The legacy widget's own CSS renders the map at 500px and ignores the AFP-configured height, so
+ * the fallback pins it here: reserved as min-height so the page doesn't shift while the widget
+ * loads, and passed as `mapWidgetData.height` for builds that read it. nac-widgets.css forces the
+ * map container to the same value for builds that don't. Keep the two in sync.
+ */
+const DANGER_MAP_HEIGHT = 500
 /** Height of the danger-scale graphic under the legacy widget's map, reserved to avoid layout shift. */
 const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 
@@ -37,9 +44,9 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
     return (
       <div
         className="w-full"
-        style={{ minHeight: settings.height + HEIGHT_OF_DANGER_SCALE_GRAPHIC }}
+        style={{ minHeight: DANGER_MAP_HEIGHT + HEIGHT_OF_DANGER_SCALE_GRAPHIC }}
       >
-        <NACWidget center={centerSlug} widget="map" />
+        <NACWidget center={centerSlug} widget="map" mapHeight={DANGER_MAP_HEIGHT} />
       </div>
     )
   }

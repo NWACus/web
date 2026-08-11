@@ -3,8 +3,8 @@ import { getPayload } from 'payload'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import HighlightedContent from '@/collections/HomePages/components/HighlightedContent'
-import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
+import { HomeDangerMap } from '@/components/dangerMap/HomeDangerMap'
 import { HomeWarnings } from '@/components/warnings/HomeWarnings'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
@@ -14,15 +14,6 @@ import { notFound } from 'next/navigation'
 export const dynamic = 'force-static'
 export const revalidate = 3600 // Next.js requires a static literal here
 export const dynamicParams = true
-
-// The danger map widget's own CSS renders the map at 500px and centers like that size, so we
-// deliberately ignore the AFP-configured `widget_config.danger_map.height` and pin it here. It
-// feeds the wrapper's min-height below so the page doesn't shift while the widget loads, and is
-// passed to the widget as `mapWidgetData.height` for builds that read it. Older (Google Maps)
-// widget builds ignore that and write the AFP height inline instead, so nac-widgets.css also
-// forces the map container to this height. Keep the two values in sync.
-const DANGER_MAP_HEIGHT = 500
-const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -61,11 +52,8 @@ export default async function Page({ params }: Args) {
       <HomeWarnings centerSlug={center} />
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
-          <div
-            className="w-full"
-            style={{ minHeight: DANGER_MAP_HEIGHT + HEIGHT_OF_DANGER_SCALE_GRAPHIC }}
-          >
-            <NACWidget center={center} widget="map" mapHeight={DANGER_MAP_HEIGHT} />
+          <div className="w-full">
+            <HomeDangerMap centerSlug={center} />
           </div>
           {quickLinks && quickLinks.length > 0 && (
             <div className="flex flex-col gap-4">
