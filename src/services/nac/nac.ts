@@ -27,6 +27,7 @@ export class NACError extends Error {
 
 type Options = {
   tags?: string[]
+  // Seconds, matching Next's `next.revalidate`.
   cachedTime?: number | false
 }
 
@@ -37,8 +38,10 @@ export async function nacFetch(path: string, options: Options = {}) {
   try {
     const res = await fetch(url, {
       next: {
-        revalidate: options?.cachedTime ?? 24 * 60 * 60 * 1000, // hold on to this cached data for a day (in milliseconds)
-        ...(options?.tags && options.tags.length > 0 ? options.tags : []),
+        revalidate: options?.cachedTime ?? 24 * 60 * 60, // hold on to this cached data for a day (in seconds)
+        // Spread as `{ tags }`; spreading the bare array sets numeric keys, leaving the fetch
+        // untagged and revalidateTag a silent no-op.
+        ...(options?.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
       },
     })
 
@@ -79,8 +82,10 @@ export async function afpFetch(path: string, options: Options = {}) {
   try {
     const res = await fetch(url, {
       next: {
-        revalidate: options?.cachedTime ?? 24 * 60 * 60 * 1000, // hold on to this cached data for a day (in milliseconds)
-        ...(options?.tags && options.tags.length > 0 ? options.tags : []),
+        revalidate: options?.cachedTime ?? 24 * 60 * 60, // hold on to this cached data for a day (in seconds)
+        // Spread as `{ tags }`; spreading the bare array sets numeric keys, leaving the fetch
+        // untagged and revalidateTag a silent no-op.
+        ...(options?.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
       },
     })
 
