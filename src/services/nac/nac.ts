@@ -29,6 +29,26 @@ type Options = {
   tags?: string[]
   // Seconds, matching Next's `next.revalidate`.
   cachedTime?: number | false
+  // Skip Next's fetch-level data cache entirely (cache: 'no-store'). Use for responses too
+  // large for the 2MB data cache, which are cached one layer up after being trimmed down.
+  noStore?: boolean
+}
+
+const DEFAULT_CACHED_TIME_SECONDS = 24 * 60 * 60
+
+function fetchInit(options: Options): RequestInit {
+  if (options.noStore) {
+    return { cache: 'no-store' }
+  }
+
+  return {
+    next: {
+      revalidate: options.cachedTime ?? DEFAULT_CACHED_TIME_SECONDS,
+      // Spread as `{ tags }`; spreading the bare array sets numeric keys, leaving the fetch
+      // untagged and revalidateTag a silent no-op.
+      ...(options.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
+    },
+  }
 }
 
 export async function nacFetch(path: string, options: Options = {}) {
@@ -36,14 +56,7 @@ export async function nacFetch(path: string, options: Options = {}) {
   const url = `${host}/${normalizedPath}`
 
   try {
-    const res = await fetch(url, {
-      next: {
-        revalidate: options?.cachedTime ?? 24 * 60 * 60, // hold on to this cached data for a day (in seconds)
-        // Spread as `{ tags }`; spreading the bare array sets numeric keys, leaving the fetch
-        // untagged and revalidateTag a silent no-op.
-        ...(options?.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
-      },
-    })
+    const res = await fetch(url, fetchInit(options))
 
     if (!res.ok) {
       throw new NACError(`NAC API request failed with status ${res.status}`, null, {
@@ -80,14 +93,7 @@ export async function afpFetch(path: string, options: Options = {}) {
   const url = `${wordpressHost}?${querystring}`
 
   try {
-    const res = await fetch(url, {
-      next: {
-        revalidate: options?.cachedTime ?? 24 * 60 * 60, // hold on to this cached data for a day (in seconds)
-        // Spread as `{ tags }`; spreading the bare array sets numeric keys, leaving the fetch
-        // untagged and revalidateTag a silent no-op.
-        ...(options?.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
-      },
-    })
+    const res = await fetch(url, fetchInit(options))
 
     if (!res.ok) {
       let errorData

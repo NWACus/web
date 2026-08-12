@@ -64,4 +64,11 @@ describe.each([
     expect(initFor(0).next).not.toHaveProperty('tags')
     expect(initFor(1).next).not.toHaveProperty('tags')
   })
+
+  it('skips the data cache when noStore is set', async () => {
+    await doFetch('/v2/public/avalanche-center/NWAC', { noStore: true })
+
+    expect(initFor().cache).toBe('no-store')
+    expect(initFor().next).toBeUndefined()
+  })
 })
