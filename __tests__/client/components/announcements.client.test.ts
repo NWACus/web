@@ -1,5 +1,6 @@
 import { matchesPage, shouldShow } from '@/components/Announcements/announcementUtils'
 import { isExpired } from '@/components/Announcements/isExpired'
+import { scrollAnnouncementsIntoView } from '@/components/Announcements/scrollAnnouncementsIntoView'
 import type { Announcement } from '@/payload-types'
 
 function makeAnnouncement(overrides: Partial<Announcement> = {}): Announcement {
@@ -101,5 +102,53 @@ describe('shouldShow', () => {
     expect(shouldShow(popup, 1)).toBe(false)
     expect(shouldShow(popup, 2)).toBe(false)
     expect(shouldShow(popup, 3)).toBe(true)
+  })
+})
+
+describe('scrollAnnouncementsIntoView', () => {
+  const scrollTo = jest.fn()
+  let reducedMotion = false
+
+  beforeEach(() => {
+    scrollTo.mockClear()
+    reducedMotion = false
+
+    Object.defineProperty(window, 'scrollTo', { value: scrollTo, writable: true })
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: query.includes('prefers-reduced-motion') && reducedMotion,
+        media: query,
+      }),
+    })
+  })
+
+  function setScrollY(value: number) {
+    Object.defineProperty(window, 'scrollY', { value, writable: true })
+  }
+
+  it('does nothing when the page is already at the top', () => {
+    setScrollY(0)
+
+    scrollAnnouncementsIntoView()
+
+    expect(scrollTo).not.toHaveBeenCalled()
+  })
+
+  it('scrolls back to the banners when the page is scrolled away from them', () => {
+    setScrollY(1200)
+
+    scrollAnnouncementsIntoView()
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
+  })
+
+  it('jumps without animating when the reader prefers reduced motion', () => {
+    setScrollY(1200)
+    reducedMotion = true
+
+    scrollAnnouncementsIntoView()
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' })
   })
 })
