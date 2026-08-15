@@ -1,21 +1,21 @@
 'use client'
 
-import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
+import { getStationGroup } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, X } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import { ChipGroup } from './ChipGroup'
+import type { EditViewProps } from './EditViewDialog'
+import { CompareChips, CompareSelect, EditViewDialog, PeriodSelect } from './EditViewDialog'
 import { buildChartOption } from './stationGraphOptions'
 import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
-import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
-import { StationOptGroups, stationSelectClass } from './StationPicker'
+import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
@@ -74,24 +74,6 @@ function useGraphData(stids: string[], variables: string[], period: StationPerio
   return { data, error, loading }
 }
 
-const GRAPH_PERIOD_CHIPS = GRAPH_PERIODS.map((p) => ({ key: p.key, label: p.label }))
-
-function PeriodPicker({
-  active,
-  onChange,
-}: {
-  active: StationPeriod
-  onChange: (period: StationPeriod) => void
-}) {
-  return (
-    <ChipGroup
-      chips={GRAPH_PERIOD_CHIPS}
-      activeKey={active.key}
-      onSelect={(key) => onChange(GRAPH_PERIODS.find((p) => p.key === key) ?? DEFAULT_GRAPH_PERIOD)}
-    />
-  )
-}
-
 function ChartFrame({ loading, children }: { loading: boolean; children: ReactNode }) {
   return (
     <div className="relative" aria-busy={loading}>
@@ -103,141 +85,16 @@ function ChartFrame({ loading, children }: { loading: boolean; children: ReactNo
   )
 }
 
-const chipClass = 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm'
-
-function CompareStationPicker({
-  currentSlug,
-  compareSlugs,
-  onAdd,
-}: {
-  currentSlug: string
-  compareSlugs: string[]
-  onAdd: (slug: string) => void
-}) {
-  const atCap = compareSlugs.length >= MAX_COMPARE_STATIONS
-  return (
-    <select
-      value=""
-      disabled={atCap}
-      aria-label="Compare with"
-      onChange={(event) => {
-        if (event.target.value) onAdd(event.target.value)
-      }}
-      className={cn(stationSelectClass, 'px-3 py-1.5 disabled:opacity-50')}
-    >
-      <option value="">
-        {atCap ? `Up to ${MAX_COMPARE_STATIONS} stations` : 'Add a station…'}
-      </option>
-      <StationOptGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
-    </select>
-  )
-}
-
-function CompareChips({
-  compareSlugs,
-  onRemove,
-}: {
-  compareSlugs: string[]
-  onRemove: (slug: string) => void
-}) {
-  const selected = compareSlugs.flatMap((slug) => getStationGroup(slug) ?? [])
-
-  return selected.map((group) => (
-    <span key={group.slug} className={chipClass}>
-      {group.displayName}
-      <button
-        type="button"
-        aria-label={`Remove ${group.displayName}`}
-        onClick={() => onRemove(group.slug)}
-        className="text-muted-foreground hover:text-foreground"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
-    </span>
-  ))
-}
-
-function ChartControls({
-  title,
-  canUp,
-  canDown,
-  onMove,
-  onHide,
-}: {
-  title: string
-  canUp: boolean
-  canDown: boolean
-  onMove: (direction: -1 | 1) => void
-  onHide: () => void
-}) {
-  const buttonClass =
-    'rounded-md p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground'
-  return (
-    <div className="flex justify-end gap-1">
-      <button
-        type="button"
-        aria-label={`Move ${title} up`}
-        disabled={!canUp}
-        onClick={() => onMove(-1)}
-        className={buttonClass}
-      >
-        <ArrowUp className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        aria-label={`Move ${title} down`}
-        disabled={!canDown}
-        onClick={() => onMove(1)}
-        className={buttonClass}
-      >
-        <ArrowDown className="h-4 w-4" />
-      </button>
-      <button type="button" aria-label={`Hide ${title}`} onClick={onHide} className={buttonClass}>
-        <EyeOff className="h-4 w-4" />
-      </button>
-    </div>
-  )
-}
-
-function HiddenChartChips({
-  presets,
-  onShow,
-}: {
-  presets: GraphPreset[]
-  onShow: (key: string) => void
-}) {
-  if (presets.length === 0) return null
-  return (
-    <>
-      <span className="text-sm text-muted-foreground">Hidden:</span>
-      {presets.map((preset) => (
-        <button
-          key={preset.key}
-          type="button"
-          aria-label={`Show ${preset.title}`}
-          onClick={() => onShow(preset.key)}
-          className={cn(chipClass, 'text-muted-foreground hover:text-foreground')}
-        >
-          {preset.title}
-          <Eye className="h-3.5 w-3.5" />
-        </button>
-      ))}
-    </>
-  )
-}
-
 function PresetChart({
   preset,
   data,
   primaryStids,
   unitSystem,
-  controls,
 }: {
   preset: GraphPreset
   data: GraphData
   primaryStids: string[]
   unitSystem: UnitSystem
-  controls: ReactNode
 }) {
   const presetData = useMemo(() => {
     const filtered = {
@@ -251,35 +108,7 @@ function PresetChart({
     () => buildChartOption(presetData, convertPreset(preset, unitSystem), primaryStids),
     [presetData, preset, unitSystem, primaryStids],
   )
-  return (
-    <div className="relative">
-      <div className="absolute right-0 top-0 z-10">{controls}</div>
-      <EChart option={option} group="station-graphs" />
-    </div>
-  )
-}
-
-function GraphsChipRow({
-  compareSlugs,
-  onCompareChange,
-  hiddenPresets,
-  onShow,
-}: {
-  compareSlugs: string[]
-  onCompareChange: (slugs: string[]) => void
-  hiddenPresets: GraphPreset[]
-  onShow: (key: string) => void
-}) {
-  if (compareSlugs.length === 0 && hiddenPresets.length === 0) return null
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <CompareChips
-        compareSlugs={compareSlugs}
-        onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
-      />
-      <HiddenChartChips presets={hiddenPresets} onShow={onShow} />
-    </div>
-  )
+  return <EChart option={option} group="station-graphs" />
 }
 
 function emptyPresetKeys(data: GraphData | null, presets: GraphPreset[]): Set<string> {
@@ -324,15 +153,6 @@ function GraphsCharts({
             data={data}
             primaryStids={primaryStids}
             unitSystem={unitSystem}
-            controls={
-              <ChartControls
-                title={preset.title}
-                canUp={arrangement.canMove(preset.key, -1)}
-                canDown={arrangement.canMove(preset.key, 1)}
-                onMove={(direction) => arrangement.moveChart(preset.key, direction)}
-                onHide={() => arrangement.hideChart(preset.key)}
-              />
-            }
           />
         ))}
       </div>
@@ -340,42 +160,36 @@ function GraphsCharts({
   )
 }
 
-function GraphsToolbar({
-  graphPeriod,
-  onPeriodChange,
-  unitSystem,
-  onUnitChange,
-  currentSlug,
-  compareSlugs,
-  onCompareChange,
-  arrangement,
-}: {
-  graphPeriod: StationPeriod
-  onPeriodChange: (period: StationPeriod) => void
-  unitSystem: UnitSystem
-  onUnitChange: (system: UnitSystem) => void
-  currentSlug: string
-  compareSlugs: string[]
-  onCompareChange: (slugs: string[]) => void
-  arrangement: ReturnType<typeof useChartArrangement>
-}) {
+// On small screens the toolbar collapses to the Edit graphs button (plus any
+// compare chips); the dialog then hosts the period/units/compare controls.
+function GraphsToolbar(props: EditViewProps) {
+  const { compareSlugs, onCompareChange } = props
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <PeriodPicker active={graphPeriod} onChange={onPeriodChange} />
-        <CompareStationPicker
-          currentSlug={currentSlug}
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+      <div className="hidden sm:contents">
+        <CompareSelect
+          currentSlug={props.currentSlug}
           compareSlugs={compareSlugs}
-          onAdd={(slug) => onCompareChange([...compareSlugs, slug])}
+          onCompareChange={onCompareChange}
         />
-        <UnitToggle unit={unitSystem} onChange={onUnitChange} />
       </div>
-      <GraphsChipRow
-        compareSlugs={compareSlugs}
-        onCompareChange={onCompareChange}
-        hiddenPresets={arrangement.hiddenPresets}
-        onShow={arrangement.showChart}
-      />
+      {compareSlugs.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <CompareChips
+            compareSlugs={compareSlugs}
+            onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+          />
+        </div>
+      )}
+      <div className="hidden sm:contents">
+        <PeriodSelect
+          active={props.graphPeriod}
+          onChange={props.onPeriodChange}
+          className="sm:ml-auto"
+        />
+        <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
+      </div>
+      <EditViewDialog {...props} />
     </div>
   )
 }
@@ -431,6 +245,7 @@ export function StationGraphs({
         compareSlugs={compareSlugs}
         onCompareChange={setCompareSlugs}
         arrangement={arrangement}
+        emptyKeys={emptyKeys}
       />
       <GraphsCharts
         presets={presets}

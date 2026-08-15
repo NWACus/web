@@ -45,10 +45,10 @@ export async function Header({ center }: { center: string }) {
   const { topLevelNavItems } = await getCachedTopLevelNavItems(center, draft)()
 
   return (
+    // Below lg this pins to the top of the viewport as the page scrolls, via the sticky wrapper it
+    // shares with the announcement banners in Announcements.tsx.
     <header className="bg-header lg:shadow-sm lg:border-b">
       <MobileNav topLevelNavItems={topLevelNavItems} banner={banner} usfsLogo={usfsLogo} />
-      {/* content padding since mobile nav is position: fixed */}
-      <div className="lg:hidden h-[64px] bg-background" />
 
       <div className="hidden lg:flex container pt-8 flex-col justify-center items-center gap-4">
         {banner && (
