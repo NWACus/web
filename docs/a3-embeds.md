@@ -32,6 +32,7 @@ Displays all published avalanche education providers organized by state in a two
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `title` | string | none | Optional header title to display above the provider list |
+| `states` | string | none | Pre-filter to only the given states (comma-separated state codes, e.g. `WA,OR`). Uses `INTL` for International. When omitted, all states are shown. |
 
 ### Example Usage
 
@@ -60,9 +61,21 @@ With a custom title:
 ></iframe>
 ```
 
+Pre-filtered to show only Washington and Oregon providers:
+```html
+<iframe
+  id="avy-web-embed-provider"
+  src="https://yoursite.com/embeds/providers?states=WA,OR"
+  height="0"
+  scrolling="true"
+  width="100%"
+></iframe>
+```
+
 ### Behavior
 
 - Providers are grouped by their `statesServiced` field (a provider can appear under multiple states)
+- When the `states` param is present, only the selected states' sections are rendered; a provider appears under a selected state if that state is among its `statesServiced`
 - States are sorted alphabetically and split into two columns
 - Clicking a provider opens a modal with details: name, course types offered, location, website, email, and phone
 
