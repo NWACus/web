@@ -29,8 +29,16 @@ export default async function Page({ params }: Args) {
   return (
     <div className="flex flex-col gap-6 mb-10">
       <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">Weather Stations</h1>
+        <div className="flex flex-col gap-1">
+          <div className="prose dark:prose-invert max-w-none">
+            <h1 className="font-bold">Weather Stations</h1>
+          </div>
+          <Link
+            href="/weather/stations/accumulated-precipitation"
+            className="text-primary hover:underline"
+          >
+            Accumulated Precipitation
+          </Link>
         </div>
         <div className="flex flex-col items-end">
           <StationPicker />
