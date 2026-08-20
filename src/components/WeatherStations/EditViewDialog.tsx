@@ -113,7 +113,7 @@ export function CompareSelect({
         />
       </SelectTrigger>
       <SelectContent position="item-aligned">
-        <StationSelectGroups excludeSlugs={[currentSlug, ...compareSlugs]} />
+        <StationSelectGroups excludeSlugs={[currentSlug, ...compareSlugs]} excludeArchived />
       </SelectContent>
     </Select>
   )

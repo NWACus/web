@@ -17,10 +17,19 @@ import { useRouter } from 'next/navigation'
 export const stationSelectTriggerClass =
   'h-auto w-auto gap-2 rounded-md text-sm shadow-sm focus:ring-offset-0'
 
-export function StationSelectGroups({ excludeSlugs = [] }: { excludeSlugs?: string[] }) {
+export function StationSelectGroups({
+  excludeSlugs = [],
+  excludeArchived = false,
+}: {
+  excludeSlugs?: string[]
+  excludeArchived?: boolean
+}) {
   return NWAC_STATION_REGIONS.map((region) => {
     const groups = NWAC_WEATHER_STATION_GROUPS.filter(
-      (group) => group.region === region && !excludeSlugs.includes(group.slug),
+      (group) =>
+        group.region === region &&
+        !excludeSlugs.includes(group.slug) &&
+        !(excludeArchived && group.archived),
     )
     if (groups.length === 0) return null
     return (

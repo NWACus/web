@@ -117,14 +117,26 @@ async function tableTabView(group: WeatherStationGroup, periodParam?: string): P
   }
 }
 
+// An archived station reports nothing, so its table and graphs are empty by
+// definition — the download of its history is the whole point of the page.
+function defaultTabKey(group: WeatherStationGroup): string {
+  return group.archived ? 'csv' : 'table'
+}
+
+const TAB_VIEWS: Record<string, (group: WeatherStationGroup) => TabView | Promise<TabView>> = {
+  csv: csvTabView,
+  graphs: graphsTabView,
+}
+
 async function resolveTabView(
   group: WeatherStationGroup,
   rangeParam?: string,
   periodParam?: string,
 ): Promise<TabView> {
-  if (rangeParam === 'csv') return csvTabView(group)
-  if (rangeParam === 'graphs') return graphsTabView(group)
-  return tableTabView(group, periodParam ?? rangeParam)
+  const build = TAB_VIEWS[rangeParam ?? defaultTabKey(group)]
+  // Anything else is the table, including legacy `?range=24h` / `?range=7d`
+  // links, which read as period keys.
+  return build ? build(group) : tableTabView(group, periodParam ?? rangeParam)
 }
 
 export default async function Page({ params, searchParams }: Args) {

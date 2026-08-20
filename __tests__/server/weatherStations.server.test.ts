@@ -2,11 +2,20 @@ import {
   getStationGroup,
   NWAC_STATION_REGIONS,
   NWAC_WEATHER_STATION_GROUPS,
+  PRECIP_STATION_STIDS,
 } from '../../src/constants/weatherStations'
 
 describe('weather station registry', () => {
-  it('has 31 station groups', () => {
-    expect(NWAC_WEATHER_STATION_GROUPS).toHaveLength(31)
+  it('has 32 station groups', () => {
+    expect(NWAC_WEATHER_STATION_GROUPS).toHaveLength(32)
+  })
+
+  it('keeps archived stations off the accumulated precipitation table', () => {
+    const helens = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === 'mt-st-helens')
+    expect(helens?.archived).toBe(true)
+    // Coldwater was removed on 2026-05-14 and reports nothing, so its row would
+    // read "missing" forever — legacy omits it for the same reason.
+    expect(helens?.stids.every((stid) => !PRECIP_STATION_STIDS.includes(stid))).toBe(true)
   })
 
   it('has unique slugs and legacy slugs', () => {

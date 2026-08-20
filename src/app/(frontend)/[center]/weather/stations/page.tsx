@@ -55,6 +55,12 @@ export default async function Page({ params }: Args) {
                     >
                       {group.displayName}
                     </Link>
+                    {/* Listed so legacy links and browsing still reach the
+                        downloads; how archived stations should surface across
+                        the site is still open (#1195). */}
+                    {group.archived && (
+                      <span className="ml-1 text-xs text-muted-foreground">Archived</span>
+                    )}
                   </li>
                 ))}
               </ul>
