@@ -4,18 +4,12 @@ import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 
-// The station page's own chrome — the view tabs plus that view's filters —
-// pinned as one block, so switching views and changing the window stay
-// reachable while scrolling a long table or a tall column of charts.
+// View tabs plus that view's filters, pinned as one block. The 4rem offset
+// clears the sticky mobile site header, matching the root layout's
+// `scroll-pt-16`; above lg that header doesn't stick.
 //
-// Below lg it clears the sticky mobile site header; the 4rem offset matches the
-// `scroll-pt-16` the root layout uses to clear that same header. Above lg the
-// site header doesn't stick, so this pins to the top of the viewport.
-//
-// The measured height lands on `--station-bar-height` because the Table view's
-// own header row pins directly beneath this bar, and the bar's height moves
-// with the viewport: the filter row wraps on narrow screens and the compare
-// chips add a line of their own.
+// The height is measured rather than assumed — the filter row wraps and the
+// compare chips add a line.
 export function StationStickyBar({
   children,
   className,

@@ -4,10 +4,8 @@ export type GraphPreset = {
   variables: string[]
   /** Dots instead of a connected line (wind direction wraps at 360°). */
   symbolsOnly?: boolean
-  /** Axis bounds the chart always covers, ported from the legacy plotter's
-   * `getVariableBounds`. Applied as a floor extent — the axis expands when real
-   * data exceeds them, where legacy clipped it (a 0.6in/hr hour flat-topped at
-   * the 0.35 ceiling). */
+  /** Bounds the axis always covers, from the legacy plotter's
+   * `getVariableBounds`. A floor, not a ceiling: real data widens the axis. */
   axis?: { min?: number; max?: number }
   /** Horizontal reference line (legacy: 32°F freezing line on temperature). */
   refLine?: number
@@ -19,16 +17,12 @@ export type GraphPreset = {
   /** Sub-zero readings are real (temperature); everywhere else they're sensor
    * noise and clamp to zero. */
   allowNegative?: boolean
-  /** Off by default; the reader turns it on in Edit graphs. */
   defaultHidden?: boolean
 }
 
 // Every station gets the full preset list — loggers report more sensors than
-// the registry's NOW-table columns. Charts with no data hide themselves.
-//
-// Order is the default reading order: temperature, wind, then precipitation
-// ahead of the snow depths, and interval snow ahead of total depth. Charts that
-// are off by default sort last so the Edit graphs list stays tidy.
+// the registry's NOW-table columns. Charts with no data hide themselves, and
+// the default-hidden ones sort last to keep the Edit graphs list tidy.
 export const STATION_GRAPH_PRESETS: GraphPreset[] = [
   { key: 'temp', title: 'Temperature', variables: ['air_temp'], refLine: 32, allowNegative: true },
   {

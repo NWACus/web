@@ -28,8 +28,7 @@ export function UnitToggle({
   unit: UnitSystem
   onChange: (unit: UnitSystem) => void
 }) {
-  // Abbreviated on phones — at full width the pair ate most of a 390px screen,
-  // crowding out the table it belongs to. `aria-label` keeps the full word.
+  // Abbreviated on phones, where the full words ate most of the screen width.
   const chip = (system: UnitSystem, text: string, short: string) => (
     <button
       type="button"

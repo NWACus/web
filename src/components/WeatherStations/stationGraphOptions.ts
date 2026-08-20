@@ -81,12 +81,10 @@ function isFiniteNumber(v: number | null | undefined): v is number {
   return v !== null && v !== undefined && Number.isFinite(v)
 }
 
-// Daily series carry their own min and max, so both edges bound the axis.
 function plottedValues(s: GraphSeries): (number | null)[] {
   return s.kind === 'raw' ? s.points.map(([, v]) => v) : s.days.flatMap(([, lo, , hi]) => [lo, hi])
 }
 
-// Widest [min, max] across every plotted value; null when nothing reported.
 // Reduced rather than spread into Math.min — a season of hourly data across
 // several stations is more arguments than a call frame should carry.
 function dataExtent(series: GraphSeries[]): Bounds | null {
@@ -108,10 +106,9 @@ function niceStep(rough: number): number {
   return 10 * magnitude
 }
 
-// The span the axis has to cover: the data, widened to the preset's floor.
-// `floor` is a floor and not a ceiling — real data beyond it widens the axis
-// instead of clipping, where legacy pinned these hard and rendered a 0.6in/hr
-// hour flat-topped at the 0.35 bound.
+// `floor` is a floor and not a ceiling: real data beyond it widens the axis
+// instead of clipping, where legacy rendered a 0.6in/hr hour flat-topped at the
+// 0.35 bound.
 function axisSpan(series: GraphSeries[], floor?: GraphPreset['axis']): Bounds | null {
   const extent = dataExtent(series)
   const mins = [extent?.min, floor?.min].filter(isFiniteNumber)
@@ -120,7 +117,6 @@ function axisSpan(series: GraphSeries[], floor?: GraphPreset['axis']): Bounds | 
   return { min: Math.min(...mins), max: Math.max(...maxes) }
 }
 
-// Rounded outward to a step that lands gridlines on readable numbers.
 function roundOutward({ min, max }: Bounds): Bounds {
   // A dead-flat series (a rainless week) has no range to divide into steps.
   if (min === max) return { min: min - 1, max: max + 1 }
@@ -128,8 +124,8 @@ function roundOutward({ min, max }: Bounds): Bounds {
   return { min: Math.floor(min / step) * step, max: Math.ceil(max / step) * step }
 }
 
-// Resolved once per data load rather than per zoom frame: because the bounds
-// reach ECharts explicitly, panning and zooming leave the axis where it is.
+// Resolved once per data load, and passed to ECharts explicitly, so panning and
+// zooming leave the axis where it is.
 function frozenAxisBounds(series: GraphSeries[], floor?: GraphPreset['axis']): Bounds | null {
   const span = axisSpan(series, floor)
   return span && roundOutward(span)
@@ -314,9 +310,8 @@ export function buildChartOption(
       position: i === 0 ? 'left' : 'right',
       scale: true,
       splitLine: { show: i === 0 },
-      // Bounds come from the whole period's data, so they hold while the reader
-      // pans and zooms. Only the first axis carries the preset's floor — a
-      // second axis is a different unit the floor doesn't describe.
+      // Only the first axis takes the preset's floor; a second axis is a
+      // different unit the floor doesn't describe.
       ...frozenAxisBounds(
         data.series.filter((s) => axisIndexFor(s.unit, axes) === i),
         i === 0 ? preset.axis : undefined,

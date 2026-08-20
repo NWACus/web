@@ -13,8 +13,6 @@ describe('weather station registry', () => {
   it('keeps archived stations off the accumulated precipitation table', () => {
     const helens = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === 'mt-st-helens')
     expect(helens?.archived).toBe(true)
-    // Coldwater was removed on 2026-05-14 and reports nothing, so its row would
-    // read "missing" forever — legacy omits it for the same reason.
     expect(helens?.stids.every((stid) => !PRECIP_STATION_STIDS.includes(stid))).toBe(true)
   })
 

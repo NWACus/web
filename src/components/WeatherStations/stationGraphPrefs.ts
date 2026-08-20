@@ -1,9 +1,8 @@
 import type { GraphPreset } from './stationGraphPresets'
 
-// Chart arrangement for the station Graphs tab: preset order plus hidden
-// charts. Session-only — the configured default is what every reader starts
-// from, so a change to the defaults reaches everyone rather than being masked
-// by a stored arrangement.
+// Chart order and visibility for the Graphs tab. Session-only, so a change to
+// the defaults reaches everyone instead of being masked by a stored
+// arrangement.
 
 export type ChartPrefs = { order: string[]; hidden: string[] }
 

@@ -17,8 +17,11 @@ import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { stickyTableScrollClass } from './stationTableLayout'
 import { UnitToggle } from './UnitToggle'
+
+// Bounds the scroll box so the sticky header has something to stick to: the
+// Table wrapper is the scroll container, not the viewport.
+const scrollBox = 'max-h-[calc(100dvh-5rem)] lg:max-h-[calc(100dvh-2rem)]'
 
 // Totals come from the API in inches, elevation in feet; metric converts on display.
 type Unit = UnitSystem
@@ -271,7 +274,7 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
       <div className="mb-2 flex justify-end">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
-      <Table containerClassName={stickyTableScrollClass} className="mx-auto w-auto text-base">
+      <Table containerClassName={scrollBox} className="mx-auto w-auto text-base">
         <TableHeader>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
         </TableHeader>

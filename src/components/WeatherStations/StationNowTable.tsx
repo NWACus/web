@@ -9,8 +9,11 @@ import {
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
-import { stickyTableScrollClass } from './stationTableLayout'
 import { formatStationValue } from './stationTableUnits'
+
+// Bounds the scroll box so the sticky header has something to stick to: the
+// Table wrapper is the scroll container, not the viewport.
+const scrollBox = 'max-h-[calc(100dvh-5rem)] lg:max-h-[calc(100dvh-2rem)]'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
@@ -30,10 +33,7 @@ export function StationNowTable({
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'
 
   return (
-    <Table
-      containerClassName={stickyTableScrollClass}
-      className="mx-auto w-auto text-xs sm:text-base"
-    >
+    <Table containerClassName={scrollBox} className="mx-auto w-auto text-xs sm:text-base">
       <TableHeader>
         <TableRow>
           <TableHead className="sticky left-0 top-0 z-20 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">

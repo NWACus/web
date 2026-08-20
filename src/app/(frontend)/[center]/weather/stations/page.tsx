@@ -37,8 +37,6 @@ export default async function Page({ params }: Args) {
         </div>
       </div>
 
-      {/* Capped at three columns and tightened per Dennis's feedback (#1195) —
-          the four-column flow left the regions floating in whitespace. */}
       <div className="container columns-1 gap-8 sm:columns-2 lg:columns-3">
         {NWAC_STATION_REGIONS.map((region) => {
           const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
@@ -55,9 +53,7 @@ export default async function Page({ params }: Args) {
                     >
                       {group.displayName}
                     </Link>
-                    {/* Listed so legacy links and browsing still reach the
-                        downloads; how archived stations should surface across
-                        the site is still open (#1195). */}
+                    {/* Listed so legacy links still reach the downloads. */}
                     {group.archived && (
                       <span className="ml-1 text-xs text-muted-foreground">Archived</span>
                     )}

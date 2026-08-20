@@ -339,8 +339,6 @@ describe('StationGraphs chart arrangement', () => {
     openEditView()
     fireEvent.click(graphCheckbox('Temperature'))
 
-    // The configured default is what every reader starts from, so a change to
-    // the defaults reaches everyone instead of being masked by stored prefs.
     expect(window.localStorage.getItem('nwac-station-graph-prefs')).toBeNull()
   })
 

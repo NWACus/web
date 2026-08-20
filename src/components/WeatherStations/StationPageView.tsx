@@ -34,8 +34,6 @@ function StationHeader({
   )
 }
 
-// An archived station reports nothing, so the page needs to say why before a
-// reader concludes the sensors are broken.
 function ArchivedNotice() {
   return (
     <aside className="container">
@@ -53,8 +51,7 @@ function ArchivedNotice() {
   )
 }
 
-// The tab bar lives inside `tabContent` rather than here: it pins together with
-// that view's own filter row as a single sticky block.
+// The tab bar lives inside `tabContent` so it can pin with that view's filters.
 export function StationPageView({ group, table, tabContent }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">

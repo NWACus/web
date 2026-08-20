@@ -63,8 +63,6 @@ type TabView = {
   tabContent?: ReactNode
 }
 
-// The tab bar renders inside each view so it pins together with that view's
-// filter row; the CSV view has no filters of its own, so it pins the tabs alone.
 async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
   return {
     table: null,
@@ -117,8 +115,7 @@ async function tableTabView(group: WeatherStationGroup, periodParam?: string): P
   }
 }
 
-// An archived station reports nothing, so its table and graphs are empty by
-// definition — the download of its history is the whole point of the page.
+// An archived station's table and graphs are empty, so downloads lead.
 function defaultTabKey(group: WeatherStationGroup): string {
   return group.archived ? 'csv' : 'table'
 }
@@ -134,8 +131,7 @@ async function resolveTabView(
   periodParam?: string,
 ): Promise<TabView> {
   const build = TAB_VIEWS[rangeParam ?? defaultTabKey(group)]
-  // Anything else is the table, including legacy `?range=24h` / `?range=7d`
-  // links, which read as period keys.
+  // Anything else is the table, including legacy `?range=24h` links.
   return build ? build(group) : tableTabView(group, periodParam ?? rangeParam)
 }
 
