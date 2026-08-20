@@ -1,6 +1,8 @@
 import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
+import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import type { WeatherStationGroup } from '@/constants/weatherStations'
+import type { StationNote } from '@/services/snowobs/stationNotes'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -8,6 +10,7 @@ import type { ReactNode } from 'react'
 type StationPageViewProps = {
   group: WeatherStationGroup
   table: StationTable | null
+  notes: StationNote[]
   tabContent?: ReactNode
 }
 
@@ -52,11 +55,16 @@ function ArchivedNotice() {
 }
 
 // The tab bar lives inside `tabContent` so it can pin with that view's filters.
-export function StationPageView({ group, table, tabContent }: StationPageViewProps) {
+export function StationPageView({ group, table, notes, tabContent }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
       <StationHeader group={group} table={table} />
       {group.archived && <ArchivedNotice />}
+      {notes.length > 0 && (
+        <div className="container">
+          <StationNotes notes={notes} />
+        </div>
+      )}
       <div className="container flex flex-col gap-3">{tabContent}</div>
     </div>
   )

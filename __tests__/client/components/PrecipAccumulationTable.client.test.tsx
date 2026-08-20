@@ -17,6 +17,7 @@ function buildRow(overrides: Partial<PrecipAccumulationRow>): PrecipAccumulation
     lastUpdateMs: 1_700_000_000_000,
     totals: { 1: 0.1, 3: 0.3, 6: 0.5, 12: 0.5, 24: 0.5, 48: 0.5, 72: 0.5 },
     hasData: true,
+    notes: [],
     ...overrides,
   }
 }
@@ -109,5 +110,30 @@ describe('PrecipAccumulationTable', () => {
     render(<PrecipAccumulationTable table={{ rows: [], timezoneLabel: '' }} />)
 
     expect(screen.getByText('No station observations in the last 72 hours.')).toBeInTheDocument()
+  })
+})
+
+describe('station notes', () => {
+  it('flags a station carrying an active note and spells it out below the table', () => {
+    const broken = buildRow({
+      stid: 'T',
+      name: 'Timberline',
+      notes: ['The precipitation gauge is not recording correctly.'],
+    })
+    render(<PrecipAccumulationTable table={{ rows: [broken], timezoneLabel: 'PST' }} />)
+
+    expect(screen.getByLabelText('Timberline has a station note')).toBeInTheDocument()
+    expect(
+      screen.getByText('The precipitation gauge is not recording correctly.'),
+    ).toBeInTheDocument()
+  })
+
+  it('leaves unflagged stations unmarked', () => {
+    render(
+      <PrecipAccumulationTable
+        table={{ rows: [buildRow({ name: 'Paradise' })], timezoneLabel: 'PST' }}
+      />,
+    )
+    expect(screen.queryByLabelText(/has a station note/)).not.toBeInTheDocument()
   })
 })
