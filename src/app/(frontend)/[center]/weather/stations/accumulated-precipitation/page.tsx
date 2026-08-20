@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 const REVALIDATE_SECONDS = 300
 
 const ROUTE_TITLE = 'Accumulated Precipitation'
-const CANONICAL = '/weather/accumulations/precipitation'
+const CANONICAL = '/weather/stations/accumulated-precipitation'
 
 type Args = {
   params: Promise<{ center: string }>
