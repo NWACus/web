@@ -15,6 +15,7 @@ import {
   type WeatherStationGroup,
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { activeStationNotes } from '@/services/snowobs/stationNotes'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { buildStationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
@@ -33,6 +34,13 @@ export async function generateStaticParams() {
     center: STATIONS_TENANT_SLUG,
     station: group.slug,
   }))
+}
+
+// Current sensor issues for this group, shown on every tab. A short window is
+// enough — notes ride along with the station metadata, not the observations.
+async function loadStationNotes(group: WeatherStationGroup) {
+  const meta = await fetchStationTimeseries(group.stids, { revalidate, windowHours: 1 })
+  return activeStationNotes(meta)
 }
 
 // Datalogger dropdown options for the CSV form: the group's station ids labeled with
@@ -148,9 +156,14 @@ export default async function Page({ params, searchParams }: Args) {
     notFound()
   }
 
-  const view = await resolveTabView(group, rangeParam, periodParam)
+  const [view, notes] = await Promise.all([
+    resolveTabView(group, rangeParam, periodParam),
+    loadStationNotes(group),
+  ])
 
-  return <StationPageView group={group} table={view.table} tabContent={view.tabContent} />
+  return (
+    <StationPageView group={group} table={view.table} notes={notes} tabContent={view.tabContent} />
+  )
 }
 
 function resolveParentTitle(parent: ResolvedMetadata): Metadata['title'] {

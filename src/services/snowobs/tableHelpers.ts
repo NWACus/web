@@ -126,6 +126,9 @@ export type PrecipAccumulationRow = {
   totals: Record<number, number | null>
   /** False when the station reported nothing in the widest window ("missing"). */
   hasData: boolean
+  /** Active SnowObs notes for this station — a broken gauge is the reason a
+   * total looks wrong, so it travels with the row. */
+  notes: string[]
 }
 
 export type PrecipAccumulationTable = {
@@ -184,7 +187,17 @@ function accumulationRow(
     lastUpdateMs: lastMs > 0 ? lastMs : null,
     totals,
     hasData: Object.values(totals).some((v) => v !== null),
+    notes: activeNotesFor(station),
   }
+}
+
+// Active notes only; `static` ones describe permanent site characteristics and
+// would flag most of the table, every day.
+function activeNotesFor(station: ResponseStation): string[] {
+  return (station.station_note ?? []).flatMap((note) => {
+    const text = note.note?.trim()
+    return text && note.status === 'active' ? [text] : []
+  })
 }
 
 // North -> south; stations without a latitude sink to the bottom by name.
