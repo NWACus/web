@@ -29,9 +29,7 @@ export function StationTableView({
   const display = useMemo(() => convertStationTable(table, unitSystem), [table, unitSystem])
   return (
     <div className="flex flex-col gap-2">
-      {/* Not pinned: on a phone the tabs and filters take a third of the
-          viewport, and this view has no charts to scroll past. */}
-      <StationViewBar pinned={false}>
+      <StationViewBar>
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ChipGroup chips={TABLE_PERIOD_CHIPS} activeKey={activePeriodKey} />

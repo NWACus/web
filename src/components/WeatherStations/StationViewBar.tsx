@@ -18,7 +18,9 @@ export function StationViewBar({
   return (
     <div
       className={cn(
-        'z-20 flex flex-col gap-3 border-b bg-background pb-2 pt-2',
+        // No border here: the tab nav carries its own, and on the Download tab
+        // (tabs only) a second one lands right under it as a doubled line.
+        'z-20 flex flex-col gap-3 bg-background pb-2 pt-2',
         pinned && 'sticky top-16 lg:top-0',
         className,
       )}
