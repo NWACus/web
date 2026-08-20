@@ -16,7 +16,7 @@ import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
 import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
-import { StationStickyBar } from './StationStickyBar'
+import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
@@ -176,7 +176,7 @@ function GraphsCharts({
 function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
   const { compareSlugs, onCompareChange } = props
   return (
-    <StationStickyBar>
+    <StationViewBar>
       {props.tabs}
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <div className="hidden sm:contents">
@@ -204,7 +204,7 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
         </div>
         <EditViewDialog {...props} />
       </div>
-    </StationStickyBar>
+    </StationViewBar>
   )
 }
 

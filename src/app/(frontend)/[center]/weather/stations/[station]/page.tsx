@@ -6,8 +6,8 @@ import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
 import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
-import { StationStickyBar } from '@/components/WeatherStations/StationStickyBar'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
+import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import {
   getStationGroup,
   NWAC_WEATHER_STATION_GROUPS,
@@ -68,9 +68,9 @@ async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
     table: null,
     tabContent: (
       <>
-        <StationStickyBar>
+        <StationViewBar>
           <StationRangeTabs activeKey="csv" />
-        </StationStickyBar>
+        </StationViewBar>
         <StationCsvForm
           slug={group.slug}
           dataloggers={await loadDataloggers(group)}

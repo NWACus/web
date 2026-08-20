@@ -7,6 +7,7 @@ import { ChipGroup } from './ChipGroup'
 import { StationNowTable } from './StationNowTable'
 import { TABLE_PERIODS } from './stationPeriods'
 import { convertStationTable } from './stationTableUnits'
+import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 
 const TABLE_PERIOD_CHIPS = TABLE_PERIODS.map((p) => ({
@@ -30,13 +31,13 @@ export function StationTableView({
     <div className="flex flex-col gap-2">
       {/* Not pinned: on a phone the tabs and filters take a third of the
           viewport, and this view has no charts to scroll past. */}
-      <div className="flex flex-col gap-3">
+      <StationViewBar pinned={false}>
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ChipGroup chips={TABLE_PERIOD_CHIPS} activeKey={activePeriodKey} />
           <UnitToggle unit={unitSystem} onChange={changeUnitSystem} />
         </div>
-      </div>
+      </StationViewBar>
       <StationNowTable
         table={display}
         elevationUnit={unitSystem === 'metric' ? ' m' : undefined}
