@@ -1,6 +1,5 @@
 import { StationLatestObservation } from '@/components/WeatherStations/StationLatestObservation'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import type { WeatherStationGroup } from '@/constants/weatherStations'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import type { ReactNode } from 'react'
@@ -8,7 +7,6 @@ import type { ReactNode } from 'react'
 type StationPageViewProps = {
   group: WeatherStationGroup
   table: StationTable | null
-  activeKey: string
   tabContent?: ReactNode
 }
 
@@ -35,14 +33,13 @@ function StationHeader({
   )
 }
 
-export function StationPageView({ group, table, activeKey, tabContent }: StationPageViewProps) {
+// The tab bar lives inside `tabContent` rather than here: it pins together with
+// that view's own filter row as a single sticky block.
+export function StationPageView({ group, table, tabContent }: StationPageViewProps) {
   return (
     <div className="mb-10 flex flex-col gap-4">
       <StationHeader group={group} table={table} />
-      <div className="container flex flex-col gap-3">
-        <StationRangeTabs activeKey={activeKey} />
-        {tabContent}
-      </div>
+      <div className="container flex flex-col gap-3">{tabContent}</div>
     </div>
   )
 }

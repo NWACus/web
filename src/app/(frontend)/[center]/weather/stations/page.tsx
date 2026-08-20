@@ -37,14 +37,16 @@ export default async function Page({ params }: Args) {
         </div>
       </div>
 
-      <div className="container columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4">
+      {/* Capped at three columns and tightened per Dennis's feedback (#1195) —
+          the four-column flow left the regions floating in whitespace. */}
+      <div className="container columns-1 gap-8 sm:columns-2 lg:columns-3">
         {NWAC_STATION_REGIONS.map((region) => {
           const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
           if (groups.length === 0) return null
           return (
-            <section key={region} className="mb-16 break-inside-avoid">
-              <h2 className="mb-2 text-lg font-semibold">{region}</h2>
-              <ul className="">
+            <section key={region} className="mb-6 break-inside-avoid">
+              <h2 className="mb-1 text-lg font-semibold">{region}</h2>
+              <ul className="leading-snug">
                 {groups.map((group) => (
                   <li key={group.slug}>
                     <Link

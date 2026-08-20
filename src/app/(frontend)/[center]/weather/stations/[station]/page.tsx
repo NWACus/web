@@ -5,6 +5,8 @@ import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraph
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
+import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
+import { StationStickyBar } from '@/components/WeatherStations/StationStickyBar'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import {
   getStationGroup,
@@ -57,31 +59,40 @@ function csvYears(): number[] {
 }
 
 type TabView = {
-  key: string
   table: StationTable | null
   tabContent?: ReactNode
 }
 
+// The tab bar renders inside each view so it pins together with that view's
+// filter row; the CSV view has no filters of its own, so it pins the tabs alone.
 async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
   return {
-    key: 'csv',
     table: null,
     tabContent: (
-      <StationCsvForm
-        slug={group.slug}
-        dataloggers={await loadDataloggers(group)}
-        years={csvYears()}
-      />
+      <>
+        <StationStickyBar>
+          <StationRangeTabs activeKey="csv" />
+        </StationStickyBar>
+        <StationCsvForm
+          slug={group.slug}
+          dataloggers={await loadDataloggers(group)}
+          years={csvYears()}
+        />
+      </>
     ),
   }
 }
 
 function graphsTabView(group: WeatherStationGroup): TabView {
   return {
-    key: 'graphs',
     table: null,
     tabContent: (
-      <StationGraphs stids={group.stids} presets={STATION_GRAPH_PRESETS} currentSlug={group.slug} />
+      <StationGraphs
+        stids={group.stids}
+        presets={STATION_GRAPH_PRESETS}
+        currentSlug={group.slug}
+        tabs={<StationRangeTabs activeKey="graphs" />}
+      />
     ),
   }
 }
@@ -95,9 +106,14 @@ async function tableTabView(group: WeatherStationGroup, periodParam?: string): P
   })
   const table = buildStationTable(response, group.columns)
   return {
-    key: 'table',
     table,
-    tabContent: <StationTableView table={table} activePeriodKey={period.key} />,
+    tabContent: (
+      <StationTableView
+        table={table}
+        activePeriodKey={period.key}
+        tabs={<StationRangeTabs activeKey="table" />}
+      />
+    ),
   }
 }
 
@@ -126,14 +142,7 @@ export default async function Page({ params, searchParams }: Args) {
 
   const view = await resolveTabView(group, rangeParam, periodParam)
 
-  return (
-    <StationPageView
-      group={group}
-      table={view.table}
-      activeKey={view.key}
-      tabContent={view.tabContent}
-    />
-  )
+  return <StationPageView group={group} table={view.table} tabContent={view.tabContent} />
 }
 
 function resolveParentTitle(parent: ResolvedMetadata): Metadata['title'] {

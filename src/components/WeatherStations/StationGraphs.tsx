@@ -16,6 +16,7 @@ import type { GraphPreset } from './stationGraphPresets'
 import { clampNegativeValues, convertGraphData, convertPreset } from './stationGraphUnits'
 import type { StationPeriod } from './stationPeriods'
 import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
+import { StationStickyBar } from './StationStickyBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
 
@@ -172,35 +173,38 @@ function GraphsCharts({
 
 // On small screens the toolbar collapses to the Edit graphs button (plus any
 // compare chips); the dialog then hosts the period/units/compare controls.
-function GraphsToolbar(props: EditViewProps) {
+function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
   const { compareSlugs, onCompareChange } = props
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-      <div className="hidden sm:contents">
-        <CompareSelect
-          currentSlug={props.currentSlug}
-          compareSlugs={compareSlugs}
-          onCompareChange={onCompareChange}
-        />
-      </div>
-      {compareSlugs.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <CompareChips
+    <StationStickyBar>
+      {props.tabs}
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        <div className="hidden sm:contents">
+          <CompareSelect
+            currentSlug={props.currentSlug}
             compareSlugs={compareSlugs}
-            onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+            onCompareChange={onCompareChange}
           />
         </div>
-      )}
-      <div className="hidden sm:contents">
-        <PeriodSelect
-          active={props.graphPeriod}
-          onChange={props.onPeriodChange}
-          className="sm:ml-auto"
-        />
-        <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
+        {compareSlugs.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <CompareChips
+              compareSlugs={compareSlugs}
+              onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
+            />
+          </div>
+        )}
+        <div className="hidden sm:contents">
+          <PeriodSelect
+            active={props.graphPeriod}
+            onChange={props.onPeriodChange}
+            className="sm:ml-auto"
+          />
+          <UnitToggle unit={props.unitSystem} onChange={props.onUnitChange} />
+        </div>
+        <EditViewDialog {...props} />
       </div>
-      <EditViewDialog {...props} />
-    </div>
+    </StationStickyBar>
   )
 }
 
@@ -219,10 +223,12 @@ export function StationGraphs({
   stids,
   presets,
   currentSlug,
+  tabs,
 }: {
   stids: string[]
   presets: GraphPreset[]
   currentSlug: string
+  tabs?: ReactNode
 }) {
   const [graphPeriod, setStationPeriod] = useState(DEFAULT_GRAPH_PERIOD)
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
@@ -247,6 +253,7 @@ export function StationGraphs({
   return (
     <div className="flex flex-col gap-6">
       <GraphsToolbar
+        tabs={tabs}
         graphPeriod={graphPeriod}
         onPeriodChange={setStationPeriod}
         unitSystem={unitSystem}

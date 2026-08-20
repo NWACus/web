@@ -32,14 +32,14 @@ export function StationNowTable({
     <Table className="mx-auto w-auto text-xs sm:text-base">
       <TableHeader>
         <TableRow>
-          <TableHead className="sticky left-0 z-10 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
+          <TableHead className="sticky left-0 top-[calc(4rem+var(--station-bar-height,0px))] lg:top-[var(--station-bar-height,0px)] z-20 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
             {timeHeader}
           </TableHead>
           {table.columns.map((column) => (
             <TableHead
               key={column.key}
               title={column.longName}
-              className="whitespace-nowrap px-1 text-right align-bottom sm:px-2"
+              className="sticky top-[calc(4rem+var(--station-bar-height,0px))] lg:top-[var(--station-bar-height,0px)] z-10 whitespace-nowrap bg-background px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
               {column.unit && (
