@@ -6,7 +6,6 @@ import { useMemo } from 'react'
 import { ChipGroup } from './ChipGroup'
 import { StationNowTable } from './StationNowTable'
 import { TABLE_PERIODS } from './stationPeriods'
-import { StationStickyBar } from './StationStickyBar'
 import { convertStationTable } from './stationTableUnits'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 
@@ -29,13 +28,17 @@ export function StationTableView({
   const display = useMemo(() => convertStationTable(table, unitSystem), [table, unitSystem])
   return (
     <div className="flex flex-col gap-2">
-      <StationStickyBar>
+      {/* Deliberately not pinned. The frozen header is what this view needs, and
+          a pinned bar would overlay it: the table's scroll box slides under the
+          bar as the page scrolls to the footer, taking the header with it. The
+          Graphs tab, with its tall column of charts, keeps the sticky bar. */}
+      <div className="flex flex-col gap-3">
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ChipGroup chips={TABLE_PERIOD_CHIPS} activeKey={activePeriodKey} />
           <UnitToggle unit={unitSystem} onChange={changeUnitSystem} />
         </div>
-      </StationStickyBar>
+      </div>
       <StationNowTable
         table={display}
         elevationUnit={unitSystem === 'metric' ? ' m' : undefined}

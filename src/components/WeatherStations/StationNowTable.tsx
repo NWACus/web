@@ -9,6 +9,7 @@ import {
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
+import { stickyTableScrollClass } from './stationTableLayout'
 import { formatStationValue } from './stationTableUnits'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
@@ -29,17 +30,20 @@ export function StationNowTable({
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'
 
   return (
-    <Table className="mx-auto w-auto text-xs sm:text-base">
+    <Table
+      containerClassName={stickyTableScrollClass}
+      className="mx-auto w-auto text-xs sm:text-base"
+    >
       <TableHeader>
         <TableRow>
-          <TableHead className="sticky left-0 top-[calc(4rem+var(--station-bar-height,0px))] lg:top-[var(--station-bar-height,0px)] z-20 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
+          <TableHead className="sticky left-0 top-0 z-20 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
             {timeHeader}
           </TableHead>
           {table.columns.map((column) => (
             <TableHead
               key={column.key}
               title={column.longName}
-              className="sticky top-[calc(4rem+var(--station-bar-height,0px))] lg:top-[var(--station-bar-height,0px)] z-10 whitespace-nowrap bg-background px-1 text-right align-bottom sm:px-2"
+              className="sticky top-0 z-10 whitespace-nowrap bg-background px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
               {column.unit && (

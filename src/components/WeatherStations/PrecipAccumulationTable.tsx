@@ -17,6 +17,7 @@ import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { stickyTableScrollClass } from './stationTableLayout'
 import { UnitToggle } from './UnitToggle'
 
 // Totals come from the API in inches, elevation in feet; metric converts on display.
@@ -121,8 +122,8 @@ function SortableHead({
     <TableHead
       aria-sort={headAriaSort(state.active, state.desc)}
       className={cn(
-        'whitespace-nowrap px-2 text-right align-top',
-        sticky && 'sticky left-0 z-10 bg-background text-left',
+        'sticky top-0 z-10 whitespace-nowrap bg-background px-2 text-right align-top',
+        sticky && 'left-0 z-20 text-left',
       )}
     >
       <SortButton
@@ -270,7 +271,7 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
       <div className="mb-2 flex justify-end">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
-      <Table className="mx-auto w-auto text-base">
+      <Table containerClassName={stickyTableScrollClass} className="mx-auto w-auto text-base">
         <TableHeader>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
         </TableHeader>

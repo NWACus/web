@@ -37,9 +37,7 @@ export default async function Page({ params }: Args) {
   return (
     <div className="container my-8 space-y-4">
       <h1 className="text-3xl font-bold">{ROUTE_TITLE}</h1>
-      <div className="overflow-x-auto">
-        <PrecipAccumulationTable table={table} />
-      </div>
+      <PrecipAccumulationTable table={table} />
       <div className="text-sm text-muted-foreground">
         <p>
           Data not quality controlled. Accumulated precipitation does not reflect weather station
