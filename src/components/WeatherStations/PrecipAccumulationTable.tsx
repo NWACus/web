@@ -161,17 +161,15 @@ function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
       <AccumulationCells row={row} unit={unit} />
       <TableCell
         className={cn(
-          'whitespace-nowrap px-2 py-1.5 text-right font-light',
+          'whitespace-nowrap px-2 py-1.5 text-right',
           noReport && 'text-muted-foreground',
         )}
       >
         {noReport ? 'no report in 72H' : row.lastUpdate}
       </TableCell>
-      <TableCell className="px-2 py-1.5 text-right font-light">{formatLatitude(row)}</TableCell>
-      <TableCell className="px-2 py-1.5 text-right font-light">{formatLongitude(row)}</TableCell>
-      <TableCell className="px-2 py-1.5 text-right font-light">
-        {formatElevation(row, unit)}
-      </TableCell>
+      <TableCell className="px-2 py-1.5 text-right">{formatLatitude(row)}</TableCell>
+      <TableCell className="px-2 py-1.5 text-right">{formatLongitude(row)}</TableCell>
+      <TableCell className="px-2 py-1.5 text-right">{formatElevation(row, unit)}</TableCell>
     </TableRow>
   )
 }
@@ -183,7 +181,7 @@ function AccumulationCells({ row, unit }: { row: PrecipAccumulationRow; unit: Un
     return (
       <TableCell
         colSpan={PRECIP_ACCUMULATION_WINDOWS.length}
-        className="px-2 py-1.5 text-center font-light text-muted-foreground"
+        className="px-2 py-1.5 text-center text-muted-foreground"
       >
         missing
       </TableCell>
@@ -194,10 +192,7 @@ function AccumulationCells({ row, unit }: { row: PrecipAccumulationRow; unit: Un
     return (
       <TableCell
         key={hours}
-        className={cn(
-          'px-2 py-1.5 text-right font-light',
-          value == null && 'text-muted-foreground',
-        )}
+        className={cn('px-2 py-1.5 text-right', value == null && 'text-muted-foreground')}
       >
         {value == null ? '–' : formatTotal(value, unit)}
       </TableCell>

@@ -29,7 +29,11 @@ export function StationTableView({
         <ChipGroup chips={TABLE_PERIOD_CHIPS} activeKey={activePeriodKey} />
         <UnitToggle unit={unitSystem} onChange={changeUnitSystem} />
       </div>
-      <StationNowTable table={display} elevationUnit={unitSystem === 'metric' ? ' m' : undefined} />
+      <StationNowTable
+        table={display}
+        elevationUnit={unitSystem === 'metric' ? ' m' : undefined}
+        unitSystem={unitSystem}
+      />
     </div>
   )
 }
