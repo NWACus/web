@@ -19,10 +19,6 @@ import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { UnitToggle } from './UnitToggle'
 
-// Bounds the scroll box so the sticky header has something to stick to: the
-// Table wrapper is the scroll container, not the viewport.
-const scrollBox = 'max-h-[calc(100dvh-5rem)] lg:max-h-[calc(100dvh-2rem)]'
-
 // Totals come from the API in inches, elevation in feet; metric converts on display.
 type Unit = UnitSystem
 const PRECIP_UNIT: Record<Unit, string> = { imperial: 'in', metric: 'mm' }
@@ -125,8 +121,8 @@ function SortableHead({
     <TableHead
       aria-sort={headAriaSort(state.active, state.desc)}
       className={cn(
-        'sticky top-0 z-10 whitespace-nowrap bg-background px-2 text-right align-top',
-        sticky && 'left-0 z-20 text-left',
+        'whitespace-nowrap px-2 text-right align-top',
+        sticky && 'sticky left-0 z-10 bg-background text-left',
       )}
     >
       <SortButton
@@ -274,11 +270,7 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
       <div className="mb-2 flex justify-end">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
-      <Table
-        scrollRegionLabel="Accumulated precipitation by station"
-        containerClassName={scrollBox}
-        className="mx-auto w-auto text-base"
-      >
+      <Table className="mx-auto w-auto text-base">
         <TableHeader>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
         </TableHeader>

@@ -11,10 +11,6 @@ import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { formatStationValue } from './stationTableUnits'
 
-// Bounds the scroll box so the sticky header has something to stick to: the
-// Table wrapper is the scroll container, not the viewport.
-const scrollBox = 'max-h-[calc(100dvh-5rem)] lg:max-h-[calc(100dvh-2rem)]'
-
 // Renders the last-24h weather-station table: newest-first hourly rows, one
 // column per configured sensor (short label + unit + elevation), nulls as "–".
 export function StationNowTable({
@@ -33,21 +29,17 @@ export function StationNowTable({
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'
 
   return (
-    <Table
-      scrollRegionLabel="Station observations"
-      containerClassName={scrollBox}
-      className="mx-auto w-auto text-xs sm:text-base"
-    >
+    <Table className="mx-auto w-auto text-xs sm:text-base">
       <TableHeader>
         <TableRow>
-          <TableHead className="sticky left-0 top-0 z-20 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
+          <TableHead className="sticky left-0 z-10 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
             {timeHeader}
           </TableHead>
           {table.columns.map((column) => (
             <TableHead
               key={column.key}
               title={column.longName}
-              className="sticky top-0 z-10 whitespace-nowrap bg-background px-1 text-right align-bottom sm:px-2"
+              className="whitespace-nowrap px-1 text-right align-bottom sm:px-2"
             >
               <div className="font-semibold text-foreground">{column.label}</div>
               {column.unit && (

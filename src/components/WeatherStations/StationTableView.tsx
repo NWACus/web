@@ -28,8 +28,8 @@ export function StationTableView({
   const display = useMemo(() => convertStationTable(table, unitSystem), [table, unitSystem])
   return (
     <div className="flex flex-col gap-2">
-      {/* Deliberately not pinned: a pinned bar overlays the table's scroll box
-          as the page scrolls, taking the frozen header with it. */}
+      {/* Not pinned: on a phone the tabs and filters take a third of the
+          viewport, and this view has no charts to scroll past. */}
       <div className="flex flex-col gap-3">
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">
