@@ -334,13 +334,37 @@ describe('StationGraphs chart arrangement', () => {
     expect(screen.getByRole('button', { name: 'Edit graphs' })).toBeInTheDocument()
   })
 
-  it('persists the arrangement to localStorage', async () => {
+  it('keeps the arrangement to the session rather than persisting it', () => {
     renderGraphs()
     openEditView()
     fireEvent.click(graphCheckbox('Temperature'))
 
-    const stored = window.localStorage.getItem('nwac-station-graph-prefs') ?? ''
-    expect(stored).toContain('"hidden":["temp"]')
+    // The configured default is what every reader starts from, so a change to
+    // the defaults reaches everyone instead of being masked by stored prefs.
+    expect(window.localStorage.getItem('nwac-station-graph-prefs')).toBeNull()
+  })
+
+  it('starts a defaultHidden graph off, still listed in the dialog', () => {
+    render(
+      <StationGraphs
+        stids={current.stids}
+        presets={[TEMP_PRESET, { ...RH_PRESET, defaultHidden: true }]}
+        currentSlug={current.slug}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Edit graphs 1 hidden' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Edit graphs/ }))
+    expect(graphCheckbox('Relative Humidity')).not.toBeChecked()
+    expect(graphCheckbox('Temperature')).toBeChecked()
+  })
+
+  it('hides a graph from its own X button', async () => {
+    renderGraphs()
+    fireEvent.click(await screen.findByLabelText('Hide Temperature graph'))
+
+    expect(screen.getByRole('button', { name: 'Edit graphs 1 hidden' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Hide Temperature graph')).not.toBeInTheDocument()
   })
 
   it('resets order and visibility to defaults', async () => {

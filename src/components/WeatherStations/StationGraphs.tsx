@@ -5,7 +5,7 @@ import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
-import { Loader2 } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
@@ -147,13 +147,23 @@ function GraphsCharts({
     <ChartFrame loading={loading}>
       <div className="flex flex-col gap-6">
         {arrangement.visiblePresets.map((preset) => (
-          <PresetChart
-            key={preset.key}
-            preset={preset}
-            data={data}
-            primaryStids={primaryStids}
-            unitSystem={unitSystem}
-          />
+          <div key={preset.key} className="relative">
+            <button
+              type="button"
+              aria-label={`Hide ${preset.title} graph`}
+              title={`Hide ${preset.title}`}
+              onClick={() => arrangement.hideChart(preset.key)}
+              className="absolute right-0 top-0 z-10 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <PresetChart
+              preset={preset}
+              data={data}
+              primaryStids={primaryStids}
+              unitSystem={unitSystem}
+            />
+          </div>
         ))}
       </div>
     </ChartFrame>
