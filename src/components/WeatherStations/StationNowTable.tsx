@@ -33,7 +33,11 @@ export function StationNowTable({
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'
 
   return (
-    <Table containerClassName={scrollBox} className="mx-auto w-auto text-xs sm:text-base">
+    <Table
+      scrollRegionLabel="Station observations"
+      containerClassName={scrollBox}
+      className="mx-auto w-auto text-xs sm:text-base"
+    >
       <TableHeader>
         <TableRow>
           <TableHead className="sticky left-0 top-0 z-20 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">

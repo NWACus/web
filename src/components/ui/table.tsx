@@ -5,11 +5,26 @@ import { cn } from '@/utilities/ui'
 // `containerClassName` reaches the scroll wrapper. Sticky header cells resolve
 // against this element, not the viewport, so a table that wants a frozen header
 // has to bound its height here.
+//
+// `scrollRegionLabel` is required of any table that actually scrolls: a table of
+// plain text has nothing focusable inside, so without a tabbable region the rows
+// can't be reached by keyboard at all (WCAG 2.1.1).
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement> & { containerClassName?: string }
->(({ className, containerClassName, ...props }, ref) => (
-  <div className={cn('relative w-full overflow-auto', containerClassName)}>
+  React.HTMLAttributes<HTMLTableElement> & {
+    containerClassName?: string
+    scrollRegionLabel?: string
+  }
+>(({ className, containerClassName, scrollRegionLabel, ...props }, ref) => (
+  <div
+    className={cn(
+      'relative w-full overflow-auto',
+      scrollRegionLabel &&
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+      containerClassName,
+    )}
+    {...(scrollRegionLabel ? { role: 'region', 'aria-label': scrollRegionLabel, tabIndex: 0 } : {})}
+  >
     <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
   </div>
 ))

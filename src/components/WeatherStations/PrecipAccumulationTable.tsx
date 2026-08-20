@@ -274,7 +274,11 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
       <div className="mb-2 flex justify-end">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
-      <Table containerClassName={scrollBox} className="mx-auto w-auto text-base">
+      <Table
+        scrollRegionLabel="Accumulated precipitation by station"
+        containerClassName={scrollBox}
+        className="mx-auto w-auto text-base"
+      >
         <TableHeader>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
         </TableHeader>
