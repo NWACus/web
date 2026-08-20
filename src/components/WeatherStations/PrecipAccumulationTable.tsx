@@ -266,8 +266,8 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
   }
 
   return (
-    <div>
-      <div className="mb-2 flex justify-end">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
       <Table className="mx-auto w-auto text-base">
