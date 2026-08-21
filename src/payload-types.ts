@@ -91,6 +91,7 @@ export interface Config {
     globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
     tenants: Tenant;
+    stationAlerts: StationAlert;
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
@@ -144,6 +145,7 @@ export interface Config {
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    stationAlerts: StationAlertsSelect<false> | StationAlertsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -2115,6 +2117,33 @@ export interface GlobalRole {
   createdAt: string;
 }
 /**
+ * Weather stations that have alerted on battery voltage. Re-check "Alerting" once the station has been repaired to start receiving alerts for it again.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationAlerts".
+ */
+export interface StationAlert {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * SnowObs station id.
+   */
+  stid: string;
+  stationName?: string | null;
+  /**
+   * Cleared automatically when an alert is sent. Re-check it once the station is fixed.
+   */
+  alerting?: boolean | null;
+  /**
+   * Voltage that triggered the last alert.
+   */
+  lastVoltage?: number | null;
+  lastAlertedAt?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
@@ -3323,6 +3352,10 @@ export interface PayloadLockedDocument {
         value: number | Tenant;
       } | null)
     | ({
+        relationTo: 'stationAlerts';
+        value: number | StationAlert;
+      } | null)
+    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -4291,6 +4324,21 @@ export interface TenantsSelect<T extends boolean = true> {
         lastRunAt?: T;
         failed?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationAlerts_select".
+ */
+export interface StationAlertsSelect<T extends boolean = true> {
+  tenant?: T;
+  stid?: T;
+  stationName?: T;
+  alerting?: T;
+  lastVoltage?: T;
+  lastAlertedAt?: T;
+  contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
 }
