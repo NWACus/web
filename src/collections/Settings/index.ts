@@ -1,3 +1,4 @@
+import { byGlobalRole } from '@/access/byGlobalRole'
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
@@ -287,6 +288,83 @@ const socialMediaFields: Field[] = [
   },
 ]
 
+
+// SnowObs supplies this center's weather station data. `weatherPagesEnabled`
+// is what publishes /weather/stations, replacing the hardcoded tenant check.
+const snowobsFields: Field[] = [
+  {
+    name: 'snowobs',
+    label: '', // single-group tab, grouped for API response organization
+    type: 'group',
+    fields: [
+      {
+        type: 'row',
+        fields: [
+          {
+            name: 'weatherPagesEnabled',
+            type: 'checkbox',
+            label: 'Weather station pages',
+            defaultValue: false,
+            admin: { width: '50%', description: 'Publishes /weather/stations for this center.' },
+          },
+          {
+            // DVAC shows NWAC's stations, so without this both centers would be
+            // told to fix one logger and either could clear it out from under
+            // the other.
+            name: 'alertsEnabled',
+            type: 'checkbox',
+            label: 'Station alerts',
+            defaultValue: false,
+            admin: { width: '50%', description: 'Emails this center about station faults.' },
+          },
+        ],
+      },
+      {
+        name: 'source',
+        type: 'text',
+        admin: {
+          description:
+            "SnowObs source name. Not necessarily the center's slug -- DVAC reads NWAC's stations.",
+        },
+      },
+      {
+        // Encrypted at rest with PAYLOAD_SECRET, the same mechanism holding the
+        // MCP plugin's API keys. Encryption protects a copied database, not a
+        // logged-in user, so the access rules below are what keep a center's own
+        // admins out of their credential.
+        name: 'token',
+        type: 'text',
+        access: {
+          read: byGlobalRole('read', 'settings'),
+          update: byGlobalRole('update', 'settings'),
+        },
+        admin: { description: 'Issued by SnowObs. Stored encrypted.' },
+        hooks: {
+          beforeChange: [({ value, req }) => (value ? req.payload.encrypt(value) : value)],
+          afterRead: [({ value, req }) => (value ? req.payload.decrypt(value) : value)],
+        },
+      },
+      {
+        type: 'row',
+        fields: [
+          {
+            name: 'displayTimezone',
+            type: 'text',
+            defaultValue: 'America/Los_Angeles',
+            admin: { width: '50%', description: 'IANA zone the tables render in.' },
+          },
+          {
+            name: 'maxCompareStations',
+            type: 'number',
+            defaultValue: 3,
+            admin: { width: '50%', description: 'Stations a reader can chart together.' },
+          },
+        ],
+      },
+    ],
+  },
+]
+
 export const Settings: CollectionConfig = {
   slug: 'settings',
   access: accessByTenantRole('settings'),
@@ -330,6 +408,12 @@ export const Settings: CollectionConfig = {
           description:
             'Add links to your social media accounts to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.',
           fields: socialMediaFields,
+        },
+        {
+          label: 'SnowObs',
+          description:
+            'Weather station data for this center. Leave the pages switch off if this center has no SnowObs stations.',
+          fields: snowobsFields,
         },
         {
           label: 'Legal Policies',
