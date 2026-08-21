@@ -1,5 +1,11 @@
 {
   "git": {
     "deploymentEnabled": false
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/battery-alerts",
+      "schedule": "0 * * * *"
+    }
+  ]
 }
