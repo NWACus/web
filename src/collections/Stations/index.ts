@@ -21,7 +21,7 @@ export const Stations: CollectionConfig = {
     defaultColumns: ['name', 'stid', 'elevation', 'weatherStationPartner', 'lastSyncedAt'],
     useAsTitle: 'name',
     description:
-      'Data loggers, synced from SnowObs. Identity is read-only -- edit table variables to change what a station contributes.',
+      'Data loggers, synced from SnowObs. Read-only: which readings appear where is decided on each station group.',
   },
   defaultSort: 'name',
   fields: [
@@ -62,30 +62,6 @@ export const Stations: CollectionConfig = {
       type: 'text',
       label: 'Partner',
       admin: { readOnly: true },
-    },
-    {
-      name: 'tableVariables',
-      type: 'select',
-      hasMany: true,
-      options: [
-        { label: 'Air temperature', value: 'air_temp' },
-        { label: 'Equipment temperature', value: 'equip_temperature' },
-        { label: 'Intermittent snow', value: 'intermittent_snow' },
-        { label: 'Precipitation (1 hr)', value: 'precip_accum_one_hour' },
-        { label: 'Pressure', value: 'pressure' },
-        { label: 'Relative humidity', value: 'relative_humidity' },
-        { label: 'Snow depth (24 hr)', value: 'snow_depth_24h' },
-        { label: 'Snow depth', value: 'snow_depth' },
-        { label: 'Solar radiation', value: 'solar_radiation' },
-        { label: 'Wind direction', value: 'wind_direction' },
-        { label: 'Wind gust', value: 'wind_gust' },
-        { label: 'Wind speed (min)', value: 'wind_speed_min' },
-        { label: 'Wind speed', value: 'wind_speed' },
-      ],
-      admin: {
-        description:
-          'Table columns for this station. Order is fixed across the site, so only the selection is per-station.',
-      },
     },
     {
       name: 'lastSyncedAt',

@@ -2143,9 +2143,35 @@ export interface StationGroup {
    */
   region: number | StationRegion;
   /**
-   * Every logger whose readings appear on this page, in the order their columns appear.
+   * Every logger this page covers, in tables, graphs and downloads alike.
    */
   stations: (number | Station)[];
+  /**
+   * The NOW table, one row per reading. Graphs are separate: every station is offered all 12 presets and the ones with no data hide themselves, so battery voltage charts without being a column here.
+   */
+  columns?:
+    | {
+        variable:
+          | 'air_temp'
+          | 'relative_humidity'
+          | 'wind_speed_min'
+          | 'wind_speed'
+          | 'wind_gust'
+          | 'wind_direction'
+          | 'precip_accum_one_hour'
+          | 'snow_depth_24h'
+          | 'snow_depth'
+          | 'intermittent_snow'
+          | 'solar_radiation'
+          | 'pressure'
+          | 'equip_temperature';
+        /**
+         * Which loggers report this reading, in the order the columns appear.
+         */
+        stations: (number | Station)[];
+        id?: string | null;
+      }[]
+    | null;
   /**
    * The hardware is gone but the history is still queryable, so the page stays up for downloads.
    */
@@ -2177,7 +2203,7 @@ export interface StationRegion {
   createdAt: string;
 }
 /**
- * Data loggers, synced from SnowObs. Identity is read-only -- edit table variables to change what a station contributes.
+ * Data loggers, synced from SnowObs. Read-only: which readings appear where is decided on each station group.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "stations".
@@ -2198,26 +2224,6 @@ export interface Station {
   latitude?: number | null;
   longitude?: number | null;
   weatherStationPartner?: string | null;
-  /**
-   * Table columns for this station. Order is fixed across the site, so only the selection is per-station.
-   */
-  tableVariables?:
-    | (
-        | 'air_temp'
-        | 'equip_temperature'
-        | 'intermittent_snow'
-        | 'precip_accum_one_hour'
-        | 'pressure'
-        | 'relative_humidity'
-        | 'snow_depth_24h'
-        | 'snow_depth'
-        | 'solar_radiation'
-        | 'wind_direction'
-        | 'wind_gust'
-        | 'wind_speed_min'
-        | 'wind_speed'
-      )[]
-    | null;
   lastSyncedAt?: string | null;
   contentHash?: string | null;
   updatedAt: string;
@@ -4452,6 +4458,13 @@ export interface StationGroupsSelect<T extends boolean = true> {
   legacySlug?: T;
   region?: T;
   stations?: T;
+  columns?:
+    | T
+    | {
+        variable?: T;
+        stations?: T;
+        id?: T;
+      };
   archived?: T;
   contentHash?: T;
   updatedAt?: T;
@@ -4483,7 +4496,6 @@ export interface StationsSelect<T extends boolean = true> {
   latitude?: T;
   longitude?: T;
   weatherStationPartner?: T;
-  tableVariables?: T;
   lastSyncedAt?: T;
   contentHash?: T;
   updatedAt?: T;

@@ -1,15 +1,10 @@
 /**
- * The order station table columns appear in, site-wide.
+ * The vocabulary of readings a station table can show.
  *
- * Column layout is derived rather than stored: for each variable below, one
- * column per station in the group that has it selected. Keeping the sequence
- * here rather than per-group means a page is defined by which readings it
- * shows, not by 275 hand-ordered rows.
- *
- * Reproduces 28 of the 32 legacy layouts exactly. The four that differ do so by
- * one or two columns: `mt-washington` listed wind direction before humidity,
- * and Alpental, Crystal Green Valley and Tumwater kept each station's snow
- * depth pair adjacent instead of interleaving them by variable.
+ * The order here is the order a new page's columns default to, and the order the
+ * admin lists them in. It is not binding: each group stores its own ordered
+ * column rows, because a handful of pages deviate deliberately -- Mt Washington
+ * puts wind direction before humidity.
  */
 export const COLUMN_VARIABLE_ORDER = [
   'air_temp',
@@ -29,19 +24,47 @@ export const COLUMN_VARIABLE_ORDER = [
 
 export type ColumnVariable = (typeof COLUMN_VARIABLE_ORDER)[number]
 
-type StationWithColumns = { stid: string; tableVariables?: (string | null)[] | null }
+export const COLUMN_VARIABLE_LABELS: Record<ColumnVariable, string> = {
+  air_temp: 'Air temperature',
+  relative_humidity: 'Relative humidity',
+  wind_speed_min: 'Wind speed (min)',
+  wind_speed: 'Wind speed',
+  wind_gust: 'Wind gust',
+  wind_direction: 'Wind direction',
+  precip_accum_one_hour: 'Precipitation (1 hr)',
+  snow_depth_24h: 'Snow depth (24 hr)',
+  snow_depth: 'Snow depth',
+  intermittent_snow: 'Intermittent snow',
+  solar_radiation: 'Solar radiation',
+  pressure: 'Pressure',
+  equip_temperature: 'Equipment temperature',
+}
+
+export const COLUMN_VARIABLE_OPTIONS = COLUMN_VARIABLE_ORDER.map((value) => ({
+  label: COLUMN_VARIABLE_LABELS[value],
+  value,
+}))
+
+type ColumnRow = {
+  variable?: string | null
+  stations?: (number | { stid?: string | null })[] | null
+}
 
 /**
- * Table columns for a group, left to right. The station list's order is what
- * interleaves readings across loggers -- Alpental reads Summit, Mid, Base -- so
- * callers must pass stations in the group's stored order.
+ * Flatten a group's stored column rows into the table header, left to right.
+ *
+ * Each row is one reading and the loggers reporting it, so a page that shows
+ * temperature at three elevations is one row rather than three. Needs the
+ * stations populated (`depth >= 1`); unpopulated ids are skipped rather than
+ * throwing, so a deleted station costs its column and not the page.
  */
-export function columnsFor(
-  stations: StationWithColumns[],
-): { stid: string; variable: ColumnVariable }[] {
-  return COLUMN_VARIABLE_ORDER.flatMap((variable) =>
-    stations
-      .filter((station) => station.tableVariables?.includes(variable))
-      .map((station) => ({ stid: station.stid, variable })),
-  )
+export function columnsFor(rows?: ColumnRow[] | null): { stid: string; variable: string }[] {
+  return (rows ?? []).flatMap((row) => {
+    const variable = row.variable
+    if (!variable) return []
+    return (row.stations ?? []).flatMap((station) => {
+      if (typeof station !== 'object' || !station.stid) return []
+      return [{ stid: station.stid, variable }]
+    })
+  })
 }

@@ -288,7 +288,6 @@ const socialMediaFields: Field[] = [
   },
 ]
 
-
 // SnowObs supplies this center's weather station data. `weatherPagesEnabled`
 // is what publishes /weather/stations, replacing the hardcoded tenant check.
 const snowobsFields: Field[] = [
