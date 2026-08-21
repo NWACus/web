@@ -1,5 +1,11 @@
 {
   "git": {
     "deploymentEnabled": false
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/sync-stations",
+      "schedule": "0 * * * *"
+    }
+  ]
 }
