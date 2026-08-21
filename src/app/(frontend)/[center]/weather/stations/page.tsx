@@ -1,10 +1,10 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import {
   NWAC_STATION_REGIONS,
   NWAC_WEATHER_STATION_GROUPS,
   STATIONS_TENANT_SLUG,
+  type WeatherStationGroup,
 } from '@/constants/weatherStations'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -19,6 +19,63 @@ export async function generateStaticParams() {
   return [{ center: STATIONS_TENANT_SLUG }]
 }
 
+function StationLink({ group }: { group: WeatherStationGroup }) {
+  return (
+    <li>
+      <Link href={`/weather/stations/${group.slug}`} className="text-primary hover:underline">
+        {group.displayName}
+      </Link>
+      {/* Listed so legacy links still reach the downloads. */}
+      {group.archived && <span className="ml-1 text-xs text-muted-foreground">Archived</span>}
+    </li>
+  )
+}
+
+function ZoneColumns() {
+  return (
+    <div className="columns-1 gap-8 sm:columns-2 lg:columns-3">
+      {NWAC_STATION_REGIONS.map((region) => {
+        const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
+        if (groups.length === 0) return null
+        return (
+          <section key={region} className="mb-6 break-inside-avoid">
+            <h3 className="mb-1 font-semibold">{region}</h3>
+            <ul className="leading-snug">
+              {groups.map((group) => (
+                <StationLink key={group.slug} group={group} />
+              ))}
+            </ul>
+          </section>
+        )
+      })}
+    </div>
+  )
+}
+
+function AllStationsLinks() {
+  return (
+    <ul className="leading-snug">
+      <li>
+        <Link
+          href="/weather/stations/accumulated-precipitation"
+          className="text-primary hover:underline"
+        >
+          Accumulated Precipitation
+        </Link>
+        <span className="text-muted-foreground"> — every station side by side</span>
+      </li>
+      <li>
+        <Link href="/weather/stations/map" className="text-primary hover:underline">
+          Weather Station Map
+        </Link>
+        <span className="text-muted-foreground"> — find a station by location</span>
+      </li>
+    </ul>
+  )
+}
+
+const sectionHeadingClass = 'border-b pb-1 text-xl font-bold'
+
 export default async function Page({ params }: Args) {
   const { center } = await params
 
@@ -27,39 +84,27 @@ export default async function Page({ params }: Args) {
   }
 
   return (
-    <div className="flex flex-col gap-6 mb-10">
-      <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
+    <div className="mb-10 flex flex-col gap-8">
+      {/* No station picker here — the zone lists below already name every station. */}
+      <div className="container">
         <div className="prose dark:prose-invert max-w-none">
           <h1 className="font-bold">Weather Stations</h1>
-        </div>
-        <div className="flex flex-col items-end">
-          <StationPicker />
+          <p>
+            Hourly readings from NWAC&apos;s weather stations. Each station has a table of recent
+            observations, graphs back to the start of the season, and CSV downloads.
+          </p>
         </div>
       </div>
 
-      <div className="container columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4">
-        {NWAC_STATION_REGIONS.map((region) => {
-          const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
-          if (groups.length === 0) return null
-          return (
-            <section key={region} className="mb-16 break-inside-avoid">
-              <h2 className="mb-2 text-lg font-semibold">{region}</h2>
-              <ul className="">
-                {groups.map((group) => (
-                  <li key={group.slug}>
-                    <Link
-                      href={`/weather/stations/${group.slug}`}
-                      className="text-primary hover:underline"
-                    >
-                      {group.displayName}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )
-        })}
-      </div>
+      <section className="container flex flex-col gap-2">
+        <h2 className={sectionHeadingClass}>All stations</h2>
+        <AllStationsLinks />
+      </section>
+
+      <section className="container flex flex-col gap-3">
+        <h2 className={sectionHeadingClass}>By zone</h2>
+        <ZoneColumns />
+      </section>
     </div>
   )
 }

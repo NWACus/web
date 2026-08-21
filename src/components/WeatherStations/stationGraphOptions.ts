@@ -75,10 +75,60 @@ function degreeAxisOverrides(symbolsOnly: boolean): object {
   }
 }
 
-// Legacy-pinned axis bounds (RH 0-100, ...).
-function presetAxisOverrides(preset: GraphPreset): object {
-  if (!preset.axis) return {}
-  return { ...preset.axis, scale: false }
+type Bounds = { min: number; max: number }
+
+function isFiniteNumber(v: number | null | undefined): v is number {
+  return v !== null && v !== undefined && Number.isFinite(v)
+}
+
+function plottedValues(s: GraphSeries): (number | null)[] {
+  return s.kind === 'raw' ? s.points.map(([, v]) => v) : s.days.flatMap(([, lo, , hi]) => [lo, hi])
+}
+
+// Reduced rather than spread into Math.min — a season of hourly data across
+// several stations is more arguments than a call frame should carry.
+function dataExtent(series: GraphSeries[]): Bounds | null {
+  const values = series.flatMap(plottedValues).filter(isFiniteNumber)
+  if (values.length === 0) return null
+  return values.reduce<Bounds>(
+    (acc, v) => ({ min: Math.min(acc.min, v), max: Math.max(acc.max, v) }),
+    { min: Infinity, max: -Infinity },
+  )
+}
+
+// 1/2/2.5/5/10 x 10^n — the step sizes that produce readable gridlines.
+function niceStep(rough: number): number {
+  if (!(rough > 0)) return 1
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rough)))
+  for (const step of [1, 2, 2.5, 5]) {
+    if (rough <= step * magnitude) return step * magnitude
+  }
+  return 10 * magnitude
+}
+
+// `floor` is a floor and not a ceiling: real data beyond it widens the axis
+// instead of clipping, where legacy rendered a 0.6in/hr hour flat-topped at the
+// 0.35 bound.
+function axisSpan(series: GraphSeries[], floor?: GraphPreset['axis']): Bounds | null {
+  const extent = dataExtent(series)
+  const mins = [extent?.min, floor?.min].filter(isFiniteNumber)
+  const maxes = [extent?.max, floor?.max].filter(isFiniteNumber)
+  if (mins.length === 0 || maxes.length === 0) return null
+  return { min: Math.min(...mins), max: Math.max(...maxes) }
+}
+
+function roundOutward({ min, max }: Bounds): Bounds {
+  // A dead-flat series (a rainless week) has no range to divide into steps.
+  if (min === max) return { min: min - 1, max: max + 1 }
+  const step = niceStep((max - min) / 4)
+  return { min: Math.floor(min / step) * step, max: Math.ceil(max / step) * step }
+}
+
+// Resolved once per data load, and passed to ECharts explicitly, so panning and
+// zooming leave the axis where it is.
+function frozenAxisBounds(series: GraphSeries[], floor?: GraphPreset['axis']): Bounds | null {
+  const span = axisSpan(series, floor)
+  return span && roundOutward(span)
 }
 
 // Reference line (32°F freezing on temperature) on its own empty series so it
@@ -260,8 +310,13 @@ export function buildChartOption(
       position: i === 0 ? 'left' : 'right',
       scale: true,
       splitLine: { show: i === 0 },
+      // Only the first axis takes the preset's floor; a second axis is a
+      // different unit the floor doesn't describe.
+      ...frozenAxisBounds(
+        data.series.filter((s) => axisIndexFor(s.unit, axes) === i),
+        i === 0 ? preset.axis : undefined,
+      ),
       ...degreeAxisOverrides(symbolsOnly),
-      ...presetAxisOverrides(preset),
     })),
     dataZoom: [
       { type: 'inside', xAxisIndex: 0, minValueSpan, zoomOnMouseWheel: 'ctrl' },

@@ -34,12 +34,7 @@ export function Breadcrumbs() {
 
   if (decodedSegments.length === 0 || isNotFound) return null
 
-  const knownPathsWithoutPages = [
-    '/forecasts',
-    '/weather',
-    '/weather/accumulations',
-    '/observations/avalanches',
-  ]
+  const knownPathsWithoutPages = ['/forecasts', '/weather', '/observations/avalanches']
   // Only NWAC has a /weather/stations index page, so only its crumb links.
   if (tenant?.slug !== 'nwac') knownPathsWithoutPages.push('/weather/stations')
 
