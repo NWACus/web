@@ -3148,10 +3148,6 @@ export interface Setting {
      * Publishes /weather/stations for this center.
      */
     weatherPagesEnabled?: boolean | null;
-    /**
-     * Emails this center about station faults.
-     */
-    alertsEnabled?: boolean | null;
   };
   terms?: (number | null) | Page;
   privacy?: (number | null) | Page;
@@ -5024,7 +5020,6 @@ export interface SettingsSelect<T extends boolean = true> {
         source?: T;
         token?: T;
         weatherPagesEnabled?: T;
-        alertsEnabled?: T;
       };
   terms?: T;
   privacy?: T;

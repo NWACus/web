@@ -24098,14 +24098,6 @@
           "autoincrement": false,
           "default": false
         },
-        "snowobs_alerts_enabled": {
-          "name": "snowobs_alerts_enabled",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": false
-        },
         "terms_id": {
           "name": "terms_id",
           "type": "integer",
@@ -27356,6 +27348,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "b7cf0348-0a2d-45af-a0e4-96ba6bbbf7bc",
+  "id": "e0bfbe21-d4fb-4bc2-9d89-8801eceb1f91",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

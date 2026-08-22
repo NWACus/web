@@ -1218,7 +1218,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(
     sql`ALTER TABLE \`settings\` ADD \`snowobs_weather_pages_enabled\` integer DEFAULT false;`,
   )
-  await db.run(sql`ALTER TABLE \`settings\` ADD \`snowobs_alerts_enabled\` integer DEFAULT false;`)
   await db.run(
     sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`station_groups_id\` integer REFERENCES station_groups(id);`,
   )
@@ -1494,5 +1493,4 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_source\`;`)
   await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_token\`;`)
   await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_weather_pages_enabled\`;`)
-  await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_alerts_enabled\`;`)
 }

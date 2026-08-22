@@ -301,15 +301,11 @@ const snowobsFields: Field[] = [
         name: 'source',
         type: 'text',
         admin: {
-          description:
-            "SnowObs source name. Not necessarily the center's slug -- DVAC reads NWAC's stations.",
+          description: "SnowObs source name. Not necessarily the center's slug.",
         },
       },
       {
-        // Encrypted at rest with PAYLOAD_SECRET, the same mechanism holding the
-        // MCP plugin's API keys. Encryption protects a copied database, not a
-        // logged-in user, so the access rules below are what keep a center's own
-        // admins out of their credential.
+        // Encrypted
         name: 'token',
         type: 'text',
         access: {
@@ -329,29 +325,15 @@ const snowobsFields: Field[] = [
           components: {
             Field: '@/collections/Settings/components/SyncStationsButton#SyncStationsButton',
           },
+          position: 'sidebar',
         },
       },
       {
-        type: 'row',
-        fields: [
-          {
-            name: 'weatherPagesEnabled',
-            type: 'checkbox',
-            label: 'Weather station pages',
-            defaultValue: false,
-            admin: { width: '50%', description: 'Publishes /weather/stations for this center.' },
-          },
-          {
-            // DVAC shows NWAC's stations, so without this both centers would be
-            // told to fix one logger and either could clear it out from under
-            // the other.
-            name: 'alertsEnabled',
-            type: 'checkbox',
-            label: 'Station alerts',
-            defaultValue: false,
-            admin: { width: '50%', description: 'Emails this center about station faults.' },
-          },
-        ],
+        name: 'weatherPagesEnabled',
+        type: 'checkbox',
+        label: 'Weather station pages',
+        defaultValue: false,
+        admin: { description: 'Publishes /weather/stations for this center.' },
       },
     ],
   },
