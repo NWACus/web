@@ -80,44 +80,45 @@ export const StationGroups: CollectionConfig = {
       },
     },
     {
-      type: 'collapsible',
-      label: 'Table Columns',
-      admin: { initCollapsed: false },
+      name: 'tableColumnsDivider',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/collections/StationGroups/components/FieldDivider#FieldDivider',
+        },
+      },
+    },
+    {
+      name: 'tableColumns',
+      type: 'array',
+      labels: { singular: 'Table Column', plural: 'Table Columns' },
       fields: [
         {
-          name: 'tableColumns',
-          type: 'array',
-          label: false,
-          labels: { singular: 'Table Column', plural: 'Table Columns' },
-          fields: [
-            {
-              name: 'variable',
-              type: 'select',
-              required: true,
-              options: TABLE_COLUMN_OPTIONS,
-            },
-            {
-              name: 'stations',
-              type: 'relationship',
-              relationTo: 'stations',
-              hasMany: true,
-              required: true,
-              // Only the loggers this page already covers, so the two lists
-              // cannot drift into a column for a station the page does not show.
-              filterOptions: (args) => ({
-                and: [getTenantFilter(args), { id: { in: groupStationIds(args.data) } }],
-              }),
-              admin: {
-                description: 'Which loggers report this reading, in the order the columns appear.',
-              },
-            },
-          ],
+          name: 'variable',
+          type: 'select',
+          required: true,
+          options: TABLE_COLUMN_OPTIONS,
+        },
+        {
+          name: 'stations',
+          type: 'relationship',
+          relationTo: 'stations',
+          hasMany: true,
+          required: true,
+          // Only the loggers this page already covers, so the two lists cannot
+          // drift into a column for a station the page does not show.
+          filterOptions: (args) => ({
+            and: [getTenantFilter(args), { id: { in: groupStationIds(args.data) } }],
+          }),
           admin: {
-            description:
-              'The NOW table, one row per reading. Graphs are separate: every station is offered all 12 presets and the ones with no data hide themselves, so battery voltage charts without being a column here.',
+            description: 'Which loggers report this reading, in the order the columns appear.',
           },
         },
       ],
+      admin: {
+        description:
+          'The NOW table, one row per reading. Graphs are separate: every station is offered all 12 presets and the ones with no data hide themselves, so battery voltage charts without being a column here.',
+      },
     },
     {
       name: 'archived',
