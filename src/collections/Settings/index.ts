@@ -7,6 +7,7 @@ import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validatePhone } from '@/utilities/validatePhone'
 import { CollectionConfig, Field, TextFieldValidation } from 'payload'
 import { text } from 'payload/shared'
+import { syncStationsNow } from './endpoints/syncStationsNow'
 import { revalidateSettings } from './hooks/revalidateSettings'
 
 const validateHashtag: TextFieldValidation = (value, args) => {
@@ -297,28 +298,6 @@ const snowobsFields: Field[] = [
     type: 'group',
     fields: [
       {
-        type: 'row',
-        fields: [
-          {
-            name: 'weatherPagesEnabled',
-            type: 'checkbox',
-            label: 'Weather station pages',
-            defaultValue: false,
-            admin: { width: '50%', description: 'Publishes /weather/stations for this center.' },
-          },
-          {
-            // DVAC shows NWAC's stations, so without this both centers would be
-            // told to fix one logger and either could clear it out from under
-            // the other.
-            name: 'alertsEnabled',
-            type: 'checkbox',
-            label: 'Station alerts',
-            defaultValue: false,
-            admin: { width: '50%', description: 'Emails this center about station faults.' },
-          },
-        ],
-      },
-      {
         name: 'source',
         type: 'text',
         admin: {
@@ -344,19 +323,33 @@ const snowobsFields: Field[] = [
         },
       },
       {
+        name: 'syncStations',
+        type: 'ui',
+        admin: {
+          components: {
+            Field: '@/collections/Settings/components/SyncStationsButton#SyncStationsButton',
+          },
+        },
+      },
+      {
         type: 'row',
         fields: [
           {
-            name: 'displayTimezone',
-            type: 'text',
-            defaultValue: 'America/Los_Angeles',
-            admin: { width: '50%', description: 'IANA zone the tables render in.' },
+            name: 'weatherPagesEnabled',
+            type: 'checkbox',
+            label: 'Weather station pages',
+            defaultValue: false,
+            admin: { width: '50%', description: 'Publishes /weather/stations for this center.' },
           },
           {
-            name: 'maxCompareStations',
-            type: 'number',
-            defaultValue: 3,
-            admin: { width: '50%', description: 'Stations a reader can chart together.' },
+            // DVAC shows NWAC's stations, so without this both centers would be
+            // told to fix one logger and either could clear it out from under
+            // the other.
+            name: 'alertsEnabled',
+            type: 'checkbox',
+            label: 'Station alerts',
+            defaultValue: false,
+            admin: { width: '50%', description: 'Emails this center about station faults.' },
           },
         ],
       },
@@ -375,6 +368,13 @@ export const Settings: CollectionConfig = {
     baseListFilter: filterByTenant,
     group: 'Settings',
   },
+  endpoints: [
+    {
+      path: '/:id/sync-stations',
+      method: 'post',
+      handler: syncStationsNow,
+    },
+  ],
   hooks: {
     afterChange: [revalidateSettings],
   },

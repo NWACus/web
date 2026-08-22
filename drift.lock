@@ -333,7 +333,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "b52d989028677e44"
+sig = "d75c1b54c6d2ede1"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -448,7 +448,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "edd6761a7a430103"
+sig = "19cddf93450ec156"
 
 [[bindings]]
 doc = "docs/migration-safety.md"

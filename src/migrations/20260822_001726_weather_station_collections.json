@@ -24076,6 +24076,20 @@
           "notNull": false,
           "autoincrement": false
         },
+        "snowobs_source": {
+          "name": "snowobs_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "snowobs_token": {
+          "name": "snowobs_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "snowobs_weather_pages_enabled": {
           "name": "snowobs_weather_pages_enabled",
           "type": "integer",
@@ -24091,36 +24105,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": false
-        },
-        "snowobs_source": {
-          "name": "snowobs_source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "snowobs_token": {
-          "name": "snowobs_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "snowobs_display_timezone": {
-          "name": "snowobs_display_timezone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'America/Los_Angeles'"
-        },
-        "snowobs_max_compare_stations": {
-          "name": "snowobs_max_compare_stations",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": 3
         },
         "terms_id": {
           "name": "terms_id",
@@ -27372,6 +27356,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "648734ce-08ab-4d39-bd60-29d22041ac83",
+  "id": "b7cf0348-0a2d-45af-a0e4-96ba6bbbf7bc",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

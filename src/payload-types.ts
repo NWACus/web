@@ -3137,14 +3137,6 @@ export interface Setting {
   };
   snowobs?: {
     /**
-     * Publishes /weather/stations for this center.
-     */
-    weatherPagesEnabled?: boolean | null;
-    /**
-     * Emails this center about station faults.
-     */
-    alertsEnabled?: boolean | null;
-    /**
      * SnowObs source name. Not necessarily the center's slug -- DVAC reads NWAC's stations.
      */
     source?: string | null;
@@ -3153,13 +3145,13 @@ export interface Setting {
      */
     token?: string | null;
     /**
-     * IANA zone the tables render in.
+     * Publishes /weather/stations for this center.
      */
-    displayTimezone?: string | null;
+    weatherPagesEnabled?: boolean | null;
     /**
-     * Stations a reader can chart together.
+     * Emails this center about station faults.
      */
-    maxCompareStations?: number | null;
+    alertsEnabled?: boolean | null;
   };
   terms?: (number | null) | Page;
   privacy?: (number | null) | Page;
@@ -5029,12 +5021,10 @@ export interface SettingsSelect<T extends boolean = true> {
   snowobs?:
     | T
     | {
-        weatherPagesEnabled?: T;
-        alertsEnabled?: T;
         source?: T;
         token?: T;
-        displayTimezone?: T;
-        maxCompareStations?: T;
+        weatherPagesEnabled?: T;
+        alertsEnabled?: T;
       };
   terms?: T;
   privacy?: T;

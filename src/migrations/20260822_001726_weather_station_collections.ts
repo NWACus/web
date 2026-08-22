@@ -1213,18 +1213,12 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(sql`CREATE INDEX \`stations_source_idx\` ON \`stations\` (\`source\`);`)
   await db.run(sql`CREATE INDEX \`stations_updated_at_idx\` ON \`stations\` (\`updated_at\`);`)
   await db.run(sql`CREATE INDEX \`stations_created_at_idx\` ON \`stations\` (\`created_at\`);`)
+  await db.run(sql`ALTER TABLE \`settings\` ADD \`snowobs_source\` text;`)
+  await db.run(sql`ALTER TABLE \`settings\` ADD \`snowobs_token\` text;`)
   await db.run(
     sql`ALTER TABLE \`settings\` ADD \`snowobs_weather_pages_enabled\` integer DEFAULT false;`,
   )
   await db.run(sql`ALTER TABLE \`settings\` ADD \`snowobs_alerts_enabled\` integer DEFAULT false;`)
-  await db.run(sql`ALTER TABLE \`settings\` ADD \`snowobs_source\` text;`)
-  await db.run(sql`ALTER TABLE \`settings\` ADD \`snowobs_token\` text;`)
-  await db.run(
-    sql`ALTER TABLE \`settings\` ADD \`snowobs_display_timezone\` text DEFAULT 'America/Los_Angeles';`,
-  )
-  await db.run(
-    sql`ALTER TABLE \`settings\` ADD \`snowobs_max_compare_stations\` numeric DEFAULT 3;`,
-  )
   await db.run(
     sql`ALTER TABLE \`payload_locked_documents_rels\` ADD \`station_groups_id\` integer REFERENCES station_groups(id);`,
   )
@@ -1497,10 +1491,8 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   await db.run(
     sql`CREATE INDEX \`payload_locked_documents_rels_payload_mcp_api_keys_id_idx\` ON \`payload_locked_documents_rels\` (\`payload_mcp_api_keys_id\`);`,
   )
-  await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_weather_pages_enabled\`;`)
-  await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_alerts_enabled\`;`)
   await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_source\`;`)
   await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_token\`;`)
-  await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_display_timezone\`;`)
-  await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_max_compare_stations\`;`)
+  await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_weather_pages_enabled\`;`)
+  await db.run(sql`ALTER TABLE \`settings\` DROP COLUMN \`snowobs_alerts_enabled\`;`)
 }

@@ -48,6 +48,7 @@ import { LinkLabelDescription as LinkLabelDescription_cc2cf53f1598892c0c926f3cb6
 import { BannerDescription as BannerDescription_3edfb41266bd8db9320658009eba5899 } from '@/components/BannerDescription'
 import { AvalancheCenterName as AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad } from '@/collections/Settings/components/AvalancheCenterName'
 import { USFSLogoDescription as USFSLogoDescription_d2eea91290575f9a545768dce25713f4 } from '@/collections/Settings/components/USFSLogoDescription'
+import { SyncStationsButton as SyncStationsButton_37416c96ff4ef5bf6ec4d0cfcbe9d3a9 } from '@/collections/Settings/components/SyncStationsButton'
 import { DiagnosticsDisplay as DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6 } from '@/globals/Diagnostics/components/DiagnosticsDisplay'
 import { RevalidateCacheField as RevalidateCacheField_75dcdddd4342c9fd5df6099c7d907aa6 } from '@/globals/Diagnostics/components/RevalidateCacheField'
 import { LogoutButton as LogoutButton_db9ac62598c46d0f1db201f6af05442e } from '@/components/LogoutButton'
@@ -116,6 +117,7 @@ export const importMap = {
   "@/components/BannerDescription#BannerDescription": BannerDescription_3edfb41266bd8db9320658009eba5899,
   "@/collections/Settings/components/AvalancheCenterName#AvalancheCenterName": AvalancheCenterName_acb7f1a03857e27efe1942bb65ab80ad,
   "@/collections/Settings/components/USFSLogoDescription#USFSLogoDescription": USFSLogoDescription_d2eea91290575f9a545768dce25713f4,
+  "@/collections/Settings/components/SyncStationsButton#SyncStationsButton": SyncStationsButton_37416c96ff4ef5bf6ec4d0cfcbe9d3a9,
   "@/globals/Diagnostics/components/DiagnosticsDisplay#DiagnosticsDisplay": DiagnosticsDisplay_eee0393496e2f0e3400424e01efca1c6,
   "@/globals/Diagnostics/components/RevalidateCacheField#RevalidateCacheField": RevalidateCacheField_75dcdddd4342c9fd5df6099c7d907aa6,
   "@/components/LogoutButton#LogoutButton": LogoutButton_db9ac62598c46d0f1db201f6af05442e,
