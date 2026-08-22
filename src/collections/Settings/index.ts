@@ -298,42 +298,70 @@ const snowobsFields: Field[] = [
     type: 'group',
     fields: [
       {
-        name: 'source',
-        type: 'text',
-        admin: {
-          description: "SnowObs source name. Not necessarily the center's slug.",
-        },
-      },
-      {
-        // Encrypted
-        name: 'token',
-        type: 'text',
-        access: {
-          read: byGlobalRole('read', 'settings'),
-          update: byGlobalRole('update', 'settings'),
-        },
-        admin: { description: 'Issued by SnowObs. Stored encrypted.' },
-        hooks: {
-          beforeChange: [({ value, req }) => (value ? req.payload.encrypt(value) : value)],
-          afterRead: [({ value, req }) => (value ? req.payload.decrypt(value) : value)],
-        },
-      },
-      {
-        name: 'syncStations',
-        type: 'ui',
-        admin: {
-          components: {
-            Field: '@/collections/Settings/components/SyncStationsButton#SyncStationsButton',
+        type: 'row',
+        fields: [
+          {
+            type: 'group',
+            label: false,
+            admin: { width: '70%', hideGutter: true },
+            fields: [
+              {
+                name: 'source',
+                type: 'text',
+                admin: {
+                  description: "SnowObs source name. Not necessarily the center's slug.",
+                },
+              },
+              {
+                // Encrypted
+                name: 'token',
+                type: 'text',
+                access: {
+                  read: byGlobalRole('read', 'settings'),
+                  update: byGlobalRole('update', 'settings'),
+                },
+                admin: { description: 'Issued by SnowObs. Stored encrypted.' },
+                hooks: {
+                  beforeChange: [({ value, req }) => (value ? req.payload.encrypt(value) : value)],
+                  afterRead: [({ value, req }) => (value ? req.payload.decrypt(value) : value)],
+                },
+              },
+            ],
           },
-          position: 'sidebar',
-        },
-      },
-      {
-        name: 'weatherPagesEnabled',
-        type: 'checkbox',
-        label: 'Weather station pages',
-        defaultValue: false,
-        admin: { description: 'Publishes /weather/stations for this center.' },
+          {
+            type: 'group',
+            label: false,
+            admin: { width: '30%', hideGutter: true, className: 'snowobs-controls' },
+            fields: [
+              {
+                name: 'syncStations',
+                type: 'ui',
+                admin: {
+                  components: {
+                    Field:
+                      '@/collections/Settings/components/SyncStationsButton#SyncStationsButton',
+                  },
+                },
+              },
+              {
+                type: 'group',
+                label: 'Features',
+                admin: { width: '30%', hideGutter: true },
+                fields: [
+                  {
+                    name: 'weatherPagesEnabled',
+                    type: 'checkbox',
+                    label: 'Weather station pages',
+                    defaultValue: false,
+                    admin: {
+                      description: 'Makes /weather/stations live based on station regions.',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
     ],
   },
@@ -392,8 +420,7 @@ export const Settings: CollectionConfig = {
         },
         {
           label: 'SnowObs',
-          description:
-            'Weather station data for this center. Leave the pages switch off if this center has no SnowObs stations.',
+          description: 'Weather station data for this center. Disabled if left empty.',
           fields: snowobsFields,
         },
         {

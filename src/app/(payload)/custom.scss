@@ -19,3 +19,39 @@
 .tooltip .tooltip-content {
   text-wrap: auto;
 }
+
+.snowobs-controls {
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-m);
+  padding: calc(var(--base) * 0.75);
+
+  > .render-fields {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--base) * 0.75);
+  }
+}
+
+.snowobs-sync {
+  &__hint {
+    color: var(--theme-elevation-500);
+    margin: calc(var(--base) * 0.15) 0 calc(var(--base) * 0.4);
+  }
+
+  .btn {
+    margin: 0;
+  }
+
+  &__outcome {
+    font-size: 0.85rem;
+    margin: calc(var(--base) * 0.35) 0 0;
+
+    &--good {
+      color: var(--theme-success-600);
+    }
+
+    &--bad {
+      color: var(--theme-error-600);
+    }
+  }
+}

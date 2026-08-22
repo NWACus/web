@@ -1,11 +1,9 @@
 'use client'
 
-import { Button, useDocumentInfo } from '@payloadcms/ui'
+import { Button, FieldLabel, useDocumentInfo } from '@payloadcms/ui'
 import { useState } from 'react'
 
 type Outcome = { text: string; failed: boolean }
-
-const IDLE = 'Stations sync hourly. Save your changes first, then run it here to check a new token.'
 
 export async function runSync(id: number | string): Promise<Outcome> {
   try {
@@ -24,12 +22,17 @@ export async function runSync(id: number | string): Promise<Outcome> {
   }
 }
 
-// Runs the same sync the hourly cron runs, so a token can be checked the moment
-// it is pasted in rather than an hour later. Save first: the endpoint reads the
-// stored source and token, not what is currently typed into the form.
+function SyncOutcome({ outcome }: { outcome: Outcome | null }) {
+  if (!outcome) return null
+  const tone = outcome.failed ? 'bad' : 'good'
+  return <p className={`snowobs-sync__outcome snowobs-sync__outcome--${tone}`}>{outcome.text}</p>
+}
+
+// Runs the same sync the hourly cron runs, so a new source or token can be
+// checked the moment it is saved rather than an hour later.
 export function SyncStationsButton() {
   const { id } = useDocumentInfo()
-  const [outcome, setOutcome] = useState<Outcome>({ text: IDLE, failed: false })
+  const [outcome, setOutcome] = useState<Outcome | null>(null)
   const [running, setRunning] = useState(false)
 
   const sync = async () => {
@@ -40,18 +43,15 @@ export function SyncStationsButton() {
   }
 
   return (
-    <div className="field-type">
-      <Button buttonStyle="secondary" disabled={!id || running} onClick={sync} size="small">
-        {running ? 'Syncing…' : 'Sync stations now'}
-      </Button>
-      <p
-        style={{
-          color: outcome.failed ? 'var(--theme-error-500)' : 'var(--theme-elevation-600)',
-          marginTop: 'calc(var(--base) * 0.25)',
-        }}
-      >
-        {outcome.text}
+    <div className="field-type snowobs-sync">
+      <FieldLabel label="Station sync" />
+      <p className="snowobs-sync__hint">
+        Stations sync hourly. Save first, then sync here to check a new source or token.
       </p>
+      <Button buttonStyle="secondary" disabled={!id || running} onClick={sync}>
+        {running ? 'Syncing…' : 'Sync now'}
+      </Button>
+      <SyncOutcome outcome={outcome} />
     </div>
   )
 }

@@ -3137,7 +3137,7 @@ export interface Setting {
   };
   snowobs?: {
     /**
-     * SnowObs source name. Not necessarily the center's slug -- DVAC reads NWAC's stations.
+     * SnowObs source name. Not necessarily the center's slug.
      */
     source?: string | null;
     /**
@@ -3145,7 +3145,7 @@ export interface Setting {
      */
     token?: string | null;
     /**
-     * Publishes /weather/stations for this center.
+     * Makes /weather/stations live based on station regions.
      */
     weatherPagesEnabled?: boolean | null;
   };
