@@ -26,6 +26,7 @@
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "seed": "./seed.sh",
+    "seed:weather": "payload run ./src/scripts/seedWeather.ts",
     "seed:standalone": "payload run ./src/scripts/standalone-seed.ts",
     "reseed": "./reseed.sh",
     "bootstrap": "./bootstrap.sh",
