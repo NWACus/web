@@ -18465,8 +18465,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "station_groups_columns": {
-      "name": "station_groups_columns",
+    "station_groups_table_columns": {
+      "name": "station_groups_table_columns",
       "columns": {
         "_order": {
           "name": "_order",
@@ -18498,21 +18498,21 @@
         }
       },
       "indexes": {
-        "station_groups_columns_order_idx": {
-          "name": "station_groups_columns_order_idx",
+        "station_groups_table_columns_order_idx": {
+          "name": "station_groups_table_columns_order_idx",
           "columns": ["_order"],
           "isUnique": false
         },
-        "station_groups_columns_parent_id_idx": {
-          "name": "station_groups_columns_parent_id_idx",
+        "station_groups_table_columns_parent_id_idx": {
+          "name": "station_groups_table_columns_parent_id_idx",
           "columns": ["_parent_id"],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "station_groups_columns_parent_id_fk": {
-          "name": "station_groups_columns_parent_id_fk",
-          "tableFrom": "station_groups_columns",
+        "station_groups_table_columns_parent_id_fk": {
+          "name": "station_groups_table_columns_parent_id_fk",
+          "tableFrom": "station_groups_table_columns",
           "tableTo": "station_groups",
           "columnsFrom": ["_parent_id"],
           "columnsTo": ["id"],
@@ -27372,6 +27372,6 @@
   "internal": {
     "indexes": {}
   },
-  "id": "43e217de-43b5-43cc-b8a9-b30feed3e9cd",
+  "id": "648734ce-08ab-4d39-bd60-29d22041ac83",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

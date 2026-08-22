@@ -1,12 +1,12 @@
 /**
  * The vocabulary of readings a station table can show.
  *
- * The order here is the order a new page's columns default to, and the order the
- * admin lists them in. It is not binding: each group stores its own ordered
- * column rows, because a handful of pages deviate deliberately -- Mt Washington
- * puts wind direction before humidity.
+ * Column order is not decided here -- each station group stores its own ordered
+ * rows, because a handful of pages deviate deliberately (Mt Washington puts wind
+ * direction before humidity). This sequence is only what the admin dropdown
+ * offers, so the common case reads north-to-south down the list.
  */
-export const COLUMN_VARIABLE_ORDER = [
+export const TABLE_COLUMN_VARIABLES = [
   'air_temp',
   'relative_humidity',
   'wind_speed_min',
@@ -22,9 +22,9 @@ export const COLUMN_VARIABLE_ORDER = [
   'equip_temperature',
 ] as const
 
-export type ColumnVariable = (typeof COLUMN_VARIABLE_ORDER)[number]
+export type TableColumnVariable = (typeof TABLE_COLUMN_VARIABLES)[number]
 
-export const COLUMN_VARIABLE_LABELS: Record<ColumnVariable, string> = {
+export const TABLE_COLUMN_LABELS: Record<TableColumnVariable, string> = {
   air_temp: 'Air temperature',
   relative_humidity: 'Relative humidity',
   wind_speed_min: 'Wind speed (min)',
@@ -40,25 +40,27 @@ export const COLUMN_VARIABLE_LABELS: Record<ColumnVariable, string> = {
   equip_temperature: 'Equipment temperature',
 }
 
-export const COLUMN_VARIABLE_OPTIONS = COLUMN_VARIABLE_ORDER.map((value) => ({
-  label: COLUMN_VARIABLE_LABELS[value],
+export const TABLE_COLUMN_OPTIONS = TABLE_COLUMN_VARIABLES.map((value) => ({
+  label: TABLE_COLUMN_LABELS[value],
   value,
 }))
 
-type ColumnRow = {
+type TableColumnRow = {
   variable?: string | null
   stations?: (number | { stid?: string | null })[] | null
 }
 
 /**
- * Flatten a group's stored column rows into the table header, left to right.
+ * Flatten a group's stored rows into the table header, left to right.
  *
- * Each row is one reading and the loggers reporting it, so a page that shows
+ * Each row is one reading and the loggers reporting it, so a page showing
  * temperature at three elevations is one row rather than three. Needs the
  * stations populated (`depth >= 1`); unpopulated ids are skipped rather than
  * throwing, so a deleted station costs its column and not the page.
  */
-export function columnsFor(rows?: ColumnRow[] | null): { stid: string; variable: string }[] {
+export function flattenTableColumns(
+  rows?: TableColumnRow[] | null,
+): { stid: string; variable: string }[] {
   return (rows ?? []).flatMap((row) => {
     const variable = row.variable
     if (!variable) return []

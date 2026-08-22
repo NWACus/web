@@ -3,7 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { slugField } from '@/fields/slug'
 import { tenantField } from '@/fields/tenantField'
-import { COLUMN_VARIABLE_OPTIONS } from '@/services/snowobs/columnOrder'
+import { TABLE_COLUMN_OPTIONS } from '@/services/snowobs/tableColumns'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
 
@@ -80,36 +80,44 @@ export const StationGroups: CollectionConfig = {
       },
     },
     {
-      name: 'columns',
-      type: 'array',
-      labels: { singular: 'Column', plural: 'Columns' },
+      type: 'collapsible',
+      label: 'Table Columns',
+      admin: { initCollapsed: false },
       fields: [
         {
-          name: 'variable',
-          type: 'select',
-          required: true,
-          options: COLUMN_VARIABLE_OPTIONS,
-        },
-        {
-          name: 'stations',
-          type: 'relationship',
-          relationTo: 'stations',
-          hasMany: true,
-          required: true,
-          // Only the loggers this page already covers, so the two lists cannot
-          // drift into a column for a station the page does not show.
-          filterOptions: (args) => ({
-            and: [getTenantFilter(args), { id: { in: groupStationIds(args.data) } }],
-          }),
+          name: 'tableColumns',
+          type: 'array',
+          label: false,
+          labels: { singular: 'Table Column', plural: 'Table Columns' },
+          fields: [
+            {
+              name: 'variable',
+              type: 'select',
+              required: true,
+              options: TABLE_COLUMN_OPTIONS,
+            },
+            {
+              name: 'stations',
+              type: 'relationship',
+              relationTo: 'stations',
+              hasMany: true,
+              required: true,
+              // Only the loggers this page already covers, so the two lists
+              // cannot drift into a column for a station the page does not show.
+              filterOptions: (args) => ({
+                and: [getTenantFilter(args), { id: { in: groupStationIds(args.data) } }],
+              }),
+              admin: {
+                description: 'Which loggers report this reading, in the order the columns appear.',
+              },
+            },
+          ],
           admin: {
-            description: 'Which loggers report this reading, in the order the columns appear.',
+            description:
+              'The NOW table, one row per reading. Graphs are separate: every station is offered all 12 presets and the ones with no data hide themselves, so battery voltage charts without being a column here.',
           },
         },
       ],
-      admin: {
-        description:
-          'The NOW table, one row per reading. Graphs are separate: every station is offered all 12 presets and the ones with no data hide themselves, so battery voltage charts without being a column here.',
-      },
     },
     {
       name: 'archived',

@@ -1104,7 +1104,7 @@ const GROUPS: SeedGroup[] = [
 ]
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`CREATE TABLE \`station_groups_columns\` (
+  await db.run(sql`CREATE TABLE \`station_groups_table_columns\` (
   	\`_order\` integer NOT NULL,
   	\`_parent_id\` integer NOT NULL,
   	\`id\` text PRIMARY KEY NOT NULL,
@@ -1113,10 +1113,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   `)
   await db.run(
-    sql`CREATE INDEX \`station_groups_columns_order_idx\` ON \`station_groups_columns\` (\`_order\`);`,
+    sql`CREATE INDEX \`station_groups_table_columns_order_idx\` ON \`station_groups_table_columns\` (\`_order\`);`,
   )
   await db.run(
-    sql`CREATE INDEX \`station_groups_columns_parent_id_idx\` ON \`station_groups_columns\` (\`_parent_id\`);`,
+    sql`CREATE INDEX \`station_groups_table_columns_parent_id_idx\` ON \`station_groups_table_columns\` (\`_parent_id\`);`,
   )
   await db.run(sql`CREATE TABLE \`station_groups\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
@@ -1305,7 +1305,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
         archived: group.archived,
         region,
         stations: group.stids.map((stid) => stationId(stid, group.slug)),
-        columns: group.columns.map((column) => ({
+        tableColumns: group.columns.map((column) => ({
           variable: column.variable,
           stations: column.stids.map((stid) => stationId(stid, group.slug)),
         })),
@@ -1321,7 +1321,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.run(sql`DROP TABLE \`station_groups_columns\`;`)
+  await db.run(sql`DROP TABLE \`station_groups_table_columns\`;`)
   await db.run(sql`DROP TABLE \`station_groups\`;`)
   await db.run(sql`DROP TABLE \`station_groups_rels\`;`)
   await db.run(sql`DROP TABLE \`station_regions\`;`)

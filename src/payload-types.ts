@@ -2149,7 +2149,7 @@ export interface StationGroup {
   /**
    * The NOW table, one row per reading. Graphs are separate: every station is offered all 12 presets and the ones with no data hide themselves, so battery voltage charts without being a column here.
    */
-  columns?:
+  tableColumns?:
     | {
         variable:
           | 'air_temp'
@@ -4458,7 +4458,7 @@ export interface StationGroupsSelect<T extends boolean = true> {
   legacySlug?: T;
   region?: T;
   stations?: T;
-  columns?:
+  tableColumns?:
     | T
     | {
         variable?: T;
