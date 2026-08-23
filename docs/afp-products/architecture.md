@@ -104,21 +104,44 @@ Server rendering is the default and the client bundle is deliberately small. The
 
 **The safety-critical part of the system.** These are life-safety products, and a five-minute ISR window is five minutes in which a correction or retraction is not being shown.
 
-`src/app/api/[center]/forecast-freshness/route.ts` (and its warning twin) closes that window. The mechanism:
+`src/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route.ts` (and its warning twin) closes that window. The mechanism:
 
-1. `forecastFingerprint.ts` hashes the **whole normalized product** — `sha1(JSON.stringify(model))`. Hashing everything rather than a timestamp means no category of change can be missed: corrections, retractions, a new bottom line, a danger change, a replacement after expiry.
-2. On mount, the client sends the fingerprint of what its page currently shows as `If-None-Match`.
+1. `forecastFingerprint.ts` hashes the **whole normalized product** — `sha1(JSON.stringify(model))`. Hashing everything rather than a timestamp means no category of change can be missed: corrections, retractions, a new bottom line, a danger change, a replacement after expiry. Hashing `null` gives "nothing published" its own address, so a zone's first publish is a change an open page can be told about.
+2. The page renders with the fingerprint of the product it is showing baked into the freshness URL it asks. The check is **content-addressed**: no request header, so the answer is cacheable.
 3. The handler fetches the current product fresh and makes **two independent decisions**.
 
 That independence is the subtle part, and the reason this isn't a plain ETag endpoint:
 
-- **Purge the shared cache?** Only when the fresh product genuinely differs from what the cache is serving — decided by server-side comparison, _never_ from the caller's header. The endpoint is unauthenticated, so trusting `If-None-Match` for this would let anyone force repeated purges and amplify load onto the AFP.
-- **Refresh this viewer?** Compare the fresh fingerprint against the caller's header. Different → `200`, and their `router.refresh()` re-renders. Same → `304`.
+- **Purge the shared cache?** Only when the fresh product genuinely differs from what the cache is serving — decided by server-side comparison, _never_ from the caller-supplied fingerprint. The endpoint is unauthenticated, so trusting the URL for this would let anyone force repeated purges and amplify load onto the AFP.
+- **Refresh this viewer?** Compare the fresh fingerprint against the one in the URL. Different → `changed: true`, and their `router.refresh()` re-renders.
+
+### Three answers, and only one of them is cacheable
+
+`src/utilities/freshnessResponses.ts` owns the vocabulary. Every answer is a `200` with a JSON body; the cache policy is the safety-critical part.
+
+| Outcome           | Body                                      | `Cache-Control`                 |
+| ----------------- | ----------------------------------------- | ------------------------------- |
+| Unchanged         | `{ changed: false }`                      | `public, max-age=0, s-maxage=30` |
+| Changed           | `{ changed: true, etag }`                 | `no-store`                      |
+| Indeterminate     | `{ changed: false, reason: 'indeterminate' }` | `no-store`                  |
+
+Every viewer inside an ISR window rendered the same product, so **unchanged is one cache key per zone** and answers nearly all real traffic — which is what makes the open-tab re-checking below affordable. It is also the only entry that can ever go stale, and its TTL is the second half of the staleness budget: 30s fresh-fetch cache (`fetchForecastFresh` / `fetchWarningFresh`) + 30s at the edge = the same 60s detection lag, with the 300s ISR window still behind it.
+
+**Changed** is rare in real traffic but unbounded under abuse — anyone can ask about a random 40-hex fingerprint, and each one is a guaranteed miss and a new edge entry. Not caching it removes that pollution vector, and makes the `revalidateTag` purge that rides with it an invariant rather than a side effect of a cache miss. A fingerprint that isn't lowercase sha1 hex is rejected with a `400` before any upstream fetch.
 
 Two failure-mode decisions worth knowing:
 
-- **Failing safe means failing quiet.** An upstream error, a parse failure, or a genuinely absent product all return `304` and purge nothing, so a transient blip can never blank the last-known-good forecast. The ISR window remains the backstop, and a real withdrawal is caught there.
+- **Failing safe means failing quiet — but never silently cached.** An upstream error, a parse failure, or a genuinely absent product are all *indeterminate*: they report no change and purge nothing, so a transient blip can never blank the last-known-good forecast, but they are never cached, so the next viewer retries immediately. Cached as "you're current", a blip would blind every viewer at that POP for the full TTL. The ISR window remains the backstop, and a real withdrawal is caught there.
 - **Validity never short-circuits the check.** It would be tempting to skip the fetch for a forecast still inside its validity window, but a correction can be published at any time. The fresh check runs on every view, unconditionally.
+
+### Freshness is an open-tab guarantee, not just a page-load one
+
+These pages get left open all day — patrol rooms, forecast offices, wall displays — so `RevalidateOnView` keeps asking: on every return to visibility, and on a slow interval (~5 min) while visible, skipping while hidden. A `router.refresh()` re-renders the page with the current product, which changes the fingerprint in the URL, which re-arms the check.
+
+**Expiry is the one piece of state with no upstream event behind it.** A forecast can lapse with no replacement published, in which case the freshness check correctly reports no change and the validity banner is the viewer's only signal. So `ExpiryNotice` renders the server's answer first — computing `Date.now()` during the client's first render would be a hydration mismatch — then re-evaluates on mount (correcting ISR HTML rendered before the instant and served after it) and on a single `setTimeout` to the expiry instant.
+
+Expiry is an **absolute-instant comparison** against `expires_time`, which is a forecaster-set instant stored as `bulletin.end_date` and normalized from center-local to UTC on write. The legacy widget compares it the same way (`ForecastBanner.vue`: `dayjs(expires_time).isBefore()`) with its own noon helper in scope and deliberately unused, and the avy app independently reached the same split. The noon valid-date rule (`validDateForProduct`) governs which calendar day a product is *for*, derived from `published_time`, and must not be applied to `expires_time`.
+
 
 ## Product and View
 
@@ -170,7 +193,9 @@ Known and deliberate, but easy to be caught by.
 | `src/services/nac/sources/`               | Per-product source interfaces, config, resolver |
 | `src/services/nac/sources/v2/`            | Legacy-API implementations and mappers          |
 | `src/services/nac/types/`                 | v2 wire schemas (zod)                           |
-| `src/services/nac/forecastFingerprint.ts` | Revalidate-on-view ETag                         |
-| `src/app/api/[center]/*-freshness/`       | Freshness route handlers                        |
+| `src/services/nac/forecastFingerprint.ts` | The address a page asks freshness about         |
+| `src/app/api/[center]/*-freshness/`       | Freshness route handlers, content-addressed     |
+| `src/utilities/freshnessResponses.ts`     | The three freshness answers and their cache policy |
+| `src/components/freshness/`               | Revalidate-on-view, shared by every product page |
 | `src/collections/Settings/`               | Control 1, the rollout flag                     |
 | `src/components/forecast/`                | Presentation, model-consuming only              |
