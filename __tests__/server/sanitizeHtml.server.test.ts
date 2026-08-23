@@ -69,6 +69,32 @@ describe('sanitizeHtml', () => {
       expect(out).toContain('src="https://player.vimeo.com/video/12345"')
     })
 
+    it('keeps a playlist a playlist', () => {
+      // `videoseries` is itself 11 characters, so it passes for a video id — without the list
+      // param carried over, the rebuilt URL asks YouTube for a video by that name.
+      const out = sanitizeHtml(
+        '<iframe src="https://www.youtube.com/embed/videoseries?list=PLabcdefghij"></iframe>',
+      )
+      expect(out).toContain('/embed/videoseries')
+      expect(out).toContain('list=PLabcdefghij')
+    })
+
+    it('keeps a start offset and a Vimeo private-video hash', () => {
+      expect(
+        sanitizeHtml('<iframe src="https://www.youtube.com/embed/_rYvrxGpBQc?start=120"></iframe>'),
+      ).toContain('start=120')
+      expect(
+        sanitizeHtml('<iframe src="https://player.vimeo.com/video/12345?h=abc123"></iframe>'),
+      ).toContain('h=abc123')
+    })
+
+    it('drops the share-tracking token', () => {
+      const out = sanitizeHtml(
+        '<iframe src="https://www.youtube.com/embed/_rYvrxGpBQc?si=TRACKME"></iframe>',
+      )
+      expect(out).not.toContain('si=')
+    })
+
     it('sizes the frame by the authored aspect ratio instead of its pixel height', () => {
       expect(sanitizeHtml(REAL_YOUTUBE_IFRAME)).toContain('aspect-ratio:1062 / 597')
       expect(sanitizeHtml(REAL_FACEBOOK_IFRAME)).toContain('aspect-ratio:267 / 476')
