@@ -1,7 +1,9 @@
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import type { Tenant } from '@/payload-types'
-import { convertWebpToPng } from '@/utilities/convertWebpToPng'
+import { convertWebpToPng, isWebpMedia } from '@/utilities/convertWebpToPng'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { isValidRelationship } from '@/utilities/relationships'
+import { US_TIMEZONES } from '@/utilities/timezones'
 import type { Payload } from 'payload'
 import type { OgDocType } from './buildOgImageUrl'
 
@@ -64,12 +66,9 @@ export async function getOgDocData({
   // TODO: remove the conversion once WebP support lands: https://github.com/vercel/satori/pull/622
   let image: OgDocData['image'] = null
   const featured = doc.featuredImage
-  if (featured && typeof featured === 'object' && featured.url) {
+  if (isValidRelationship(featured) && featured.url) {
     const attrs = getImgAttrsFromMediaResource(featured, tenant)
-    const isWebp =
-      featured.mimeType?.toLowerCase() === 'image/webp' ||
-      featured.filename?.toLowerCase().endsWith('.webp')
-    const src = isWebp ? await convertWebpToPng(featured, tenant) : attrs.src
+    const src = isWebpMedia(featured) ? await convertWebpToPng(featured, tenant) : attrs.src
     image = { src, width: attrs.width, height: attrs.height }
   }
 
@@ -83,7 +82,9 @@ export async function getOgDocData({
       if (names.length) parts.push(`By ${names.join(', ')}`)
     }
     if (doc.showDate && doc.publishedAt) {
-      parts.push(formatDateTime(doc.publishedAt, null, 'MMM d, yyyy'))
+      // Posts don't store a timezone, so pin to Pacific: OG images render server-side
+      // (UTC on Vercel), and an evening publish would otherwise show the next day's date.
+      parts.push(formatDateTime(doc.publishedAt, US_TIMEZONES.PACIFIC, 'MMM d, yyyy'))
     }
   } else if (type === 'event' && 'startDate' in doc) {
     if (doc.startDate) {

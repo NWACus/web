@@ -6,9 +6,10 @@
 // across all `/api/[center]/*` routes; not introduced by this change.
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { getForecastZoneDanger } from '@/services/nac/nac'
-import { convertWebpToPng } from '@/utilities/convertWebpToPng'
+import { convertWebpToPng, isWebpMedia } from '@/utilities/convertWebpToPng'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getURL } from '@/utilities/getURL'
+import { isValidRelationship } from '@/utilities/relationships'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
 import * as Sentry from '@sentry/nextjs'
@@ -97,10 +98,7 @@ export async function GET(
 
       // Convert WebP to PNG if needed
       // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
-      if (
-        settings.banner.mimeType?.toLowerCase() === 'image/webp' ||
-        settings.banner.filename?.endsWith('.webp')
-      ) {
+      if (isWebpMedia(settings.banner)) {
         bannerImgProps.src = await convertWebpToPng(settings.banner, settings.tenant)
       }
     }
@@ -117,10 +115,7 @@ export async function GET(
 
       // Convert WebP to PNG if needed
       // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
-      if (
-        settings.usfsLogo.mimeType?.toLowerCase() === 'image/webp' ||
-        settings.usfsLogo.filename?.endsWith('.webp')
-      ) {
+      if (isWebpMedia(settings.usfsLogo)) {
         usfsLogoImgProps.src = await convertWebpToPng(settings.usfsLogo, settings.tenant)
       }
     }
@@ -128,7 +123,7 @@ export async function GET(
     // Blog post / event shares: fetch and normalize the document for a content-specific image
     let docData: OgDocData | null = null
 
-    if (docType && docSlug && settings.tenant && typeof settings.tenant !== 'number') {
+    if (docType && docSlug && isValidRelationship(settings.tenant)) {
       try {
         docData = await getOgDocData({
           payload,
