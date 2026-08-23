@@ -1,4 +1,5 @@
 import { type MediaItem } from '@/services/nac/model/forecast'
+import { getVideoEmbedUrl } from '@/utilities/videoEmbed'
 
 import { ZoomablePhoto } from './ZoomablePhoto'
 import { resolveMediaSlide } from './mediaItem'
@@ -13,7 +14,9 @@ export function MediaSlide({ item }: { item: MediaItem }) {
       return (
         <div className="aspect-video w-full">
           <iframe
-            src={`https://www.youtube.com/embed/${encodeURIComponent(slide.videoId)}`}
+            // Built by the shared helper so a video embedded in the discussion frames the same way
+            // inline and in the lightbox.
+            src={getVideoEmbedUrl({ provider: 'youtube', id: encodeURIComponent(slide.videoId) })}
             className="h-full w-full rounded"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
