@@ -1,5 +1,3 @@
-import { NextRequest } from 'next/server'
-
 const mockRevalidateTag = jest.fn()
 const mockRevalidatePath = jest.fn()
 jest.mock('next/cache', () => ({
@@ -27,7 +25,7 @@ jest.mock('../../src/services/nac/nac', () => ({
 }))
 
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
-import { GET } from '@/app/api/[center]/warning-freshness/route'
+import { GET } from '@/app/api/[center]/warning-freshness/[fingerprint]/route'
 import {
   centerWarningsFingerprint,
   type AlertProductType,
@@ -57,17 +55,18 @@ const WARNING_Z1 = [group(ProductType.Warning, 1)]
 const WARNING_Z1_UPDATED = [group(ProductType.Warning, 1, 'Conditions have worsened.')]
 const WARNING_Z1_Z2 = [group(ProductType.Warning, 1), group(ProductType.Watch, 2)]
 
-const params = Promise.resolve({ center: 'nwac' })
+const CACHEABLE = 'public, max-age=0, s-maxage=30'
 
-function req(headers: Record<string, string> = {}, center = 'nwac') {
-  return new NextRequest(`http://localhost/api/${center}/warning-freshness`, { headers })
+function call(fingerprint: string, center = 'nwac') {
+  const url = `http://localhost/api/${center}/warning-freshness/${fingerprint}`
+  return GET(new Request(url), { params: Promise.resolve({ center, fingerprint }) })
 }
 
 /** Stand up an upstream/cache pair and ask the endpoint on behalf of a viewer holding `rendered`. */
 function check(options: {
   fresh: CenterWarningGroup[] | Error
   cached?: CenterWarningGroup[]
-  rendered?: CenterWarningGroup[]
+  rendered: CenterWarningGroup[]
 }) {
   if (options.fresh instanceof Error) {
     mockGetCenterWarningsFresh.mockRejectedValue(options.fresh)
@@ -76,15 +75,22 @@ function check(options: {
   }
   if (options.cached) mockGetCenterWarnings.mockResolvedValue(options.cached)
 
-  const headers: Record<string, string> = options.rendered
-    ? { 'If-None-Match': centerWarningsFingerprint(options.rendered) }
-    : {}
-  return GET(req(headers), { params })
+  return call(centerWarningsFingerprint(options.rendered))
+}
+
+async function answer(res: Response) {
+  return {
+    status: res.status,
+    cacheControl: res.headers.get('Cache-Control'),
+    body: await res.json(),
+  }
 }
 
 /** Asserts the endpoint changed nothing and told the viewer their render is still current. */
-function expectNoChange(res: { status: number }) {
-  expect(res.status).toBe(304)
+async function expectNoChange(res: Response) {
+  const { status, body } = await answer(res)
+  expect(status).toBe(200)
+  expect(body.changed).toBe(false)
   expect(mockRevalidateTag).not.toHaveBeenCalled()
   expect(mockRevalidatePath).not.toHaveBeenCalled()
 }
@@ -97,34 +103,41 @@ beforeEach(() => {
 })
 
 describe('warning-freshness route', () => {
-  it('returns 304 without purging when nothing has changed', async () => {
-    const res = await check({ fresh: WARNING_Z1, cached: WARNING_Z1, rendered: WARNING_Z1 })
+  it('reports no change, cacheably, when nothing has changed', async () => {
+    const res = await answer(
+      await check({ fresh: WARNING_Z1, cached: WARNING_Z1, rendered: WARNING_Z1 }),
+    )
 
-    expectNoChange(res)
+    expect(res.body).toEqual({ changed: false })
+    expect(res.cacheControl).toBe(CACHEABLE)
+    expect(mockRevalidateTag).not.toHaveBeenCalled()
+    expect(mockRevalidatePath).not.toHaveBeenCalled()
   })
 
-  it('returns 304 without purging when no alerts are active and none were rendered', async () => {
-    const res = await check({ fresh: NONE, cached: NONE, rendered: NONE })
+  it('reports no change, cacheably, when no alerts are active and none were rendered', async () => {
+    const res = await answer(await check({ fresh: NONE, cached: NONE, rendered: NONE }))
 
-    expect(res.status).toBe(304)
+    expect(res.body).toEqual({ changed: false })
+    expect(res.cacheControl).toBe(CACHEABLE)
     expect(mockRevalidateTag).not.toHaveBeenCalled()
   })
 
-  it('purges the zone tag and returns 200 when a warning is newly issued', async () => {
-    const res = await check({ fresh: WARNING_Z1, cached: NONE, rendered: NONE })
+  it('purges the zone tag and reports a change when a warning is newly issued', async () => {
+    const res = await answer(await check({ fresh: WARNING_Z1, cached: NONE, rendered: NONE }))
 
-    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ changed: true, etag: centerWarningsFingerprint(WARNING_Z1) })
+    expect(res.cacheControl).toBe('no-store')
     expect(mockRevalidateTag).toHaveBeenCalledWith('warning:nwac:1')
   })
 
   it('purges the tags of every zone on either side of the change', async () => {
-    await check({ fresh: WARNING_Z1_Z2, cached: WARNING_Z1 })
+    await check({ fresh: WARNING_Z1_Z2, cached: WARNING_Z1, rendered: WARNING_Z1 })
 
     expect(mockRevalidateTag).toHaveBeenCalledWith('warning:nwac:1')
     expect(mockRevalidateTag).toHaveBeenCalledWith('warning:nwac:2')
   })
 
-  it('purges the home page too, so the viewer\u2019s refresh is not a no-op', async () => {
+  it('purges the home page too, so the viewer’s refresh is not a no-op', async () => {
     await check({ fresh: WARNING_Z1, cached: NONE, rendered: NONE })
 
     expect(mockRevalidatePath).toHaveBeenCalledWith('/')
@@ -133,13 +146,11 @@ describe('warning-freshness route', () => {
 
   it('tells a viewer holding a stale render to refresh even when the shared cache is current', async () => {
     // The upstream cache has already caught up; only this viewer's rendered page is behind.
-    const res = await check({
-      fresh: WARNING_Z1_UPDATED,
-      cached: WARNING_Z1_UPDATED,
-      rendered: WARNING_Z1,
-    })
+    const res = await answer(
+      await check({ fresh: WARNING_Z1_UPDATED, cached: WARNING_Z1_UPDATED, rendered: WARNING_Z1 }),
+    )
 
-    expect(res.status).toBe(200)
+    expect(res.body.changed).toBe(true)
     expect(mockRevalidateTag).not.toHaveBeenCalled()
     expect(mockRevalidatePath).toHaveBeenCalledWith('/')
   })
@@ -147,31 +158,54 @@ describe('warning-freshness route', () => {
   it('does NOT blank a live banner when the fresh set goes empty (upstream blip or all-clear)', async () => {
     const res = await check({ fresh: NONE, cached: WARNING_Z1, rendered: WARNING_Z1 })
 
-    expectNoChange(res)
+    await expectNoChange(res)
+  })
+
+  it('never caches the empty-fresh-vs-populated-cache answer, so the next viewer retries', async () => {
+    const res = await answer(await check({ fresh: NONE, cached: WARNING_Z1, rendered: WARNING_Z1 }))
+
+    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
+    expect(res.cacheControl).toBe('no-store')
   })
 
   it('propagates a genuine all-clear once the shared cache agrees the alerts are gone', async () => {
-    const res = await check({ fresh: NONE, cached: NONE, rendered: WARNING_Z1 })
+    const res = await answer(await check({ fresh: NONE, cached: NONE, rendered: WARNING_Z1 }))
 
-    expect(res.status).toBe(200)
+    expect(res.body.changed).toBe(true)
     expect(mockRevalidatePath).toHaveBeenCalledWith('/')
   })
 
-  it('returns 304 without purging when upstream is unreachable', async () => {
+  it('reports an uncacheable no-change when upstream is unreachable', async () => {
     const res = await check({
       fresh: new Error('NAC API request failed with status 503'),
       rendered: WARNING_Z1,
     })
 
-    expectNoChange(res)
+    await expectNoChange(res)
+  })
+
+  it('never caches the upstream-unreachable answer', async () => {
+    const res = await answer(
+      await check({ fresh: new Error('NAC API request failed'), rendered: WARNING_Z1 }),
+    )
+
+    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
+    expect(res.cacheControl).toBe('no-store')
   })
 
   it('rejects an unknown center without fanning out upstream', async () => {
-    const res = await GET(req({}, 'not-a-center'), {
-      params: Promise.resolve({ center: 'not-a-center' }),
-    })
+    const res = await call(centerWarningsFingerprint(WARNING_Z1), 'not-a-center')
 
     expect(res.status).toBe(404)
+    expect(res.headers.get('Cache-Control')).toBe('no-store')
+    expect(mockGetCenterWarningsFresh).not.toHaveBeenCalled()
+  })
+
+  it('400s a malformed fingerprint without fanning out upstream', async () => {
+    const res = await call('not-a-fingerprint')
+
+    expect(res.status).toBe(400)
+    expect(res.headers.get('Cache-Control')).toBe('no-store')
     expect(mockGetCenterWarningsFresh).not.toHaveBeenCalled()
   })
 })
