@@ -84,7 +84,7 @@ function safeEmbedUrl(src: string | undefined): string | null {
   if (!url) return null
 
   const video = parseVideoUrl(url.toString())
-  if (video) return getVideoEmbedUrl(video)
+  if (video) return withPreservedParams(getVideoEmbedUrl(video), url)
 
   // Facebook's content embeds. Named individually rather than allowing all of /plugins/*, which
   // also serves interactive social widgets (like, comments, page) that nothing in the corpus uses.
@@ -95,6 +95,25 @@ function safeEmbedUrl(src: string | undefined): string | null {
   }
 
   return null
+}
+
+/**
+ * Playback parameters carried from the authored URL onto the rebuilt embed URL.
+ *
+ * `getVideoEmbedUrl` reconstructs the URL from the video id alone. That is fine for a plain video,
+ * but a YouTube playlist is `/embed/videoseries?list=…` — and `videoseries` is itself eleven
+ * characters, so it passes for a video id and the rebuilt URL asks YouTube for a video by that
+ * name. Same story, less visibly, for a start offset or a Vimeo private-video hash.
+ */
+const PRESERVED_EMBED_PARAMS = ['list', 'index', 'start', 'end', 't', 'h']
+
+function withPreservedParams(embedUrl: string, authored: URL): string {
+  const url = new URL(embedUrl)
+  for (const name of PRESERVED_EMBED_PARAMS) {
+    const value = authored.searchParams.get(name)
+    if (value) url.searchParams.set(name, value)
+  }
+  return url.toString()
 }
 
 /**
