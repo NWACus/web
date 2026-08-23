@@ -146,6 +146,41 @@ target = ".github/workflows/claude.yml"
 sig = "b4cdca0cf4f354b1"
 
 [[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/app/api/[center]/forecast-freshness/route.ts"
+sig = "7a7f7b8e3909a277"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/collections/Settings/index.ts"
+sig = "afa29bc8184dea8e"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/forecastFingerprint.ts"
+sig = "c18cab1b7df3855f"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/model/forecast.ts"
+sig = "44c3a30a03dd3a3c"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/sources/config.ts"
+sig = "04c5d068ca6aa844"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/sources/index.ts"
+sig = "b97eccce2fe2f8d5"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/sources/types.ts"
+sig = "003ff75b0e6ac502"
+
+[[bindings]]
 doc = "docs/coding-guide.md"
 target = "jest.config.mjs"
 sig = "b1d9736649cf9b6a"
