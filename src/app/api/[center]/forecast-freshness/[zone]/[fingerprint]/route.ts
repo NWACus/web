@@ -7,7 +7,7 @@ import { forecastFingerprint } from '@/services/nac/forecastFingerprint'
 import { forecastCacheTag, weatherCacheTag } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
-import { NO_STORE } from '@/utilities/apiResponses'
+import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
 import {
   changedResponse,
   indeterminateResponse,
@@ -15,6 +15,7 @@ import {
   malformedFingerprintResponse,
   unchangedResponse,
 } from '@/utilities/freshnessResponses'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
 
@@ -63,6 +64,10 @@ export async function GET(
   const { center, zone: zoneSlug, fingerprint } = await params
 
   if (!isFingerprint(fingerprint)) return malformedFingerprintResponse()
+
+  // Both segments below are caller-controlled and the center is interpolated into an upstream NAC
+  // URL, so only serve known tenants — matching the warning-freshness and danger-map siblings.
+  if (!isValidTenantSlug(center)) return unknownCenterResponse()
 
   const zone = await resolveZoneFromSlug(center, zoneSlug)
   if (!zone) {
