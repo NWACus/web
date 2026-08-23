@@ -6,12 +6,17 @@
  *
  * afp also offers an "all archived forecasts" link; native has no all-archives page yet (the date
  * picker on this page covers per-zone history), so that clause is omitted. "Withdrawn" has no
- * representation in the v2 model, so it is not surfaced. Expiry is an absolute-instant comparison.
+ * representation in the v2 model, so it is not surfaced.
+ *
+ * The archived notice is settled at render time, but expiry is not: it turns over on the clock
+ * alone, so it is decided here and then kept honest client-side by `ExpiryNotice`.
  */
-import { History, TriangleAlert } from 'lucide-react'
+import { History } from 'lucide-react'
 import Link from 'next/link'
 
 import type { ForecastResult } from '@/services/nac/model/forecast'
+
+import { ExpiryNotice } from './ExpiryNotice.client'
 
 interface ValidityBannerProps {
   forecast: Pick<ForecastResult, 'expires_time'>
@@ -41,17 +46,14 @@ export function ValidityBanner({ forecast, selectedDate, basePath }: ValidityBan
     )
   }
 
-  // Live view: the current product's validity window has passed.
-  const expired =
-    forecast.expires_time != null && Date.now() > new Date(forecast.expires_time).getTime()
-  if (expired) {
-    return (
-      <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
-        <TriangleAlert className="h-5 w-5 shrink-0" aria-hidden="true" />
-        <span>This product is expired.</span>
-      </div>
-    )
-  }
+  // Live view: has the current product's validity window passed? A product with no expiry never
+  // lapses, so there is nothing for the client to watch for.
+  if (forecast.expires_time == null) return null
 
-  return null
+  return (
+    <ExpiryNotice
+      expiresTime={forecast.expires_time}
+      initiallyExpired={Date.now() > new Date(forecast.expires_time).getTime()}
+    />
+  )
 }
