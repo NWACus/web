@@ -3,6 +3,7 @@
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+import { DiscussionBody } from './DiscussionBody'
 import { sanitizeHtml } from './sanitizeHtml'
 
 interface ForecastDiscussionProps {
@@ -16,10 +17,8 @@ export function ForecastDiscussion({ html }: ForecastDiscussionProps) {
         <CardTitle>Forecast Discussion</CardTitle>
       </CardHeader>
       <CardContent>
-        <div
-          className="prose prose-sm max-w-none dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
-        />
+        {/* Sanitizing stays on the server; the body only renders it and wires up embedded media. */}
+        <DiscussionBody html={sanitizeHtml(html)} />
       </CardContent>
     </Card>
   )
