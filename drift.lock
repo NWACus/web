@@ -103,7 +103,7 @@ sig = "557bf3262bf05be3"
 [[bindings]]
 doc = "docs/a3-embeds.md"
 target = "src/app/(embeds)/embeds/courses/CoursesFilters.tsx"
-sig = "d0a25443fa42a1ea"
+sig = "d68a6a972aed9b7d"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
