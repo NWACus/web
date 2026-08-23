@@ -176,6 +176,11 @@ target = "src/services/nac/sources/types.ts"
 sig = "003ff75b0e6ac502"
 
 [[bindings]]
+doc = "docs/claude-github-issues.md"
+target = ".github/workflows/claude.yml"
+sig = "b4cdca0cf4f354b1"
+
+[[bindings]]
 doc = "docs/coding-guide.md"
 target = "jest.config.mjs"
 sig = "b1d9736649cf9b6a"

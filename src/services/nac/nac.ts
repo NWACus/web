@@ -55,6 +55,7 @@ export class NACError extends Error {
 
 type Options = {
   tags?: string[]
+  // Seconds, matching Next's `next.revalidate`.
   cachedTime?: number | false
   // Skip Next's fetch-level data cache entirely (cache: 'no-store'). Use for responses too
   // large for the 2MB data cache (e.g. the full product archive), which are cached one layer
@@ -62,23 +63,29 @@ type Options = {
   noStore?: boolean
 }
 
+const DEFAULT_CACHED_TIME_SECONDS = 24 * 60 * 60
+
+function fetchInit(options: Options): RequestInit {
+  if (options.noStore) {
+    return { cache: 'no-store' }
+  }
+
+  return {
+    next: {
+      revalidate: options.cachedTime ?? DEFAULT_CACHED_TIME_SECONDS,
+      // Spread as `{ tags }`; spreading the bare array sets numeric keys, leaving the fetch
+      // untagged and revalidateTag a silent no-op.
+      ...(options.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
+    },
+  }
+}
+
 export async function nacFetch(path: string, options: Options = {}) {
   const normalizedPath = normalizePath(path)
   const url = `${nacApiHost}/${normalizedPath}`
 
   try {
-    const res = await fetch(url, {
-      ...(options.noStore
-        ? { cache: 'no-store' }
-        : {
-            next: {
-              revalidate: options?.cachedTime ?? 24 * 60 * 60 * 1000, // hold on to this cached data for a day (in milliseconds)
-              // Spread as { tags: [...] }; spreading the bare array set numeric keys and never
-              // applied the cache tags (so revalidateTag was a no-op).
-              ...(options?.tags && options.tags.length > 0 ? { tags: options.tags } : {}),
-            },
-          }),
-    })
+    const res = await fetch(url, fetchInit(options))
 
     if (!res.ok) {
       throw new NACError(`NAC API request failed with status ${res.status}`, null, {
@@ -114,12 +121,7 @@ export async function afpFetch(path: string, options: Options = {}) {
   const url = `${afpApiHost}?${querystring}`
 
   try {
-    const res = await fetch(url, {
-      next: {
-        revalidate: options?.cachedTime ?? 24 * 60 * 60 * 1000, // hold on to this cached data for a day (in milliseconds)
-        ...(options?.tags && options.tags.length > 0 ? options.tags : []),
-      },
-    })
+    const res = await fetch(url, fetchInit(options))
 
     if (!res.ok) {
       let errorData

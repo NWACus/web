@@ -5,7 +5,9 @@ import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraph
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
+import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
+import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import {
   getStationGroup,
   NWAC_WEATHER_STATION_GROUPS,
@@ -57,31 +59,38 @@ function csvYears(): number[] {
 }
 
 type TabView = {
-  key: string
   table: StationTable | null
   tabContent?: ReactNode
 }
 
 async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
   return {
-    key: 'csv',
     table: null,
     tabContent: (
-      <StationCsvForm
-        slug={group.slug}
-        dataloggers={await loadDataloggers(group)}
-        years={csvYears()}
-      />
+      <>
+        <StationViewBar>
+          <StationRangeTabs activeKey="csv" />
+        </StationViewBar>
+        <StationCsvForm
+          slug={group.slug}
+          dataloggers={await loadDataloggers(group)}
+          years={csvYears()}
+        />
+      </>
     ),
   }
 }
 
 function graphsTabView(group: WeatherStationGroup): TabView {
   return {
-    key: 'graphs',
     table: null,
     tabContent: (
-      <StationGraphs stids={group.stids} presets={STATION_GRAPH_PRESETS} currentSlug={group.slug} />
+      <StationGraphs
+        stids={group.stids}
+        presets={STATION_GRAPH_PRESETS}
+        currentSlug={group.slug}
+        tabs={<StationRangeTabs activeKey="graphs" />}
+      />
     ),
   }
 }
@@ -95,10 +104,25 @@ async function tableTabView(group: WeatherStationGroup, periodParam?: string): P
   })
   const table = buildStationTable(response, group.columns)
   return {
-    key: 'table',
     table,
-    tabContent: <StationTableView table={table} activePeriodKey={period.key} />,
+    tabContent: (
+      <StationTableView
+        table={table}
+        activePeriodKey={period.key}
+        tabs={<StationRangeTabs activeKey="table" />}
+      />
+    ),
   }
+}
+
+// An archived station's table and graphs are empty, so downloads lead.
+function defaultTabKey(group: WeatherStationGroup): string {
+  return group.archived ? 'csv' : 'table'
+}
+
+const TAB_VIEWS: Record<string, (group: WeatherStationGroup) => TabView | Promise<TabView>> = {
+  csv: csvTabView,
+  graphs: graphsTabView,
 }
 
 async function resolveTabView(
@@ -106,9 +130,9 @@ async function resolveTabView(
   rangeParam?: string,
   periodParam?: string,
 ): Promise<TabView> {
-  if (rangeParam === 'csv') return csvTabView(group)
-  if (rangeParam === 'graphs') return graphsTabView(group)
-  return tableTabView(group, periodParam ?? rangeParam)
+  const build = TAB_VIEWS[rangeParam ?? defaultTabKey(group)]
+  // Anything else is the table, including legacy `?range=24h` links.
+  return build ? build(group) : tableTabView(group, periodParam ?? rangeParam)
 }
 
 export default async function Page({ params, searchParams }: Args) {
@@ -126,14 +150,7 @@ export default async function Page({ params, searchParams }: Args) {
 
   const view = await resolveTabView(group, rangeParam, periodParam)
 
-  return (
-    <StationPageView
-      group={group}
-      table={view.table}
-      activeKey={view.key}
-      tabContent={view.tabContent}
-    />
-  )
+  return <StationPageView group={group} table={view.table} tabContent={view.tabContent} />
 }
 
 function resolveParentTitle(parent: ResolvedMetadata): Metadata['title'] {

@@ -44,11 +44,18 @@ export const MobileNav = ({
 
     updateHeaderHeight()
 
-    window.addEventListener('resize', updateHeaderHeight)
+    if (!mobileNavOpen) return
 
-    return () => {
-      window.removeEventListener('resize', updateHeaderHeight)
-    }
+    // The open menu hangs off the bottom of the header, so its offset has to survive anything that
+    // moves the header while it's open: an orientation change, the announcement banners animating
+    // open or closed, the sticky header pinning as the page scrolls. Measuring on a frame covers
+    // all of them, and only runs for as long as the menu is open.
+    let frame = requestAnimationFrame(function trackHeaderHeight() {
+      updateHeaderHeight()
+      frame = requestAnimationFrame(trackHeaderHeight)
+    })
+
+    return () => cancelAnimationFrame(frame)
   }, [mobileNavOpen])
 
   useEffect(
@@ -66,9 +73,11 @@ export const MobileNav = ({
 
   return (
     <Dialog open={mobileNavOpen} onOpenChange={setMobileNavOpen} modal={false}>
-      <div ref={headerRef} className="lg:hidden fixed z-50 inset-x-0 py-1.5 bg-header shadow-sm">
-        <div className="container flex justify-between items-center gap-5">
-          <DialogTrigger className="p-2">
+      <div ref={headerRef} className="lg:hidden py-1.5 bg-header shadow-sm">
+        {/* Three tracks so the logo stays centered whether or not the announcements toggle is
+            rendered. The outer tracks are equal by definition, empty or not. */}
+        <div className="container grid grid-cols-[1fr_auto_1fr] items-center gap-5">
+          <DialogTrigger className="col-start-1 justify-self-start p-2">
             <div className="flex w-6 h-6 flex-col items-center justify-center space-y-[5px] overflow-hidden outline-none">
               <span
                 className={`bg-header-foreground h-[2px] w-full rounded transition-all duration-300 ease-in-out ${
@@ -89,7 +98,7 @@ export const MobileNav = ({
             <span className="sr-only">Toggle menu</span>
           </DialogTrigger>
           {banner && (
-            <Link href="/" className="w-fit flex gap-4">
+            <Link href="/" className="col-start-2 justify-self-center w-fit flex gap-4">
               <ImageMedia
                 resource={banner}
                 loading="eager"
@@ -112,7 +121,7 @@ export const MobileNav = ({
             <button
               onClick={toggle}
               className={cn(
-                'relative rounded-md p-2 text-header-foreground transition-colors',
+                'col-start-3 justify-self-end relative rounded-md p-2 text-header-foreground transition-colors',
                 !collapsed && 'bg-header-foreground/20',
               )}
               aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${announcementCount} ${announcementCount === 1 ? 'announcement' : 'announcements'}`}
@@ -132,8 +141,8 @@ export const MobileNav = ({
           onClick={() => setMobileNavOpen(false)}
         />
         <DialogContent
-          className="lg:hidden max-h-[calc(100vh-64px)] overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top"
-          style={{ top: `${headerHeight}px` }}
+          className="lg:hidden overflow-y-auto fixed z-40 bg-header text-header-foreground pb-2 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 border-b border-b-header-foreground-highlight data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top"
+          style={{ top: `${headerHeight}px`, maxHeight: `calc(100dvh - ${headerHeight}px)` }}
         >
           <DialogTitle className="sr-only">menu</DialogTitle>
           <DialogDescription className="sr-only">navigation menu</DialogDescription>
