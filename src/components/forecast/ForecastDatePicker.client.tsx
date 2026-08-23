@@ -10,8 +10,11 @@
  * Each day (and the arrows) is a real Next `<Link>` to the dated route, so navigation uses the
  * app's global `nextjs-toploader` progress bar — the bar only starts on anchor clicks, not on
  * programmatic `router.push`. The dated route resolves the date to a product id server-side.
+ *
+ * The pure decisions (month windows, link targets, arrow stepping) live in
+ * `./datePickerNavigation` so they can be unit-tested without React.
  */
-import { addMonths, endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
+import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
 import { CalendarIcon, ChevronLeft, ChevronRight, Loader2, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useMemo, useState, type ComponentProps } from 'react'
@@ -23,12 +26,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { dangerColor, dangerLevelFromRating, dangerTextColor } from '@/services/nac/dangerScale'
 import { cn } from '@/utilities/ui'
 
-export interface ForecastArchiveDate {
-  /** `YYYY-MM-DD` valid date. */
-  date: string
-  /** Overall danger rating (0-5; -1 = general info) for coloring the day. */
-  dangerRating: number
-}
+import {
+  adjacentForecastHrefs,
+  dayKey,
+  fetchArchiveMonth,
+  forecastHref,
+  mergeRatings,
+  monthKey,
+  monthsBetween,
+  triggerLabel,
+  type ForecastArchiveDate,
+} from './datePickerNavigation'
 
 interface ForecastDatePickerProps {
   center: string
@@ -49,20 +57,6 @@ interface ForecastDatePickerProps {
 // The legacy widget's calendar starts at the 2018-19 season.
 const ARCHIVE_START = new Date(2018, 8, 1)
 
-const dayKey = (date: Date) => format(date, 'yyyy-MM-dd')
-const monthKey = (date: Date) => format(date, 'yyyy-MM')
-
-function monthsBetween(from: string, to: string): string[] {
-  const months: string[] = []
-  let cursor = startOfMonth(parseISO(from))
-  const end = startOfMonth(parseISO(to))
-  while (cursor <= end) {
-    months.push(monthKey(cursor))
-    cursor = addMonths(cursor, 1)
-  }
-  return months
-}
-
 /**
  * Context feeding the custom day renderer, so `DayLink` can stay a stable module-level
  * component (no remount per render) while reading the live ratings map and link targets.
@@ -81,24 +75,47 @@ function DayLink({ day, className }: ComponentProps<typeof DayButton>) {
   const { ratings, hrefFor, shownDate } = useContext(DayLinkContext)
   const key = dayKey(day.date)
   const rating = ratings.get(key)
-  const dayNumber = day.date.getDate()
 
   if (rating === undefined) {
     return (
       <span className={cn(DAY_CELL, 'text-muted-foreground opacity-40', className)}>
-        {dayNumber}
+        {day.date.getDate()}
       </span>
     )
   }
 
+  return (
+    <DangerDay
+      date={day.date}
+      href={hrefFor(key)}
+      rating={rating}
+      isChosen={key === shownDate}
+      className={className}
+    />
+  )
+}
+
+/** A day that has a product: a link colored by its danger rating. */
+function DangerDay({
+  date,
+  href,
+  rating,
+  isChosen,
+  className,
+}: {
+  date: Date
+  href: string
+  rating: number
+  isChosen: boolean
+  className?: string
+}) {
   const level = dangerLevelFromRating(rating)
-  const isChosen = key === shownDate
 
   return (
     <Link
-      href={hrefFor(key)}
+      href={href}
       prefetch={false}
-      aria-label={day.date.toDateString()}
+      aria-label={date.toDateString()}
       aria-current={isChosen ? 'date' : undefined}
       className={cn(DAY_CELL, isChosen && 'font-bold', className)}
       style={{
@@ -108,9 +125,48 @@ function DayLink({ day, className }: ComponentProps<typeof DayButton>) {
         outlineOffset: '-2px',
       }}
     >
-      {dayNumber}
+      {date.getDate()}
     </Link>
   )
+}
+
+/**
+ * The accumulated date → danger-rating map, plus lazy-loading of months the user pages into.
+ */
+function useForecastArchive(
+  center: string,
+  zoneSlug: string,
+  initialDates: ForecastArchiveDate[],
+  initialRange: { from: string; to: string },
+) {
+  const [ratings, setRatings] = useState<Map<string, number>>(
+    () => new Map(initialDates.map((d) => [d.date, d.dangerRating])),
+  )
+  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
+    () => new Set(monthsBetween(initialRange.from, initialRange.to)),
+  )
+  const [loading, setLoading] = useState(false)
+
+  const loadMonth = async (target: Date) => {
+    const mk = monthKey(target)
+    if (loadedMonths.has(mk)) return
+
+    setLoading(true)
+    const fetched = await fetchArchiveMonth(
+      center,
+      zoneSlug,
+      format(startOfMonth(target), 'yyyy-MM-dd'),
+      format(endOfMonth(target), 'yyyy-MM-dd'),
+    )
+    // A null result means the request failed; leave the month unloaded so it can be retried.
+    if (fetched) {
+      setRatings((prev) => mergeRatings(prev, fetched))
+      setLoadedMonths((prev) => new Set(prev).add(mk))
+    }
+    setLoading(false)
+  }
+
+  return { ratings, loading, loadMonth }
 }
 
 export function ForecastDatePicker({
@@ -123,122 +179,162 @@ export function ForecastDatePicker({
   initialDates,
   initialRange,
 }: ForecastDatePickerProps) {
-  // date (YYYY-MM-DD) → danger rating, accumulated as the user pages into new months.
-  const [ratings, setRatings] = useState<Map<string, number>>(
-    () => new Map(initialDates.map((d) => [d.date, d.dangerRating])),
+  const { ratings, loading, loadMonth } = useForecastArchive(
+    center,
+    zoneSlug,
+    initialDates,
+    initialRange,
   )
-  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
-    () => new Set(monthsBetween(initialRange.from, initialRange.to)),
-  )
-  const [loading, setLoading] = useState(false)
-  const [open, setOpen] = useState(false)
 
   // The date currently shown (live page falls back to the current product's date).
   const shownDate = selectedDate ?? currentDate
-  const [month, setMonth] = useState<Date>(() =>
-    shownDate ? startOfMonth(parseISO(shownDate)) : startOfMonth(new Date()),
+  const hrefFor = (date: string) => forecastHref(basePath, currentDate, date)
+
+  const loadedDates = useMemo(() => Array.from(ratings.keys()), [ratings])
+  const { olderHref, newerHref } = adjacentForecastHrefs(
+    loadedDates,
+    shownDate,
+    currentDate,
+    basePath,
   )
-
-  // Selecting the current product's date returns to the live page; any other date is dated.
-  const hrefFor = (date: string) =>
-    currentDate && date === currentDate ? basePath : `${basePath}/${date}`
-
-  const loadMonth = async (target: Date) => {
-    const mk = monthKey(target)
-    if (loadedMonths.has(mk)) return
-    setLoading(true)
-    try {
-      const from = format(startOfMonth(target), 'yyyy-MM-dd')
-      const to = format(endOfMonth(target), 'yyyy-MM-dd')
-      const res = await fetch(
-        `/api/${center}/forecast-archive?zone=${zoneSlug}&from=${from}&to=${to}`,
-      )
-      if (!res.ok) return
-      const body: { dates?: ForecastArchiveDate[] } = await res.json()
-      const fetched = body.dates ?? []
-      setRatings((prev) => {
-        const next = new Map(prev)
-        for (const d of fetched) next.set(d.date, d.dangerRating)
-        return next
-      })
-      setLoadedMonths((prev) => new Set(prev).add(mk))
-    } catch {
-      // Leave the month unloaded so it can be retried; days stay muted meanwhile.
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleMonthChange = (next: Date) => {
-    setMonth(next)
-    void loadMonth(next)
-  }
-
-  // Prev/next step to the adjacent loaded date that has a product (the calendar handles
-  // larger jumps and lazy-loads colors). Disabled when there's no loaded neighbor that way.
-  const sortedDates = useMemo(() => Array.from(ratings.keys()).sort(), [ratings])
-  const olderDate = shownDate ? [...sortedDates].reverse().find((d) => d < shownDate) : undefined
-  const newerDate = shownDate ? sortedDates.find((d) => d > shownDate) : undefined
-  const atCurrent = currentDate !== null && shownDate === currentDate
-  const olderHref = olderDate ? hrefFor(olderDate) : undefined
-  const newerHref = atCurrent ? undefined : newerDate ? hrefFor(newerDate) : undefined
-
-  const triggerLabel = selectedDate
-    ? format(parseISO(selectedDate), 'MMM d, yyyy')
-    : 'Current forecast'
 
   return (
     <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
       <div className="inline-flex w-full items-stretch sm:w-auto">
         <ArrowLink href={olderHref} label="Older forecast" side="left" />
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 justify-center gap-2 rounded-none sm:w-56 sm:flex-none"
-            >
-              <CalendarIcon className="h-4 w-4" />
-              {triggerLabel}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="center">
-            <div className="flex items-center justify-center gap-1 border-b py-2 text-sm font-semibold">
-              <MapPin className="h-4 w-4" />
-              {zoneName}
-            </div>
-            <div className="relative">
-              <DayLinkContext.Provider value={{ ratings, hrefFor, shownDate }}>
-                {/* mode="single" makes react-day-picker render an interactive DayButton per day
-                    (our DayLink); without a mode it renders plain, non-interactive text. */}
-                <Calendar
-                  mode="single"
-                  month={month}
-                  onMonthChange={handleMonthChange}
-                  startMonth={ARCHIVE_START}
-                  endMonth={new Date()}
-                  components={{ DayButton: DayLink }}
-                />
-              </DayLinkContext.Provider>
-              {loading && (
-                <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                </div>
-              )}
-            </div>
-            {selectedDate && currentDate && (
-              <div className="border-t p-1">
-                <Button asChild variant="ghost" className="w-full justify-center">
-                  <Link href={basePath}>Current forecast</Link>
-                </Button>
-              </div>
-            )}
-          </PopoverContent>
-        </Popover>
+        <CalendarPopover
+          zoneName={zoneName}
+          basePath={basePath}
+          selectedDate={selectedDate}
+          currentDate={currentDate}
+          shownDate={shownDate}
+          ratings={ratings}
+          hrefFor={hrefFor}
+          loading={loading}
+          loadMonth={loadMonth}
+        />
 
         <ArrowLink href={newerHref} label="Newer forecast" side="right" />
       </div>
+    </div>
+  )
+}
+
+/** The trigger button and the danger-colored calendar it opens. */
+function CalendarPopover({
+  zoneName,
+  basePath,
+  selectedDate,
+  currentDate,
+  shownDate,
+  ratings,
+  hrefFor,
+  loading,
+  loadMonth,
+}: {
+  zoneName: string
+  basePath: string
+  selectedDate: string | null
+  currentDate: string | null
+  shownDate: string | null
+  ratings: Map<string, number>
+  hrefFor: (date: string) => string
+  loading: boolean
+  loadMonth: (target: Date) => Promise<void>
+}) {
+  const [open, setOpen] = useState(false)
+  const showBackToCurrent = Boolean(selectedDate && currentDate)
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1 justify-center gap-2 rounded-none sm:w-56 sm:flex-none"
+        >
+          <CalendarIcon className="h-4 w-4" />
+          {triggerLabel(selectedDate)}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="center">
+        <ZoneHeading zoneName={zoneName} />
+        <DangerCalendar
+          shownDate={shownDate}
+          ratings={ratings}
+          hrefFor={hrefFor}
+          loading={loading}
+          loadMonth={loadMonth}
+        />
+        {showBackToCurrent && <BackToCurrentLink basePath={basePath} />}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function ZoneHeading({ zoneName }: { zoneName: string }) {
+  return (
+    <div className="flex items-center justify-center gap-1 border-b py-2 text-sm font-semibold">
+      <MapPin className="h-4 w-4" />
+      {zoneName}
+    </div>
+  )
+}
+
+/** Shown only on a dated page: a way back to the live forecast. */
+function BackToCurrentLink({ basePath }: { basePath: string }) {
+  return (
+    <div className="border-t p-1">
+      <Button asChild variant="ghost" className="w-full justify-center">
+        <Link href={basePath}>Current forecast</Link>
+      </Button>
+    </div>
+  )
+}
+
+/** The month grid itself: days colored by danger, with a spinner while a month loads. */
+function DangerCalendar({
+  shownDate,
+  ratings,
+  hrefFor,
+  loading,
+  loadMonth,
+}: {
+  shownDate: string | null
+  ratings: Map<string, number>
+  hrefFor: (date: string) => string
+  loading: boolean
+  loadMonth: (target: Date) => Promise<void>
+}) {
+  const [month, setMonth] = useState<Date>(() =>
+    startOfMonth(shownDate ? parseISO(shownDate) : new Date()),
+  )
+
+  const handleMonthChange = (next: Date) => {
+    setMonth(next)
+    void loadMonth(next)
+  }
+
+  return (
+    <div className="relative">
+      <DayLinkContext.Provider value={{ ratings, hrefFor, shownDate }}>
+        {/* mode="single" makes react-day-picker render an interactive DayButton per day
+            (our DayLink); without a mode it renders plain, non-interactive text. */}
+        <Calendar
+          mode="single"
+          month={month}
+          onMonthChange={handleMonthChange}
+          startMonth={ARCHIVE_START}
+          endMonth={new Date()}
+          components={{ DayButton: DayLink }}
+        />
+      </DayLinkContext.Provider>
+      {loading && (
+        <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      )}
     </div>
   )
 }

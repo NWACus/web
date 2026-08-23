@@ -19,6 +19,7 @@ import {
   avalancheCenterSchema,
   mapLayerSchema,
 } from './types/schemas'
+import { zoneSlugFromUrl } from './zoneSlug'
 
 // DVAC shares NWAC's upstream data, so map its slug to nwac for all NAC/AFP lookups.
 const normalizeCenterSlug = (centerSlug: string) => (centerSlug === 'dvac' ? 'nwac' : centerSlug)
@@ -204,17 +205,51 @@ export async function getAvalancheCenterMetadata(centerSlug: string) {
   return parsed.data
 }
 
-export function zoneSlugFromUrl(url: string): string | undefined {
-  return url.split('/').filter(Boolean).pop()
+// Re-exported so server-side callers keep one import surface; the implementation lives in a
+// dependency-free module because the danger map needs it in the browser.
+export { zoneSlugFromUrl } from './zoneSlug'
+
+export interface MapLayerOptions {
+  /**
+   * Historical danger for a past day, as `YYYY-MM-DD`. **Verified honored on the v2 path form**
+   * (2026-08-07: `?day=2026-01-14` returns that day's ratings, not today's), which matters because
+   * avy only ever exercised the query form. Dated responses are immutable, so they cache far
+   * longer than the live one.
+   */
+  day?: string
+  /**
+   * Draw every NAC center's zones rather than one center's. The all-centers response omits
+   * centers that opted out of the national map, and is a much larger payload.
+   */
+  allCenters?: boolean
 }
 
-export async function getMapLayer(centerSlug: string) {
+/**
+ * The Next data-cache tag for a center's map layer. Distinct per day so a dated request never
+ * shares a cache entry with the live one.
+ */
+export function mapLayerCacheTag(centerSlug: string, day?: string): string {
+  const center = normalizeCenterSlug(centerSlug.toLowerCase())
+  return `map-layer:${center}:${day ?? 'current'}`
+}
+
+/** How long a live map layer is cached. Forecasts publish roughly daily. */
+const MAP_LAYER_CACHE_SECONDS = 30 * 60
+/** A past day's ratings can no longer change, so hold them for a day. */
+const DATED_MAP_LAYER_CACHE_SECONDS = 24 * 60 * 60
+
+export async function getMapLayer(centerSlug: string, options: MapLayerOptions = {}) {
   const centerSlugToUse = normalizeCenterSlug(centerSlug)
-  const data = await nacFetch(
-    `/v2/public/products/map-layer/${centerSlugToUse.toUpperCase()}`,
-    // Forecasts publish roughly daily; keep link previews current.
-    { cachedTime: 30 * 60 },
-  )
+  // The all-centers route is the same path with the center segment omitted.
+  const path = options.allCenters
+    ? '/v2/public/products/map-layer'
+    : `/v2/public/products/map-layer/${centerSlugToUse.toUpperCase()}`
+  const query = options.day ? `?day=${encodeURIComponent(options.day)}` : ''
+
+  const data = await nacFetch(`${path}${query}`, {
+    cachedTime: options.day ? DATED_MAP_LAYER_CACHE_SECONDS : MAP_LAYER_CACHE_SECONDS,
+    tags: [mapLayerCacheTag(options.allCenters ? 'all' : centerSlug, options.day)],
+  })
 
   const parsed = mapLayerSchema.safeParse(data)
 
@@ -225,15 +260,9 @@ export async function getMapLayer(centerSlug: string) {
   return parsed.data
 }
 
-export async function getForecastZoneDanger(centerSlug: string, zoneSlug: string) {
-  const mapLayer = await getMapLayer(centerSlug)
-
-  const feature = mapLayer.features.find(
-    (f) => f.properties.link && zoneSlugFromUrl(f.properties.link) === zoneSlug,
-  )
-
-  return feature?.properties ?? null
-}
+// `getForecastZoneDanger` moved to `./dangerMap/mapLayer`, where it reads through MapLayerSource.
+// It cannot live here: this module is what the v2 source *fetches with*, so importing the source
+// back into it would be a cycle.
 
 export type ActiveZone = Extract<
   Awaited<ReturnType<typeof getAvalancheCenterMetadata>>['zones'][number],

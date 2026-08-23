@@ -26,6 +26,7 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [015](015-national-course-catalog.md)          | National course catalog                             | 2026-06-16 | accepted                                           |
 | [016](016-per-tenant-globals-as-unique-tenant-collections.md) | Per-tenant globals as unique tenant collections | 2026-06-16 | accepted                                  |
 | [017](017-forecast-glossary.md)                | Forecast glossary (national collection, client-side marking) | 2026-06-22 | accepted                                  |
+| [018](018-native-product-page-architecture.md) | Native product page architecture (model + source adapters) | 2026-08-11 | accepted                                  |
 
 > **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `015`.
 
