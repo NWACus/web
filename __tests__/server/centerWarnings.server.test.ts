@@ -1,3 +1,4 @@
+import { isFingerprint } from '@/utilities/freshnessResponses'
 const mockGetAvalancheCenterMetadata = jest.fn()
 // Stubbing nac.ts also keeps the Payload config out of this suite. zoneSlugFromUrl is trivial and
 // used verbatim so the slug derivation under test stays real.
@@ -104,6 +105,19 @@ describe('groupWarningsByType', () => {
 })
 
 describe('centerWarningsFingerprint', () => {
+  it('is addressable: the freshness route only accepts fingerprints of this shape', () => {
+    // The route 400s anything that doesn't match, so a fingerprint that stopped being lowercase
+    // sha1 hex would lock every viewer out of the check.
+    expect(isFingerprint(centerWarningsFingerprint([]))).toBe(true)
+    expect(
+      isFingerprint(
+        centerWarningsFingerprint(
+          groupWarningsByType([{ zone: olympics, warning: alert(ProductType.Warning) }]),
+        ),
+      ),
+    ).toBe(true)
+  })
+
   it('is stable for the same alerts', () => {
     const groups = groupWarningsByType([{ zone: olympics, warning: alert(ProductType.Warning) }])
 
