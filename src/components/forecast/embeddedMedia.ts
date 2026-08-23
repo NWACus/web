@@ -20,7 +20,7 @@
  */
 import { MediaType, type MediaItem } from '@/services/nac/model/forecast'
 
-export const EMBEDDED_MEDIA_SELECTOR =
+const EMBEDDED_MEDIA_SELECTOR =
   '.afp-photoswipe, .nac-photoswipe, .afp-video-modal, .nac-video-modal'
 
 export interface EmbeddedMedia {
