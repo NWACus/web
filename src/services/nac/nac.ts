@@ -373,10 +373,13 @@ export async function fetchForecast(
 }
 
 /**
- * The zone's CURRENT forecast fetched fresh from upstream, held only on a short (60s) cache so a
- * burst of page views shares one upstream request rather than hitting the NAC API per view. Used
- * only by the revalidate-on-view freshness check to catch corrections/retractions faster than the
- * page's ISR window. Returns null when none is published or the response doesn't parse.
+ * The zone's CURRENT forecast fetched fresh from upstream, held only on a short cache so a burst of
+ * page views shares one upstream request rather than hitting the NAC API per view. Used only by the
+ * revalidate-on-view freshness check to catch corrections/retractions faster than the page's ISR
+ * window. Returns null when none is published or the response doesn't parse.
+ *
+ * Half the staleness budget: this window plus the freshness route's edge TTL is the total on-view
+ * detection lag (see `@/utilities/freshnessResponses`), with the 300s ISR window behind it.
  */
 export async function fetchForecastFresh(
   centerId: string,
@@ -394,7 +397,7 @@ export async function fetchForecastFresh(
       return parsed.success ? parsed.data : null
     },
     ['nac-forecast-fresh', centerIdToUse, String(zoneId)],
-    { revalidate: 60 },
+    { revalidate: 30 },
   )
 
   try {
@@ -429,10 +432,13 @@ export async function fetchWarning(
 }
 
 /**
- * The zone's CURRENT warning fetched fresh from upstream, held only on a short (60s) cache so a
- * burst of page views shares one upstream request rather than hitting the NAC API per view. Used
- * only by the warning freshness check, which catches an alert issued or lifted after the (ISR)
- * home page was rendered. Returns the v2 null-object or null exactly as fetchWarning does.
+ * The zone's CURRENT warning fetched fresh from upstream, held only on a short cache so a burst of
+ * page views shares one upstream request rather than hitting the NAC API per view. Used only by the
+ * warning freshness check, which catches an alert issued or lifted after the (ISR) home page was
+ * rendered. Returns the v2 null-object or null exactly as fetchWarning does.
+ *
+ * Half the staleness budget: this window plus the freshness route's edge TTL is the total on-view
+ * detection lag (see `@/utilities/freshnessResponses`), with the page's revalidate window behind it.
  */
 export async function fetchWarningFresh(
   centerId: string,
@@ -450,7 +456,7 @@ export async function fetchWarningFresh(
       return parsed.success ? parsed.data : null
     },
     ['nac-warning-fresh', centerIdToUse, String(zoneId)],
-    { revalidate: 60 },
+    { revalidate: 30 },
   )
 
   try {

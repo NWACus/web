@@ -47,6 +47,9 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
     return <div className="container py-8 text-center text-muted-foreground">Zone not found.</div>
   }
 
+  const freshnessEndpoint = (fingerprint: string) =>
+    `/api/${centerSlug}/forecast-freshness/${encodeURIComponent(zoneSlug)}/${fingerprint}`
+
   const [forecastResult, warning] = await Promise.all([
     getForecastSource(centerSlug).getForecast(centerSlug, zone.zone.id),
     getWarningSource(centerSlug).getWarning(centerSlug, zone.zone.id),
@@ -54,9 +57,15 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
 
   if (!forecastResult) {
     return (
-      <div className="container py-8 text-center text-muted-foreground">
-        Unable to load forecast data. Please try again later.
-      </div>
+      <>
+        <div className="container py-8 text-center text-muted-foreground">
+          Unable to load forecast data. Please try again later.
+        </div>
+        {/* Keep asking even with nothing to show. A first publish into a zone that had none is the
+            change an open tab most needs to hear about, and it is the one the (deferred) upstream
+            publish notification would miss. */}
+        <RevalidateOnView endpoint={freshnessEndpoint(forecastFingerprint(null))} />
+      </>
     )
   }
 
@@ -90,10 +99,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       />
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was
           rendered and refreshes the viewer's page. Live route only — the dated archive is immutable. */}
-      <RevalidateOnView
-        endpoint={`/api/${centerSlug}/forecast-freshness?zone=${encodeURIComponent(zoneSlug)}`}
-        initialEtag={forecastFingerprint(forecastResult)}
-      />
+      <RevalidateOnView endpoint={freshnessEndpoint(forecastFingerprint(forecastResult))} />
     </>
   )
 }

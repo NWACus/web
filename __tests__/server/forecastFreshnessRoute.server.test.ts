@@ -1,7 +1,6 @@
 import { forecastFingerprint } from '@/services/nac/forecastFingerprint'
 import { mapV2ForecastResult } from '@/services/nac/sources/v2/mappers'
 import { forecastResultSchema } from '@/services/nac/types/forecastSchemas'
-import { NextRequest } from 'next/server'
 import nwacForecastActive from './fixtures/nwac-forecast-active.json'
 
 const mockRevalidateTag = jest.fn()
@@ -29,17 +28,28 @@ jest.mock('../../src/services/nac/nac', () => ({
 }))
 
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
-import { GET } from '@/app/api/[center]/forecast-freshness/route'
+import { GET } from '@/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route'
 
 const forecast = mapV2ForecastResult(forecastResultSchema.parse(nwacForecastActive))
 const etag = forecastFingerprint(forecast)
-const params = Promise.resolve({ center: 'nwac' })
+/** A well-formed fingerprint that no product will ever hash to. */
+const STALE_ETAG = 'f'.repeat(40)
 
-function req(headers: Record<string, string> = {}, zone: string | null = 'west-slopes-north') {
-  const url = zone
-    ? `http://localhost/api/nwac/forecast-freshness?zone=${zone}`
-    : `http://localhost/api/nwac/forecast-freshness`
-  return new NextRequest(url, { headers })
+const CACHEABLE = 'public, max-age=0, s-maxage=30'
+const ZONE = 'west-slopes-north'
+
+/** Ask the endpoint on behalf of a viewer whose page rendered `fingerprint`. */
+function check(fingerprint: string, zone = ZONE, center = 'nwac') {
+  const url = `http://localhost/api/${center}/forecast-freshness/${zone}/${fingerprint}`
+  return GET(new Request(url), { params: Promise.resolve({ center, zone, fingerprint }) })
+}
+
+async function answer(res: Response) {
+  return {
+    status: res.status,
+    cacheControl: res.headers.get('Cache-Control'),
+    body: await res.json(),
+  }
 }
 
 beforeEach(() => {
@@ -47,23 +57,38 @@ beforeEach(() => {
   mockResolveZone.mockReset()
   mockGetForecastFresh.mockReset()
   mockGetForecast.mockReset()
-  mockResolveZone.mockResolvedValue({ slug: 'west-slopes-north', zone: { id: 123, name: 'X' } })
+  mockResolveZone.mockResolvedValue({ slug: ZONE, zone: { id: 123, name: 'X' } })
 })
 
 describe('forecast-freshness route', () => {
-  it('returns 304 without revalidating when the forecast is unchanged', async () => {
+  it('reports no change, cacheably, when the viewer already has the current forecast', async () => {
     mockGetForecastFresh.mockResolvedValue(forecast)
     mockGetForecast.mockResolvedValue(forecast)
-    const res = await GET(req({ 'If-None-Match': etag }), { params })
-    expect(res.status).toBe(304)
+
+    const res = await answer(await check(etag))
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ changed: false })
+    // The one answer that may be served from the edge: same fingerprint for every viewer inside
+    // the ISR window, so it is one cache key per zone.
+    expect(res.cacheControl).toBe(CACHEABLE)
     expect(mockRevalidateTag).not.toHaveBeenCalled()
   })
 
-  it('revalidates the forecast tag and returns 200 when fresh differs from the cached product', async () => {
+  it('revalidates the forecast tag and reports a change when fresh differs from the cached product', async () => {
     mockGetForecastFresh.mockResolvedValue({ ...forecast, bottom_line: 'CORRECTED' })
     mockGetForecast.mockResolvedValue(forecast)
-    const res = await GET(req({ 'If-None-Match': etag }), { params })
+
+    const res = await answer(await check(etag))
+
     expect(res.status).toBe(200)
+    expect(res.body).toEqual({
+      changed: true,
+      etag: forecastFingerprint({ ...forecast, bottom_line: 'CORRECTED' }),
+    })
+    // Never cached: it keeps random-fingerprint requests from polluting the edge, and guarantees
+    // the purge below always reaches origin.
+    expect(res.cacheControl).toBe('no-store')
     expect(mockRevalidateTag).toHaveBeenCalledWith('forecast:nwac:123')
   })
 
@@ -74,38 +99,82 @@ describe('forecast-freshness route', () => {
       weather_data: { weather_product_id: 555 },
     })
     mockGetForecast.mockResolvedValue(forecast)
-    await GET(req({ 'If-None-Match': etag }), { params })
+
+    await check(etag)
+
     expect(mockRevalidateTag).toHaveBeenCalledWith('forecast:nwac:123')
     expect(mockRevalidateTag).toHaveBeenCalledWith('weather:555')
   })
 
-  it('does NOT purge or blank on a failed/absent fresh fetch (returns 304)', async () => {
-    // A transient upstream error surfaces as null — must not evict the last-known-good forecast.
+  it('does NOT purge or blank on a failed/absent fresh fetch, and never caches that answer', async () => {
+    // A transient upstream error surfaces as null — must not evict the last-known-good forecast,
+    // and must not be cached as "you're current" for every viewer at that POP.
     mockGetForecastFresh.mockResolvedValue(null)
-    const res = await GET(req({ 'If-None-Match': etag }), { params })
-    expect(res.status).toBe(304)
+
+    const res = await answer(await check(etag))
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
+    expect(res.cacheControl).toBe('no-store')
     expect(mockRevalidateTag).not.toHaveBeenCalled()
     expect(mockGetForecast).not.toHaveBeenCalled()
   })
 
-  it('does NOT revalidate for a bogus/absent client etag when the cache is current (no purge abuse)', async () => {
+  it('does NOT revalidate for a stale caller fingerprint when the cache is current (no purge abuse)', async () => {
     mockGetForecastFresh.mockResolvedValue(forecast)
     mockGetForecast.mockResolvedValue(forecast)
-    const res = await GET(req(), { params }) // no If-None-Match
+
+    const res = await answer(await check(STALE_ETAG))
+
+    // The purge decision is server-authoritative: fresh vs. cache, never the caller's fingerprint.
     expect(mockRevalidateTag).not.toHaveBeenCalled()
-    expect(res.status).toBe(200) // still tells this (fresh-less) client to refresh, but no purge
+    // This caller is still told to refresh — they just can't make us purge.
+    expect(res.body).toEqual({ changed: true, etag })
+  })
+
+  it('tells a viewer holding the absent-forecast fingerprint about a first publish', async () => {
+    // The page renders a "no forecast" state with the fingerprint of `null`, so the very first
+    // publish into a zone is a change an open tab can be told about.
+    mockGetForecastFresh.mockResolvedValue(forecast)
+    mockGetForecast.mockResolvedValue(forecast)
+
+    const res = await answer(await check(forecastFingerprint(null)))
+
+    expect(res.body).toEqual({ changed: true, etag })
   })
 
   it('always runs the fresh check (no-skip invariant)', async () => {
     mockGetForecastFresh.mockResolvedValue(forecast)
     mockGetForecast.mockResolvedValue(forecast)
-    await GET(req({ 'If-None-Match': etag }), { params })
+
+    await check(etag)
+
     expect(mockGetForecastFresh).toHaveBeenCalled()
   })
 
-  it('400s when the zone param is missing', async () => {
-    const res = await GET(req({}, null), { params })
+  it('400s a malformed fingerprint without going upstream', async () => {
+    const res = await check('not-a-fingerprint')
+
     expect(res.status).toBe(400)
+    expect(res.headers.get('Cache-Control')).toBe('no-store')
+    expect(mockResolveZone).not.toHaveBeenCalled()
+    expect(mockGetForecastFresh).not.toHaveBeenCalled()
+  })
+
+  it('400s a fingerprint of the right length that is not hex', async () => {
+    const res = await check('Z'.repeat(40))
+
+    expect(res.status).toBe(400)
+    expect(mockGetForecastFresh).not.toHaveBeenCalled()
+  })
+
+  it('404s an unknown zone without caching the answer', async () => {
+    mockResolveZone.mockResolvedValue(null)
+
+    const res = await check(etag, 'not-a-zone')
+
+    expect(res.status).toBe(404)
+    expect(res.headers.get('Cache-Control')).toBe('no-store')
     expect(mockGetForecastFresh).not.toHaveBeenCalled()
   })
 })
