@@ -52,6 +52,12 @@ async function answer(res: Response) {
   }
 }
 
+/** The common case: upstream and the shared cache both hold `forecast`. */
+function upstreamAndCacheHold(product: unknown = forecast) {
+  mockGetForecastFresh.mockResolvedValue(product)
+  mockGetForecast.mockResolvedValue(forecast)
+}
+
 beforeEach(() => {
   mockRevalidateTag.mockClear()
   mockResolveZone.mockReset()
@@ -62,8 +68,7 @@ beforeEach(() => {
 
 describe('forecast-freshness route', () => {
   it('reports no change, cacheably, when the viewer already has the current forecast', async () => {
-    mockGetForecastFresh.mockResolvedValue(forecast)
-    mockGetForecast.mockResolvedValue(forecast)
+    upstreamAndCacheHold()
 
     const res = await answer(await check(etag))
 
@@ -76,8 +81,7 @@ describe('forecast-freshness route', () => {
   })
 
   it('revalidates the forecast tag and reports a change when fresh differs from the cached product', async () => {
-    mockGetForecastFresh.mockResolvedValue({ ...forecast, bottom_line: 'CORRECTED' })
-    mockGetForecast.mockResolvedValue(forecast)
+    upstreamAndCacheHold({ ...forecast, bottom_line: 'CORRECTED' })
 
     const res = await answer(await check(etag))
 
@@ -93,12 +97,11 @@ describe('forecast-freshness route', () => {
   })
 
   it('also revalidates the weather tag when the changed forecast points to a weather product', async () => {
-    mockGetForecastFresh.mockResolvedValue({
+    upstreamAndCacheHold({
       ...forecast,
       bottom_line: 'CORRECTED',
       weather_data: { weather_product_id: 555 },
     })
-    mockGetForecast.mockResolvedValue(forecast)
 
     await check(etag)
 
@@ -121,8 +124,7 @@ describe('forecast-freshness route', () => {
   })
 
   it('does NOT revalidate for a stale caller fingerprint when the cache is current (no purge abuse)', async () => {
-    mockGetForecastFresh.mockResolvedValue(forecast)
-    mockGetForecast.mockResolvedValue(forecast)
+    upstreamAndCacheHold()
 
     const res = await answer(await check(STALE_ETAG))
 
@@ -135,8 +137,7 @@ describe('forecast-freshness route', () => {
   it('tells a viewer holding the absent-forecast fingerprint about a first publish', async () => {
     // The page renders a "no forecast" state with the fingerprint of `null`, so the very first
     // publish into a zone is a change an open tab can be told about.
-    mockGetForecastFresh.mockResolvedValue(forecast)
-    mockGetForecast.mockResolvedValue(forecast)
+    upstreamAndCacheHold()
 
     const res = await answer(await check(forecastFingerprint(null)))
 
@@ -144,8 +145,7 @@ describe('forecast-freshness route', () => {
   })
 
   it('always runs the fresh check (no-skip invariant)', async () => {
-    mockGetForecastFresh.mockResolvedValue(forecast)
-    mockGetForecast.mockResolvedValue(forecast)
+    upstreamAndCacheHold()
 
     await check(etag)
 
@@ -165,6 +165,16 @@ describe('forecast-freshness route', () => {
     const res = await check('Z'.repeat(40))
 
     expect(res.status).toBe(400)
+    expect(mockGetForecastFresh).not.toHaveBeenCalled()
+  })
+
+  it('rejects an unknown center before it can reach upstream', async () => {
+    // The center segment is interpolated into a NAC API URL, so it must not be caller-chosen.
+    const res = await check(etag, ZONE, 'not-a-center')
+
+    expect(res.status).toBe(404)
+    expect(res.headers.get('Cache-Control')).toBe('no-store')
+    expect(mockResolveZone).not.toHaveBeenCalled()
     expect(mockGetForecastFresh).not.toHaveBeenCalled()
   })
 
