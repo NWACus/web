@@ -1,6 +1,6 @@
 # Native AFP Products — Architecture
 
-How AvyWeb fetches, caches and renders National Avalanche Center product data natively, and why it is built this way. Companion to [native-product-pages-scope.md](native-product-pages-scope.md), which covers what is being built and what isn't — this document covers how.
+How AvyWeb fetches, caches and renders National Avalanche Center product data natively, and why it is built this way. This document covers **how**. What is being built, what isn't, and the row-by-row inventory of legacy widget behavior live in the _Native Product Pages — Scope & Feature Inventory_ doc, and the work itself is tracked from [#1135](https://github.com/NWACus/web/issues/1135).
 
 > **Most of what follows is not on `main` yet.** `main` currently has only `src/services/nac/nac.ts` and `src/services/nac/types/schemas.ts`. The data layer, the source adapters and the freshness path live on the `native-product-pages` branch, pending review. This describes the architecture as built there, so treat it as the target design rather than a map of `main`.
 
@@ -56,12 +56,12 @@ That is deliberate — the seam is proven by having two branches, and a misconfi
 
 Four independent controls decide whether a reader sees a native page, and where its bytes come from. **Two are ours and two belong to the AFP.** Confusing them is the most common way to be wrong about why a page is rendering the way it is.
 
-| # | Control | Owner | Where it lives | Granularity |
-|---|---------|-------|----------------|-------------|
-| 1 | **Rollout** — native or widget | Ours | Payload `Settings` | per tenant × per product |
-| 2 | **Data source** — v2 or v3 | Ours | Code / env | per product, uniform across tenants (+ canary) |
-| 3 | **`platforms.*`** — capability | AFP | Center metadata | per center × per capability |
-| 4 | **`widget_config.mwf.enabled`** | AFP | Center metadata | per center |
+| #   | Control                         | Owner | Where it lives     | Granularity                                    |
+| --- | ------------------------------- | ----- | ------------------ | ---------------------------------------------- |
+| 1   | **Rollout** — native or widget  | Ours  | Payload `Settings` | per tenant × per product                       |
+| 2   | **Data source** — v2 or v3      | Ours  | Code / env         | per product, uniform across tenants (+ canary) |
+| 3   | **`platforms.*`** — capability  | AFP   | Center metadata    | per center × per capability                    |
+| 4   | **`widget_config.mwf.enabled`** | AFP   | Center metadata    | per center                                     |
 
 They compose in that order. A product renders natively only when the AFP says the center has the capability **and** our rollout flag is on; the data source then decides which backend answers.
 
@@ -87,12 +87,12 @@ The consequence that surprises people: **NWAC's `platforms.weather` is hard-code
 
 ## Rendering and caching
 
-| Route | Strategy | Revalidate | Notes |
-|-------|----------|------------|-------|
-| `/[center]/forecasts/avalanche/[zone]` | SSG + ISR | 300s | `generateStaticParams` over every zone of every center; `dynamicParams = false` |
-| `/[center]/forecasts/avalanche/[zone]/[date]` | On-demand + ISR | 30 days | `dynamicParams = true`, no static params, `robots: noindex` |
+| Route                                         | Strategy        | Revalidate | Notes                                                                           |
+| --------------------------------------------- | --------------- | ---------- | ------------------------------------------------------------------------------- |
+| `/[center]/forecasts/avalanche/[zone]`        | SSG + ISR       | 300s       | `generateStaticParams` over every zone of every center; `dynamicParams = false` |
+| `/[center]/forecasts/avalanche/[zone]/[date]` | On-demand + ISR | 30 days    | `dynamicParams = true`, no static params, `robots: noindex`                     |
 
-The current forecast is pre-rendered for every zone, so a request is normally served from a page that already exists — this is where the speed benefit in the scope doc comes from. See [ADR 011](../decisions/011-incremental-static-regeneration.md) for the platform's ISR conventions.
+The current forecast is pre-rendered for every zone, so a request is normally served from a page that already exists — this is where the project's speed benefit comes from. See [ADR 011](../decisions/011-incremental-static-regeneration.md) for the platform's ISR conventions.
 
 Five minutes is a **backstop, not the freshness mechanism**. Historical pages are effectively immutable, hence the 30-day window and no freshness check at all.
 
@@ -110,7 +110,7 @@ Server rendering is the default and the client bundle is deliberately small. The
 
 That independence is the subtle part, and the reason this isn't a plain ETag endpoint:
 
-- **Purge the shared cache?** Only when the fresh product genuinely differs from what the cache is serving — decided by server-side comparison, *never* from the caller's header. The endpoint is unauthenticated, so trusting `If-None-Match` for this would let anyone force repeated purges and amplify load onto the AFP.
+- **Purge the shared cache?** Only when the fresh product genuinely differs from what the cache is serving — decided by server-side comparison, _never_ from the caller's header. The endpoint is unauthenticated, so trusting `If-None-Match` for this would let anyone force repeated purges and amplify load onto the AFP.
 - **Refresh this viewer?** Compare the fresh fingerprint against the caller's header. Different → `200`, and their `router.refresh()` re-renders. Same → `304`.
 
 Two failure-mode decisions worth knowing:
@@ -122,18 +122,28 @@ Two failure-mode decisions worth knowing:
 
 A **Product** is a unit of data: a source plus a normalized model. A **View** is a composition of products into a layout.
 
-Today the mapping is 1:1 — one view per product — but the data layer is built view-agnostically, and products are fetched independently of the page that shows them. That is what makes a combined map (danger + observations + stations) a new *consumer* of existing models rather than a data project, and it is the architecture's own test: if that work needs significant new data plumbing, this separation didn't hold.
+Today the mapping is 1:1 — one view per product — but the data layer is built view-agnostically, and products are fetched independently of the page that shows them. That is what makes a combined map (danger + observations + stations) a new _consumer_ of existing models rather than a data project, and it is the architecture's own test: if that work needs significant new data plumbing, this separation didn't hold.
 
-Layout variants ride on the same separation. The decided approach is an in-code experiment config, deterministic cookie bucketing, and a middleware rewrite to a variant route, with PostHog recording the outcome. Rewriting to a pre-generated variant route is what keeps static generation intact — which is why it beats deciding layout at request time. Explicitly **not** Vercel Edge Config (removed in [ADR 013](../decisions/013-hardcoded-tenant-lookup.md)) and **not** PostHog feature flags (hard-disabled in this app). None of this is built yet, by choice — see the scope doc.
+Layout variants ride on the same separation. The decided approach is an in-code experiment config, deterministic cookie bucketing, and a middleware rewrite to a variant route, with PostHog recording the outcome. Rewriting to a pre-generated variant route is what keeps static generation intact — which is why it beats deciding layout at request time. Explicitly **not** Vercel Edge Config (removed in [ADR 013](../decisions/013-hardcoded-tenant-lookup.md)) and **not** PostHog feature flags (hard-disabled in this app). None of this is built yet, by choice: variants with nothing to compare are cost without benefit.
 
 ## Testing seams
 
 - **Mappers, unit-tested.** Pure wire→model functions. Where v2/v3 equivalence gets proven.
 - **Freshness and validity logic, unit-tested.** Pure functions over a model.
 - **Pages, end-to-end.** The pages are server components, so browser-level request interception cannot see their fetches — Playwright's `route` is blind here. The seam is **MSW intercepting at the Node network layer**, with Playwright driving the browser.
-- **The contract, upstream.** AvyWeb's wire schema is vendored into the AFP's own parity harness so consumer-breaking drift fails *their* build, not our readers' pages. Covered in the [parity ledger](parity-ledger.md) as X11.
+- **The contract, upstream.** AvyWeb's wire schema is vendored into the AFP's own parity harness so consumer-breaking drift fails _their_ build, not our readers' pages. Inventory row X11.
 
 Assert what a page renders for a given fixture — danger, problems, bottom line, banner, freshness behavior, flag behavior. Not adapter internals.
+
+### Where test data comes from
+
+Two tiers, deliberately not one corpus.
+
+**v2-sourced products** (forecasts, warnings, map, media) — the AFP's products-api already owns a golden corpus of real, PII-scrubbed v2 responses, with capture, drift-check and scrub tooling around it, because _the producer has a v2→v3 parity obligation_. Consumer-needed shape variants get added there as new cases. **Extend it; do not fork it.**
+
+**Observations** — the observation API has no v2→v3 migration, so there is no parity concern and no corpus. What the tests need is ordinary MSW mocks recorded next to the tests that use them. Do not build a corpus here. Observation records carry observer names and emails, so scrub fixtures even though they are local.
+
+One variant cannot be captured on demand: the map feature's populated warning field only exists while a warning is genuinely active, so it has to be captured opportunistically during the season's first warning. It is both the safety-critical variant and the one most likely to still be uncovered when centers start flipping to native in the fall.
 
 ## Sharp edges
 
@@ -144,16 +154,19 @@ Known and deliberate, but easy to be caught by.
 - **NWAC's weather doesn't come from the AFP.** It is authored in-house and migrating into the AFP stack as the Mountain Weather Forecast variant, with no `weather_product_id` pointer — AM/PM issuances derive from center plus service date. The pointer-driven inline weather summary finds nothing for NWAC.
 - **v2 will serve a shape it never used to.** The MWF migration stores an object-shaped variant envelope in `weather_data`. v3 excludes those rows from generic product reads; the legacy PHP v2 does not. That was accepted upstream because "NWAC has no live v2 weather consumers" — and our native pages default to v2, which makes us one. Shape detection must degrade rather than throw.
 - **Two weather-table formats.** Chosen by shape detection (`periods` key present → V1, else columns/rows), inherited from the widget.
+- **Warning expiry is the API's job, not ours.** The `type=warning` query returns a product only while it is inside its start/end window, approved and uncancelled; otherwise it returns a five-key all-null placeholder. The client check (`published_time` truthy, collapsed to `null` by the mapper) only distinguishes a product from that placeholder. **Do not add a client-side expiry check** — it would double-filter and could hide a warning the AFP considers active. Note the field naming invites exactly that mistake: `published_time` is the warning's effective **start** (`start_date`), not when it was written.
+- **SNFAC forecasts before 2020-05-01 carry no weather pointer.** They predate `weather_data.weather_product_id`, so weather has to be located by center + zone + date instead. It belongs in the weather source rather than a page, so it stays one branch in one place. Only reachable through the archive; ~488 forecasts across a single season.
+- **The two info-exchange centers have no `config` object at all.** `EWYAIX` and `SOAIX` return center metadata without one, so any code reading `widget_config.*` for map settings must tolerate its absence rather than assuming defaults exist.
 
 ## Where things live
 
-| Path | What |
-|------|------|
-| `src/services/nac/model/` | Normalized, API-agnostic product model |
-| `src/services/nac/sources/` | Per-product source interfaces, config, resolver |
-| `src/services/nac/sources/v2/` | Legacy-API implementations and mappers |
-| `src/services/nac/types/` | v2 wire schemas (zod) |
-| `src/services/nac/forecastFingerprint.ts` | Revalidate-on-view ETag |
-| `src/app/api/[center]/*-freshness/` | Freshness route handlers |
-| `src/collections/Settings/` | Control 1, the rollout flag |
-| `src/components/forecast/` | Presentation, model-consuming only |
+| Path                                      | What                                            |
+| ----------------------------------------- | ----------------------------------------------- |
+| `src/services/nac/model/`                 | Normalized, API-agnostic product model          |
+| `src/services/nac/sources/`               | Per-product source interfaces, config, resolver |
+| `src/services/nac/sources/v2/`            | Legacy-API implementations and mappers          |
+| `src/services/nac/types/`                 | v2 wire schemas (zod)                           |
+| `src/services/nac/forecastFingerprint.ts` | Revalidate-on-view ETag                         |
+| `src/app/api/[center]/*-freshness/`       | Freshness route handlers                        |
+| `src/collections/Settings/`               | Control 1, the rollout flag                     |
+| `src/components/forecast/`                | Presentation, model-consuming only              |
