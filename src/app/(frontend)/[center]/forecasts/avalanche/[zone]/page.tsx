@@ -11,6 +11,7 @@ import { ProductType } from '@/services/nac/model/forecast'
 import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
+import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
@@ -54,7 +55,8 @@ type PathArgs = {
 }
 
 export default async function Page({ params }: Args) {
-  const { center, zone } = await params
+  const { center, zone: zoneParam } = await params
+  const zone = zoneSlugFromParam(zoneParam)
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
@@ -83,7 +85,8 @@ export async function generateMetadata(
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const parentMeta = await parent
-  const { center, zone } = await params
+  const { center, zone: zoneParam } = await params
+  const zone = zoneSlugFromParam(zoneParam)
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
@@ -124,7 +127,9 @@ export async function generateMetadata(
       ...(description ? { description } : {}),
       images: [
         {
-          url: `/api/${center}/og?route=forecasts/avalanche/${zone}`,
+          // Encoded because the slug carries a literal `&` for zones whose name contains one,
+          // which would otherwise end the query parameter early.
+          url: `/api/${center}/og?route=${encodeURIComponent(`forecasts/avalanche/${zone}`)}`,
           width: 1200,
           height: 630,
         },
