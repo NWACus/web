@@ -119,19 +119,24 @@ function withPreservedParams(embedUrl: string, authored: URL): string {
 /**
  * What to render in place of an embed we won't frame.
  *
- * A link, not nothing: the reader can still reach what the forecaster meant to show, and the
- * hostname is in the label so they can see where it goes before following it. Forecast HTML already
- * carries authored links from the same source, so this grants the author no reach they didn't have.
- * A src that isn't http(s) has nothing safe to link to, so it goes away entirely.
+ * A note naming the provider, so the reader can tell something was there — deleting a forecaster's
+ * content without a trace is the failure this allowlist exists to prevent. It is deliberately inert
+ * rather than a link: the URL just failed the allowlist, so it should not be one click away.
+ *
+ * The note rides on the dropped tag rather than on a real element. sanitize-html emits a
+ * transform's `text` even for a tag it discards, and because `DROPPED` is in `nonTextTags` the
+ * element's children are discarded with it. That matters: an `<iframe>`'s children are fallback
+ * content a browser never renders, but the parser reads them as live markup, so leaving them in
+ * would let authored HTML smuggle a figure past both the sanitizer and the widget's own behavior.
  */
 function blockedEmbed(src: string | undefined): Tag {
   const url = httpUrl(src)
-  if (!url || !src) return { tagName: DROPPED, attribs: {} }
+  if (!url) return { tagName: DROPPED, attribs: {} }
 
   return {
-    tagName: 'a',
-    attribs: { href: src, target: '_blank', rel: 'noopener noreferrer' },
-    text: `Open embedded content from ${url.hostname}`,
+    tagName: DROPPED,
+    attribs: {},
+    text: `[Embedded content from ${url.hostname} could not be displayed here]`,
   }
 }
 
