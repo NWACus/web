@@ -133,25 +133,41 @@ describe('sanitizeHtml', () => {
       expect(out).not.toContain('<iframe')
     })
 
-    it('does not frame an unrecognized provider, but names it and leaves a link', () => {
+    it('does not frame an unrecognized provider, but says so and names it', () => {
       const out = sanitizeHtml('<p><iframe src="https://vendor.example.com/embed/1"></iframe></p>')
-      expect(out).not.toContain('<iframe')
-      expect(out).toContain('href="https://vendor.example.com/embed/1"')
-      expect(out).toContain('Open embedded content from vendor.example.com')
-      expect(out).toContain('rel="noopener noreferrer"')
-    })
-
-    it('replaces a blocked embed’s fallback content rather than leaking it', () => {
-      const out = sanitizeHtml(
-        '<p><iframe src="javascript:alert(1)">Your browser cannot play this</iframe></p>',
+      expect(out).toBe(
+        '<p>[Embedded content from vendor.example.com could not be displayed here]</p>',
       )
-      expect(out).toBe('<p></p>')
     })
 
-    it('drops an iframe with no linkable src', () => {
-      expect(sanitizeHtml('<p><iframe src="javascript:alert(1)"></iframe></p>')).toBe('<p></p>')
+    it('does not turn a rejected embed URL into a link', () => {
+      const out = sanitizeHtml('<p><iframe src="https://vendor.example.com/embed/1"></iframe></p>')
+      expect(out).not.toContain('<a')
+      expect(out).not.toContain('href')
+    })
+
+    it('discards a blocked embed’s fallback markup instead of parsing it as content', () => {
+      // A browser never renders an iframe's children, but the parser reads them as live markup —
+      // so without this they would smuggle a figure the legacy widget would never have shown.
+      const smuggled =
+        '<p><iframe src="https://evil.example/e"><figure class="image afp-photoswipe"><div class="afp-image-container"><img src="https://attacker.example/a.jpg" data-video-id="dQw4w9WgXcQ"></div><figcaption>FAKE FORECAST UPDATE</figcaption></figure></iframe></p>'
+      const out = sanitizeHtml(smuggled)
+      expect(out).not.toContain('afp-photoswipe')
+      expect(out).not.toContain('attacker.example')
+      expect(out).not.toContain('FAKE FORECAST UPDATE')
+    })
+
+    it('drops an iframe with nothing identifiable to name', () => {
+      expect(
+        sanitizeHtml('<p><iframe src="javascript:alert(1)">Cannot play this</iframe></p>'),
+      ).toBe('<p></p>')
       expect(sanitizeHtml('<p><iframe src="/local/thing"></iframe></p>')).toBe('<p></p>')
       expect(sanitizeHtml('<p><iframe></iframe></p>')).toBe('<p></p>')
+    })
+
+    it('still drops script contents, which nonTextTags also governs', () => {
+      expect(sanitizeHtml('<script>alert(1)</script><p>Safe</p>')).toBe('<p>Safe</p>')
+      expect(sanitizeHtml('<style>body{}</style><p>Safe</p>')).toBe('<p>Safe</p>')
     })
 
     it('does not treat a bare 11-character src as a YouTube id', () => {
