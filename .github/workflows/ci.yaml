@@ -34,6 +34,8 @@ jobs:
         run: pnpm lint
       - name: 🧹 Check type assertions
         run: pnpm verify-type-assertions
+      - name: 🧹 Check the vendored AFP golden corpus
+        run: pnpm afp-golden:check
 
   build:
     name: build
@@ -226,6 +228,50 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  e2e-native:
+    name: e2e-native
+    if: github.event_name == 'merge_group'
+    environment: Preview
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 25
+    container: mcr.microsoft.com/playwright:v1.58.0-noble
+    env:
+      DATABASE_URI: 'file:./dev.db'
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      ALLOW_SIMPLE_PASSWORDS: 'true'
+      LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS: 'true'
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v4
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: pnpm
+      - name: 📦 Install dependencies
+        run: pnpm ii
+        shell: bash
+      - name: 🎭 Install Playwright Chromium
+        run: pnpm exec playwright install chromium
+      - name: 📦 Opt out of image optimization
+        run: "sed -i 's/unoptimized: false/unoptimized: true/' next.config.js"
+        shell: bash
+      - name: 🌱 Seed database
+        run: pnpm seed:standalone
+      # Builds against the vendored AFP goldens and runs the suite against the prerendered output.
+      # No network access to the AFP API is needed or possible: the upstream hosts are .invalid.
+      - name: 🧪 Run native product page E2E
+        run: pnpm test:e2e:native
+      - name: 📤 Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-native
           path: playwright-report/
           retention-days: 14
 

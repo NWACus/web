@@ -14,3 +14,7 @@ fallow-baselines/
 **/docs/**
 tsconfig.json
 
+# Vendored and captured upstream responses: byte-for-byte copies, checksummed by
+# `pnpm afp-golden:check`. Reformatting them breaks their provenance.
+__tests__/e2e/mocks/afp-golden/
+__tests__/e2e/mocks/provisional/

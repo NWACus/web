@@ -53,7 +53,7 @@ sig = "3b94c50c9ccc0ad2"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "6fbe219d4009e348"
+sig = "b8fff6b4a3719160"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -88,7 +88,7 @@ sig = "d292e1dfe3736640"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/testing.md"
-sig = "c407c9e6ba1aa9cb"
+sig = "8ba237d48d11a6fb"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -174,6 +174,41 @@ sig = "b97eccce2fe2f8d5"
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/types.ts"
 sig = "003ff75b0e6ac502"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "__tests__/e2e/mocks/handlers.mjs"
+sig = "8e82ca77f662f6b4"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "__tests__/e2e/mocks/scenarios.json"
+sig = "c6465e7257ddec3d"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "playwright.mocked.config.ts"
+sig = "a0eebaafa29c9d86"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/capture-provisional.mjs"
+sig = "fadb3ec1cebbc04b"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/msw-preload.mjs"
+sig = "cc5565991f4a3048"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/run-with-mocks.mjs"
+sig = "429348d1bf62350c"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/sync-afp-golden.mjs"
+sig = "a241c20aed3d0dff"
 
 [[bindings]]
 doc = "docs/claude-github-issues.md"
@@ -378,7 +413,7 @@ sig = "f36be45edf4c3ced"
 [[bindings]]
 doc = "docs/decisions/018-native-product-page-architecture.md"
 target = ".fallowrc.json"
-sig = "b185e9876115839b"
+sig = "1cd848dd016c55be"
 
 [[bindings]]
 doc = "docs/decisions/018-native-product-page-architecture.md"
@@ -403,12 +438,12 @@ sig = "1109f2020067761a"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.js"
-sig = "68597c16ef37fc12"
+sig = "60afc988a3c389da"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "sentry-base-config.ts"
-sig = "07d1e99ca58658fd"
+sig = "c0f8f47dc1f2b334"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -518,7 +553,7 @@ sig = "a4824faf89f4051e"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.js"
-sig = "68597c16ef37fc12"
+sig = "60afc988a3c389da"
 
 [[bindings]]
 doc = "docs/onboarding.md"
