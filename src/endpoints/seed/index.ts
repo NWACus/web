@@ -248,6 +248,7 @@ export const seed = async ({
           {
             collections: [
               'announcements',
+              'mwfForecasts',
               'pages',
               'posts',
               'builtInPages',
@@ -282,6 +283,7 @@ export const seed = async ({
           {
             collections: [
               'announcements',
+              'mwfForecasts',
               'pages',
               'posts',
               'builtInPages',
@@ -488,6 +490,111 @@ export const seed = async ({
         address: '249 Main Ave. S, Suite 107-366\nNorth Bend, WA 98045',
         phone: '(206)909-0203',
         email: 'info@nwac.us',
+        // NWAC is the only center that forecasts mountain weather in-house, so
+        // it is the only tenant with the MWF flag on and MWF config seeded.
+        nativeProducts: {
+          mwf: true,
+        },
+        mwf: {
+          zones: [
+            { code: 'olympics', name: 'Olympics', airfireZoneId: '417' },
+            { code: 'west-slopes-north', name: 'West Slopes North', airfireZoneId: '418' },
+            { code: 'west-slopes-central', name: 'West Slopes Central', airfireZoneId: '419' },
+            { code: 'west-slopes-south', name: 'West Slopes South', airfireZoneId: '420' },
+            { code: 'stevens-pass', name: 'Stevens Pass', airfireZoneId: '421' },
+            { code: 'snoqualmie-pass', name: 'Snoqualmie Pass', airfireZoneId: '422' },
+            { code: 'east-slopes-north', name: 'East Slopes North', airfireZoneId: '423' },
+            { code: 'east-slopes-central', name: 'East Slopes Central', airfireZoneId: '424' },
+            { code: 'east-slopes-south', name: 'East Slopes South', airfireZoneId: '425' },
+            { code: 'mt-hood', name: 'Mt Hood', airfireZoneId: '426' },
+          ],
+          points: [
+            {
+              code: 'hurricane-ridge',
+              name: 'Hurricane Ridge',
+              zoneCode: 'olympics',
+              latitude: 47.97,
+              longitude: -123.5,
+            },
+            {
+              code: 'mt-baker',
+              name: 'Mt Baker Ski Area',
+              zoneCode: 'west-slopes-north',
+              latitude: 48.86,
+              longitude: -121.68,
+            },
+            {
+              code: 'washington-pass',
+              name: 'Washington Pass',
+              zoneCode: 'east-slopes-north',
+              latitude: 48.51,
+              longitude: -120.65,
+            },
+            {
+              code: 'stevens-pass',
+              name: 'Stevens Pass',
+              zoneCode: 'stevens-pass',
+              latitude: 47.74,
+              longitude: -121.09,
+            },
+            {
+              code: 'snoqualmie-pass',
+              name: 'Snoqualmie Pass',
+              zoneCode: 'snoqualmie-pass',
+              latitude: 47.42,
+              longitude: -121.42,
+            },
+            {
+              code: 'mission-ridge',
+              name: 'Mission Ridge',
+              zoneCode: 'east-slopes-central',
+              latitude: 47.29,
+              longitude: -120.4,
+            },
+            {
+              code: 'crystal',
+              name: 'Crystal Mt',
+              zoneCode: 'west-slopes-south',
+              latitude: 46.94,
+              longitude: -121.47,
+            },
+            {
+              code: 'paradise',
+              name: 'Paradise',
+              zoneCode: 'west-slopes-south',
+              latitude: 46.79,
+              longitude: -121.74,
+            },
+            {
+              code: 'white-pass',
+              name: 'White Pass',
+              zoneCode: 'east-slopes-south',
+              latitude: 46.64,
+              longitude: -121.39,
+            },
+            {
+              code: 'mt-hood-meadows',
+              name: 'Mt Hood Meadows',
+              zoneCode: 'mt-hood',
+              latitude: 45.33,
+              longitude: -121.66,
+            },
+          ],
+          extendedSnowLevelZones: [
+            { zoneCode: 'west-slopes-north' },
+            { zoneCode: 'west-slopes-central' },
+            { zoneCode: 'west-slopes-south' },
+            { zoneCode: 'snoqualmie-pass' },
+          ],
+          models: [
+            {
+              name: 'WRF',
+              sourceType: 'point-json',
+              url: 'https://example.com/wrf/{point}.json',
+              config: { fields: ['FH24', 'FH36', 'FH48', 'FH60'] },
+            },
+          ],
+        },
         socialMedia: {
           instagram: 'https://www.instagram.com/nwacus',
           facebook: 'https://www.facebook.com/NWACUS/',
@@ -539,6 +646,8 @@ export const seed = async ({
           phone: data.phone,
           email: data.email,
           socialMedia: data.socialMedia,
+          nativeProducts: data.nativeProducts,
+          mwf: data.mwf,
           logo: brandImages[tenant.slug]['logo'].id,
           icon: brandImages[tenant.slug]['icon'].id,
           banner: brandImages[tenant.slug]['banner'].id,

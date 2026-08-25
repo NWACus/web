@@ -54,6 +54,7 @@ import * as migration_20260505_045200_backfill_nav_builtin_pages from './2026050
 import * as migration_20260612_185209_split_generic_embed_blocks from './20260612_185209_split_generic_embed_blocks'
 import * as migration_20260617_215604_add_announcements from './20260617_215604_add_announcements'
 import * as migration_20260701_162212_add_galleries from './20260701_162212_add_galleries'
+import * as migration_20260825_221038_add_mwf_forecasts from './20260825_221038_add_mwf_forecasts'
 
 export const migrations = [
   {
@@ -335,5 +336,10 @@ export const migrations = [
     up: migration_20260701_162212_add_galleries.up,
     down: migration_20260701_162212_add_galleries.down,
     name: '20260701_162212_add_galleries',
+  },
+  {
+    up: migration_20260825_221038_add_mwf_forecasts.up,
+    down: migration_20260825_221038_add_mwf_forecasts.down,
+    name: '20260825_221038_add_mwf_forecasts',
   },
 ]

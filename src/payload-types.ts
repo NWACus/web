@@ -81,6 +81,7 @@ export interface Config {
     events: Event;
     eventGroups: EventGroup;
     eventTags: EventTag;
+    mwfForecasts: MwfForecast;
     providers: Provider;
     courses: Course;
     biographies: Biography;
@@ -134,6 +135,7 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
     eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
+    mwfForecasts: MwfForecastsSelect<false> | MwfForecastsSelect<true>;
     providers: ProvidersSelect<false> | ProvidersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
@@ -1744,6 +1746,177 @@ export interface Announcement {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mwfForecasts".
+ */
+export interface MwfForecast {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * The calendar day this forecast is for, formatted YYYY-MM-DD
+   */
+  serviceDate: string;
+  /**
+   * Which issuance slot of the service date this forecast fills
+   */
+  issuance: 'morning' | 'afternoon';
+  status: 'draft' | 'published' | 'withdrawn';
+  /**
+   * Increments with each correction of a published forecast; 0 is the original
+   */
+  revision: number;
+  /**
+   * The published revision this correction replaces. Corrections stay pinned to the parent’s service date and issuance slot.
+   */
+  supersedes?: (number | null) | MwfForecast;
+  /**
+   * When this revision goes (or went) live. A future time embargoes a scheduled publish.
+   */
+  issuedAt?: string | null;
+  /**
+   * Set when a published forecast is withdrawn; withdrawn rows are hidden, not deleted.
+   */
+  withdrawnAt?: string | null;
+  /**
+   * The forecaster who authored this revision
+   */
+  author?: (number | null) | User;
+  /**
+   * Provenance: authored here, or imported from the legacy Django archive
+   */
+  source: 'native' | 'django-import';
+  /**
+   * The forecast content sections, written by the MWF editor
+   */
+  body?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * The tenant’s MWF config and the product structure frozen at publish time, so archived forecasts render exactly as published regardless of later config changes
+   */
+  publishSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name: string;
+  /**
+   * This is where you assign the user's permissions to the site. See the documentation for more information on roles.
+   */
+  roles?: {
+    docs?: (number | RoleAssignment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  globalRoleAssignments?: {
+    docs?: (number | GlobalRoleAssignment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  providers?: (number | Provider)[] | null;
+  inviteToken?: string | null;
+  inviteExpiration?: string | null;
+  lastLogin?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roleAssignments".
+ */
+export interface RoleAssignment {
+  id: number;
+  tenant: number | Tenant;
+  role?: (number | null) | Role;
+  roleName?: string | null;
+  user?: (number | null) | User;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: number;
+  name: string;
+  rules: {
+    collections: string[];
+    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
+    id?: string | null;
+  }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoleAssignments".
+ */
+export interface GlobalRoleAssignment {
+  id: number;
+  globalRole?: (number | null) | GlobalRole;
+  globalRoleName?: string | null;
+  user?: (number | null) | User;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "globalRoles".
+ */
+export interface GlobalRole {
+  id: number;
+  name: string;
+  rules: {
+    collections: string[];
+    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
+    id?: string | null;
+  }[];
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Note: This information will be displayed on your public provider listing.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2010,109 +2183,6 @@ export interface Course {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name: string;
-  /**
-   * This is where you assign the user's permissions to the site. See the documentation for more information on roles.
-   */
-  roles?: {
-    docs?: (number | RoleAssignment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  globalRoleAssignments?: {
-    docs?: (number | GlobalRoleAssignment)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  providers?: (number | Provider)[] | null;
-  inviteToken?: string | null;
-  inviteExpiration?: string | null;
-  lastLogin?: string | null;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "roleAssignments".
- */
-export interface RoleAssignment {
-  id: number;
-  tenant: number | Tenant;
-  role?: (number | null) | Role;
-  roleName?: string | null;
-  user?: (number | null) | User;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "roles".
- */
-export interface Role {
-  id: number;
-  name: string;
-  rules: {
-    collections: string[];
-    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
-    id?: string | null;
-  }[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "globalRoleAssignments".
- */
-export interface GlobalRoleAssignment {
-  id: number;
-  globalRole?: (number | null) | GlobalRole;
-  globalRoleName?: string | null;
-  user?: (number | null) | User;
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "globalRoles".
- */
-export interface GlobalRole {
-  id: number;
-  name: string;
-  rules: {
-    collections: string[];
-    actions: ('*' | 'create' | 'read' | 'update' | 'delete')[];
-    id?: string | null;
-  }[];
-  contentHash?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3020,6 +3090,97 @@ export interface Setting {
      */
     hashtag?: string | null;
   };
+  nativeProducts?: {
+    /**
+     * Enables native Mountain Weather Forecast authoring and the public MWF page for this center. While off, no MWF surface appears anywhere in the admin or on the public site.
+     */
+    mwf?: boolean | null;
+  };
+  mwf?: {
+    /**
+     * The forecast zones the MWF publishes for. Row order is display order in the editor and on the public page.
+     */
+    zones?:
+      | {
+          /**
+           * Short unique code, e.g. olympics
+           */
+          code: string;
+          /**
+           * Display name, e.g. Olympics
+           */
+          name: string;
+          /**
+           * Airfire zone id used to fetch temperature and wind model guidance for this zone
+           */
+          airfireZoneId?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The named locations precipitation is forecast for. Row order is display order in the precipitation grid.
+     */
+    points?:
+      | {
+          /**
+           * Short unique code, e.g. hurricane-ridge
+           */
+          code: string;
+          /**
+           * Display name, e.g. Hurricane Ridge
+           */
+          name: string;
+          /**
+           * Code of the zone this point belongs to
+           */
+          zoneCode: string;
+          latitude: number;
+          longitude: number;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The subset of zones that get the extended snow-level outlook on afternoon issuances
+     */
+    extendedSnowLevelZones?:
+      | {
+          /**
+           * Code of a zone configured above
+           */
+          zoneCode: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Weather model sources rendered as click-to-fill guidance columns beside entry cells in the editor
+     */
+    models?:
+      | {
+          /**
+           * Label shown in the guidance column header, e.g. WRF
+           */
+          name: string;
+          sourceType: 'point-json' | 'zone-summary-json';
+          /**
+           * Source URL. Point JSON sources may include a {point} placeholder substituted with the forecast point code.
+           */
+          url: string;
+          /**
+           * Source-specific configuration such as field naming and forecast-hour offsets
+           */
+          config?:
+            | {
+                [k: string]: unknown;
+              }
+            | unknown[]
+            | string
+            | number
+            | boolean
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   terms?: (number | null) | Page;
   privacy?: (number | null) | Page;
   contentHash?: string | null;
@@ -3281,6 +3442,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'eventTags';
         value: number | EventTag;
+      } | null)
+    | ({
+        relationTo: 'mwfForecasts';
+        value: number | MwfForecast;
       } | null)
     | ({
         relationTo: 'providers';
@@ -4082,6 +4247,27 @@ export interface EventTagsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mwfForecasts_select".
+ */
+export interface MwfForecastsSelect<T extends boolean = true> {
+  tenant?: T;
+  serviceDate?: T;
+  issuance?: T;
+  status?: T;
+  revision?: T;
+  supersedes?: T;
+  issuedAt?: T;
+  withdrawnAt?: T;
+  author?: T;
+  source?: T;
+  body?: T;
+  publishSnapshot?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "providers_select".
  */
 export interface ProvidersSelect<T extends boolean = true> {
@@ -4818,6 +5004,48 @@ export interface SettingsSelect<T extends boolean = true> {
         linkedin?: T;
         youtube?: T;
         hashtag?: T;
+      };
+  nativeProducts?:
+    | T
+    | {
+        mwf?: T;
+      };
+  mwf?:
+    | T
+    | {
+        zones?:
+          | T
+          | {
+              code?: T;
+              name?: T;
+              airfireZoneId?: T;
+              id?: T;
+            };
+        points?:
+          | T
+          | {
+              code?: T;
+              name?: T;
+              zoneCode?: T;
+              latitude?: T;
+              longitude?: T;
+              id?: T;
+            };
+        extendedSnowLevelZones?:
+          | T
+          | {
+              zoneCode?: T;
+              id?: T;
+            };
+        models?:
+          | T
+          | {
+              name?: T;
+              sourceType?: T;
+              url?: T;
+              config?: T;
+              id?: T;
+            };
       };
   terms?: T;
   privacy?: T;

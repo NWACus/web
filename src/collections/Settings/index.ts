@@ -1,5 +1,6 @@
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
+import { hasSuperAdminPermissions } from '@/access/hasSuperAdminPermissions'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
@@ -215,6 +216,204 @@ const brandAssetsFields: Field[] = [
   },
 ]
 
+const featuresFields: Field[] = [
+  {
+    name: 'nativeProducts',
+    label: 'Native Products',
+    type: 'group',
+    access: {
+      // Feature flags default off and are flipped deliberately per tenant by a
+      // super admin; center admins can see but not toggle them.
+      create: hasSuperAdminPermissions,
+      update: hasSuperAdminPermissions,
+    },
+    fields: [
+      {
+        name: 'mwf',
+        label: 'Mountain Weather Forecast',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Enables native Mountain Weather Forecast authoring and the public MWF page for this center. While off, no MWF surface appears anywhere in the admin or on the public site.',
+        },
+      },
+    ],
+  },
+]
+
+const mwfFields: Field[] = [
+  {
+    name: 'mwf',
+    label: '', // leaving blank intentionally since this is a single-group tab (group wanted for API response organization)
+    type: 'group',
+    fields: [
+      {
+        name: 'zones',
+        type: 'array',
+        labels: { singular: 'Zone', plural: 'Zones' },
+        admin: {
+          description:
+            'The forecast zones the MWF publishes for. Row order is display order in the editor and on the public page.',
+        },
+        fields: [
+          {
+            type: 'row',
+            fields: [
+              {
+                name: 'code',
+                type: 'text',
+                required: true,
+                admin: { width: '25%', description: 'Short unique code, e.g. olympics' },
+              },
+              {
+                name: 'name',
+                type: 'text',
+                required: true,
+                admin: { width: '50%', description: 'Display name, e.g. Olympics' },
+              },
+              {
+                name: 'airfireZoneId',
+                type: 'text',
+                admin: {
+                  width: '25%',
+                  description:
+                    'Airfire zone id used to fetch temperature and wind model guidance for this zone',
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'points',
+        type: 'array',
+        labels: { singular: 'Forecast Point', plural: 'Forecast Points' },
+        admin: {
+          description:
+            'The named locations precipitation is forecast for. Row order is display order in the precipitation grid.',
+        },
+        fields: [
+          {
+            type: 'row',
+            fields: [
+              {
+                name: 'code',
+                type: 'text',
+                required: true,
+                admin: { width: '25%', description: 'Short unique code, e.g. hurricane-ridge' },
+              },
+              {
+                name: 'name',
+                type: 'text',
+                required: true,
+                admin: { width: '50%', description: 'Display name, e.g. Hurricane Ridge' },
+              },
+              {
+                name: 'zoneCode',
+                type: 'text',
+                required: true,
+                admin: { width: '25%', description: 'Code of the zone this point belongs to' },
+              },
+            ],
+          },
+          {
+            type: 'row',
+            fields: [
+              {
+                name: 'latitude',
+                type: 'number',
+                required: true,
+                min: -90,
+                max: 90,
+                admin: { width: '50%' },
+              },
+              {
+                name: 'longitude',
+                type: 'number',
+                required: true,
+                min: -180,
+                max: 180,
+                admin: { width: '50%' },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'extendedSnowLevelZones',
+        type: 'array',
+        labels: { singular: 'Extended Snow Level Zone', plural: 'Extended Snow Level Zones' },
+        admin: {
+          description:
+            'The subset of zones that get the extended snow-level outlook on afternoon issuances',
+        },
+        fields: [
+          {
+            name: 'zoneCode',
+            type: 'text',
+            required: true,
+            admin: { description: 'Code of a zone configured above' },
+          },
+        ],
+      },
+      {
+        name: 'models',
+        type: 'array',
+        labels: { singular: 'Model Source', plural: 'Model Sources' },
+        admin: {
+          description:
+            'Weather model sources rendered as click-to-fill guidance columns beside entry cells in the editor',
+        },
+        fields: [
+          {
+            type: 'row',
+            fields: [
+              {
+                name: 'name',
+                type: 'text',
+                required: true,
+                admin: {
+                  width: '50%',
+                  description: 'Label shown in the guidance column header, e.g. WRF',
+                },
+              },
+              {
+                name: 'sourceType',
+                type: 'select',
+                required: true,
+                defaultValue: 'point-json',
+                options: [
+                  { label: 'Point JSON', value: 'point-json' },
+                  { label: 'Zone summary JSON', value: 'zone-summary-json' },
+                ],
+                admin: { width: '50%' },
+              },
+            ],
+          },
+          {
+            name: 'url',
+            type: 'text',
+            required: true,
+            admin: {
+              description:
+                'Source URL. Point JSON sources may include a {point} placeholder substituted with the forecast point code.',
+            },
+          },
+          {
+            name: 'config',
+            type: 'json',
+            admin: {
+              description:
+                'Source-specific configuration such as field naming and forecast-hour offsets',
+            },
+          },
+        ],
+      },
+    ],
+  },
+]
+
 const socialMediaFields: Field[] = [
   {
     name: 'socialMedia',
@@ -330,6 +529,21 @@ export const Settings: CollectionConfig = {
           description:
             'Add links to your social media accounts to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.',
           fields: socialMediaFields,
+        },
+        {
+          label: 'Features',
+          description:
+            'Per-center feature flags. These are managed by super admins and default off.',
+          fields: featuresFields,
+        },
+        {
+          label: 'Mountain Weather',
+          description:
+            'Content configuration for the native Mountain Weather Forecast: zones, forecast points, extended snow-level zones, and model guidance sources.',
+          admin: {
+            condition: (data) => Boolean(data?.nativeProducts?.mwf),
+          },
+          fields: mwfFields,
         },
         {
           label: 'Legal Policies',
