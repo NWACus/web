@@ -6,9 +6,10 @@
 // fallow-ignore-file dynamic-segment-name-conflicts
 import { getImgAttrsFromMediaResource } from '@/components/Media/getImgAttrsFromMediaResource'
 import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
-import { convertWebpToPng } from '@/utilities/convertWebpToPng'
+import { convertWebpToPng, isWebpMedia } from '@/utilities/convertWebpToPng'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getURL } from '@/utilities/getURL'
+import { isValidRelationship } from '@/utilities/relationships'
 import { resolveTenant } from '@/utilities/tenancy/resolveTenant'
 import configPromise from '@payload-config'
 import * as Sentry from '@sentry/nextjs'
@@ -16,10 +17,16 @@ import { ImageResponse } from '@vercel/og'
 import { NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
+import type { OgDocType } from './buildOgImageUrl'
 import { centerColorMap, isKnownCenter } from './centerColorMap'
 import { getDangerBadge } from './getDangerBadge'
+import { getOgDocData, type OgDocData } from './getOgDocData'
+import { OgDocContent } from './OgDocContent'
 
 const FORECAST_ZONE_PATH_PREFIX = 'forecasts/avalanche/'
+
+const isOgDocType = (value: string | null): value is OgDocType =>
+  value === 'post' || value === 'event'
 
 // Pre-existing: a 325-line, cyclomatic-44 handler that builds the whole OG image inline. It is
 // flagged here only because this PR changed one import above, which put the file in fallow's
@@ -39,6 +46,11 @@ export async function GET(
     route && route.startsWith(FORECAST_ZONE_PATH_PREFIX)
       ? (route.slice(FORECAST_ZONE_PATH_PREFIX.length).split('/').filter(Boolean).pop() ?? null)
       : null
+
+  // Blog post / event shares: `?type=post&slug=...` or `?type=event&slug=...`
+  const docTypeParam = searchParams.get('type')
+  const docSlug = searchParams.get('slug')
+  const docType = isOgDocType(docTypeParam) ? docTypeParam : null
 
   const payload = await getPayload({ config: configPromise })
 
@@ -90,10 +102,7 @@ export async function GET(
 
       // Convert WebP to PNG if needed
       // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
-      if (
-        settings.banner.mimeType?.toLowerCase() === 'image/webp' ||
-        settings.banner.filename?.endsWith('.webp')
-      ) {
+      if (isWebpMedia(settings.banner)) {
         bannerImgProps.src = await convertWebpToPng(settings.banner, settings.tenant)
       }
     }
@@ -110,11 +119,26 @@ export async function GET(
 
       // Convert WebP to PNG if needed
       // TODO: remove this once .webp support lands in Satori: https://github.com/vercel/satori/pull/622
-      if (
-        settings.usfsLogo.mimeType?.toLowerCase() === 'image/webp' ||
-        settings.usfsLogo.filename?.endsWith('.webp')
-      ) {
+      if (isWebpMedia(settings.usfsLogo)) {
         usfsLogoImgProps.src = await convertWebpToPng(settings.usfsLogo, settings.tenant)
+      }
+    }
+
+    // Blog post / event shares: fetch and normalize the document for a content-specific image
+    let docData: OgDocData | null = null
+
+    if (docType && docSlug && isValidRelationship(settings.tenant)) {
+      try {
+        docData = await getOgDocData({
+          payload,
+          center,
+          type: docType,
+          slug: docSlug,
+          tenant: settings.tenant,
+        })
+      } catch (err) {
+        payload.logger.error({ err }, `Failed to load ${docType} for OG image (slug: ${docSlug})`)
+        Sentry.captureException(err)
       }
     }
 
@@ -146,7 +170,14 @@ export async function GET(
     const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer())
 
     return new ImageResponse(
-      (
+      docData ? (
+        <OgDocContent
+          colors={colors}
+          bannerImgProps={bannerImgProps}
+          usfsLogoImgProps={usfsLogoImgProps}
+          data={docData}
+        />
+      ) : (
         <div
           style={{
             height: '100%',
