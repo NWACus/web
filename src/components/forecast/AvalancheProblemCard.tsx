@@ -8,10 +8,13 @@ import {
   AvalancheProblemName,
   MediaType,
   type AvalancheProblem,
+  type MediaItem,
 } from '@/services/nac/model/forecast'
 
 import { LocatorRose } from './LocatorRose'
+import { ProblemMediaFigure } from './ProblemMediaFigure'
 import { LikelihoodSlider, SizeSlider } from './ProblemSlider'
+import { getCaption, getPosterUrl } from './mediaItem'
 import { sanitizeHtml } from './sanitizeHtml'
 
 /** Maps problem names to local icon filenames at /images/problem-icons/{name}.png */
@@ -33,19 +36,25 @@ function problemIconUrl(name: AvalancheProblemName): string {
 }
 
 /**
- * The example photo (src + optional HTML caption) for a problem's media item, or null if not
- * displayable. Uses the medium image size to fill the inline figure; handles image and photo.
+ * The example media for a problem — the still to show inline, plus what it opens as — or null if
+ * there is nothing displayable.
+ *
+ * Video counts. The AFP stores a problem video as a YouTube id with a poster frame, and the legacy
+ * widget shows that poster with a play glyph over it; returning null here, as this used to, meant
+ * a forecaster's clip vanished from the page entirely.
  */
-function problemPhoto(
+function problemMedia(
   media: AvalancheProblem['media'],
-): { src: string; caption: string | null } | null {
-  if (media.type === MediaType.Image) {
-    return { src: media.url.medium, caption: media.caption }
+): { item: MediaItem; posterSrc: string; caption: string | null; isVideo: boolean } | null {
+  const posterSrc = getPosterUrl(media)
+  if (!posterSrc) return null
+
+  return {
+    item: media,
+    posterSrc,
+    caption: getCaption(media),
+    isVideo: media.type === MediaType.Video,
   }
-  if (media.type === MediaType.Photo) {
-    return typeof media.url === 'string' ? { src: media.url, caption: media.caption } : null
-  }
-  return null
 }
 
 interface AvalancheProblemCardProps {
@@ -53,7 +62,7 @@ interface AvalancheProblemCardProps {
 }
 
 export function AvalancheProblemCard({ problem }: AvalancheProblemCardProps) {
-  const photo = problemPhoto(problem.media)
+  const media = problemMedia(problem.media)
 
   return (
     <Card>
@@ -65,8 +74,8 @@ export function AvalancheProblemCard({ problem }: AvalancheProblemCardProps) {
       <CardContent className="space-y-4">
         <ProblemAttributes problem={problem} />
 
-        {(photo || problem.discussion) && (
-          <ProblemDiscussion photo={photo} discussion={problem.discussion} />
+        {(media || problem.discussion) && (
+          <ProblemDiscussion media={media} discussion={problem.discussion} />
         )}
       </CardContent>
     </Card>
@@ -103,19 +112,26 @@ function ProblemAttributes({ problem }: { problem: AvalancheProblem }) {
 }
 
 /**
- * The discussion with the example photo floated inline to its right (wraps on md+);
- * overflow-hidden contains the float within the card.
+ * The discussion with the example media floated inline to its right (wraps on md+);
+ * overflow-hidden contains the float within the card. Sanitizing stays here on the server.
  */
 function ProblemDiscussion({
-  photo,
+  media,
   discussion,
 }: {
-  photo: { src: string; caption: string | null } | null
+  media: ReturnType<typeof problemMedia>
   discussion: string | null
 }) {
   return (
     <div className="overflow-hidden">
-      {photo && <ProblemPhoto photo={photo} />}
+      {media && (
+        <ProblemMediaFigure
+          item={media.item}
+          posterSrc={media.posterSrc}
+          captionHtml={media.caption ? sanitizeHtml(media.caption) : null}
+          isVideo={media.isVideo}
+        />
+      )}
       {discussion && (
         <div
           className="prose prose-sm max-w-none dark:prose-invert"
@@ -123,20 +139,5 @@ function ProblemDiscussion({
         />
       )}
     </div>
-  )
-}
-
-function ProblemPhoto({ photo }: { photo: { src: string; caption: string | null } }) {
-  return (
-    <figure className="mb-3 md:float-right md:mb-2 md:ml-6 md:w-1/2 lg:w-1/3">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={photo.src} alt="" className="w-full rounded-md" />
-      {photo.caption && (
-        <figcaption
-          className="pt-2 text-center text-sm italic text-muted-foreground"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(photo.caption) }}
-        />
-      )}
-    </figure>
   )
 }
