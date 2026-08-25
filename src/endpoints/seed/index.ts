@@ -497,16 +497,16 @@ export const seed = async ({
         },
         mwf: {
           zones: [
-            { code: 'olympics', name: 'Olympics', airfireZoneId: '417' },
-            { code: 'west-slopes-north', name: 'West Slopes North', airfireZoneId: '418' },
-            { code: 'west-slopes-central', name: 'West Slopes Central', airfireZoneId: '419' },
-            { code: 'west-slopes-south', name: 'West Slopes South', airfireZoneId: '420' },
-            { code: 'stevens-pass', name: 'Stevens Pass', airfireZoneId: '421' },
-            { code: 'snoqualmie-pass', name: 'Snoqualmie Pass', airfireZoneId: '422' },
-            { code: 'east-slopes-north', name: 'East Slopes North', airfireZoneId: '423' },
-            { code: 'east-slopes-central', name: 'East Slopes Central', airfireZoneId: '424' },
-            { code: 'east-slopes-south', name: 'East Slopes South', airfireZoneId: '425' },
-            { code: 'mt-hood', name: 'Mt Hood', airfireZoneId: '426' },
+            { code: 'olympics', name: 'Olympics', airfireZoneId: 'ol' },
+            { code: 'west-slopes-north', name: 'West Slopes North', airfireZoneId: 'wn' },
+            { code: 'west-slopes-central', name: 'West Slopes Central', airfireZoneId: 'wc' },
+            { code: 'west-slopes-south', name: 'West Slopes South', airfireZoneId: 'ws' },
+            { code: 'stevens-pass', name: 'Stevens Pass', airfireZoneId: 'st' },
+            { code: 'snoqualmie-pass', name: 'Snoqualmie Pass', airfireZoneId: 'sn' },
+            { code: 'east-slopes-north', name: 'East Slopes North', airfireZoneId: 'en' },
+            { code: 'east-slopes-central', name: 'East Slopes Central', airfireZoneId: 'ec' },
+            { code: 'east-slopes-south', name: 'East Slopes South', airfireZoneId: 'es' },
+            { code: 'mt-hood', name: 'Mt Hood', airfireZoneId: 'hd' },
           ],
           points: [
             {
