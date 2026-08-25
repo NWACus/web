@@ -1,7 +1,8 @@
 'use client'
 
+import { Loader2 } from 'lucide-react'
 import Script from 'next/script'
-import type { ReactNode } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 type Datalogger = { stid: string; label: string }
@@ -84,6 +85,35 @@ function FormSelect({
   )
 }
 
+function DownloadButton({ downloading, disabled }: { downloading: boolean; disabled: boolean }) {
+  return (
+    <button
+      type="submit"
+      disabled={disabled}
+      className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+    >
+      {downloading && <Loader2 className="h-4 w-4 animate-spin" />}
+      {downloading ? 'Preparing CSV…' : 'Download CSV'}
+    </button>
+  )
+}
+
+function formParams(form: HTMLFormElement): URLSearchParams {
+  const entries = Array.from(new FormData(form), ([name, value]) => [name, String(value)])
+  return new URLSearchParams(entries)
+}
+
+async function downloadCsv(url: string, filename: string): Promise<void> {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const objectUrl = URL.createObjectURL(await response.blob())
+  const anchor = document.createElement('a')
+  anchor.href = objectUrl
+  anchor.download = filename
+  anchor.click()
+  URL.revokeObjectURL(objectUrl)
+}
+
 export function StationCsvForm({
   slug,
   dataloggers,
@@ -95,11 +125,31 @@ export function StationCsvForm({
 }) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
   const [captchaSolved, setCaptchaSolved] = useState(!siteKey)
+  const [downloading, setDownloading] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const action = `/weather/stations/${slug}/csv`
+
+  // Fetched rather than submitted so the wait for a year of data has a spinner.
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const params = formParams(event.currentTarget)
+    setDownloading(true)
+    setFailed(false)
+    try {
+      const name = `${slug}-${params.get('stid')}-${params.get('year')}.csv`
+      await downloadCsv(`${action}?${params.toString()}`, name)
+    } catch {
+      setFailed(true)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <form
       method="get"
-      action={`/weather/stations/${slug}/csv`}
+      action={action}
+      onSubmit={handleSubmit}
       className="flex min-h-96 flex-col items-start gap-4"
     >
       <div className="flex flex-wrap items-end gap-3">
@@ -123,13 +173,12 @@ export function StationCsvForm({
         </FormSelect>
       </div>
       {siteKey && <TurnstileWidget siteKey={siteKey} onChange={setCaptchaSolved} />}
-      <button
-        type="submit"
-        disabled={!captchaSolved}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-      >
-        Download CSV
-      </button>
+      <DownloadButton downloading={downloading} disabled={!captchaSolved || downloading} />
+      {failed && (
+        <p role="alert" className="text-sm text-destructive">
+          That download failed. Try again, or pick a different year.
+        </p>
+      )}
     </form>
   )
 }
