@@ -13,8 +13,11 @@ import { createForecastAction, removeForecastAction, type MwfListRow } from './a
 function statusLabel(row: MwfListRow): string {
   if (row.status === 'draft')
     return row.isCorrection ? `correction draft r${row.revision}` : 'draft'
-  if (row.status === 'published')
-    return row.revision > 1 ? `published r${row.revision}` : 'published'
+  if (row.status === 'published') {
+    const scheduled = row.issuedAt != null && new Date(row.issuedAt).getTime() > Date.now()
+    const base = scheduled ? 'scheduled' : 'published'
+    return row.revision > 1 ? `${base} r${row.revision}` : base
+  }
   return 'withdrawn'
 }
 
