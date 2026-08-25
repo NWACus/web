@@ -88,7 +88,7 @@ sig = "d292e1dfe3736640"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/testing.md"
-sig = "c407c9e6ba1aa9cb"
+sig = "0edd179b4400260a"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -183,7 +183,7 @@ sig = "b4cdca0cf4f354b1"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "jest.config.mjs"
-sig = "b1d9736649cf9b6a"
+sig = "93856d4c3ca3e5cd"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -653,7 +653,7 @@ sig = "9273f68aefc8cf17"
 [[bindings]]
 doc = "docs/testing.md"
 target = "jest.config.mjs"
-sig = "b1d9736649cf9b6a"
+sig = "93856d4c3ca3e5cd"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
