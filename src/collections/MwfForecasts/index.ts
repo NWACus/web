@@ -4,6 +4,7 @@ import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig, TextFieldValidation } from 'payload'
+import { enforceWorkflowInvariants, guardDelete } from './hooks/workflowGuards'
 
 // Service dates are stored as plain YYYY-MM-DD strings so that the
 // (tenant, serviceDate, issuance) workflow queries match exactly with no
@@ -43,6 +44,10 @@ export const MwfForecasts: CollectionConfig = {
     // hooks, not here, because draft and superseded rows share the slot.
     { fields: ['tenant', 'serviceDate', 'issuance'] },
   ],
+  hooks: {
+    beforeChange: [enforceWorkflowInvariants],
+    beforeDelete: [guardDelete],
+  },
   fields: [
     tenantField(),
     {
