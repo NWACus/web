@@ -93,6 +93,10 @@ export default buildConfig({
           Component: '@/views/EmbedGenerator#EmbedGenerator',
           path: '/embed-generator',
         },
+        'mwf-editor': {
+          Component: '@/views/MwfEditor#MwfEditor',
+          path: '/mwf',
+        },
       },
     },
     dashboard: {

@@ -68,7 +68,9 @@ export interface TempsCell {
 export interface SnowLevelCell {
   freezing: Entered
   drop: Entered
-  mode: 'auto' | 'manual'
+  // 'auto' derives snow-vs-freezing from the zone's QPF; an explicit value is
+  // the forecaster's override.
+  mode: 'auto' | 'snow' | 'freezing'
 }
 
 export interface WindCell {
@@ -108,8 +110,8 @@ export interface SerializedForecast {
   precip: CellTable<{ qpf: Entered; density: Entered }>
   temps: CellTable<{ high: Entered; low: Entered }>
   wind: CellTable<{ dir: string; speed: Entered }>
-  snowLevel: CellTable<{ freezing: Entered; drop: Entered; mode: 'auto' | 'manual' }>
-  extendedSnowLevel: CellTable<{ freezing: Entered; drop: Entered; mode: 'auto' | 'manual' }>
+  snowLevel: CellTable<{ freezing: Entered; drop: Entered; mode: SnowLevelCell['mode'] }>
+  extendedSnowLevel: CellTable<{ freezing: Entered; drop: Entered; mode: SnowLevelCell['mode'] }>
   sensible: Record<string, SensibleSlots>
   discussion: { synopsis: string; extended: string }
 }
