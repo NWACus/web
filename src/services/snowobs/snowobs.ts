@@ -1,3 +1,4 @@
+import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { tz } from '@date-fns/tz'
 import config from '@payload-config'
 import { format, subHours } from 'date-fns'
@@ -7,6 +8,9 @@ import { snowObsTimeseriesResponseSchema } from './types/schemas'
 
 const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
 const NWAC_SOURCE = 'nwac'
+// The center whose AFP config carries the token. Today it doubles as the SnowObs
+// source name; #1169 splits the two when a second center gets these pages.
+const TOKEN_CENTER_SLUG = 'nwac'
 
 export class SnowObsError extends Error {
   constructor(
@@ -35,17 +39,24 @@ type FetchOptions = {
   rawData?: boolean
 }
 
+// The token lives in the center's AFP config (`widget_config.stations.token`), the same
+// public token the legacy nwac.us widgets use. It is the only source — no env override.
+async function resolveSnowObsToken(): Promise<string> {
+  const metadata = await getAvalancheCenterMetadata(TOKEN_CENTER_SLUG)
+  const token = metadata.widget_config.stations?.token
+  if (!token) {
+    throw new SnowObsError(`No SnowObs token in the AFP config for ${TOKEN_CENTER_SLUG}`)
+  }
+  return token
+}
+
 // Build the timeseries request URL. Defaults to a trailing window (last 24h)
 // with `end` floored to the revalidate bucket so the URL stays stable within a
 // window (an un-bucketed `new Date()` defeats Next's fetch cache); an explicit
 // start/end (CSV export) overrides the trailing window untouched.
 // CRAP is inflated by the lack of unit coverage on this URL builder.
 // fallow-ignore-next-line complexity
-function buildTimeseriesUrl(stids: string[], options: FetchOptions): string {
-  const token = process.env.SNOWOBS_TOKEN
-  if (!token) {
-    throw new SnowObsError('SNOWOBS_TOKEN environment variable is not set')
-  }
+function buildTimeseriesUrl(stids: string[], options: FetchOptions, token: string): string {
   const bucketMs = Math.max(options.revalidate ?? 600, 1) * 1000
   const endMs = Math.floor(Date.now() / bucketMs) * bucketMs
   const end = options.end ?? new Date(endMs)
@@ -100,9 +111,9 @@ export async function fetchStationTimeseries(
   options: FetchOptions = {},
 ): Promise<SnowObsTimeseriesResponse> {
   const revalidate = options.revalidate ?? 600
-  const url = buildTimeseriesUrl(stids, options)
 
   try {
+    const url = buildTimeseriesUrl(stids, options, await resolveSnowObsToken())
     const res = await fetch(url, { next: { revalidate } })
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {

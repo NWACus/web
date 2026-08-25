@@ -7,8 +7,8 @@ import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 
-// Rendered per request: prerendering would call SnowObs at build time, where
-// SNOWOBS_TOKEN isn't available (the [center] layout's generateStaticParams
+// Rendered per request: prerendering would call SnowObs at build time and pin the
+// page to whatever that build saw (the [center] layout's generateStaticParams
 // otherwise forces static generation). The fetch Data Cache still dedups
 // upstream calls to one per window, matching the legacy 5-minute cadence.
 export const dynamic = 'force-dynamic'
