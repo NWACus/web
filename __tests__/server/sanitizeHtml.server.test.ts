@@ -79,6 +79,15 @@ describe('sanitizeHtml', () => {
       expect(out).toContain('list=PLabcdefghij')
     })
 
+    it('keeps a channel live stream pointed at its channel', () => {
+      // `live_stream` is 11 characters too, so it passes for a video id the same way.
+      const out = sanitizeHtml(
+        '<iframe src="https://www.youtube.com/embed/live_stream?channel=UCPQi3sYr7EA0276Q3vBBhIA"></iframe>',
+      )
+      expect(out).toContain('/embed/live_stream')
+      expect(out).toContain('channel=UCPQi3sYr7EA0276Q3vBBhIA')
+    })
+
     it('keeps a start offset and a Vimeo private-video hash', () => {
       expect(
         sanitizeHtml('<iframe src="https://www.youtube.com/embed/_rYvrxGpBQc?start=120"></iframe>'),
