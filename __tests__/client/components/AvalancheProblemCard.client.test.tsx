@@ -8,7 +8,7 @@ import {
   type AvalancheProblem,
 } from '@/services/nac/types/forecastSchemas'
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 const baseProblem: AvalancheProblem = {
   id: 1,
@@ -98,4 +98,84 @@ describe('AvalancheProblemCard', () => {
     // Only the problem icon, no media thumbnail
     expect(images).toHaveLength(1)
   })
+
+  it('opens an example photo in the lightbox rather than leaving it static', async () => {
+    render(<AvalancheProblemCard problem={withMedia(imageMedia())} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand embedded image' }))
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+  })
+
+  // Real shape, from CNFAIC/SNFAC/NWAC forecasts: a YouTube id with its own poster frame. This
+  // used to render as nothing at all.
+  it('renders a problem video as its poster frame, marked playable', () => {
+    render(<AvalancheProblemCard problem={withMedia(videoMedia())} />)
+
+    expect(document.querySelector('img[src="https://example.com/medium.jpg"]')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play embedded video' })).toBeInTheDocument()
+    expect(screen.getByText('Ben on the snowpack')).toBeInTheDocument()
+  })
+
+  it('plays a problem video in the lightbox', async () => {
+    render(<AvalancheProblemCard problem={withMedia(videoMedia())} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play embedded video' }))
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    expect(document.querySelector('iframe')).toHaveAttribute(
+      'src',
+      expect.stringContaining('73fFkbWuMOo'),
+    )
+  })
+
+  // The other real shape (four SNFAC forecasts): the url is a bare YouTube id and there is no
+  // poster URL, so it has to come from YouTube.
+  it('falls back to YouTube’s poster when a video carries only its id', () => {
+    render(
+      <AvalancheProblemCard
+        problem={withMedia({
+          type: MediaType.Video,
+          url: '784O9k5_-fc',
+          caption: 'Chris on Avalanche Peak',
+          title: null,
+        })}
+      />,
+    )
+
+    expect(
+      document.querySelector('img[src="https://i.ytimg.com/vi/784O9k5_-fc/hqdefault.jpg"]'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play embedded video' })).toBeInTheDocument()
+  })
+})
+
+const withMedia = (media: AvalancheProblem['media']): AvalancheProblem => ({
+  ...baseProblem,
+  media,
+})
+
+const imageMedia = (): AvalancheProblem['media'] => ({
+  type: MediaType.Image,
+  url: {
+    large: 'https://example.com/large.jpg',
+    medium: 'https://example.com/medium.jpg',
+    original: 'https://example.com/original.jpg',
+    thumbnail: 'https://example.com/thumb.jpg',
+  },
+  caption: 'Storm slab crown',
+  title: null,
+})
+
+const videoMedia = (): AvalancheProblem['media'] => ({
+  type: MediaType.Video,
+  url: {
+    large: 'https://example.com/large.jpg',
+    medium: 'https://example.com/medium.jpg',
+    original: 'https://example.com/original.jpg',
+    thumbnail: 'https://example.com/thumb.jpg',
+    video_id: '73fFkbWuMOo',
+  },
+  caption: 'Ben on the snowpack',
+  title: null,
 })
