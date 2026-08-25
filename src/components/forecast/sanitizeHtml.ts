@@ -103,9 +103,10 @@ function safeEmbedUrl(src: string | undefined): string | null {
  * `getVideoEmbedUrl` reconstructs the URL from the video id alone. That is fine for a plain video,
  * but a YouTube playlist is `/embed/videoseries?list=…` — and `videoseries` is itself eleven
  * characters, so it passes for a video id and the rebuilt URL asks YouTube for a video by that
- * name. Same story, less visibly, for a start offset or a Vimeo private-video hash.
+ * name. A channel's live stream is `/embed/live_stream?channel=…`, eleven characters again, and
+ * fails the same way. Same story, less visibly, for a start offset or a Vimeo private-video hash.
  */
-const PRESERVED_EMBED_PARAMS = ['list', 'index', 'start', 'end', 't', 'h']
+const PRESERVED_EMBED_PARAMS = ['list', 'index', 'start', 'end', 't', 'h', 'channel']
 
 function withPreservedParams(embedUrl: string, authored: URL): string {
   const url = new URL(embedUrl)
