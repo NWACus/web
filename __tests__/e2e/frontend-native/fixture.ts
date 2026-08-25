@@ -6,9 +6,9 @@ import { freezeFreshness, stubExternalAssets } from './helpers'
  * check neutralised.
  *
  * Both are applied automatically rather than per-spec because forgetting either is silent and
- * cross-cutting. A page that reaches the freshness endpoint can purge the cached render of every
- * page sharing its forecast or weather tag — which, given the 404-after-revalidation defect
- * recorded in freshness.e2e.spec.ts, breaks whichever spec happens to run next.
+ * cross-cutting. A page that reaches the freshness endpoint purges the cached render of every page
+ * sharing its forecast or weather tag, and they come back carrying the corrected product — so a
+ * spec that forgot to freeze it would quietly change what the next spec sees.
  *
  * `freshness.e2e.spec.ts` is the exception and imports from `@playwright/test` directly.
  */

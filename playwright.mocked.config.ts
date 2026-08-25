@@ -38,8 +38,8 @@ export default defineConfig({
     },
     {
       // Last, and on its own: the freshness path calls `revalidateTag`, which drops the cached
-      // render of every page sharing those tags. Until the 404-after-revalidation defect below is
-      // fixed, that leaves other zones 404ing — so nothing else may run after it.
+      // render of every page sharing those tags. They regenerate — but carrying the *corrected*
+      // product, which is not what a spec that ran earlier asserted against.
       name: 'frontend-native-freshness',
       testMatch: '**/freshness.e2e.spec.ts',
       dependencies: ['frontend-native'],

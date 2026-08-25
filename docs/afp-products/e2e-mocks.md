@@ -22,7 +22,7 @@ The failure that would cost the most is a green suite that quietly tested the li
 
 - **`.invalid` upstream hosts.** The mocked build and server run with `NAC_HOST=http://nac.e2e-mock.invalid` and `AFP_HOST=http://afp.e2e-mock.invalid`. `src/services/nac/hosts.ts` and the mock handlers both read those vars, so they agree by construction — but a process where interception failed gets a DNS failure instead of a forecast.
 - **A boot probe.** After `server.listen()`, the preload fetches a path only the mock answers and exits non-zero if it does not come back.
-- **A separate `distDir`.** The mocked build writes to `.next-e2e`, so an ordinary `pnpm build` can never be served as if it were mocked. `globalSetup` also checks the served `BUILD_ID` against the one the mocked build recorded.
+- **A separate `distDir`.** The mocked build writes to `.next-e2e`, so an ordinary `pnpm build` can never be served as if it were mocked. `globalSetup` also checks two build ids: the one on disk against the one the mocked build recorded, and — separately — the one the running server booted from, which the preload reads before Next starts and writes into `active.json`. Only the second catches a server left running across a rebuild, because a rebuild rewrites both on-disk records at once.
 - **A loud 501 for anything unmapped.** See below.
 
 ## Determinism
@@ -39,7 +39,7 @@ The one exception is a `phase` product, and it is still stateless: it is a pure 
 
 ```
 AFP_PRODUCTS_API_PATH=/path/to/products-api pnpm afp-golden:sync
-pnpm afp-golden:check      # runs in CI and pre-commit
+pnpm afp-golden:check      # runs in CI
 ```
 
 `PROVENANCE.json` records the source commit and a sha256 per file, and `--check` fails if any of them stops matching — so a "golden" cannot be quietly edited into saying what a test wants. **The intended end state is an npm package published from products-api CI**; a committed snapshot with a hash manifest is the honest interim, because the corpus lives in a Python repo the CI container has no checkout of. When that package exists, `sync-afp-golden.mjs` becomes a dependency bump and `PROVENANCE.json` becomes a version.
@@ -77,7 +77,7 @@ Two things are not fixture gaps and no capture will fix them:
 
 ## What the suite has already found
 
-**A correction currently 404s the page it was correcting.** `/[center]/forecasts/avalanche/[zone]` is `dynamicParams = false`. When the freshness handler calls `revalidateTag` and Next drops the prerendered entry, Next does not regenerate that path on demand — the request falls through to the `[center]/[...segments]` catch-all, which has no Payload page for it, answers 404, and caches that. Every zone sharing the revalidated forecast or weather tag goes with it. Reproducible in three commands: build, confirm the four Sawtooth zones answer 200, `curl` the freshness endpoint for one of them, and watch two of them turn into 404s. It is carried as a `test.fixme` in `freshness.e2e.spec.ts`, and it is why the freshness spec runs last and alone.
+**A correction used to 404 the page it was correcting.** The freshness handler calls `revalidateTag`, which is a *hard* invalidation — the next read of any page carrying that tag misses entirely rather than going stale, which is how it differs from the `revalidate` window. The zone route was `dynamicParams = false`, so Next answered that miss by abandoning the route; `[center]/[...segments]` picked the request up, found no Payload page, and 404'd, and the 404 was then cached. Measured at ~70 seconds, on the corrected zone *and* every zone sharing its weather product — one weather product covers all ten NWAC zones. So the mechanism meant to deliver a correction removed the forecast instead. Fixed by generating that route on demand, matching what the dated route beside it already did; `freshness.e2e.spec.ts` asserts the correction now arrives.
 
 **Sentry's OpenTelemetry instrumentation destabilises the production server.** With Sentry wired in, concurrent requests intermittently returned `ReferenceError: Cannot access 'h' before initialization` from the Payload API — its module instrumentation racing this app's async webpack chunks. It is loaded even when reporting is disabled, so the mocked build skips `withSentryConfig` entirely (`next.config.js`), which took the error rate from 185 occurrences in one run to zero. The same instrumentation ships to production.
 
@@ -86,4 +86,4 @@ Two things are not fixture gaps and no capture will fix them:
 ## Known rough edges
 
 - The widget-path specs stub the widget CDN, but the older `frontend` suite still loads it for real. That suite is not hermetic; this one is.
-- Playwright reuses a server already listening on the port. `globalSetup` refuses to run against one built from a different scenario table, but it will not restart it for you — stop it and re-run.
+- Playwright reuses a server already listening on the port. `globalSetup` refuses to run against one built from a different scenario table, or from a different build of the app, but it will not restart it for you — stop it and re-run.

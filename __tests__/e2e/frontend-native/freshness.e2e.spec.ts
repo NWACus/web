@@ -13,43 +13,36 @@ const STABLE_URL = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.forec
  * published after the page was rendered.
  *
  * These specs do NOT use the shared fixture, because freezing the freshness check is the one thing
- * they must not do. They run in their own Playwright project, after everything else and alone: a
- * revalidation here drops the cached render of every page sharing the forecast or weather tag.
+ * they must not do. They run in their own Playwright project, after everything else and alone,
+ * because a revalidation here drops the cached render of every page sharing the revalidated
+ * forecast or weather tag — those pages regenerate, but with the *corrected* product, which is not
+ * what a spec that ran earlier asserted against.
+ *
+ * No retries, for the same reason: the correction is one-way. A second attempt would open on a page
+ * that already carries it, and the first assertion below would be false.
  */
 test.describe.configure({ mode: 'serial', retries: 0 })
 
 test.describe('Revalidate on view', () => {
   /**
-   * **This is currently broken, and it is the most consequential thing this suite found.**
-   *
-   * The freshness endpoint correctly detects the correction and answers 200, and the client
-   * correctly calls `router.refresh()` — but the reader never sees the corrected forecast, because
-   * by then the page is a 404.
-   *
-   * `/[center]/forecasts/avalanche/[zone]` is `dynamicParams = false`. When the handler calls
-   * `revalidateTag` and Next drops the prerendered entry, Next will not regenerate that path on
-   * demand: the request falls through to the `[center]/[...segments]` catch-all, which has no
-   * Payload page for it, answers 404, and caches that. Every zone sharing the revalidated forecast
-   * or weather tag goes with it.
-   *
-   * So the mechanism that exists to deliver a corrected or withdrawn forecast removes it instead.
-   * Reproducible without Playwright: `pnpm e2e:build`, confirm the four Sawtooth zones answer 200,
-   * `curl` the freshness endpoint for one of them, and watch two of them become 404s.
-   *
-   * Left as `fixme` rather than fixed here: the remedy is a change to how the forecast route is
-   * generated and what happens to an unknown zone, which belongs to the page rather than to its
-   * test suite.
+   * The whole point of row X5, and the assertion that caught the zone route being unable to
+   * regenerate after a tag revalidation — which turned a correction into a ~70s 404 on every zone
+   * sharing the revalidated forecast or weather tag. It is `dynamicParams` on that route that
+   * makes this pass; if this starts failing again, check there first.
    */
-  test.fixme('a correction reaches the reader without a reload', async ({ page }) => {
+  test('a correction reaches the reader without a reload', async ({ page }) => {
     await stubExternalAssets(page)
+    // Armed before navigating: RevalidateOnView fires once on mount and never again, and hydration
+    // can finish before `page.goto` returns — a wait registered afterwards would miss it outright.
+    const freshnessCheck = page.waitForResponse(
+      (response) => response.url().includes('forecast-freshness') && response.status() === 200,
+    )
     await loadPage(page, FRESHNESS_URL)
 
     // The prerendered page carries the build-phase product.
     await expect(page.getByText('We are closed for the season')).toBeVisible()
 
-    await page.waitForResponse(
-      (response) => response.url().includes('forecast-freshness') && response.status() === 200,
-    )
+    await freshnessCheck
 
     // ...and the router refresh should re-render the server component with the corrected one.
     await expect(page.getByText('isolated new snow instabilities')).toBeVisible()
@@ -57,9 +50,11 @@ test.describe('Revalidate on view', () => {
 
   test('an unchanged product answers 304 and leaves the page alone', async ({ page }) => {
     await stubExternalAssets(page)
+    // Armed before navigating, for the same reason as above.
+    const freshnessCheck = page.waitForResponse((r) => r.url().includes('forecast-freshness'))
     await loadPage(page, STABLE_URL)
 
-    const response = await page.waitForResponse((r) => r.url().includes('forecast-freshness'))
+    const response = await freshnessCheck
     expect(response.status()).toBe(304)
 
     await expect(page.getByText(/Refer to the Galena Summit & Eastern Mtns forecast/)).toBeVisible()
