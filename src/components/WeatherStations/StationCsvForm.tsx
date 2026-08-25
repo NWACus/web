@@ -6,23 +6,24 @@ import { useEffect, useRef, useState } from 'react'
 
 type Datalogger = { stid: string; label: string }
 
-type RecaptchaRenderParams = {
+type TurnstileRenderParams = {
   sitekey: string
   callback: () => void
   'expired-callback': () => void
+  'error-callback': () => void
 }
 
 declare global {
   interface Window {
-    grecaptcha?: { render: (container: HTMLElement, params: RecaptchaRenderParams) => number }
-    csvRecaptchaOnload?: () => void
+    turnstile?: { render: (container: HTMLElement, params: TurnstileRenderParams) => string }
+    csvTurnstileOnload?: () => void
   }
 }
 
 // Rendered explicitly: api.js only auto-scans on its first execution, which
 // breaks widgets remounted by client-side navigation. The solved token
-// submits with the form as a hidden g-recaptcha-response input.
-function RecaptchaWidget({
+// submits with the form as a hidden cf-turnstile-response input.
+function TurnstileWidget({
   siteKey,
   onChange,
 }: {
@@ -37,24 +38,25 @@ function RecaptchaWidget({
   useEffect(() => {
     const renderWidget = () => {
       const container = containerRef.current
-      if (renderedRef.current || !container || !window.grecaptcha) return
+      if (renderedRef.current || !container || !window.turnstile) return
       renderedRef.current = true
-      window.grecaptcha.render(container, {
+      window.turnstile.render(container, {
         sitekey: siteKey,
         callback: () => onChangeRef.current(true),
         'expired-callback': () => onChangeRef.current(false),
+        'error-callback': () => onChangeRef.current(false),
       })
     }
-    if (window.grecaptcha) renderWidget()
-    else window.csvRecaptchaOnload = renderWidget
+    if (window.turnstile) renderWidget()
+    else window.csvTurnstileOnload = renderWidget
     return () => {
-      delete window.csvRecaptchaOnload
+      delete window.csvTurnstileOnload
     }
   }, [siteKey])
 
   return (
     <>
-      <Script src="https://www.google.com/recaptcha/api.js?onload=csvRecaptchaOnload&render=explicit" />
+      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=csvTurnstileOnload&render=explicit" />
       <div ref={containerRef} />
     </>
   )
@@ -91,7 +93,7 @@ export function StationCsvForm({
   dataloggers: Datalogger[]
   years: number[]
 }) {
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
   const [captchaSolved, setCaptchaSolved] = useState(!siteKey)
 
   return (
@@ -120,7 +122,7 @@ export function StationCsvForm({
           <option value="metric">Metric</option>
         </FormSelect>
       </div>
-      {siteKey && <RecaptchaWidget siteKey={siteKey} onChange={setCaptchaSolved} />}
+      {siteKey && <TurnstileWidget siteKey={siteKey} onChange={setCaptchaSolved} />}
       <button
         type="submit"
         disabled={!captchaSolved}
