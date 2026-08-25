@@ -1,10 +1,10 @@
 'use client'
 
-import { Expand, Play } from 'lucide-react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { MediaLightbox } from './MediaLightbox'
+import { MediaOverlay } from './MediaOverlay'
 import { collectEmbeddedMedia, type EmbeddedMedia } from './embeddedMedia'
 
 /** Marks a figure with its position in the lightbox, so a delegated click can resolve the index. */
@@ -84,7 +84,7 @@ export function DiscussionBody({ html }: DiscussionBodyProps) {
 
       {media.map((item, index) =>
         createPortal(
-          <EmbeddedMediaOverlay item={item} onOpen={() => openAt(index)} />,
+          <MediaOverlay isVideo={item.isVideo} onOpen={() => openAt(index)} />,
           item.iconTarget,
           String(index),
         ),
@@ -123,32 +123,3 @@ const AuthoredHtml = memo(function AuthoredHtml({
     />
   )
 })
-
-/**
- * The affordances the legacy widget drew over an embedded figure: an expand chip in the bottom-left
- * corner, and a play button centered on a video.
- *
- * Only the chip is a real button. That is what makes the figure reachable by keyboard — the legacy
- * widget was click-only — while leaving the rest of the poster untouched, so right-clicking an image
- * still opens the image's own context menu. The legacy icons were `pointer-events: none` for the
- * same reason; mouse users reach the lightbox by clicking the figure, which the wrapper handles.
- */
-function EmbeddedMediaOverlay({ item, onOpen }: { item: EmbeddedMedia; onOpen: () => void }) {
-  return (
-    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      {item.isVideo && (
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60">
-          <Play className="h-7 w-7 fill-white text-white" />
-        </span>
-      )}
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-label={item.isVideo ? 'Play embedded video' : 'Expand embedded image'}
-        className="pointer-events-auto absolute bottom-1 left-1 rounded bg-white/70 p-1 text-gray-800 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <Expand className="h-4 w-4" />
-      </button>
-    </span>
-  )
-}

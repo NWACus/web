@@ -88,7 +88,7 @@ sig = "d292e1dfe3736640"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/testing.md"
-sig = "d3412df1012a8046"
+sig = "abf09b4de88ca814"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -146,16 +146,6 @@ target = "src/utilities/groupProvidersByState.ts"
 sig = "c2d746542027696d"
 
 [[bindings]]
-doc = "docs/agents/triage-labels.md"
-target = ".github/workflows/pr-visual-recap.yml"
-sig = "564c0ea050a68e81"
-
-[[bindings]]
-doc = "docs/claude-github-issues.md"
-target = ".github/workflows/claude.yml"
-sig = "92802f251746884e"
-
-[[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/route.ts"
 sig = "7a7f7b8e3909a277"
@@ -191,9 +181,19 @@ target = "src/services/nac/sources/types.ts"
 sig = "003ff75b0e6ac502"
 
 [[bindings]]
+doc = "docs/agents/triage-labels.md"
+target = ".github/workflows/pr-visual-recap.yml"
+sig = "564c0ea050a68e81"
+
+[[bindings]]
+doc = "docs/claude-github-issues.md"
+target = ".github/workflows/claude.yml"
+sig = "92802f251746884e"
+
+[[bindings]]
 doc = "docs/coding-guide.md"
 target = "jest.config.mjs"
-sig = "b1d9736649cf9b6a"
+sig = "93856d4c3ca3e5cd"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -708,7 +708,7 @@ sig = "d3800c363de12669"
 [[bindings]]
 doc = "docs/testing.md"
 target = "jest.config.mjs"
-sig = "b1d9736649cf9b6a"
+sig = "93856d4c3ca3e5cd"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"

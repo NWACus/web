@@ -5,6 +5,7 @@
  * components then only render, and stay well under the complexity thresholds.
  */
 import { MediaType, type MediaItem } from '@/services/nac/model/forecast'
+import { getVideoThumbnail } from '@/utilities/videoEmbed'
 
 /** The small square shown in the thumbnail grid, or `null` if this item has no thumbnail. */
 export function getThumbnailUrl(item: MediaItem): string | null {
@@ -12,7 +13,23 @@ export function getThumbnailUrl(item: MediaItem): string | null {
   if (item.type === MediaType.Photo) return typeof item.url === 'string' ? item.url : null
   if (item.type === MediaType.Video) {
     if (typeof item.url === 'object' && 'thumbnail' in item.url) return item.url.thumbnail
-    return null
+    return youTubePoster(item)
+  }
+  return null
+}
+
+/**
+ * The mid-size still to show inline, or `null` if there isn't one.
+ *
+ * This is the size the widget asks for when it shows a problem's example media, and for a video it
+ * is the poster frame rather than the video itself.
+ */
+export function getPosterUrl(item: MediaItem): string | null {
+  if (item.type === MediaType.Image) return item.url.medium
+  if (item.type === MediaType.Photo) return typeof item.url === 'string' ? item.url : null
+  if (item.type === MediaType.Video) {
+    if (typeof item.url === 'object' && 'medium' in item.url) return item.url.medium
+    return youTubePoster(item)
   }
   return null
 }
@@ -24,11 +41,24 @@ export function getFullUrl(item: MediaItem): string | null {
   return null
 }
 
-/** Extract the YouTube `video_id` from a Video media item. */
+/**
+ * Extract the YouTube `video_id` from a Video media item.
+ *
+ * A video's `url` is usually an object carrying image sizes plus `video_id`, but the AFP also
+ * stores it as a bare string — and that string is the YouTube id, not a URL. The legacy widget
+ * reads both (`image.url?.video_id ? … : "…/embed/" + image.url`).
+ */
 export function getYouTubeVideoId(item: MediaItem): string | null {
   if (item.type !== MediaType.Video) return null
-  if (typeof item.url === 'object' && 'video_id' in item.url) return item.url.video_id
+  if (typeof item.url === 'string') return item.url || null
+  if ('video_id' in item.url) return item.url.video_id
   return null
+}
+
+/** YouTube's own poster frame, for a video item that carries no image sizes of its own. */
+function youTubePoster(item: MediaItem): string | null {
+  const id = getYouTubeVideoId(item)
+  return id ? getVideoThumbnail({ provider: 'youtube', id }) : null
 }
 
 export function getCaption(item: MediaItem): string | null {
