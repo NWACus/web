@@ -28,6 +28,7 @@ import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from 
 import { ViewPageButton as ViewPageButton_5587abba969d5f30cb1f479b0a70bb80 } from '@/collections/Pages/components/ViewPageButton'
 import { DuplicatePageFor as DuplicatePageFor_8f1d8961a356bec6784e5c591c016925 } from '@/collections/Pages/components/DuplicatePageFor'
 import { ViewPostButton as ViewPostButton_c85c9ca228f12030489338b3f3f7139d } from '@/collections/Posts/components/ViewPostButton'
+import { DescriptionWithCharCount as DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b } from '@/components/DescriptionWithCharCount'
 import { InitialTimezoneSetter as InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643 } from '@/fields/startAndEndDateField/components/InitialTimezoneSetter'
 import { CourseTypeField as CourseTypeField_348fff62462d32a00f93a0ac5be86e99 } from '@/collections/Courses/components/CourseTypeField'
 import { UserStatusCell as UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee } from '@/collections/Users/components/UserStatusCell'
@@ -95,6 +96,7 @@ export const importMap = {
   "@/collections/Pages/components/ViewPageButton#ViewPageButton": ViewPageButton_5587abba969d5f30cb1f479b0a70bb80,
   "@/collections/Pages/components/DuplicatePageFor#DuplicatePageFor": DuplicatePageFor_8f1d8961a356bec6784e5c591c016925,
   "@/collections/Posts/components/ViewPostButton#ViewPostButton": ViewPostButton_c85c9ca228f12030489338b3f3f7139d,
+  "@/components/DescriptionWithCharCount#DescriptionWithCharCount": DescriptionWithCharCount_4674dac41783437cfe61c23a5fed911b,
   "@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter": InitialTimezoneSetter_dd8e8082c690d540f5c5f13991e25643,
   "@/collections/Courses/components/CourseTypeField#CourseTypeField": CourseTypeField_348fff62462d32a00f93a0ac5be86e99,
   "@/collections/Users/components/UserStatusCell#UserStatusCell": UserStatusCell_bcfd328e5e7c9f1261310753bec8f6ee,

@@ -805,7 +805,7 @@ export interface Event {
    */
   subtitle?: string | null;
   /**
-   * Short description/summary for event previews
+   * Short description/summary for event previews.
    */
   description?: string | null;
   startDate: string;
