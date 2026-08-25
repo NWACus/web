@@ -1,7 +1,7 @@
 import { getStationGroup } from '@/constants/weatherStations'
-import { passesCaptcha } from '@/services/recaptcha'
 import { buildStationCsv } from '@/services/snowobs/csv'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
+import { passesCaptcha } from '@/services/turnstile'
 import { TZDate } from '@date-fns/tz'
 
 const TZ = 'America/Vancouver'
@@ -37,7 +37,7 @@ export async function GET(request: Request, { params }: Args) {
   if (units !== 'imperial' && units !== 'metric') {
     return new Response('Invalid units', { status: 400 })
   }
-  if (!(await passesCaptcha(url.searchParams.get('g-recaptcha-response')))) {
+  if (!(await passesCaptcha(url.searchParams.get('cf-turnstile-response')))) {
     return new Response('Captcha verification failed', { status: 403 })
   }
 

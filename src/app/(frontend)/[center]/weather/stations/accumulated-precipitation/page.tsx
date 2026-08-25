@@ -7,10 +7,11 @@ import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 
-// Rendered per request: prerendering would call SnowObs at build time, where
-// SNOWOBS_TOKEN isn't available (the [center] layout's generateStaticParams
-// otherwise forces static generation). The fetch Data Cache still dedups
-// upstream calls to one per window, matching the legacy 5-minute cadence.
+// Rendered per request (the [center] layout's generateStaticParams otherwise forces
+// static generation). This predates the token move and is now stricter than the
+// sibling station page, which prerenders the same upstream with revalidate = 600;
+// worth reconciling. The fetch Data Cache still dedups upstream calls to one per
+// window, matching the legacy 5-minute cadence.
 export const dynamic = 'force-dynamic'
 const REVALIDATE_SECONDS = 300
 
