@@ -91,6 +91,9 @@ export interface Config {
     globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
     tenants: Tenant;
+    stationGroups: StationGroup;
+    stationRegions: StationRegion;
+    stations: Station;
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
@@ -144,6 +147,9 @@ export interface Config {
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    stationGroups: StationGroupsSelect<false> | StationGroupsSelect<true>;
+    stationRegions: StationRegionsSelect<false> | StationRegionsSelect<true>;
+    stations: StationsSelect<false> | StationsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -2115,6 +2121,115 @@ export interface GlobalRole {
   createdAt: string;
 }
 /**
+ * The weather station pages, and which loggers and columns each one shows.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationGroups".
+ */
+export interface StationGroup {
+  id: number;
+  tenant: number | Tenant;
+  displayName: string;
+  /**
+   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
+  slug: string;
+  /**
+   * Old nwac.us /weatherdata/<slug>/now/ path, kept so redirects can be built.
+   */
+  legacySlug?: string | null;
+  /**
+   * Which heading this page appears under on the index.
+   */
+  region: number | StationRegion;
+  /**
+   * Every logger this page covers, in tables, graphs and downloads alike.
+   */
+  stations: (number | Station)[];
+  /**
+   * The NOW table, one row per reading. Graphs are separate: every station is offered all 12 presets and the ones with no data hide themselves, so battery voltage charts without being a column here.
+   */
+  tableColumns?:
+    | {
+        variable:
+          | 'air_temp'
+          | 'relative_humidity'
+          | 'wind_speed_min'
+          | 'wind_speed'
+          | 'wind_gust'
+          | 'wind_direction'
+          | 'precip_accum_one_hour'
+          | 'snow_depth_24h'
+          | 'snow_depth'
+          | 'intermittent_snow'
+          | 'solar_radiation'
+          | 'pressure'
+          | 'equip_temperature';
+        /**
+         * Which loggers report this reading, in the order the columns appear.
+         */
+        stations: (number | Station)[];
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
+   */
+  archived?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Groups the weather station index. Ordered by rank, north to south.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationRegions".
+ */
+export interface StationRegion {
+  id: number;
+  tenant: number | Tenant;
+  name: string;
+  /**
+   * Auto-generated from name. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
+  slug: string;
+  /**
+   * Lower sorts first. Existing regions run north to south.
+   */
+  rank: number;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Data loggers, synced from SnowObs. Read-only: which readings appear where is decided on each station group.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stations".
+ */
+export interface Station {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * SnowObs station id.
+   */
+  stid: string;
+  /**
+   * The SnowObs source this station came from.
+   */
+  source: string;
+  name?: string | null;
+  elevation?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  weatherStationPartner?: string | null;
+  lastSyncedAt?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
@@ -3020,6 +3135,20 @@ export interface Setting {
      */
     hashtag?: string | null;
   };
+  snowobs?: {
+    /**
+     * SnowObs source name. Not necessarily the center's slug.
+     */
+    source?: string | null;
+    /**
+     * Issued by SnowObs. Stored encrypted.
+     */
+    token?: string | null;
+    /**
+     * Makes /weather/stations live based on station regions.
+     */
+    weatherPagesEnabled?: boolean | null;
+  };
   terms?: (number | null) | Page;
   privacy?: (number | null) | Page;
   contentHash?: string | null;
@@ -3321,6 +3450,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenants';
         value: number | Tenant;
+      } | null)
+    | ({
+        relationTo: 'stationGroups';
+        value: number | StationGroup;
+      } | null)
+    | ({
+        relationTo: 'stationRegions';
+        value: number | StationRegion;
+      } | null)
+    | ({
+        relationTo: 'stations';
+        value: number | Station;
       } | null)
     | ({
         relationTo: 'navigations';
@@ -4296,6 +4437,60 @@ export interface TenantsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationGroups_select".
+ */
+export interface StationGroupsSelect<T extends boolean = true> {
+  tenant?: T;
+  displayName?: T;
+  slug?: T;
+  legacySlug?: T;
+  region?: T;
+  stations?: T;
+  tableColumns?:
+    | T
+    | {
+        variable?: T;
+        stations?: T;
+        id?: T;
+      };
+  archived?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationRegions_select".
+ */
+export interface StationRegionsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  slug?: T;
+  rank?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stations_select".
+ */
+export interface StationsSelect<T extends boolean = true> {
+  tenant?: T;
+  stid?: T;
+  source?: T;
+  name?: T;
+  elevation?: T;
+  latitude?: T;
+  longitude?: T;
+  weatherStationPartner?: T;
+  lastSyncedAt?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations_select".
  */
 export interface NavigationsSelect<T extends boolean = true> {
@@ -4818,6 +5013,13 @@ export interface SettingsSelect<T extends boolean = true> {
         linkedin?: T;
         youtube?: T;
         hashtag?: T;
+      };
+  snowobs?:
+    | T
+    | {
+        source?: T;
+        token?: T;
+        weatherPagesEnabled?: T;
       };
   terms?: T;
   privacy?: T;

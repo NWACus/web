@@ -27,6 +27,9 @@ import { RoleAssignments } from '@/collections/RoleAssignments'
 import { Roles } from '@/collections/Roles'
 import { Settings } from '@/collections/Settings'
 import { Sponsors } from '@/collections/Sponsors'
+import { StationGroups } from '@/collections/StationGroups'
+import { StationRegions } from '@/collections/StationRegions'
+import { Stations } from '@/collections/Stations'
 import { Tags } from '@/collections/Tags'
 import { Teams } from '@/collections/Teams'
 import { Tenants } from '@/collections/Tenants'
@@ -187,6 +190,10 @@ export default buildConfig({
     GlobalRoles,
     GlobalRoleAssignments,
     Tenants,
+    // Weather
+    StationGroups,
+    StationRegions,
+    Stations,
     // Settings
     Navigations,
     Settings,

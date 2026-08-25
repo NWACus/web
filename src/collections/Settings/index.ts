@@ -1,3 +1,4 @@
+import { byGlobalRole } from '@/access/byGlobalRole'
 import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
@@ -6,6 +7,7 @@ import { getTenantFilter } from '@/utilities/collectionFilters'
 import { validatePhone } from '@/utilities/validatePhone'
 import { CollectionConfig, Field, TextFieldValidation } from 'payload'
 import { text } from 'payload/shared'
+import { syncStationsNow } from './endpoints/syncStationsNow'
 import { revalidateSettings } from './hooks/revalidateSettings'
 
 const validateHashtag: TextFieldValidation = (value, args) => {
@@ -287,6 +289,84 @@ const socialMediaFields: Field[] = [
   },
 ]
 
+// SnowObs supplies this center's weather station data. `weatherPagesEnabled`
+// is what publishes /weather/stations, replacing the hardcoded tenant check.
+const snowobsFields: Field[] = [
+  {
+    name: 'snowobs',
+    label: '', // single-group tab, grouped for API response organization
+    type: 'group',
+    fields: [
+      {
+        type: 'row',
+        fields: [
+          {
+            type: 'group',
+            label: false,
+            admin: { width: '70%', hideGutter: true },
+            fields: [
+              {
+                name: 'source',
+                type: 'text',
+                admin: {
+                  description: "SnowObs source name. Not necessarily the center's slug.",
+                },
+              },
+              {
+                // Encrypted
+                name: 'token',
+                type: 'text',
+                access: {
+                  read: byGlobalRole('read', 'settings'),
+                  update: byGlobalRole('update', 'settings'),
+                },
+                admin: { description: 'Issued by SnowObs. Stored encrypted.' },
+                hooks: {
+                  beforeChange: [({ value, req }) => (value ? req.payload.encrypt(value) : value)],
+                  afterRead: [({ value, req }) => (value ? req.payload.decrypt(value) : value)],
+                },
+              },
+            ],
+          },
+          {
+            type: 'group',
+            label: false,
+            admin: { width: '30%', hideGutter: true, className: 'snowobs-controls' },
+            fields: [
+              {
+                name: 'syncStations',
+                type: 'ui',
+                admin: {
+                  components: {
+                    Field:
+                      '@/collections/Settings/components/SyncStationsButton#SyncStationsButton',
+                  },
+                },
+              },
+              {
+                type: 'group',
+                label: 'Features',
+                admin: { width: '30%', hideGutter: true },
+                fields: [
+                  {
+                    name: 'weatherPagesEnabled',
+                    type: 'checkbox',
+                    label: 'Weather station pages',
+                    defaultValue: false,
+                    admin: {
+                      description: 'Makes /weather/stations live based on station regions.',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]
+
 export const Settings: CollectionConfig = {
   slug: 'settings',
   access: accessByTenantRole('settings'),
@@ -298,6 +378,13 @@ export const Settings: CollectionConfig = {
     baseListFilter: filterByTenant,
     group: 'Settings',
   },
+  endpoints: [
+    {
+      path: '/:id/sync-stations',
+      method: 'post',
+      handler: syncStationsNow,
+    },
+  ],
   hooks: {
     afterChange: [revalidateSettings],
   },
@@ -330,6 +417,11 @@ export const Settings: CollectionConfig = {
           description:
             'Add links to your social media accounts to have the icon appear in the footer. Leave the field blank if you do not want the icon to show.',
           fields: socialMediaFields,
+        },
+        {
+          label: 'SnowObs',
+          description: 'Weather station data for this center. Disabled if left empty.',
+          fields: snowobsFields,
         },
         {
           label: 'Legal Policies',
