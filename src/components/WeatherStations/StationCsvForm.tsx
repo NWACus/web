@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react'
 import Script from 'next/script'
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent, ReactNode, RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 type Datalogger = { stid: string; label: string }
@@ -16,7 +16,10 @@ type TurnstileRenderParams = {
 
 declare global {
   interface Window {
-    turnstile?: { render: (container: HTMLElement, params: TurnstileRenderParams) => string }
+    turnstile?: {
+      render: (container: HTMLElement, params: TurnstileRenderParams) => string
+      reset: (widgetId: string) => void
+    }
     csvTurnstileOnload?: () => void
   }
 }
@@ -27,21 +30,21 @@ declare global {
 function TurnstileWidget({
   siteKey,
   onChange,
+  idRef,
 }: {
   siteKey: string
   onChange: (solved: boolean) => void
+  idRef: RefObject<string | null>
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const renderedRef = useRef(false)
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
 
   useEffect(() => {
     const renderWidget = () => {
       const container = containerRef.current
-      if (renderedRef.current || !container || !window.turnstile) return
-      renderedRef.current = true
-      window.turnstile.render(container, {
+      if (idRef.current !== null || !container || !window.turnstile) return
+      idRef.current = window.turnstile.render(container, {
         sitekey: siteKey,
         callback: () => onChangeRef.current(true),
         'expired-callback': () => onChangeRef.current(false),
@@ -53,7 +56,7 @@ function TurnstileWidget({
     return () => {
       delete window.csvTurnstileOnload
     }
-  }, [siteKey])
+  }, [siteKey, idRef])
 
   return (
     <>
@@ -104,14 +107,19 @@ function formParams(form: HTMLFormElement): URLSearchParams {
 }
 
 async function downloadCsv(url: string, filename: string): Promise<void> {
-  const response = await fetch(url)
+  // no-store: the URL repeats exactly, and a re-download should see new observations.
+  const response = await fetch(url, { cache: 'no-store' })
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   const objectUrl = URL.createObjectURL(await response.blob())
   const anchor = document.createElement('a')
   anchor.href = objectUrl
   anchor.download = filename
+  // Firefox only follows a click on an anchor that is in the document, and
+  // revoking in the same tick can cancel the save.
+  document.body.appendChild(anchor)
   anchor.click()
-  URL.revokeObjectURL(objectUrl)
+  anchor.remove()
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 0)
 }
 
 export function StationCsvForm({
@@ -127,7 +135,16 @@ export function StationCsvForm({
   const [captchaSolved, setCaptchaSolved] = useState(!siteKey)
   const [downloading, setDownloading] = useState(false)
   const [failed, setFailed] = useState(false)
+  const widgetIdRef = useRef<string | null>(null)
   const action = `/weather/stations/${slug}/csv`
+
+  // A Turnstile token is single-use, so every attempt costs the current solve.
+  function rearmCaptcha() {
+    const widgetId = widgetIdRef.current
+    if (widgetId === null || !window.turnstile) return
+    window.turnstile.reset(widgetId)
+    setCaptchaSolved(false)
+  }
 
   // Fetched rather than submitted so the wait for a year of data has a spinner.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -142,6 +159,7 @@ export function StationCsvForm({
       setFailed(true)
     } finally {
       setDownloading(false)
+      rearmCaptcha()
     }
   }
 
@@ -150,6 +168,7 @@ export function StationCsvForm({
       method="get"
       action={action}
       onSubmit={handleSubmit}
+      onChange={() => setFailed(false)}
       className="flex min-h-96 flex-col items-start gap-4"
     >
       <div className="flex flex-wrap items-end gap-3">
@@ -172,7 +191,9 @@ export function StationCsvForm({
           <option value="metric">Metric</option>
         </FormSelect>
       </div>
-      {siteKey && <TurnstileWidget siteKey={siteKey} onChange={setCaptchaSolved} />}
+      {siteKey && (
+        <TurnstileWidget siteKey={siteKey} onChange={setCaptchaSolved} idRef={widgetIdRef} />
+      )}
       <DownloadButton downloading={downloading} disabled={!captchaSolved || downloading} />
       {failed && (
         <p role="alert" className="text-sm text-destructive">

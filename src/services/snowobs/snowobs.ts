@@ -7,10 +7,9 @@ import type { SnowObsTimeseriesResponse } from './types/schemas'
 import { snowObsTimeseriesResponseSchema } from './types/schemas'
 
 const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
+// Doubles as the center slug whose AFP config carries the token; #1169 splits the
+// two when a second center gets these pages.
 const NWAC_SOURCE = 'nwac'
-// The center whose AFP config carries the token. Today it doubles as the SnowObs
-// source name; #1169 splits the two when a second center gets these pages.
-const TOKEN_CENTER_SLUG = 'nwac'
 
 export class SnowObsError extends Error {
   constructor(
@@ -42,10 +41,10 @@ type FetchOptions = {
 // The token lives in the center's AFP config (`widget_config.stations.token`), the same
 // public token the legacy nwac.us widgets use. It is the only source — no env override.
 async function resolveSnowObsToken(): Promise<string> {
-  const metadata = await getAvalancheCenterMetadata(TOKEN_CENTER_SLUG)
+  const metadata = await getAvalancheCenterMetadata(NWAC_SOURCE)
   const token = metadata.widget_config.stations?.token
   if (!token) {
-    throw new SnowObsError(`No SnowObs token in the AFP config for ${TOKEN_CENTER_SLUG}`)
+    throw new SnowObsError(`No SnowObs token in the AFP config for ${NWAC_SOURCE}`)
   }
   return token
 }

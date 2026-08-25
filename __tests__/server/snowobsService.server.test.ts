@@ -7,11 +7,11 @@ jest.mock('payload', () => ({
   getPayload: jest.fn(),
 }))
 
+const getMetadataMock = jest.fn()
 jest.mock('../../src/services/nac/nac', () => ({
-  getAvalancheCenterMetadata: jest.fn(),
+  getAvalancheCenterMetadata: () => getMetadataMock(),
 }))
 
-import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { fetchStationTimeseries, SnowObsError } from '@/services/snowobs/snowobs'
 import type { SnowObsTimeseriesResponse } from '@/services/snowobs/types/schemas'
 import type { Payload } from 'payload'
@@ -41,12 +41,7 @@ afterAll(() => server.close())
 
 // Only `widget_config.stations.token` is read; the rest of the center metadata is irrelevant here.
 function mockAfpToken(token: string | undefined): void {
-  jest.mocked(getAvalancheCenterMetadata).mockResolvedValue(
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    { widget_config: { stations: token ? { token } : {} } } as unknown as Awaited<
-      ReturnType<typeof getAvalancheCenterMetadata>
-    >,
-  )
+  getMetadataMock.mockResolvedValue({ widget_config: { stations: token ? { token } : {} } })
 }
 
 function captureTokenParam(): string[] {
