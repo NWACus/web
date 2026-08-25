@@ -53,7 +53,7 @@ sig = "3b94c50c9ccc0ad2"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "e61915d15256e77c"
+sig = "ff5d3fe541e1dfad"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -438,7 +438,7 @@ sig = "1109f2020067761a"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "next.config.js"
-sig = "55ebf596f3a7449e"
+sig = "e75049700ee0b009"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -553,7 +553,7 @@ sig = "a4824faf89f4051e"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.js"
-sig = "55ebf596f3a7449e"
+sig = "e75049700ee0b009"
 
 [[bindings]]
 doc = "docs/onboarding.md"

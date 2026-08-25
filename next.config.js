@@ -108,10 +108,11 @@ const configWithSentry = withSentryConfig(configWithPayload, {
   automaticVercelMonitors: true,
 })
 
-// The mocked E2E build is a production build, but it must not carry Sentry: the SDK's
-// OpenTelemetry module instrumentation is loaded even when reporting is disabled, and it has been
-// observed racing this app's async server chunks into intermittent 5xx. See
+// The mocked E2E build is a production build, but it must not carry Sentry: the SDK's module
+// instrumentation is loaded even when reporting is disabled, and it does not co-exist with the
+// harness's MSW preload — both hook module loading, and together they produce intermittent 5xx.
+// Only the mocked build is affected; production has no preload. See
 // docs/afp-products/e2e-mocks.md.
-export default process.env.NODE_ENV === 'production' && !process.env.E2E_MOCK_ROLE
+export default process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_E2E_MOCK_ROLE
   ? configWithSentry
   : configWithPayload

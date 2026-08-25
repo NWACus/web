@@ -50,7 +50,11 @@ function run(command, extraNodeOptions = []) {
       NEXT_DIST_DIR: DIST_DIR,
       // NEXT_PHASE is not set yet in the build's parent process when the preload runs, so the
       // preload cannot infer its own role. Say it explicitly.
-      E2E_MOCK_ROLE: mode,
+      //
+      // NEXT_PUBLIC_ so it survives into the client bundle: `sentry-base-config.ts` is imported by
+      // `src/instrumentation-client.ts` too, and Next inlines only NEXT_PUBLIC_ vars there. Without
+      // the prefix the browser SDK reads it as `undefined` and stays enabled in this build.
+      NEXT_PUBLIC_E2E_MOCK_ROLE: mode,
       NAC_HOST: 'http://nac.e2e-mock.invalid',
       AFP_HOST: 'http://afp.e2e-mock.invalid',
       PORT: port,

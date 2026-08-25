@@ -8,10 +8,10 @@
  *
  * The corpus lives in a different repo, in a different language, and the CI container has no
  * checkout of it — so the honest interim is a committed snapshot plus a per-file sha256 manifest.
- * `--check` makes that snapshot tamper-evident: it runs in CI and pre-commit and fails if a
- * vendored "golden" no longer matches what was recorded, so a fixture cannot be quietly edited
- * into saying what a test wants. The intended end state is an npm package published from
- * products-api CI; see docs/afp-products/e2e-mocks.md.
+ * `--check` makes that snapshot tamper-evident: it runs in CI and fails if a vendored "golden" no
+ * longer matches what was recorded, so a fixture cannot be quietly edited into saying what a test
+ * wants. The intended end state is an npm package published from products-api CI; see
+ * docs/afp-products/e2e-mocks.md.
  *
  *   AFP_PRODUCTS_API_PATH=/path/to/products-api node scripts/e2e/sync-afp-golden.mjs
  *   node scripts/e2e/sync-afp-golden.mjs --check

@@ -71,6 +71,15 @@ export function mockServerProblems(port: string): string[] {
     if (build.buildId !== buildId) {
       problems.push(`${distDir} holds a different build than the one recorded as mocked.`)
     }
+    // What the running server booted from, not what is on disk now. The check above cannot see
+    // this: a rebuild rewrites build.json and BUILD_ID together, so a server still serving the
+    // previous build agrees with both — and `reuseExistingServer` will happily hand it to us.
+    if (active.buildId !== buildId) {
+      problems.push(
+        `The mocked server is serving build ${String(active.buildId)}, but ${distDir} now holds ` +
+          `${String(buildId)}. Stop it (kill ${String(active.pid)}) and re-run.`,
+      )
+    }
     if (build.scenariosSha !== expected) {
       problems.push('The mocked build predates the current scenarios.json. Rebuild it.')
     }

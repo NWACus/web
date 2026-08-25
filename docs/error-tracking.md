@@ -15,7 +15,9 @@ Init per runtime: server ([`sentry.server.config.ts`](../sentry.server.config.ts
 
 `next.config.js` wraps the build in `withSentryConfig` **only when `NODE_ENV === 'production'**` — `org: 'nwac'`, `project: 'avy-web'`, source-map upload, and `tunnelRoute: '/monitoring'` to route SDK requests past ad blockers. `serverExternalPackages` + a `webpack.ignoreWarnings` entry suppress harmless Sentry/OpenTelemetry import warnings.
 
-One exception: the mocked E2E build (`E2E_MOCK_ROLE`) skips `withSentryConfig` entirely. It is a production build, so it would otherwise report every synthetic failure the suite provokes to the real project — and, more importantly, the SDK's OpenTelemetry module instrumentation is loaded even when reporting is disabled, and was observed racing this app's async server chunks into intermittent 5xx from the Payload API. See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md).
+One exception: the mocked E2E build (`NEXT_PUBLIC_E2E_MOCK_ROLE`) skips `withSentryConfig` entirely. It is a production build, so it would otherwise report every synthetic failure the suite provokes to the real project — and, more importantly, the SDK's module instrumentation is loaded even when reporting is disabled, and does not co-exist with the E2E harness's MSW preload — the two together produce intermittent 5xx from the Payload API. That is an interaction between the two, not a production problem: a normal production build carries Sentry without the preload and does not reproduce it. See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md).
+
+The `NEXT_PUBLIC_` prefix on that flag is load-bearing, not habit. `sentry-base-config.ts` is imported by the browser copy of the SDK too ([`src/instrumentation-client.ts`](../src/instrumentation-client.ts)), and Next inlines only `NEXT_PUBLIC_` variables into the client bundle — an unprefixed flag reads as `undefined` there, leaving `enabled` true and the browser SDK reporting from the E2E run. The same mechanism is why `environment` is always `'local'` client-side.
 
 Because the SDK keys off production, it won't report from `pnpm dev`; run a local prod build (`pnpm dev:prod`) to exercise it.
 

@@ -50,7 +50,7 @@ if (!globalThis[INSTALLED]) {
   }
 
   // Playwright's globalSetup reads this to refuse to run against an unmocked server.
-  if (process.env.E2E_MOCK_ROLE === 'start') {
+  if (process.env.NEXT_PUBLIC_E2E_MOCK_ROLE === 'start') {
     const scenarios = readFileSync(join(repoRoot, '__tests__/e2e/mocks/scenarios.json'))
     mkdirSync(stateDir, { recursive: true })
     writeFileSync(
@@ -59,8 +59,24 @@ if (!globalThis[INSTALLED]) {
         pid: process.pid,
         port: process.env.PORT,
         distDir: process.env.NEXT_DIST_DIR,
+        // The build THIS server is about to serve, read before Next boots. Comparing the two
+        // on-disk records instead would prove nothing: a rebuild rewrites both, so a server left
+        // running from the previous build still looks current. `reuseExistingServer` makes that
+        // the likely case, not the exotic one.
+        buildId: readBuildId(),
         scenariosSha: createHash('sha256').update(scenarios).digest('hex'),
       }),
     )
+  }
+}
+
+function readBuildId() {
+  try {
+    return readFileSync(
+      join(repoRoot, process.env.NEXT_DIST_DIR ?? '.next', 'BUILD_ID'),
+      'utf8',
+    ).trim()
+  } catch {
+    return null
   }
 }
