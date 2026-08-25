@@ -12,6 +12,7 @@ function forecast(overrides: Partial<MwfPublicForecast> = {}): MwfPublicForecast
     issuance: 'morning',
     serviceDate: '2026-08-25',
     issuedAt: '2026-08-25T14:00:00.000Z',
+    createdAt: '2026-08-25T13:00:00.000Z',
     revision: 1,
     isCorrection: false,
     body: {

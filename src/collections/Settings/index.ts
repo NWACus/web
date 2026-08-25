@@ -283,6 +283,19 @@ const mwfFields: Field[] = [
               },
             ],
           },
+          {
+            type: 'row',
+            fields: [
+              {
+                name: 'nacZoneIds',
+                type: 'text',
+                admin: {
+                  description:
+                    'NAC forecast-zone id(s) this MWF zone serves in the legacy app API, comma-separated (e.g. 1645)',
+                },
+              },
+            ],
+          },
         ],
       },
       {

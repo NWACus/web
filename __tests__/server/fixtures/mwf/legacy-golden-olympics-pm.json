@@ -1,0 +1,124 @@
+{
+ "meta": {
+  "limit": 1,
+  "next": null,
+  "offset": 0,
+  "previous": null,
+  "total_count": 1
+ },
+ "objects": {
+  "five_thousand_foot_temperatures": [
+   {
+    "min": 30,
+    "max": 31
+   },
+   {
+    "min": 31,
+    "max": 35
+   }
+  ],
+  "forecaster": {
+   "first_name": "Robert",
+   "last_name": "Hahn"
+  },
+  "mountain_weather_forecast": {
+   "id": 4178,
+   "creation_date": "2026-02-01 20:41:11",
+   "publish_date": "2026-02-01 22:15:15",
+   "published": 1,
+   "day1_date": "2026-02-01",
+   "forecaster_id": 46,
+   "special_header_notes": "<p>The NWAC program is administered by the USDA-Forest Service and operates from the National Weather Service Forecast Office in Seattle. NWAC services are made possible by important collaboration and support from a wide variety of federal, state and private cooperators.</p>",
+   "synopsis_day1_day2": "<p>The round of storms that started toward the end of January continues through the first 3 days of February, but the dreaded ridge returns by Tuesday.&nbsp;</p>\r\n\r\n<p>An upper trough lifting NE over the region keeps post-frontal shower activity going through the evening hours. Expect mostly light rain and snow showers to gradually decrease, with only a subtle drop in snow levels (to around 4500 ft) relative to peak warming Sunday afternoon. Attention shifts to Skagit and Whatcom counties during this time as a locally heavy band of convergence brings higher precipitation rates at times around Mt Baker, the Skagit Valley, and perhaps as far east as Washington Pass. It&#39;s not exactly certain where these narrow bands of snowfall will set up, but they could lower snow levels by 1000 ft and provide some brief higher snowfall rates (1-2&quot; per hour).</p>\r\n\r\n<p>While southern areas get a brief break in the action through early Monday, the next frontal system spreads into the area early in the day, increasing mostly light rain and snow into the central and northern Washington Cascades. Light to moderate rain and snow expand into the southern Washington Cascades and intensify slightly in the afternoon. Snow levels rise from around 3000-4000 ft in the morning up to 4000-5500 ft in the afternoon, with some uncertainty in the degree of warming as the moisture moves over an expanding ridge. Our best estimate is that mid-levels warm first, shifting the temperature profile isothermally before temperatures rise a few degrees and the profiles turn to rain around noon to 2 PM with the frontal passage. Post-frontal showers continue through the evening hours as a ridge expands from the south. Unfortunately, the precipitation ends warm, with the last vestiges of moisture bringing rain to the upper elevations.</p>\r\n\r\n<p>The expanding ridge will bring dry weather and sunshine to the region on Tuesday, with freezing levels at 8000-11,000 ft.</p>",
+   "extended_synopsis": "<p>An expansive ridge of high pressure will be centered over the Great Basin, with enough breadth to maintain a dominant influence through Thursday as it strengthens. Freezing levels rise to 11,500-12,500 ft by Thursday. Expect a cold pool to form and gradually strengthen with E flow through the mountain gaps, keeping low levels cooler.</p>",
+   "deleted": 0,
+   "skip_extended_forecast": 0,
+   "afternoon": 1
+  },
+  "periods": [
+   "Sunday Night",
+   "Monday"
+  ],
+  "precipitation_by_location": [
+   {
+    "id": 1,
+    "name": "Hurricane Ridge",
+    "order": 1,
+    "zone_id": 1,
+    "datalogger_id": 4,
+    "active": 1,
+    "station_id_name": "HUR53",
+    "precipitation": [
+     {
+      "value": "LT 0.10"
+     },
+     {
+      "value": "LT 0.25"
+     }
+    ]
+   }
+  ],
+  "published_datetime": "2:15 PM PST Sunday, February 1, 2026",
+  "sap_zone_name": "Olympics",
+  "snow_levels": [
+   {
+    "elevation": 4500
+   },
+   {
+    "elevation": 4000
+   },
+   {
+    "elevation": 4500
+   },
+   {
+    "elevation": 5500
+   }
+  ],
+  "sub_periods": [
+   "Evening",
+   "Overnight",
+   "Morning",
+   "Afternoon"
+  ],
+  "ridgeline_winds": [
+   {
+    "direction": "SW",
+    "speed": "10-20"
+   },
+   {
+    "direction": "SSW",
+    "speed": "5-15"
+   },
+   {
+    "direction": "S",
+    "speed": "10-20"
+   },
+   {
+    "direction": "WSW",
+    "speed": "10-20"
+   }
+  ],
+  "weather_forecasts": [
+   {
+    "id": 67467,
+    "date": "2026-02-01",
+    "time_of_day": "4-night",
+    "end_date": null,
+    "end_time_of_day": null,
+    "description": "Occasional light rain and snow showers.",
+    "mountain_weather_region_id": 28891
+   },
+   {
+    "id": 67477,
+    "date": "2026-02-02",
+    "time_of_day": "0-notspec",
+    "end_date": null,
+    "end_time_of_day": null,
+    "description": "Light to moderate rain and snow. Warming trend. Increasing moderate ridgeline winds.",
+    "mountain_weather_region_id": 28891
+   }
+  ],
+  "zone_name": "Olympics",
+  "zone_slug": "olympics"
+ }
+}

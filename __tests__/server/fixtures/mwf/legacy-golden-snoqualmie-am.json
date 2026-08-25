@@ -1,0 +1,124 @@
+{
+ "meta": {
+  "limit": 1,
+  "next": null,
+  "offset": 0,
+  "previous": null,
+  "total_count": 1
+ },
+ "objects": {
+  "five_thousand_foot_temperatures": [
+   {
+    "min": 31,
+    "max": 34
+   },
+   {
+    "min": 30,
+    "max": 32
+   }
+  ],
+  "forecaster": {
+   "first_name": "Robert",
+   "last_name": "Hahn"
+  },
+  "mountain_weather_forecast": {
+   "id": 4177,
+   "creation_date": "2026-02-01 14:55:39",
+   "publish_date": "2026-02-01 15:10:47",
+   "published": 1,
+   "day1_date": "2026-02-01",
+   "forecaster_id": 46,
+   "special_header_notes": "<p>The NWAC program is administered by the USDA-Forest Service and operates from the National Weather Service Forecast Office in Seattle. NWAC services are made possible by important collaboration and support from a wide variety of federal, state and private cooperators.</p>",
+   "synopsis_day1_day2": "<p>A moisture-laden frontal system moves over the region on Sunday as an offshore trough rotates NE into Canada. Snow levels will oscillate in the 4000-5000 ft range with the potential for E flow to drag snow levels locally lower in the passes during the morning hours or create spotty freezing rain. Precipitation will be moderate in intensity early in the day, with greater emphasis on the volcanoes, then light to moderate, increasingly showery, and more focused on the passes as moderate ridgeline winds shift from SSW to WSW by the afternoon, and snow levels will be slightly lower.</p>\r\n\r\n<p>Mostly light rain and snow showers gradually decrease with only a subtle drop in snow levels during the evening hours. Attention shifts to Skagit and Whatcom counties during this time as a locally heavy band of convergence brings higher precipitation rates to the Mt Baker area. It&#39;s not exactly certain where this will set up.</p>\r\n\r\n<p>While southern areas get a brief break in the action through early Monday, the next frontal system spreads, increasing mostly light rain and snow into the central Washington Cascades early in the day. Light to moderate rain and snow expand into the southern Washington Cascades and intensify slightly in the afternoon. Snow levels rise from around 3000-4000 ft in the morning up to 3500-5000 ft in the afternoon, with some uncertainty in the degree of warming as the moisture moves over an expanding ridge.</p>",
+   "extended_synopsis": "",
+   "deleted": 0,
+   "skip_extended_forecast": 1,
+   "afternoon": 0
+  },
+  "periods": [
+   "Sunday",
+   "Sunday Night"
+  ],
+  "precipitation_by_location": [
+   {
+    "id": 5,
+    "name": "Snoqualmie Pass",
+    "order": 5,
+    "zone_id": 3,
+    "datalogger_id": 21,
+    "active": 1,
+    "station_id_name": "SNO30",
+    "precipitation": [
+     {
+      "value": "0.50 - 0.75"
+     },
+     {
+      "value": "LT 0.25"
+     }
+    ]
+   }
+  ],
+  "published_datetime": "7:10 AM PST Sunday, February 1, 2026",
+  "sap_zone_name": "Snoqualmie Pass",
+  "snow_levels": [
+   {
+    "elevation": 5000
+   },
+   {
+    "elevation": 4500
+   },
+   {
+    "elevation": 4500
+   },
+   {
+    "elevation": 4000
+   }
+  ],
+  "sub_periods": [
+   "Morning",
+   "Afternoon",
+   "Evening",
+   "Overnight"
+  ],
+  "ridgeline_winds": [
+   {
+    "direction": "SSE",
+    "speed": "5-15"
+   },
+   {
+    "direction": "WSW",
+    "speed": "15-25"
+   },
+   {
+    "direction": "W",
+    "speed": "15-25"
+   },
+   {
+    "direction": "WSW",
+    "speed": "5-15"
+   }
+  ],
+  "weather_forecasts": [
+   {
+    "id": 67457,
+    "date": "2026-02-01",
+    "time_of_day": "0-notspec",
+    "end_date": null,
+    "end_time_of_day": null,
+    "description": "Moderate rain and snow, with a chance of patchy freezing rain early. Increasing light to moderate ridgeline winds. Light to moderate E wind at the Pass shifts W by 10 AM.",
+    "mountain_weather_region_id": 28886
+   },
+   {
+    "id": 67458,
+    "date": "2026-02-01",
+    "time_of_day": "4-night",
+    "end_date": null,
+    "end_time_of_day": null,
+    "description": "Decreasing light rain and snow showers. Light to moderate ridgeline and mostly light W wind at the Pass.",
+    "mountain_weather_region_id": 28886
+   }
+  ],
+  "zone_name": "Snoqualmie Pass",
+  "zone_slug": "snoqualmiepass"
+ }
+}

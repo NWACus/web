@@ -497,16 +497,51 @@ export const seed = async ({
         },
         mwf: {
           zones: [
-            { code: 'olympics', name: 'Olympics', airfireZoneId: 'ol' },
-            { code: 'west-slopes-north', name: 'West Slopes North', airfireZoneId: 'wn' },
-            { code: 'west-slopes-central', name: 'West Slopes Central', airfireZoneId: 'wc' },
-            { code: 'west-slopes-south', name: 'West Slopes South', airfireZoneId: 'ws' },
-            { code: 'stevens-pass', name: 'Stevens Pass', airfireZoneId: 'st' },
-            { code: 'snoqualmie-pass', name: 'Snoqualmie Pass', airfireZoneId: 'sn' },
-            { code: 'east-slopes-north', name: 'East Slopes North', airfireZoneId: 'en' },
-            { code: 'east-slopes-central', name: 'East Slopes Central', airfireZoneId: 'ec' },
-            { code: 'east-slopes-south', name: 'East Slopes South', airfireZoneId: 'es' },
-            { code: 'mt-hood', name: 'Mt Hood', airfireZoneId: 'hd' },
+            { code: 'olympics', name: 'Olympics', airfireZoneId: 'ol', nacZoneIds: '1645' },
+            {
+              code: 'west-slopes-north',
+              name: 'West Slopes North',
+              airfireZoneId: 'wn',
+              nacZoneIds: '1646',
+            },
+            {
+              code: 'west-slopes-central',
+              name: 'West Slopes Central',
+              airfireZoneId: 'wc',
+              nacZoneIds: '1647',
+            },
+            {
+              code: 'west-slopes-south',
+              name: 'West Slopes South',
+              airfireZoneId: 'ws',
+              nacZoneIds: '1648',
+            },
+            { code: 'stevens-pass', name: 'Stevens Pass', airfireZoneId: 'st', nacZoneIds: '1649' },
+            {
+              code: 'snoqualmie-pass',
+              name: 'Snoqualmie Pass',
+              airfireZoneId: 'sn',
+              nacZoneIds: '1653',
+            },
+            {
+              code: 'east-slopes-north',
+              name: 'East Slopes North',
+              airfireZoneId: 'en',
+              nacZoneIds: '1654',
+            },
+            {
+              code: 'east-slopes-central',
+              name: 'East Slopes Central',
+              airfireZoneId: 'ec',
+              nacZoneIds: '1655',
+            },
+            {
+              code: 'east-slopes-south',
+              name: 'East Slopes South',
+              airfireZoneId: 'es',
+              nacZoneIds: '1656',
+            },
+            { code: 'mt-hood', name: 'Mt Hood', airfireZoneId: 'hd', nacZoneIds: '1657' },
           ],
           points: [
             {

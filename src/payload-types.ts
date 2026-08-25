@@ -3114,6 +3114,10 @@ export interface Setting {
            * Airfire zone id used to fetch temperature and wind model guidance for this zone
            */
           airfireZoneId?: string | null;
+          /**
+           * NAC forecast-zone id(s) this MWF zone serves in the legacy app API, comma-separated (e.g. 1645)
+           */
+          nacZoneIds?: string | null;
           id?: string | null;
         }[]
       | null;
@@ -5019,6 +5023,7 @@ export interface SettingsSelect<T extends boolean = true> {
               code?: T;
               name?: T;
               airfireZoneId?: T;
+              nacZoneIds?: T;
               id?: T;
             };
         points?:
