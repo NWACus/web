@@ -805,7 +805,7 @@ export interface Event {
    */
   subtitle?: string | null;
   /**
-   * Short description/summary for event previews. Limit 200 characters.
+   * Short description/summary for event previews.
    */
   description?: string | null;
   startDate: string;

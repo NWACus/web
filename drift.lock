@@ -413,7 +413,7 @@ sig = "9a76604864fb2062"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/collections/Events/index.ts"
-sig = "eecdd23c65b0a949"
+sig = "503d44a24861e245"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
