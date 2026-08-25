@@ -2,6 +2,7 @@ import {
   displayableMedia,
   getCaption,
   getFullUrl,
+  getPosterUrl,
   getThumbnailUrl,
   getYouTubeVideoId,
   resolveMediaSlide,
@@ -101,8 +102,33 @@ describe('getYouTubeVideoId', () => {
     expect(getYouTubeVideoId(linkOnlyVideo)).toBeNull()
   })
 
+  it('reads a bare url string as the video id, as the legacy widget does', () => {
+    const bareId: MediaItem = { type: MediaType.Video, url: '784O9k5_-fc', caption: null }
+    expect(getYouTubeVideoId(bareId)).toBe('784O9k5_-fc')
+  })
+
   it('returns null for non-video kinds', () => {
     expect(getYouTubeVideoId(imageItem())).toBeNull()
+  })
+})
+
+describe('getPosterUrl', () => {
+  it('uses the medium size for an image, which is what the widget asks for inline', () => {
+    expect(getPosterUrl(imageItem())).toBe('https://example.test/medium.jpg')
+  })
+
+  it('uses the video’s own poster frame when it has one', () => {
+    expect(getPosterUrl(youTubeItem())).toBe('https://example.test/medium.jpg')
+  })
+
+  it('falls back to YouTube’s poster for a video that is only an id', () => {
+    const bareId: MediaItem = { type: MediaType.Video, url: '784O9k5_-fc', caption: null }
+    expect(getPosterUrl(bareId)).toBe('https://i.ytimg.com/vi/784O9k5_-fc/hqdefault.jpg')
+  })
+
+  it('has nothing to show for an external link or a PDF', () => {
+    expect(getPosterUrl(externalItem())).toBeNull()
+    expect(getPosterUrl(pdfItem())).toBeNull()
   })
 })
 

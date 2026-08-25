@@ -3,34 +3,6 @@ import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 
-// jsdom supplies none of these: react-zoom-pan-pinch (behind the lightbox's zoomable photo)
-// constructs a ResizeObserver on mount, and embla-carousel needs matchMedia and an
-// IntersectionObserver when the lightbox opens.
-beforeAll(() => {
-  class NoopObserver {
-    readonly root = null
-    readonly rootMargin = ''
-    readonly thresholds: number[] = []
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-    takeRecords(): IntersectionObserverEntry[] {
-      return []
-    }
-  }
-  global.ResizeObserver = NoopObserver
-  global.IntersectionObserver = NoopObserver
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: (query: string) => ({
-      matches: false,
-      media: query,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    }),
-  })
-})
-
 // Verbatim markup from the live NAC v2 API. Sources: BTAC 184960, SNFAC 109444, TAC 181191.
 const IMAGE_FIGURE =
   '<figure class="image afp-photoswipe">\n<div class="afp-image-container"><img style="width: 700px; height: auto;" src="https://media.test/snowfall-large.png" alt=""></div>\n<figcaption>Snowfall totals</figcaption>\n</figure>'
