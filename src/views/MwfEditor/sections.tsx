@@ -17,6 +17,7 @@ import {
   qpfOverPrecise,
   zoneBlockQpf,
   type ForecastPoint,
+  type SerializedForecast,
   type Zone,
 } from '@/utilities/mwf/mwfData'
 import { LevelCell, NumberCell, WindDirCell } from './cells'
@@ -27,6 +28,44 @@ export interface SectionProps {
   points: ForecastPoint[]
   extendedZones: Zone[]
   mutate: (fn: (fc: MwfForecast) => void) => void
+  // The previous issuance's body re-anchored to this forecast's Day 1 — the
+  // Prev reference column. Absent on the first-ever forecast.
+  previousBody?: Partial<SerializedForecast> | null
+  previousLabel?: string | null
+}
+
+// A guidance/Prev reference value: click to fill the entry cell. `matched`
+// highlights an entered value that equals the reference (entered zeros
+// excluded), so divergence from guidance is visible at a glance.
+function Chip({
+  label,
+  value,
+  matched,
+  onFill,
+}: {
+  label: string
+  value: string
+  matched: boolean
+  onFill: () => void
+}) {
+  return (
+    <button
+      type="button"
+      title={`${label}: click to fill`}
+      onClick={onFill}
+      className={`rounded border px-1 text-[11px] tabular-nums ${
+        matched ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40' : 'opacity-80'
+      }`}
+    >
+      {label} {value}
+    </button>
+  )
+}
+
+const entered = (v: number | string | null | undefined): number | null => {
+  if (v == null || v === '') return null
+  const n = Number(v)
+  return Number.isFinite(n) ? n : null
 }
 
 const PERIOD_BY_KEY = Object.fromEntries(PERIODS.map((p) => [p.key, p]))
@@ -55,7 +94,17 @@ function Section({
   )
 }
 
-export function PrecipGrid({ forecast, zones, points, mutate }: SectionProps) {
+export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: SectionProps) {
+  // Column fill: every model title present in any of this period's cells.
+  const titlesFor = (periodKey: string): string[] => {
+    const titles = new Set<string>()
+    points.forEach((pt) => {
+      Object.keys(forecast.precip[pt.code]?.[periodKey]?.guidance ?? {}).forEach((t) =>
+        titles.add(t),
+      )
+    })
+    return Array.from(titles)
+  }
   const periods = periodsFor(forecast.meta.type)
   const zoneName = new Map(zones.map((z) => [z.id, z.name]))
   return (
@@ -75,6 +124,43 @@ export function PrecipGrid({ forecast, zones, points, mutate }: SectionProps) {
                   </div>
                   <div className="text-xs font-normal opacity-70">
                     {per.kind === 'night' ? 'Night' : 'Day'} · QPF / SLR / Snow
+                  </div>
+                  <div className="mt-0.5 flex flex-wrap justify-center gap-1">
+                    {titlesFor(per.key).map((title) => (
+                      <button
+                        key={title}
+                        type="button"
+                        title={`Fill every point's ${per.short} QPF from ${title}`}
+                        className="rounded border px-1 text-[10px] font-normal"
+                        onClick={() =>
+                          mutate((fc) => {
+                            points.forEach((pt) => {
+                              const g = fc.precip[pt.code][per.key].guidance[title]
+                              if (g != null) fc.precip[pt.code][per.key].qpf = g
+                            })
+                          })
+                        }
+                      >
+                        ⇩ {title}
+                      </button>
+                    ))}
+                    {previousBody && (
+                      <button
+                        type="button"
+                        title={`Fill every point's ${per.short} QPF from the previous forecast`}
+                        className="rounded border px-1 text-[10px] font-normal"
+                        onClick={() =>
+                          mutate((fc) => {
+                            points.forEach((pt) => {
+                              const prev = entered(previousBody.precip?.[pt.code]?.[per.key]?.qpf)
+                              if (prev != null) fc.precip[pt.code][per.key].qpf = prev
+                            })
+                          })
+                        }
+                      >
+                        ⇩ Prev
+                      </button>
+                    )}
                   </div>
                 </th>
               ))}
@@ -121,6 +207,42 @@ export function PrecipGrid({ forecast, zones, points, mutate }: SectionProps) {
                           <span className="min-w-10 text-right text-xs tabular-nums opacity-80">
                             {snow == null ? '–' : `${snow}"`}
                           </span>
+                        </div>
+                        <div className="mt-0.5 flex flex-wrap gap-1">
+                          {Object.entries(cell.guidance).map(([title, value]) => (
+                            <Chip
+                              key={title}
+                              label={title}
+                              value={String(value)}
+                              matched={entered(cell.qpf) === value && value !== 0}
+                              onFill={() =>
+                                mutate((fc) => {
+                                  fc.precip[pt.code][per.key].qpf = value
+                                })
+                              }
+                            />
+                          ))}
+                          {entered(previousBody?.precip?.[pt.code]?.[per.key]?.qpf) != null && (
+                            <Chip
+                              label="Prev"
+                              value={String(
+                                entered(previousBody?.precip?.[pt.code]?.[per.key]?.qpf),
+                              )}
+                              matched={
+                                entered(cell.qpf) ===
+                                  entered(previousBody?.precip?.[pt.code]?.[per.key]?.qpf) &&
+                                entered(cell.qpf) !== 0
+                              }
+                              onFill={() =>
+                                mutate((fc) => {
+                                  const prev = entered(
+                                    previousBody?.precip?.[pt.code]?.[per.key]?.qpf,
+                                  )
+                                  if (prev != null) fc.precip[pt.code][per.key].qpf = prev
+                                })
+                              }
+                            />
+                          )}
                         </div>
                       </td>
                     )
@@ -169,13 +291,39 @@ function levelHeader(forecast: MwfForecast, blockKey: string, period: string) {
   }
 }
 
-export function SnowLevelTable({ forecast, zones, points, mutate }: SectionProps) {
+export function SnowLevelTable({
+  forecast,
+  zones,
+  points,
+  mutate,
+  previousBody,
+  previousLabel,
+}: SectionProps) {
   const blocks = blocksFor(forecast.meta.type)
   return (
     <Section
       title="Snow & Freezing Level"
       hint="Zone-scale, 6-hour blocks, nearest 500 ft (arrow keys step). The snow/freezing designation auto-sets from precip — click it to override."
     >
+      {previousBody?.snowLevel && (
+        <button
+          type="button"
+          className="mb-2 rounded border px-2 py-0.5 text-xs"
+          title={previousLabel ? `Copy this table from the ${previousLabel} forecast` : undefined}
+          onClick={() =>
+            mutate((fc) => {
+              zones.forEach((z) => {
+                Object.keys(fc.snowLevel[z.id] ?? {}).forEach((bk) => {
+                  const prev = entered(previousBody.snowLevel?.[z.id]?.[bk]?.freezing)
+                  if (prev != null) fc.snowLevel[z.id][bk].freezing = prev
+                })
+              })
+            })
+          }
+        >
+          Copy all from previous
+        </button>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full border-separate border-spacing-0 text-sm">
           <thead>
@@ -216,6 +364,26 @@ export function SnowLevelTable({ forecast, zones, points, mutate }: SectionProps
                             })
                           }
                         />
+                        {entered(previousBody?.snowLevel?.[z.id]?.[b.key]?.freezing) != null && (
+                          <Chip
+                            label="Prev"
+                            value={String(
+                              entered(previousBody?.snowLevel?.[z.id]?.[b.key]?.freezing),
+                            )}
+                            matched={
+                              entered(cell.freezing) ===
+                              entered(previousBody?.snowLevel?.[z.id]?.[b.key]?.freezing)
+                            }
+                            onFill={() =>
+                              mutate((fc) => {
+                                const prev = entered(
+                                  previousBody?.snowLevel?.[z.id]?.[b.key]?.freezing,
+                                )
+                                if (prev != null) fc.snowLevel[z.id][b.key].freezing = prev
+                              })
+                            }
+                          />
+                        )}
                         <button
                           type="button"
                           title="Toggle snow vs freezing designation"
@@ -299,7 +467,7 @@ export function ExtendedSnowLevelTable({ forecast, extendedZones, mutate }: Sect
   )
 }
 
-export function TempTable({ forecast, zones, mutate }: SectionProps) {
+export function TempTable({ forecast, zones, mutate, previousBody }: SectionProps) {
   const periods = periodsFor(forecast.meta.type)
   return (
     <Section
@@ -363,6 +531,42 @@ export function TempTable({ forecast, zones, mutate }: SectionProps) {
                           }
                         />
                       </div>
+                      <div className="mt-0.5 flex flex-wrap gap-1">
+                        {Object.entries(cell.guidance).map(([title, v]) => (
+                          <Chip
+                            key={title}
+                            label={title}
+                            value={`${v.high}/${v.low}`}
+                            matched={
+                              entered(cell.high) === v.high &&
+                              entered(cell.low) === v.low &&
+                              !(v.high === 0 && v.low === 0)
+                            }
+                            onFill={() =>
+                              mutate((fc) => {
+                                fc.temps[z.id][per.key].high = v.high
+                                fc.temps[z.id][per.key].low = v.low
+                              })
+                            }
+                          />
+                        ))}
+                        {previousBody?.temps?.[z.id]?.[per.key] &&
+                          entered(previousBody.temps[z.id][per.key].high) != null && (
+                            <Chip
+                              label="Prev"
+                              value={`${previousBody.temps[z.id][per.key].high}/${previousBody.temps[z.id][per.key].low}`}
+                              matched={false}
+                              onFill={() =>
+                                mutate((fc) => {
+                                  const prev = previousBody.temps?.[z.id]?.[per.key]
+                                  if (!prev) return
+                                  fc.temps[z.id][per.key].high = entered(prev.high)
+                                  fc.temps[z.id][per.key].low = entered(prev.low)
+                                })
+                              }
+                            />
+                          )}
+                      </div>
                     </td>
                   )
                 })}
@@ -375,7 +579,7 @@ export function TempTable({ forecast, zones, mutate }: SectionProps) {
   )
 }
 
-export function WindTable({ forecast, zones, mutate }: SectionProps) {
+export function WindTable({ forecast, zones, mutate, previousBody }: SectionProps) {
   const blocks = blocksFor(forecast.meta.type)
   return (
     <Section
@@ -426,6 +630,39 @@ export function WindTable({ forecast, zones, mutate }: SectionProps) {
                             })
                           }
                         />
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap gap-1">
+                        {Object.entries(cell.guidance).map(([title, v]) => (
+                          <Chip
+                            key={title}
+                            label={title}
+                            value={`${v.dir} ${v.speed}`}
+                            matched={
+                              cell.dir === v.dir && entered(cell.speed) === v.speed && v.speed !== 0
+                            }
+                            onFill={() =>
+                              mutate((fc) => {
+                                fc.wind[z.id][b.key].dir = v.dir
+                                fc.wind[z.id][b.key].speed = v.speed
+                              })
+                            }
+                          />
+                        ))}
+                        {previousBody?.wind?.[z.id]?.[b.key]?.dir && (
+                          <Chip
+                            label="Prev"
+                            value={`${previousBody.wind[z.id][b.key].dir} ${previousBody.wind[z.id][b.key].speed}`}
+                            matched={false}
+                            onFill={() =>
+                              mutate((fc) => {
+                                const prev = previousBody.wind?.[z.id]?.[b.key]
+                                if (!prev) return
+                                fc.wind[z.id][b.key].dir = prev.dir
+                                fc.wind[z.id][b.key].speed = entered(prev.speed)
+                              })
+                            }
+                          />
+                        )}
                       </div>
                     </td>
                   )

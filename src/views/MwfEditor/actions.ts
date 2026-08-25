@@ -6,8 +6,11 @@
 // the ordinary tenant-role RBAC.
 import { byTenantRole } from '@/access/byTenantRole'
 import type { MwfForecast as MwfForecastDoc, Setting } from '@/payload-types'
+import { isStale, type GuidanceArtifact } from '@/services/mwf/guidance'
+import { loadCached, refreshGuidance, type GuidanceTable } from '@/services/mwf/guidanceCache'
 import {
   SerializedForecast,
+  airfireCodeMap,
   emptyExtendedSnowLevel,
   emptyForecast,
   hydrateForecast,
@@ -206,7 +209,12 @@ export interface LoadedForecast {
     zones: { id: string; name: string }[]
     points: { code: string; name: string; zone: string; lat: number | null; lng: number | null }[]
     extendedZoneIds: string[]
+    airfireCodeMap: Record<string, string>
   }
+  // The newest visible forecast other than this one, its body re-anchored to
+  // this forecast's Day 1 — feeds the Prev reference column.
+  previousBody: Partial<SerializedForecast> | null
+  previousLabel: string | null
 }
 
 export async function loadForecastAction(
@@ -222,6 +230,23 @@ export async function loadForecastAction(
   })
   const doc = docs[0]
   if (!doc) return { error: 'Forecast not found' }
+
+  const zones = zonesFromSettings(auth.mwfConfig.zones ?? [])
+  const points = pointsFromSettings(auth.mwfConfig.points ?? [])
+  let previousBody: Partial<SerializedForecast> | null = null
+  let previousLabel: string | null = null
+  const previous = await getCurrentVisible(auth.payload, { tenantId: auth.tenantId })
+  if (previous && previous.id !== doc.id && previous.body) {
+    const scaffold = emptyForecast(zones, points, previous.issuance)
+    scaffold.extendedSnowLevel = emptyExtendedSnowLevel(zones)
+    scaffold.meta.initialDate = previous.serviceDate
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    hydrateForecast(scaffold, previous.body as Partial<SerializedForecast>)
+    scaffold.meta.initialDate = previous.serviceDate
+    previousBody = serializeForecast(shiftBodyToAnchor(scaffold, doc.serviceDate))
+    previousLabel = `${previous.serviceDate} ${previous.issuance}`
+  }
+
   return {
     forecast: {
       id: doc.id,
@@ -234,10 +259,13 @@ export async function loadForecastAction(
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       body: (doc.body ?? null) as Partial<SerializedForecast> | null,
       config: {
-        zones: zonesFromSettings(auth.mwfConfig.zones ?? []),
-        points: pointsFromSettings(auth.mwfConfig.points ?? []),
+        zones,
+        points,
         extendedZoneIds: (auth.mwfConfig.extendedSnowLevelZones ?? []).map((r) => r.zoneCode),
+        airfireCodeMap: airfireCodeMap(auth.mwfConfig.zones ?? []),
       },
+      previousBody,
+      previousLabel,
     },
   }
 }
@@ -296,4 +324,36 @@ export async function publishForecastAction(
   const doc = await publishDraft(auth.payload, { id, tenantId: auth.tenantId })
   if (!doc) return { error: 'Publish blocked: the slot already has an operative forecast' }
   return { published: true }
+}
+
+export interface GuidanceBundle {
+  precip: GuidanceArtifact | null
+  temps: GuidanceArtifact | null
+  winds: GuidanceArtifact | null
+  stale: boolean
+}
+
+// The tenant's cached guidance artifacts, refreshing any that are due (the
+// cron owns the schedule; this keeps a first load from being empty). The
+// bundle is stale when any table's artifact is stale or kept-last-good.
+export async function loadGuidanceAction(): Promise<GuidanceBundle | { error: string }> {
+  const auth = await authorize()
+  if ('error' in auth) return auth
+  const tables: GuidanceTable[] = ['precip', 'temps', 'winds']
+  const out: Record<string, GuidanceArtifact | null> = {}
+  for (const table of tables) {
+    try {
+      out[table] = await refreshGuidance(auth.tenantId, table, auth.mwfConfig)
+    } catch {
+      out[table] = loadCached(auth.tenantId, table)
+    }
+  }
+  const now = new Date()
+  const artifacts = tables.map((t) => out[t]).filter((a): a is GuidanceArtifact => a != null)
+  return {
+    precip: out.precip,
+    temps: out.temps,
+    winds: out.winds,
+    stale: artifacts.length === 0 || artifacts.some((a) => isStale(a, now)),
+  }
 }

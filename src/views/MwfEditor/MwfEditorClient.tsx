@@ -8,6 +8,9 @@
 // withdrawn; withdrawn forecasts are read-only.
 import {
   MwfForecast,
+  applyGuidance,
+  applyTempsGuidance,
+  applyWindsGuidance,
   emptyExtendedSnowLevel,
   emptyForecast,
   hydrateForecast,
@@ -18,8 +21,9 @@ import { Button, toast } from '@payloadcms/ui'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { LoadedForecast } from './actions'
+import type { GuidanceBundle, LoadedForecast } from './actions'
 import { publishForecastAction, removeForecastAction, saveDraftAction } from './actions'
+import { toPrecipOverlay, toTempsOverlay, toWindsOverlay } from './guidanceAdapters'
 import { PublishModal } from './PublishModal'
 import {
   Discussion,
@@ -33,7 +37,7 @@ import {
 
 export const AUTOSAVE_DEBOUNCE_MS = 1200
 
-function buildModel(initial: LoadedForecast): MwfForecast {
+function buildModel(initial: LoadedForecast, guidance: GuidanceBundle | null): MwfForecast {
   const zones = initial.config.zones
   const extendedZones = zones.filter((z) => initial.config.extendedZoneIds.includes(z.id))
   const fc = emptyForecast(zones, initial.config.points, initial.issuance)
@@ -45,14 +49,28 @@ function buildModel(initial: LoadedForecast): MwfForecast {
   hydrateForecast(fc, initial.body ?? undefined)
   fc.meta.type = initial.issuance
   fc.meta.initialDate = initial.serviceDate
+  if (guidance) {
+    const precip = toPrecipOverlay(guidance.precip)
+    if (precip) applyGuidance(fc, precip)
+    const temps = toTempsOverlay(guidance.temps)
+    if (temps) applyTempsGuidance(fc, temps, initial.config.airfireCodeMap)
+    const winds = toWindsOverlay(guidance.winds)
+    if (winds) applyWindsGuidance(fc, winds, initial.config.airfireCodeMap)
+  }
   return fc
 }
 
 type SaveState = 'saved' | 'dirty' | 'saving' | 'error'
 
-export function MwfEditorClient({ initial }: { initial: LoadedForecast }) {
+export function MwfEditorClient({
+  initial,
+  guidance,
+}: {
+  initial: LoadedForecast
+  guidance: GuidanceBundle | null
+}) {
   const router = useRouter()
-  const [forecast, setForecast] = useState<MwfForecast>(() => buildModel(initial))
+  const [forecast, setForecast] = useState<MwfForecast>(() => buildModel(initial, guidance))
   const [docId, setDocId] = useState(initial.id)
   const [status, setStatus] = useState(initial.status)
   const [revision, setRevision] = useState(initial.revision)
@@ -192,7 +210,15 @@ export function MwfEditorClient({ initial }: { initial: LoadedForecast }) {
     router.push('/admin/mwf')
   }, [docId, router])
 
-  const sectionProps = { forecast, zones, points, extendedZones, mutate }
+  const sectionProps = {
+    forecast,
+    zones,
+    points,
+    extendedZones,
+    mutate,
+    previousBody: initial.previousBody,
+    previousLabel: initial.previousLabel,
+  }
   const saveLabel = {
     saved: 'Saved',
     dirty: 'Unsaved changes…',
@@ -244,6 +270,12 @@ export function MwfEditorClient({ initial }: { initial: LoadedForecast }) {
               </Button>
             </>
           )}
+          {guidance?.stale && (
+            <p className="rounded border border-amber-300 bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
+              Model guidance is stale — showing the last good run. A refresh failure never blanks
+              the working columns.
+            </p>
+          )}
           {status === 'published' && (
             <Button size="small" buttonStyle="secondary" onClick={withdraw}>
               Withdraw
@@ -252,6 +284,12 @@ export function MwfEditorClient({ initial }: { initial: LoadedForecast }) {
         </div>
       </div>
 
+      {guidance?.stale && (
+        <p className="rounded border border-amber-300 bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
+          Model guidance is stale — showing the last good run. A refresh failure never blanks the
+          working columns.
+        </p>
+      )}
       {status === 'published' && (
         <p className="rounded border border-amber-300 bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
           This revision is published and immutable — your first edit silently opens a correction

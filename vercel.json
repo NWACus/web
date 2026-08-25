@@ -1,5 +1,11 @@
 {
   "git": {
     "deploymentEnabled": false
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/refresh-mwf-guidance",
+      "schedule": "0 * * * *"
+    }
+  ]
 }

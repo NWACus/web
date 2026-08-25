@@ -7,7 +7,12 @@ import { Gutter } from '@payloadcms/ui'
 import type { PayloadRequest } from 'payload'
 import { MwfEditorClient } from './MwfEditorClient'
 import { MwfListClient } from './MwfListClient'
-import { listForecastsAction, loadForecastAction, type MwfListRow } from './actions'
+import {
+  listForecastsAction,
+  loadForecastAction,
+  loadGuidanceAction,
+  type MwfListRow,
+} from './actions'
 
 // The MWF authoring surface (embed-generator pattern: DefaultTemplate +
 // Payload UI + server actions). /admin/mwf lists the center's forecasts;
@@ -64,12 +69,18 @@ export async function MwfEditor({ initPageResult, params, searchParams }: AdminV
   if (gateMessage) {
     content = <p className="custom-view-description">{gateMessage}</p>
   } else if (forecastId) {
-    const loaded = await loadForecastAction(forecastId)
+    const [loaded, guidance] = await Promise.all([
+      loadForecastAction(forecastId),
+      loadGuidanceAction(),
+    ])
     content =
       'error' in loaded ? (
         <p className="custom-view-description">{loaded.error}</p>
       ) : (
-        <MwfEditorClient initial={loaded.forecast} />
+        <MwfEditorClient
+          initial={loaded.forecast}
+          guidance={'error' in guidance ? null : guidance}
+        />
       )
   } else {
     const list = await listForecastsAction()
