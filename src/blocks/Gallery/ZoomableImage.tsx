@@ -10,7 +10,7 @@ import {
 } from 'react-zoom-pan-pinch'
 import type { GalleryItem } from './shared'
 
-// Zoom/pan for one lightbox image; the zoom buttons live in GalleryLightbox and
+// Zoom/pan for one lightbox image; the zoom buttons live in the lightbox chrome and
 // drive this through `transformRef`.
 export const ZoomableImage = ({
   resource,
@@ -37,12 +37,15 @@ export const ZoomableImage = ({
     >
       {({ zoomIn, resetTransform, instance }) => (
         <TransformComponent
-          wrapperStyle={{ width: '100%', height: '85vh' }}
+          // The lightbox chrome decides how much room the media gets, and only at layout time, so
+          // fill the positioned parent rather than hard-coding a viewport fraction.
+          wrapperClass="absolute inset-0"
+          wrapperStyle={{ width: '100%', height: '100%' }}
           contentStyle={{ width: '100%', height: '100%' }}
         >
           <div
             className={cn(
-              'relative h-[85vh] w-full',
+              'relative h-full w-full',
               scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in',
             )}
             onPointerDown={(e) => {
