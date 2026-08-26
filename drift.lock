@@ -413,7 +413,7 @@ sig = "f36be45edf4c3ced"
 [[bindings]]
 doc = "docs/decisions/018-native-product-page-architecture.md"
 target = ".fallowrc.json"
-sig = "1cd848dd016c55be"
+sig = "db1d8d2f96d0bf65"
 
 [[bindings]]
 doc = "docs/decisions/018-native-product-page-architecture.md"

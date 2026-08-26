@@ -23,8 +23,7 @@
   ],
   "ignoreExportsUsedInFile": true,
   "duplicates": {
-    "ignore": ["**/weather/stations/**"],
-    "ignoredClones": ["dup:88eee158"]
+    "ignore": ["**/weather/stations/**"]
   },
   "ignoreExports": [
     {
