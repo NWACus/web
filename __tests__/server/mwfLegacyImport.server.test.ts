@@ -29,7 +29,7 @@ describe('stitchLegacyForecast', () => {
       serviceDate: '2026-02-01',
       issuance: 'afternoon',
       issuedAt: '2026-02-01T22:15:15Z',
-      authorName: 'Robert Hahn',
+      authorName: 'Test Forecaster',
     })
     // Temps: [{min:30,max:31},{min:31,max:35}] → n1 then d2.
     expect(out?.body.temps?.olympics?.n1).toEqual({ high: 31, low: 30 })

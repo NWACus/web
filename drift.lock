@@ -461,6 +461,46 @@ target = "src/scripts/check-migrations.ts"
 sig = "a4824faf89f4051e"
 
 [[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/scripts/import-mwf-archive.ts"
+sig = "d863d2962047c29f"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/services/mwf/guidance.ts"
+sig = "75f8e08dfb4e2b2c"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/services/products/mwf/legacyShim.ts"
+sig = "b53e86463744b14a"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/services/products/mwf/source.ts"
+sig = "42dd085089ac85be"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/utilities/mwf/chain.ts"
+sig = "cc7063daf6b08baf"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/utilities/mwf/mwfData.ts"
+sig = "a177cf091259c3a1"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/utilities/mwf/workflow.ts"
+sig = "af9927172a8be073"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/views/MwfEditor/index.tsx"
+sig = "c70c51486c7142ef"
+
+[[bindings]]
 doc = "docs/onboarding.md"
 target = "next.config.js"
 sig = "68597c16ef37fc12"

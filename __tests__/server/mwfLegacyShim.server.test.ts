@@ -155,7 +155,7 @@ describe('the shim satisfies the app contract', () => {
     const response = buildLegacyWeatherResponse({
       forecast: nativeForecast(issuance),
       zoneId: 'olympics',
-      authorName: 'Robert Hahn',
+      authorName: 'Test Forecaster',
     })
     const parsed = nwacWeatherForecastMetaSchema.safeParse(response)
     if (!parsed.success) throw parsed.error
@@ -166,7 +166,7 @@ describe('the shim satisfies the app contract', () => {
     expect(o.five_thousand_foot_temperatures).toHaveLength(2)
     expect(o.snow_levels).toHaveLength(4)
     expect(o.ridgeline_winds).toHaveLength(4)
-    expect(o.forecaster).toEqual({ first_name: 'Robert', last_name: 'Hahn' })
+    expect(o.forecaster).toEqual({ first_name: 'Test', last_name: 'Forecaster' })
     expect(o.mountain_weather_forecast.afternoon).toBe(issuance === 'afternoon')
     // Zone scoping: only the zone's own points appear.
     expect(o.precipitation_by_location.map((p) => p.name)).toEqual(['Hurricane Ridge'])
