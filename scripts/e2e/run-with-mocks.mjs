@@ -88,12 +88,14 @@ function buildIsCurrent() {
 /**
  * Fail the build if a forecast page was prerendered as a 404.
  *
- * `dynamicParams = false` means a zone missing from `generateStaticParams` renders Next's
- * not-found shell, and ISR quietly repairs it on the first request — so without this check the
- * suite could be asserting against pages that were broken at build time and only look fine
- * because a test happened to warm them first. Next records the rendered status in the `.meta`
- * file beside each prerendered route; the HTML is not a usable signal, because every page's
- * flight payload carries the not-found slot whether or not it rendered.
+ * A page whose render called `notFound()` is written out as Next's not-found shell, and ISR
+ * quietly repairs it on the first request — so without this check the suite could be asserting
+ * against pages that were broken at build time and only look fine because a test happened to warm
+ * them first. The zone route reaches `notFound()` on its own now (an unresolvable zone slug, a
+ * center that does not publish forecasts), which is exactly the kind of build-time breakage worth
+ * catching here. Next records the rendered status in the `.meta` file beside each prerendered
+ * route; the HTML is not a usable signal, because every page's flight payload carries the
+ * not-found slot whether or not it rendered.
  */
 function assertNoNotFoundShells() {
   const shells = []

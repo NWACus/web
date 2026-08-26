@@ -203,7 +203,7 @@ sig = "98f18249dbc9f3f5"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "scripts/e2e/run-with-mocks.mjs"
-sig = "69d5369fb3d7c93b"
+sig = "c2a17a169268f41a"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
