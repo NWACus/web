@@ -1,6 +1,6 @@
-import { Lightbox, LightboxSlide } from '@/components/Lightbox'
+import { Lightbox, LightboxSlide, useLightboxCarousel } from '@/components/Lightbox'
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
 import { createRef } from 'react'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 
@@ -100,5 +100,34 @@ describe('LightboxSlide', () => {
     const { container } = render(<LightboxSlide>media</LightboxSlide>)
     // The media area is the slide's only child, so nothing takes height from the image.
     expect(container.firstElementChild?.children).toHaveLength(1)
+  })
+})
+
+describe('useLightboxCarousel', () => {
+  // Only the four methods the hook touches; `Object.create(null)` keeps this assignable to the
+  // full embla api without a cast.
+  const carouselAt = (snap: number) =>
+    Object.assign(Object.create(null), {
+      scrollTo: jest.fn(),
+      selectedScrollSnap: () => snap,
+      on: jest.fn(),
+      off: jest.fn(),
+    })
+
+  it('opens on the slide it was asked for, ignoring the carousel from the last open', () => {
+    const { result, rerender } = renderHook(
+      ({ startIndex, open }) => useLightboxCarousel(startIndex, open),
+      { initialProps: { startIndex: 4, open: true } },
+    )
+
+    // Embla hands its api up once it boots, reporting the slide it landed on.
+    act(() => result.current.setApi(carouselAt(4)))
+    expect(result.current.index).toBe(4)
+
+    // The carousel unmounts with the lightbox but never clears that api, so reopening from a
+    // different thumbnail must not read the old slide back out of the destroyed instance.
+    rerender({ startIndex: 4, open: false })
+    rerender({ startIndex: 0, open: true })
+    expect(result.current.index).toBe(0)
   })
 })

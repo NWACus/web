@@ -38,8 +38,9 @@ export const ZoomableImage = ({
       {({ zoomIn, resetTransform, instance }) => (
         <TransformComponent
           // The lightbox chrome decides how much room the media gets, and only at layout time, so
-          // fill the positioned parent rather than hard-coding a viewport fraction.
-          wrapperClass="absolute inset-0"
+          // fill the parent instead of hard-coding a viewport fraction. It has to be an inline
+          // style: the library injects its own `.transform-component-module_wrapper` rule after
+          // Tailwind's stylesheet, and at equal specificity a utility class on the wrapper loses.
           wrapperStyle={{ width: '100%', height: '100%' }}
           contentStyle={{ width: '100%', height: '100%' }}
         >

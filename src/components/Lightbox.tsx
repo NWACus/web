@@ -118,6 +118,10 @@ export function useLightboxCarousel(startIndex: number, open: boolean) {
 
   useEffect(() => {
     if (open) setIndex(startIndex)
+    // The carousel unmounts with the lightbox but never hands back a cleared api, so drop the
+    // destroyed instance here. Otherwise the next open re-runs the effect below against it: the
+    // scroll is a no-op and the index read comes back as the previously viewed slide.
+    else setApi(undefined)
   }, [open, startIndex])
 
   useEffect(() => {
