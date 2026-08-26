@@ -84,6 +84,7 @@ export default buildConfig({
       logout: {
         Button: '@/components/LogoutButton#LogoutButton',
       },
+      afterNavLinks: ['@/components/MwfNavLink#MwfNavLink'],
       views: {
         'accept-invite-with-token': {
           Component: '@/views/AcceptInvite#AcceptInvite',

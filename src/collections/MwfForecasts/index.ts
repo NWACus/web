@@ -3,6 +3,7 @@ import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
 import { getTenantFilter } from '@/utilities/collectionFilters'
+import { hasGlobalRolePermission } from '@/utilities/rbac/hasGlobalOrTenantRolePermission'
 import { CollectionConfig, TextFieldValidation } from 'payload'
 import { enforceWorkflowInvariants, guardDelete } from './hooks/workflowGuards'
 
@@ -35,6 +36,11 @@ export const MwfForecasts: CollectionConfig = {
   admin: {
     baseListFilter: filterByTenant,
     group: 'Forecasts',
+    // Authoring happens in the custom /admin/mwf view (see the MwfNavLink nav
+    // entry). The raw collection stays reachable for super admins as a
+    // debugging surface; only global-role holders see it in the nav.
+    hidden: ({ user }) =>
+      !hasGlobalRolePermission({ method: 'update', collection: 'mwfForecasts', user }),
     useAsTitle: 'serviceDate',
     defaultColumns: ['serviceDate', 'issuance', 'status', 'revision', 'author'],
   },

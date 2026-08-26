@@ -54,6 +54,7 @@ import { AvyFxIcon as AvyFxIcon_5698f736c9797d81d0dacf1b1321e327 } from '@/compo
 import { AvyFxLogo as AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4 } from '@/components/Logo/AvyFxLogo'
 import { GlobalViewRedirect as GlobalViewRedirect_951bb27256a1a1ac886a8bd1c394c17e } from '@/components/GlobalViewRedirect'
 import { default as default_cb0ad5752e1389a2a940bb73c2c0e7d2 } from '@/components/ViewTypeAction'
+import { MwfNavLink as MwfNavLink_8ceaeb50cf0eb908820cfbf9a2c8c2d8 } from '@/components/MwfNavLink'
 import { default as default_2aead22399b7847b21b134dc4a7931e0 } from '@/components/TenantSelector/TenantSelector'
 import { TenantSelectionProvider as TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d } from '@/providers/TenantSelectionProvider'
 import { ViewTypeProvider as ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0 } from '@/providers/ViewTypeProvider'
@@ -122,6 +123,7 @@ export const importMap = {
   "@/components/Logo/AvyFxLogo#AvyFxLogo": AvyFxLogo_f711e8d8656c7552b63fe9abc7b36dc4,
   "@/components/GlobalViewRedirect#GlobalViewRedirect": GlobalViewRedirect_951bb27256a1a1ac886a8bd1c394c17e,
   "@/components/ViewTypeAction#default": default_cb0ad5752e1389a2a940bb73c2c0e7d2,
+  "@/components/MwfNavLink#MwfNavLink": MwfNavLink_8ceaeb50cf0eb908820cfbf9a2c8c2d8,
   "@/components/TenantSelector/TenantSelector#default": default_2aead22399b7847b21b134dc4a7931e0,
   "@/providers/TenantSelectionProvider#TenantSelectionProvider": TenantSelectionProvider_000be6f574298db4d640f76ae308cd1d,
   "@/providers/ViewTypeProvider#ViewTypeProvider": ViewTypeProvider_1dd5649a8d943d1e5c4f21c0e3cc22f0,
