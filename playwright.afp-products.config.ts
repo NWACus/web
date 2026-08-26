@@ -14,7 +14,7 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = process.env.E2E_MOCK_PORT || '3100'
 
 export default defineConfig({
-  testDir: './__tests__/e2e/frontend-native',
+  testDir: './__tests__/e2e/afp-products',
   testMatch: '**/*.e2e.spec.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -23,8 +23,8 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'html',
   timeout: 60000,
   expect: { timeout: 10000 },
-  globalSetup: './__tests__/e2e/frontend-native/globalSetup.ts',
-  globalTeardown: './__tests__/e2e/frontend-native/globalTeardown.ts',
+  globalSetup: './__tests__/e2e/afp-products/globalSetup.ts',
+  globalTeardown: './__tests__/e2e/afp-products/globalTeardown.ts',
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'on-first-retry',
@@ -32,7 +32,7 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'frontend-native',
+      name: 'afp-products',
       testIgnore: '**/freshness.e2e.spec.ts',
       use: { ...devices['Desktop Chrome'] },
     },
@@ -40,9 +40,9 @@ export default defineConfig({
       // Last, and on its own: the freshness path calls `revalidateTag`, which drops the cached
       // render of every page sharing those tags. They regenerate — but carrying the *corrected*
       // product, which is not what a spec that ran earlier asserted against.
-      name: 'frontend-native-freshness',
+      name: 'afp-products-freshness',
       testMatch: '**/freshness.e2e.spec.ts',
-      dependencies: ['frontend-native'],
+      dependencies: ['afp-products'],
       use: { ...devices['Desktop Chrome'] },
     },
   ],

@@ -30,7 +30,7 @@ function readJson(path: string): Record<string, unknown> | null {
   }
 }
 
-const RUN_COMMAND = 'Run `pnpm test:e2e:native`, which builds and starts the mocked server.'
+const RUN_COMMAND = 'Run `pnpm test:e2e:afp-products`, which builds and starts the mocked server.'
 
 /** Every reason the server on the configured port is not one we are willing to test against. */
 export function mockServerProblems(port: string): string[] {

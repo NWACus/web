@@ -3,7 +3,7 @@
 How the native product pages are tested end to end against a fixed, offline copy of the AFP API. The pages themselves and the data layer behind them are described in [architecture.md](architecture.md); this document covers only the test seam.
 
 ```
-pnpm test:e2e:native      # build with mocks, start, run the suite
+pnpm test:e2e:afp-products      # build with mocks, start, run the suite
 ```
 
 ## Why a preload and not `instrumentation.ts`

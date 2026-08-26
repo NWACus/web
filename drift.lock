@@ -88,7 +88,7 @@ sig = "d292e1dfe3736640"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/testing.md"
-sig = "0b5867f52e3b26b9"
+sig = "9b8808b1c372c4dc"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -187,8 +187,8 @@ sig = "c6465e7257ddec3d"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
-target = "playwright.mocked.config.ts"
-sig = "aec50723e8eddca1"
+target = "playwright.afp-products.config.ts"
+sig = "1a914a80219196fc"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"

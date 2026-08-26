@@ -231,8 +231,8 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-  e2e-native:
-    name: e2e-native
+  e2e-afp-products:
+    name: e2e-afp-products
     if: github.event_name == 'merge_group'
     environment: Preview
     runs-on: blacksmith-2vcpu-ubuntu-2404
@@ -266,12 +266,12 @@ jobs:
       # Builds against the vendored AFP goldens and runs the suite against the prerendered output.
       # No network access to the AFP API is needed or possible: the upstream hosts are .invalid.
       - name: 🧪 Run native product page E2E
-        run: pnpm test:e2e:native
+        run: pnpm test:e2e:afp-products
       - name: 📤 Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report-native
+          name: playwright-report-afp-products
           path: playwright-report/
           retention-days: 14
 

@@ -45,10 +45,10 @@ This opens an interactive window where you can select and run individual tests, 
 pnpm test:e2e                 # Run all e2e tests
 pnpm test:e2e:admin           # Run only admin project tests
 pnpm test:e2e:frontend        # Run only frontend project tests
-pnpm test:e2e:native          # Native AFP product pages, against mocked upstream data
+pnpm test:e2e:afp-products    # Native AFP product pages, against mocked upstream data
 ```
 
-`test:e2e:native` is a separate suite with its own config (`playwright.mocked.config.ts`). It builds the app against a fixed, offline copy of the AFP API and runs against the prerendered output on port 3100, so it does not share — or interfere with — the `pnpm dev` server the other projects use. It always builds first; for fast iteration on selectors, run `playwright test --config=playwright.mocked.config.ts` directly to reuse the previous build.
+`test:e2e:afp-products` is a separate suite with its own config (`playwright.afp-products.config.ts`). It builds the app against a fixed, offline copy of the AFP API and runs against the prerendered output on port 3100, so it does not share — or interfere with — the `pnpm dev` server the other projects use. It always builds first; for fast iteration on selectors, run `playwright test --config=playwright.afp-products.config.ts` directly to reuse the previous build.
 
 See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md) for how the mocking works, where the fixtures come from, and which tests are waiting on an upstream capture.
 
@@ -87,7 +87,7 @@ __tests__/e2e/
 │   └── ...                 # Other admin UI tests
 ├── frontend/               # Frontend tests (project: frontend)
 │   └── ...
-├── frontend-native/        # Native AFP product pages (playwright.mocked.config.ts)
+├── afp-products/           # Native AFP product pages (playwright.afp-products.config.ts)
 │   └── ...
 ├── mocks/                  # Upstream AFP mocks: scenario table and vendored fixtures
 │   └── ...
