@@ -50,6 +50,13 @@ pnpm test:e2e:afp-products    # Native AFP product pages, against mocked upstrea
 
 `test:e2e:afp-products` is a separate suite with its own config (`playwright.afp-products.config.ts`). It builds the app against a fixed, offline copy of the AFP API and runs against the prerendered output on port 3100, so it does not share — or interfere with — the `pnpm dev` server the other projects use. It always builds first; for fast iteration on selectors, run `playwright test --config=playwright.afp-products.config.ts` directly to reuse the previous build.
 
+The fixtures that suite runs against are vendored from the AFP products-api golden corpus and managed by two more scripts:
+
+```bash
+pnpm afp-golden:check         # verify the vendored fixtures are untampered (runs in CI)
+AFP_PRODUCTS_API_PATH=/path/to/products-api pnpm afp-golden:sync   # re-vendor from upstream
+```
+
 See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md) for how the mocking works, where the fixtures come from, and which tests are waiting on an upstream capture.
 
 To run a specific test file:

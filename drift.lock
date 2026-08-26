@@ -88,7 +88,7 @@ sig = "d292e1dfe3736640"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/testing.md"
-sig = "9b8808b1c372c4dc"
+sig = "53522536d6070ef1"
 
 [[bindings]]
 doc = "CLAUDE.md"
