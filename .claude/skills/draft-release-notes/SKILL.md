@@ -98,10 +98,13 @@ go at the top.
 
 Some PRs need a human to do something outside the deploy: add or delete an environment
 variable, run a migration, flip a flag, update DNS. Those cannot live in a bullet halfway
-down the notes — surface them in a GitHub alert directly under the intro:
+down the notes — surface them in a GitHub alert directly under the intro. The marker has to stay on its
+own line — prettier will fold it into the next one unless the block is ignored:
 
+<!-- prettier-ignore -->
 ```markdown
-> [!IMPORTANT] > **Before deploying:** add `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`
+> [!IMPORTANT]
+> **Before deploying:** add `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`
 > to Vercel (Production and Preview). `SNOWOBS_TOKEN` and the `*_RECAPTCHA_*` pair can be
 > deleted afterwards. (#1227)
 ```
@@ -133,12 +136,14 @@ Each entry: what to capture, screenshot-vs-gif, and which release line it suppor
 
 Produce a single markdown block the user can paste straight into the GitHub release body:
 
+<!-- prettier-ignore -->
 ```markdown
 <2–3 sentence intro naming the themes>
 
 > **Hero visual:** _[Add a screenshot/gif of <headline feature> here.]_
 
-> [!IMPORTANT] > **Before deploying:** <config, env var, migration or manual step> (#NNNN)
+> [!IMPORTANT]
+> **Before deploying:** <config, env var, migration or manual step> (#NNNN)
 
 ## ✨ Features
 
