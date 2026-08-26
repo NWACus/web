@@ -3,16 +3,78 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to comment for (backfill a past release, e.g. v1.13.0)
+        required: true
+        type: string
 
 jobs:
   post_release:
     permissions:
+      contents: read
       issues: write
       pull-requests: write
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
-      - uses: apexskier/github-release-commenter@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          comment-template: |
-            🚀 This is included in version {release_link}
+      - name: Comment on the PRs and issues in this release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          release_url="https://github.com/$REPO/releases/tag/$TAG"
+          comment="🚀 This is included in version [$TAG]($release_url)"
+          owner="${REPO%/*}"
+          name="${REPO#*/}"
+
+          # The PRs in this release, straight from GitHub's own release-notes
+          # generator (it picks the previous release as the base). One request
+          # for the whole list -- the action this replaced walked every commit
+          # individually and tripped the secondary rate limit on big releases.
+          prs=$(gh api "repos/$REPO/releases/generate-notes" -f tag_name="$TAG" --jq .body \
+            | grep -oE '/pull/[0-9]+' | grep -oE '[0-9]+' | sort -un || true)
+
+          if [ -z "$prs" ]; then
+            echo "No pull requests found for $TAG."
+            exit 0
+          fi
+
+          # Comment on each PR and on the issues it closes. A number that isn't
+          # a PR resolves to null and is skipped.
+          targets=""
+          for pr in $prs; do
+            meta=$(gh api graphql -f query="
+              query {
+                repository(owner: \"$owner\", name: \"$name\") {
+                  pullRequest(number: $pr) {
+                    labels(first: 20) { nodes { name } }
+                    closingIssuesReferences(first: 20) { nodes { number } }
+                  }
+                }
+              }" --jq '.data.repository.pullRequest')
+
+            [ "$meta" = "null" ] && continue
+
+            if echo "$meta" | jq -e '.labels.nodes[] | select(.name == "dependencies")' >/dev/null; then
+              echo "Skipping #$pr (dependencies)."
+              continue
+            fi
+
+            targets="$targets $pr $(echo "$meta" | jq -r '.closingIssuesReferences.nodes[].number')"
+          done
+
+          for target in $(echo "$targets" | tr ' ' '\n' | sort -un); do
+            # Idempotent, so a re-run or a backfill can't double-comment.
+            if gh api "repos/$REPO/issues/$target/comments" --paginate --jq '.[].body' \
+              | grep -qF "$release_url"; then
+              echo "#$target already mentions $TAG."
+              continue
+            fi
+            gh api "repos/$REPO/issues/$target/comments" -f body="$comment" --silent
+            echo "Commented on #$target."
+          done
