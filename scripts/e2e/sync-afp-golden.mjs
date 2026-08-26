@@ -13,7 +13,13 @@
  * wants. The intended end state is an npm package published from products-api CI; see
  * docs/afp-products/e2e-mocks.md.
  *
+ * `sync` reads a local products-api checkout and refuses one that is dirty or behind its remote,
+ * because `PROVENANCE.json`'s recorded commit is only worth anything if it describes the bytes.
+ * `--check` needs neither the corpus nor the network — it re-hashes what is committed here, which
+ * is why CI can run it without a checkout of a Python repo.
+ *
  *   AFP_PRODUCTS_API_PATH=/path/to/products-api node scripts/e2e/sync-afp-golden.mjs
+ *   AFP_PRODUCTS_API_PATH=... node scripts/e2e/sync-afp-golden.mjs --allow-stale
  *   node scripts/e2e/sync-afp-golden.mjs --check
  */
 import { execFileSync } from 'node:child_process'
@@ -69,7 +75,68 @@ function provisionalNames() {
   )
 }
 
-function sync() {
+const GOLDEN_SUBDIR = 'api/tests/migration_parity/golden'
+
+function tryGit(sourceRepo, args) {
+  try {
+    const out = execFileSync('git', ['-C', sourceRepo, ...args], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    return { ok: true, out: out.trim() }
+  } catch {
+    return { ok: false, out: '' }
+  }
+}
+
+/**
+ * Refuse to vendor from a checkout that does not say what `PROVENANCE.json` will claim it says.
+ *
+ * Two separate failures, deliberately treated differently:
+ *
+ * - **Uncommitted changes under the corpus** make the recorded commit a lie about the bytes, which
+ *   defeats the entire point of recording it. Always fatal.
+ * - **A checkout behind its remote** is honest but stale — you vendor last month's goldens and
+ *   `--check` will happily confirm them forever. Fatal by default, waivable with `--allow-stale`
+ *   when you are pinning to an older commit on purpose.
+ *
+ * The fetch is best-effort: being offline is not a reason to block a sync, but it does mean
+ * freshness went unverified, so say so rather than implying it passed.
+ */
+function assertSourceIsCurrent(sourceRepo, { allowStale }) {
+  const dirty = tryGit(sourceRepo, ['status', '--porcelain', '--', GOLDEN_SUBDIR])
+  if (dirty.ok && dirty.out) {
+    throw new Error(
+      `${GOLDEN_SUBDIR} has uncommitted changes, so PROVENANCE.json would record a commit that ` +
+        `does not match the bytes being vendored:\n  ${dirty.out.split('\n').join('\n  ')}\n` +
+        'Commit or stash them in products-api first.',
+    )
+  }
+
+  if (!tryGit(sourceRepo, ['fetch', '--quiet']).ok) {
+    console.warn('[afp-golden] could not fetch products-api; vendoring without a freshness check')
+    return
+  }
+
+  const upstream = tryGit(sourceRepo, ['rev-parse', '--abbrev-ref', '@{upstream}'])
+  if (!upstream.ok) return
+
+  const behind = tryGit(sourceRepo, ['rev-list', '--count', `HEAD..${upstream.out}`])
+  if (behind.ok && Number(behind.out) > 0) {
+    if (allowStale) {
+      console.warn(
+        `[afp-golden] HEAD is ${behind.out} commit(s) behind ${upstream.out}; vendoring anyway (--allow-stale)`,
+      )
+      return
+    }
+    throw new Error(
+      `products-api HEAD is ${behind.out} commit(s) behind ${upstream.out}, so this would vendor ` +
+        'stale goldens.\n  Run `git pull` there, or pass --allow-stale to pin deliberately.',
+    )
+  }
+}
+
+function sync({ allowStale }) {
   const sourceRepo = process.env.AFP_PRODUCTS_API_PATH
   if (!sourceRepo) {
     throw new Error(
@@ -78,10 +145,12 @@ function sync() {
     )
   }
 
-  const sourceDir = resolve(sourceRepo, 'api/tests/migration_parity/golden')
+  const sourceDir = resolve(sourceRepo, GOLDEN_SUBDIR)
   if (!existsSync(sourceDir)) {
     throw new Error(`No golden corpus at ${sourceDir}`)
   }
+
+  assertSourceIsCurrent(resolve(sourceRepo), { allowStale })
 
   const commit = execFileSync('git', ['-C', resolve(sourceRepo), 'rev-parse', 'HEAD'], {
     encoding: 'utf8',
@@ -194,5 +263,5 @@ function check() {
 if (process.argv.includes('--check')) {
   check()
 } else {
-  sync()
+  sync({ allowStale: process.argv.includes('--allow-stale') })
 }

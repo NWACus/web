@@ -208,7 +208,7 @@ sig = "69d5369fb3d7c93b"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "scripts/e2e/sync-afp-golden.mjs"
-sig = "1401c9c85d0a08ba"
+sig = "89c52cf9a19956ef"
 
 [[bindings]]
 doc = "docs/claude-github-issues.md"
