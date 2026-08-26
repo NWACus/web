@@ -3,6 +3,7 @@
 // snow-level storage (drop 0), bucketed strings kept as entered values, and
 // zone stitching for one legacy forecast id.
 import {
+  htmlToPlainText,
   importZones,
   pointCodeByName,
   stitchLegacyForecast,
@@ -44,7 +45,11 @@ describe('stitchLegacyForecast', () => {
     expect(out?.body.precip?.['hurricane-ridge']?.n1).toEqual({ qpf: 'LT 0.10', density: null })
     // Sensible slots from the weather_forecasts pair.
     expect(out?.body.sensible?.olympics?.morning).toMatch(/light rain and snow/)
+    // Legacy HTML converts to readable plain text — content survives, markup
+    // and entities do not.
     expect(out?.body.discussion?.synopsis).toMatch(/round of storms/)
+    expect(out?.body.discussion?.synopsis).not.toMatch(/<p>|&nbsp;/)
+    expect(out?.body.discussion?.extended).not.toMatch(/<[a-z]|&[a-z#]+;/i)
   })
 
   it('maps an AM golden onto the d1/n1 window with am1..nt1 blocks', () => {
@@ -95,5 +100,16 @@ describe('config helpers', () => {
     expect(pointCodeByName([{ code: 'hurricane-ridge', name: 'Hurricane Ridge' }])).toEqual({
       'Hurricane Ridge': 'hurricane-ridge',
     })
+  })
+})
+
+describe('htmlToPlainText', () => {
+  it('strips tags, decodes entities, and keeps paragraph breaks', () => {
+    expect(
+      htmlToPlainText('<p>Warm front.&nbsp;</p>\r\n\r\n<p>Friday&#39;s passage &amp; showers.</p>'),
+    ).toBe("Warm front.\n\nFriday's passage & showers.")
+    expect(htmlToPlainText('line one<br>line two')).toBe('line one\nline two')
+    expect(htmlToPlainText(null)).toBe('')
+    expect(htmlToPlainText('plain already')).toBe('plain already')
   })
 })

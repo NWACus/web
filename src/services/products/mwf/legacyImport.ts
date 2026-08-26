@@ -46,6 +46,32 @@ export interface LegacyImportForecast {
   body: Partial<SerializedForecast>
 }
 
+// The legacy API serves discussion (and occasionally sensible-weather) text
+// as HTML fragments ('<p>…</p>', '&nbsp;', '&#39;'). Native authoring is
+// plain text, so imports convert: paragraph/line-break boundaries become
+// newlines, tags are stripped, and common entities are decoded.
+export function htmlToPlainText(value: string | null | undefined): string {
+  if (!value) return ''
+  return (
+    value
+      .replace(/<\/(p|div|h[1-6]|li)>/gi, '\n\n')
+      .replace(/<br\s*\/?>(\n)?/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&#0?39;|&apos;/gi, "'")
+      .replace(/&quot;/gi, '"')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&amp;/gi, '&')
+      // collapse runs of blank lines and per-line leading/trailing space
+      .split('\n')
+      .map((line) => line.trim())
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  )
+}
+
 const naiveUtcToIso = (stamp: string | undefined): string | null => {
   if (!stamp) return null
   const iso = `${stamp.replace(' ', 'T')}Z`
@@ -85,8 +111,8 @@ export function stitchLegacyForecast(
     wind: {},
     sensible: {},
     discussion: {
-      synopsis: mwf.synopsis_day1_day2 ?? '',
-      extended: mwf.extended_synopsis ?? '',
+      synopsis: htmlToPlainText(mwf.synopsis_day1_day2),
+      extended: htmlToPlainText(mwf.extended_synopsis),
     },
   }
 
@@ -127,8 +153,8 @@ export function stitchLegacyForecast(
     })
     const [first, second] = objects.weather_forecasts
     ;(body.sensible ??= {})[zoneId] = {
-      morning: first?.description ?? '',
-      afternoon: second?.description ?? '',
+      morning: htmlToPlainText(first?.description),
+      afternoon: htmlToPlainText(second?.description),
     }
   }
 
