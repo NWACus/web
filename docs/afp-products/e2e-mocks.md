@@ -58,6 +58,25 @@ A gap we already know about is different: it goes in `scenarios.json` under `abs
 
 `src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **dvac** render natively, **nwac** and **sac** stay on the widget. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac exists in the set because it aliases to nwac upstream, so the same center renders natively for one tenant and as a widget for the other.
 
+## Changing a native product page
+
+CI runs this suite on every PR, so a change that *breaks* an existing spec fails loudly and needs nothing from you. What CI cannot tell you is that a surface you just added has no spec at all.
+
+So: **a change that puts something new in front of a reader gets a spec here, in the same PR.** Not a second copy of the unit tests — those already pin the rendering. What this suite is for is the part only a real browser reaches: hydration, a click, a keypress, the shape of a URL a third party is asked for.
+
+If the corpus cannot reach it, write the spec anyway and have it skip itself:
+
+```ts
+test.skip(!hasFixture(FIXTURE), 'Blocked on products-api Case <case> — <what the corpus is missing>')
+```
+
+A skipped spec with a named Case is worth more than no spec: it turns on by itself when the capture lands, and it is the only durable record of what we cannot yet see. Add the Case to the table below at the same time.
+
+Two things that bite when a page changes shape:
+
+- **A new third-party host is a hermeticity hole, not a test failure.** `stubExternalAssets` fulfils a fixed list; a host that is not on it loads for real and the suite still passes. Adding a video provider, an embed, a font or a tile server means adding it there.
+- **An assertion inside a skipped test rots silently.** Nothing runs it, so it is still asserting whatever was true the day it was written. Check the skipped specs when you change what they will eventually assert on.
+
 ## What the corpus cannot cover yet
 
 These specs are written and `test.skip` themselves with a reason until the fixture lands, so they turn on by themselves.
