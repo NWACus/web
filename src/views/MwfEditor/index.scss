@@ -1,0 +1,209 @@
+// MWF authoring view — grid styling on Payload's admin theme variables, so
+// the custom entry cells match the admin (and flip correctly with the
+// light/dark theme) without adopting Payload's field components, which have
+// no compact-grid form.
+.mwf-view {
+  // --- entry cells ---------------------------------------------------------
+  .mwf-input {
+    width: 100%;
+    min-width: 3.5rem;
+    padding: 4px 6px;
+    font-size: 13px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--theme-elevation-800);
+    background: var(--theme-input-bg);
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: var(--style-radius-s);
+    transition: border-color 0.1s ease;
+
+    &::placeholder {
+      color: var(--theme-elevation-400);
+    }
+    &:hover {
+      border-color: var(--theme-elevation-250);
+    }
+    &:focus {
+      outline: none;
+      border-color: var(--theme-elevation-400);
+      box-shadow: 0 0 0 2px var(--theme-elevation-100);
+    }
+    &:disabled {
+      color: var(--theme-elevation-400);
+      background: var(--theme-elevation-50);
+    }
+  }
+  .mwf-input--invalid {
+    border-color: var(--theme-error-400);
+    background: var(--theme-error-50);
+    color: var(--theme-error-750);
+
+    &:focus {
+      border-color: var(--theme-error-500);
+      box-shadow: 0 0 0 2px var(--theme-error-100);
+    }
+  }
+  .mwf-input--center {
+    text-align: center;
+    text-transform: uppercase;
+  }
+  // header/list controls (issue time, service date, issuance select)
+  .mwf-input--inline {
+    width: auto;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .mwf-textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 13px;
+    color: var(--theme-elevation-800);
+    background: var(--theme-input-bg);
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: var(--style-radius-s);
+
+    &:focus {
+      outline: none;
+      border-color: var(--theme-elevation-400);
+      box-shadow: 0 0 0 2px var(--theme-elevation-100);
+    }
+  }
+
+  // --- guidance chips + small action buttons -------------------------------
+  .mwf-chip,
+  .mwf-mini-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 5px;
+    font-size: 11px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+    color: var(--theme-elevation-600);
+    background: var(--theme-elevation-50);
+    border: 1px solid var(--theme-elevation-100);
+    border-radius: var(--style-radius-s);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--theme-elevation-800);
+      background: var(--theme-elevation-100);
+      border-color: var(--theme-elevation-250);
+    }
+  }
+  .mwf-chip--matched {
+    color: var(--theme-success-750);
+    background: var(--theme-success-100);
+    border-color: var(--theme-success-400);
+  }
+
+  // snow-vs-freezing designation toggle
+  .mwf-designation {
+    padding: 0 4px;
+    font-size: 11px;
+    background: none;
+    border: none;
+    border-radius: var(--style-radius-s);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--theme-elevation-100);
+    }
+  }
+  .mwf-designation--snow {
+    color: var(--theme-elevation-650);
+  }
+  .mwf-designation--freezing {
+    color: var(--theme-warning-650);
+  }
+
+  // --- sections + tables ---------------------------------------------------
+  .mwf-section {
+    padding: 16px;
+    background: var(--theme-elevation-50);
+    border: 1px solid var(--theme-elevation-100);
+    border-radius: var(--style-radius-m);
+
+    h2 {
+      margin: 0;
+      font-size: 15px;
+    }
+  }
+  .mwf-hint {
+    color: var(--theme-elevation-500);
+  }
+
+  .mwf-table {
+    th {
+      font-weight: 500;
+      color: var(--theme-elevation-500);
+      padding-bottom: 6px;
+    }
+    tbody td {
+      border-top: 1px solid var(--theme-elevation-100);
+    }
+    caption {
+      color: var(--theme-text);
+    }
+  }
+
+  // --- status + banners ----------------------------------------------------
+  .mwf-status-chip {
+    padding: 2px 6px;
+    font-size: 12px;
+    text-transform: capitalize;
+    color: var(--theme-elevation-650);
+    background: var(--theme-elevation-50);
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: var(--style-radius-s);
+  }
+
+  .mwf-banner {
+    padding: 8px 12px;
+    font-size: 12px;
+    border: 1px solid;
+    border-radius: var(--style-radius-m);
+  }
+  .mwf-banner--warning {
+    color: var(--theme-warning-750);
+    background: var(--theme-warning-50);
+    border-color: var(--theme-warning-200);
+  }
+  .mwf-banner--danger {
+    color: var(--theme-error-750);
+    background: var(--theme-error-50);
+    border-color: var(--theme-error-200);
+  }
+
+  .mwf-muted {
+    color: var(--theme-elevation-500);
+  }
+  .mwf-link {
+    color: var(--theme-text);
+    text-decoration: underline;
+  }
+}
+
+// --- publish modal (overlays the admin) ------------------------------------
+.mwf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.55);
+}
+.mwf-modal {
+  width: 100%;
+  max-width: 32rem;
+  padding: 20px;
+  color: var(--theme-text);
+  background: var(--theme-bg);
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-l);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+}

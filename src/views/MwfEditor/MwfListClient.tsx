@@ -65,7 +65,7 @@ export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
           Service date
           <input
             type="date"
-            className="rounded border px-2 py-1.5"
+            className="mwf-input mwf-input--inline"
             value={serviceDate}
             onChange={(e) => setServiceDate(e.target.value)}
           />
@@ -73,7 +73,7 @@ export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
         <label className="flex flex-col gap-1 text-sm">
           Issuance
           <select
-            className="rounded border px-2 py-1.5"
+            className="mwf-input mwf-input--inline"
             value={issuance}
             onChange={(e) => setIssuance(e.target.value === 'afternoon' ? 'afternoon' : 'morning')}
           >
@@ -87,7 +87,7 @@ export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="mwf-table w-full text-sm">
           <thead>
             <tr className="text-left">
               <th className="px-2 py-1.5">Service date</th>
@@ -100,9 +100,9 @@ export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-t">
+              <tr key={row.id}>
                 <td className="px-2 py-1.5">
-                  <Link className="underline" href={`/admin/mwf?id=${row.id}`}>
+                  <Link className="mwf-link" href={`/admin/mwf?id=${row.id}`}>
                     {row.serviceDate}
                   </Link>
                 </td>
@@ -114,7 +114,7 @@ export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
                 </td>
                 <td className="px-2 py-1.5 text-right">
                   {row.status !== 'withdrawn' && (
-                    <button type="button" className="text-xs underline" onClick={() => remove(row)}>
+                    <button type="button" className="mwf-mini-btn" onClick={() => remove(row)}>
                       {row.status === 'draft' ? 'Delete' : 'Withdraw'}
                     </button>
                   )}

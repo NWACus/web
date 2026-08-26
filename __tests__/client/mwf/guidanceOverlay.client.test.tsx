@@ -78,7 +78,7 @@ describe('precip guidance overlay', () => {
       />,
     )
     const chips = screen.getAllByTitle('WRF: click to fill')
-    const matchedChips = chips.filter((c) => c.className.includes('border-emerald-500'))
+    const matchedChips = chips.filter((c) => c.className.includes('mwf-chip--matched'))
     expect(matchedChips).toHaveLength(1)
     expect(matchedChips[0]).toHaveTextContent('WRF 0.25')
   })

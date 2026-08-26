@@ -52,19 +52,19 @@ export function PublishModal({
       role="dialog"
       aria-modal="true"
       aria-label={isCorrection ? 'Publish correction' : 'Publish forecast'}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="mwf-modal-overlay"
     >
-      <div className="w-full max-w-lg rounded-lg border bg-white p-5 shadow-xl dark:bg-neutral-900">
+      <div className="mwf-modal">
         <h2 className="text-lg font-semibold">
           {isCorrection ? 'Publish correction' : 'Publish forecast'}
         </h2>
-        <p className="mb-4 text-sm opacity-70">
+        <p className="mwf-muted mb-4 text-sm">
           {forecast.meta.initialDate} · {forecast.meta.type}
           {isCorrection ? ' · supersedes the published revision' : ''}
         </p>
 
         {blocked ? (
-          <div className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-sm dark:bg-red-950/30">
+          <div className="mwf-banner mwf-banner--danger mb-4 text-sm">
             <p className="mb-1 font-medium">
               Publish is blocked — {missing.length} field{missing.length === 1 ? '' : 's'} missing:
             </p>
@@ -96,7 +96,7 @@ export function PublishModal({
               <input
                 type="datetime-local"
                 aria-label="Scheduled publish time"
-                className="rounded border px-1.5 py-0.5"
+                className="mwf-input mwf-input--inline"
                 value={scheduledFor}
                 disabled={mode !== 'schedule'}
                 onChange={(e) => setScheduledFor(e.target.value)}

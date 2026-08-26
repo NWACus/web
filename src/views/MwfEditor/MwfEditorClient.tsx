@@ -230,13 +230,13 @@ export function MwfEditorClient({
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3 text-sm">
-          <Link className="underline" href="/admin/mwf">
+          <Link className="mwf-link" href="/admin/mwf">
             ← Forecasts
           </Link>
           <span className="font-medium capitalize">
             {forecast.meta.initialDate} · {initial.issuance}
           </span>
-          <span className="rounded border px-1.5 py-0.5 text-xs capitalize">
+          <span className="mwf-status-chip">
             {status}
             {isCorrection ? ` · correction r${revision}` : revision > 1 ? ` · r${revision}` : ''}
           </span>
@@ -245,7 +245,7 @@ export function MwfEditorClient({
               Issue time
               <input
                 type="datetime-local"
-                className="rounded border px-1.5 py-0.5"
+                className="mwf-input mwf-input--inline"
                 value={forecast.meta.issued}
                 onChange={(e) =>
                   mutate((fc) => {
@@ -257,7 +257,7 @@ export function MwfEditorClient({
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs opacity-70" data-testid="mwf-save-state" role="status">
+          <span className="mwf-muted text-xs" data-testid="mwf-save-state" role="status">
             {saveLabel} · #{docId}
           </span>
           {status === 'draft' && (
@@ -270,12 +270,6 @@ export function MwfEditorClient({
               </Button>
             </>
           )}
-          {guidance?.stale && (
-            <p className="rounded border border-amber-300 bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
-              Model guidance is stale — showing the last good run. A refresh failure never blanks
-              the working columns.
-            </p>
-          )}
           {status === 'published' && (
             <Button size="small" buttonStyle="secondary" onClick={withdraw}>
               Withdraw
@@ -285,19 +279,19 @@ export function MwfEditorClient({
       </div>
 
       {guidance?.stale && (
-        <p className="rounded border border-amber-300 bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
+        <p className="mwf-banner mwf-banner--warning">
           Model guidance is stale — showing the last good run. A refresh failure never blanks the
           working columns.
         </p>
       )}
       {status === 'published' && (
-        <p className="rounded border border-amber-300 bg-amber-50 p-2 text-xs dark:bg-amber-950/30">
+        <p className="mwf-banner mwf-banner--warning">
           This revision is published and immutable — your first edit silently opens a correction
           draft.
         </p>
       )}
       {readOnly && (
-        <p className="rounded border border-red-300 bg-red-50 p-2 text-xs dark:bg-red-950/30">
+        <p className="mwf-banner mwf-banner--danger">
           This forecast was withdrawn and is read-only.
         </p>
       )}

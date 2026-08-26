@@ -46,9 +46,7 @@ function CommitInput({
       aria-label={ariaLabel}
       aria-invalid={invalid || undefined}
       disabled={disabled}
-      className={`w-full min-w-14 rounded border px-1.5 py-1 text-right text-sm ${
-        invalid ? 'border-red-500 bg-red-50' : ''
-      } ${className ?? ''}`}
+      className={`mwf-input ${invalid ? 'mwf-input--invalid' : ''} ${className ?? ''}`}
       value={draft}
       onFocus={(e) => {
         setEditing(true)
@@ -161,7 +159,7 @@ export function WindDirCell({
       type="text"
       aria-label={ariaLabel}
       disabled={disabled}
-      className="w-full min-w-12 rounded border px-1.5 py-1 text-center text-sm uppercase"
+      className="mwf-input mwf-input--center"
       value={draft}
       maxLength={3}
       onFocus={(e) => {

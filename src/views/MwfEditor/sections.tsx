@@ -55,9 +55,7 @@ function Chip({
       type="button"
       title={`${label}: click to fill`}
       onClick={onFill}
-      className={`rounded border px-1 text-[11px] tabular-nums ${
-        matched ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40' : 'opacity-80'
-      }`}
+      className={`mwf-chip ${matched ? 'mwf-chip--matched' : ''}`}
     >
       {label} {value}
     </button>
@@ -88,9 +86,9 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-lg border p-4">
+    <section className="mwf-section">
       <h2 className="text-base font-semibold">{title}</h2>
-      <p className="mb-3 text-xs opacity-70">{hint}</p>
+      <p className="mwf-hint mb-3 text-xs">{hint}</p>
       {children}
     </section>
   )
@@ -116,7 +114,7 @@ export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: Se
       hint="Per-point, 12-hour blocks. Snow is derived (QPF × 100 / density) and not editable. Density is needed only where QPF > 0."
     >
       <div className="overflow-x-auto">
-        <table className="w-full border-separate border-spacing-0 text-sm">
+        <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr className="text-left">
               <th className="px-2 py-1.5 font-medium">Forecast point</th>
@@ -134,7 +132,7 @@ export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: Se
                         key={title}
                         type="button"
                         title={`Fill every point's ${per.short} QPF from ${title}`}
-                        className="rounded border px-1 text-[10px] font-normal"
+                        className="mwf-mini-btn font-normal"
                         onClick={() =>
                           mutate((fc) => {
                             points.forEach((pt) => {
@@ -151,7 +149,7 @@ export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: Se
                       <button
                         type="button"
                         title={`Fill every point's ${per.short} QPF from the previous forecast`}
-                        className="rounded border px-1 text-[10px] font-normal"
+                        className="mwf-mini-btn font-normal"
                         onClick={() =>
                           mutate((fc) => {
                             points.forEach((pt) => {
@@ -176,7 +174,7 @@ export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: Se
               const any = rowValues.some((c) => c && c.qpf != null && c.qpf !== '')
               const sum = rowValues.reduce((acc, c) => acc + (Number(c?.qpf) || 0), 0)
               return (
-                <tr key={pt.code} className="border-t">
+                <tr key={pt.code}>
                   <td className="px-2 py-1.5">
                     <div>{pt.name}</div>
                     <div className="text-xs opacity-70">{zoneName.get(pt.zone) ?? pt.zone}</div>
@@ -312,7 +310,7 @@ export function SnowLevelTable({
       {previousBody?.snowLevel && (
         <button
           type="button"
-          className="mb-2 rounded border px-2 py-0.5 text-xs"
+          className="mwf-mini-btn mb-2"
           title={previousLabel ? `Copy this table from the ${previousLabel} forecast` : undefined}
           onClick={() =>
             mutate((fc) => {
@@ -329,7 +327,7 @@ export function SnowLevelTable({
         </button>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full border-separate border-spacing-0 text-sm">
+        <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
               <th className="px-2 py-1.5 text-left font-medium">Zone</th>
@@ -346,7 +344,7 @@ export function SnowLevelTable({
           </thead>
           <tbody>
             {zones.map((z) => (
-              <tr key={z.id} className="border-t">
+              <tr key={z.id}>
                 <td className="px-2 py-1.5">{z.name}</td>
                 {blocks.map((b) => {
                   const cell = forecast.snowLevel[z.id]?.[b.key]
@@ -391,8 +389,10 @@ export function SnowLevelTable({
                         <button
                           type="button"
                           title="Toggle snow vs freezing designation"
-                          className={`rounded px-1 text-[11px] ${
-                            designation === 'snow' ? 'text-sky-700' : 'text-amber-700'
+                          className={`mwf-designation ${
+                            designation === 'snow'
+                              ? 'mwf-designation--snow'
+                              : 'mwf-designation--freezing'
                           }`}
                           onClick={() =>
                             mutate((fc) => {
@@ -427,7 +427,7 @@ export function ExtendedSnowLevelTable({ forecast, extendedZones, mutate }: Sect
       hint="Afternoon issuances only — four coarse blocks out to day 5, for the configured outlook zones."
     >
       <div className="overflow-x-auto">
-        <table className="w-full border-separate border-spacing-0 text-sm">
+        <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
               <th className="px-2 py-1.5 text-left font-medium">Zone</th>
@@ -443,7 +443,7 @@ export function ExtendedSnowLevelTable({ forecast, extendedZones, mutate }: Sect
           </thead>
           <tbody>
             {extendedZones.map((z) => (
-              <tr key={z.id} className="border-t">
+              <tr key={z.id}>
                 <td className="px-2 py-1.5">{z.name}</td>
                 {blocks.map((b) => {
                   const cell = forecast.extendedSnowLevel[z.id]?.[b.key]
@@ -480,7 +480,7 @@ export function TempTable({ forecast, zones, mutate, previousBody }: SectionProp
       hint="High / low per zone per 12-hour period. A high below its low is flagged live and blocks publish."
     >
       <div className="overflow-x-auto">
-        <table className="w-full border-separate border-spacing-0 text-sm">
+        <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
               <th className="px-2 py-1.5 text-left font-medium">Zone</th>
@@ -498,7 +498,7 @@ export function TempTable({ forecast, zones, mutate, previousBody }: SectionProp
           </thead>
           <tbody>
             {zones.map((z) => (
-              <tr key={z.id} className="border-t">
+              <tr key={z.id}>
                 <td className="px-2 py-1.5">{z.name}</td>
                 {periods.map((per) => {
                   const cell = forecast.temps[z.id]?.[per.key]
@@ -592,7 +592,7 @@ export function WindTable({ forecast, zones, mutate, previousBody }: SectionProp
       hint="Direction (compass points incl. VAR — invalid entries clear) and speed per zone per 6-hour block."
     >
       <div className="overflow-x-auto">
-        <table className="w-full border-separate border-spacing-0 text-sm">
+        <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
               <th className="px-2 py-1.5 text-left font-medium">Zone</th>
@@ -609,7 +609,7 @@ export function WindTable({ forecast, zones, mutate, previousBody }: SectionProp
           </thead>
           <tbody>
             {zones.map((z) => (
-              <tr key={z.id} className="border-t">
+              <tr key={z.id}>
                 <td className="px-2 py-1.5">{z.name}</td>
                 {blocks.map((b) => {
                   const cell = forecast.wind[z.id]?.[b.key]
@@ -696,7 +696,7 @@ export function SensibleWeather({ forecast, zones, mutate }: SectionProps) {
                   key={slot.key}
                   aria-label={`${z.id} ${slot.label}`}
                   placeholder={slot.label}
-                  className="min-h-16 rounded border p-2 text-sm"
+                  className="mwf-textarea min-h-16"
                   value={slots[slot.key]}
                   onChange={(e) =>
                     mutate((fc) => {
@@ -720,7 +720,7 @@ export function Discussion({ forecast, mutate }: SectionProps) {
         <textarea
           aria-label="Synopsis"
           placeholder="Synopsis"
-          className="min-h-24 rounded border p-2 text-sm"
+          className="mwf-textarea min-h-24"
           value={forecast.discussion.synopsis}
           onChange={(e) =>
             mutate((fc) => {
@@ -731,7 +731,7 @@ export function Discussion({ forecast, mutate }: SectionProps) {
         <textarea
           aria-label="Extended synopsis"
           placeholder="Extended synopsis"
-          className="min-h-24 rounded border p-2 text-sm"
+          className="mwf-textarea min-h-24"
           value={forecast.discussion.extended}
           onChange={(e) =>
             mutate((fc) => {

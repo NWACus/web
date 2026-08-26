@@ -13,6 +13,7 @@ import {
   loadGuidanceAction,
   type MwfListRow,
 } from './actions'
+import './index.scss'
 
 // The MWF authoring surface (embed-generator pattern: DefaultTemplate +
 // Payload UI + server actions). /admin/mwf lists the center's forecasts;
@@ -109,7 +110,7 @@ export async function MwfEditor({ initPageResult, params, searchParams }: AdminV
           <div className="doc-header__header">
             <h1 className="doc-header__title">Mountain Weather Forecast</h1>
           </div>
-          <div className="mt-6">{content}</div>
+          <div className="mwf-view mt-6">{content}</div>
         </div>
       </Gutter>
     </DefaultTemplate>
