@@ -468,12 +468,12 @@ sig = "68597c16ef37fc12"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/(frontend)/colors.css"
-sig = "15e0c2130028a5ab"
+sig = "a7a704bdd1a14052"
 
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/app/api/[center]/og/centerColorMap.ts"
-sig = "73076591cf7c80aa"
+sig = "c62d9aedb3a11293"
 
 [[bindings]]
 doc = "docs/onboarding.md"
