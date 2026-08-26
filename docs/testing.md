@@ -150,3 +150,5 @@ Unit tests use Jest with a dual-environment setup:
 pnpm test           # Run all unit tests
 pnpm test:watch     # Run in watch mode
 ```
+
+Client tests load `__tests__/client-setup.ts` first, which stubs the browser APIs jsdom does not implement — `ResizeObserver`, `IntersectionObserver` and `matchMedia`. Carousels and zoomable images construct these on mount, so without the stubs a component test fails on the environment rather than on the component. The file sits directly under `__tests__/` rather than in `client/`, so `testMatch` doesn't collect it as a suite. Add anything else jsdom is missing there instead of re-stubbing it per file.
