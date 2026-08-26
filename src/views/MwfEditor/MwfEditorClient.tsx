@@ -257,7 +257,7 @@ export function MwfEditorClient({
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs opacity-70" role="status">
+          <span className="text-xs opacity-70" data-testid="mwf-save-state" role="status">
             {saveLabel} · #{docId}
           </span>
           {status === 'draft' && (
