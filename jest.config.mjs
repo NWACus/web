@@ -29,6 +29,8 @@ const clientTestConfig = {
   displayName: 'client',
   testEnvironment: 'jsdom',
   clearMocks: true,
+  // Sits beside the suites rather than inside client/, so testMatch doesn't collect it as one.
+  setupFilesAfterEnv: ['<rootDir>/__tests__/client-setup.ts'],
   testMatch: ['**/__tests__/client/**/*.[jt]s?(x)'],
   testPathIgnorePatterns: ignoredPaths,
 }

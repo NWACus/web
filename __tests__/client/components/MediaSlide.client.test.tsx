@@ -45,7 +45,7 @@ describe('MediaSlide', () => {
   it('embeds a YouTube player for a video item', () => {
     render(<MediaSlide item={youTube()} />)
     const frame = document.querySelector('iframe')
-    expect(frame).toHaveAttribute('src', 'https://www.youtube.com/embed/dQw4w9WgXcQ')
+    expect(frame).toHaveAttribute('src', 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0')
     expect(frame).toHaveAttribute('title', 'Avalanche footage')
   })
 
@@ -64,7 +64,7 @@ describe('MediaSlide', () => {
     render(<MediaSlide item={injected} />)
     expect(document.querySelector('iframe')).toHaveAttribute(
       'src',
-      'https://www.youtube.com/embed/a%20b%26c',
+      'https://www.youtube-nocookie.com/embed/a%20b%26c?rel=0',
     )
   })
 
