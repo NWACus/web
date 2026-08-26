@@ -48,7 +48,7 @@ jobs:
       recap: ${{ steps.decide.outputs.recap }}
     steps:
       - id: decide
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
@@ -216,7 +216,7 @@ jobs:
       issues: read
       pull-requests: read
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         env:
           PLAN_RECAP_TOKEN: ${{ secrets.PLAN_RECAP_TOKEN }}
         with:
