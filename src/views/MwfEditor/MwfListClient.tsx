@@ -60,7 +60,7 @@ export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="mwf-create-row flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 text-sm">
           Service date
           <input

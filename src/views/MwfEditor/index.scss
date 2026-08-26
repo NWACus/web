@@ -199,15 +199,23 @@
     border: 1px solid var(--theme-elevation-150);
     border-radius: 999px;
 
-    &:hover {
+    &:not(.mwf-pill--active):hover {
       color: var(--theme-elevation-800);
       background: var(--theme-elevation-50);
     }
   }
+  // --theme-bg flips with the theme, so the active pill stays readable in
+  // dark mode (light pill, dark text) and light mode (dark pill, light text).
   .mwf-pill--active {
-    color: var(--theme-base-0, #fff);
+    color: var(--theme-bg);
     background: var(--theme-elevation-800);
     border-color: var(--theme-elevation-800);
+  }
+
+  // Payload's Button carries its own block margin; inside the create row it
+  // has to sit on the same baseline as the labeled inputs.
+  .mwf-create-row .btn {
+    margin: 0;
   }
   // anchored sections land below the sticky pills
   .mwf-section {
