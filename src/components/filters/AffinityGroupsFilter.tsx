@@ -4,7 +4,7 @@ import { affinityGroupOptions } from '@/fields/affinityGroupField'
 export const AffinityGroupsFilter = (props?: Partial<CheckboxFilterProps>) => {
   return (
     <CheckboxFilter
-      title="Interest Group"
+      title="Specialty"
       urlParam="affinityGroups"
       options={affinityGroupOptions}
       {...props}

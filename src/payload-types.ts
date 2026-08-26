@@ -2004,7 +2004,19 @@ export interface Course {
   slug: string;
   courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
-  affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
+  affinityGroups?:
+    | (
+        | 'lgbtq'
+        | 'women'
+        | 'youth'
+        | 'hut-based'
+        | 'ski-mountaineering'
+        | 'spanish-language'
+        | 'bipoc'
+        | 'hybrid'
+        | 'national-avalanche-school-field-session'
+      )[]
+    | null;
   provider?: (number | null) | Provider;
   contentHash?: string | null;
   updatedAt: string;

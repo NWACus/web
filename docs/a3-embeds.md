@@ -99,13 +99,19 @@ Displays a paginated, filterable list of upcoming avalanche courses with infinit
 | `rescue` | Rescue | Avalanche rescue courses |
 | `awareness-external` | Awareness | Introductory avalanche awareness sessions |
 
-#### Affinity Groups (`affinityGroups`)
+#### Specialty (`affinityGroups`)
 
 | Value | Label |
 |-------|-------|
-| `lgbtq` | For LGBTQ+ |
-| `women` | For Women |
-| `youth` | For Youth |
+| `lgbtq` | LGBTQ+ |
+| `women` | Female Identifying |
+| `youth` | Youth |
+| `hut-based` | Hut based |
+| `ski-mountaineering` | Ski mountaineering |
+| `spanish-language` | Spanish Language |
+| `bipoc` | BIPOC |
+| `hybrid` | Hybrid |
+| `national-avalanche-school-field-session` | National Avalanche School Field Session |
 
 #### Modes of Travel (`modesOfTravel`)
 

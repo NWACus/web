@@ -126,7 +126,7 @@ Key fields:
 - Course URL (external registration link)
 - Registration deadline
 - Course type (see below)
-- Mode of travel, affinity groups
+- Mode of travel, specialty
 - Provider relationship
 
 #### Providers
@@ -168,7 +168,7 @@ Returns paginated courses with filtering support.
 | `types` | string | Comma-separated course types |
 | `providers` | string | Comma-separated provider slugs |
 | `states` | string | Comma-separated state codes |
-| `affinityGroups` | string | Comma-separated affinity groups |
+| `affinityGroups` | string | Comma-separated specialty values |
 | `modesOfTravel` | string | Comma-separated travel modes |
 | `startDate` | string | Filter start date (ISO format) |
 | `endDate` | string | Filter end date (ISO format) |
