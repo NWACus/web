@@ -64,11 +64,14 @@ These specs are written and `test.skip` themselves with a reason until the fixtu
 
 | Blocked on | Upstream Case | Costs us |
 | --- | --- | --- |
-| A forecast with populated `forecast_avalanche_problems`, non-null `danger`, and a `video` media item | `product_forecast_SNFAC_with_problems` | Problem cards, the locator rose, the sliders, every coloured danger rating, the lightbox's YouTube branch |
+| A forecast with populated `forecast_avalanche_problems`, non-null `danger`, and a `video` media item | `product_forecast_SNFAC_with_problems` | Problem cards, the locator rose, the sliders, every coloured danger rating, the lightbox's YouTube branch, a video attached to a problem |
+| A forecast whose authored HTML carries an `afp-photoswipe` figure, an `afp-video-modal` figure and a pasted `iframe` | `product_forecast_SNFAC_embedded_media` | Everything #1228 added to the discussion: the expand chip, the play button, an inline provider frame, the blocked-embed note |
 | A weather product at an id a forecast points at, with non-empty `weather_data` | `product_weather_SNFAC_populated` | Both mountain-weather table shapes |
 | A by-id golden for archive product 184562 | `product_by_id_SNFAC_summary` | The archive's second date |
 | `/v2/public/avalanche-center/{NWAC,SAC}` | `center_NWAC`, `center_SAC` | Nothing today — held in `provisional/` |
 | Map layers with real danger levels, `off_season`, or an active warning | `map_layer_*` | Danger-map styling, outside this suite's scope |
+
+The embedded-media row is a different kind of gap from the others. The rest are wire-level — a null field, an empty array, an id nothing is served at — so the capture is a matter of picking the right product. This one is about markup a forecaster typed into a text field, which no schema requires and no shape variant guarantees. #1228 sampled 6,745 v2 products and found 2,259 `afp-photoswipe` figures and 40 iframes across the corpus's own source data, so the products exist; what does not exist yet is a golden chosen for its markup. That makes it a case for the shape-variant work in #1209 rather than an ordinary capture.
 
 Two things are not fixture gaps and no capture will fix them:
 
