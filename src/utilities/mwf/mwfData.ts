@@ -670,6 +670,21 @@ const EMPTY_CELL = {
   wind: (): WindCell => ({ dir: '', speed: null, guidance: {} }),
 }
 
+// Copy-forward only makes sense across adjacent issuances: the previous
+// forecast anchored on the same day (AM → PM) or the day before (PM → next
+// AM). Anything older pre-populates nothing — numeric cells would blank via
+// re-anchoring anyway, and prose (discussion, sensible weather) must not
+// carry stale text across a gap.
+export function withinCopyForwardHorizon(
+  previousServiceDate: string,
+  newServiceDate: string,
+): boolean {
+  const from = parseLocalDate(previousServiceDate)
+  const to = parseLocalDate(newServiceDate)
+  const deltaDays = Math.round((to.getTime() - from.getTime()) / 86400000)
+  return deltaDays >= 0 && deltaDays <= 1
+}
+
 export function shiftBodyToAnchor(fc: MwfForecast, anchor: string): MwfForecast {
   const out = structuredClone(fc)
   const from = parseLocalDate(out.meta?.initialDate)

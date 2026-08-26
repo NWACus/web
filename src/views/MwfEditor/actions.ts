@@ -17,6 +17,7 @@ import {
   pointsFromSettings,
   serializeForecast,
   shiftBodyToAnchor,
+  withinCopyForwardHorizon,
   zonesFromSettings,
 } from '@/utilities/mwf/mwfData'
 import {
@@ -165,7 +166,7 @@ export async function createForecastAction({
   }
 
   const previous = await getCurrentVisible(auth.payload, { tenantId: auth.tenantId })
-  if (previous?.body) {
+  if (previous?.body && withinCopyForwardHorizon(previous.serviceDate, serviceDate)) {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const prevBody = previous.body as Partial<SerializedForecast>
     const shifted = shiftBodyToAnchor(
@@ -249,7 +250,14 @@ export async function loadForecastAction(
   let previousBody: Partial<SerializedForecast> | null = null
   let previousLabel: string | null = null
   const previous = await getCurrentVisible(auth.payload, { tenantId: auth.tenantId })
-  if (previous && previous.id !== doc.id && previous.body) {
+  // The Prev reference obeys the same copy-forward horizon as pre-population:
+  // an adjacent issuance is a useful baseline, a months-old one is noise.
+  if (
+    previous &&
+    previous.id !== doc.id &&
+    previous.body &&
+    withinCopyForwardHorizon(previous.serviceDate, doc.serviceDate)
+  ) {
     const scaffold = emptyForecast(zones, points, previous.issuance)
     scaffold.extendedSnowLevel = emptyExtendedSnowLevel(zones)
     scaffold.meta.initialDate = previous.serviceDate

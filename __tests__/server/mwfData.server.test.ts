@@ -36,6 +36,7 @@ import {
   tempPeriodsFor,
   todayDate,
   validateForecast,
+  withinCopyForwardHorizon,
   zoneBlockQpf,
   zoneSlug,
   zonesFromSettings,
@@ -365,6 +366,18 @@ describe('serialize / hydrate round-trip', () => {
     expect(out.precip.GONE.d1).toEqual({ qpf: 9, density: null })
     // A live cell always wins over a preserved one.
     expect(emptyPreserved().precip).toEqual({})
+  })
+})
+
+describe('withinCopyForwardHorizon', () => {
+  it('allows same-day (AM → PM) and next-day (PM → AM) copy-forward only', () => {
+    expect(withinCopyForwardHorizon('2026-08-25', '2026-08-25')).toBe(true)
+    expect(withinCopyForwardHorizon('2026-08-25', '2026-08-26')).toBe(true)
+    // A gap — stale prose must not carry into a new draft or the Prev column.
+    expect(withinCopyForwardHorizon('2026-08-24', '2026-08-26')).toBe(false)
+    expect(withinCopyForwardHorizon('2026-01-31', '2026-08-26')).toBe(false)
+    // Backfilling an older date never copies from the future.
+    expect(withinCopyForwardHorizon('2026-08-26', '2026-08-25')).toBe(false)
   })
 })
 

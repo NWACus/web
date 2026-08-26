@@ -7,7 +7,7 @@
 import { Button, toast } from '@payloadcms/ui'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createForecastAction, removeForecastAction, type MwfListRow } from './actions'
 
 function statusLabel(row: MwfListRow): string {
@@ -24,6 +24,10 @@ function statusLabel(row: MwfListRow): string {
 export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
   const router = useRouter()
   const [rows, setRows] = useState(initialRows)
+  // Locale timestamps only render after mount: the server's timezone/locale
+  // differs from the browser's, and formatting during SSR breaks hydration.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   const [issuance, setIssuance] = useState<'morning' | 'afternoon'>('morning')
   const [serviceDate, setServiceDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [creating, setCreating] = useState(false)
@@ -110,7 +114,7 @@ export function MwfListClient({ initialRows }: { initialRows: MwfListRow[] }) {
                 <td className="px-2 py-1.5">{statusLabel(row)}</td>
                 <td className="px-2 py-1.5">{row.authorName ?? '—'}</td>
                 <td className="px-2 py-1.5">
-                  {row.issuedAt ? new Date(row.issuedAt).toLocaleString() : '—'}
+                  {mounted && row.issuedAt ? new Date(row.issuedAt).toLocaleString() : '—'}
                 </td>
                 <td className="px-2 py-1.5 text-right">
                   {row.status !== 'withdrawn' && (
