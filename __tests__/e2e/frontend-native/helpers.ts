@@ -42,6 +42,21 @@ export function hasFixture(name: string): boolean {
   )
 }
 
+/**
+ * Every host a forecast page can frame or load a poster from.
+ *
+ * `getVideoEmbedUrl` frames YouTube at `youtube-nocookie.com` rather than `youtube.com`, and
+ * `getVideoThumbnail` takes a video's poster from `i.ytimg.com`; the sanitizer additionally lets a
+ * forecaster's own `iframe` through for these providers. Missing one of them is not a visible
+ * failure — it is a silently non-hermetic run against the real provider.
+ */
+const VIDEO_PROVIDER_HOSTS = [
+  'www.youtube.com',
+  'www.youtube-nocookie.com',
+  'player.vimeo.com',
+  'www.facebook.com',
+]
+
 const TRANSPARENT_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
   'base64',
@@ -51,16 +66,22 @@ const TRANSPARENT_PNG = Buffer.from(
  * Stub the third-party assets a rendered page references.
  *
  * MSW intercepts in the Next process, so it cannot see these — they are the browser's own
- * requests. Left live they would make the suite depend on S3, YouTube and a CloudFront CDN being
- * reachable, and each of them delays the `load` event `page.goto` waits on. Fulfilled rather than
- * aborted, because an aborted widget stylesheet logs a console error the widget spec asserts on.
+ * requests. Left live they would make the suite depend on S3, a video provider and a CloudFront CDN
+ * being reachable, and each of them delays the `load` event `page.goto` waits on. Fulfilled rather
+ * than aborted, because an aborted widget stylesheet logs a console error the widget spec asserts
+ * on.
  */
 export async function stubExternalAssets(page: Page): Promise<void> {
   await page.route('**/*.s3.*.amazonaws.com/**', (route) =>
     route.fulfill({ contentType: 'image/png', body: TRANSPARENT_PNG }),
   )
-  await page.route('**/www.youtube.com/**', (route) =>
-    route.fulfill({ contentType: 'text/html', body: '' }),
+  for (const host of VIDEO_PROVIDER_HOSTS) {
+    await page.route(`**/${host}/**`, (route) =>
+      route.fulfill({ contentType: 'text/html', body: '' }),
+    )
+  }
+  await page.route('**/i.ytimg.com/**', (route) =>
+    route.fulfill({ contentType: 'image/png', body: TRANSPARENT_PNG }),
   )
   // Next's image optimizer fetches Payload media over HTTP, which is not present on a local
   // checkout — and optimising a logo is not what this suite is testing.
