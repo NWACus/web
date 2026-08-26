@@ -13,8 +13,10 @@ import {
   deriveSnowLevel,
   extendedBlocksFor,
   periodDate,
-  periodsFor,
+  precipPeriodsFor,
   qpfOverPrecise,
+  snowLevelBlocksFor,
+  tempPeriodsFor,
   zoneBlockQpf,
   type ForecastPoint,
   type SerializedForecast,
@@ -95,6 +97,7 @@ function Section({
 }
 
 export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: SectionProps) {
+  // AM issuances forecast precip through Day 2 only (PR #158).
   // Column fill: every model title present in any of this period's cells.
   const titlesFor = (periodKey: string): string[] => {
     const titles = new Set<string>()
@@ -105,7 +108,7 @@ export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: Se
     })
     return Array.from(titles)
   }
-  const periods = periodsFor(forecast.meta.type)
+  const periods = precipPeriodsFor(forecast.meta.type)
   const zoneName = new Map(zones.map((z) => [z.id, z.name]))
   return (
     <Section
@@ -299,7 +302,8 @@ export function SnowLevelTable({
   previousBody,
   previousLabel,
 }: SectionProps) {
-  const blocks = blocksFor(forecast.meta.type)
+  // Mornings carry 6 snow-level blocks; wind still uses the full window.
+  const blocks = snowLevelBlocksFor(forecast.meta.type)
   return (
     <Section
       title="Snow & Freezing Level"
@@ -468,7 +472,8 @@ export function ExtendedSnowLevelTable({ forecast, extendedZones, mutate }: Sect
 }
 
 export function TempTable({ forecast, zones, mutate, previousBody }: SectionProps) {
-  const periods = periodsFor(forecast.meta.type)
+  // Temps cover the issuance's first two periods (PR #158).
+  const periods = tempPeriodsFor(forecast.meta.type)
   return (
     <Section
       title="Temperatures (5,000 ft)"

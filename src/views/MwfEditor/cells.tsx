@@ -5,8 +5,12 @@
 // Levels step by 500 ft with the arrow keys and snap on commit; wind
 // directions must be compass points (invalid entries clear rather than
 // publish).
-import { WIND_DIRECTIONS, type Entered } from '@/utilities/mwf/mwfData'
+import { normalizeWindDir, snapLevel, type Entered } from '@/utilities/mwf/mwfData'
 import { useEffect, useState } from 'react'
+
+// Re-exported for the cell tests, which exercise the shared snapping rule
+// through this module's entry surface.
+export { snapLevel }
 
 const display = (v: Entered): string => (v == null ? '' : String(v))
 
@@ -106,12 +110,8 @@ export function NumberCell({
   )
 }
 
-// Freezing/snow levels: snap to 500 ft between 0 and 16,000; arrows step.
-export function snapLevel(v: number | null): number | null {
-  if (v == null) return null
-  return Math.min(16000, Math.max(0, Math.round(v / 500) * 500))
-}
-
+// Freezing/snow levels: snap to 500 ft between 0 and 16,000 (shared
+// snapLevel); arrows step.
 export function LevelCell({
   value,
   onChange,
@@ -171,9 +171,9 @@ export function WindDirCell({
       onChange={(e) => setDraft(e.target.value.toUpperCase())}
       onBlur={() => {
         setEditing(false)
-        const next = draft.toUpperCase().trim()
-        onChange(WIND_DIRECTIONS.includes(next) ? next : '')
-        if (!WIND_DIRECTIONS.includes(next)) setDraft('')
+        const next = normalizeWindDir(draft)
+        onChange(next)
+        if (!next) setDraft('')
       }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') e.currentTarget.blur()

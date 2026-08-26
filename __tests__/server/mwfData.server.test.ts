@@ -6,24 +6,35 @@
 // here first.
 import {
   DEFAULT_DROP_FT,
+  LEVEL_MAX_FT,
   airfireCodeMap,
   applyGuidance,
   applyTempsGuidance,
   applyWindsGuidance,
+  blankRichText,
   blocksFor,
+  creationMeta,
   deriveSnow,
   deriveSnowLevel,
   emptyForecast,
+  emptyPreserved,
   extendedBlocksFor,
   hydrateForecast,
   normalizeConfigPoints,
+  normalizeWindDir,
   periodDate,
   periodsFor,
   pointsFromSettings,
+  precipPeriodsFor,
   qpfOverPrecise,
   serializeForecast,
+  sharedDensity,
   shiftBodyToAnchor,
+  snapLevel,
+  snowLevelBlocksFor,
   summarizeMissing,
+  tempPeriodsFor,
+  todayDate,
   validateForecast,
   zoneBlockQpf,
   zoneSlug,
@@ -66,6 +77,34 @@ describe('issuance windows', () => {
     ])
   })
 
+  it('temps cover the first two periods; precip runs three on AM, four on PM (PR #158)', () => {
+    expect(tempPeriodsFor('morning').map((p) => p.key)).toEqual(['d1', 'n1'])
+    expect(tempPeriodsFor('afternoon').map((p) => p.key)).toEqual(['n1', 'd2'])
+    expect(precipPeriodsFor('morning').map((p) => p.key)).toEqual(['d1', 'n1', 'd2'])
+    expect(precipPeriodsFor('afternoon').map((p) => p.key)).toEqual(['n1', 'd2', 'n2', 'd3'])
+  })
+
+  it('snow levels run 6 blocks on AM, 8 on PM; wind keeps the full window (PR #158)', () => {
+    expect(snowLevelBlocksFor('morning').map((b) => b.key)).toEqual([
+      'am1',
+      'pm1',
+      'ev1',
+      'nt1',
+      'am2',
+      'pm2',
+    ])
+    expect(snowLevelBlocksFor('afternoon').map((b) => b.key)).toEqual([
+      'ev1',
+      'nt1',
+      'am2',
+      'pm2',
+      'ev2',
+      'nt2',
+      'am3',
+      'pm3',
+    ])
+  })
+
   it('the extended outlook exists for afternoon issuances only', () => {
     expect(extendedBlocksFor('afternoon').map((b) => b.key)).toEqual(['nt3', 'am4', 'nt4', 'day5'])
     expect(extendedBlocksFor('morning')).toEqual([])
@@ -96,6 +135,75 @@ describe('default issue times', () => {
   it('afternoon issuances default to 3pm', () => {
     const fc = emptyForecast(ZONES, POINTS, 'afternoon', at)
     expect(fc.meta.issued).toBe('2026-07-14T15:00')
+  })
+})
+
+describe('creation dates are stamped in the center timezone (PR #158)', () => {
+  // 2026-01-15 04:00Z = still Jan 14 in America/Los_Angeles. An author east
+  // of the center must not anchor Day 1 a day ahead.
+  const LATE_PT_EVENING = new Date('2026-01-15T04:00:00Z')
+
+  it('anchors Day 1 to the center date, not the runtime date', () => {
+    expect(todayDate(LATE_PT_EVENING, 'America/Los_Angeles')).toBe('2026-01-14')
+    expect(todayDate(LATE_PT_EVENING, 'UTC')).toBe('2026-01-15')
+  })
+
+  it('stamps the default issue time as center-local wall time', () => {
+    expect(creationMeta('morning', 'America/Los_Angeles', LATE_PT_EVENING)).toEqual({
+      issued: '2026-01-14T07:00',
+      initialDate: '2026-01-14',
+    })
+    expect(creationMeta('afternoon', 'America/Los_Angeles', LATE_PT_EVENING).issued).toBe(
+      '2026-01-14T15:00',
+    )
+  })
+
+  it('falls back to runtime-local for a missing or unusable timezone', () => {
+    const local = new Date(2026, 0, 20, 10, 0)
+    expect(todayDate(local)).toBe('2026-01-20')
+    expect(todayDate(local, 'Not/AZone')).toBe('2026-01-20')
+  })
+})
+
+describe('entry helpers (PR #158)', () => {
+  it('normalizeWindDir uppercases, trims, and blanks non-compass entries', () => {
+    expect(normalizeWindDir(' sw ')).toBe('SW')
+    expect(normalizeWindDir('var')).toBe('VAR')
+    expect(normalizeWindDir('XQ')).toBe('')
+    expect(normalizeWindDir(null)).toBe('')
+  })
+
+  it('snapLevel snaps to 500 within 0..16000', () => {
+    expect(snapLevel(4321)).toBe(4500)
+    expect(snapLevel(-100)).toBe(0)
+    expect(snapLevel(99999)).toBe(LEVEL_MAX_FT)
+    expect(snapLevel(null)).toBeNull()
+  })
+
+  it('blankRichText judges emptiness on text content, not markup', () => {
+    expect(blankRichText('<p></p>')).toBe(true)
+    expect(blankRichText('<p>&nbsp;</p>')).toBe(true)
+    expect(blankRichText('<p>Snow.</p>')).toBe(false)
+    expect(blankRichText('')).toBe(true)
+    expect(blankRichText(null)).toBe(true)
+  })
+
+  it('sharedDensity reports the common SLR, mixed, or null', () => {
+    const points = POINTS.slice(0, 2)
+    expect(
+      sharedDensity({ HUR: { d1: { density: 10 } }, OLY2: { d1: { density: 10 } } }, points, 'd1'),
+    ).toBe(10)
+    expect(
+      sharedDensity({ HUR: { d1: { density: 10 } }, OLY2: { d1: { density: 12 } } }, points, 'd1'),
+    ).toBe('mixed')
+    expect(
+      sharedDensity(
+        { HUR: { d1: { density: 10 } }, OLY2: { d1: { density: null } } },
+        points,
+        'd1',
+      ),
+    ).toBe('mixed')
+    expect(sharedDensity({}, points, 'd1')).toBeNull()
   })
 })
 
@@ -244,11 +352,19 @@ describe('serialize / hydrate round-trip', () => {
     expect(fresh.precip.HUR.n1.guidance).toEqual({})
   })
 
-  it('hydrate is non-destructive for cells the current config no longer has', () => {
+  it('cells the current config dropped are preserved, not discarded (PR #158)', () => {
     const fc = emptyForecast(ZONES, POINTS, 'morning')
     const body = { precip: { GONE: { d1: { qpf: 9, density: null } } }, meta: fc.meta }
     expect(() => hydrateForecast(fc, body)).not.toThrow()
+    // The retired point never re-enters the live grid…
     expect(fc.precip.GONE).toBeUndefined()
+    // …but its values survive the round-trip: stashed on hydrate, merged back
+    // at serialize, so a correction can't silently publish them away.
+    expect(fc.preserved?.precip.GONE.d1).toEqual({ qpf: 9, density: null })
+    const out = serializeForecast(fc)
+    expect(out.precip.GONE.d1).toEqual({ qpf: 9, density: null })
+    // A live cell always wins over a preserved one.
+    expect(emptyPreserved().precip).toEqual({})
   })
 })
 
@@ -455,7 +571,29 @@ describe('validateForecast (publish gate)', () => {
     // A morning forecast: d3/extended never validated, even if cells exist.
     const fc = completeForecast('morning')
     fc.precip.HUR.d3.qpf = null // not shown for morning
+    // PR #158 windows: morning precip stops at Day 2, temps at Night 1, snow
+    // levels at PM 2 — blanks past those windows don't block publish.
+    fc.precip.HUR.n2.qpf = null
+    fc.temps.olympics.d2.high = null
+    fc.temps.olympics.n2.low = null
+    fc.snowLevel.olympics.ev2.freezing = null
+    fc.snowLevel.olympics.nt2.freezing = null
     expect(validateForecast(fc, { zones: ZONES, points: POINTS, extendedZones: EXT })).toEqual([])
+    // Wind still covers the full window.
+    fc.wind.olympics.nt2.dir = ''
+    expect(validateForecast(fc, { zones: ZONES, points: POINTS, extendedZones: EXT })).toEqual([
+      { section: 'Wind', where: 'Olympics Night 2', field: 'direction' },
+    ])
+  })
+
+  it('the extended synopsis is optional (PR #158)', () => {
+    const fc = completeForecast('afternoon')
+    fc.discussion.extended = ''
+    expect(validateForecast(fc, { zones: ZONES, points: POINTS, extendedZones: EXT })).toEqual([])
+    fc.discussion.synopsis = '<p>&nbsp;</p>' // markup-only synopsis is still blank
+    expect(validateForecast(fc, { zones: ZONES, points: POINTS, extendedZones: EXT })).toEqual([
+      { section: 'Discussion', where: 'Synopsis', field: 'text' },
+    ])
   })
 
   it('extended outlook zones are required for afternoon issuances', () => {

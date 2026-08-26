@@ -7,6 +7,9 @@ import {
   deriveSnow,
   deriveSnowLevel,
   periodDate,
+  precipPeriodsFor,
+  snowLevelBlocksFor,
+  tempPeriodsFor,
   type Entered,
 } from '@/utilities/mwf/mwfData'
 
@@ -43,6 +46,14 @@ export function MwfForecastView({ forecast }: { forecast: MwfPublicForecast }) {
   const slice = structure.issuances[forecast.issuance]
   const periods = structure.periods.filter((p) => slice.periods.includes(p.key))
   const blocks = structure.blocks.filter((b) => slice.blocks.includes(b.key))
+  // Per-table sub-windows (PR #158): precip through Day 2 on mornings, temps
+  // over the first two periods, snow levels over six morning blocks.
+  const precipKeys = new Set(precipPeriodsFor(forecast.issuance).map((p) => p.key))
+  const tempKeys = new Set(tempPeriodsFor(forecast.issuance).map((p) => p.key))
+  const snowKeys = new Set(snowLevelBlocksFor(forecast.issuance).map((b) => b.key))
+  const precipPeriods = periods.filter((p) => precipKeys.has(p.key))
+  const tempPeriods = periods.filter((p) => tempKeys.has(p.key))
+  const snowBlocks = blocks.filter((b) => snowKeys.has(b.key))
   const extendedBlocks = structure.extendedBlocks.filter((b) =>
     slice.extendedBlocks.includes(b.key),
   )
@@ -86,7 +97,7 @@ export function MwfForecastView({ forecast }: { forecast: MwfPublicForecast }) {
         head={
           <tr className="text-left">
             <th className="px-2 py-1">Forecast point</th>
-            {periods.map((per) => (
+            {precipPeriods.map((per) => (
               <th key={per.key} className="px-2 py-1 text-center">
                 <div>{periodDate(anchor, per.dayOffset)}</div>
                 <div className="text-xs font-normal opacity-70">
@@ -100,7 +111,7 @@ export function MwfForecastView({ forecast }: { forecast: MwfPublicForecast }) {
         {config.points.map((pt) => (
           <tr key={pt.code} className="border-t">
             <td className="px-2 py-1">{pt.name}</td>
-            {periods.map((per) => {
+            {precipPeriods.map((per) => {
               const cell = body.precip?.[pt.code]?.[per.key]
               const qpf = entered(cell?.qpf)
               const snow = cell ? deriveSnow(cell.qpf, cell.density) : null
@@ -122,7 +133,7 @@ export function MwfForecastView({ forecast }: { forecast: MwfPublicForecast }) {
         head={
           <tr className="text-left">
             <th className="px-2 py-1">Zone</th>
-            {blocks.map((b) => {
+            {snowBlocks.map((b) => {
               const per = periodByKey.get(b.period)
               return (
                 <th key={b.key} className="px-2 py-1 text-center">
@@ -139,7 +150,7 @@ export function MwfForecastView({ forecast }: { forecast: MwfPublicForecast }) {
         {config.zones.map((z) => (
           <tr key={z.id} className="border-t">
             <td className="px-2 py-1">{z.name}</td>
-            {blocks.map((b) => {
+            {snowBlocks.map((b) => {
               const cell = body.snowLevel?.[z.id]?.[b.key]
               const freezing = entered(cell?.freezing)
               if (freezing == null) {
@@ -213,7 +224,7 @@ export function MwfForecastView({ forecast }: { forecast: MwfPublicForecast }) {
         head={
           <tr className="text-left">
             <th className="px-2 py-1">Zone</th>
-            {periods.map((per) => (
+            {tempPeriods.map((per) => (
               <th key={per.key} className="px-2 py-1 text-center">
                 <div>{periodDate(anchor, per.dayOffset)}</div>
                 <div className="text-xs font-normal opacity-70">
@@ -227,7 +238,7 @@ export function MwfForecastView({ forecast }: { forecast: MwfPublicForecast }) {
         {config.zones.map((z) => (
           <tr key={z.id} className="border-t">
             <td className="px-2 py-1">{z.name}</td>
-            {periods.map((per) => {
+            {tempPeriods.map((per) => {
               const cell = body.temps?.[z.id]?.[per.key]
               const high = entered(cell?.high)
               const low = entered(cell?.low)

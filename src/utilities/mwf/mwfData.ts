@@ -93,6 +93,23 @@ export interface ForecastMeta {
 
 type CellTable<C> = Record<string, Record<string, C>>
 
+// Values hydrated from a stored body whose cells the current config no longer
+// has (a retired point or zone). Stashed rather than discarded, and merged
+// back at serialize time, so correcting an older forecast doesn't silently
+// publish them away (PR #158 final).
+export interface PreservedCells {
+  precip: CellTable<{ qpf: Entered; density: Entered }>
+  temps: CellTable<{ high: Entered; low: Entered }>
+  wind: CellTable<{ dir: string; speed: Entered }>
+  snowLevel: CellTable<{ freezing: Entered; drop: Entered; mode: SnowLevelCell['mode'] }>
+  extendedSnowLevel: CellTable<{ freezing: Entered; drop: Entered; mode: SnowLevelCell['mode'] }>
+  sensible: Record<string, SensibleSlots>
+}
+
+export function emptyPreserved(): PreservedCells {
+  return { precip: {}, temps: {}, wind: {}, snowLevel: {}, extendedSnowLevel: {}, sensible: {} }
+}
+
 export interface MwfForecast {
   meta: ForecastMeta
   precip: CellTable<PrecipCell>
@@ -102,6 +119,7 @@ export interface MwfForecast {
   wind: CellTable<WindCell>
   sensible: Record<string, SensibleSlots>
   discussion: { synopsis: string; extended: string }
+  preserved?: PreservedCells
 }
 
 // The persisted body: entered values only, guidance stripped (re-overlaid live).
@@ -184,6 +202,28 @@ export function blocksFor(type: IssuanceType): Block[] {
   return type === 'morning' ? BLOCKS.slice(0, 8) : BLOCKS.slice(2, 10)
 }
 
+// Temperatures cover the issuance's first two periods — morning is Day 1 /
+// Night 1, afternoon is Night 1 / Day 2. The temps table shows these and
+// publish requires exactly these (PR #158 final).
+export function tempPeriodsFor(type: IssuanceType): Period[] {
+  return periodsFor(type).slice(0, 2)
+}
+
+// QPF / density / snow run three periods on a morning issuance (the AM
+// product forecasts precip through Day 2 only) and four on an afternoon one,
+// while the 6h wind blocks still cover the issuance's full window.
+export function precipPeriodsFor(type: IssuanceType): Period[] {
+  return type === 'morning' ? periodsFor(type).slice(0, 3) : periodsFor(type)
+}
+
+// Snow / freezing levels run 6 blocks on a morning issuance and 8 on an
+// afternoon one — a morning forecast doesn't carry the second evening and
+// night. Wind still uses the issuance's full block list.
+export function snowLevelBlocksFor(type: IssuanceType): Block[] {
+  const blocks = blocksFor(type)
+  return type === 'morning' ? blocks.slice(0, 6) : blocks
+}
+
 // --- Extended snow-level outlook (afternoon issuance only) ------------------
 // Continues past the main window with a coarsening cadence. Keys parse as
 // slot+day for copy-forward re-anchoring, matching the regular block keys.
@@ -216,6 +256,25 @@ export const WIND_DIRECTIONS = [
   'NNW',
   'VAR',
 ]
+
+// A typed direction, cleaned up ("sw " → "SW"). Anything that isn't a compass
+// point comes back blank rather than being stored — publish validation then
+// catches it as a missing direction instead of shipping a typo.
+export function normalizeWindDir(value: unknown): string {
+  const dir = String(value ?? '')
+    .trim()
+    .toUpperCase()
+  return WIND_DIRECTIONS.includes(dir) ? dir : ''
+}
+
+// Snow / freezing levels are entered to the nearest 500 ft, 0–16,000.
+export const LEVEL_STEP_FT = 500
+export const LEVEL_MAX_FT = 16000
+export function snapLevel(v: number | null): number | null {
+  if (v == null) return null
+  if (!Number.isFinite(v)) return null
+  return Math.min(LEVEL_MAX_FT, Math.max(0, Math.round(v / LEVEL_STEP_FT) * LEVEL_STEP_FT))
+}
 
 export const SENSIBLE_SLOTS = [
   { key: 'morning', label: 'Today / Tonight' },
@@ -270,6 +329,19 @@ export function qpfOverPrecise(qpf: Entered): boolean {
 // configured outlook zones (afternoon only), both sensible-weather slots per
 // zone, and the discussion. Returns a list of {section, where, field} — empty
 // means publishable.
+// The discussion fields may carry markup from a rich-text editor (an editor
+// the forecaster never typed in still emits '<p></p>'), so emptiness is
+// judged on the text content (PR #158 final).
+export function blankRichText(value: unknown): boolean {
+  if (value == null) return true
+  return (
+    String(value)
+      .replace(/<[^>]*>/g, '') // strip tags
+      .replace(/&nbsp;/gi, ' ')
+      .trim() === ''
+  )
+}
+
 export function validateForecast(
   fc: MwfForecast,
   {
@@ -282,11 +354,13 @@ export function validateForecast(
   const blank = (v: Entered) => v == null || v === ''
   const push = (section: string, where: string, field: string) =>
     missing.push({ section, where, field })
-  const periods = periodsFor(fc.meta.type)
+  const precipPeriods = precipPeriodsFor(fc.meta.type)
+  const tempPeriods = tempPeriodsFor(fc.meta.type)
   const blocks = blocksFor(fc.meta.type)
+  const snowBlocks = snowLevelBlocksFor(fc.meta.type)
 
   points.forEach((pt) => {
-    periods.forEach((p) => {
+    precipPeriods.forEach((p) => {
       const c = fc.precip?.[pt.code]?.[p.key]
       if (!c) return
       if (blank(c.qpf)) push('Precip', `${pt.code} ${p.short}`, 'QPF')
@@ -299,7 +373,7 @@ export function validateForecast(
   })
 
   zones.forEach((z) => {
-    periods.forEach((p) => {
+    tempPeriods.forEach((p) => {
       const c = fc.temps?.[z.id]?.[p.key]
       if (!c) return
       if (blank(c.high)) push('Temps', `${z.name} ${p.short}`, 'high')
@@ -308,9 +382,11 @@ export function validateForecast(
         push('Temps', `${z.name} ${p.short}`, 'high below low')
       }
     })
-    blocks.forEach((b) => {
+    snowBlocks.forEach((b) => {
       const sl = fc.snowLevel?.[z.id]?.[b.key]
       if (sl && blank(sl.freezing)) push('Snow/Freezing', `${z.name} ${b.label}`, 'level')
+    })
+    blocks.forEach((b) => {
       const w = fc.wind?.[z.id]?.[b.key]
       if (w) {
         if (blank(w.dir)) push('Wind', `${z.name} ${b.label}`, 'direction')
@@ -330,8 +406,8 @@ export function validateForecast(
     })
   })
 
-  if (blank(fc.discussion?.synopsis)) push('Discussion', 'Synopsis', 'text')
-  if (blank(fc.discussion?.extended)) push('Discussion', 'Extended synopsis', 'text')
+  // The synopsis is required; the extended synopsis is optional (PR #158).
+  if (blankRichText(fc.discussion?.synopsis)) push('Discussion', 'Synopsis', 'text')
   return missing
 }
 
@@ -349,6 +425,22 @@ export function summarizeMissing(missing: MissingField[], examplesPer = 3): stri
     const more = list.length > examplesPer ? ', …' : ''
     return `${section}: ${list.length} missing (${examples}${more})`
   })
+}
+
+// The SLR a whole period shares, for the density quick-set's state: the
+// common value when every point agrees, 'mixed' when they don't (including a
+// partly filled column), null when nothing is set yet.
+export function sharedDensity(
+  precip: CellTable<Pick<PrecipCell, 'density'>> | undefined,
+  points: ForecastPoint[] | undefined,
+  periodKey: string,
+): number | 'mixed' | null {
+  const values = (points || []).map((p) => precip?.[p.code]?.[periodKey]?.density)
+  const filled = values.filter((v) => v != null && v !== '')
+  if (!filled.length) return null
+  if (filled.length !== values.length) return 'mixed'
+  const first = Number(filled[0])
+  return filled.every((v) => Number(v) === first) ? first : 'mixed'
 }
 
 export function pointsForZone(
@@ -490,15 +582,53 @@ export function emptySensible(zones: Zone[] | undefined): Record<string, Sensibl
   return out
 }
 
-// Local ISO timestamp (no timezone) `dayOffset` days from `now` at `hour`.
-function isoAt(dayOffset: number, hour: number, now: Date): string {
-  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset)
+// Today in the CENTER's timezone, as [y, m, d]. The service day is the
+// center's day — an author east of the center is already on tomorrow while
+// the center is still on today, and would anchor Day 1 a day ahead. Falls
+// back to runtime-local when no usable timezone is given (PR #158 final).
+function todayParts(now: Date, tz?: string): [number, number, number] {
+  if (tz) {
+    try {
+      const stamp = new Intl.DateTimeFormat('en-CA', {
+        timeZone: tz,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(now)
+      const [y, m, d] = stamp.split('-').map(Number)
+      return [y, m, d]
+    } catch {
+      // unknown tz — fall through to runtime-local
+    }
+  }
+  return [now.getFullYear(), now.getMonth() + 1, now.getDate()]
+}
+
+// Center-local ISO timestamp (no offset) `dayOffset` days out at `hour`.
+function isoAt(dayOffset: number, hour: number, now: Date, tz?: string): string {
+  const [y, m, day] = todayParts(now, tz)
+  const d = new Date(y, m - 1, day + dayOffset)
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(hour)}:00`
 }
-// Today as "YYYY-MM-DD" (local). The Day 1 anchor is stamped at creation.
-export function todayDate(now: Date = new Date()): string {
-  return isoAt(0, 0, now).slice(0, 10)
+// Today as "YYYY-MM-DD" in the center's timezone.
+export function todayDate(now: Date = new Date(), tz?: string): string {
+  return isoAt(0, 0, now, tz).slice(0, 10)
+}
+
+// The hours the AM and PM shifts aim to publish at.
+export const MORNING_ISSUE_HOUR = 7
+export const AFTERNOON_ISSUE_HOUR = 15
+// Date fields stamped at creation, in the center's timezone.
+export function creationMeta(
+  type: IssuanceType = 'morning',
+  tz?: string,
+  now: Date = new Date(),
+): { issued: string; initialDate: string } {
+  return {
+    issued: isoAt(0, type === 'afternoon' ? AFTERNOON_ISSUE_HOUR : MORNING_ISSUE_HOUR, now, tz),
+    initialDate: todayDate(now, tz),
+  }
 }
 
 // A blank forecast for the center's zones/points. Morning issuance defaults to
@@ -509,14 +639,11 @@ export function emptyForecast(
   points: ForecastPoint[] | undefined,
   type: IssuanceType = 'morning',
   now: Date = new Date(),
+  tz?: string,
 ): MwfForecast {
   return {
-    meta: {
-      type,
-      author: '',
-      issued: isoAt(0, type === 'afternoon' ? 15 : 7, now),
-      initialDate: todayDate(now),
-    },
+    meta: { type, author: '', ...creationMeta(type, tz, now) },
+    preserved: emptyPreserved(),
     precip: emptyPrecip(points),
     snowLevel: emptySnowLevel(zones),
     extendedSnowLevel: {},
@@ -756,36 +883,75 @@ function mapCells<C, O>(table: CellTable<C> | undefined, pick: (cell: C) => O): 
   return out
 }
 
+// A real cell always wins; only genuinely homeless preserved values restore.
+function mergePreserved<C>(out: CellTable<C>, kept: CellTable<C> | undefined): CellTable<C> {
+  for (const [key, inner] of Object.entries(kept || {})) {
+    for (const [k, v] of Object.entries(inner || {})) {
+      out[key] ||= {}
+      if (out[key][k] === undefined) out[key][k] = v
+    }
+  }
+  return out
+}
+
 export function serializeForecast(forecast: MwfForecast): SerializedForecast {
+  const kept = forecast.preserved ?? emptyPreserved()
+  const sensible: Record<string, SensibleSlots> = structuredClone(forecast.sensible || {})
+  for (const [z, slots] of Object.entries(kept.sensible || {})) {
+    if (sensible[z] === undefined) sensible[z] = slots
+  }
   return {
     meta: { ...forecast.meta },
-    precip: mapCells(forecast.precip, (c) => ({ qpf: c.qpf, density: c.density })),
-    temps: mapCells(forecast.temps, (c) => ({ high: c.high, low: c.low })),
-    wind: mapCells(forecast.wind, (c) => ({ dir: c.dir, speed: c.speed })),
-    snowLevel: mapCells(forecast.snowLevel, (c) => ({
-      freezing: c.freezing,
-      drop: c.drop,
-      mode: c.mode,
-    })),
-    extendedSnowLevel: mapCells(forecast.extendedSnowLevel, (c) => ({
-      freezing: c.freezing,
-      drop: c.drop,
-      mode: c.mode,
-    })),
-    sensible: structuredClone(forecast.sensible || {}),
+    precip: mergePreserved(
+      mapCells(forecast.precip, (c) => ({ qpf: c.qpf, density: c.density })),
+      kept.precip,
+    ),
+    temps: mergePreserved(
+      mapCells(forecast.temps, (c) => ({ high: c.high, low: c.low })),
+      kept.temps,
+    ),
+    wind: mergePreserved(
+      mapCells(forecast.wind, (c) => ({ dir: c.dir, speed: c.speed })),
+      kept.wind,
+    ),
+    snowLevel: mergePreserved(
+      mapCells(forecast.snowLevel, (c) => ({
+        freezing: c.freezing,
+        drop: c.drop,
+        mode: c.mode,
+      })),
+      kept.snowLevel,
+    ),
+    extendedSnowLevel: mergePreserved(
+      mapCells(forecast.extendedSnowLevel, (c) => ({
+        freezing: c.freezing,
+        drop: c.drop,
+        mode: c.mode,
+      })),
+      kept.extendedSnowLevel,
+    ),
+    sensible,
     discussion: { ...forecast.discussion },
   }
 }
 
+// Cells the current config dropped (a retired point) are stashed rather than
+// discarded, so correcting an older forecast doesn't publish them away.
 function hydrateCells<C, V>(
   table: CellTable<C> | undefined,
   body: CellTable<V> | undefined,
   assign: (cell: C, v: V) => void,
+  stash?: CellTable<V>,
 ) {
   for (const [key, inner] of Object.entries(body || {})) {
-    for (const [k, v] of Object.entries(inner)) {
+    for (const [k, v] of Object.entries(inner || {})) {
       const cell = table?.[key]?.[k]
-      if (cell) assign(cell, v)
+      if (cell) {
+        assign(cell, v)
+      } else if (stash) {
+        stash[key] ||= {}
+        stash[key][k] = v
+      }
     }
   }
 }
@@ -800,19 +966,41 @@ export function hydrateForecast(
   if (!forecast.meta.initialDate) {
     forecast.meta.initialDate = (forecast.meta.issued || '').slice(0, 10) || todayDate()
   }
-  hydrateCells(forecast.precip, body.precip, (c, v) =>
-    Object.assign(c, { qpf: v.qpf, density: v.density }),
+  const kept = emptyPreserved()
+  hydrateCells(
+    forecast.precip,
+    body.precip,
+    (c, v) => Object.assign(c, { qpf: v.qpf, density: v.density }),
+    kept.precip,
   )
-  hydrateCells(forecast.temps, body.temps, (c, v) => Object.assign(c, { high: v.high, low: v.low }))
-  hydrateCells(forecast.wind, body.wind, (c, v) => Object.assign(c, { dir: v.dir, speed: v.speed }))
-  hydrateCells(forecast.snowLevel, body.snowLevel, (c, v) =>
-    Object.assign(c, { freezing: v.freezing, drop: v.drop, mode: v.mode }),
+  hydrateCells(
+    forecast.temps,
+    body.temps,
+    (c, v) => Object.assign(c, { high: v.high, low: v.low }),
+    kept.temps,
   )
-  hydrateCells(forecast.extendedSnowLevel, body.extendedSnowLevel, (c, v) =>
-    Object.assign(c, { freezing: v.freezing, drop: v.drop, mode: v.mode }),
+  hydrateCells(
+    forecast.wind,
+    body.wind,
+    (c, v) => Object.assign(c, { dir: v.dir, speed: v.speed }),
+    kept.wind,
+  )
+  hydrateCells(
+    forecast.snowLevel,
+    body.snowLevel,
+    (c, v) => Object.assign(c, { freezing: v.freezing, drop: v.drop, mode: v.mode }),
+    kept.snowLevel,
+  )
+  hydrateCells(
+    forecast.extendedSnowLevel,
+    body.extendedSnowLevel,
+    (c, v) => Object.assign(c, { freezing: v.freezing, drop: v.drop, mode: v.mode }),
+    kept.extendedSnowLevel,
   )
   for (const [z, slots] of Object.entries(body.sensible || {})) {
     if (forecast.sensible?.[z]) Object.assign(forecast.sensible[z], slots)
+    else kept.sensible[z] = slots
   }
+  forecast.preserved = kept
   if (body.discussion) Object.assign(forecast.discussion, body.discussion)
 }

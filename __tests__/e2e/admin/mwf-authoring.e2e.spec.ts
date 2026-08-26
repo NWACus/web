@@ -104,15 +104,20 @@ test.describe('MWF authoring end-to-end', () => {
     await expect(page.getByText(`${SERVICE_DATE} · morning`)).toBeVisible()
 
     // --- Author every visible field ----------------------------------------
-    // Morning window: periods D1,N1,D2,N2 and blocks am1..nt2.
-    for (const period of ['D1', 'N1', 'D2', 'N2']) {
+    // The PR #158 morning windows: precip runs D1..D2, temps D1..N1, snow
+    // levels am1..pm2, wind the full am1..nt2.
+    for (const period of ['D1', 'N1', 'D2']) {
       await fillCommit(page, `test-point ${period} QPF`, '0.5')
       await fillCommit(page, `test-point ${period} density`, '10')
+    }
+    for (const period of ['D1', 'N1']) {
       await fillCommit(page, `test-zone ${period} high`, '30')
       await fillCommit(page, `test-zone ${period} low`, '20')
     }
-    for (const block of ['am1', 'pm1', 'ev1', 'nt1', 'am2', 'pm2', 'ev2', 'nt2']) {
+    for (const block of ['am1', 'pm1', 'ev1', 'nt1', 'am2', 'pm2']) {
       await fillCommit(page, `test-zone ${block} level`, '5000')
+    }
+    for (const block of ['am1', 'pm1', 'ev1', 'nt1', 'am2', 'pm2', 'ev2', 'nt2']) {
       await fillCommit(page, `test-zone ${block} direction`, 'SW')
       await fillCommit(page, `test-zone ${block} speed`, '15')
     }
