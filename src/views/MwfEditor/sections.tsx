@@ -77,16 +77,18 @@ const PART_LABEL: Record<string, string> = {
 }
 
 function Section({
+  id,
   title,
   hint,
   children,
 }: {
+  id: string
   title: string
   hint: string
   children: React.ReactNode
 }) {
   return (
-    <section className="mwf-section">
+    <section id={id} className="mwf-section">
       <h2 className="text-base font-semibold">{title}</h2>
       <p className="mwf-hint mb-3 text-xs">{hint}</p>
       {children}
@@ -110,7 +112,8 @@ export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: Se
   const zoneName = new Map(zones.map((z) => [z.id, z.name]))
   return (
     <Section
-      title="Precipitation · Density · Snow"
+      id="mwf-precip"
+      title="QPF · Density · Snow"
       hint="Per-point, 12-hour blocks. Snow is derived (QPF × 100 / density) and not editable. Density is needed only where QPF > 0."
     >
       <div className="overflow-x-auto">
@@ -304,6 +307,7 @@ export function SnowLevelTable({
   const blocks = snowLevelBlocksFor(forecast.meta.type)
   return (
     <Section
+      id="mwf-snow-level"
       title="Snow & Freezing Level"
       hint="Zone-scale, 6-hour blocks, nearest 500 ft (arrow keys step). The snow/freezing designation auto-sets from precip — click it to override."
     >
@@ -356,7 +360,7 @@ export function SnowLevelTable({
                     designation === 'snow' ? deriveSnowLevel(cell.freezing, cell.drop) : null
                   return (
                     <td key={b.key} className="px-1.5 py-1.5">
-                      <div className="flex flex-col items-stretch gap-0.5">
+                      <div className="flex items-center gap-1">
                         <LevelCell
                           ariaLabel={`${z.id} ${b.key} level`}
                           value={cell.freezing}
@@ -366,6 +370,29 @@ export function SnowLevelTable({
                             })
                           }
                         />
+                        <button
+                          type="button"
+                          title="Toggle snow vs freezing designation"
+                          aria-label={`${z.id} ${b.key} designation: ${designation}`}
+                          className={`mwf-designation-icon ${
+                            designation === 'snow'
+                              ? 'mwf-designation--snow'
+                              : 'mwf-designation--freezing'
+                          }`}
+                          onClick={() =>
+                            mutate((fc) => {
+                              fc.snowLevel[z.id][b.key].mode =
+                                designation === 'snow' ? 'freezing' : 'snow'
+                            })
+                          }
+                        >
+                          {designation === 'snow' ? '❄' : '💧'}
+                          {designation === 'snow' && level != null && (
+                            <span className="mwf-designation-level">{level}</span>
+                          )}
+                        </button>
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap gap-1">
                         {entered(previousBody?.snowLevel?.[z.id]?.[b.key]?.freezing) != null && (
                           <Chip
                             label="Prev"
@@ -386,25 +413,6 @@ export function SnowLevelTable({
                             }
                           />
                         )}
-                        <button
-                          type="button"
-                          title="Toggle snow vs freezing designation"
-                          className={`mwf-designation ${
-                            designation === 'snow'
-                              ? 'mwf-designation--snow'
-                              : 'mwf-designation--freezing'
-                          }`}
-                          onClick={() =>
-                            mutate((fc) => {
-                              fc.snowLevel[z.id][b.key].mode =
-                                designation === 'snow' ? 'freezing' : 'snow'
-                            })
-                          }
-                        >
-                          {designation === 'snow'
-                            ? `❄ snow${level != null ? ` ${level}` : ''}`
-                            : '💧 freezing'}
-                        </button>
                       </div>
                     </td>
                   )
@@ -423,6 +431,7 @@ export function ExtendedSnowLevelTable({ forecast, extendedZones, mutate }: Sect
   if (!blocks.length || !extendedZones.length) return null
   return (
     <Section
+      id="mwf-extended"
       title="Extended Snow Level Outlook"
       hint="Afternoon issuances only — four coarse blocks out to day 5, for the configured outlook zones."
     >
@@ -476,6 +485,7 @@ export function TempTable({ forecast, zones, mutate, previousBody }: SectionProp
   const periods = tempPeriodsFor(forecast.meta.type)
   return (
     <Section
+      id="mwf-temps"
       title="Temperatures (5,000 ft)"
       hint="High / low per zone per 12-hour period. A high below its low is flagged live and blocks publish."
     >
@@ -588,6 +598,7 @@ export function WindTable({ forecast, zones, mutate, previousBody }: SectionProp
   const blocks = blocksFor(forecast.meta.type)
   return (
     <Section
+      id="mwf-wind"
       title="Ridgeline Winds"
       hint="Direction (compass points incl. VAR — invalid entries clear) and speed per zone per 6-hour block."
     >
@@ -683,27 +694,32 @@ export function WindTable({ forecast, zones, mutate, previousBody }: SectionProp
 
 export function SensibleWeather({ forecast, zones, mutate }: SectionProps) {
   return (
-    <Section title="Sensible Weather" hint="Free text per zone: Today / Tonight and Tomorrow.">
-      <div className="flex flex-col gap-3">
+    <Section
+      id="mwf-sensible"
+      title="Sensible Weather"
+      hint="Plain-language summary per zone: Today / Tonight and Tomorrow."
+    >
+      <div className="grid gap-4 md:grid-cols-2">
         {zones.map((z) => {
           const slots = forecast.sensible[z.id]
           if (!slots) return null
           return (
-            <div key={z.id} className="grid gap-2 md:grid-cols-[12rem_1fr_1fr]">
-              <div className="pt-1.5 text-sm">{z.name}</div>
+            <div key={z.id} className="flex flex-col gap-1.5">
+              <div className="text-sm font-medium">{z.name}</div>
               {SENSIBLE_SLOTS.map((slot) => (
-                <textarea
-                  key={slot.key}
-                  aria-label={`${z.id} ${slot.label}`}
-                  placeholder={slot.label}
-                  className="mwf-textarea min-h-16"
-                  value={slots[slot.key]}
-                  onChange={(e) =>
-                    mutate((fc) => {
-                      fc.sensible[z.id][slot.key] = e.target.value
-                    })
-                  }
-                />
+                <label key={slot.key} className="flex flex-col gap-0.5">
+                  <span className="mwf-hint text-xs">{slot.label}</span>
+                  <textarea
+                    aria-label={`${z.id} ${slot.label}`}
+                    className="mwf-textarea min-h-16"
+                    value={slots[slot.key]}
+                    onChange={(e) =>
+                      mutate((fc) => {
+                        fc.sensible[z.id][slot.key] = e.target.value
+                      })
+                    }
+                  />
+                </label>
               ))}
             </div>
           )
@@ -715,7 +731,11 @@ export function SensibleWeather({ forecast, zones, mutate }: SectionProps) {
 
 export function Discussion({ forecast, mutate }: SectionProps) {
   return (
-    <Section title="Discussion" hint="Synopsis and extended synopsis for the whole forecast.">
+    <Section
+      id="mwf-discussion"
+      title="Discussion"
+      hint="Free-form synopsis (required to publish) and extended outlook (optional)."
+    >
       <div className="flex flex-col gap-3">
         <textarea
           aria-label="Synopsis"

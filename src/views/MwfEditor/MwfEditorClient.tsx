@@ -14,6 +14,7 @@ import {
   emptyExtendedSnowLevel,
   emptyForecast,
   hydrateForecast,
+  periodDate,
   serializeForecast,
   type SerializedForecast,
 } from '@/utilities/mwf/mwfData'
@@ -61,6 +62,40 @@ function buildModel(initial: LoadedForecast, guidance: GuidanceBundle | null): M
 }
 
 type SaveState = 'saved' | 'dirty' | 'saving' | 'error'
+
+// Scrollspy pills over the section anchors (the dashboard-v2 editor's nav).
+function SectionNav({ sections }: { sections: Array<{ id: string; label: string }> }) {
+  const [active, setActive] = useState(sections[0]?.id)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible[0]) setActive(visible[0].target.id)
+      },
+      { rootMargin: '-96px 0px -60% 0px' },
+    )
+    sections.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [sections])
+  return (
+    <nav className="mwf-section-nav" aria-label="Forecast sections">
+      {sections.map(({ id, label }) => (
+        <a
+          key={id}
+          className={`mwf-pill ${active === id ? 'mwf-pill--active' : ''}`}
+          href={`#${id}`}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
+  )
+}
 
 export function MwfEditorClient({
   initial,
@@ -227,16 +262,16 @@ export function MwfEditorClient({
   }[saveState]
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 text-sm">
-          <Link className="mwf-link" href="/admin/mwf">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link className="mwf-link text-sm" href="/admin/mwf">
             ← Forecasts
           </Link>
-          <span className="font-medium capitalize">
-            {forecast.meta.initialDate} · {initial.issuance}
-          </span>
-          <span className="mwf-status-chip">
+          <h2 className="m-0 text-lg font-semibold capitalize">
+            {initial.issuance} Forecast · {periodDate(forecast.meta.initialDate, 0)}
+          </h2>
+          <span className={`mwf-status-chip mwf-status-chip--${status}`}>
             {status}
             {isCorrection ? ` · correction r${revision}` : revision > 1 ? ` · r${revision}` : ''}
           </span>
@@ -257,6 +292,11 @@ export function MwfEditorClient({
           )}
         </div>
         <div className="flex items-center gap-3">
+          {initial.authorName && (
+            <span className="mwf-muted text-xs">
+              Forecaster <span className="font-medium">{initial.authorName}</span>
+            </span>
+          )}
           <span className="mwf-muted text-xs" data-testid="mwf-save-state" role="status">
             {saveLabel} · #{docId}
           </span>
@@ -278,16 +318,10 @@ export function MwfEditorClient({
         </div>
       </div>
 
-      {guidance?.stale && (
-        <p className="mwf-banner mwf-banner--warning">
-          Model guidance is stale — showing the last good run. A refresh failure never blanks the
-          working columns.
-        </p>
-      )}
       {status === 'published' && (
-        <p className="mwf-banner mwf-banner--warning">
-          This revision is published and immutable — your first edit silently opens a correction
-          draft.
+        <p className="mwf-banner mwf-banner--info">
+          This product is published — it is immutable, and your first edit silently opens a
+          correction draft.
         </p>
       )}
       {readOnly && (
@@ -295,14 +329,34 @@ export function MwfEditorClient({
           This forecast was withdrawn and is read-only.
         </p>
       )}
+      {guidance?.stale && (
+        <p className="mwf-banner mwf-banner--warning">
+          Model guidance is stale — showing the last good run. A refresh failure never blanks the
+          working columns.
+        </p>
+      )}
 
+      <SectionNav
+        sections={[
+          { id: 'mwf-discussion', label: 'Discussion' },
+          { id: 'mwf-precip', label: 'QPF · Density · Snow' },
+          { id: 'mwf-snow-level', label: 'Snow / Freezing Level' },
+          ...(initial.issuance === 'afternoon' && extendedZones.length
+            ? [{ id: 'mwf-extended', label: 'Extended Snow Level' }]
+            : []),
+          { id: 'mwf-temps', label: 'Temperatures' },
+          { id: 'mwf-wind', label: 'Ridgeline Wind' },
+          { id: 'mwf-sensible', label: 'Sensible Weather' },
+        ]}
+      />
+
+      <Discussion {...sectionProps} />
       <PrecipGrid {...sectionProps} />
       <SnowLevelTable {...sectionProps} />
       <ExtendedSnowLevelTable {...sectionProps} />
       <TempTable {...sectionProps} />
       <WindTable {...sectionProps} />
       <SensibleWeather {...sectionProps} />
-      <Discussion {...sectionProps} />
 
       {showPublish && (
         <PublishModal

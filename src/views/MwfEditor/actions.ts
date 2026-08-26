@@ -204,6 +204,7 @@ export interface LoadedForecast {
   issuedAt: string | null
   revision: number
   isCorrection: boolean
+  authorName: string | null
   body: Partial<SerializedForecast> | null
   config: {
     zones: { id: string; name: string }[]
@@ -231,6 +232,18 @@ export async function loadForecastAction(
   const doc = docs[0]
   if (!doc) return { error: 'Forecast not found' }
 
+  let authorName: string | null = null
+  const authorId = typeof doc.author === 'number' ? doc.author : doc.author?.id
+  if (authorId != null) {
+    const users = await auth.payload.find({
+      collection: 'users',
+      where: { id: { equals: authorId } },
+      limit: 1,
+      depth: 0,
+    })
+    authorName = users.docs[0]?.name ?? users.docs[0]?.email ?? null
+  }
+
   const zones = zonesFromSettings(auth.mwfConfig.zones ?? [])
   const points = pointsFromSettings(auth.mwfConfig.points ?? [])
   let previousBody: Partial<SerializedForecast> | null = null
@@ -256,6 +269,7 @@ export async function loadForecastAction(
       issuedAt: doc.issuedAt ?? null,
       revision: doc.revision,
       isCorrection: doc.supersedes != null,
+      authorName,
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       body: (doc.body ?? null) as Partial<SerializedForecast> | null,
       config: {

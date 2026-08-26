@@ -101,7 +101,7 @@ test.describe('MWF authoring end-to-end', () => {
     await page.getByLabel('Issuance').selectOption('morning')
     await page.getByRole('button', { name: 'New forecast' }).click()
     await expect(page).toHaveURL(/\/admin\/mwf\?id=\d+/)
-    await expect(page.getByText(`${SERVICE_DATE} · morning`)).toBeVisible()
+    await expect(page.getByRole('heading', { name: /morning Forecast ·/i })).toBeVisible()
 
     // --- Author every visible field ----------------------------------------
     // The PR #158 morning windows: precip runs D1..D2, temps D1..N1, snow

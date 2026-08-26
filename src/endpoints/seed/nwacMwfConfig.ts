@@ -11,8 +11,9 @@ import type { Setting } from '@/payload-types'
 // (HRRR 3km, RRFS 3km, NBM ~5km); grib2 is out of scope for the local proof
 // (PRD contingency), so only the WRF JSON sources are represented here.
 export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
+  // Row order is display order in the editor and public render; this is the
+  // staging forecast form's order (West Slopes North first … Olympics last).
   zones: [
-    { code: 'olympics', name: 'Olympics', airfireZoneId: 'ol', nacZoneIds: '1645' },
     {
       code: 'west-slopes-north',
       name: 'West Slopes North',
@@ -31,8 +32,6 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
       airfireZoneId: 'ws',
       nacZoneIds: '1648',
     },
-    { code: 'stevens-pass', name: 'Stevens Pass', airfireZoneId: 'st', nacZoneIds: '1649' },
-    { code: 'snoqualmie-pass', name: 'Snoqualmie Pass', airfireZoneId: 'sn', nacZoneIds: '1653' },
     {
       code: 'east-slopes-north',
       name: 'East Slopes North',
@@ -51,7 +50,10 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
       airfireZoneId: 'es',
       nacZoneIds: '1656',
     },
+    { code: 'stevens-pass', name: 'Stevens Pass', airfireZoneId: 'st', nacZoneIds: '1649' },
+    { code: 'snoqualmie-pass', name: 'Snoqualmie Pass', airfireZoneId: 'sn', nacZoneIds: '1653' },
     { code: 'mt-hood', name: 'Mt Hood', airfireZoneId: 'hd', nacZoneIds: '1657' },
+    { code: 'olympics', name: 'Olympics', airfireZoneId: 'ol', nacZoneIds: '1645' },
   ],
   points: [
     {

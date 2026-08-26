@@ -99,10 +99,15 @@
     border-color: var(--theme-success-400);
   }
 
-  // snow-vs-freezing designation toggle
-  .mwf-designation {
-    padding: 0 4px;
-    font-size: 11px;
+  // snow-vs-freezing designation toggle — compact icon beside the level input
+  .mwf-designation-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    padding: 2px 3px;
+    font-size: 12px;
+    line-height: 1;
     background: none;
     border: none;
     border-radius: var(--style-radius-s);
@@ -111,6 +116,11 @@
     &:hover {
       background: var(--theme-elevation-100);
     }
+  }
+  .mwf-designation-level {
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    color: var(--theme-elevation-500);
   }
   .mwf-designation--snow {
     color: var(--theme-elevation-650);
@@ -151,13 +161,57 @@
 
   // --- status + banners ----------------------------------------------------
   .mwf-status-chip {
-    padding: 2px 6px;
+    padding: 2px 8px;
     font-size: 12px;
     text-transform: capitalize;
     color: var(--theme-elevation-650);
     background: var(--theme-elevation-50);
     border: 1px solid var(--theme-elevation-150);
-    border-radius: var(--style-radius-s);
+    border-radius: 999px;
+  }
+  .mwf-status-chip--published {
+    color: var(--theme-success-750);
+    background: var(--theme-success-100);
+    border-color: var(--theme-success-300);
+  }
+  .mwf-status-chip--withdrawn {
+    color: var(--theme-error-750);
+    background: var(--theme-error-50);
+    border-color: var(--theme-error-300);
+  }
+
+  // scrollspy section pills (sticky under the admin header)
+  .mwf-section-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 0;
+    background: var(--theme-bg);
+  }
+  .mwf-pill {
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--theme-elevation-600);
+    text-decoration: none;
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: 999px;
+
+    &:hover {
+      color: var(--theme-elevation-800);
+      background: var(--theme-elevation-50);
+    }
+  }
+  .mwf-pill--active {
+    color: var(--theme-base-0, #fff);
+    background: var(--theme-elevation-800);
+    border-color: var(--theme-elevation-800);
+  }
+  // anchored sections land below the sticky pills
+  .mwf-section {
+    scroll-margin-top: 56px;
   }
 
   .mwf-banner {
@@ -165,6 +219,11 @@
     font-size: 12px;
     border: 1px solid;
     border-radius: var(--style-radius-m);
+  }
+  .mwf-banner--info {
+    color: var(--theme-elevation-700);
+    background: var(--theme-elevation-50);
+    border-color: var(--theme-elevation-150);
   }
   .mwf-banner--warning {
     color: var(--theme-warning-750);

@@ -81,20 +81,15 @@ describe('SnowLevelTable', () => {
     const fc = makeForecast()
     fc.precip.HUR.d1.qpf = 0.5 // wet day 1 → am1/pm1 read as snow
     renderWithMutate((p) => <SnowLevelTable {...p} />, fc)
-    const labels = screen
-      .getAllByTitle('Toggle snow vs freezing designation')
-      .map((b) => b.textContent)
-    expect(labels[0]).toContain('snow')
+    expect(screen.getByLabelText('olympics am1 designation: snow')).toBeInTheDocument()
     // ev1 belongs to the (dry) n1 period → freezing
-    expect(labels[2]).toContain('freezing')
+    expect(screen.getByLabelText('olympics ev1 designation: freezing')).toBeInTheDocument()
   })
 
   it('clicking the designation toggles a manual override', () => {
     const fc = makeForecast()
     const { view } = renderWithMutate((p) => <SnowLevelTable {...p} />, fc)
-    const first = screen.getAllByTitle('Toggle snow vs freezing designation')[0]
-    expect(first.textContent).toContain('freezing')
-    fireEvent.click(first)
+    fireEvent.click(screen.getByLabelText('olympics am1 designation: freezing'))
     expect(fc.snowLevel.olympics.am1.mode).toBe('snow')
     view.unmount()
   })
