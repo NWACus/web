@@ -1,3 +1,4 @@
+import { request } from 'node:http'
 import { clearMissingFixtures, missingFixtures, mockServerProblems } from './mockState'
 
 /**
@@ -32,8 +33,7 @@ export default async function globalSetup() {
  *
  * A cold production server initialises its chunks lazily, and several workers arriving at once has
  * been observed racing that and returning 5xx from the Payload API — which every spec's error
- * collector then reports as a page failure. Bodies are consumed so each request is genuinely
- * finished before the next begins.
+ * collector then reports as a page failure.
  */
 async function warmServer(port: string) {
   const routes: [string, string][] = [
@@ -48,8 +48,30 @@ async function warmServer(port: string) {
   ]
 
   for (const [slug, path] of routes) {
-    await fetch(`http://${slug}.localhost:${port}${path}`)
-      .then((response) => response.text())
-      .catch(() => undefined)
+    await warmRoute(slug, path, port)
   }
+}
+
+/**
+ * Warm one route, best-effort.
+ *
+ * Addressed as loopback plus a `Host` header rather than as `slug.localhost`, which resolves only
+ * where /etc/hosts says so — not in the Playwright container CI runs this in. There every warm
+ * request would fail DNS and be swallowed below, leaving the warm-up inert in the one environment
+ * it exists for. `fetch` cannot express this: undici overwrites a caller-supplied `host` header
+ * with the URL's own authority.
+ */
+function warmRoute(slug: string, path: string, port: string): Promise<void> {
+  return new Promise((resolve) => {
+    const req = request(
+      { host: '127.0.0.1', port, path, headers: { host: `${slug}.localhost:${port}` } },
+      (res) => {
+        // Drained, so the next request genuinely starts after this one finished.
+        res.resume()
+        res.on('end', resolve)
+      },
+    )
+    req.on('error', () => resolve())
+    req.end()
+  })
 }
