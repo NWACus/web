@@ -3164,7 +3164,7 @@ export interface Setting {
            * Label shown in the guidance column header, e.g. WRF
            */
           name: string;
-          sourceType: 'point-json' | 'zone-summary-json';
+          sourceType: 'point-json' | 'zone-summary-json' | 'grib2';
           /**
            * Source URL. Point JSON sources may include a {point} placeholder substituted with the forecast point code.
            */

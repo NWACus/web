@@ -17,6 +17,15 @@
 // all-null build reports "no records matched" rather than "loaded" so blank
 // data can never masquerade as healthy (and never replaces last-good cache).
 
+import {
+  GRIB_DEFAULT_PERIODS,
+  buildGrib2Model,
+  defaultGrib2Fetch,
+  parseGrib2Config,
+  type Grib2Fetch,
+  type Grib2GridCache,
+} from './grib2'
+
 export const RUN_CYCLE_HOURS: readonly number[] = [0, 12]
 
 // Four 12h windows anchored at Night 1 — the artifact fills the editor's
@@ -51,7 +60,7 @@ export interface GuidanceModelConfig {
 
 export interface GuidanceModelRow {
   name: string
-  sourceType: 'point-json' | 'zone-summary-json'
+  sourceType: 'point-json' | 'zone-summary-json' | 'grib2'
   url: string
   config?: unknown
 }
@@ -59,6 +68,10 @@ export interface GuidanceModelRow {
 export interface GuidancePointRow {
   code: string
   name: string
+  /** Needed by grib2 sources (nearest-gridpoint sampling); JSON sources
+   * match on the station code and ignore these. */
+  latitude?: number | null
+  longitude?: number | null
 }
 
 export interface ModelMeta {
@@ -66,6 +79,11 @@ export interface ModelMeta {
   sourceType: string
   run?: string
   status: string
+  /** grib2 only: which forecast hours contributed, e.g. 'f06-f60' / 'none'. */
+  availableHours?: string
+  /** grib2 only: per-hour fetch/decode failures. Kept on the artifact so
+   * template drift is loud in the editor, not buried in server logs. */
+  errors?: string[]
 }
 
 export interface QpfArtifact {
@@ -279,31 +297,82 @@ async function buildPointJsonModel(
   return { run, totals, loaded }
 }
 
+const runToIso = (run: string): string =>
+  isoZ(
+    new Date(
+      Date.UTC(
+        Number(run.slice(0, 4)),
+        Number(run.slice(4, 6)) - 1,
+        Number(run.slice(6, 8)),
+        Number(run.slice(8, 10)),
+      ),
+    ),
+  )
+
 export async function buildQpfGuidance(
   models: GuidanceModelRow[],
   points: GuidancePointRow[],
-  { now = new Date(), fetchJson = defaultFetchJson }: { now?: Date; fetchJson?: FetchJson } = {},
+  {
+    now = new Date(),
+    fetchJson = defaultFetchJson,
+    grib2Fetch = defaultGrib2Fetch,
+  }: { now?: Date; fetchJson?: FetchJson; grib2Fetch?: Grib2Fetch } = {},
 ): Promise<QpfArtifact> {
   const results: Record<string, Record<string, Record<string, number>>> = {}
   const meta: ModelMeta[] = []
   let cycle: string | null = null
+  // Staleness tracks the finest-cadence loaded model: with a 6-hourly grib2
+  // model beside the 12-hourly WRF, a passed 6h boundary should refresh.
+  let cycleHours: number[] = [...RUN_CYCLE_HOURS]
+  const gridCache: Grib2GridCache = new Map()
 
   for (const model of models) {
     try {
+      if (model.sourceType === 'grib2') {
+        const grib2Points = points
+          .filter((p) => p.latitude != null && p.longitude != null)
+          .map((p) => ({ code: p.code, lat: Number(p.latitude), lng: Number(p.longitude) }))
+        const result = await buildGrib2Model(
+          grib2Fetch,
+          model,
+          grib2Points,
+          GRIB_DEFAULT_PERIODS,
+          gridCache,
+          now,
+        )
+        results[model.name] = result.totals
+        const hours = result.availableHours
+        const run = runStamp(result.cycle)
+        if (hours.length) {
+          if (!cycle) cycle = runToIso(run)
+          const modelCycleHours = parseGrib2Config(model.config).cycleHours
+          if (modelCycleHours && modelCycleHours.length > cycleHours.length) {
+            cycleHours = [...modelCycleHours]
+          }
+        }
+        const pad = (fh: number) => `f${String(fh).padStart(2, '0')}`
+        meta.push({
+          title: model.name,
+          sourceType: model.sourceType,
+          run,
+          // Zero matched hours ≠ healthy: a wrong variable/level or missing
+          // .idx yields an empty column that must not report 'loaded'; when
+          // every hour failed outright, say why instead.
+          status: hours.length
+            ? 'loaded'
+            : result.errors.length
+              ? `error: ${result.errors[0]}`
+              : 'no records matched',
+          availableHours: hours.length
+            ? `${pad(Math.min(...hours))}-${pad(Math.max(...hours))}`
+            : 'none',
+          ...(result.errors.length ? { errors: result.errors } : {}),
+        })
+        continue
+      }
       const { run, totals, loaded } = await buildPointJsonModel(fetchJson, model, points, now)
       results[model.name] = totals
-      if (!cycle && run) {
-        cycle = isoZ(
-          new Date(
-            Date.UTC(
-              Number(run.slice(0, 4)),
-              Number(run.slice(4, 6)) - 1,
-              Number(run.slice(6, 8)),
-              Number(run.slice(8, 10)),
-            ),
-          ),
-        )
-      }
+      if (!cycle && run) cycle = runToIso(run)
       meta.push({
         title: model.name,
         sourceType: model.sourceType,
@@ -324,7 +393,7 @@ export async function buildQpfGuidance(
     available: models.length > 0 && points.length > 0,
     generatedAt: isoZ(now),
     cycle,
-    cycleHours: [...RUN_CYCLE_HOURS],
+    cycleHours,
     periods: DEFAULT_PERIODS.map((period) => ({
       id: period.id,
       label: period.label,

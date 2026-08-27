@@ -6,6 +6,7 @@
 // multi-instance deployment would promote the store to a shared backend; the
 // function interface stays the same.
 import type { Setting } from '@/payload-types'
+import type { Grib2Fetch } from './grib2'
 import {
   buildQpfGuidance,
   buildZoneGuidance,
@@ -39,13 +40,13 @@ export function resetGuidanceCache(): void {
 
 type MwfConfig = NonNullable<Setting['mwf']>
 
-// Which configured models feed a table: point-json → precip; zone-summary
-// sources say which table via config.table.
+// Which configured models feed a table: point-json and grib2 → precip;
+// zone-summary sources say which table via config.table.
 export function modelsForTable(mwfConfig: MwfConfig, table: GuidanceTable): GuidanceModelRow[] {
   const rows = mwfConfig.models ?? []
   return rows
     .filter((m) => {
-      if (table === 'precip') return m.sourceType === 'point-json'
+      if (table === 'precip') return m.sourceType === 'point-json' || m.sourceType === 'grib2'
       return m.sourceType === 'zone-summary-json' && parseModelConfig(m.config).table === table
     })
     .map((m) => ({
@@ -62,15 +63,25 @@ async function build(
   mwfConfig: MwfConfig,
   now: Date,
   fetchJson?: FetchJson,
+  grib2Fetch?: Grib2Fetch,
 ): Promise<GuidanceArtifact | null> {
   const models = modelsForTable(mwfConfig, table)
   if (!models.length) return null
-  const options = fetchJson ? { now, fetchJson } : { now }
+  const options = {
+    now,
+    ...(fetchJson ? { fetchJson } : {}),
+    ...(grib2Fetch ? { grib2Fetch } : {}),
+  }
   const fresh =
     table === 'precip'
       ? await buildQpfGuidance(
           models,
-          (mwfConfig.points ?? []).map((p) => ({ code: p.code, name: p.name })),
+          (mwfConfig.points ?? []).map((p) => ({
+            code: p.code,
+            name: p.name,
+            latitude: p.latitude,
+            longitude: p.longitude,
+          })),
           options,
         )
       : await buildZoneGuidance(models, table, options)
@@ -89,7 +100,8 @@ export async function refreshGuidance(
     now = new Date(),
     force = false,
     fetchJson,
-  }: { now?: Date; force?: boolean; fetchJson?: FetchJson } = {},
+    grib2Fetch,
+  }: { now?: Date; force?: boolean; fetchJson?: FetchJson; grib2Fetch?: Grib2Fetch } = {},
 ): Promise<GuidanceArtifact | null> {
   const k = key(tenantId, table)
   const existing = inflight.get(k)
@@ -103,7 +115,7 @@ export async function refreshGuidance(
   }
 
   lastAttempt.set(k, now.getTime())
-  const run = build(tenantId, table, mwfConfig, now, fetchJson).finally(() => {
+  const run = build(tenantId, table, mwfConfig, now, fetchJson, grib2Fetch).finally(() => {
     inflight.delete(k)
   })
   inflight.set(k, run)

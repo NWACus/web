@@ -30,6 +30,7 @@ import {
   type Grib2Fetch,
   type Grib2GridCache,
 } from '@/services/mwf/grib2'
+import { buildQpfGuidance, type FetchJson } from '@/services/mwf/guidance'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
@@ -340,5 +341,104 @@ describe('buildGrib2Model (full spine over the fixture)', () => {
     expect(result.availableHours).toEqual([6, 12, 18])
     // 12h and 18h totals land in night1 (6, 18]; the 0–6h total does not.
     expect(result.totals.night1.TPA).toBeCloseTo((2 * TAMPA_MM) / 25.4, 4)
+  })
+})
+
+describe('buildQpfGuidance with grib2 models (artifact assembly)', () => {
+  const GRIB_MODEL = {
+    name: 'HRRR 3km',
+    sourceType: 'grib2' as const,
+    url: HRRR_TEMPLATE,
+    config: {
+      variable: 'APCP',
+      level: 'surface',
+      accumulation: 'hourly',
+      forecastHours: { start: 6, end: 8 },
+      cycleHours: [0, 6, 12, 18],
+      units: 'mm',
+      toInches: true,
+    },
+  }
+  const WRF_MODEL = {
+    name: 'WRF3UW1 1.33km',
+    sourceType: 'point-json' as const,
+    url: 'https://models.example.com/wrf/{run}.json',
+    config: {
+      stationKey: 'station',
+      periodFields: { night1: 'FH24', day2: 'FH36', night2: 'FH48', day3: 'FH60' },
+    },
+  }
+  const QPF_POINTS = [
+    { code: 'TPA', name: 'Tampa', latitude: 27.95, longitude: -82.46 },
+    { code: 'SNQ', name: 'Snoqualmie Pass', latitude: 47.4247, longitude: -121.4135 },
+  ]
+  const wrfJson: FetchJson = async (url) => {
+    if (url === 'https://models.example.com/wrf/2026082512.json') {
+      return [{ station: 'TPA', FH24: 0.25, FH36: 0.5 }]
+    }
+    throw new Error(`404 ${url}`)
+  }
+  const grib2Routes = () => ({
+    idx: Object.fromEntries([6, 7, 8].map((fh) => [`${urlFor(fh)}.idx`, idxFor(fh)])),
+    records: Object.fromEntries(
+      [6, 7, 8].map((fh) => [`${urlFor(fh)}#bytes=59518687-59837656`, RECORD_BYTES]),
+    ),
+  })
+
+  it('assembles the wire-shape artifact: model columns by title, grib2 meta, cycle', async () => {
+    const artifact = await buildQpfGuidance([GRIB_MODEL, WRF_MODEL], QPF_POINTS, {
+      now: NOW,
+      fetchJson: wrfJson,
+      grib2Fetch: fetchStub(grib2Routes()),
+    })
+
+    // The grib2 cycle drives artifact staleness: 6-hourly cycle boundaries.
+    expect(artifact.cycle).toBe('2026-08-25T12:00:00Z')
+    expect(artifact.cycleHours).toEqual([0, 6, 12, 18])
+
+    const grib = artifact.models.find((m) => m.title === 'HRRR 3km')
+    expect(grib).toMatchObject({
+      sourceType: 'grib2',
+      run: '2026082512',
+      status: 'loaded',
+      availableHours: 'f06-f08',
+    })
+    expect(grib?.errors).toBeUndefined()
+    expect(artifact.models.find((m) => m.title === 'WRF3UW1 1.33km')?.status).toBe('loaded')
+
+    const night1 = artifact.periods.find((p) => p.id === 'night1')
+    expect(night1?.points.TPA['HRRR 3km']).toBeCloseTo(
+      Math.round(((2 * TAMPA_MM) / 25.4) * 100) / 100,
+      2,
+    )
+    expect(night1?.points.SNQ['HRRR 3km']).toBe(0)
+    expect(night1?.points.TPA['WRF3UW1 1.33km']).toBe(0.25)
+  })
+
+  it('reports loud per-model errors without sinking healthy models', async () => {
+    const artifact = await buildQpfGuidance([GRIB_MODEL, WRF_MODEL], QPF_POINTS, {
+      now: NOW,
+      fetchJson: wrfJson,
+      grib2Fetch: fetchStub({ ...grib2Routes(), rangeStatus: 200 }),
+    })
+    const grib = artifact.models.find((m) => m.title === 'HRRR 3km')
+    expect(grib?.status).toMatch(/^error: f06: expected 206/)
+    expect(grib?.errors).toHaveLength(3)
+    expect(grib?.availableHours).toBe('none')
+    expect(artifact.models.find((m) => m.title === 'WRF3UW1 1.33km')?.status).toBe('loaded')
+    // The WRF run stamps the cycle instead, on WRF's 12-hourly cadence.
+    expect(artifact.cycle).toBe('2026-08-25T12:00:00Z')
+    expect(artifact.cycleHours).toEqual([0, 12])
+  })
+
+  it('skips points without coordinates for grib2 sampling', async () => {
+    const artifact = await buildQpfGuidance(
+      [GRIB_MODEL],
+      [...QPF_POINTS, { code: 'NOC', name: 'No Coords' }],
+      { now: NOW, grib2Fetch: fetchStub(grib2Routes()) },
+    )
+    const night1 = artifact.periods.find((p) => p.id === 'night1')
+    expect(night1?.points.NOC['HRRR 3km']).toBeNull()
+    expect(night1?.points.TPA['HRRR 3km']).not.toBeNull()
   })
 })

@@ -6,10 +6,15 @@ import type { Setting } from '@/payload-types'
 // fields, and the SZ zone summaries carry the ten 2-letter zone codes
 // (temps FH24/36/48/60, winds FH18..FH60 at 6-hour spacing).
 //
-// Point coordinates are approximate (nav/map use only — guidance matches on
-// the station code). The staging config also carries three GRIB2 sources
-// (HRRR 3km, RRFS 3km, NBM ~5km); grib2 is out of scope for the local proof
-// (PRD contingency), so only the WRF JSON sources are represented here.
+// Point coordinates are approximate for map/nav use; grib2 sources sample the
+// model grid at them (nearest gridpoint on a 3–5km grid, so approximate is
+// fine), while JSON sources match on the station code. The staging config's
+// GRIB2 sources are represented here from the staging screenshot values:
+// HRRR 3km and NBM ~5km verified live against the NOAA S3 buckets. RRFS 3km
+// is NOT included — its staging URL template points at
+// noaa-rrfs-pds/rrfs_public/rrfs.{date}/..., which the live bucket no longer
+// serves (only retro_output prefixes exist as of 2026-08-26); needs Kellen to
+// confirm the current operational RRFS location before adding it.
 export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
   // Row order is display order in the editor and public render; this is the
   // staging forecast form's order (West Slopes North first … Olympics last).
@@ -168,6 +173,38 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
     { zoneCode: 'stevens-pass' },
   ],
   models: [
+    {
+      name: 'HRRR 3km',
+      sourceType: 'grib2',
+      url: 'https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.{date}/conus/hrrr.t{cycle}z.wrfsfcf{fh02}.grib2',
+      config: {
+        variable: 'APCP',
+        level: 'surface',
+        accumulation: 'hourly',
+        exclude: [],
+        forecastHours: { start: 6, end: 60 },
+        cycleHours: [0, 6, 12, 18],
+        units: 'mm',
+        toInches: true,
+      },
+    },
+    {
+      name: 'NBM ~5km',
+      sourceType: 'grib2',
+      url: 'https://noaa-nbm-grib2-pds.s3.amazonaws.com/blend.{date}/{cycle}/core/blend.t{cycle}z.core.f{fh03}.co.grib2',
+      config: {
+        variable: 'APCP',
+        level: 'surface',
+        accumulation: 'hourly',
+        // NBM lists probabilistic APCP lines (prob >0.254, ens std dev) on
+        // the same variable/level as the deterministic record.
+        exclude: ['prob', 'ens std dev'],
+        forecastHours: { start: 6, end: 60 },
+        cycleHours: [0, 6, 12, 18],
+        units: 'mm',
+        toInches: true,
+      },
+    },
     {
       name: 'WRF3UW1 1.33km',
       sourceType: 'point-json',

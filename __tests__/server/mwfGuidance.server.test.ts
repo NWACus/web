@@ -247,6 +247,7 @@ describe('refreshGuidance cache', () => {
       ...CONFIG,
       models: [
         { name: 'WRF', sourceType: 'point-json' as const, url: 'u', config: {} },
+        { name: 'HRRR', sourceType: 'grib2' as const, url: 'u', config: {} },
         {
           name: 'AF',
           sourceType: 'zone-summary-json' as const,
@@ -255,7 +256,7 @@ describe('refreshGuidance cache', () => {
         },
       ],
     }
-    expect(modelsForTable(config, 'precip').map((m) => m.name)).toEqual(['WRF'])
+    expect(modelsForTable(config, 'precip').map((m) => m.name)).toEqual(['WRF', 'HRRR'])
     expect(modelsForTable(config, 'winds').map((m) => m.name)).toEqual(['AF'])
     expect(modelsForTable(config, 'temps')).toEqual([])
   })

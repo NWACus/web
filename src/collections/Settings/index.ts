@@ -399,6 +399,7 @@ const mwfFields: Field[] = [
                 options: [
                   { label: 'Point JSON', value: 'point-json' },
                   { label: 'Zone summary JSON', value: 'zone-summary-json' },
+                  { label: 'GRIB2 (byte-range .idx)', value: 'grib2' },
                 ],
                 admin: { width: '50%' },
               },
