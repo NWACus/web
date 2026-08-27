@@ -4,6 +4,7 @@
 // and mutates through the editor's `mutate` callback, which triggers the
 // debounced autosave. Model-guidance overlay columns arrive with the guidance
 // milestone; the grids leave room for them.
+import type { ModelMeta } from '@/services/mwf/guidance'
 import {
   MwfForecast,
   PERIODS,
@@ -23,6 +24,7 @@ import {
   type Zone,
 } from '@/utilities/mwf/mwfData'
 import React, { useState } from 'react'
+import type { GuidanceBundle } from './actions'
 import { LevelCell, NumberCell, WindDirCell } from './cells'
 
 export interface SectionProps {
@@ -35,6 +37,10 @@ export interface SectionProps {
   // Prev reference column. Absent on the first-ever forecast.
   previousBody?: Partial<SerializedForecast> | null
   previousLabel?: string | null
+  // The raw guidance bundle — the sections read per-model meta (run stamp,
+  // status) from it for the table footers; cell values arrive via the
+  // overlay, not from here.
+  guidance?: GuidanceBundle | null
 }
 
 // A guidance/Prev reference value: click to fill the entry cell. `matched`
@@ -97,7 +103,46 @@ function Section({
   )
 }
 
-export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: SectionProps) {
+// The dashboard-v2-style model attribution footer under a guidance-backed
+// table: `WRF3UW1 1.33km · 2026082612` per loaded model, and a visible error
+// line per model that didn't load — the generic stale banner says something
+// is off, this says which model and why.
+function ModelMetaFooter({ models }: { models?: ModelMeta[] | null }) {
+  if (!models?.length) return null
+  const loaded = models.filter((m) => m.status === 'loaded')
+  const failed = models.filter((m) => m.status !== 'loaded')
+  return (
+    <div className="mwf-model-footer mt-2 text-xs">
+      {loaded.length > 0 && (
+        <p className="mwf-hint flex flex-wrap gap-x-4 gap-y-1">
+          {loaded.map((m) => (
+            <span key={m.title} title={m.availableHours ? `hours ${m.availableHours}` : undefined}>
+              {m.title} · {m.run ?? '—'}
+            </span>
+          ))}
+        </p>
+      )}
+      {failed.map((m) => (
+        <p
+          key={m.title}
+          className="mwf-model-footer__error"
+          title={m.errors?.length ? m.errors.slice(0, 5).join('\n') : undefined}
+        >
+          ⚠ {m.title} — {m.status}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+export function PrecipGrid({
+  forecast,
+  zones,
+  points,
+  mutate,
+  previousBody,
+  guidance,
+}: SectionProps) {
   // One metric at a time, like the dashboard-v2 grid: QPF is where guidance
   // model columns + Prev + the single Fx entry live; Density is the SLR grid
   // with per-period quick-sets; Snow is the read-only derived view.
@@ -405,6 +450,7 @@ export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: Se
           </table>
         </div>
       )}
+      <ModelMetaFooter models={guidance?.precip?.models} />
     </Section>
   )
 }
@@ -602,7 +648,7 @@ export function ExtendedSnowLevelTable({ forecast, extendedZones, mutate }: Sect
   )
 }
 
-export function TempTable({ forecast, zones, mutate, previousBody }: SectionProps) {
+export function TempTable({ forecast, zones, mutate, previousBody, guidance }: SectionProps) {
   // Temps cover the issuance's first two periods (PR #158).
   const periods = tempPeriodsFor(forecast.meta.type)
   return (
@@ -712,11 +758,12 @@ export function TempTable({ forecast, zones, mutate, previousBody }: SectionProp
           </tbody>
         </table>
       </div>
+      <ModelMetaFooter models={guidance?.temps?.models} />
     </Section>
   )
 }
 
-export function WindTable({ forecast, zones, mutate, previousBody }: SectionProps) {
+export function WindTable({ forecast, zones, mutate, previousBody, guidance }: SectionProps) {
   const blocks = blocksFor(forecast.meta.type)
   return (
     <Section
@@ -810,6 +857,7 @@ export function WindTable({ forecast, zones, mutate, previousBody }: SectionProp
           </tbody>
         </table>
       </div>
+      <ModelMetaFooter models={guidance?.winds?.models} />
     </Section>
   )
 }

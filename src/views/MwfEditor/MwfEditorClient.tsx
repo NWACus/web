@@ -253,6 +253,7 @@ export function MwfEditorClient({
     mutate,
     previousBody: initial.previousBody,
     previousLabel: initial.previousLabel,
+    guidance,
   }
   const saveLabel = {
     saved: 'Saved',

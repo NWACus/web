@@ -199,6 +199,10 @@
     color: var(--theme-elevation-500);
   }
 
+  .mwf-model-footer__error {
+    color: var(--theme-error-600);
+  }
+
   .mwf-table {
     th {
       font-weight: 500;

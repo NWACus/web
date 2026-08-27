@@ -1,5 +1,6 @@
 // Section-level behaviors: derived snow display, the live high-below-low
 // flag, and the QPF-driven snow/freezing designation with manual override.
+import type { ModelMeta } from '@/services/mwf/guidance'
 import {
   emptyForecast,
   type ForecastPoint,
@@ -104,5 +105,63 @@ describe('SnowLevelTable', () => {
     fireEvent.click(screen.getByLabelText('olympics am1 designation: freezing'))
     expect(fc.snowLevel.olympics.am1.mode).toBe('snow')
     view.unmount()
+  })
+})
+
+describe('ModelMetaFooter (via PrecipGrid)', () => {
+  const bundle = (models: ModelMeta[]) => ({
+    precip: {
+      available: true,
+      generatedAt: '2026-08-26T12:05:00Z',
+      cycle: '2026-08-26T12:00:00Z',
+      cycleHours: [0, 6, 12, 18],
+      periods: [],
+      models,
+      points: [],
+    },
+    temps: null,
+    winds: null,
+    stale: false,
+  })
+
+  it('renders the dashboard-v2-style run stamp per loaded model', () => {
+    const fc = makeForecast()
+    const guidance = bundle([
+      { title: 'WRF3UW1 1.33km', sourceType: 'point-json', run: '2026082612', status: 'loaded' },
+      {
+        title: 'HRRR 3km',
+        sourceType: 'grib2',
+        run: '2026082612',
+        status: 'loaded',
+        availableHours: 'f06-f48',
+      },
+    ])
+    renderWithMutate((p) => <PrecipGrid {...p} guidance={guidance} />, fc)
+    expect(screen.getByText('WRF3UW1 1.33km · 2026082612')).toBeInTheDocument()
+    expect(screen.getByText('HRRR 3km · 2026082612')).toBeInTheDocument()
+    expect(screen.getByTitle('hours f06-f48')).toBeInTheDocument()
+  })
+
+  it('surfaces a per-model error line instead of hiding behind the stale banner', () => {
+    const fc = makeForecast()
+    const guidance = bundle([
+      { title: 'WRF3UW1 1.33km', sourceType: 'point-json', run: '2026082612', status: 'loaded' },
+      {
+        title: 'NBM ~5km',
+        sourceType: 'grib2',
+        status: 'error: f06: expected 206 for ranged read, got 200',
+        errors: ['f06: expected 206 for ranged read, got 200'],
+      },
+    ])
+    renderWithMutate((p) => <PrecipGrid {...p} guidance={guidance} />, fc)
+    expect(
+      screen.getByText(/NBM ~5km — error: f06: expected 206 for ranged read, got 200/),
+    ).toBeInTheDocument()
+  })
+
+  it('renders nothing without guidance', () => {
+    const fc = makeForecast()
+    const { view } = renderWithMutate((p) => <PrecipGrid {...p} />, fc)
+    expect(view.container.querySelector('.mwf-model-footer')).toBeNull()
   })
 })
