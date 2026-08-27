@@ -36,8 +36,12 @@ jobs:
           # generator (it picks the previous release as the base). One request
           # for the whole list -- the action this replaced walked every commit
           # individually and tripped the secondary rate limit on big releases.
-          prs=$(gh api "repos/$REPO/releases/generate-notes" -f tag_name="$TAG" --jq .body \
-            | grep -oE '/pull/[0-9]+' | grep -oE '[0-9]+' | sort -un || true)
+          # Fetch and parse separately: a `|| true` spanning both would swallow a
+          # failing `gh` (a 403 here reads as "empty release" and exits green).
+          # The repo-scoped match also keeps a PR title that links some other
+          # repo's /pull/123 from becoming a target.
+          notes=$(gh api "repos/$REPO/releases/generate-notes" -f tag_name="$TAG" --jq .body)
+          prs=$(printf '%s' "$notes" | grep -oE "$REPO/pull/[0-9]+" | grep -oE '[0-9]+$' | sort -un || true)
 
           if [ -z "$prs" ]; then
             echo "No pull requests found for $TAG."
@@ -70,8 +74,11 @@ jobs:
 
           for target in $(echo "$targets" | tr ' ' '\n' | sort -un); do
             # Idempotent, so a re-run or a backfill can't double-comment.
-            if gh api "repos/$REPO/issues/$target/comments" --paginate --jq '.[].body' \
-              | grep -qF "$release_url"; then
+            # Collected first, not piped: `grep -q` exits on the first match and
+            # SIGPIPEs a still-writing `gh --paginate`, which pipefail turns into
+            # a false negative -- and a duplicate comment -- past one page.
+            existing=$(gh api "repos/$REPO/issues/$target/comments" --paginate --jq '.[].body')
+            if grep -qF "$release_url" <<<"$existing"; then
               echo "#$target already mentions $TAG."
               continue
             fi
