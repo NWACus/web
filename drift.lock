@@ -448,7 +448,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "9f8984bbf7e85c52"
+sig = "839eba40e66d58eb"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -459,6 +459,11 @@ sig = "d4ffb46dc41c80e0"
 doc = "docs/migration-safety.md"
 target = "src/scripts/check-migrations.ts"
 sig = "a4824faf89f4051e"
+
+[[bindings]]
+doc = "docs/mwf-native-proof.md"
+target = "src/collections/MwfGuidanceArtifacts/index.ts"
+sig = "e2f2a9e072cd0361"
 
 [[bindings]]
 doc = "docs/mwf-native-proof.md"
@@ -483,7 +488,7 @@ sig = "c0a7ae15a891a6ef"
 [[bindings]]
 doc = "docs/mwf-native-proof.md"
 target = "src/services/mwf/guidanceCache.ts"
-sig = "05f89225c4e927ea"
+sig = "557c83181185cfef"
 
 [[bindings]]
 doc = "docs/mwf-native-proof.md"

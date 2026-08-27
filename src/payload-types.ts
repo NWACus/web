@@ -82,6 +82,7 @@ export interface Config {
     eventGroups: EventGroup;
     eventTags: EventTag;
     mwfForecasts: MwfForecast;
+    mwfGuidanceArtifacts: MwfGuidanceArtifact;
     providers: Provider;
     courses: Course;
     biographies: Biography;
@@ -136,6 +137,7 @@ export interface Config {
     eventGroups: EventGroupsSelect<false> | EventGroupsSelect<true>;
     eventTags: EventTagsSelect<false> | EventTagsSelect<true>;
     mwfForecasts: MwfForecastsSelect<false> | MwfForecastsSelect<true>;
+    mwfGuidanceArtifacts: MwfGuidanceArtifactsSelect<false> | MwfGuidanceArtifactsSelect<true>;
     providers: ProvidersSelect<false> | ProvidersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     biographies: BiographiesSelect<false> | BiographiesSelect<true>;
@@ -2186,6 +2188,33 @@ export interface Course {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mwfGuidanceArtifacts".
+ */
+export interface MwfGuidanceArtifact {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * Which editor guidance table this artifact feeds
+   */
+  table: 'precip' | 'temps' | 'winds';
+  /**
+   * The last good guidance artifact, as served to the editor
+   */
+  artifact:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
 export interface Navigation {
@@ -3452,6 +3481,10 @@ export interface PayloadLockedDocument {
         value: number | MwfForecast;
       } | null)
     | ({
+        relationTo: 'mwfGuidanceArtifacts';
+        value: number | MwfGuidanceArtifact;
+      } | null)
+    | ({
         relationTo: 'providers';
         value: number | Provider;
       } | null)
@@ -4266,6 +4299,18 @@ export interface MwfForecastsSelect<T extends boolean = true> {
   source?: T;
   body?: T;
   publishSnapshot?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mwfGuidanceArtifacts_select".
+ */
+export interface MwfGuidanceArtifactsSelect<T extends boolean = true> {
+  tenant?: T;
+  table?: T;
+  artifact?: T;
   contentHash?: T;
   updatedAt?: T;
   createdAt?: T;

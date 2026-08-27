@@ -7,7 +7,12 @@
 import { byTenantRole } from '@/access/byTenantRole'
 import type { MwfForecast as MwfForecastDoc, Setting } from '@/payload-types'
 import { isStale, type GuidanceArtifact } from '@/services/mwf/guidance'
-import { loadCached, refreshGuidance, type GuidanceTable } from '@/services/mwf/guidanceCache'
+import {
+  loadDurable,
+  payloadArtifactStore,
+  refreshGuidance,
+  type GuidanceTable,
+} from '@/services/mwf/guidanceCache'
 import {
   SerializedForecast,
   airfireCodeMap,
@@ -362,12 +367,13 @@ export async function loadGuidanceAction(): Promise<GuidanceBundle | { error: st
   const auth = await authorize()
   if ('error' in auth) return auth
   const tables: GuidanceTable[] = ['precip', 'temps', 'winds']
+  const store = payloadArtifactStore(auth.payload)
   const out: Record<string, GuidanceArtifact | null> = {}
   for (const table of tables) {
     try {
-      out[table] = await refreshGuidance(auth.tenantId, table, auth.mwfConfig)
+      out[table] = await refreshGuidance(auth.tenantId, table, auth.mwfConfig, { store })
     } catch {
-      out[table] = loadCached(auth.tenantId, table)
+      out[table] = await loadDurable(store, auth.tenantId, table).catch(() => null)
     }
   }
   const now = new Date()

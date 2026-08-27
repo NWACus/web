@@ -1,4 +1,8 @@
-import { refreshGuidance, type GuidanceTable } from '@/services/mwf/guidanceCache'
+import {
+  payloadArtifactStore,
+  refreshGuidance,
+  type GuidanceTable,
+} from '@/services/mwf/guidanceCache'
 import configPromise from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
@@ -41,7 +45,10 @@ export async function GET(request: NextRequest) {
     for (const table of TABLES) {
       try {
         // One center's outage must not stop the others refreshing.
-        const artifact = await refreshGuidance(tenant.id, table, setting.mwf, { force: true })
+        const artifact = await refreshGuidance(tenant.id, table, setting.mwf, {
+          force: true,
+          store: payloadArtifactStore(payload),
+        })
         results.push({
           tenant: tenant.slug,
           table,

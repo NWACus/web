@@ -3,6 +3,7 @@
 // selection with fallback, periodFields mapping, all-null builds reporting
 // "no records matched", keep-last-good on total outage, staleness on a
 // passed cycle boundary, and refresh rate-limiting.
+import type { GuidanceArtifact } from '@/services/mwf/guidance'
 import {
   buildQpfGuidance,
   buildZoneGuidance,
@@ -21,6 +22,7 @@ import {
   modelsForTable,
   refreshGuidance,
   resetGuidanceCache,
+  type ArtifactStore,
 } from '@/services/mwf/guidanceCache'
 
 const NOW = new Date('2026-08-25T18:30:00Z')
@@ -259,5 +261,75 @@ describe('refreshGuidance cache', () => {
     expect(modelsForTable(config, 'precip').map((m) => m.name)).toEqual(['WRF', 'HRRR'])
     expect(modelsForTable(config, 'winds').map((m) => m.name)).toEqual(['AF'])
     expect(modelsForTable(config, 'temps')).toEqual([])
+  })
+
+  describe('durable store', () => {
+    function memoryStore(initial?: QpfArtifact) {
+      const rows = new Map<string, GuidanceArtifact>()
+      if (initial) rows.set('1:precip', initial)
+      const store: ArtifactStore & { reads: number; writes: number } = {
+        reads: 0,
+        writes: 0,
+        async read(tenantId, table) {
+          store.reads += 1
+          return rows.get(`${tenantId}:${table}`) ?? null
+        },
+        async write(tenantId, table, artifact) {
+          store.writes += 1
+          rows.set(`${tenantId}:${table}`, artifact)
+        },
+      }
+      return { store, rows }
+    }
+
+    it('writes the built artifact through to the store', async () => {
+      const { store, rows } = memoryStore()
+      const fetchJson = fetchStub({
+        'https://models.example.com/wrf/2026082512.json': [{ station: 'HUR', FH24: 0.3 }],
+      })
+      await refreshGuidance(1, 'precip', CONFIG, { now: NOW, fetchJson, store })
+      expect(store.writes).toBe(1)
+      expect(rows.get('1:precip')?.models[0].status).toBe('loaded')
+    })
+
+    it('serves an unexpired stored artifact on a cold start without rebuilding', async () => {
+      const fetchJson = fetchStub({
+        'https://models.example.com/wrf/2026082512.json': [{ station: 'HUR', FH24: 0.3 }],
+      })
+      const built = await refreshGuidance(1, 'precip', CONFIG, { now: NOW, fetchJson })
+      const { store } = memoryStore(built && 'periods' in built ? built : undefined)
+      resetGuidanceCache() // simulate a fresh serverless instance
+
+      const failing = fetchStub({})
+      const served = await refreshGuidance(1, 'precip', CONFIG, {
+        now: NOW,
+        fetchJson: failing,
+        store,
+      })
+      expect(served?.models[0].status).toBe('loaded')
+      expect(failing.calls.length).toBe(0)
+    })
+
+    it('keep-last-good survives a restart: stale stored artifact + failed build', async () => {
+      const fetchJson = fetchStub({
+        'https://models.example.com/wrf/2026082512.json': [{ station: 'HUR', FH24: 0.3 }],
+      })
+      const built = await refreshGuidance(1, 'precip', CONFIG, { now: NOW, fetchJson })
+      const { store, rows } = memoryStore(built && 'periods' in built ? built : undefined)
+      resetGuidanceCache()
+
+      // Past the next cycle boundary the stored artifact is stale, and every
+      // source fetch fails — the stored artifact must come back stamped, and
+      // the stamped copy is written back through.
+      const later = new Date(NOW.getTime() + 24 * 3600_000)
+      const kept = await refreshGuidance(1, 'precip', CONFIG, {
+        now: later,
+        fetchJson: fetchStub({}),
+        store,
+      })
+      expect(kept?.refreshError).toBeTruthy()
+      expect(kept?.models[0].status).toBe('loaded')
+      expect(rows.get('1:precip')?.refreshError).toBeTruthy()
+    })
   })
 })

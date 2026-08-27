@@ -20,6 +20,7 @@ import { GlobalRoles } from '@/collections/GlobalRoles'
 import { HomePages } from '@/collections/HomePages'
 import { Media } from '@/collections/Media'
 import { MwfForecasts } from '@/collections/MwfForecasts'
+import { MwfGuidanceArtifacts } from '@/collections/MwfGuidanceArtifacts'
 import { Navigations } from '@/collections/Navigations'
 import { Pages } from '@/collections/Pages'
 import { Posts } from '@/collections/Posts'
@@ -182,6 +183,7 @@ export default buildConfig({
     EventTags,
     // Forecasts
     MwfForecasts,
+    MwfGuidanceArtifacts,
     // Courses
     Providers,
     Courses,
