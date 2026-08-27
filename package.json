@@ -54,6 +54,7 @@
     "**/*": "pnpm run prettify"
   },
   "dependencies": {
+    "@azohra/meteo.grib": "0.1.4",
     "@date-fns/tz": "^1.4.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
