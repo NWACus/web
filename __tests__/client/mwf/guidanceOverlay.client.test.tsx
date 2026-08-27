@@ -2,6 +2,8 @@
 // column fill, the Prev reference, and the entered-matches-guidance
 // highlight (entered zeros excluded).
 import {
+  applyGuidance,
+  clearGuidanceOverlays,
   emptyForecast,
   type ForecastPoint,
   type MwfForecast,
@@ -81,5 +83,28 @@ describe('precip guidance overlay', () => {
     const matched = values.filter((c) => c.className.includes('mwf-guidance-val--matched'))
     expect(matched).toHaveLength(1)
     expect(matched[0]).toHaveTextContent('0.25')
+  })
+})
+
+describe('clearGuidanceOverlays (re-poll wholesale replacement)', () => {
+  it('clears every overlay map but leaves entered values alone', () => {
+    const fc = emptyForecast(ZONES, POINTS, 'morning', new Date(2026, 7, 25))
+    fc.precip.HUR.d1.qpf = 0.5
+    fc.precip.HUR.d1.guidance = { WRF: 0.25, 'HRRR 3km': 0.3 }
+    fc.temps.olympics.d1.guidance = { WRF: { high: 30, low: 20 } }
+    fc.wind.olympics.am1.guidance = { WRF: { speed: 10, dir: 'SW' } }
+    clearGuidanceOverlays(fc)
+    expect(fc.precip.HUR.d1.guidance).toEqual({})
+    expect(fc.temps.olympics.d1.guidance).toEqual({})
+    expect(fc.wind.olympics.am1.guidance).toEqual({})
+    expect(fc.precip.HUR.d1.qpf).toBe(0.5)
+  })
+
+  it('clear + re-apply drops a model that vanished from the fresh artifact', () => {
+    const fc = emptyForecast(ZONES, POINTS, 'morning', new Date(2026, 7, 25))
+    fc.precip.HUR.d1.guidance = { 'NBM ~5km': 0.3 }
+    clearGuidanceOverlays(fc)
+    applyGuidance(fc, { periods: [{ points: { HUR: { WRF: 0.25 } } }] })
+    expect(fc.precip.HUR.d1.guidance).toEqual({ WRF: 0.25 })
   })
 })

@@ -884,6 +884,19 @@ export function applyWindsGuidance(
   return applied
 }
 
+// The in-session re-poll replaces the overlay wholesale: clear before
+// re-applying so a model removed or deactivated mid-shift doesn't leave
+// stale chips behind. Entered values are untouched — guidance lives in the
+// cells' separate overlay maps.
+export function clearGuidanceOverlays(forecast: MwfForecast): void {
+  for (const cells of Object.values(forecast.precip || {}))
+    for (const cell of Object.values(cells)) cell.guidance = {}
+  for (const cells of Object.values(forecast.temps || {}))
+    for (const cell of Object.values(cells)) cell.guidance = {}
+  for (const cells of Object.values(forecast.wind || {}))
+    for (const cell of Object.values(cells)) cell.guidance = {}
+}
+
 // --- Persistence (de)serialization ----------------------------------------
 // The stored `body` holds only the forecaster's ENTERED values — guidance is
 // re-overlaid live on load. serialize strips guidance; hydrate writes the body

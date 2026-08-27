@@ -508,7 +508,7 @@ sig = "cc7063daf6b08baf"
 [[bindings]]
 doc = "docs/mwf-native-proof.md"
 target = "src/utilities/mwf/mwfData.ts"
-sig = "84cc23159532de6a"
+sig = "01ba28c658b86524"
 
 [[bindings]]
 doc = "docs/mwf-native-proof.md"

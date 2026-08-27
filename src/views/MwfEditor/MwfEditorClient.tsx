@@ -11,6 +11,7 @@ import {
   applyGuidance,
   applyTempsGuidance,
   applyWindsGuidance,
+  clearGuidanceOverlays,
   emptyExtendedSnowLevel,
   emptyForecast,
   hydrateForecast,
@@ -23,7 +24,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GuidanceBundle, LoadedForecast } from './actions'
-import { publishForecastAction, removeForecastAction, saveDraftAction } from './actions'
+import {
+  loadGuidanceAction,
+  publishForecastAction,
+  removeForecastAction,
+  saveDraftAction,
+} from './actions'
 import { toPrecipOverlay, toTempsOverlay, toWindsOverlay } from './guidanceAdapters'
 import { PublishModal } from './PublishModal'
 import {
@@ -37,6 +43,11 @@ import {
 } from './sections'
 
 export const AUTOSAVE_DEBOUNCE_MS = 1200
+// In-session guidance re-poll cadence (dashboard-v2 polls too): a new model
+// run appears mid-shift without a page reload. The server side is
+// rate-limited (MIN_REFRESH_INTERVAL) and cache-backed, so most polls are a
+// cheap cache read.
+export const GUIDANCE_POLL_MS = 5 * 60 * 1000
 
 function buildModel(initial: LoadedForecast, guidance: GuidanceBundle | null): MwfForecast {
   const zones = initial.config.zones
@@ -106,6 +117,7 @@ export function MwfEditorClient({
 }) {
   const router = useRouter()
   const [forecast, setForecast] = useState<MwfForecast>(() => buildModel(initial, guidance))
+  const [liveGuidance, setLiveGuidance] = useState(guidance)
   const [docId, setDocId] = useState(initial.id)
   const [status, setStatus] = useState(initial.status)
   const [revision, setRevision] = useState(initial.revision)
@@ -184,6 +196,32 @@ export function MwfEditorClient({
     [scheduleSave, readOnly],
   )
 
+  // In-session guidance re-poll: a new model run appears mid-shift without a
+  // page reload. Replaces the overlay wholesale (clear + re-apply, so a model
+  // deactivated mid-shift drops its chips); entered values and the autosave
+  // path are untouched — guidance never persists.
+  useEffect(() => {
+    const codeMap = initial.config.airfireCodeMap
+    const id = setInterval(async () => {
+      if (document.visibilityState !== 'visible') return
+      const fresh = await loadGuidanceAction().catch(() => null)
+      if (!fresh || 'error' in fresh) return
+      setLiveGuidance(fresh)
+      setForecast((prev) => {
+        const next = structuredClone(prev)
+        clearGuidanceOverlays(next)
+        const precip = toPrecipOverlay(fresh.precip)
+        if (precip) applyGuidance(next, precip)
+        const temps = toTempsOverlay(fresh.temps)
+        if (temps) applyTempsGuidance(next, temps, codeMap)
+        const winds = toWindsOverlay(fresh.winds)
+        if (winds) applyWindsGuidance(next, winds, codeMap)
+        return next
+      })
+    }, GUIDANCE_POLL_MS)
+    return () => clearInterval(id)
+  }, [initial.config.airfireCodeMap])
+
   // Cancel the debounce and persist whatever is pending before publishing.
   const flushSave = useCallback(async () => {
     if (timer.current) clearTimeout(timer.current)
@@ -253,7 +291,7 @@ export function MwfEditorClient({
     mutate,
     previousBody: initial.previousBody,
     previousLabel: initial.previousLabel,
-    guidance,
+    guidance: liveGuidance,
   }
   const saveLabel = {
     saved: 'Saved',
@@ -330,7 +368,7 @@ export function MwfEditorClient({
           This forecast was withdrawn and is read-only.
         </p>
       )}
-      {guidance?.stale && (
+      {liveGuidance?.stale && (
         <p className="mwf-banner mwf-banner--warning">
           Model guidance is stale — showing the last good run. A refresh failure never blanks the
           working columns.
