@@ -77,9 +77,9 @@ describe('precip guidance overlay', () => {
         previousLabel={null}
       />,
     )
-    const chips = screen.getAllByTitle('WRF: click to fill')
-    const matchedChips = chips.filter((c) => c.className.includes('mwf-chip--matched'))
-    expect(matchedChips).toHaveLength(1)
-    expect(matchedChips[0]).toHaveTextContent('WRF 0.25')
+    const values = screen.getAllByTitle('WRF: click to fill')
+    const matched = values.filter((c) => c.className.includes('mwf-guidance-val--matched'))
+    expect(matched).toHaveLength(1)
+    expect(matched[0]).toHaveTextContent('0.25')
   })
 })

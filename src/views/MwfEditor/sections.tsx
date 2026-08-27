@@ -22,6 +22,7 @@ import {
   type SerializedForecast,
   type Zone,
 } from '@/utilities/mwf/mwfData'
+import React, { useState } from 'react'
 import { LevelCell, NumberCell, WindDirCell } from './cells'
 
 export interface SectionProps {
@@ -97,192 +98,313 @@ function Section({
 }
 
 export function PrecipGrid({ forecast, zones, points, mutate, previousBody }: SectionProps) {
-  // AM issuances forecast precip through Day 2 only (PR #158).
-  // Column fill: every model title present in any of this period's cells.
-  const titlesFor = (periodKey: string): string[] => {
-    const titles = new Set<string>()
-    points.forEach((pt) => {
-      Object.keys(forecast.precip[pt.code]?.[periodKey]?.guidance ?? {}).forEach((t) =>
-        titles.add(t),
-      )
-    })
-    return Array.from(titles)
-  }
+  // One metric at a time, like the dashboard-v2 grid: QPF is where guidance
+  // model columns + Prev + the single Fx entry live; Density is the SLR grid
+  // with per-period quick-sets; Snow is the read-only derived view.
+  const [metric, setMetric] = useState<'qpf' | 'density' | 'snow'>('qpf')
   const periods = precipPeriodsFor(forecast.meta.type)
   const zoneName = new Map(zones.map((z) => [z.id, z.name]))
+  const hasPrev = Boolean(previousBody?.precip && Object.keys(previousBody.precip).length)
+  // Model titles present in any cell — one guidance column per model.
+  const titles = Array.from(
+    new Set(
+      points.flatMap((pt) =>
+        periods.flatMap((per) => Object.keys(forecast.precip[pt.code]?.[per.key]?.guidance ?? {})),
+      ),
+    ),
+  )
+
+  const prevQpf = (code: string, periodKey: string) =>
+    entered(previousBody?.precip?.[code]?.[periodKey]?.qpf)
+
+  const fillColumn = (periodKey: string, value: (code: string) => number | null) =>
+    mutate((fc) => {
+      points.forEach((pt) => {
+        const v = value(pt.code)
+        if (v != null) fc.precip[pt.code][periodKey].qpf = v
+      })
+    })
+
+  const pointCell = (pt: ForecastPoint) => (
+    <td className="px-2 py-1.5">
+      <div>{pt.name}</div>
+      <div className="text-xs opacity-70">
+        {pt.code} · {zoneName.get(pt.zone) ?? pt.zone}
+      </div>
+    </td>
+  )
+
+  const periodHead = (per: (typeof periods)[number], colSpan = 1) => (
+    <th key={per.key} className="px-2 py-1.5 text-center" colSpan={colSpan}>
+      <div className="font-medium">{periodDate(forecast.meta.initialDate, per.dayOffset)}</div>
+      <div className="text-xs font-normal opacity-70">{per.kind === 'night' ? 'Night' : 'Day'}</div>
+    </th>
+  )
+
   return (
     <Section
       id="mwf-precip"
       title="QPF · Density · Snow"
       hint="Per-point, 12-hour blocks. Snow is derived (QPF × 100 / density) and not editable. Density is needed only where QPF > 0."
     >
-      <div className="overflow-x-auto">
-        <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
-          <thead>
-            <tr className="text-left">
-              <th className="px-2 py-1.5 font-medium">Forecast point</th>
-              {periods.map((per) => (
-                <th key={per.key} className="min-w-40 px-2 py-1.5 text-center">
-                  <div className="font-medium">
-                    {periodDate(forecast.meta.initialDate, per.dayOffset)}
-                  </div>
-                  <div className="text-xs font-normal opacity-70">
-                    {per.kind === 'night' ? 'Night' : 'Day'} · QPF / SLR / Snow
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap justify-center gap-1">
-                    {titlesFor(per.key).map((title) => (
-                      <button
-                        key={title}
-                        type="button"
-                        title={`Fill every point's ${per.short} QPF from ${title}`}
-                        className="mwf-mini-btn font-normal"
-                        onClick={() =>
-                          mutate((fc) => {
-                            points.forEach((pt) => {
-                              const g = fc.precip[pt.code][per.key].guidance[title]
-                              if (g != null) fc.precip[pt.code][per.key].qpf = g
-                            })
-                          })
-                        }
-                      >
-                        ⇩ {title}
-                      </button>
-                    ))}
-                    {previousBody && (
-                      <button
-                        type="button"
-                        title={`Fill every point's ${per.short} QPF from the previous forecast`}
-                        className="mwf-mini-btn font-normal"
-                        onClick={() =>
-                          mutate((fc) => {
-                            points.forEach((pt) => {
-                              const prev = entered(previousBody.precip?.[pt.code]?.[per.key]?.qpf)
-                              if (prev != null) fc.precip[pt.code][per.key].qpf = prev
-                            })
-                          })
-                        }
-                      >
-                        ⇩ Prev
-                      </button>
-                    )}
-                  </div>
+      <div className="mb-3 flex items-center gap-2">
+        <span className="mwf-hint text-xs">Showing</span>
+        <div className="mwf-seg" role="group" aria-label="Precipitation metric">
+          {(['qpf', 'density', 'snow'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              className={metric === m ? 'mwf-seg--active' : ''}
+              onClick={() => setMetric(m)}
+            >
+              {m === 'qpf' ? 'QPF' : m === 'density' ? 'Density' : 'Snow'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {metric === 'qpf' && (
+        <div className="overflow-x-auto">
+          <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
+            <thead>
+              <tr className="text-left">
+                <th className="px-2 py-1.5 font-medium" rowSpan={2}>
+                  Forecast point
                 </th>
-              ))}
-              <th className="px-2 py-1.5 text-center">Σ QPF</th>
-            </tr>
-          </thead>
-          <tbody>
-            {points.map((pt) => {
-              const rowValues = periods.map((per) => forecast.precip[pt.code]?.[per.key])
-              const any = rowValues.some((c) => c && c.qpf != null && c.qpf !== '')
-              const sum = rowValues.reduce((acc, c) => acc + (Number(c?.qpf) || 0), 0)
-              return (
+                {periods.map((per) => periodHead(per, titles.length + (hasPrev ? 1 : 0) + 1))}
+                <th className="px-2 py-1.5 text-center" rowSpan={2}>
+                  Σ QPF
+                </th>
+              </tr>
+              <tr>
+                {periods.map((per) => (
+                  <React.Fragment key={per.key}>
+                    {titles.map((title) => (
+                      <th key={title} className="px-1 py-1 text-center">
+                        <button
+                          type="button"
+                          title={`Fill every point's ${per.short} QPF from ${title}`}
+                          className="mwf-mini-btn font-normal"
+                          onClick={() =>
+                            fillColumn(per.key, (code) => {
+                              const g = forecast.precip[code]?.[per.key]?.guidance[title]
+                              return g ?? null
+                            })
+                          }
+                        >
+                          ⇩ {title}
+                        </button>
+                      </th>
+                    ))}
+                    {hasPrev && (
+                      <th className="px-1 py-1 text-center">
+                        <button
+                          type="button"
+                          title={`Fill every point's ${per.short} QPF from the previous forecast`}
+                          className="mwf-mini-btn font-normal"
+                          onClick={() => fillColumn(per.key, (code) => prevQpf(code, per.key))}
+                        >
+                          ⇩ Prev
+                        </button>
+                      </th>
+                    )}
+                    <th className="mwf-fx-head px-1 py-1 text-center">Fx</th>
+                  </React.Fragment>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {points.map((pt) => {
+                const rowValues = periods.map((per) => forecast.precip[pt.code]?.[per.key])
+                const any = rowValues.some((c) => c && c.qpf != null && c.qpf !== '')
+                const sum = rowValues.reduce((acc, c) => acc + (Number(c?.qpf) || 0), 0)
+                return (
+                  <tr key={pt.code}>
+                    {pointCell(pt)}
+                    {periods.map((per) => {
+                      const cell = forecast.precip[pt.code]?.[per.key]
+                      if (!cell) return <td key={per.key} colSpan={titles.length + 2} />
+                      const fx = entered(cell.qpf)
+                      const prev = prevQpf(pt.code, per.key)
+                      return (
+                        <React.Fragment key={per.key}>
+                          {titles.map((title) => {
+                            const value = cell.guidance[title]
+                            return (
+                              <td key={title} className="px-1 py-1.5 text-center">
+                                {value == null ? (
+                                  <span className="mwf-muted">–</span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    title={`${title}: click to fill`}
+                                    className={`mwf-guidance-val ${
+                                      fx === value && value !== 0 ? 'mwf-guidance-val--matched' : ''
+                                    }`}
+                                    onClick={() =>
+                                      mutate((fc) => {
+                                        fc.precip[pt.code][per.key].qpf = value
+                                      })
+                                    }
+                                  >
+                                    {value.toFixed(2)}
+                                  </button>
+                                )}
+                              </td>
+                            )
+                          })}
+                          {hasPrev && (
+                            <td className="px-1 py-1.5 text-center">
+                              {prev == null ? (
+                                <span className="mwf-muted">–</span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  title="Prev: click to fill"
+                                  className={`mwf-guidance-val ${
+                                    fx === prev && prev !== 0 ? 'mwf-guidance-val--matched' : ''
+                                  }`}
+                                  onClick={() =>
+                                    mutate((fc) => {
+                                      fc.precip[pt.code][per.key].qpf = prev
+                                    })
+                                  }
+                                >
+                                  {prev.toFixed(2)}
+                                </button>
+                              )}
+                            </td>
+                          )}
+                          <td className="px-1 py-1.5">
+                            <NumberCell
+                              ariaLabel={`${pt.code} ${per.short} QPF`}
+                              value={cell.qpf}
+                              invalid={qpfOverPrecise(cell.qpf)}
+                              onChange={(v) =>
+                                mutate((fc) => {
+                                  fc.precip[pt.code][per.key].qpf = v
+                                })
+                              }
+                            />
+                          </td>
+                        </React.Fragment>
+                      )
+                    })}
+                    <td className="px-2 py-1.5 text-right tabular-nums">
+                      {any ? sum.toFixed(2) : '–'}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {metric === 'density' && (
+        <div className="overflow-x-auto">
+          <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
+            <thead>
+              <tr className="text-left">
+                <th className="px-2 py-1.5 font-medium">
+                  Forecast point
+                  <span className="mwf-hint block text-xs font-normal">SLR quick-set →</span>
+                </th>
+                {periods.map((per) => (
+                  <th key={per.key} className="min-w-28 px-2 py-1.5 text-center">
+                    <div className="font-medium">
+                      {periodDate(forecast.meta.initialDate, per.dayOffset)}
+                    </div>
+                    <div className="text-xs font-normal opacity-70">
+                      {per.kind === 'night' ? 'Night' : 'Day'}
+                    </div>
+                    <div className="mt-0.5 flex justify-center gap-1">
+                      {[0, 10].map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          title={`Set every point's ${per.short} SLR to ${v}`}
+                          className="mwf-mini-btn"
+                          onClick={() =>
+                            mutate((fc) => {
+                              points.forEach((pt) => {
+                                fc.precip[pt.code][per.key].density = v
+                              })
+                            })
+                          }
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {points.map((pt) => (
                 <tr key={pt.code}>
-                  <td className="px-2 py-1.5">
-                    <div>{pt.name}</div>
-                    <div className="text-xs opacity-70">{zoneName.get(pt.zone) ?? pt.zone}</div>
-                  </td>
+                  {pointCell(pt)}
                   {periods.map((per) => {
                     const cell = forecast.precip[pt.code]?.[per.key]
                     if (!cell) return <td key={per.key} />
-                    const snow = deriveSnow(cell.qpf, cell.density)
                     return (
                       <td key={per.key} className="px-1.5 py-1.5">
-                        <div className="flex items-center gap-1">
-                          <NumberCell
-                            ariaLabel={`${pt.code} ${per.short} QPF`}
-                            value={cell.qpf}
-                            invalid={qpfOverPrecise(cell.qpf)}
-                            onChange={(v) =>
-                              mutate((fc) => {
-                                fc.precip[pt.code][per.key].qpf = v
-                              })
-                            }
-                          />
-                          <NumberCell
-                            ariaLabel={`${pt.code} ${per.short} density`}
-                            value={cell.density}
-                            onChange={(v) =>
-                              mutate((fc) => {
-                                fc.precip[pt.code][per.key].density = v
-                              })
-                            }
-                          />
-                          <span className="min-w-10 text-right text-xs tabular-nums opacity-80">
-                            {snow == null ? '–' : `${snow}"`}
-                          </span>
-                        </div>
-                        <div className="mt-0.5 flex flex-wrap gap-1">
-                          {Object.entries(cell.guidance).map(([title, value]) => (
-                            <Chip
-                              key={title}
-                              label={title}
-                              value={String(value)}
-                              matched={entered(cell.qpf) === value && value !== 0}
-                              onFill={() =>
-                                mutate((fc) => {
-                                  fc.precip[pt.code][per.key].qpf = value
-                                })
-                              }
-                            />
-                          ))}
-                          {entered(previousBody?.precip?.[pt.code]?.[per.key]?.qpf) != null && (
-                            <Chip
-                              label="Prev"
-                              value={String(
-                                entered(previousBody?.precip?.[pt.code]?.[per.key]?.qpf),
-                              )}
-                              matched={
-                                entered(cell.qpf) ===
-                                  entered(previousBody?.precip?.[pt.code]?.[per.key]?.qpf) &&
-                                entered(cell.qpf) !== 0
-                              }
-                              onFill={() =>
-                                mutate((fc) => {
-                                  const prev = entered(
-                                    previousBody?.precip?.[pt.code]?.[per.key]?.qpf,
-                                  )
-                                  if (prev != null) fc.precip[pt.code][per.key].qpf = prev
-                                })
-                              }
-                            />
-                          )}
-                        </div>
+                        <NumberCell
+                          ariaLabel={`${pt.code} ${per.short} density`}
+                          value={cell.density}
+                          onChange={(v) =>
+                            mutate((fc) => {
+                              fc.precip[pt.code][per.key].density = v
+                            })
+                          }
+                        />
                       </td>
                     )
                   })}
-                  <td className="px-2 py-1.5 text-right tabular-nums">
-                    {any ? sum.toFixed(2) : '–'}
-                  </td>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-      <div className="mt-2 flex gap-2">
-        {periods.map((per) => (
-          <div key={per.key} className="flex items-center gap-1 text-xs">
-            <span className="opacity-70">{per.short} SLR:</span>
-            {[10, 0].map((v) => (
-              <button
-                key={v}
-                type="button"
-                className="rounded border px-1.5 py-0.5"
-                onClick={() =>
-                  mutate((fc) => {
-                    points.forEach((pt) => {
-                      fc.precip[pt.code][per.key].density = v
-                    })
-                  })
-                }
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-        ))}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {metric === 'snow' && (
+        <div className="overflow-x-auto">
+          <table className="mwf-table w-full border-separate border-spacing-0 text-sm">
+            <thead>
+              <tr className="text-left">
+                <th className="px-2 py-1.5 font-medium">Forecast point</th>
+                {periods.map((per) => periodHead(per))}
+                <th className="px-2 py-1.5 text-center">Sum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {points.map((pt) => {
+                const values = periods.map((per) => {
+                  const cell = forecast.precip[pt.code]?.[per.key]
+                  return cell ? deriveSnow(cell.qpf, cell.density) : null
+                })
+                const any = values.some((v) => v != null)
+                const sum = values.reduce((acc: number, v) => acc + (v ?? 0), 0)
+                return (
+                  <tr key={pt.code}>
+                    {pointCell(pt)}
+                    {values.map((v, i) => (
+                      <td key={periods[i].key} className="px-2 py-1.5 text-center tabular-nums">
+                        {v == null ? <span className="mwf-muted">—</span> : v.toFixed(1)}
+                      </td>
+                    ))}
+                    <td className="px-2 py-1.5 text-center font-medium tabular-nums">
+                      {any ? sum.toFixed(1) : '—'}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </Section>
   )
 }

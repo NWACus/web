@@ -41,12 +41,24 @@ function renderWithMutate(
 }
 
 describe('PrecipGrid', () => {
-  it('derives snow from QPF and density and shows it read-only', () => {
+  it('derives snow from QPF and density, read-only on the Snow view', () => {
     const fc = makeForecast()
     fc.precip.HUR.d1.qpf = 0.5
     fc.precip.HUR.d1.density = 10
     renderWithMutate((p) => <PrecipGrid {...p} />, fc)
-    expect(screen.getByText('5"')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Snow' }))
+    // 0.5" QPF at 10:1 → 5.0" snow; no inputs on the derived view.
+    expect(screen.getAllByText('5.0').length).toBeGreaterThan(0)
+    expect(screen.queryByLabelText('HUR D1 QPF')).not.toBeInTheDocument()
+  })
+
+  it('the Density view carries the SLR inputs and quick-sets', () => {
+    const fc = makeForecast()
+    renderWithMutate((p) => <PrecipGrid {...p} />, fc)
+    fireEvent.click(screen.getByRole('button', { name: 'Density' }))
+    expect(screen.getByLabelText('HUR D1 density')).toBeInTheDocument()
+    fireEvent.click(screen.getByTitle("Set every point's D1 SLR to 10"))
+    expect(fc.precip.HUR.d1.density).toBe(10)
   })
 
   it('flags over-precise QPF entries', () => {

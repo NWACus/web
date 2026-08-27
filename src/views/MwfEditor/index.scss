@@ -70,6 +70,60 @@
     }
   }
 
+  // metric toggle (Showing: QPF / Density / Snow)
+  .mwf-seg {
+    display: inline-flex;
+    overflow: hidden;
+    border: 1px solid var(--theme-elevation-150);
+    border-radius: var(--style-radius-m);
+
+    button {
+      padding: 4px 16px;
+      font-size: 12px;
+      color: var(--theme-elevation-600);
+      background: none;
+      border: none;
+      cursor: pointer;
+
+      + button {
+        border-left: 1px solid var(--theme-elevation-150);
+      }
+      &:hover {
+        color: var(--theme-elevation-800);
+      }
+      &.mwf-seg--active {
+        color: var(--theme-text);
+        font-weight: 500;
+        background: var(--theme-elevation-100);
+      }
+    }
+  }
+
+  // read-only guidance values in the QPF model columns — click to fill Fx
+  .mwf-guidance-val {
+    padding: 2px 6px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--theme-elevation-600);
+    background: none;
+    border: none;
+    border-radius: var(--style-radius-s);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--theme-elevation-800);
+      background: var(--theme-elevation-100);
+    }
+  }
+  .mwf-guidance-val--matched {
+    color: var(--theme-success-750);
+    background: var(--theme-success-100);
+  }
+  .mwf-fx-head {
+    color: var(--theme-text);
+    font-weight: 600;
+  }
+
   // --- guidance chips + small action buttons -------------------------------
   .mwf-chip,
   .mwf-mini-btn {

@@ -106,10 +106,18 @@ test.describe('MWF authoring end-to-end', () => {
     // --- Author every visible field ----------------------------------------
     // The PR #158 morning windows: precip runs D1..D2, temps D1..N1, snow
     // levels am1..pm2, wind the full am1..nt2.
+    // QPF and density live on separate metric views (dashboard-v2 layout).
     for (const period of ['D1', 'N1', 'D2']) {
       await fillCommit(page, `test-point ${period} QPF`, '0.5')
+    }
+    await page.getByRole('button', { name: 'Density', exact: true }).click()
+    for (const period of ['D1', 'N1', 'D2']) {
       await fillCommit(page, `test-point ${period} density`, '10')
     }
+    // Derived snow appears on the read-only Snow view (0.5 at 10:1 → 5.0).
+    await page.getByRole('button', { name: 'Snow', exact: true }).click()
+    await expect(page.getByText('5.0').first()).toBeVisible()
+    await page.getByRole('button', { name: 'QPF', exact: true }).click()
     for (const period of ['D1', 'N1']) {
       await fillCommit(page, `test-zone ${period} high`, '30')
       await fillCommit(page, `test-zone ${period} low`, '20')
@@ -126,8 +134,6 @@ test.describe('MWF authoring end-to-end', () => {
     await page.getByLabel('Synopsis', { exact: true }).fill('E2E synopsis: a front moves through.')
     await page.getByLabel('Extended synopsis').fill('E2E extended: ridging builds midweek.')
 
-    // Derived snow appears live (0.5 QPF at 10:1 → 5").
-    await expect(page.getByText('5"').first()).toBeVisible()
     // The debounced autosave lands.
     await expect(page.getByTestId('mwf-save-state')).toContainText('Saved', { timeout: 15_000 })
 
