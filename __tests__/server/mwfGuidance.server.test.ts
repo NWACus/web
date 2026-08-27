@@ -263,6 +263,19 @@ describe('refreshGuidance cache', () => {
     expect(modelsForTable(config, 'temps')).toEqual([])
   })
 
+  it('skips models switched off in Settings; only an explicit false disables', () => {
+    const config = {
+      ...CONFIG,
+      models: [
+        { name: 'WRF', sourceType: 'point-json' as const, url: 'u', config: {}, active: true },
+        { name: 'HRRR', sourceType: 'grib2' as const, url: 'u', config: {}, active: false },
+        // Rows predating the toggle have no `active` — they stay on.
+        { name: 'NBM', sourceType: 'grib2' as const, url: 'u', config: {} },
+      ],
+    }
+    expect(modelsForTable(config, 'precip').map((m) => m.name)).toEqual(['WRF', 'NBM'])
+  })
+
   describe('durable store', () => {
     function memoryStore(initial?: QpfArtifact) {
       const rows = new Map<string, GuidanceArtifact>()

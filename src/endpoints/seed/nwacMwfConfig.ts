@@ -176,6 +176,7 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
     {
       name: 'HRRR 3km',
       sourceType: 'grib2',
+      active: true,
       url: 'https://noaa-hrrr-bdp-pds.s3.amazonaws.com/hrrr.{date}/conus/hrrr.t{cycle}z.wrfsfcf{fh02}.grib2',
       config: {
         variable: 'APCP',
@@ -191,6 +192,7 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
     {
       name: 'NBM ~5km',
       sourceType: 'grib2',
+      active: true,
       url: 'https://noaa-nbm-grib2-pds.s3.amazonaws.com/blend.{date}/{cycle}/core/blend.t{cycle}z.core.f{fh03}.co.grib2',
       config: {
         variable: 'APCP',
@@ -208,6 +210,7 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
     {
       name: 'WRF3UW1 1.33km',
       sourceType: 'point-json',
+      active: true,
       url: 'https://m2.airfire.org/PNW/1.33km/NWACImages/{run}/precip12.json',
       config: {
         stationKey: 'station',
@@ -218,6 +221,7 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
     {
       name: 'WRF temps',
       sourceType: 'zone-summary-json',
+      active: true,
       url: 'https://m2.airfire.org/UWFS/1.33km/NWACImages/{run}/SZ_MaxTemperature_12hr.json',
       config: {
         table: 'temps',
@@ -233,6 +237,7 @@ export const NWAC_MWF_CONFIG: NonNullable<Setting['mwf']> = {
     {
       name: 'WRF winds',
       sourceType: 'zone-summary-json',
+      active: true,
       url: 'https://m2.airfire.org/UWFS/1.33km/NWACImages/{run}/SZ_WindSpeed_6hr.json',
       config: {
         table: 'winds',

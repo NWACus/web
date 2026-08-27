@@ -57,6 +57,7 @@ import * as migration_20260701_162212_add_galleries from './20260701_162212_add_
 import * as migration_20260825_221038_add_mwf_forecasts from './20260825_221038_add_mwf_forecasts';
 import * as migration_20260825_234321_add_mwf_nac_zone_ids from './20260825_234321_add_mwf_nac_zone_ids';
 import * as migration_20260827_005910_add_mwf_guidance_artifacts from './20260827_005910_add_mwf_guidance_artifacts';
+import * as migration_20260827_011633_add_mwf_model_active from './20260827_011633_add_mwf_model_active';
 
 export const migrations = [
   {
@@ -352,6 +353,11 @@ export const migrations = [
   {
     up: migration_20260827_005910_add_mwf_guidance_artifacts.up,
     down: migration_20260827_005910_add_mwf_guidance_artifacts.down,
-    name: '20260827_005910_add_mwf_guidance_artifacts'
+    name: '20260827_005910_add_mwf_guidance_artifacts',
+  },
+  {
+    up: migration_20260827_011633_add_mwf_model_active.up,
+    down: migration_20260827_011633_add_mwf_model_active.down,
+    name: '20260827_011633_add_mwf_model_active'
   },
 ];

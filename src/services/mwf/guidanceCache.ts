@@ -115,11 +115,15 @@ export async function loadDurable(
 type MwfConfig = NonNullable<Setting['mwf']>
 
 // Which configured models feed a table: point-json and grib2 → precip;
-// zone-summary sources say which table via config.table.
+// zone-summary sources say which table via config.table. A model switched
+// off in Settings is not fetched and shows no column — products-api's
+// `enabled is not False` semantics: only an explicit false disables, so rows
+// predating the toggle stay active.
 export function modelsForTable(mwfConfig: MwfConfig, table: GuidanceTable): GuidanceModelRow[] {
   const rows = mwfConfig.models ?? []
   return rows
     .filter((m) => {
+      if (m.active === false) return false
       if (table === 'precip') return m.sourceType === 'point-json' || m.sourceType === 'grib2'
       return m.sourceType === 'zone-summary-json' && parseModelConfig(m.config).table === table
     })

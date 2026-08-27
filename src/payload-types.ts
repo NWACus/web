@@ -3195,6 +3195,10 @@ export interface Setting {
           name: string;
           sourceType: 'point-json' | 'zone-summary-json' | 'grib2';
           /**
+           * Inactive models are not fetched and show no column
+           */
+          active?: boolean | null;
+          /**
            * Source URL. Point JSON sources may include a {point} placeholder substituted with the forecast point code.
            */
           url: string;
@@ -5092,6 +5096,7 @@ export interface SettingsSelect<T extends boolean = true> {
           | {
               name?: T;
               sourceType?: T;
+              active?: T;
               url?: T;
               config?: T;
               id?: T;

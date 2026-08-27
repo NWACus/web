@@ -401,7 +401,16 @@ const mwfFields: Field[] = [
                   { label: 'Zone summary JSON', value: 'zone-summary-json' },
                   { label: 'GRIB2 (byte-range .idx)', value: 'grib2' },
                 ],
-                admin: { width: '50%' },
+                admin: { width: '35%' },
+              },
+              {
+                name: 'active',
+                type: 'checkbox',
+                defaultValue: true,
+                admin: {
+                  width: '15%',
+                  description: 'Inactive models are not fetched and show no column',
+                },
               },
             ],
           },

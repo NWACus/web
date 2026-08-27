@@ -333,7 +333,7 @@ sig = "7c11051944f82644"
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/collections/Settings/index.ts"
-sig = "70b4ba16d8737f50"
+sig = "eabaccaec89aab82"
 
 [[bindings]]
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
@@ -448,7 +448,7 @@ sig = "f3230eac010baa8c"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = "src/migrations/index.ts"
-sig = "839eba40e66d58eb"
+sig = "dad4a9121c7239e7"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
@@ -468,7 +468,7 @@ sig = "e2f2a9e072cd0361"
 [[bindings]]
 doc = "docs/mwf-native-proof.md"
 target = "src/endpoints/seed/nwacMwfConfig.ts"
-sig = "d391c6fdea6140eb"
+sig = "d785515f16ae9f09"
 
 [[bindings]]
 doc = "docs/mwf-native-proof.md"
@@ -488,7 +488,7 @@ sig = "c0a7ae15a891a6ef"
 [[bindings]]
 doc = "docs/mwf-native-proof.md"
 target = "src/services/mwf/guidanceCache.ts"
-sig = "557c83181185cfef"
+sig = "725d31017f12aba3"
 
 [[bindings]]
 doc = "docs/mwf-native-proof.md"
