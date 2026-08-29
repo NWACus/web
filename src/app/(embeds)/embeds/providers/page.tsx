@@ -7,26 +7,25 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { getStateLabel } from '@/fields/location/states'
-import type { Provider } from '@/payload-types'
 import config from '@/payload.config'
+import { groupProvidersByState, type ProvidersByState } from '@/utilities/groupProvidersByState'
 import Script from 'next/script'
 import { createLoader, parseAsString, SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 
 const providersSearchParams = {
   title: parseAsString,
+  states: parseAsString,
 }
 
 const loadSearchParams = createLoader(providersSearchParams)
-
-type ProvidersByState = { [state: string]: Provider[] }
 
 export default async function ProvidersEmbedPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const { title } = await loadSearchParams(searchParams)
+  const { title, states: statesFilter } = await loadSearchParams(searchParams)
   const payload = await getPayload({ config })
 
   const result = await payload.find({
@@ -40,34 +39,9 @@ export default async function ProvidersEmbedPage({
     depth: 0,
   })
 
-  const providers = result.docs
-
-  // Organize providers by state based on statesServiced
-  // providers can be in multiple states
-  const providersByState: ProvidersByState = {}
-
-  providers.forEach((provider) => {
-    if (provider.statesServiced && provider.statesServiced.length > 0) {
-      provider.statesServiced.forEach((state) => {
-        if (!providersByState[state]) {
-          providersByState[state] = []
-        }
-        providersByState[state].push(provider)
-      })
-    }
-  })
-
-  // Sort providers alphabetically by name within each state
-  for (const state of Object.keys(providersByState)) {
-    providersByState[state].sort((a, b) => a.name.localeCompare(b.name))
-  }
-
-  // Sort states alphabetically, but always put International (INTL) last
-  const states = Object.keys(providersByState).sort((a, b) => {
-    if (a === 'INTL') return 1
-    if (b === 'INTL') return -1
-    return a.localeCompare(b)
-  })
+  // Organize providers by state based on statesServiced (providers can be in
+  // multiple states) and restrict to the selected states when a filter is given
+  const { states, providersByState } = groupProvidersByState(result.docs, statesFilter)
 
   // Split states into two columns for vertical flow
   const midpoint = Math.ceil(states.length / 2)

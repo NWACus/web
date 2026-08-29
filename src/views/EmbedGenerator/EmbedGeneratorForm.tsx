@@ -84,6 +84,10 @@ function generateEmbedCode(type: EmbedType, options: EmbedOptions, baseUrl: stri
 
   if (options.title) params.set('title', options.title)
 
+  if (type === 'providers') {
+    if (options.states.length) params.set('states', options.states.join(','))
+  }
+
   if (type === 'courses') {
     if (options.showFilters) params.set('showFilters', 'true')
     if (options.types.length) params.set('types', options.types.join(','))
@@ -225,6 +229,29 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
           }
           description="Height in pixels (e.g., 800)"
         />
+      )}
+
+      {/* Providers-specific Options */}
+      {embedType === 'providers' && (
+        <>
+          <div className="field-description">
+            <strong>Pre-filter options:</strong> Select states below to pre-filter the providers
+            shown in the embed. Leave empty to show all states.
+          </div>
+
+          {/* States */}
+          <SelectInput
+            label="States"
+            name="states"
+            path="states"
+            options={stateOptionsWIntl.map((state) => ({ label: state.label, value: state.value }))}
+            value={options.states}
+            onChange={(selected) => {
+              updateOption('states', extractStringValues(selected))
+            }}
+            hasMany
+          />
+        </>
       )}
 
       {/* Courses-specific Options */}
