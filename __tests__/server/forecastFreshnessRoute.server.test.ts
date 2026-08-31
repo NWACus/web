@@ -1,6 +1,8 @@
-import { forecastFingerprint } from '@/services/nac/forecastFingerprint'
+import { forecastPageFingerprint } from '@/services/nac/forecastFingerprint'
+import { ProductType } from '@/services/nac/model/forecast'
 import { mapV2ForecastResult } from '@/services/nac/sources/v2/mappers'
 import { forecastResultSchema } from '@/services/nac/types/forecastSchemas'
+import { warningFixture } from '../fixtures/warningProducts'
 import nwacForecastActive from './fixtures/nwac-forecast-active.json'
 
 const mockRevalidateTag = jest.fn()
@@ -13,10 +15,16 @@ jest.mock('../../src/services/nac/resolveZone', () => ({
 
 const mockGetForecastFresh = jest.fn()
 const mockGetForecast = jest.fn()
+const mockGetWarningFresh = jest.fn()
+const mockGetWarning = jest.fn()
 jest.mock('../../src/services/nac/sources', () => ({
   getForecastSource: () => ({
     getForecastFresh: (...a: unknown[]) => mockGetForecastFresh(...a),
     getForecast: (...a: unknown[]) => mockGetForecast(...a),
+  }),
+  getWarningSource: () => ({
+    getWarningFresh: (...a: unknown[]) => mockGetWarningFresh(...a),
+    getWarning: (...a: unknown[]) => mockGetWarning(...a),
   }),
 }))
 
@@ -25,13 +33,16 @@ jest.mock('../../src/services/nac/nac', () => ({
   forecastCacheTag: (centerId: string, zoneId: number) =>
     `forecast:${centerId === 'dvac' ? 'nwac' : centerId}:${zoneId}`,
   weatherCacheTag: (id: number) => `weather:${id}`,
+  warningCacheTag: (centerId: string, zoneId: number) => `warning:${centerId}:${zoneId}`,
 }))
 
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
 import { GET } from '@/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route'
 
 const forecast = mapV2ForecastResult(forecastResultSchema.parse(nwacForecastActive))
-const etag = forecastFingerprint(forecast)
+const warning = warningFixture(ProductType.Warning)
+/** What a viewer rendered when the zone had a forecast and no active alert. */
+const etag = forecastPageFingerprint(forecast, null)
 /** A well-formed fingerprint that no product will ever hash to. */
 const STALE_ETAG = 'f'.repeat(40)
 
@@ -52,10 +63,26 @@ async function answer(res: Response) {
   }
 }
 
-/** The common case: upstream and the shared cache both hold `forecast`. */
-function upstreamAndCacheHold(product: unknown = forecast) {
-  mockGetForecastFresh.mockResolvedValue(product)
+/**
+ * The common case: the shared cache holds `forecast` with no alert, and upstream agrees unless a
+ * different fresh forecast/warning is passed.
+ */
+function upstreamAndCacheHold(fresh: unknown = forecast, freshWarning: unknown = null) {
+  mockGetForecastFresh.mockResolvedValue(fresh)
   mockGetForecast.mockResolvedValue(forecast)
+  mockGetWarningFresh.mockResolvedValue(freshWarning)
+  mockGetWarning.mockResolvedValue(null)
+}
+
+/**
+ * The cache holds a live alert but upstream came back with none — which the source cannot tell
+ * apart from that zone's request having failed.
+ */
+function alertVanishedUpstream(fresh: unknown = forecast) {
+  mockGetForecastFresh.mockResolvedValue(fresh)
+  mockGetForecast.mockResolvedValue(forecast)
+  mockGetWarningFresh.mockResolvedValue(null)
+  mockGetWarning.mockResolvedValue(warning)
 }
 
 beforeEach(() => {
@@ -63,6 +90,8 @@ beforeEach(() => {
   mockResolveZone.mockReset()
   mockGetForecastFresh.mockReset()
   mockGetForecast.mockReset()
+  mockGetWarningFresh.mockReset()
+  mockGetWarning.mockReset()
   mockResolveZone.mockResolvedValue({ slug: ZONE, zone: { id: 123, name: 'X' } })
 })
 
@@ -88,7 +117,7 @@ describe('forecast-freshness route', () => {
     expect(res.status).toBe(200)
     expect(res.body).toEqual({
       changed: true,
-      etag: forecastFingerprint({ ...forecast, bottom_line: 'CORRECTED' }),
+      etag: forecastPageFingerprint({ ...forecast, bottom_line: 'CORRECTED' }, null),
     })
     // Never cached: it keeps random-fingerprint requests from polluting the edge, and guarantees
     // the purge below always reaches origin.
@@ -121,6 +150,7 @@ describe('forecast-freshness route', () => {
     expect(res.cacheControl).toBe('no-store')
     expect(mockRevalidateTag).not.toHaveBeenCalled()
     expect(mockGetForecast).not.toHaveBeenCalled()
+    expect(mockGetWarning).not.toHaveBeenCalled()
   })
 
   it('does NOT revalidate for a stale caller fingerprint when the cache is current (no purge abuse)', async () => {
@@ -139,7 +169,7 @@ describe('forecast-freshness route', () => {
     // publish into a zone is a change an open tab can be told about.
     upstreamAndCacheHold()
 
-    const res = await answer(await check(forecastFingerprint(null)))
+    const res = await answer(await check(forecastPageFingerprint(null, null)))
 
     expect(res.body).toEqual({ changed: true, etag })
   })
@@ -150,6 +180,66 @@ describe('forecast-freshness route', () => {
     await check(etag)
 
     expect(mockGetForecastFresh).toHaveBeenCalled()
+  })
+
+  it('tells the viewer about an alert issued for the zone, though the forecast is untouched', async () => {
+    // The reason the warning is in the address at all: nothing about the forecast moved, so a
+    // forecast-only fingerprint answered "you're current" while the page was missing a live banner.
+    upstreamAndCacheHold(forecast, warning)
+
+    const res = await answer(await check(etag))
+
+    expect(res.body).toEqual({ changed: true, etag: forecastPageFingerprint(forecast, warning) })
+    expect(res.cacheControl).toBe('no-store')
+  })
+
+  it('purges the warning tag alone on a warning-only change (no upstream forecast re-fetch)', async () => {
+    upstreamAndCacheHold(forecast, warning)
+
+    await check(etag)
+
+    expect(mockRevalidateTag).toHaveBeenCalledWith('warning:nwac:123')
+    expect(mockRevalidateTag).not.toHaveBeenCalledWith('forecast:nwac:123')
+  })
+
+  it('does NOT blank a live alert that has gone missing upstream, and never caches that answer', async () => {
+    // A vanished warning is a suspected blip: hold the cached alert and tell nobody.
+    alertVanishedUpstream()
+
+    const res = await answer(await check(forecastPageFingerprint(forecast, warning)))
+
+    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
+    expect(res.cacheControl).toBe('no-store')
+    expect(mockRevalidateTag).not.toHaveBeenCalled()
+  })
+
+  it('still reports a forecast change while an alert is unconfirmed', async () => {
+    // Distrusting the vanished warning must not suppress a correction that really did land.
+    const corrected = { ...forecast, bottom_line: 'CORRECTED' }
+    alertVanishedUpstream(corrected)
+
+    const res = await answer(await check(forecastPageFingerprint(forecast, warning)))
+
+    // The cached alert is held in the address, so the viewer's refresh re-renders with it intact.
+    expect(res.body).toEqual({ changed: true, etag: forecastPageFingerprint(corrected, warning) })
+    expect(mockRevalidateTag).toHaveBeenCalledWith('forecast:nwac:123')
+    expect(mockRevalidateTag).not.toHaveBeenCalledWith('warning:nwac:123')
+  })
+
+  it('propagates a genuine all-clear once the cached side agrees', async () => {
+    upstreamAndCacheHold()
+
+    const res = await answer(await check(forecastPageFingerprint(forecast, warning)))
+
+    expect(res.body).toEqual({ changed: true, etag })
+  })
+
+  it('always runs the warning check too (no-skip invariant)', async () => {
+    upstreamAndCacheHold()
+
+    await check(etag)
+
+    expect(mockGetWarningFresh).toHaveBeenCalled()
   })
 
   it('400s a malformed fingerprint without going upstream', async () => {
