@@ -10,7 +10,7 @@ Issues and PRDs live in this repo's GitHub Issues (`NWACus/web`), via the `gh` C
 
 ### Triage labels
 
-Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), plus the PR-only labels `visual-recap` / `no-visual-recap`. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
@@ -488,6 +488,7 @@ When asked to write a PR description, follow the template in `.github/PULL_REQUE
 3. Reference the issue number (e.g., "Fixes #123")
 4. Describe what was changed and why
 5. Note any decisions made or alternatives considered
+6. Add the `no-visual-recap` label if the PR is large or touches a sensitive path but is purely mechanical (codemod or rename sweep, formatting pass, regenerated types, lockfile bump, generated migration boilerplate). A size gate already skips small PRs automatically, so only apply the label when it would otherwise run and the recap would add nothing — see [`/docs/agents/triage-labels.md`](docs/agents/triage-labels.md).
 
 ### Quality Checklist
 
