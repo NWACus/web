@@ -24,9 +24,11 @@ import { ForecastDiscussion } from './ForecastDiscussion'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
 import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
+import { ForecastPrint } from './ForecastPrint.client'
 import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
 import { WeatherSummary } from './WeatherSummary'
+import { availablePrintSections, forecastPrintFilename } from './forecastPrintSections'
 import { toLightboxMediaList } from './lightboxMedia'
 import { bottomLineDangerLevel } from './zoneCardDanger'
 
@@ -67,18 +69,16 @@ export function NativeForecastView({
   centerType,
   weather,
 }: NativeForecastViewProps) {
-  const isForecast = forecastResult.product_type === ProductType.Forecast
-
   return (
     <div className="container space-y-6 py-6">
-      {/* Page header: zone name + the product-type subtitle, matching the afp product titles
-          ("Backcountry Avalanche Forecast" / "General Avalanche Information"). */}
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{zone.zone.name}</h1>
-        <p className="text-muted-foreground">
-          {isForecast ? 'Backcountry Avalanche Forecast' : 'General Avalanche Information'}
-        </p>
-      </header>
+      <ForecastTitleRow
+        center={center}
+        zone={zone}
+        forecastResult={forecastResult}
+        weather={weather}
+        currentDate={currentDate}
+        selectedDate={selectedDate}
+      />
 
       <ForecastMasthead
         center={center}
@@ -93,11 +93,15 @@ export function NativeForecastView({
         basePath={basePath}
       />
 
-      <ForecastLead
-        forecastResult={forecastResult}
-        elevationBandNames={zone.zone.config.elevation_band_names}
-        timezone={timezone}
-      />
+      {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
+          stylesheet in globals.css hides any section the reader left unchecked. */}
+      <div data-print-section="bottomLine" className="space-y-6">
+        <ForecastLead
+          forecastResult={forecastResult}
+          elevationBandNames={zone.zone.config.elevation_band_names}
+          timezone={timezone}
+        />
+      </div>
 
       <AvalancheProblems forecastResult={forecastResult} />
 
@@ -115,6 +119,54 @@ export function NativeForecastView({
         centerType={centerType}
         centerName={forecastResult.avalanche_center.name}
       />
+    </div>
+  )
+}
+
+/**
+ * The product's title row: zone name and product-type subtitle on the left, the print control on
+ * the right — the same arrangement the legacy afp widget used.
+ *
+ * A div rather than a `<header>`: the print stylesheet hides the site's `<header>`/`<footer>`/
+ * `<nav>` chrome wholesale, and this row has to survive that.
+ */
+function ForecastTitleRow({
+  center,
+  zone,
+  forecastResult,
+  weather,
+  currentDate,
+  selectedDate,
+}: Pick<
+  NativeForecastViewProps,
+  'center' | 'zone' | 'forecastResult' | 'weather' | 'currentDate' | 'selectedDate'
+>) {
+  const isForecast = forecastResult.product_type === ProductType.Forecast
+
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl printWide:text-3xl">
+          {zone.zone.name}
+        </h1>
+        <p className="text-muted-foreground">
+          {isForecast ? 'Backcountry Avalanche Forecast' : 'General Avalanche Information'}
+        </p>
+      </div>
+
+      <ForecastErrorBoundary fallbackMessage="Unable to display the print control">
+        <ForecastPrint
+          availableSections={availablePrintSections(forecastResult, weather)}
+          filename={forecastPrintFilename({
+            centerSlug: center,
+            zoneName: zone.zone.name,
+            productType: forecastResult.product_type,
+            validDate: selectedDate ?? currentDate ?? '',
+          })}
+          centerName={forecastResult.avalanche_center.name}
+          centerUrl={forecastResult.avalanche_center.url}
+        />
+      </ForecastErrorBoundary>
     </div>
   )
 }
@@ -150,18 +202,21 @@ function ForecastMasthead({
 >) {
   return (
     <>
-      {/* Date picker — browse this zone's published forecast history, colored by danger. */}
+      {/* Date picker — browse this zone's published forecast history, colored by danger.
+          Screen-only: an interactive calendar is noise on paper. */}
       <ForecastErrorBoundary fallbackMessage="Unable to display the date picker">
-        <ForecastDatePicker
-          center={center}
-          zoneSlug={zone.slug}
-          zoneName={zone.zone.name}
-          basePath={basePath}
-          selectedDate={selectedDate}
-          currentDate={currentDate}
-          initialDates={initialDates.map((d) => ({ date: d.date, dangerRating: d.dangerRating }))}
-          initialRange={initialRange}
-        />
+        <div data-print-hide>
+          <ForecastDatePicker
+            center={center}
+            zoneSlug={zone.slug}
+            zoneName={zone.zone.name}
+            basePath={basePath}
+            selectedDate={selectedDate}
+            currentDate={currentDate}
+            initialDates={initialDates.map((d) => ({ date: d.date, dangerRating: d.dangerRating }))}
+            initialRange={initialRange}
+          />
+        </div>
       </ForecastErrorBoundary>
 
       {/* Warning banner */}
@@ -245,7 +300,7 @@ function AvalancheProblems({ forecastResult }: { forecastResult: ForecastResult 
   if (forecastResult.forecast_avalanche_problems.length === 0) return null
 
   return (
-    <section className="space-y-4">
+    <section data-print-section="problems" className="space-y-4">
       <h2 className="text-xl font-bold tracking-tight">
         Avalanche Problems ({forecastResult.forecast_avalanche_problems.length})
       </h2>
@@ -276,15 +331,19 @@ function ForecastSupplements({
   return (
     <>
       {forecastResult.hazard_discussion && (
-        <ForecastErrorBoundary fallbackMessage="Unable to display forecast discussion">
-          <ForecastDiscussion html={forecastResult.hazard_discussion} />
-        </ForecastErrorBoundary>
+        <div data-print-section="discussion">
+          <ForecastErrorBoundary fallbackMessage="Unable to display forecast discussion">
+            <ForecastDiscussion html={forecastResult.hazard_discussion} />
+          </ForecastErrorBoundary>
+        </div>
       )}
 
       {weather && (
-        <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
-          <WeatherSummary weather={weather} zoneName={zoneName} timezone={timezone} />
-        </ForecastErrorBoundary>
+        <div data-print-section="weather">
+          <ForecastErrorBoundary fallbackMessage="Unable to display the weather summary">
+            <WeatherSummary weather={weather} zoneName={zoneName} timezone={timezone} />
+          </ForecastErrorBoundary>
+        </div>
       )}
     </>
   )
@@ -294,10 +353,14 @@ function ForecastSupplements({
 function ForecastMedia({ media }: { media: ForecastResult['media'] }) {
   if (!media || media.length === 0) return null
 
+  // Screen-only, matching the legacy print: the gallery is a lightbox trigger, and its photos
+  // would balloon the printed page for no gain on paper.
   return (
-    <ForecastErrorBoundary fallbackMessage="Unable to display forecast media">
-      <ForecastMediaGrid media={media} />
-    </ForecastErrorBoundary>
+    <div data-print-hide>
+      <ForecastErrorBoundary fallbackMessage="Unable to display forecast media">
+        <ForecastMediaGrid media={media} />
+      </ForecastErrorBoundary>
+    </div>
   )
 }
 
