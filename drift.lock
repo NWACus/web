@@ -157,23 +157,33 @@ sig = "afa29bc8184dea8e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/AllZonesForecast.tsx"
+sig = "3901fda9b0ddf4b1"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ExpiryNotice.client.tsx"
 sig = "b4436dc748ffd920"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/NativeForecastPage.tsx"
-sig = "7f62707bde0d0db5"
+sig = "1f8b22caf7968ffc"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/freshness/RevalidateOnView.client.tsx"
-sig = "8568ca5aa57ea942"
+sig = "5b5ee9dae996eac0"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/warnings/CenterWarnings.tsx"
+sig = "620e3b1733d93855"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/forecastFingerprint.ts"
-sig = "8d001bdcad61e3b7"
+sig = "f152f508f758da7a"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
