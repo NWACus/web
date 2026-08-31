@@ -35,6 +35,20 @@ test.describe('All-zones grid', () => {
     ).toBeVisible()
   })
 
+  test('marks an expired product on the card, not only on the zone page', async ({ page }) => {
+    await loadPage(page, GRID_URL)
+
+    // Expiry is the one state the revalidate-on-view check cannot catch: a product can lapse with
+    // no replacement published, which is no change at all. Every card here carries a live danger
+    // rating, so it needs the same signal the zone page has. Same golden the single-zone spec uses
+    // — it expired on 2026-04-06, so this is stable in wall-clock terms.
+    await expect(
+      page
+        .getByTestId(`zone-card-${zoneSlug(ZONE.forecast)}`)
+        .getByText('This product is expired.'),
+    ).toBeVisible()
+  })
+
   test('a zone card links to its zone page', async ({ page }) => {
     await loadPage(page, GRID_URL)
 
