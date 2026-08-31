@@ -17,9 +17,12 @@
  *   expiry instant and served after it.
  * - A single `setTimeout` to the expiry instant, not a poll. Browsers throttle timers in background
  *   tabs, so returning to visibility re-evaluates rather than trusting the timer to have fired.
- * - `role="alert"`, because the notice can arrive on a page that has already been read. Inserted
+ * - A live region, because the notice can arrive on a page that has already been read. Inserted
  *   silently it would be announced to nobody, and for a product that lapses with no replacement
- *   this is the only signal there is. Matches the sibling `WarningBanner` bulletins.
+ *   this is the only signal there is. `role="status"` (polite) rather than the `role="alert"`
+ *   (assertive) the sibling `WarningBanner` bulletins use: this can land mid-sentence on a page
+ *   someone is reading, and an expiry is a product going *old*, not a hazard going up. Assertive
+ *   interrupts; polite waits for a pause and still announces.
  *
  * Expiry is an absolute-instant comparison against `expires_time`; the noon valid-date rule applies
  * to which day a product is *for*, not to when it lapses.
@@ -89,7 +92,7 @@ export function ExpiryNotice({ expiresTime, initiallyExpired }: ExpiryNoticeProp
 
   return (
     <div
-      role="alert"
+      role="status"
       className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
     >
       <TriangleAlert className="h-5 w-5 shrink-0" aria-hidden="true" />
