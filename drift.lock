@@ -53,7 +53,7 @@ sig = "87efa0ce735ee5eb"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/error-tracking.md"
-sig = "6fbe219d4009e348"
+sig = "ff5d3fe541e1dfad"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -184,6 +184,41 @@ sig = "003ff75b0e6ac502"
 doc = "docs/agents/triage-labels.md"
 target = ".github/workflows/pr-visual-recap.yml"
 sig = "564c0ea050a68e81"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "__tests__/e2e/mocks/handlers.mjs"
+sig = "8e82ca77f662f6b4"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "__tests__/e2e/mocks/scenarios.json"
+sig = "c6465e7257ddec3d"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "playwright.afp-products.config.ts"
+sig = "1a914a80219196fc"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/capture-provisional.mjs"
+sig = "fadb3ec1cebbc04b"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/msw-preload.mjs"
+sig = "98f18249dbc9f3f5"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/run-with-mocks.mjs"
+sig = "c2a17a169268f41a"
+
+[[bindings]]
+doc = "docs/afp-products/e2e-mocks.md"
+target = "scripts/e2e/sync-afp-golden.mjs"
+sig = "89c52cf9a19956ef"
 
 [[bindings]]
 doc = "docs/claude-github-issues.md"
@@ -423,7 +458,7 @@ sig = "6f294cd17dcdfd2c"
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
 target = ".fallowrc.json"
-sig = "b185e9876115839b"
+sig = "db1d8d2f96d0bf65"
 
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
@@ -453,7 +488,7 @@ sig = "5207ef08789d055e"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "sentry-base-config.ts"
-sig = "07d1e99ca58658fd"
+sig = "1910afa455f5574b"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
