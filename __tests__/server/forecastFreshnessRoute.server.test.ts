@@ -8,6 +8,11 @@ import nwacForecastActive from './fixtures/nwac-forecast-active.json'
 const mockRevalidateTag = jest.fn()
 jest.mock('next/cache', () => ({ revalidateTag: (tag: string) => mockRevalidateTag(tag) }))
 
+const mockReportIndeterminate = jest.fn()
+jest.mock('../../src/utilities/freshnessTelemetry', () => ({
+  reportIndeterminate: (...args: unknown[]) => mockReportIndeterminate(...args),
+}))
+
 const mockResolveZone = jest.fn()
 jest.mock('../../src/services/nac/resolveZone', () => ({
   resolveZoneFromSlug: (...args: unknown[]) => mockResolveZone(...args),
@@ -64,6 +69,17 @@ async function answer(res: Response) {
 }
 
 /**
+ * The uncacheable "we could not establish the current product" answer, having changed nothing.
+ * Every branch that reaches it is a different failure; what they must share is this reply.
+ */
+function expectIndeterminate(res: Awaited<ReturnType<typeof answer>>) {
+  expect(res.status).toBe(200)
+  expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
+  expect(res.cacheControl).toBe('no-store')
+  expect(mockRevalidateTag).not.toHaveBeenCalled()
+}
+
+/**
  * The common case: the shared cache holds `forecast` with no alert, and upstream agrees unless a
  * different fresh forecast/warning is passed.
  */
@@ -87,6 +103,7 @@ function alertVanishedUpstream(fresh: unknown = forecast) {
 
 beforeEach(() => {
   mockRevalidateTag.mockClear()
+  mockReportIndeterminate.mockClear()
   mockResolveZone.mockReset()
   mockGetForecastFresh.mockReset()
   mockGetForecast.mockReset()
@@ -143,14 +160,23 @@ describe('forecast-freshness route', () => {
     // and must not be cached as "you're current" for every viewer at that POP.
     mockGetForecastFresh.mockResolvedValue(null)
 
-    const res = await answer(await check(etag))
+    expectIndeterminate(await answer(await check(etag)))
 
-    expect(res.status).toBe(200)
-    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
-    expect(res.cacheControl).toBe('no-store')
-    expect(mockRevalidateTag).not.toHaveBeenCalled()
+    // Nothing downstream of the missing forecast is even consulted.
     expect(mockGetForecast).not.toHaveBeenCalled()
     expect(mockGetWarning).not.toHaveBeenCalled()
+    // Nothing changes on screen either, so this is the one failure nobody would notice.
+    expect(mockReportIndeterminate).toHaveBeenCalledWith('no-fresh-forecast', 'nwac')
+  })
+
+  it('does NOT report a zone that simply has nothing published', async () => {
+    // An off-season zone renders the absent-product address and asks about it on every view all
+    // season. Reporting that would bury the outage it looks identical to.
+    mockGetForecastFresh.mockResolvedValue(null)
+
+    expectIndeterminate(await answer(await check(forecastPageFingerprint(null, null))))
+
+    expect(mockReportIndeterminate).not.toHaveBeenCalled()
   })
 
   it('does NOT revalidate for a stale caller fingerprint when the cache is current (no purge abuse)', async () => {
@@ -206,11 +232,8 @@ describe('forecast-freshness route', () => {
     // A vanished warning is a suspected blip: hold the cached alert and tell nobody.
     alertVanishedUpstream()
 
-    const res = await answer(await check(forecastPageFingerprint(forecast, warning)))
-
-    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
-    expect(res.cacheControl).toBe('no-store')
-    expect(mockRevalidateTag).not.toHaveBeenCalled()
+    expectIndeterminate(await answer(await check(forecastPageFingerprint(forecast, warning))))
+    expect(mockReportIndeterminate).toHaveBeenCalledWith('warning-vanished', 'nwac')
   })
 
   it('still reports a forecast change while an alert is unconfirmed', async () => {
@@ -284,12 +307,9 @@ describe('forecast-freshness route', () => {
     // whose whole design is that only one of its answers may be cached.
     mockResolveZone.mockRejectedValue(new Error('NAC API request failed with status 503'))
 
-    const res = await answer(await check(etag))
+    expectIndeterminate(await answer(await check(etag)))
 
-    expect(res.status).toBe(200)
-    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
-    expect(res.cacheControl).toBe('no-store')
-    expect(mockRevalidateTag).not.toHaveBeenCalled()
     expect(mockGetForecastFresh).not.toHaveBeenCalled()
+    expect(mockReportIndeterminate).toHaveBeenCalledWith('zones-unreachable', 'nwac')
   })
 })
