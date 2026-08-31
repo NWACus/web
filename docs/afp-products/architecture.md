@@ -106,14 +106,22 @@ Server rendering is the default and the client bundle is deliberately small. The
 
 `src/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route.ts` (and its warning twin) closes that window. The mechanism:
 
-1. `forecastFingerprint.ts` hashes the **whole normalized product** — `sha1(JSON.stringify(model))`. Hashing everything rather than a timestamp means no category of change can be missed: corrections, retractions, a new bottom line, a danger change, a replacement after expiry. Hashing `null` gives "nothing published" its own address, so a zone's first publish is a change an open page can be told about.
-2. The page renders with the fingerprint of the product it is showing baked into the freshness URL it asks. The check is **content-addressed**: no request header, so the answer is cacheable.
-3. The handler fetches the current product fresh and makes **two independent decisions**.
+1. `forecastFingerprint.ts` hashes the **whole normalized products** — `sha1(JSON.stringify(model))`. Hashing everything rather than a timestamp means no category of change can be missed: corrections, retractions, a new bottom line, a danger change, a replacement after expiry. Hashing `null` gives "nothing published" its own address, so a zone's first publish is a change an open page can be told about.
+2. The page renders with the fingerprint of what it is showing baked into the freshness URL it asks. The check is **content-addressed**: no request header, so the answer is cacheable.
+3. The handler fetches the current products fresh and makes **two independent decisions**.
 
 That independence is the subtle part, and the reason this isn't a plain ETag endpoint:
 
-- **Purge the shared cache?** Only when the fresh product genuinely differs from what the cache is serving — decided by server-side comparison, _never_ from the caller-supplied fingerprint. The endpoint is unauthenticated, so trusting the URL for this would let anyone force repeated purges and amplify load onto the AFP.
+- **Purge the shared cache?** Only when the fresh product genuinely differs from what the cache is serving — decided by server-side comparison, _never_ from the caller-supplied fingerprint. The endpoint is unauthenticated, so trusting the URL for this would let anyone force repeated purges and amplify load onto the AFP. Purges are decided **per product**, not per page (`productFingerprint`), so a warning-only change doesn't force an upstream forecast re-fetch it has no reason to.
 - **Refresh this viewer?** Compare the fresh fingerprint against the one in the URL. Different → `changed: true`, and their `router.refresh()` re-renders.
+
+### One address per page, not per product
+
+A forecast page shows two safety-critical products — the forecast and the zone's active warning — and they turn over independently: an alert issued for a zone changes nothing about the forecast. So the address a forecast page asks about is `forecastPageFingerprint(forecast, warning)`, a hash of both. A forecast-only address would answer "you're current" to an open tab that was missing a live banner until the ISR window came round.
+
+The **home-page** warnings banner is the other shape. Warnings are per-zone upstream (one `type=warning` query per zone), but that banner's content is the union across every zone in the center, so its check is center-scoped by construction: `centerWarningsFingerprint(groups)` over the whole grouped set. That is also the expensive endpoint — an origin miss fans one upstream request out per zone — which is why the cacheable "unchanged" answer matters more there than anywhere else.
+
+Weather is deliberately **not** in either address. The mountain-weather product is fetched by the id the forecast points at (same NAC v2 product API, not a separate backend), so fingerprinting it would mean a third upstream fetch on every origin miss. Instead it rides along: a changed forecast purges `weatherCacheTag` too, so a refresh renders forecast + weather together. The residual gap — a weather product corrected without its forecast being reissued — is bounded by the 300s data-cache window and the page's ISR window, and weather is not the life-safety half of the page.
 
 ### Three answers, and only one of them is cacheable
 
@@ -132,6 +140,7 @@ Every viewer inside an ISR window rendered the same product, so **unchanged is o
 Two failure-mode decisions worth knowing:
 
 - **Failing safe means failing quiet — but never silently cached.** An upstream error, a parse failure, or a genuinely absent product are all *indeterminate*: they report no change and purge nothing, so a transient blip can never blank the last-known-good forecast, but they are never cached, so the next viewer retries immediately. Cached as "you're current", a blip would blind every viewer at that POP for the full TTL. The ISR window remains the backstop, and a real withdrawal is caught there.
+- **A vanished alert is a suspected blip, not an all-clear.** The warning source collapses "no alert" and "this zone's request failed" to the same `null`, and hiding a live warning is dangerous where showing a lifted one is merely stale. So a fresh warning that has gone missing while the cache still holds one is not trusted on either route: nothing is purged, the cached alert is held in the comparison, and if that leaves the viewer otherwise current the answer is *indeterminate* rather than the cacheable "you're current". A forecast change that lands in the same check is still reported, so distrusting the warning half never suppresses a correction. A genuine all-clear propagates once the short upstream cache expires and the cached side agrees.
 - **Validity never short-circuits the check.** It would be tempting to skip the fetch for a forecast still inside its validity window, but a correction can be published at any time. The fresh check runs on every view, unconditionally.
 
 ### Freshness is an open-tab guarantee, not just a page-load one
