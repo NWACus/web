@@ -20,6 +20,8 @@
  */
 import { MediaType, type MediaItem } from '@/services/nac/model/forecast'
 
+import type { LightboxMedia } from './lightboxMedia'
+
 const EMBEDDED_MEDIA_SELECTOR =
   '.afp-photoswipe, .nac-photoswipe, .afp-video-modal, .nac-video-modal'
 
@@ -28,7 +30,7 @@ export interface EmbeddedMedia {
   figure: HTMLElement
   /** The inner container the legacy widget hangs the expand/play affordance off. */
   iconTarget: HTMLElement
-  item: MediaItem
+  media: LightboxMedia
   isVideo: boolean
 }
 
@@ -38,6 +40,12 @@ export interface EmbeddedMedia {
  * The item is built the way the legacy widget builds it: the first image's `src` stands in for all
  * four url sizes, and the first `figcaption`'s inner HTML is the caption. A figure with no image has
  * nothing to open, so it is skipped and left to render as authored.
+ *
+ * The caption needs no sanitizing of its own, which is what lets this feed the lightbox from a
+ * `'use client'` module: `root` holds the DOM written from `sanitizeHtml(hazard_discussion)` on the
+ * server, so a `figcaption`'s `innerHTML` is a re-serialization of markup the allowlist already
+ * passed. Nothing that survives it — no `svg`, `math`, `noscript` or `template` — re-parses into
+ * anything but itself.
  */
 export function collectEmbeddedMedia(root: HTMLElement): EmbeddedMedia[] {
   const collected: EmbeddedMedia[] = []
@@ -49,14 +57,14 @@ export function collectEmbeddedMedia(root: HTMLElement): EmbeddedMedia[] {
     const src = image?.getAttribute('src')
     if (!image || !src) continue
 
-    const caption = figure.querySelector('figcaption')?.innerHTML ?? null
+    const captionHtml = figure.querySelector('figcaption')?.innerHTML ?? null
     const videoId = image.getAttribute('data-video-id')
     const container = figure.querySelector('.afp-image-container, .afp-video-container')
 
     collected.push({
       figure,
       iconTarget: container instanceof HTMLElement ? container : figure,
-      item: mediaItem(src, caption, videoId),
+      media: embeddedMedia(src, captionHtml, videoId),
       isVideo: !!videoId,
     })
   }
@@ -64,11 +72,15 @@ export function collectEmbeddedMedia(root: HTMLElement): EmbeddedMedia[] {
   return collected
 }
 
-function mediaItem(src: string, caption: string | null, videoId: string | null): MediaItem {
+function embeddedMedia(
+  src: string,
+  captionHtml: string | null,
+  videoId: string | null,
+): LightboxMedia {
   const sizes = { large: src, medium: src, original: src, thumbnail: src }
+  const item: MediaItem = videoId
+    ? { type: MediaType.Video, url: { ...sizes, video_id: videoId }, caption: captionHtml }
+    : { type: MediaType.Image, url: sizes, caption: captionHtml }
 
-  if (videoId) {
-    return { type: MediaType.Video, url: { ...sizes, video_id: videoId }, caption }
-  }
-  return { type: MediaType.Image, url: sizes, caption }
+  return { item, captionHtml }
 }

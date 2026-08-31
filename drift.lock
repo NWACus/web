@@ -142,6 +142,11 @@ sig = "2433d2218a295ca5"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "__tests__/server/sanitizeHtmlIsServerOnly.server.test.ts"
+sig = "2f6941731c97ccaa"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/route.ts"
 sig = "7a7f7b8e3909a277"
 
@@ -149,6 +154,11 @@ sig = "7a7f7b8e3909a277"
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
 sig = "afa29bc8184dea8e"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/lightboxMedia.ts"
+sig = "436550932f50f6c6"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

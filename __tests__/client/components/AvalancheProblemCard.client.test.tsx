@@ -10,6 +10,8 @@ import {
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
 
+import { HOSTILE_CAPTION, expectCaptionsSanitized } from '../../captionSanitization'
+
 const baseProblem: AvalancheProblem = {
   id: 1,
   forecast_id: 100,
@@ -148,6 +150,36 @@ describe('AvalancheProblemCard', () => {
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Play embedded video' })).toBeInTheDocument()
   })
+
+  /**
+   * The card is where a problem's example media gets sanitized, because the figure below it is a
+   * client component: it writes the caption with `dangerouslySetInnerHTML` and hands the same item
+   * to the lightbox, so sanitizing any later would put `sanitize-html` in the reader's bundle.
+   */
+  it('sanitizes the caption it writes into the figure', () => {
+    const { container } = render(
+      <AvalancheProblemCard problem={withMedia(imageMedia(HOSTILE_CAPTION))} />,
+    )
+
+    expect(container.querySelector('figcaption')?.innerHTML).toContain('Erik')
+    expectCaptionsSanitized()
+  })
+
+  it('sanitizes the caption the lightbox opens with', () => {
+    render(<AvalancheProblemCard problem={withMedia(imageMedia(HOSTILE_CAPTION))} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand embedded image' }))
+
+    // Two renderers now show it: the figure's own figcaption, and the lightbox footer.
+    expectCaptionsSanitized(2)
+  })
+
+  it('renders no figcaption when the media has no caption', () => {
+    const { container } = render(<AvalancheProblemCard problem={withMedia(imageMedia(null))} />)
+
+    expect(document.querySelector('img[src="https://example.com/medium.jpg"]')).toBeInTheDocument()
+    expect(container.querySelector('figcaption')).toBeNull()
+  })
 })
 
 const withMedia = (media: AvalancheProblem['media']): AvalancheProblem => ({
@@ -155,7 +187,7 @@ const withMedia = (media: AvalancheProblem['media']): AvalancheProblem => ({
   media,
 })
 
-const imageMedia = (): AvalancheProblem['media'] => ({
+const imageMedia = (caption: string | null = 'Storm slab crown'): AvalancheProblem['media'] => ({
   type: MediaType.Image,
   url: {
     large: 'https://example.com/large.jpg',
@@ -163,7 +195,7 @@ const imageMedia = (): AvalancheProblem['media'] => ({
     original: 'https://example.com/original.jpg',
     thumbnail: 'https://example.com/thumb.jpg',
   },
-  caption: 'Storm slab crown',
+  caption,
   title: null,
 })
 

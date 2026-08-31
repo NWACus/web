@@ -8,6 +8,7 @@ import type { ZoneArchiveDate } from '@/services/nac/archiveDates'
 import {
   ProductType,
   type ForecastResult,
+  type MediaItem,
   type WarningProduct,
   type Weather,
 } from '@/services/nac/model/forecast'
@@ -26,6 +27,7 @@ import { ForecastMediaThumbnails } from './ForecastMediaThumbnails'
 import { ValidityBanner } from './ValidityBanner'
 import { WarningBanner } from './WarningBanner'
 import { WeatherSummary } from './WeatherSummary'
+import { toLightboxMediaList } from './lightboxMedia'
 import { bottomLineDangerLevel } from './zoneCardDanger'
 
 interface NativeForecastViewProps {
@@ -294,7 +296,18 @@ function ForecastMedia({ media }: { media: ForecastResult['media'] }) {
 
   return (
     <ForecastErrorBoundary fallbackMessage="Unable to display forecast media">
-      <ForecastMediaThumbnails media={media} />
+      <ForecastMediaGrid media={media} />
     </ForecastErrorBoundary>
   )
+}
+
+/**
+ * Prepares the media for the grid, which is a client component: the captions are forecaster-authored
+ * HTML, so sanitizing them anywhere downstream of here would ship `sanitize-html` to every reader.
+ *
+ * Its own component rather than a call inlined above, so the work happens *inside* the boundary —
+ * a caption that trips the sanitizer costs the media strip, not the forecast.
+ */
+function ForecastMediaGrid({ media }: { media: MediaItem[] }) {
+  return <ForecastMediaThumbnails media={toLightboxMediaList(media)} />
 }
