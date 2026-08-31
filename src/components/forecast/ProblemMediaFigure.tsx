@@ -2,17 +2,15 @@
 
 import { useState } from 'react'
 
-import { type MediaItem } from '@/services/nac/model/forecast'
-
 import { MediaLightbox } from './MediaLightbox'
 import { MediaOverlay } from './MediaOverlay'
+import type { LightboxMedia } from './lightboxMedia'
 
 interface ProblemMediaFigureProps {
-  item: MediaItem
+  /** The item and its already-sanitized caption HTML. Sanitizing stays on the server. */
+  media: LightboxMedia
   /** The still to show inline — the image itself, or a video's poster frame. */
   posterSrc: string
-  /** Already-sanitized caption HTML, or null. */
-  captionHtml: string | null
   isVideo: boolean
 }
 
@@ -24,12 +22,7 @@ interface ProblemMediaFigureProps {
  * video used to render as nothing here, so a forecaster's clip attached to an avalanche problem
  * disappeared without a trace.
  */
-export function ProblemMediaFigure({
-  item,
-  posterSrc,
-  captionHtml,
-  isVideo,
-}: ProblemMediaFigureProps) {
+export function ProblemMediaFigure({ media, posterSrc, isVideo }: ProblemMediaFigureProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -42,15 +35,15 @@ export function ProblemMediaFigure({
           <img src={posterSrc} alt="" className="w-full rounded-md" />
           <MediaOverlay isVideo={isVideo} onOpen={() => setOpen(true)} />
         </div>
-        {captionHtml && (
+        {media.captionHtml && (
           <figcaption
             className="pt-2 text-center text-sm italic text-muted-foreground"
-            dangerouslySetInnerHTML={{ __html: captionHtml }}
+            dangerouslySetInnerHTML={{ __html: media.captionHtml }}
           />
         )}
       </figure>
 
-      <MediaLightbox media={[item]} initialIndex={0} open={open} onOpenChange={setOpen} />
+      <MediaLightbox media={[media]} initialIndex={0} open={open} onOpenChange={setOpen} />
     </>
   )
 }

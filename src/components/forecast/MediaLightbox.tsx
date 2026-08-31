@@ -11,14 +11,18 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { type MediaItem } from '@/services/nac/model/forecast'
 
 import { MediaSlide } from './MediaSlide'
-import { getCaption } from './mediaItem'
-import { sanitizeHtml } from './sanitizeHtml'
+import type { LightboxMedia } from './lightboxMedia'
 
 interface MediaLightboxProps {
-  media: MediaItem[]
+  /**
+   * The slides, each carrying its caption as already-sanitized HTML.
+   *
+   * Sanitizing here would put `sanitize-html` in every reader's bundle, so this component renders
+   * `captionHtml` and never touches `item.caption`. See `./lightboxMedia`.
+   */
+  media: LightboxMedia[]
   initialIndex: number
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -93,7 +97,7 @@ function LightboxCarousel({
   initialIndex,
   setApi,
 }: {
-  media: MediaItem[]
+  media: LightboxMedia[]
   initialIndex: number
   setApi: (api: CarouselApi) => void
 }) {
@@ -102,7 +106,7 @@ function LightboxCarousel({
   return (
     <Carousel setApi={setApi} opts={{ startIndex: initialIndex, loop: multiple, watchDrag: false }}>
       <CarouselContent>
-        {media.map((item, idx) => (
+        {media.map(({ item }, idx) => (
           <CarouselItem key={idx}>
             <div className="flex flex-col items-center gap-3">
               <MediaSlide item={item} />
@@ -121,16 +125,16 @@ function LightboxCarousel({
   )
 }
 
-function LightboxFooter({ media, current }: { media: MediaItem[]; current: number }) {
-  const caption = getCaption(media[current])
+function LightboxFooter({ media, current }: { media: LightboxMedia[]; current: number }) {
+  const captionHtml = media[current]?.captionHtml
 
   return (
     <div className="mt-3 text-center">
-      {/* Captions may contain HTML tags (e.g. <p>, &nbsp;) */}
-      {caption && (
+      {/* Captions may contain HTML tags (e.g. <p>, &nbsp;), sanitized on the server. */}
+      {captionHtml && (
         <div
           className="prose prose-sm prose-invert max-w-none text-white/80"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(caption) }}
+          dangerouslySetInnerHTML={{ __html: captionHtml }}
         />
       )}
       {media.length > 1 && (
