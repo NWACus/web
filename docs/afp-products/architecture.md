@@ -142,6 +142,8 @@ Weather is deliberately **not** in either address. The mountain-weather product 
 
 Every viewer inside an ISR window rendered the same product, so **unchanged is one cache key per zone** and answers nearly all real traffic — which is what makes the open-tab re-checking below affordable. It is also the only entry that can ever go stale, and its TTL is the second half of the staleness budget: 30s fresh-fetch cache (`fetchForecastFresh` / `fetchWarningFresh`) + 30s at the edge = the same 60s detection lag, with the 300s ISR window still behind it.
 
+A quiet prerequisite for any of that caching: the center is a path segment (`/api/<center>/…`) rather than something the request is rewritten into. `/api` is excluded from the middleware matcher, which is what keeps the `payload-tenant` `Set-Cookie` off these responses — Vercel's CDN will not cache a response that carries one. Confirm edge caching with `x-vercel-cache: MISS → HIT`; Vercel strips `s-maxage` from what it delivers downstream, so reading the header proves nothing.
+
 **Changed** is rare in real traffic but unbounded under abuse — anyone can ask about a random 40-hex fingerprint, and each one is a guaranteed miss and a new edge entry. Not caching it removes that pollution vector, and makes the `revalidateTag` purge that rides with it an invariant rather than a side effect of a cache miss. A fingerprint that isn't lowercase sha1 hex is rejected with a `400` before any upstream fetch.
 
 Failure-mode decisions worth knowing:

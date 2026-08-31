@@ -38,7 +38,8 @@ jest.mock('../../src/services/nac/nac', () => ({
   forecastCacheTag: (centerId: string, zoneId: number) =>
     `forecast:${centerId === 'dvac' ? 'nwac' : centerId}:${zoneId}`,
   weatherCacheTag: (id: number) => `weather:${id}`,
-  warningCacheTag: (centerId: string, zoneId: number) => `warning:${centerId}:${zoneId}`,
+  warningCacheTag: (centerId: string, zoneId: number) =>
+    `warning:${centerId === 'dvac' ? 'nwac' : centerId}:${zoneId}`,
 }))
 
 // Import the handler after the mocks are registered (jest hoists the mocks above imports).
