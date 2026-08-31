@@ -1,0 +1,103 @@
+{
+  "id": 184531,
+  "published_time": "2026-04-05T12:19:00+00:00",
+  "expires_time": "2026-04-06T10:00:00+00:00",
+  "created_at": "2026-04-05T11:15:29+00:00",
+  "updated_at": "2026-04-05T12:19:06+00:00",
+  "author": "Test Forecaster A",
+  "product_type": "forecast",
+  "bottom_line": "<p><em>Refer to the Galena Summit &amp; Eastern Mtns forecast if you're traveling in the western half of this zone&mdash;including the Warm Springs Ck drainage&mdash;or in the mountains north or east of Ketchum.&nbsp;</em></p>",
+  "hazard_discussion": "<p><strong>A snowpack exists on many slopes above about 7500' near the Coyote and Tornak huts; in the Warm Springs Ck drainage, including the out-of-bounds terrain on Bald Mountain; in the mountains north and east of Ketchum; and in the Soldier Mountains. If you are traveling in these areas, refer to the <a href=\"https://www.sawtoothavalanche.com/forecasts/avalanche/galena-summit-&amp;-eastern-mtns#/galena-summit-%26-eastern-mtns\" target=\"_blank\" rel=\"noopener\">Galena Summit &amp; Eastern Mtns forecast.</a></strong></p>\n<p>At lower elevations and on most slopes facing the southern half of the compass, it does not look or feel like winter in this zone. Access and travel are challenging at best in many standard recreational play areas due to thin or non-existent snow cover, and mountain bikes far outnumber snowmobiles and skis in the backcountry in this zone. Plan for a real adventure if you choose to explore these mountains on skis or snowmobiles.</p>\n<p><em>Today is our last daily Avalanche Forecast of the season. We will issue General Avalanche Information updates through late April or early May. Thanks for the great season, everyone.&nbsp;</em></p>",
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [
+    {
+      "id": 1,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Ridgeline%20Toward%20Third%20Peak_69c059dd473ee-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Ridgeline%20Toward%20Third%20Peak_69c059dd473ee-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Ridgeline%20Toward%20Third%20Peak_69c059dd473ee.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Ridgeline%20Toward%20Third%20Peak_69c059dd473ee-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Smoky Dome",
+      "caption": "<p>(3/21/2026) Ridgeline toward Third Peak in the Soldiers.</p>",
+      "favorite": false
+    },
+    {
+      "id": 2,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/North%20Face%20of%20Ridgeline%20Between%20Smoky%20Dome%20and%20Peak%209884_69c059db1c3ed-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/North%20Face%20of%20Ridgeline%20Between%20Smoky%20Dome%20and%20Peak%209884_69c059db1c3ed-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/North%20Face%20of%20Ridgeline%20Between%20Smoky%20Dome%20and%20Peak%209884_69c059db1c3ed.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/North%20Face%20of%20Ridgeline%20Between%20Smoky%20Dome%20and%20Peak%209884_69c059db1c3ed-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": "Public Observation: Smoky Dome",
+      "caption": "<p>(3/21/2026) North side of the ridgeline near Smoky Dome in the Soldier Mountains.</p>",
+      "favorite": false
+    },
+    {
+      "id": 3,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9-large.jpg",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9-medium.jpg",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9.jpg",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2603221_BaldyOB_Gatorade_watermovement_labeled_69bf6e52487c9-thumbnail.jpg"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "<p>(3/21/2026)&nbsp;This photo was taken a couple of minutes after pouring purple Gatorade onto the snow surface. The layers where water collects, or pools, stand out in the photo, especially the 2 crusts immediately above the faceted snow at/near the ground.&nbsp;</p>\n<p>Photo: Sawtooth Avalanche Center</p>",
+      "favorite": false
+    },
+    {
+      "id": 4,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182124_69a2433e9b9fd-large.png",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182124_69a2433e9b9fd-medium.png",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182124_69a2433e9b9fd.png",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/Screenshot%202026-02-27%20182124_69a2433e9b9fd-thumbnail.png"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "<p>(2/27/2026) Couch Summit access in the Soldier Mtns.</p>\n<p>Photo: Sawtooth Avalanche Center</p>",
+      "favorite": false
+    }
+  ],
+  "weather_data": {
+    "weather_product_id": 184526
+  },
+  "avalanche_center": {
+    "id": "SNFAC",
+    "name": "Sawtooth Avalanche Center",
+    "url": "https://www.sawtoothavalanche.com/",
+    "city": "Ketchum",
+    "state": "ID"
+  },
+  "forecast_avalanche_problems": [],
+  "danger": [
+    {
+      "lower": null,
+      "upper": null,
+      "middle": null,
+      "valid_day": "current"
+    },
+    {
+      "lower": null,
+      "upper": null,
+      "middle": null,
+      "valid_day": "tomorrow"
+    }
+  ],
+  "forecast_zone": [
+    {
+      "id": 2905,
+      "name": "Soldier & Wood River Valley Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/soldier-&-wood-river-valley-mtns",
+      "state": "ID",
+      "zone_id": "4",
+      "config": null
+    }
+  ]
+}
