@@ -12,6 +12,7 @@ import {
 } from '@/services/nac/centerWarnings'
 import { warningCacheTag } from '@/services/nac/nac'
 import { unknownCenterResponse } from '@/utilities/apiResponses'
+import { createCooldown } from '@/utilities/cooldown'
 import {
   changedResponse,
   indeterminateResponse,
@@ -36,6 +37,15 @@ import { revalidatePath, revalidateTag } from 'next/cache'
  */
 export const dynamic = 'force-dynamic'
 
+/**
+ * How often a *caller-asserted* stale render may purge one center's home page. Matched to the
+ * unchanged answer's edge TTL: within one of those windows, one purge already serves every viewer
+ * who was behind. See the call site for why only that purge is throttled.
+ */
+const PATH_PURGE_COOLDOWN_MS = 30_000
+
+const pathPurgeCooldown = createCooldown(PATH_PURGE_COOLDOWN_MS)
+
 function affectedZoneIds(groups: CenterWarningGroup[]): number[] {
   return groups.flatMap((group) => group.entries.map((entry) => entry.zone.id))
 }
@@ -59,7 +69,10 @@ function affectedZoneIds(groups: CenterWarningGroup[]): number[] {
  *      viewer to refresh is paired with revalidating the home page's own route cache: without that
  *      the refresh would re-serve the same statically rendered banner and the client would ask
  *      again on every view, never converging. That purge only re-renders a page from the (still
- *      cached) upstream data, so unlike a tag purge it costs no upstream requests.
+ *      cached) upstream data, so unlike a tag purge it costs no upstream requests. It is also the
+ *      only purge on either freshness route that a caller can reach rather than the server
+ *      deciding for itself, so the caller-driven half of it is rate-limited per center — see the
+ *      call site.
  *
  * Failure handling is deliberately asymmetric: hiding a live warning is dangerous, showing a
  * lifted one is merely stale. So a failed fetch (the center metadata request throws) never purges,
@@ -125,8 +138,24 @@ export async function GET(
 
   // The banner's host page is statically generated, so a router.refresh() alone would re-serve
   // the same rendered banner. Purge the page too, or the client re-asks on every view forever.
-  revalidatePath('/')
-  revalidatePath(`/${center}`)
+  //
+  // This is the one purge on either freshness route that a *caller* can reach: every purge above
+  // is gated on `cacheIsStale`, which is a server-side comparison nobody outside can make true,
+  // but this one fires on any well-formed fingerprint that isn't the current one. Content
+  // addressing made that materially easier to hit — it is a plain URL rather than an
+  // `If-None-Match` header, so it can be fired from an `<img src>` on someone else's page or by a
+  // crawler, and it is emitted verbatim into this page's flight payload where a scraper will find
+  // it. Left ungated, a loop of random fingerprints pins a `force-static` home page to a full
+  // re-render per request.
+  //
+  // So: a change the server can see for itself purges unconditionally, and a stale render only the
+  // caller can attest to purges at most once per center per window. That costs the legitimate case
+  // nothing — the page regenerates once and every other stale viewer's refresh then works, so a
+  // second purge inside the window was never doing anything.
+  if (cacheIsStale || pathPurgeCooldown(center)) {
+    revalidatePath('/')
+    revalidatePath(`/${center}`)
+  }
 
   return changedResponse(freshEtag)
 }
