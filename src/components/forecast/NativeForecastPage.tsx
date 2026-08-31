@@ -9,7 +9,7 @@ import {
   initialArchiveWindow,
   validDateForProduct,
 } from '@/services/nac/archiveDates'
-import { forecastPageFingerprint } from '@/services/nac/forecastFingerprint'
+import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import type { ForecastResult } from '@/services/nac/model/forecast'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
@@ -54,9 +54,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
 
   // The address covers both safety-critical products on this page: an alert issued for this zone
   // is a change an open tab must hear about even when the forecast itself is untouched.
-  const freshnessEndpoint = `/api/${centerSlug}/forecast-freshness/${encodeURIComponent(
-    zoneSlug,
-  )}/${forecastPageFingerprint(forecastResult, warning)}`
+  const freshnessEndpoint = forecastFreshnessEndpoint(centerSlug, zoneSlug, forecastResult, warning)
 
   if (!forecastResult) {
     return (
@@ -67,7 +65,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
         {/* Keep asking even with nothing to show. A first publish into a zone that had none is the
             change an open tab most needs to hear about, and it is the one the (deferred) upstream
             publish notification would miss. */}
-        <RevalidateOnView endpoint={freshnessEndpoint} />
+        <RevalidateOnView endpoints={[freshnessEndpoint]} />
       </>
     )
   }
@@ -102,7 +100,7 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
       />
       {/* Revalidate-on-view: catches a correction/retraction published after this (ISR) page was
           rendered and refreshes the viewer's page. Live route only — the dated archive is immutable. */}
-      <RevalidateOnView endpoint={freshnessEndpoint} />
+      <RevalidateOnView endpoints={[freshnessEndpoint]} />
     </>
   )
 }
