@@ -23,7 +23,7 @@ export async function CenterWarnings({ centerSlug }: CenterWarningsProps) {
           even when no alert is active — that's precisely the case where one may have just been
           issued. */}
       <RevalidateOnView
-        endpoint={`/api/${centerSlug}/warning-freshness/${centerWarningsFingerprint(groups)}`}
+        endpoints={[`/api/${centerSlug}/warning-freshness/${centerWarningsFingerprint(groups)}`]}
       />
     </>
   )
