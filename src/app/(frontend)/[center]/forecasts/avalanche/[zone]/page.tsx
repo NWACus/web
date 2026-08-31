@@ -11,6 +11,7 @@ import { ProductType } from '@/services/nac/model/forecast'
 import { getActiveForecastZones, getAvalancheCenterPlatforms } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource } from '@/services/nac/sources'
+import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { notFound } from 'next/navigation'
@@ -19,7 +20,23 @@ import { notFound } from 'next/navigation'
 // travel advice in shared link previews stays current with the daily forecast. The per-view
 // revalidate-on-view path (ForecastFreshness) catches corrections/retractions faster than this.
 export const revalidate = 300
-export const dynamicParams = false
+
+/**
+ * On-demand for a zone that is not in `generateStaticParams`, which is what the dated route below
+ * this one already does.
+ *
+ * `false` looks like the safer choice — only real zones exist — but it is what made a correction
+ * take the page down. `revalidateTag`, which the freshness path calls the moment a forecast
+ * changes, is a *hard* cache invalidation: the next read misses entirely rather than going stale
+ * (unlike the `revalidate` window above, which serves stale while it regenerates). With no
+ * fallback, Next answers that miss by abandoning this route, and `[center]/[...segments]` picks
+ * the request up and 404s — for ~70s, on every zone sharing the revalidated forecast or weather
+ * tag. Generating on demand is what lets the correction render instead.
+ *
+ * An unknown zone still 404s; that now comes from the explicit check below rather than from
+ * routing.
+ */
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -54,11 +71,18 @@ type PathArgs = {
 }
 
 export default async function Page({ params }: Args) {
-  const { center, zone } = await params
+  const { center, zone: zoneParam } = await params
+  const zone = zoneSlugFromParam(zoneParam)
 
   const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)
 
   if (!avalancheCenterPlatforms.forecasts) {
+    notFound()
+  }
+
+  // Routing no longer rejects an unknown zone, so the route does it itself — before the rollout
+  // flag is read, so a bad slug 404s the same way whether the center is on native or the widget.
+  if (!(await resolveZoneFromSlug(center, zone))) {
     notFound()
   }
 
@@ -83,7 +107,8 @@ export async function generateMetadata(
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const parentMeta = await parent
-  const { center, zone } = await params
+  const { center, zone: zoneParam } = await params
+  const zone = zoneSlugFromParam(zoneParam)
 
   const parentTitle =
     parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
@@ -124,7 +149,9 @@ export async function generateMetadata(
       ...(description ? { description } : {}),
       images: [
         {
-          url: `/api/${center}/og?route=forecasts/avalanche/${zone}`,
+          // Encoded because the slug carries a literal `&` for zones whose name contains one,
+          // which would otherwise end the query parameter early.
+          url: `/api/${center}/og?route=${encodeURIComponent(`forecasts/avalanche/${zone}`)}`,
           width: 1200,
           height: 630,
         },

@@ -1,0 +1,320 @@
+{
+  "id": "SNFAC",
+  "name": "Sawtooth Avalanche Center",
+  "url": "https://www.sawtoothavalanche.com/",
+  "center_point": null,
+  "off_season": false,
+  "state": "ID",
+  "wkb_geometry": null,
+  "timezone": "America/Denver",
+  "city": "Ketchum",
+  "email": "test@example.com",
+  "phone": "208-622-0095",
+  "config": {
+    "expires_time": 4,
+    "published_time": null,
+    "blog": true,
+    "blog_title": "Conditions Blog",
+    "weather_table": [
+      {
+        "autofill": "point",
+        "zone_id": "3",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": 43.803,
+          "lng": -114.705
+        }
+      },
+      {
+        "autofill": "point",
+        "zone_id": "4",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": 43.684,
+          "lng": -114.564
+        }
+      },
+      {
+        "autofill": "point",
+        "zone_id": "2",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": 43.928,
+          "lng": -114.984
+        }
+      },
+      {
+        "autofill": "point",
+        "zone_id": "1",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": 44.384,
+          "lng": -115.249
+        }
+      },
+      {
+        "autofill": "point",
+        "zone_id": "snfac_test_zone",
+        "forecast_url": null,
+        "forecast_point": {
+          "lat": 45.027,
+          "lng": -114.609
+        }
+      }
+    ],
+    "zone_order": [
+      295,
+      296,
+      294,
+      293
+    ]
+  },
+  "type": "usfs",
+  "widget_config": {
+    "observation_viewer": {
+      "require_approval": false,
+      "color": "0fa6a2",
+      "map_center": {
+        "lat": 43.901,
+        "lng": -114.7467
+      },
+      "map_zoom": 7.7925,
+      "obs_tab": true,
+      "obs_view_url": "https://www.sawtoothavalanche.com/observations",
+      "obs_form_url": "https://www.sawtoothavalanche.com/observations/submit",
+      "obs_start_year": 2021,
+      "show_zone_filter": true,
+      "show_all_zones": true,
+      "saturation": -100,
+      "alternate_zones": "https://nac-web-platforms.s3.us-west-1.amazonaws.com/assets/kml/sac-obs-map-3.kml",
+      "obs_rose_upper_el": 12000,
+      "obs_rose_lower_el": 5000,
+      "obs_rose_interval": 1000,
+      "obs_url": "https://bridgertetonavalanchecenter.org/observations/#/form"
+    },
+    "forecast": {
+      "color": "0fa6a2",
+      "elevInfoUrl": "",
+      "glossary": false,
+      "tabs": []
+    },
+    "danger_map": {
+      "height": "400",
+      "saturation": -100,
+      "search": true,
+      "geolocate": true,
+      "advice": true,
+      "center": {
+        "lat": 44.012906087561205,
+        "lng": -114.70074783304518
+      },
+      "zoom": 8,
+      "allCenters": true
+    },
+    "stations": {
+      "center": {
+        "lat": 43.82,
+        "lng": -114.71
+      },
+      "zoom": 8,
+      "saturation": -100,
+      "center_id": "SNFAC",
+      "alternate_zones": "https://archive.sawtoothavalanche.com/wp-content/themes/sawtoothavy/includes/map/sac-weather-station-map.kml",
+      "units": "english",
+      "timezone": "local",
+      "color_rules": true,
+      "source_legend": false,
+      "sources": [
+        "mesowest",
+        "snotel"
+      ],
+      "source_marker_color": false,
+      "within": 180,
+      "external_modal_links": [],
+      "token": "test_token_scrubbed"
+    }
+  },
+  "created_at": "2026-02-09 21:23:35.526515",
+  "zones": [
+    {
+      "id": 2904,
+      "name": "Galena Summit & Eastern Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/galena-summit-&-eastern-mtns",
+      "zone_id": "3",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevation<br>(\u21e37500')",
+          "middle": "Middle Elevation<br>(7500-9500')",
+          "upper": "Upper Elevation<br>(\u21e19500') "
+        }
+      },
+      "status": "active",
+      "rank": 1
+    },
+    {
+      "id": 2905,
+      "name": "Soldier & Wood River Valley Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/soldier-&-wood-river-valley-mtns",
+      "zone_id": "4",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevation<br>(\u21e36500')",
+          "middle": "Middle Elevation<br>(6500-8500')",
+          "upper": "Upper Elevation<br>(\u21e18500') "
+        }
+      },
+      "status": "active",
+      "rank": 2
+    },
+    {
+      "id": 2906,
+      "name": "Sawtooth & Western Smoky Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/sawtooth-&-western-smoky-mtns",
+      "zone_id": "2",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevation<br>(\u21e37500')",
+          "middle": "Middle Elevation<br>(7500-9000')",
+          "upper": "Upper Elevation<br>(\u21e19000') "
+        }
+      },
+      "status": "active",
+      "rank": 3
+    },
+    {
+      "id": 2907,
+      "name": "Banner Summit",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/banner-summit",
+      "zone_id": "1",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Lower Elevation<br>(\u21e37500')",
+          "middle": "Middle Elevation<br>(7500-8500')",
+          "upper": "Upper Elevation<br>(\u21e18500') "
+        }
+      },
+      "status": "active",
+      "rank": 4
+    },
+    {
+      "id": 2908,
+      "name": "SNFAC Test Zone",
+      "url": "https://sawtoothavalanche.com",
+      "zone_id": "snfac_test_zone",
+      "config": {
+        "elevation_band_names": {
+          "upper": "Upper",
+          "middle": "Middle",
+          "lower": "Lower"
+        }
+      },
+      "status": "disabled",
+      "rank": 5
+    }
+  ],
+  "nws_zones": [
+    {
+      "id": 76,
+      "zone_name": "Big Lost Highlands/Copper Basin",
+      "zone_id": "074",
+      "state": "ID",
+      "city": "Pocatello",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 16,
+      "zone_name": "Blaine County",
+      "zone_id": "13",
+      "state": "ID",
+      "city": "Pocatello",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 78,
+      "zone_name": "Boise County",
+      "zone_id": "15",
+      "state": "ID",
+      "city": "Boise",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 79,
+      "zone_name": "Boise Mountains",
+      "zone_id": "013",
+      "state": "ID",
+      "city": "Boise",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 17,
+      "zone_name": "Camas County",
+      "zone_id": "25",
+      "state": "ID",
+      "city": "Boise",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 15,
+      "zone_name": "Custer County",
+      "zone_id": "37",
+      "state": "ID",
+      "city": "Pocatello",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 18,
+      "zone_name": "Elmore County",
+      "zone_id": "39",
+      "state": "ID",
+      "city": "Boise",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 73,
+      "zone_name": "Sawtooth/Stanley Basin",
+      "zone_id": "072",
+      "state": "ID",
+      "city": "Pocatello",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 74,
+      "zone_name": "Sun Valley Region",
+      "zone_id": "073",
+      "state": "ID",
+      "city": "Pocatello",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 77,
+      "zone_name": "Valley County",
+      "zone_id": "85",
+      "state": "ID",
+      "city": "Boise",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    },
+    {
+      "id": 75,
+      "zone_name": "Wood River Foothills",
+      "zone_id": "075",
+      "state": "ID",
+      "city": "Pocatello",
+      "contact": "test@example.com",
+      "zone_state": "ID"
+    }
+  ],
+  "nws_offices": [
+    "Pocatello, ID test@example.com",
+    "Boise, ID test@example.com"
+  ]
+}

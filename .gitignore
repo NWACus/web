@@ -46,5 +46,9 @@ plans/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Mocked E2E build output and per-run mock state (see docs/afp-products/e2e-mocks.md)
+/.next-e2e
+/.e2e-mocks/
 __tests__/e2e/.auth/
 .beads

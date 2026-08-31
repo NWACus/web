@@ -1,0 +1,132 @@
+{
+  "id": "SAC",
+  "name": "Sierra Avalanche Center",
+  "url": "https://www.sierraavalanchecenter.org/",
+  "center_point": null,
+  "off_season": true,
+  "state": "CA",
+  "wkb_geometry": null,
+  "timezone": "America/Los_Angeles",
+  "city": "Truckee",
+  "email": "test@example.com",
+  "phone": null,
+  "config": {
+    "expires_time": 4,
+    "published_time": null,
+    "blog": false,
+    "blog_title": "Conditions Blog",
+    "weather_table": [
+      {
+        "autofill": "url",
+        "zone_id": "1",
+        "forecast_url": "https://www.tahoewildernessmedicine.com//sites/all/libraries/avalanche.org-API-Client/SAC_WxConfigJSON3.php",
+        "forecast_point": {
+          "lat": null,
+          "lng": null
+        }
+      }
+    ],
+    "zone_order": [77]
+  },
+  "type": "usfs",
+  "widget_config": {
+    "forecast": {
+      "color": "1480b8",
+      "elevInfoUrl": "",
+      "glossary": true,
+      "start_year": 2013,
+      "tabs": []
+    },
+    "observation_viewer": {
+      "require_approval": true,
+      "color": "1480b8",
+      "map_center": {
+        "lat": 39.0767,
+        "lng": -120.0169
+      },
+      "map_zoom": 7.8901,
+      "obs_tab": true,
+      "obs_view_url": "https://www.sierraavalanchecenter.org/observations#/view/observations",
+      "obs_form_url": "https://www.sierraavalanchecenter.org/observations/submit#/form",
+      "obs_start_year": 2023,
+      "show_zone_filter": true,
+      "show_all_zones": true,
+      "saturation": -100,
+      "alternate_zones": "",
+      "obs_rose_upper_el": 11000,
+      "obs_rose_lower_el": 6000,
+      "obs_rose_interval": 1000
+    },
+    "danger_map": {
+      "height": "450",
+      "saturation": -100,
+      "search": false,
+      "geolocate": true,
+      "advice": true,
+      "center": {
+        "lat": 39.124264695755805,
+        "lng": -120.1190478515625
+      },
+      "zoom": 8,
+      "allCenters": true
+    },
+    "stations": {
+      "center": {
+        "lat": 39.05,
+        "lng": -120.2
+      },
+      "zoom": 9,
+      "saturation": 0,
+      "center_id": "SAC",
+      "alternate_zones": "https://www.sierraavalanchecenter.org/api/documents/file/SAC-Weather-Station-Zones-1.kml",
+      "units": "english",
+      "timezone": "local",
+      "color_rules": true,
+      "source_legend": true,
+      "sources": ["mesowest", "snotel"],
+      "source_marker_color": true,
+      "within": 180,
+      "external_modal_links": [],
+      "token": "test_token_scrubbed"
+    }
+  },
+  "created_at": "2026-05-06 21:15:54.982263",
+  "zones": [
+    {
+      "id": 2458,
+      "name": "Central Sierra Nevada",
+      "url": "https://www.sierraavalanchecenter.org/forecasts/avalanche/central-sierra-nevada#/central-sierra-nevada/",
+      "zone_id": "1",
+      "config": {
+        "elevation_band_names": {
+          "lower": "Below Treeline",
+          "middle": "Near Treeline",
+          "upper": "Above Treeline"
+        }
+      },
+      "status": "active",
+      "rank": 1
+    }
+  ],
+  "nws_zones": [
+    {
+      "id": 11,
+      "zone_name": "Greater Lake Tahoe",
+      "zone_id": "NVZ002",
+      "state": "NV",
+      "city": "Reno",
+      "contact": "test@example.com",
+      "zone_state": "NV"
+    },
+    {
+      "id": 10,
+      "zone_name": "Greater Lake Tahoe (CA)",
+      "zone_id": "CAZ072",
+      "state": "NV",
+      "city": "Reno",
+      "contact": "test@example.com",
+      "zone_state": "NV"
+    }
+  ],
+  "nws_offices": ["Reno, NV test@example.com"]
+}

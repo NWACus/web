@@ -38,7 +38,12 @@ export function ZoneForecastCard({
   timezone,
 }: ZoneForecastCardProps) {
   return (
-    <Card className="relative transition-colors hover:border-primary focus-within:border-primary">
+    <Card
+      // Every visible string in a card ("The Bottom Line", "Today", "Issued:") repeats once per
+      // zone, so the grid's E2E coverage has no other way to scope an assertion to one card.
+      data-testid={`zone-card-${zoneSlug}`}
+      className="relative transition-colors hover:border-primary focus-within:border-primary"
+    >
       <CardHeader>
         <CardTitle>
           <Link

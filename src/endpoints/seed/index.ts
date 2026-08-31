@@ -71,6 +71,24 @@ const defaultNacWidgetsConfig = {
   },
 }
 
+/**
+ * Control 1 (native product pages vs the embedded NAC widget), fixed per tenant so a seeded
+ * database carries both branches at once. The E2E suite reads both without writing either — a test
+ * that flipped a shared tenant's flag would race the other Playwright workers, and would not reach
+ * an already-prerendered page anyway.
+ *
+ * snfac is native because the AFP golden corpus the E2E mocks are built from is SNFAC-centric;
+ * dvac is native to exercise the dvac→nwac upstream alias; nwac and sac stay on the widget.
+ * Kept in step with `__tests__/e2e/mocks/scenarios.json` by __tests__/server/e2eMocks.server.test.ts.
+ */
+const nativeProductsByTenant: Record<
+  string,
+  { forecast: boolean; warning: boolean; dangerMap: boolean }
+> = {
+  snfac: { forecast: true, warning: false, dangerMap: false },
+  dvac: { forecast: true, warning: false, dangerMap: false },
+}
+
 // Next.js revalidation errors are normal when seeding the database without a server running
 // i.e. running `yarn seed` locally instead of using the admin UI within an active app
 // The app is not running to revalidate the pages and so the API routes are not available
@@ -532,7 +550,7 @@ export const seed = async ({
         return {
           tenant: tenant.id,
           description: data.description,
-          nativeProducts: {
+          nativeProducts: nativeProductsByTenant[tenant.slug] ?? {
             forecast: false,
             warning: false,
             dangerMap: false,

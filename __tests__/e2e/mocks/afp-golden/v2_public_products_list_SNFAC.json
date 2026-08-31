@@ -1,0 +1,228 @@
+[
+  {
+    "avalanche_center": {
+      "name": "Sawtooth Avalanche Center"
+    },
+    "danger_rating": -1,
+    "id": 184563,
+    "start_date": "2026-04-06T11:06:00+00:00",
+    "end_date": null,
+    "published_time": "2026-04-06T11:06:00+00:00",
+    "expires_time": null,
+    "created_at": "2026-04-05T20:27:59+00:00",
+    "updated_at": "2026-04-06T11:06:47+00:00",
+    "author": "Test Forecaster B",
+    "status": "published",
+    "product_type": "weather",
+    "bottom_line": null,
+    "json_data": null,
+    "danger_level_text": "no rating",
+    "forecast_zone": [
+      {
+        "name": "Galena Summit & Eastern Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/galena-summit-&-eastern-mtns",
+        "id": 2904,
+        "zone_id": "3",
+        "config": null
+      },
+      {
+        "name": "Soldier & Wood River Valley Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/soldier-&-wood-river-valley-mtns",
+        "id": 2905,
+        "zone_id": "4",
+        "config": null
+      },
+      {
+        "name": "Sawtooth & Western Smoky Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/sawtooth-&-western-smoky-mtns",
+        "id": 2906,
+        "zone_id": "2",
+        "config": null
+      },
+      {
+        "name": "Banner Summit",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/banner-summit",
+        "id": 2907,
+        "zone_id": "1",
+        "config": null
+      }
+    ],
+    "danger": []
+  },
+  {
+    "avalanche_center": {
+      "name": "Sawtooth Avalanche Center"
+    },
+    "danger_rating": -1,
+    "id": 184562,
+    "start_date": "2026-04-06T12:37:00+00:00",
+    "end_date": "2026-04-10T18:00:00+00:00",
+    "published_time": "2026-04-06T12:37:00+00:00",
+    "expires_time": "2026-04-10T18:00:00+00:00",
+    "created_at": "2026-04-05T20:27:45+00:00",
+    "updated_at": "2026-04-06T12:41:07+00:00",
+    "author": "Test Forecaster B",
+    "status": "published",
+    "product_type": "summary",
+    "bottom_line": "<p class=\"nac-html-p\">The threat of wet avalanches is highest early in the week. Avoid steep slopes where a wet, mushy snowpack does not support your sled or skis, and where you observe rollerballs or pinwheels moving downslope. Although much less likely, larger human-triggered slab avalanches remain possible on shadier aspects in alpine and upper elevation terrain.&nbsp;</p>\n<p class=\"nac-html-p\"><em>We will update this product on or before Friday, April 10th.</em></p>",
+    "json_data": null,
+    "danger_level_text": "no rating",
+    "forecast_zone": [
+      {
+        "name": "Galena Summit & Eastern Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/galena-summit-&-eastern-mtns",
+        "id": 2904,
+        "zone_id": "3",
+        "config": null
+      },
+      {
+        "name": "Soldier & Wood River Valley Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/soldier-&-wood-river-valley-mtns",
+        "id": 2905,
+        "zone_id": "4",
+        "config": null
+      },
+      {
+        "name": "Sawtooth & Western Smoky Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/sawtooth-&-western-smoky-mtns",
+        "id": 2906,
+        "zone_id": "2",
+        "config": null
+      },
+      {
+        "name": "Banner Summit",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/banner-summit",
+        "id": 2907,
+        "zone_id": "1",
+        "config": null
+      }
+    ],
+    "danger": []
+  },
+  {
+    "avalanche_center": {
+      "name": "Sawtooth Avalanche Center"
+    },
+    "danger_rating": -1,
+    "id": 184531,
+    "start_date": "2026-04-05T12:19:00+00:00",
+    "end_date": "2026-04-06T10:00:00+00:00",
+    "published_time": "2026-04-05T12:19:00+00:00",
+    "expires_time": "2026-04-06T10:00:00+00:00",
+    "created_at": "2026-04-05T11:15:29+00:00",
+    "updated_at": "2026-04-05T12:19:06+00:00",
+    "author": "Test Forecaster A",
+    "status": "published",
+    "product_type": "forecast",
+    "bottom_line": "<p><em>Refer to the Galena Summit &amp; Eastern Mtns forecast if you're traveling in the western half of this zone&mdash;including the Warm Springs Ck drainage&mdash;or in the mountains north or east of Ketchum.&nbsp;</em></p>",
+    "json_data": null,
+    "danger_level_text": "no rating",
+    "forecast_zone": [
+      {
+        "name": "Soldier & Wood River Valley Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/soldier-&-wood-river-valley-mtns",
+        "id": 2905,
+        "zone_id": "4",
+        "config": null
+      }
+    ],
+    "danger": [
+      {
+        "lower": null,
+        "upper": null,
+        "middle": null,
+        "valid_day": "current"
+      },
+      {
+        "lower": null,
+        "upper": null,
+        "middle": null,
+        "valid_day": "tomorrow"
+      }
+    ]
+  },
+  {
+    "avalanche_center": {
+      "name": "Sawtooth Avalanche Center"
+    },
+    "danger_rating": 2,
+    "id": 184530,
+    "start_date": "2026-04-05T12:18:00+00:00",
+    "end_date": "2026-04-06T10:00:00+00:00",
+    "published_time": "2026-04-05T12:18:00+00:00",
+    "expires_time": "2026-04-06T10:00:00+00:00",
+    "created_at": "2026-04-05T11:15:23+00:00",
+    "updated_at": "2026-04-05T12:18:12+00:00",
+    "author": "Test Forecaster A",
+    "status": "published",
+    "product_type": "forecast",
+    "bottom_line": "<p>Sun and warm temperatures will cause loose avalanches on steep slopes once the snow surface becomes moist or wet. Dry slab avalanches are also possible on steep, upper-elevation slopes where wind has formed thick drifts and slabs. You can reduce your risk by choosing slopes that face away from the sun, where the snow is more likely to remain soft and dry.</p>\n<p><em>Today is our last daily Avalanche Forecast of the season. We will issue General Avalanche Information updates through late April or early May. Thanks for the great season, everyone.&nbsp;</em></p>",
+    "json_data": null,
+    "danger_level_text": "moderate",
+    "forecast_zone": [
+      {
+        "name": "Banner Summit",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/banner-summit",
+        "id": 2907,
+        "zone_id": "1",
+        "config": null
+      }
+    ],
+    "danger": [
+      {
+        "lower": 2,
+        "upper": 2,
+        "middle": 2,
+        "valid_day": "current"
+      },
+      {
+        "lower": null,
+        "upper": null,
+        "middle": null,
+        "valid_day": "tomorrow"
+      }
+    ]
+  },
+  {
+    "avalanche_center": {
+      "name": "Sawtooth Avalanche Center"
+    },
+    "danger_rating": 2,
+    "id": 184529,
+    "start_date": "2026-04-05T12:17:00+00:00",
+    "end_date": "2026-04-06T10:00:00+00:00",
+    "published_time": "2026-04-05T12:17:00+00:00",
+    "expires_time": "2026-04-06T10:00:00+00:00",
+    "created_at": "2026-04-05T11:15:17+00:00",
+    "updated_at": "2026-04-05T12:17:03+00:00",
+    "author": "Test Forecaster A",
+    "status": "published",
+    "product_type": "forecast",
+    "bottom_line": "<p>Sun and warm temperatures will cause loose avalanches on steep slopes once the snow surface becomes moist or wet. Dry slab avalanches are also possible on steep, upper-elevation slopes where wind has formed thick drifts and slabs. You can reduce your risk by choosing slopes that face away from the sun, where the snow is more likely to remain soft and dry.</p>\n<p><em>Today is our last daily Avalanche Forecast of the season. We will issue General Avalanche Information updates through late April or early May. Thanks for the great season, everyone.&nbsp;</em></p>",
+    "json_data": null,
+    "danger_level_text": "moderate",
+    "forecast_zone": [
+      {
+        "name": "Sawtooth & Western Smoky Mtns",
+        "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/sawtooth-&-western-smoky-mtns",
+        "id": 2906,
+        "zone_id": "2",
+        "config": null
+      }
+    ],
+    "danger": [
+      {
+        "lower": 1,
+        "upper": 2,
+        "middle": 2,
+        "valid_day": "current"
+      },
+      {
+        "lower": null,
+        "upper": null,
+        "middle": null,
+        "valid_day": "tomorrow"
+      }
+    ]
+  }
+]
