@@ -17,6 +17,7 @@ import { BottomLine } from './BottomLine'
 import { DangerRating } from './DangerRating'
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ForecastHeader } from './ForecastHeader'
+import { ProductExpiry } from './ProductExpiry'
 import { WarningBanner } from './WarningBanner'
 import { bottomLineDangerLevel } from './zoneCardDanger'
 
@@ -96,6 +97,14 @@ function ZoneForecastCardBody({
           </ForecastErrorBoundary>
         </div>
       )}
+
+      {/* Expiry is the one state the freshness check cannot catch — a product can lapse with no
+          replacement published, which is no change at all. The card carries a live danger rating,
+          so it needs the same signal the zone page has; "Expires: <time>" below is a fact to read,
+          not a notice that arrives. */}
+      <ForecastErrorBoundary fallbackMessage="Unable to display forecast validity">
+        <ProductExpiry forecast={forecast} />
+      </ForecastErrorBoundary>
 
       <ForecastErrorBoundary fallbackMessage="Unable to display forecast metadata">
         <ForecastHeader forecast={forecast} timezone={timezone} />
