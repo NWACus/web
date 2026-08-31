@@ -428,7 +428,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "3bf6823a594d39d3"
+sig = "61c98b885fde238f"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -708,7 +708,7 @@ sig = "cf2a77a3852fcde8"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "3bf6823a594d39d3"
+sig = "61c98b885fde238f"
 
 [[bindings]]
 doc = "docs/revalidation.md"
