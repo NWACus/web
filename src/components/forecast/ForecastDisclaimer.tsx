@@ -19,7 +19,7 @@ export function ForecastDisclaimer({ centerType, centerName }: ForecastDisclaime
       This information is provided by the {provider} and describes general backcountry avalanche
       hazard and conditions.{' '}
       {/* afp breaks the second sentence onto its own line on desktop, inline on mobile. */}
-      <br className="hidden md:inline" />
+      <br className="hidden md:inline printWide:inline" />
       It does not apply to ski areas and highways where avalanche mitigation is conducted.
     </p>
   )
