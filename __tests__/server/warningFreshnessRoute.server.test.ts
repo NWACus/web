@@ -5,6 +5,11 @@ jest.mock('next/cache', () => ({
   revalidatePath: (path: string) => mockRevalidatePath(path),
 }))
 
+const mockReportIndeterminate = jest.fn()
+jest.mock('../../src/utilities/freshnessTelemetry', () => ({
+  reportIndeterminate: (...args: unknown[]) => mockReportIndeterminate(...args),
+}))
+
 const mockGetCenterWarnings = jest.fn()
 const mockGetCenterWarningsFresh = jest.fn()
 // The real fingerprint is used — only the two fetches are stubbed, so the route's staleness
@@ -109,6 +114,7 @@ beforeEach(() => {
 
   mockRevalidateTag.mockClear()
   mockRevalidatePath.mockClear()
+  mockReportIndeterminate.mockClear()
   mockGetCenterWarnings.mockReset()
   mockGetCenterWarningsFresh.mockReset()
 })
@@ -219,6 +225,8 @@ describe('warning-freshness route', () => {
 
     expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
     expect(res.cacheControl).toBe('no-store')
+    // Nothing on screen changes, so without this the blip is invisible.
+    expect(mockReportIndeterminate).toHaveBeenCalledWith('warning-vanished', 'nwac')
   })
 
   it('propagates a genuine all-clear once the shared cache agrees the alerts are gone', async () => {
@@ -244,6 +252,7 @@ describe('warning-freshness route', () => {
 
     expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
     expect(res.cacheControl).toBe('no-store')
+    expect(mockReportIndeterminate).toHaveBeenCalledWith('warnings-unreachable', 'nwac')
   })
 
   it('rejects an unknown center without fanning out upstream', async () => {

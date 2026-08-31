@@ -148,12 +148,12 @@ sig = "2f6941731c97ccaa"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route.ts"
-sig = "256f2726bc04a27c"
+sig = "ea45b8c0ac6b4c43"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/warning-freshness/[fingerprint]/route.ts"
-sig = "0be2f6a4ddbad721"
+sig = "fd5b4e8d904a5cfa"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -229,6 +229,11 @@ sig = "7f33707ac24bf998"
 doc = "docs/afp-products/architecture.md"
 target = "src/utilities/freshnessResponses.ts"
 sig = "c2ad645ecfc5e115"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/utilities/freshnessTelemetry.ts"
+sig = "9ed671c2854b805b"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
