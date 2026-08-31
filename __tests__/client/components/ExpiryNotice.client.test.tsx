@@ -88,14 +88,18 @@ describe('ExpiryNotice', () => {
     expect(container.textContent).toMatch(/this product is expired/i)
   })
 
-  it('announces itself, since it arrives on a page that has already been read', async () => {
+  it('announces itself politely, since it arrives on a page that has already been read', async () => {
     // A product that lapses with no replacement produces no freshness change, so this notice is
     // the viewer's only signal — inserted with no live region it would be announced to nobody.
-    const { getByRole } = await mount(expiryIn(60_000))
+    // Polite rather than assertive: it can land mid-sentence on a page someone is reading, and an
+    // expiry is a product going old, not a hazard going up. The WarningBanner bulletins are the
+    // ones worth interrupting for.
+    const { getByRole, queryByRole } = await mount(expiryIn(60_000))
 
     await advance(60_001)
 
-    expect(getByRole('alert')).toHaveTextContent(/this product is expired/i)
+    expect(getByRole('status')).toHaveTextContent(/this product is expired/i)
+    expect(queryByRole('alert')).toBeNull()
   })
 
   it('re-evaluates on return to visibility, since background timers are throttled', async () => {
