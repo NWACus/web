@@ -368,7 +368,7 @@ export async function fetchForecast(
   centerId: string,
   zoneId: number,
 ): Promise<ForecastResult | null> {
-  const centerIdToUse = centerId.toLowerCase() === 'dvac' ? 'NWAC' : centerId.toUpperCase()
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
 
   try {
     const data = await nacFetch(
@@ -424,7 +424,7 @@ export async function fetchWarning(
   centerId: string,
   zoneId: number,
 ): Promise<WarningResult | null> {
-  const centerIdToUse = centerId.toLowerCase() === 'dvac' ? 'NWAC' : centerId.toUpperCase()
+  const centerIdToUse = normalizeCenterSlug(centerId.toLowerCase()).toUpperCase()
 
   try {
     const data = await nacFetch(
