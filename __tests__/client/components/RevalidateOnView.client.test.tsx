@@ -3,9 +3,15 @@ import '@testing-library/jest-dom'
 import { act, render } from '@testing-library/react'
 
 const mockRefresh = jest.fn()
-jest.mock('next/navigation', () => ({ useRouter: () => ({ refresh: () => mockRefresh() }) }))
+// One stable object, as the real `useRouter` returns — a fresh one per render would churn the
+// effect's dependencies and hide whether the component itself re-arms correctly.
+const mockRouter = { refresh: () => mockRefresh() }
+jest.mock('next/navigation', () => ({ useRouter: () => mockRouter }))
 
 const ENDPOINT = '/api/nwac/forecast-freshness/west-slopes-north/' + 'a'.repeat(40)
+/** Two more zones, as the all-zones grid would supply alongside the first. */
+const NEIGHBOURS = ['b', 'c'].map((c) => `/api/nwac/forecast-freshness/zone-${c}/` + c.repeat(40))
+const GRID = [ENDPOINT, ...NEIGHBOURS]
 const RECHECK_INTERVAL_MS = 5 * 60 * 1000
 
 let visibility: DocumentVisibilityState = 'visible'
@@ -58,7 +64,7 @@ describe('RevalidateOnView', () => {
   it('checks on mount and refreshes when the product has changed', async () => {
     mockFetch.mockReturnValue(answer({ changed: true, etag: 'b'.repeat(40) }))
 
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
@@ -67,7 +73,7 @@ describe('RevalidateOnView', () => {
   })
 
   it('leaves the page alone when nothing has changed', async () => {
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     expect(mockRefresh).not.toHaveBeenCalled()
@@ -77,7 +83,7 @@ describe('RevalidateOnView', () => {
     // Upstream could not be established — that is not the same as the product going away.
     mockFetch.mockReturnValue(answer({ changed: false, reason: 'indeterminate' }))
 
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     expect(mockRefresh).not.toHaveBeenCalled()
@@ -86,7 +92,7 @@ describe('RevalidateOnView', () => {
   it('leaves the page alone when the endpoint errors', async () => {
     mockFetch.mockReturnValue(Promise.reject(new Error('offline')))
 
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     expect(mockRefresh).not.toHaveBeenCalled()
@@ -96,7 +102,7 @@ describe('RevalidateOnView', () => {
     // A 400 or 404 — a stale bundle asking an old-shaped URL, say — is not a change.
     mockFetch.mockReturnValue(answer({ error: 'Malformed fingerprint' }, false))
 
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     expect(mockRefresh).not.toHaveBeenCalled()
@@ -105,14 +111,14 @@ describe('RevalidateOnView', () => {
   it('still checks on mount when the tab starts hidden (the check is never gated)', async () => {
     visibility = 'hidden'
 
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 
   it('re-checks when the tab becomes visible again', async () => {
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
     expect(mockFetch).toHaveBeenCalledTimes(1)
 
@@ -127,7 +133,7 @@ describe('RevalidateOnView', () => {
   })
 
   it('re-checks on a slow interval while visible', async () => {
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     await act(async () => {
@@ -139,7 +145,7 @@ describe('RevalidateOnView', () => {
   })
 
   it('stops the interval while hidden and does not accumulate timers across flips', async () => {
-    render(<RevalidateOnView endpoint={ENDPOINT} />)
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     await setVisibility('hidden')
@@ -166,7 +172,7 @@ describe('RevalidateOnView', () => {
   })
 
   it('stops checking once unmounted', async () => {
-    const { unmount } = render(<RevalidateOnView endpoint={ENDPOINT} />)
+    const { unmount } = render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     unmount()
@@ -179,15 +185,58 @@ describe('RevalidateOnView', () => {
   })
 
   it('re-arms against the new endpoint after the page refreshes', async () => {
-    const { rerender } = render(<RevalidateOnView endpoint={ENDPOINT} />)
+    const { rerender } = render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
 
     // A refresh re-renders the page with the current product, so the URL it asks about changes.
     const next = '/api/nwac/forecast-freshness/west-slopes-north/' + 'd'.repeat(40)
-    rerender(<RevalidateOnView endpoint={next} />)
+    rerender(<RevalidateOnView endpoints={[next]} />)
     await settle()
 
     expect(mockFetch).toHaveBeenCalledTimes(2)
     expect(mockFetch.mock.calls[1][0]).toBe(next)
+  })
+  it('asks every endpoint a page gave it', async () => {
+    // The all-zones grid shows one product pair per zone and asks the same per-zone addresses the
+    // individual forecast pages do.
+    render(<RevalidateOnView endpoints={GRID} />)
+    await settle()
+
+    expect(mockFetch).toHaveBeenCalledTimes(3)
+    expect(mockFetch.mock.calls.map((call) => call[0])).toEqual(GRID)
+  })
+
+  it('refreshes once however many products moved', async () => {
+    // A daily publish moves every zone at once; one refresh re-renders the whole page.
+    mockFetch.mockReturnValue(answer({ changed: true, etag: 'e'.repeat(40) }))
+
+    render(<RevalidateOnView endpoints={GRID} />)
+    await settle()
+
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  it('still hears the one changed product when its neighbours fail', async () => {
+    const [survivor] = NEIGHBOURS
+    mockFetch.mockImplementation((url: string) =>
+      url === survivor
+        ? answer({ changed: true, etag: 'f'.repeat(40) })
+        : Promise.reject(new Error('offline')),
+    )
+
+    render(<RevalidateOnView endpoints={GRID} />)
+    await settle()
+
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not re-arm when a re-render produces the same endpoints in a new array', async () => {
+    const { rerender } = render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    rerender(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 })
