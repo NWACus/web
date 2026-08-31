@@ -8,13 +8,13 @@ import {
   AvalancheProblemName,
   MediaType,
   type AvalancheProblem,
-  type MediaItem,
 } from '@/services/nac/model/forecast'
 
 import { LocatorRose } from './LocatorRose'
 import { ProblemMediaFigure } from './ProblemMediaFigure'
 import { LikelihoodSlider, SizeSlider } from './ProblemSlider'
-import { getCaption, getPosterUrl } from './mediaItem'
+import { toLightboxMedia, type LightboxMedia } from './lightboxMedia'
+import { getPosterUrl } from './mediaItem'
 import { sanitizeHtml } from './sanitizeHtml'
 
 /** Maps problem names to local icon filenames at /images/problem-icons/{name}.png */
@@ -42,17 +42,20 @@ function problemIconUrl(name: AvalancheProblemName): string {
  * Video counts. The AFP stores a problem video as a YouTube id with a poster frame, and the legacy
  * widget shows that poster with a play glyph over it; returning null here, as this used to, meant
  * a forecaster's clip vanished from the page entirely.
+ *
+ * The caption is sanitized here, on the server. The figure is a client component that writes it
+ * with `dangerouslySetInnerHTML` and hands the same item to the lightbox, so sanitizing any later
+ * would carry `sanitize-html` into the bundle of every reader with an avalanche problem on screen.
  */
 function problemMedia(
   media: AvalancheProblem['media'],
-): { item: MediaItem; posterSrc: string; caption: string | null; isVideo: boolean } | null {
+): { lightbox: LightboxMedia; posterSrc: string; isVideo: boolean } | null {
   const posterSrc = getPosterUrl(media)
   if (!posterSrc) return null
 
   return {
-    item: media,
+    lightbox: toLightboxMedia(media),
     posterSrc,
-    caption: getCaption(media),
     isVideo: media.type === MediaType.Video,
   }
 }
@@ -126,9 +129,8 @@ function ProblemDiscussion({
     <div className="overflow-hidden">
       {media && (
         <ProblemMediaFigure
-          item={media.item}
+          media={media.lightbox}
           posterSrc={media.posterSrc}
-          captionHtml={media.caption ? sanitizeHtml(media.caption) : null}
           isVideo={media.isVideo}
         />
       )}
