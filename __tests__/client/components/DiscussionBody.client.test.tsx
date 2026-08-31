@@ -1,7 +1,10 @@
 import { DiscussionBody } from '@/components/forecast/DiscussionBody'
+import { ForecastDiscussion } from '@/components/forecast/ForecastDiscussion'
 import { sanitizeHtml } from '@/components/forecast/sanitizeHtml'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
+
+import { expectCaptionsSanitized } from '../../captionSanitization'
 
 // Verbatim markup from the live NAC v2 API. Sources: BTAC 184960, SNFAC 109444, TAC 181191.
 const IMAGE_FIGURE =
@@ -99,6 +102,29 @@ describe('DiscussionBody', () => {
 
     const overlay = container.querySelector('.afp-image-container > span')
     expect(overlay).toHaveClass('pointer-events-none')
+  })
+
+  /**
+   * The third way a caption reaches the lightbox, and the one that is safe without a sanitize call
+   * of its own: `collectEmbeddedMedia` reads the figcaption back out of the DOM this component
+   * wrote, and what it wrote was sanitized upstream. Rendered through `ForecastDiscussion` so that
+   * upstream pass is the real one, and the assertion is on the caption the lightbox opens with.
+   */
+  it('opens an embedded figure with a caption the server pass already cleaned', async () => {
+    render(
+      <ForecastDiscussion
+        html={
+          '<figure class="afp-photoswipe"><div class="afp-image-container"><img src="/a.png"></div>' +
+          '<figcaption>Photo: <script>alert(1)</script><img src="y" onerror="alert(2)"> Erik</figcaption></figure>'
+        }
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand embedded image' }))
+    await screen.findByRole('dialog')
+
+    // Two renderers: the figcaption on the page, and the lightbox footer.
+    expectCaptionsSanitized(2)
   })
 
   it('lets a link inside a figure navigate instead of opening the lightbox', async () => {

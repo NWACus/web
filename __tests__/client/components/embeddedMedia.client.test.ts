@@ -27,7 +27,7 @@ describe('collectEmbeddedMedia', () => {
 
     expect(rest).toHaveLength(0)
     expect(entry.isVideo).toBe(false)
-    expect(entry.item).toEqual({
+    expect(entry.media.item).toEqual({
       type: MediaType.Image,
       caption: '4/2 - 4/15 Snowfall totals',
       url: {
@@ -43,8 +43,8 @@ describe('collectEmbeddedMedia', () => {
     const [entry] = collectEmbeddedMedia(mount(VIDEO_FIGURE))
 
     expect(entry.isVideo).toBe(true)
-    expect(entry.item.type).toBe(MediaType.Video)
-    expect(entry.item).toMatchObject({
+    expect(entry.media.item.type).toBe(MediaType.Video)
+    expect(entry.media.item).toMatchObject({
       url: { video_id: 'p0torRf9boA', original: 'https://media.test/poster.jpg' },
     })
   })
@@ -60,18 +60,35 @@ describe('collectEmbeddedMedia', () => {
   it('keeps an empty caption as an empty string rather than failing', () => {
     const [entry] = collectEmbeddedMedia(mount(EMPTY_CAPTION_FIGURE))
 
-    expect(entry.item.type).toBe(MediaType.Video)
-    expect(entry.item).toMatchObject({ caption: '' })
+    expect(entry.media.item.type).toBe(MediaType.Video)
+    expect(entry.media.item).toMatchObject({ caption: '' })
   })
 
-  it('keeps caption markup, which the lightbox sanitizes before rendering', () => {
+  it('keeps caption markup, which the lightbox renders as HTML', () => {
     const [entry] = collectEmbeddedMedia(
       mount(
         '<figure class="afp-photoswipe"><div class="afp-image-container"><img src="/a.png"></div><figcaption><p>Photo: <em>Erik</em></p></figcaption></figure>',
       ),
     )
 
-    expect(entry.item).toMatchObject({ caption: '<p>Photo: <em>Erik</em></p>' })
+    expect(entry.media.captionHtml).toBe('<p>Photo: <em>Erik</em></p>')
+    expect(entry.media.item).toMatchObject({ caption: '<p>Photo: <em>Erik</em></p>' })
+  })
+
+  // The lightbox renders captionHtml with dangerouslySetInnerHTML and no sanitizing of its own —
+  // #1234 moved that to the server so the library stays out of the client bundle. What makes this
+  // path safe is that the figure is read back out of DOM written from already-sanitized HTML.
+  it('yields a caption the server pass has already cleaned', () => {
+    const [entry] = collectEmbeddedMedia(
+      mount(
+        '<figure class="afp-photoswipe"><div class="afp-image-container"><img src="/a.png"></div>' +
+          '<figcaption>Photo: <script>alert(1)</script><img src="x" onerror="alert(2)"> Erik</figcaption></figure>',
+      ),
+    )
+
+    expect(entry.media.captionHtml).not.toContain('script')
+    expect(entry.media.captionHtml).not.toContain('onerror')
+    expect(entry.media.captionHtml).toContain('Erik')
   })
 
   it('collects in document order across nesting depths', () => {

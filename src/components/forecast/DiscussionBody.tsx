@@ -91,7 +91,7 @@ export function DiscussionBody({ html }: DiscussionBodyProps) {
       )}
 
       <MediaLightbox
-        media={media.map((entry) => entry.item)}
+        media={media.map((entry) => entry.media)}
         initialIndex={lightboxIndex}
         open={lightboxOpen}
         onOpenChange={setLightboxOpen}
