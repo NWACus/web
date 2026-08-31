@@ -80,6 +80,11 @@ export const plugins: Plugin[] = [
     },
     clientUploads: true,
     allowOverwrite: true,
+    // Client uploads bypass Payload's server-side file checks entirely, so the
+    // upload token carries the only size bound. The largest document in
+    // production is ~51MB (an annual report), so this leaves real headroom
+    // while still capping abuse.
+    maximumSizeInBytes: 64 * 1024 * 1024,
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
   }),
   sentryPlugin({
