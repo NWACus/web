@@ -1,0 +1,151 @@
+{
+  "readme": "Single source of truth for the E2E upstream mocks. Read by __tests__/e2e/mocks/handlers.mjs (which runs inside the Next server process) and by the Playwright specs. See docs/afp-products/e2e-mocks.md.",
+  "rules": [
+    "One immutable handler set. A scenario is addressed by URL (center id x zone id), never by mutating handlers at runtime \u2014 Playwright runs fullyParallel, and Next caches responses across the build and the server.",
+    "The one exception is a `phase` product, which is a pure function of NEXT_PHASE: one fixture is baked into the prerender, a different one is served at request time. That is how the freshness path (inventory row X5) is exercised.",
+    "Every fixture is a byte-for-byte captured response. Nothing here is hand-authored."
+  ],
+  "capabilities": {
+    "fixture": "wp_v1_public_avalanche_centers.json",
+    "note": "AFP /v1/public/avalanche-centers \u2014 Control 3, the per-center capability feed. Covers all 31 centers, so every tenant's platform gate resolves from this one file."
+  },
+  "centers": {
+    "SNFAC": {
+      "metadata": "v2_public_center_SNFAC.json",
+      "mapLayer": "v2_public_map_layer_SNFAC.json",
+      "archive": "v2_public_products_list_SNFAC.json"
+    },
+    "NWAC": {
+      "metadata": "v2_public_center_NWAC.json",
+      "mapLayer": null,
+      "archive": null,
+      "blockedOn": "map_layer_NWAC, products_list_NWAC"
+    },
+    "SAC": {
+      "metadata": "v2_public_center_SAC.json",
+      "mapLayer": null,
+      "archive": null,
+      "blockedOn": "map_layer_SAC, products_list_SAC"
+    }
+  },
+  "products": [
+    {
+      "center": "SNFAC",
+      "zone": 2904,
+      "zoneSlug": "galena-summit-&-eastern-mtns",
+      "type": "forecast",
+      "fixture": "v2_public_product_summary.json",
+      "scenario": "off-season summary \u2014 product_type 'summary', no danger block, no problems"
+    },
+    {
+      "center": "SNFAC",
+      "zone": 2905,
+      "zoneSlug": "soldier-&-wood-river-valley-mtns",
+      "type": "forecast",
+      "fixture": "v2_public_product_forecast.json",
+      "scenario": "canonical forecast \u2014 captured at exactly this center/zone; 4 image media, expired, weather pointer"
+    },
+    {
+      "center": "SNFAC",
+      "zone": 2906,
+      "zoneSlug": "sawtooth-&-western-smoky-mtns",
+      "type": "forecast",
+      "fixture": "v2_public_forecast_with_problems.json",
+      "scenario": "the zone that also carries an active warning"
+    },
+    {
+      "center": "SNFAC",
+      "zone": 2907,
+      "zoneSlug": "banner-summit",
+      "type": "forecast",
+      "phase": {
+        "build": "v2_public_forecast_with_problems.json",
+        "serve": "v2_public_product_summary.json"
+      },
+      "scenario": "freshness (row X5) \u2014 the product changes between the prerender and the request-time freshness check, which is exactly the correction a reader must see without reloading"
+    },
+    {
+      "center": "SNFAC",
+      "zone": 2906,
+      "type": "warning",
+      "fixture": "v2_public_product_warning.json",
+      "scenario": "active warning banner"
+    }
+  ],
+  "productsById": {
+    "184531": "v2_public_product_by_id_SNFAC.json"
+  },
+  "absent": [
+    {
+      "match": "product?type=warning",
+      "fixture": "v2_public_product_warning_nomatch.json",
+      "note": "v2 answers 'no active warning' with a five-key all-null placeholder, not a 404. Every zone without a mapped warning gets this \u2014 it is the normal case, not a gap."
+    },
+    {
+      "match": "product?type=forecast&center_id=NWAC",
+      "fixture": "v2_public_product_forecast_nomatch.html",
+      "blockedOn": "product_forecast_NWAC",
+      "note": "No NWAC product goldens exist, so every NWAC zone gets v2's real not-found answer: a 200 carrying the legacy PHP error page. The native page degrades to visible copy, which is what the dvac spec asserts."
+    },
+    {
+      "match": "products/map-layer/NWAC",
+      "status": 404,
+      "blockedOn": "map_layer_NWAC"
+    },
+    {
+      "match": "products/map-layer/SAC",
+      "status": 404,
+      "blockedOn": "map_layer_SAC"
+    },
+    {
+      "match": "products?avalanche_center_id=NWAC",
+      "status": 404,
+      "blockedOn": "products_list_NWAC"
+    },
+    {
+      "match": "products?avalanche_center_id=SAC",
+      "status": 404,
+      "blockedOn": "products_list_SAC"
+    },
+    {
+      "match": "product/184526",
+      "status": 404,
+      "blockedOn": "product_weather_SNFAC_populated",
+      "note": "Weather product pointed at by v2_public_product_forecast.json. No golden exists at this id, so the Mountain Weather card does not render. v2 would answer 200 with a null-object rather than 404; fetchWeatherProduct treats both as 'no weather product'."
+    },
+    {
+      "match": "product/185246",
+      "status": 404,
+      "blockedOn": "product_weather_SNFAC_populated",
+      "note": "Weather product pointed at by v2_public_product_summary.json."
+    },
+    {
+      "match": "product/185372",
+      "status": 404,
+      "blockedOn": "product_weather_SNFAC_populated",
+      "note": "Weather product pointed at by v2_public_forecast_with_problems.json."
+    }
+  ],
+  "tenants": {
+    "snfac": {
+      "forecast": true,
+      "warning": false,
+      "dangerMap": false
+    },
+    "dvac": {
+      "forecast": true,
+      "warning": false,
+      "dangerMap": false
+    },
+    "nwac": {
+      "forecast": false,
+      "warning": false,
+      "dangerMap": false
+    },
+    "sac": {
+      "forecast": false,
+      "warning": false,
+      "dangerMap": false
+    }
+  }
+}

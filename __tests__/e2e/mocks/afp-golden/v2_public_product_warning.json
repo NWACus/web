@@ -1,0 +1,19 @@
+{
+  "id": 28600,
+  "published_time": "2026-04-29T12:42:00+00:00",
+  "expires_time": "2026-04-30T12:42:00+00:00",
+  "updated_at": "2026-04-29T12:43:11+00:00",
+  "created_at": "2026-04-29T12:42:47+00:00",
+  "product_type": "warning",
+  "reason": "TEST",
+  "affected_area": "TEST",
+  "bottom_line": "TEST",
+  "hazard_discussion": "TEST",
+  "avalanche_center": {
+    "id": "SNFAC",
+    "name": "Sawtooth Avalanche Center",
+    "url": "https://www.sawtoothavalanche.com/",
+    "city": "Ketchum",
+    "state": "ID"
+  }
+}
