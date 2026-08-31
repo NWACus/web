@@ -182,6 +182,16 @@ sig = "e7ced064bdd93343"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/ValidityBanner.tsx"
+sig = "d926441229ca3ca6"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/ZoneForecastCard.tsx"
+sig = "0866471943652586"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/lightboxMedia.ts"
 sig = "436550932f50f6c6"
 
@@ -198,7 +208,7 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/forecastFingerprint.ts"
-sig = "f152f508f758da7a"
+sig = "7071f2438a84dd5c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -233,7 +243,7 @@ sig = "7f33707ac24bf998"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/utilities/freshnessResponses.ts"
-sig = "c2ad645ecfc5e115"
+sig = "47a05b760a2d8753"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

@@ -28,13 +28,30 @@ import { NO_STORE } from './apiResponses'
 /** Server-derived sha1 hex. Anything else never came from one of our pages. */
 const FINGERPRINT_PATTERN = /^[a-f0-9]{40}$/
 
-/** The answer body, shared by the routes and by the client that reads it. */
+/**
+ * The answer body. `changed` is the whole contract the client acts on; the other two fields are
+ * diagnostic, and deliberately so.
+ *
+ * It is tempting to have the client remember `etag` and skip a repeat refresh for a fingerprint it
+ * already acted on — a circuit breaker for the case where the page cannot converge on what the
+ * route is reporting. That would be wrong here. `router.refresh()` on a stale ISR entry is served
+ * the stale render *and* triggers a background regeneration, so the second refresh is the one that
+ * picks up the new page. Suppressing it would trade a bounded cost (one re-render per check) for
+ * unbounded staleness on a life-safety page.
+ */
 export interface FreshnessAnswer {
   /** True only when the viewer's render is genuinely behind the current product. */
   changed: boolean
-  /** The current product's fingerprint, present only when `changed`. */
+  /**
+   * The current product's fingerprint, present only when `changed`. Diagnostic: `curl` the
+   * endpoint and this is what the server believes. The client does not act on it — see above.
+   */
   etag?: string
-  /** Why an unchanged answer is not a positive one. */
+  /**
+   * Why an unchanged answer is not a positive one. Diagnostic in the same way: the client treats
+   * anything short of `changed: true` identically, and this is what makes the difference legible
+   * from outside. `freshnessTelemetry` is what actually reports it.
+   */
   reason?: 'indeterminate'
 }
 
