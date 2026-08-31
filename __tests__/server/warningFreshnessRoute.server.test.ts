@@ -95,11 +95,26 @@ async function expectNoChange(res: Response) {
   expect(mockRevalidatePath).not.toHaveBeenCalled()
 }
 
+/**
+ * The caller-driven path purge is throttled per center by module-level state, which outlives a
+ * test. Every test therefore starts an hour on from the last — comfortably past any plausible
+ * cooldown — so only the test that means to observe the throttle does.
+ */
+let clock = Date.now()
+
 beforeEach(() => {
+  jest.useFakeTimers()
+  clock += 60 * 60_000
+  jest.setSystemTime(clock)
+
   mockRevalidateTag.mockClear()
   mockRevalidatePath.mockClear()
   mockGetCenterWarnings.mockReset()
   mockGetCenterWarningsFresh.mockReset()
+})
+
+afterEach(() => {
+  jest.useRealTimers()
 })
 
 describe('warning-freshness route', () => {
@@ -153,6 +168,44 @@ describe('warning-freshness route', () => {
     expect(res.body.changed).toBe(true)
     expect(mockRevalidateTag).not.toHaveBeenCalled()
     expect(mockRevalidatePath).toHaveBeenCalledWith('/')
+  })
+
+  it('purges the home page once per window for a stale render only the caller can attest to', async () => {
+    // The address is a URL now, so anyone can assert a stale render with a random 40-hex string —
+    // an <img src> on someone else's page will do it. One purge already serves every viewer who
+    // was behind, so a second inside the window is pure cost.
+    const stale = { fresh: WARNING_Z1_UPDATED, cached: WARNING_Z1_UPDATED, rendered: WARNING_Z1 }
+
+    await check(stale)
+    expect(mockRevalidatePath).toHaveBeenCalledTimes(2) // '/' and '/nwac'
+
+    for (let i = 0; i < 5; i++) await check(stale)
+
+    expect(mockRevalidatePath).toHaveBeenCalledTimes(2)
+  })
+
+  it('still purges inside the window for a change the server can see for itself', async () => {
+    // The throttle covers the caller's claim, never the server's own comparison — otherwise an
+    // alert issued moments after a spammed request would sit behind a cooldown.
+    await check({ fresh: WARNING_Z1_UPDATED, cached: WARNING_Z1_UPDATED, rendered: WARNING_Z1 })
+    mockRevalidatePath.mockClear()
+
+    await check({ fresh: WARNING_Z1, cached: NONE, rendered: NONE })
+
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/')
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/nwac')
+  })
+
+  it('throttles each center separately', async () => {
+    const stale = { fresh: WARNING_Z1_UPDATED, cached: WARNING_Z1_UPDATED, rendered: WARNING_Z1 }
+
+    mockGetCenterWarningsFresh.mockResolvedValue(stale.fresh)
+    mockGetCenterWarnings.mockResolvedValue(stale.cached)
+    await call(centerWarningsFingerprint(stale.rendered), 'nwac')
+    await call(centerWarningsFingerprint(stale.rendered), 'sac')
+
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/nwac')
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/sac')
   })
 
   it('does NOT blank a live banner when the fresh set goes empty (upstream blip or all-clear)', async () => {
