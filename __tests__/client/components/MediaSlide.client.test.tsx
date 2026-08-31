@@ -98,7 +98,7 @@ describe('MediaSlide', () => {
 
   /**
    * The carousel keeps every slide mounted, so an off-screen video slide that rendered its iframe
-   * would load a player — and an autoplaying one — for media nobody is looking at.
+   * would load a third-party player for media nobody is looking at.
    */
   it('shows a still instead of the player on an off-screen video slide', () => {
     render(<MediaSlide item={youTube()} isActive={false} />)
