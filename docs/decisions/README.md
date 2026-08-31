@@ -23,6 +23,7 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [012](012-non-rbac-access-patterns.md)         | Moving from pure RBAC to a hybrid permission model  | 2025-11-02 | accepted                                           |
 | [013](013-hardcoded-tenant-lookup.md)          | Hardcoded Tenant Lookup                             | 2026-01-22 | accepted                                           |
 | [014](014-built-in-pages-drive-navigation.md)  | Built-in pages drive navigation (at provision-time) | 2026-05-04 | accepted                                           |
+| [017](017-document-upload-restrictions.md)      | Document upload restrictions and response headers   | 2026-08-31 | accepted                                           |
 
 > **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `015`.
 
