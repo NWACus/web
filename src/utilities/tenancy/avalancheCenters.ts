@@ -57,10 +57,17 @@ export const AVALANCHE_CENTERS = {
 export type ValidTenantSlug = keyof typeof AVALANCHE_CENTERS
 
 /**
- * Check if a string is a valid tenant slug
+ * Check if a string is a valid tenant slug.
+ *
+ * `Object.hasOwn`, not `in`: `in` walks the prototype chain, so `constructor`, `toString`,
+ * `valueOf`, `hasOwnProperty`, `__proto__` and their siblings all passed this guard. That matters
+ * because callers treat it as the boundary that keeps a caller-controlled path segment out of an
+ * upstream URL (the `/api/[center]/…` routes), and because it narrows to `ValidTenantSlug` — so a
+ * caller was free to index `AVALANCHE_CENTERS[slug]` on a key that is not there and get `undefined`
+ * where TypeScript promised an object.
  */
 export function isValidTenantSlug(slug: string): slug is ValidTenantSlug {
-  return slug in AVALANCHE_CENTERS
+  return Object.hasOwn(AVALANCHE_CENTERS, slug)
 }
 
 /**
