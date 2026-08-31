@@ -51,8 +51,11 @@ export const dynamic = 'force-dynamic'
  *   2. Refresh THIS viewer? When the fresh page fingerprint differs from the one they rendered →
  *      `changed: true` so their router.refresh() re-renders; otherwise `changed: false`.
  *
- * Two failure modes, both erring toward keeping what is already on screen:
+ * Three failure modes, all erring toward keeping what is already on screen:
  *
+ * - **The zone list is unreachable**, which is the one upstream call here that throws rather than
+ *   returning null. Indeterminate, not a 500: an unhandled throw is an answer whose cache policy
+ *   nothing below decides.
  * - **No fresh forecast** (upstream error, parse failure, or genuinely none published) is
  *   *indeterminate*: it reports no change and never purges — so a transient upstream blip can't
  *   blank the last-known-good forecast — but it is never cached, so the next viewer retries
@@ -80,8 +83,15 @@ export async function GET(
   // URL, so only serve known tenants — matching the warning-freshness and danger-map siblings.
   if (!isValidTenantSlug(center)) return unknownCenterResponse()
 
-  const zone = await resolveZoneFromSlug(center, zoneSlug)
-  if (!zone) {
+  // Resolving the slug reaches upstream for the center's zone list, and unlike every product fetch
+  // below it *throws* on failure rather than returning null. Those are two different answers: a
+  // slug that is not one of this center's is the caller's mistake (404), while an upstream we could
+  // not reach is the same indeterminate we give a failed product fetch — no purge, never cached,
+  // retried by the next viewer. Left uncaught it was an unhandled 500, the one answer this route's
+  // cache policy does not cover.
+  const zone = await resolveZoneFromSlug(center, zoneSlug).catch(() => undefined)
+  if (zone === undefined) return indeterminateResponse()
+  if (zone === null) {
     return NextResponse.json({ error: 'Zone not found' }, { status: 404, headers: NO_STORE })
   }
 
