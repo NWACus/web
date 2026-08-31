@@ -5,7 +5,7 @@
  * magic-byte check (`fileTypeFromBuffer`) when `upload.mimeTypes` is set; with the
  * list absent it falls back to comparing the filename extension and the
  * client-supplied mimetype against a small restricted list, which a rename defeats.
- * See docs/decisions/017-document-upload-restrictions.md for the full rationale.
+ * See docs/decisions/023-document-upload-restrictions.md for the full rationale.
  *
  * Images and videos are deliberately absent -- those belong in the Media collection.
  * `text/html`, `application/xhtml+xml` and `image/svg+xml` must never be added:
