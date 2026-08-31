@@ -29,6 +29,14 @@ These are not triage states, but they coexist with them on issues:
 | `tenant:<slug>`     | scoping   | Specific to one avalanche center (e.g. `tenant:nwac`). New slugs created on demand. |
 | `dependencies`      | PR label  | Dependabot dependency-update PRs. Not part of issue triage.               |
 | `javascript`        | PR label  | Dependabot JavaScript PRs. Not part of issue triage.                       |
+| `visual-recap`      | PR label  | Forces an interactive visual recap on a PR the size gate would skip. Not part of issue triage. |
+| `no-visual-recap`   | PR label  | Opts a PR out of the visual recap. Beats `visual-recap` and the size gate. Not part of issue triage. |
+
+### When to reach for `no-visual-recap`
+
+The [PR Visual Recap workflow](../../.github/workflows/pr-visual-recap.yml) already skips tiny diffs on its own, so the label is only worth adding when the gate would say *run* but a recap would not earn its keep. In practice that means a diff that is **large or touches a sensitive path, yet is mechanical**: a codemod or rename sweep, a formatting pass, regenerated types, a lockfile bump, or generated migration boilerplate. The gate force-runs at 25+ files or 1500+ changed lines, and any touch of `src/collections`, `src/migrations`, `src/access`, `src/globals`, `src/middleware.ts`, `src/payload.config.ts`, or `src/app/api` disqualifies a PR from the tiny-diff skip — those are the cases where a human or agent knows better than the heuristic.
+
+Do not add it to ordinary small PRs; the gate handles those, and the label just adds noise. Adding it to a PR that already has a published recap stops further runs but leaves that recap marked unmerged.
 
 ## Auto-labeling on arrival
 

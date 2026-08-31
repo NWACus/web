@@ -141,6 +141,11 @@ target = "src/components/ProviderPreview.tsx"
 sig = "2433d2218a295ca5"
 
 [[bindings]]
+doc = "docs/agents/triage-labels.md"
+target = ".github/workflows/pr-visual-recap.yml"
+sig = "797cbc85d0c94293"
+
+[[bindings]]
 doc = "docs/claude-github-issues.md"
 target = ".github/workflows/claude.yml"
 sig = "b4cdca0cf4f354b1"
