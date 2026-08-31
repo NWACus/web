@@ -20,6 +20,7 @@ import {
   malformedFingerprintResponse,
   unchangedResponse,
 } from '@/utilities/freshnessResponses'
+import { reportIndeterminate } from '@/utilities/freshnessTelemetry'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
@@ -114,6 +115,7 @@ export async function GET(
   } catch {
     // Upstream is unreachable: leave the last-known-good banner in place and let the page's
     // revalidate window back it up.
+    reportIndeterminate('warnings-unreachable', center)
     return indeterminateResponse()
   }
 
@@ -124,7 +126,10 @@ export async function GET(
   // all-clear or an upstream blip on the warned zone's request, and the source collapses both to
   // the same "no alert" — so trust neither: change nothing and tell nobody. A real all-clear
   // arrives here again once the short upstream cache expires and `cached` agrees.
-  if (fresh.length === 0 && cached.length > 0) return indeterminateResponse()
+  if (fresh.length === 0 && cached.length > 0) {
+    reportIndeterminate('warning-vanished', center)
+    return indeterminateResponse()
+  }
 
   if (cacheIsStale) {
     const zoneIds = new Set([...affectedZoneIds(cached), ...affectedZoneIds(fresh)])
