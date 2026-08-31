@@ -98,11 +98,18 @@ export async function stubExternalAssets(page: Page): Promise<void> {
 }
 
 /**
- * Neutralise the revalidate-on-view check for specs that are not about freshness. It answers 304
- * for a byte-stable fixture anyway, but a stubbed request cannot refresh the page mid-assertion.
+ * Neutralise the revalidate-on-view check for specs that are not about freshness. It answers
+ * "unchanged" for a byte-stable fixture anyway, but a stubbed request cannot refresh the page
+ * mid-assertion, nor purge a tag a later spec is relying on.
+ *
+ * The trailing `/**` is load-bearing. Playwright's single `*` compiles to `[^/]*` and does not
+ * cross a path separator, so the `**\/forecast-freshness*` this replaces stopped matching the
+ * moment the check became content-addressed (`…/forecast-freshness/<zone>/<fingerprint>`) — and a
+ * glob that matches nothing fails *open*: `page.route` never reports that it matched no request.
+ * Both freshness routes are covered, so a spec that reaches the home page is frozen too.
  */
 export async function freezeFreshness(page: Page): Promise<void> {
-  await page.route('**/forecast-freshness*', (route) => route.abort('failed'))
+  await page.route('**/*-freshness/**', (route) => route.abort('failed'))
 }
 
 /** Fail a spec on a 5xx or an uncaught page error, the way the existing frontend suite does. */
