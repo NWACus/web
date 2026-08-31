@@ -4,8 +4,8 @@
  *
  * Print works by `@media print` over the live page rather than a second rendering path: the
  * reader's selection is written to `document.documentElement`'s `data-print-sections` attribute
- * and the print stylesheet in `globals.css` hides the sections that aren't listed. Keeping the
- * keys here means the component markup, the client toggle and the stylesheet all agree on one
+ * and the print stylesheet in `print.css` hides the sections that aren't listed. Keeping the keys
+ * here means the component markup, the client toggle and the stylesheet all agree on one
  * vocabulary.
  */
 import { ProductType, type ForecastResult, type Weather } from '@/services/nac/model/forecast'
