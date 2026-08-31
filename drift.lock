@@ -93,7 +93,7 @@ sig = "abf09b4de88ca814"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/troubleshooting.md"
-sig = "6e79461aedfcbd64"
+sig = "12dc2b4635c6567c"
 
 [[bindings]]
 doc = "docs/a3-embeds.md"
@@ -819,6 +819,11 @@ sig = "d3800c363de12669"
 doc = "docs/testing.md"
 target = "jest.config.mjs"
 sig = "93856d4c3ca3e5cd"
+
+[[bindings]]
+doc = "docs/troubleshooting.md"
+target = "src/endpoints/seed/index.ts"
+sig = "13843a0ce2a74953"
 
 [[bindings]]
 doc = "docs/troubleshooting.md"
