@@ -1,19 +1,26 @@
 'use client'
 
 /**
- * Revalidate-on-view: asks a freshness endpoint whether the product this page shows has changed
- * since it was rendered (pages are statically generated or ISR, so they can be up to their
- * revalidate window stale). On a change it refreshes the route so the viewer sees the current
- * product without a manual reload. Renders nothing.
+ * Revalidate-on-view: asks one or more freshness endpoints whether the products this page shows
+ * have changed since it was rendered (pages are statically generated or ISR, so they can be up to
+ * their revalidate window stale). On a change it refreshes the route so the viewer sees the current
+ * products without a manual reload. Renders nothing.
  *
- * Shared by every safety-critical native surface — the forecast page and the home-page warnings
- * banner today. The endpoint owns the decisions: what counts as a change, whether to purge the
- * shared caches, and whether this viewer's render is stale.
+ * Shared by every safety-critical native surface — the forecast page, the all-zones grid, and the
+ * home-page warnings banner. The endpoints own the decisions: what counts as a change, whether to
+ * purge the shared caches, and whether this viewer's render is stale.
  *
- * The endpoint is **content-addressed**: the fingerprint of what this page rendered is baked into
+ * An endpoint is **content-addressed**: the fingerprint of what this page rendered is baked into
  * the URL rather than sent as a header, which is what lets the "you're current" answer be served
  * from the edge. It also means the URL changes when the product does, so after a `router.refresh()`
- * the RSC payload hands us a new `endpoint` and the effect re-arms on its own.
+ * the RSC payload hands us new `endpoints` and the effect re-arms on its own.
+ *
+ * A page that shows several products asks about all of them in one component rather than mounting
+ * one instance per product. That keeps a single timer and a single visibility listener, and — the
+ * reason it matters — collapses a daily publish that moves every zone at once into **one**
+ * `router.refresh()` instead of one per zone. The all-zones grid reuses the very same per-zone
+ * addresses the individual forecast pages ask, so it shares their edge cache entries and adds no
+ * origin traffic of its own.
  *
  * Safety invariants:
  * - The check always runs on mount. Nothing — expiry, validity, or the page currently showing no
@@ -33,30 +40,47 @@ import type { FreshnessAnswer } from '@/utilities/freshnessResponses'
  */
 const RECHECK_INTERVAL_MS = 5 * 60 * 1000
 
+/** Not a URL character, so joining on it round-trips any set of endpoints exactly. */
+const KEY_SEPARATOR = '\n'
+
 interface RevalidateOnViewProps {
-  /** The complete freshness endpoint URL, including the rendered product's fingerprint. */
-  endpoint: string
+  /** Complete freshness endpoint URLs, each including its rendered product's fingerprint. */
+  endpoints: string[]
 }
 
-export function RevalidateOnView({ endpoint }: RevalidateOnViewProps) {
+export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
   const router = useRouter()
 
+  // The effect must re-arm when the *contents* change, not on every new array identity a re-render
+  // produces. The joined list is that value, and splitting it back inside keeps the dependency
+  // honest rather than suppressing the lint rule.
+  const endpointKey = endpoints.join(KEY_SEPARATOR)
+
   useEffect(() => {
+    const urls = endpointKey.split(KEY_SEPARATOR).filter(Boolean)
+    if (urls.length === 0) return
+
     const controller = new AbortController()
     let interval: ReturnType<typeof setInterval> | undefined
 
     function check() {
-      fetch(endpoint, { signal: controller.signal })
-        .then((res): Promise<FreshnessAnswer> | null => (res.ok ? res.json() : null))
-        .then((answer) => {
-          // Anything short of an explicit "changed" leaves the page alone — an indeterminate
-          // answer means upstream couldn't be established, not that the product went away.
-          if (answer?.changed === true) router.refresh()
-        })
-        .catch(() => {
-          // Network hiccup, an unparseable body, or an aborted in-flight check on unmount: leave
-          // the page as-is; the page's revalidate window still backstops freshness.
-        })
+      Promise.all(
+        urls.map((url) =>
+          fetch(url, { signal: controller.signal })
+            .then((res): Promise<FreshnessAnswer> | null => (res.ok ? res.json() : null))
+            .catch(() => {
+              // Network hiccup, an unparseable body, or an aborted in-flight check on unmount:
+              // leave the page as-is; the page's revalidate window still backstops freshness. One
+              // endpoint failing must not sink the answers from the others.
+              return null
+            }),
+        ),
+      ).then((answers) => {
+        // Anything short of an explicit "changed" leaves the page alone — an indeterminate answer
+        // means upstream couldn't be established, not that the product went away. One refresh
+        // however many moved: a daily publish changes every zone on the grid at once.
+        if (answers.some((answer) => answer?.changed === true)) router.refresh()
+      })
     }
 
     function stopInterval() {
@@ -89,7 +113,7 @@ export function RevalidateOnView({ endpoint }: RevalidateOnViewProps) {
       stopInterval()
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [endpoint, router])
+  }, [endpointKey, router])
 
   return null
 }
