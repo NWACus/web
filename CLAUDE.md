@@ -498,5 +498,6 @@ Before marking work complete, verify:
 - [ ] No TypeScript errors (`pnpm tsc`)
 - [ ] No lint errors (`pnpm lint`)
 - [ ] Tests pass if applicable (`pnpm test`)
+- [ ] If the change touches a native AFP product page, a new reader-facing surface has a Playwright spec (`pnpm test:e2e:afp-products` — see [`/docs/afp-products/e2e-mocks.md`](docs/afp-products/e2e-mocks.md))
 - [ ] No new dead code or duplication introduced (`pnpm fallow:audit`, and `pnpm fallow:check` for whole-repo regression — see [`/docs/fallow.md`](docs/fallow.md))
 - [ ] No unrelated changes included

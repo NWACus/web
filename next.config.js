@@ -14,6 +14,9 @@ const url = new URL(ROOT_SITE_URL)
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The mocked E2E build writes to its own directory, so a build made against the real AFP API can
+  // never be mistaken for one made against the fixtures. See docs/afp-products/e2e-mocks.md.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   crossOrigin: 'anonymous',
   images: {
     unoptimized: false,
@@ -105,4 +108,11 @@ const configWithSentry = withSentryConfig(configWithPayload, {
   automaticVercelMonitors: true,
 })
 
-export default process.env.NODE_ENV === 'production' ? configWithSentry : configWithPayload
+// The mocked E2E build is a production build, but it must not carry Sentry: the SDK's module
+// instrumentation is loaded even when reporting is disabled, and it does not co-exist with the
+// harness's MSW preload — both hook module loading, and together they produce intermittent 5xx.
+// Only the mocked build is affected; production has no preload. See
+// docs/afp-products/e2e-mocks.md.
+export default process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_E2E_MOCK_ROLE
+  ? configWithSentry
+  : configWithPayload
