@@ -88,6 +88,16 @@ describe('ExpiryNotice', () => {
     expect(container.textContent).toMatch(/this product is expired/i)
   })
 
+  it('announces itself, since it arrives on a page that has already been read', async () => {
+    // A product that lapses with no replacement produces no freshness change, so this notice is
+    // the viewer's only signal — inserted with no live region it would be announced to nobody.
+    const { getByRole } = await mount(expiryIn(60_000))
+
+    await advance(60_001)
+
+    expect(getByRole('alert')).toHaveTextContent(/this product is expired/i)
+  })
+
   it('re-evaluates on return to visibility, since background timers are throttled', async () => {
     const { container } = await mount(expiryIn(60_000))
 
