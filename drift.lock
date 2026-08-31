@@ -168,7 +168,7 @@ sig = "6890512abefbb55e"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/forecastPrintSections.ts"
-sig = "3e6c92e3b8c972d7"
+sig = "82f2b9acb2d74be0"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

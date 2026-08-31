@@ -94,7 +94,7 @@ export function NativeForecastView({
       />
 
       {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
-          stylesheet in globals.css hides any section the reader left unchecked. */}
+          stylesheet in print.css hides any section the reader left unchecked. */}
       <div data-print-section="bottomLine" className="space-y-6">
         <ForecastLead
           forecastResult={forecastResult}
