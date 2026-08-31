@@ -1,0 +1,90 @@
+/**
+ * Print styles for native product pages.
+ *
+ * Everything except the page margin is scoped to `html[data-print-sections]`, an attribute set by
+ * the forecast print control (`ForecastPrint.client.tsx`) for the duration of one `window.print()`
+ * call and torn down on `afterprint`. So these rules only apply to a reader who asked to print a
+ * forecast — a plain Cmd+P, on this page or any other, is untouched.
+ *
+ * The attribute's *value* is the space-separated list of sections the reader checked; the rules
+ * below hide any `[data-print-section]` whose key isn't in that list. Layout that must not depend
+ * on the reader's screen width lives in the components as `print:` utilities, not here, since
+ * Tailwind emits `@media print` after the breakpoint queries and so wins.
+ */
+
+/* Unscoped by necessity — @page takes no selector. Only the margin is set: paper size stays the
+   reader's choice in the print dialog, unlike the legacy widget which hardcoded US Letter. */
+@page {
+  margin: 0.5in;
+}
+
+@media print {
+  /* Site chrome. The forecast page's own title row is a div precisely so it survives this. */
+  html[data-print-sections] header,
+  html[data-print-sections] footer,
+  html[data-print-sections] nav,
+  html[data-print-sections] .admin-bar,
+  html[data-print-sections] #nprogress,
+  html[data-print-sections] [data-print-hide] {
+    display: none !important;
+  }
+
+  /* Deselected sections. One rule per key rather than anything clever, so the vocabulary in
+     forecastPrintSections.ts is greppable from here. */
+  html[data-print-sections]:not([data-print-sections~='bottomLine'])
+    [data-print-section='bottomLine'],
+  html[data-print-sections]:not([data-print-sections~='problems']) [data-print-section='problems'],
+  html[data-print-sections]:not([data-print-sections~='discussion'])
+    [data-print-section='discussion'],
+  html[data-print-sections]:not([data-print-sections~='weather']) [data-print-section='weather'] {
+    display: none !important;
+  }
+
+  /* The container's responsive gutters are dead weight next to a physical page margin, and the
+     full-viewport minimum heights the screen layout uses would each claim a whole sheet. */
+  html[data-print-sections] .container {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  html[data-print-sections] body,
+  html[data-print-sections] .min-h-screen {
+    min-height: 0;
+  }
+
+  /* Keep a card, a danger row or a table row off a page boundary where we can. Problems get the
+     strongest treatment: splitting a rose diagram from its likelihood and size makes the card
+     unreadable. The legacy widget forced a hard page break after every problem, which wasted a
+     lot of paper; avoiding the split gets the same readability without the blank space. */
+  html[data-print-sections] [data-print-section='problems'] > * {
+    break-inside: avoid;
+  }
+  html[data-print-sections] figure,
+  html[data-print-sections] tr,
+  html[data-print-sections] h2,
+  html[data-print-sections] h3,
+  html[data-print-sections] h4 {
+    break-inside: avoid;
+  }
+  html[data-print-sections] h2,
+  html[data-print-sections] h3,
+  html[data-print-sections] h4 {
+    break-after: avoid;
+  }
+
+  /* Forecaster rich text can embed players and iframes, which print as empty boxes. Images stay —
+     the legacy PDF dropped them, but only because html2canvas tainted on cross-origin sources. */
+  html[data-print-sections] iframe,
+  html[data-print-sections] video {
+    display: none !important;
+  }
+  html[data-print-sections] img {
+    max-height: 4in;
+  }
+
+  /* Print backgrounds: danger colors are the product, not decoration. */
+  html[data-print-sections] * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

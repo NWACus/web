@@ -44,7 +44,8 @@ function ScaleHeading() {
     <span className="flex items-center justify-between gap-2">
       <span className="flex items-center gap-1 font-semibold">
         <ChevronRight
-          className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90"
+          // The disclosure affordance means nothing on paper.
+          className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90 print:hidden"
           aria-hidden="true"
         />
         Avalanche Danger Scale
@@ -69,8 +70,8 @@ function ColorStrip() {
         className="mr-2 block px-1 py-1 text-center leading-tight"
         style={{ borderTop: `10px solid ${dangerColor(DangerLevel.GeneralInformation)}` }}
       >
-        <span className="sm:hidden">General Info</span>
-        <span className="hidden sm:inline">General Information</span>
+        <span className="sm:hidden printWide:hidden">General Info</span>
+        <span className="hidden sm:inline printWide:inline">General Information</span>
       </span>
       {dangerScaleRows.map((row) => (
         <span
@@ -78,8 +79,9 @@ function ColorStrip() {
           className="block px-1 py-1 text-center leading-tight"
           style={{ borderTop: `10px solid ${dangerColor(row.level)}` }}
         >
-          <strong>{row.level}</strong> - <span className="sm:hidden">{row.abbreviation}</span>
-          <span className="hidden sm:inline">{row.rating}</span>
+          <strong>{row.level}</strong> -{' '}
+          <span className="sm:hidden printWide:hidden">{row.abbreviation}</span>
+          <span className="hidden sm:inline printWide:inline">{row.rating}</span>
         </span>
       ))}
     </span>

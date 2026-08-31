@@ -152,6 +152,11 @@ sig = "2f6941731c97ccaa"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/print.css"
+sig = "29264cae798620e7"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route.ts"
 sig = "ea45b8c0ac6b4c43"
 
@@ -177,6 +182,11 @@ sig = "eabf95d9301e0ca5"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/ForecastPrint.client.tsx"
+sig = "6890512abefbb55e"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/NativeForecastPage.tsx"
 sig = "1f8b22caf7968ffc"
 
@@ -194,6 +204,11 @@ sig = "d926441229ca3ca6"
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ZoneForecastCard.tsx"
 sig = "0866471943652586"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/forecastPrintSections.ts"
+sig = "3e6c92e3b8c972d7"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -254,6 +269,11 @@ sig = "47a05b760a2d8753"
 doc = "docs/afp-products/architecture.md"
 target = "src/utilities/freshnessTelemetry.ts"
 sig = "9ed671c2854b805b"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "tailwind.config.mjs"
+sig = "97d56d4516a4a851"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -548,7 +568,7 @@ sig = "b97eccce2fe2f8d5"
 [[bindings]]
 doc = "docs/decisions/019-native-product-page-architecture.md"
 target = "src/services/nac/types/forecastSchemas.ts"
-sig = "0fe660dfb76ea989"
+sig = "3ad3903e43ab0176"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
