@@ -162,6 +162,11 @@ sig = "44c3a30a03dd3a3c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/model/mapLayer.ts"
+sig = "bc3501d1490d6ff9"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/config.ts"
 sig = "04c5d068ca6aa844"
 
