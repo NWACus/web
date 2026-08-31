@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import './colors.css';
+@import './print.css';
 
 @layer base {
   h1,

@@ -102,6 +102,18 @@ Server rendering is the default and the client bundle is deliberately small. The
 
 **Sanitizing forecaster HTML is a server job, without exception.** `sanitize-html` plus htmlparser2's tokenizer is ~230 KB minified, and one call from a `'use client'` component drags all of it to every reader of a forecast page — which is how it got there once already ([#1234](https://github.com/NWACus/web/issues/1234)). Where a client component has to render authored HTML, the sanitized string is produced on the server and handed to it: a media caption travels as a `LightboxMedia` (`src/components/forecast/lightboxMedia.ts`), which pairs the item with its already-sanitized caption so nothing reaches the lightbox as a bare `MediaItem`. `__tests__/server/sanitizeHtmlIsServerOnly.server.test.ts` walks the import graph and fails if the library becomes reachable from a client component again.
 
+### Printing
+
+There is no separate print route and no second rendering path. The reader picks sections in a dialog; that selection is written to `<html data-print-sections="…">`, the print stylesheet (`src/app/(frontend)/print.css`) hides the site chrome and any unselected `[data-print-section]`, `document.title` is set so the browser's save dialog offers a meaningful filename, and `window.print()` hands off. Everything is undone on `afterprint`.
+
+Printing the live DOM rather than re-rendering into a PDF is deliberate for a life-safety product: what comes out of the printer is definitionally what the reader was looking at, and there is no parallel component tree to drift. It also replaces the legacy widget's html2canvas rasterization — an image-only PDF at roughly 600 KB per page — with real text at roughly 40 KB per page, searchable, selectable and with links intact.
+
+Pagination is the part that doesn't come free from printing the live DOM, and it is handled with two blunt instruments rather than any per-forecast tuning. First, **a card is atomic**: `break-inside: avoid` on the children of every `[data-print-section]`, so a rose diagram is never severed from its likelihood and size, and the danger scale's color strip is never stranded on the next sheet from the ratings it decodes. Every card is well under a page tall, so the browser can always honor this. Second, **paper gets tighter rhythm than a screen**: the page's `py-6`/`space-y-6` and each card's `p-6` are cut roughly a third in print, on the reasoning that the `@page` margin already frames the sheet. That is worth about an inch before the bottom line — the difference, on a typical NWAC forecast, between the danger card clearing the first page boundary and being cut in half by it, and between a three-sheet forecast and a four-sheet one.
+
+What none of this buys is a guarantee about *which* sheet a given block lands on. Where the page breaks falls out of how long the forecaster wrote, so a long bottom line or a third avalanche problem still reflows everything after it. The rules above make the common case pack well and make every failure mode a whole card in the wrong place rather than half a card in the right one.
+
+The one rule to keep: **print layout must never depend on the reader's screen width.** Browsers disagree about whether `min-width` queries re-evaluate against the paper box when printing (Chrome, Edge and desktop Safari do; iOS Safari effectively prints the on-screen layout). So any breakpoint that drives layout gets a matching `printWide:` utility — a `raw` Tailwind screen for `print and (min-width: 700px)`, declared after `lg` so it wins. Plain `print:` stays for hiding screen-only affordances. The check that this holds: a 390px viewport and a 1440px one must produce byte-identical PDFs.
+
 ## Freshness
 
 **The safety-critical part of the system.** These are life-safety products, and a five-minute ISR window is five minutes in which a correction or retraction is not being shown.
@@ -176,3 +188,4 @@ Known and deliberate, but easy to be caught by.
 | `src/app/api/[center]/*-freshness/`       | Freshness route handlers                        |
 | `src/collections/Settings/`               | Control 1, the rollout flag                     |
 | `src/components/forecast/`                | Presentation, model-consuming only              |
+| `src/app/(frontend)/print.css`            | Print stylesheet for native product pages       |

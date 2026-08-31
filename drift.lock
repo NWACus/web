@@ -147,6 +147,11 @@ sig = "2f6941731c97ccaa"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/print.css"
+sig = "4501c88c58e42752"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/route.ts"
 sig = "7a7f7b8e3909a277"
 
@@ -154,6 +159,16 @@ sig = "7a7f7b8e3909a277"
 doc = "docs/afp-products/architecture.md"
 target = "src/collections/Settings/index.ts"
 sig = "afa29bc8184dea8e"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/ForecastPrint.client.tsx"
+sig = "52a857e9165267e8"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/forecastPrintSections.ts"
+sig = "82f2b9acb2d74be0"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -189,6 +204,11 @@ sig = "b97eccce2fe2f8d5"
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/types.ts"
 sig = "003ff75b0e6ac502"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "tailwind.config.mjs"
+sig = "97d56d4516a4a851"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
@@ -443,7 +463,7 @@ sig = "b97eccce2fe2f8d5"
 [[bindings]]
 doc = "docs/decisions/018-native-product-page-architecture.md"
 target = "src/services/nac/types/forecastSchemas.ts"
-sig = "0fe660dfb76ea989"
+sig = "3ad3903e43ab0176"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
