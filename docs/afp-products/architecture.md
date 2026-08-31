@@ -100,6 +100,8 @@ Five minutes is a **backstop, not the freshness mechanism**. Historical pages ar
 
 Server rendering is the default and the client bundle is deliberately small. The exceptions are genuinely interactive: the danger map (Mapbox), and the archive calendar, which lazily fetches per-month danger colors from a route handler rather than shipping the full product archive.
 
+**Sanitizing forecaster HTML is a server job, without exception.** `sanitize-html` plus htmlparser2's tokenizer is ~230 KB minified, and one call from a `'use client'` component drags all of it to every reader of a forecast page — which is how it got there once already ([#1234](https://github.com/NWACus/web/issues/1234)). Where a client component has to render authored HTML, the sanitized string is produced on the server and handed to it: a media caption travels as a `LightboxMedia` (`src/components/forecast/lightboxMedia.ts`), which pairs the item with its already-sanitized caption so nothing reaches the lightbox as a bare `MediaItem`. `__tests__/server/sanitizeHtmlIsServerOnly.server.test.ts` walks the import graph and fails if the library becomes reachable from a client component again.
+
 ## Freshness
 
 **The safety-critical part of the system.** These are life-safety products, and a five-minute ISR window is five minutes in which a correction or retraction is not being shown.
