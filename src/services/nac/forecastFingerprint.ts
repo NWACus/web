@@ -1,3 +1,9 @@
+/**
+ * The freshness address for one forecast zone: the URL a page asks about, and the fingerprint that
+ * fills it in. Both live here so the route's path shape and its callers cannot drift apart — the
+ * live forecast page and the all-zones grid ask the very same address for a given zone, which is
+ * what lets them share its edge cache entry. Server-only.
+ */
 import { createHash } from 'node:crypto'
 
 import type { ForecastResult, WarningProduct } from './model/forecast'
@@ -37,4 +43,18 @@ export function forecastPageFingerprint(
  */
 export function productFingerprint(product: ForecastResult | WarningProduct | null): string {
   return sha1(product)
+}
+
+/**
+ * The freshness endpoint a page asks about a zone. Tenant-relative, so it is rewritten to the
+ * current center the same way every other in-app path is.
+ */
+export function forecastFreshnessEndpoint(
+  centerSlug: string,
+  zoneSlug: string,
+  forecast: ForecastResult | null,
+  warning: WarningProduct | null,
+): string {
+  const fingerprint = forecastPageFingerprint(forecast, warning)
+  return `/api/${centerSlug}/forecast-freshness/${encodeURIComponent(zoneSlug)}/${fingerprint}`
 }
