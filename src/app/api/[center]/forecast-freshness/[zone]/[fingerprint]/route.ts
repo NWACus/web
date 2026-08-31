@@ -3,10 +3,10 @@
 // production build, where this route answers and the Payload catch-all still resolves. The sibling
 // `warning-freshness`, `danger-map` and `og` routes carry the same waiver.
 // fallow-ignore-file dynamic-segment-name-conflicts
-import { forecastFingerprint } from '@/services/nac/forecastFingerprint'
-import { forecastCacheTag, weatherCacheTag } from '@/services/nac/nac'
+import { forecastPageFingerprint, productFingerprint } from '@/services/nac/forecastFingerprint'
+import { forecastCacheTag, warningCacheTag, weatherCacheTag } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { getForecastSource } from '@/services/nac/sources'
+import { getForecastSource, getWarningSource } from '@/services/nac/sources'
 import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
 import {
   changedResponse,
@@ -35,24 +35,35 @@ export const dynamic = 'force-dynamic'
 
 /**
  * Revalidate-on-view freshness check (safety-critical). The viewer's page renders with a
- * fingerprint of the forecast it is showing, and asks about it here — the fingerprint is a path
+ * fingerprint of what it is showing — the forecast *and* the zone's active warning, since both are
+ * on the page and each turns over on its own — and asks about it here. The fingerprint is a path
  * segment, so the answer is content-addressed and the common "you're current" reply can be served
- * from the edge (see `freshnessResponses` for why only that one is cacheable). This fetches the
- * CURRENT forecast fresh (short-cached upstream) and decides two things independently:
+ * from the edge (see `freshnessResponses` for why only that one is cacheable). This fetches both
+ * products fresh (short-cached upstream) and decides two things independently:
  *
- *   1. Purge the SHARED cache? Only when the fresh product genuinely differs from what the cache is
- *      serving — a server-side comparison, NOT the caller-supplied fingerprint, so an
+ *   1. Purge the SHARED caches? Only where the fresh product genuinely differs from what the cache
+ *      is serving — a server-side comparison, NOT the caller-supplied fingerprint, so an
  *      unauthenticated client can't force repeated purges (which would defeat the cache and
- *      amplify upstream load). On a real change we revalidate the forecast tag (which also
- *      invalidates the page's route cache) and the weather product's tag, so a refresh renders
- *      fresh forecast + weather together.
- *   2. Refresh THIS viewer? When the fresh fingerprint differs from the one they rendered →
+ *      amplify upstream load). Per product, not per page: a warning-only change purges the warning
+ *      tag alone, so it doesn't cost an upstream forecast re-fetch it has no reason to. Either tag
+ *      also invalidates the page's route cache, and a changed forecast additionally purges the
+ *      weather product it points at, so a refresh renders forecast + weather together.
+ *   2. Refresh THIS viewer? When the fresh page fingerprint differs from the one they rendered →
  *      `changed: true` so their router.refresh() re-renders; otherwise `changed: false`.
  *
- * A failed or absent fresh fetch (upstream error, parse failure, or genuinely no product) is
- * *indeterminate*: it reports no change and never purges — so a transient upstream blip can't blank
- * the last-known-good forecast — but it is never cached, so the next viewer retries immediately.
- * The ISR window remains the backstop, and a genuine withdrawal is caught by that window.
+ * Two failure modes, both erring toward keeping what is already on screen:
+ *
+ * - **No fresh forecast** (upstream error, parse failure, or genuinely none published) is
+ *   *indeterminate*: it reports no change and never purges — so a transient upstream blip can't
+ *   blank the last-known-good forecast — but it is never cached, so the next viewer retries
+ *   immediately. The ISR window remains the backstop, and a genuine withdrawal is caught there.
+ * - **A warning that has vanished** while the cache still holds one is not trusted either. The
+ *   source collapses "no alert" and "this zone's request failed" to the same null, so an upstream
+ *   blip must not be allowed to blank a live banner — matching `warning-freshness`. The cached
+ *   alert is held in the comparison instead, nothing is purged, and if that leaves the viewer
+ *   otherwise current the answer is indeterminate rather than the cacheable "you're current": we
+ *   will not park an unconfirmed warning state at the edge for a TTL. A genuine all-clear arrives
+ *   once the short upstream cache expires and the cached side agrees.
  *
  * Invariant: the fresh check always runs on every view; validity/expiry never skips it — a
  * correction can be published while a forecast is still inside its validity window.
@@ -74,25 +85,44 @@ export async function GET(
     return NextResponse.json({ error: 'Zone not found' }, { status: 404, headers: NO_STORE })
   }
 
-  const source = getForecastSource(center)
-  const fresh = await source.getForecastFresh(center, zone.zone.id)
+  const forecasts = getForecastSource(center)
+  const warnings = getWarningSource(center)
 
-  // No fresh product (upstream error, parse failure, or genuinely none published): do NOT purge the
-  // cache — leave the last-known-good forecast in place and let the ISR window back it up.
-  if (!fresh) return indeterminateResponse()
+  const [freshForecast, freshWarning] = await Promise.all([
+    forecasts.getForecastFresh(center, zone.zone.id),
+    warnings.getWarningFresh(center, zone.zone.id),
+  ])
 
-  const freshEtag = forecastFingerprint(fresh)
+  // No fresh forecast: do NOT purge anything — leave the last-known-good page in place and let the
+  // ISR window back it up.
+  if (!freshForecast) return indeterminateResponse()
 
-  // Purge decision — server-authoritative: compare the fresh product to what the shared cache is
-  // actually serving (not the caller's fingerprint), so freshness spam can't evict the cache.
-  const cached = await source.getForecast(center, zone.zone.id)
-  const cacheIsStale = !cached || forecastFingerprint(cached) !== freshEtag
-  if (cacheIsStale) {
+  // Purge decisions — server-authoritative: compare each fresh product to what the shared cache is
+  // actually serving (not the caller's fingerprint), so freshness spam can't evict the caches.
+  const [cachedForecast, cachedWarning] = await Promise.all([
+    forecasts.getForecast(center, zone.zone.id),
+    warnings.getWarning(center, zone.zone.id),
+  ])
+
+  if (productFingerprint(cachedForecast) !== productFingerprint(freshForecast)) {
     revalidateTag(forecastCacheTag(center, zone.zone.id))
-    const weatherProductId = fresh.weather_data?.weather_product_id
+    const weatherProductId = freshForecast.weather_data?.weather_product_id
     if (weatherProductId) revalidateTag(weatherCacheTag(weatherProductId))
   }
 
-  // Refresh decision — is what THIS viewer rendered stale relative to the fresh product?
-  return fingerprint === freshEtag ? unchangedResponse() : changedResponse(freshEtag)
+  // An alert that has gone missing is indistinguishable from a failed lookup for that zone, so
+  // trust neither: hold the cached alert in the comparison and change nothing.
+  const warningVanished = freshWarning === null && cachedWarning !== null
+  const trustedWarning = warningVanished ? cachedWarning : freshWarning
+
+  if (!warningVanished && productFingerprint(cachedWarning) !== productFingerprint(freshWarning)) {
+    revalidateTag(warningCacheTag(center, zone.zone.id))
+  }
+
+  // Refresh decision — is what THIS viewer rendered stale relative to the fresh page?
+  const freshEtag = forecastPageFingerprint(freshForecast, trustedWarning)
+  if (fingerprint !== freshEtag) return changedResponse(freshEtag)
+
+  // Current under our trusted view — but an unconfirmed warning must not be cached as current.
+  return warningVanished ? indeterminateResponse() : unchangedResponse()
 }
