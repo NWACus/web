@@ -143,12 +143,12 @@ sig = "2433d2218a295ca5"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route.ts"
-sig = "8f4f55c34fe51e92"
+sig = "256f2726bc04a27c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/warning-freshness/[fingerprint]/route.ts"
-sig = "948a05377469fa9c"
+sig = "0be2f6a4ddbad721"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -209,6 +209,11 @@ sig = "b97eccce2fe2f8d5"
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/sources/types.ts"
 sig = "003ff75b0e6ac502"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/utilities/cooldown.ts"
+sig = "7f33707ac24bf998"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
