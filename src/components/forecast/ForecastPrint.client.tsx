@@ -204,14 +204,27 @@ function PrintMasthead({ centerName, centerUrl }: { centerName: string; centerUr
   }, [])
 
   return (
-    // A fixed narrow column with a hard word break, rather than letting the URL size the box: a
-    // browser that lays print out at the device viewport instead of the paper box (iOS Safari)
-    // would otherwise let one long URL push the QR off the right edge.
-    <div className="hidden print:flex print:w-[150px] print:flex-col print:items-end print:gap-2">
+    // A fixed column rather than letting the URL size the box: a browser that lays print out at the
+    // device viewport instead of the paper box (iOS Safari) would otherwise let one long URL push
+    // the QR off the right edge. `break-words` keeps that guarantee — a token too long for the
+    // column still breaks — without `break-all`'s habit of splitting every word that reaches the
+    // edge, which turned "NORTHWEST AVALANCHE CENTER" into "...AVALANCHE CE / NTER".
+    <div className="hidden print:flex print:w-[180px] print:flex-col print:items-end print:gap-2">
       {pageUrl && <QRCodeSVG value={pageUrl} size={100} level="H" />}
-      <p className="w-full break-all text-right text-[10px] font-semibold uppercase leading-tight tracking-wide text-muted-foreground">
-        {centerName} - {centerUrl}
-      </p>
+      <div className="w-full break-words text-right text-[10px] leading-tight text-muted-foreground">
+        <p className="font-semibold uppercase tracking-wide">{centerName}</p>
+        {/* Name and URL on separate lines, so the wrap point is a line break we chose rather than
+            wherever the two happened to collide. The URL keeps its own case — uppercasing a host
+            makes it ~30% wider for no gain — and drops the scheme and trailing slash, which are
+            the longest part of it and the part a reader typing it back in would skip anyway. */}
+        <p>{displayUrl(centerUrl)}</p>
+      </div>
     </div>
   )
+}
+
+/** `https://www.nwac.us/` → `www.nwac.us`. Leaves anything that isn't a plain http(s) URL alone. */
+function displayUrl(url: string): string {
+  // Strip a leading http:// or https:// and any trailing slashes.
+  return url.replace(/^https?:\/\//i, '').replace(/\/+$/, '')
 }
