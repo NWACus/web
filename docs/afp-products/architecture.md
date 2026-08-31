@@ -130,7 +130,7 @@ Layout variants ride on the same separation. The decided approach is an in-code 
 
 - **Mappers, unit-tested.** Pure wire→model functions. Where v2/v3 equivalence gets proven.
 - **Freshness and validity logic, unit-tested.** Pure functions over a model.
-- **Pages, end-to-end.** The pages are server components, so browser-level request interception cannot see their fetches — Playwright's `route` is blind here. The seam is **MSW intercepting at the Node network layer**, with Playwright driving the browser.
+- **Pages, end-to-end.** The pages are server components, so browser-level request interception cannot see their fetches — Playwright's `route` is blind here. The seam is **MSW intercepting at the Node network layer**, with Playwright driving the browser. Built and documented in [e2e-mocks.md](e2e-mocks.md). One thing worth knowing before touching it: MSW cannot be started from `instrumentation.ts`, because Next skips that hook during a production build — so the mocks are loaded by a `NODE_OPTIONS --import` preload, which is what lets the suite assert against prerendered output rather than a dev render.
 - **The contract, upstream.** AvyWeb's wire schema is vendored into the AFP's own parity harness so consumer-breaking drift fails _their_ build, not our readers' pages. Inventory row X11.
 
 Assert what a page renders for a given fixture — danger, problems, bottom line, banner, freshness behavior, flag behavior. Not adapter internals.
@@ -140,6 +140,8 @@ Assert what a page renders for a given fixture — danger, problems, bottom line
 Two tiers, deliberately not one corpus.
 
 **v2-sourced products** (forecasts, warnings, map, media) — the AFP's products-api already owns a golden corpus of real, PII-scrubbed v2 responses, with capture, drift-check and scrub tooling around it, because _the producer has a v2→v3 parity obligation_. Consumer-needed shape variants get added there as new cases. **Extend it; do not fork it.**
+
+That corpus is vendored into this repo under `__tests__/e2e/mocks/afp-golden/` with a source commit and a sha256 per file, pending an npm package published from products-api CI. Responses the corpus does not cover yet are captured into a separate `provisional/` staging area, each one blocking a named test and carrying the upstream Case that retires it. What is still missing, and what it costs us, is tabulated in [e2e-mocks.md](e2e-mocks.md).
 
 **Observations** — the observation API has no v2→v3 migration, so there is no parity concern and no corpus. What the tests need is ordinary MSW mocks recorded next to the tests that use them. Do not build a corpus here. Observation records carry observer names and emails, so scrub fixtures even though they are local.
 

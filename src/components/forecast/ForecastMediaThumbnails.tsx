@@ -27,6 +27,9 @@ export function ForecastMediaThumbnails({ media }: ForecastMediaThumbnailsProps)
             <button
               key={idx}
               type="button"
+              // The only content is a decorative <img alt="">, so without this the button has no
+              // accessible name at all.
+              aria-label={`Open media ${idx + 1} of ${items.length}`}
               onClick={() => {
                 setLightboxIndex(idx)
                 setLightboxOpen(true)

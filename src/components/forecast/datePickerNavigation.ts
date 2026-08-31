@@ -86,7 +86,9 @@ export async function fetchArchiveMonth(
 ): Promise<ForecastArchiveDate[] | null> {
   try {
     const res = await fetch(
-      `/api/${center}/forecast-archive?zone=${zoneSlug}&from=${from}&to=${to}`,
+      // Encoded because the slug carries a literal `&` for zones whose name contains one,
+      // which would otherwise end the query parameter early.
+      `/api/${center}/forecast-archive?zone=${encodeURIComponent(zoneSlug)}&from=${from}&to=${to}`,
     )
     if (!res.ok) return null
     const body: { dates?: ForecastArchiveDate[] } = await res.json()
