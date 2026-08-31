@@ -1,8 +1,17 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { ZONE, loadPage, stubExternalAssets, tenant, zoneSlug } from './helpers'
 
 const FRESHNESS_URL = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.freshness)}`
 const STABLE_URL = `${tenant('snfac')}/forecasts/avalanche/${zoneSlug(ZONE.forecast)}`
+
+/**
+ * Must be armed *before* navigating: RevalidateOnView fires on mount, and hydration can finish
+ * before `page.goto` returns — a wait registered afterwards would miss that first check outright.
+ * (It also re-checks on visibility and on an interval, but neither fires inside a spec.)
+ */
+function armFreshnessCheck(page: Page) {
+  return page.waitForResponse((r) => r.url().includes('forecast-freshness'))
+}
 
 /**
  * Inventory row X5 — a corrected or withdrawn forecast reaches readers immediately.
@@ -32,10 +41,7 @@ test.describe('Revalidate on view', () => {
    */
   test('a correction reaches the reader without a reload', async ({ page }) => {
     await stubExternalAssets(page)
-    // Armed before navigating: RevalidateOnView fires on mount, and hydration can finish before
-    // `page.goto` returns — a wait registered afterwards would miss that first check outright.
-    // (It also re-checks on visibility and on a slow interval, but neither fires inside a spec.)
-    const freshnessCheck = page.waitForResponse((r) => r.url().includes('forecast-freshness'))
+    const freshnessCheck = armFreshnessCheck(page)
     await loadPage(page, FRESHNESS_URL)
 
     // The prerendered page carries the build-phase product.
@@ -50,8 +56,7 @@ test.describe('Revalidate on view', () => {
 
   test('an unchanged product reports no change and leaves the page alone', async ({ page }) => {
     await stubExternalAssets(page)
-    // Armed before navigating, for the same reason as above.
-    const freshnessCheck = page.waitForResponse((r) => r.url().includes('forecast-freshness'))
+    const freshnessCheck = armFreshnessCheck(page)
     await loadPage(page, STABLE_URL)
 
     const response = await freshnessCheck

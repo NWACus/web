@@ -4,9 +4,15 @@
 // `warning-freshness`, `danger-map` and `og` routes carry the same waiver.
 // fallow-ignore-file dynamic-segment-name-conflicts
 import { forecastPageFingerprint, productFingerprint } from '@/services/nac/forecastFingerprint'
+import type { ForecastResult, WarningProduct } from '@/services/nac/model/forecast'
 import { forecastCacheTag, warningCacheTag, weatherCacheTag } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { getForecastSource, getWarningSource } from '@/services/nac/sources'
+import {
+  getForecastSource,
+  getWarningSource,
+  type ForecastSource,
+  type WarningSource,
+} from '@/services/nac/sources'
 import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
 import {
   changedResponse,
@@ -15,6 +21,7 @@ import {
   malformedFingerprintResponse,
   unchangedResponse,
 } from '@/utilities/freshnessResponses'
+import { reportIndeterminate } from '@/utilities/freshnessTelemetry'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
@@ -32,6 +39,56 @@ import { NextResponse } from 'next/server'
  * confirm edge caching with `x-vercel-cache: MISS → HIT`, never by reading the header.
  */
 export const dynamic = 'force-dynamic'
+
+/** The address a page with nothing published asks about — see the `!freshForecast` branch below. */
+const NOTHING_PUBLISHED = forecastPageFingerprint(null, null)
+
+/**
+ * Purge decision, decided per product and entirely server-side: each fresh product is compared to
+ * what the shared cache is actually serving, never to the caller's fingerprint, so freshness spam
+ * cannot evict the caches. Per product rather than per page, so a warning-only change costs no
+ * upstream forecast re-fetch; a changed forecast additionally purges the weather product it points
+ * at, so a refresh renders the two together.
+ *
+ * Also settles which warning the answer is built from. An alert that has gone missing upstream is
+ * indistinguishable from a failed lookup for that zone, so neither is trusted: the cached alert is
+ * held instead and nothing is purged. The caller needs `warningVanished` because an unconfirmed
+ * warning state must not be parked at the edge as "you're current".
+ */
+async function reconcileCaches({
+  center,
+  zoneId,
+  forecasts,
+  warnings,
+  freshForecast,
+  freshWarning,
+}: {
+  center: string
+  zoneId: number
+  forecasts: ForecastSource
+  warnings: WarningSource
+  freshForecast: ForecastResult
+  freshWarning: WarningProduct | null
+}): Promise<{ trustedWarning: WarningProduct | null; warningVanished: boolean }> {
+  const [cachedForecast, cachedWarning] = await Promise.all([
+    forecasts.getForecast(center, zoneId),
+    warnings.getWarning(center, zoneId),
+  ])
+
+  if (productFingerprint(cachedForecast) !== productFingerprint(freshForecast)) {
+    revalidateTag(forecastCacheTag(center, zoneId))
+    const weatherProductId = freshForecast.weather_data?.weather_product_id
+    if (weatherProductId) revalidateTag(weatherCacheTag(weatherProductId))
+  }
+
+  const warningVanished = freshWarning === null && cachedWarning !== null
+
+  if (!warningVanished && productFingerprint(cachedWarning) !== productFingerprint(freshWarning)) {
+    revalidateTag(warningCacheTag(center, zoneId))
+  }
+
+  return { trustedWarning: warningVanished ? cachedWarning : freshWarning, warningVanished }
+}
 
 /**
  * Revalidate-on-view freshness check (safety-critical). The viewer's page renders with a
@@ -90,7 +147,10 @@ export async function GET(
   // retried by the next viewer. Left uncaught it was an unhandled 500, the one answer this route's
   // cache policy does not cover.
   const zone = await resolveZoneFromSlug(center, zoneSlug).catch(() => undefined)
-  if (zone === undefined) return indeterminateResponse()
+  if (zone === undefined) {
+    reportIndeterminate('zones-unreachable', center)
+    return indeterminateResponse()
+  }
   if (zone === null) {
     return NextResponse.json({ error: 'Zone not found' }, { status: 404, headers: NO_STORE })
   }
@@ -105,34 +165,31 @@ export async function GET(
 
   // No fresh forecast: do NOT purge anything — leave the last-known-good page in place and let the
   // ISR window back it up.
-  if (!freshForecast) return indeterminateResponse()
-
-  // Purge decisions — server-authoritative: compare each fresh product to what the shared cache is
-  // actually serving (not the caller's fingerprint), so freshness spam can't evict the caches.
-  const [cachedForecast, cachedWarning] = await Promise.all([
-    forecasts.getForecast(center, zone.zone.id),
-    warnings.getWarning(center, zone.zone.id),
-  ])
-
-  if (productFingerprint(cachedForecast) !== productFingerprint(freshForecast)) {
-    revalidateTag(forecastCacheTag(center, zone.zone.id))
-    const weatherProductId = freshForecast.weather_data?.weather_product_id
-    if (weatherProductId) revalidateTag(weatherCacheTag(weatherProductId))
+  if (!freshForecast) {
+    // Worth reporting only when it is a failure. "None published" and "we could not fetch it" are
+    // the same null here, and the benign form has a tell: a page that also had nothing is asking
+    // about the absent-product address, which an off-season zone does on every view all season.
+    // A page that rendered a product and can no longer have it confirmed is the other thing.
+    if (fingerprint !== NOTHING_PUBLISHED) reportIndeterminate('no-fresh-forecast', center)
+    return indeterminateResponse()
   }
 
-  // An alert that has gone missing is indistinguishable from a failed lookup for that zone, so
-  // trust neither: hold the cached alert in the comparison and change nothing.
-  const warningVanished = freshWarning === null && cachedWarning !== null
-  const trustedWarning = warningVanished ? cachedWarning : freshWarning
-
-  if (!warningVanished && productFingerprint(cachedWarning) !== productFingerprint(freshWarning)) {
-    revalidateTag(warningCacheTag(center, zone.zone.id))
-  }
+  const { trustedWarning, warningVanished } = await reconcileCaches({
+    center,
+    zoneId: zone.zone.id,
+    forecasts,
+    warnings,
+    freshForecast,
+    freshWarning,
+  })
 
   // Refresh decision — is what THIS viewer rendered stale relative to the fresh page?
   const freshEtag = forecastPageFingerprint(freshForecast, trustedWarning)
   if (fingerprint !== freshEtag) return changedResponse(freshEtag)
 
   // Current under our trusted view — but an unconfirmed warning must not be cached as current.
-  return warningVanished ? indeterminateResponse() : unchangedResponse()
+  if (!warningVanished) return unchangedResponse()
+
+  reportIndeterminate('warning-vanished', center)
+  return indeterminateResponse()
 }
