@@ -26,13 +26,13 @@ test.describe('Media lightbox', () => {
     const dialog = page.getByRole('dialog', { name: 'Media viewer' })
     await clickUntil(page.getByRole('button', { name: 'Open media 1 of 4' }), dialog)
 
-    await dialog.getByRole('button', { name: 'Next slide' }).click()
+    await dialog.getByRole('button', { name: 'Next' }).click()
     await expect(dialog.getByText('2 / 4')).toBeVisible()
 
-    await dialog.getByRole('button', { name: 'Next slide' }).click()
+    await dialog.getByRole('button', { name: 'Next' }).click()
     await expect(dialog.getByText('3 / 4')).toBeVisible()
 
-    await dialog.getByRole('button', { name: 'Previous slide' }).click()
+    await dialog.getByRole('button', { name: 'Previous' }).click()
     await expect(dialog.getByText('2 / 4')).toBeVisible()
   })
 
