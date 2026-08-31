@@ -148,7 +148,7 @@ sig = "2f6941731c97ccaa"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/print.css"
-sig = "29264cae798620e7"
+sig = "4501c88c58e42752"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -163,7 +163,7 @@ sig = "afa29bc8184dea8e"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ForecastPrint.client.tsx"
-sig = "6890512abefbb55e"
+sig = "52a857e9165267e8"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

@@ -40,6 +40,23 @@
     display: none !important;
   }
 
+  /* Card padding is sized for a screen, where a card floats in a scroll; on paper it sits inside
+     a page margin that already gives it air. Trimming a third off each card is worth roughly a
+     page-eighth per card, which is the difference between the danger scale clearing the first
+     page boundary and being stranded at the top of the second. */
+  html[data-print-sections] [data-slot='card-header'],
+  html[data-print-sections] [data-slot='card-content'],
+  html[data-print-sections] [data-slot='card-footer'] {
+    padding: 1rem;
+  }
+  html[data-print-sections] [data-slot='card-header'] {
+    padding-bottom: 0.5rem;
+  }
+  html[data-print-sections] [data-slot='card-content'],
+  html[data-print-sections] [data-slot='card-footer'] {
+    padding-top: 0;
+  }
+
   /* The container's responsive gutters are dead weight next to a physical page margin, and the
      full-viewport minimum heights the screen layout uses would each claim a whole sheet. */
   html[data-print-sections] .container {
@@ -52,11 +69,14 @@
     min-height: 0;
   }
 
-  /* Keep a card, a danger row or a table row off a page boundary where we can. Problems get the
-     strongest treatment: splitting a rose diagram from its likelihood and size makes the card
-     unreadable. The legacy widget forced a hard page break after every problem, which wasted a
-     lot of paper; avoiding the split gets the same readability without the blank space. */
-  html[data-print-sections] [data-print-section='problems'] > * {
+  /* Keep a card, a danger row or a table row off a page boundary where we can. Cards get the
+     strongest treatment: splitting a rose diagram from its likelihood and size, or the danger
+     scale's color strip from the ratings it decodes, makes the card unreadable. Each card is well
+     under a page tall, so the browser can always honor this. The legacy widget forced a hard page
+     break after every problem, which wasted a lot of paper; avoiding the split gets the same
+     readability without the blank space. */
+  html[data-print-sections] [data-print-section='problems'] > *,
+  html[data-print-sections] [data-print-section='bottomLine'] > * {
     break-inside: avoid;
   }
   html[data-print-sections] figure,

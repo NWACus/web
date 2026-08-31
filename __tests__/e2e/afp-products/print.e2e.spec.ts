@@ -268,6 +268,39 @@ test.describe('Printing a forecast', () => {
     expect((await today.boundingBox())?.y).toBe((await tomorrow.boundingBox())?.y)
   })
 
+  test('forbids a page boundary from cutting through a card', async ({ page }) => {
+    await loadPage(page, FORECAST_URL)
+
+    const cards = page.locator('[data-print-section="bottomLine"] > *')
+    await expect(cards).not.toHaveCount(0)
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+
+    // The defect: the danger scale's color strip printed at the top of the sheet after the ratings
+    // it decodes. Asserted as the computed property rather than by reading page assignments out of
+    // a PDF — *where* the break lands is a function of how long the forecaster wrote, but whether
+    // the browser may break here at all is not, and that is the part worth pinning.
+    for (const card of await cards.all()) {
+      await expect(card).toHaveCSS('break-inside', 'avoid')
+    }
+  })
+
+  test('gives a card tighter padding on paper than on screen', async ({ page }) => {
+    await loadPage(page, FORECAST_URL)
+
+    // print.css reaches every card through the `data-slot` hooks on the Card primitive. Worth about
+    // a page-eighth per card, which is what keeps the danger card inside the first sheet — so a
+    // rename of those hooks has to fail here rather than quietly cost a sheet of paper.
+    const cardContent = page.locator('[data-print-section="bottomLine"] [data-slot="card-content"]')
+    await expect(cardContent.first()).toHaveCSS('padding-bottom', '24px')
+
+    await printWith(page)
+    await page.emulateMedia({ media: 'print' })
+
+    await expect(cardContent.first()).toHaveCSS('padding-bottom', '16px')
+  })
+
   test('lays the printed page out the same from a phone and from a desktop', async ({
     page,
     headless,

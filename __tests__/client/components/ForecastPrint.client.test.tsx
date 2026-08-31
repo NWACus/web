@@ -133,6 +133,15 @@ describe('ForecastPrint', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
+  it('credits the center on the print masthead, the URL stripped to what a reader would retype', () => {
+    renderPrint()
+
+    expect(screen.getByText('Northwest Avalanche Center')).toBeInTheDocument()
+    // The scheme and trailing slash are the longest part of the URL and the part nobody types.
+    // Dropping them is what keeps it on one line in the masthead's narrow column.
+    expect(screen.getByText('nwac.us')).toBeInTheDocument()
+  })
+
   it('reports the print and which sections went with it', () => {
     renderPrint()
     openModal()
