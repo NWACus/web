@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "entry": ["scripts/e2e/msw-preload.mjs"],
   "ignorePatterns": [
     "src/payload-types.ts",
     "src/migrations/**",
@@ -40,6 +41,14 @@
     {
       "file": "src/collections/Roles/index.ts",
       "exports": ["*"]
+    },
+    {
+      "file": "src/services/nac/model/**",
+      "exports": ["*"]
+    },
+    {
+      "file": "src/services/nac/types/forecastSchemas.ts",
+      "exports": ["*"]
     }
   ],
   "rules": {
@@ -51,5 +60,8 @@
     "unlisted-dependencies": "error",
     "circular-dependencies": "warn",
     "duplicate-exports": "warn"
+  },
+  "health": {
+    "ignore": ["scripts/e2e/**", "__tests__/e2e/**"]
   }
 }

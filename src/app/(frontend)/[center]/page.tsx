@@ -3,33 +3,20 @@ import { getPayload } from 'payload'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import HighlightedContent from '@/collections/HomePages/components/HighlightedContent'
-import { NACWidget } from '@/components/NACWidget'
 import QuickLinkButton from '@/components/QuickLinkButton'
-import { getAvalancheCenterMetadata } from '@/services/nac/nac'
+import { HomeDangerMap } from '@/components/dangerMap/HomeDangerMap'
+import { HomeWarnings } from '@/components/warnings/HomeWarnings'
+import { centerStaticParams } from '@/utilities/centerRoutePage'
 import { getCachedHomePage } from '@/utilities/getCachedHomePage'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
-import invariant from 'tiny-invariant'
 
 export const dynamic = 'force-static'
 export const revalidate = 3600 // Next.js requires a static literal here
 export const dynamicParams = true
 
-const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
-
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const tenants = await payload.find({
-    collection: 'tenants',
-    limit: 1000,
-    select: {
-      slug: true,
-    },
-  })
-
-  return tenants.docs.map((tenant): PathArgs => ({ center: tenant.slug }))
-}
+export const generateStaticParams = centerStaticParams
 
 type Args = {
   params: Promise<PathArgs>
@@ -50,42 +37,13 @@ export default async function Page({ params }: Args) {
   const { quickLinks, highlightedContent, layout } =
     (await getCachedHomePage(center, draft)()) ?? {}
 
-  const metadata = await getAvalancheCenterMetadata(center)
-  invariant(metadata, 'Could not determine avalanche center metadata')
-
-  const configuredMapHeight = metadata.widget_config?.danger_map?.height
-
-  let parsedConfiguredMapHeight: number | null = null
-
-  if (configuredMapHeight) {
-    if (typeof configuredMapHeight === 'number') {
-      parsedConfiguredMapHeight = configuredMapHeight
-    } else {
-      try {
-        parsedConfiguredMapHeight = parseInt(configuredMapHeight)
-      } catch (err) {
-        payload.logger.error(
-          err,
-          'Failed to determine map height from AFP danger map configuration',
-        )
-      }
-    }
-  }
-
   return (
     <>
-      <NACWidget center={center} widget="warnings" />
+      <HomeWarnings centerSlug={center} />
       <div className="py-4 md:py-6 flex flex-col gap-8 md:gap-14">
         <div className="container flex flex-col md:flex-row gap-4 md:gap-8">
-          <div
-            className="w-full"
-            style={{
-              minHeight: parsedConfiguredMapHeight
-                ? parsedConfiguredMapHeight + HEIGHT_OF_DANGER_SCALE_GRAPHIC
-                : undefined,
-            }}
-          >
-            <NACWidget center={center} widget="map" />
+          <div className="w-full">
+            <HomeDangerMap centerSlug={center} />
           </div>
           {quickLinks && quickLinks.length > 0 && (
             <div className="flex flex-col gap-4">

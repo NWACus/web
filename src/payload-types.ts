@@ -3009,6 +3009,23 @@ export interface Setting {
    */
   banner: number | Media;
   usfsLogo?: (number | null) | Media;
+  /**
+   * When enabled, these products render natively as Next.js pages on this site’s design system instead of the embedded NAC widget. Toggle per product for incremental rollout with instant rollback.
+   */
+  nativeProducts?: {
+    /**
+     * Render the avalanche forecast page natively.
+     */
+    forecast?: boolean | null;
+    /**
+     * Render warning/watch/special bulletins natively: the center-wide alert banner on the home page, and the per-zone banner on the native forecast page.
+     */
+    warning?: boolean | null;
+    /**
+     * Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.
+     */
+    dangerMap?: boolean | null;
+  };
   socialMedia?: {
     instagram?: string | null;
     facebook?: string | null;
@@ -4809,6 +4826,13 @@ export interface SettingsSelect<T extends boolean = true> {
   icon?: T;
   banner?: T;
   usfsLogo?: T;
+  nativeProducts?:
+    | T
+    | {
+        forecast?: T;
+        warning?: T;
+        dangerMap?: T;
+      };
   socialMedia?:
     | T
     | {

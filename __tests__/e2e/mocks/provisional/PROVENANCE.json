@@ -1,0 +1,25 @@
+{
+  "readme": "Captured here because the products-api golden corpus does not cover these yet. Each is blocking a listed E2E path and has an upstream Case filed; when the Case lands, sync the golden and delete the file here. See scripts/e2e/capture-provisional.mjs.",
+  "source": {
+    "host": "https://api.avalanche.org",
+    "scrubPolicy": "products-api api/tests/migration_parity/golden/SCRUB_POLICY.md"
+  },
+  "files": [
+    {
+      "file": "v2_public_center_NWAC.json",
+      "path": "/v2/public/avalanche-center/NWAC",
+      "upstreamCase": "center_NWAC",
+      "blocks": "Every DVAC page. dvac aliases to nwac upstream, and getAvalancheCenterMetadata throws on a missing/unparseable response, so generateStaticParams fails the whole build without this.",
+      "url": "https://api.avalanche.org/v2/public/avalanche-center/NWAC",
+      "capturedAt": "2026-08-23"
+    },
+    {
+      "file": "v2_public_center_SAC.json",
+      "path": "/v2/public/avalanche-center/SAC",
+      "upstreamCase": "center_SAC",
+      "blocks": "Every SAC page. SAC is the widget-mode control tenant in the native-vs-widget spec, and its layout needs center metadata to render at all.",
+      "url": "https://api.avalanche.org/v2/public/avalanche-center/SAC",
+      "capturedAt": "2026-08-23"
+    }
+  ]
+}
