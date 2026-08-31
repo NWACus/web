@@ -168,12 +168,17 @@ sig = "3901fda9b0ddf4b1"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ExpiryNotice.client.tsx"
-sig = "b4436dc748ffd920"
+sig = "eabf95d9301e0ca5"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/NativeForecastPage.tsx"
 sig = "1f8b22caf7968ffc"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/ProductExpiry.tsx"
+sig = "e7ced064bdd93343"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
