@@ -16,6 +16,7 @@ import {
 } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
 import { getForecastSource, getWeatherSource } from '@/services/nac/sources'
+import { zoneSlugFromParam } from '@/services/nac/zoneSlug'
 import { formatZoneName } from '@/utilities/formatZoneName'
 import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { format, parseISO } from 'date-fns'
@@ -85,7 +86,8 @@ function liveProductDate(
 }
 
 export default async function Page({ params }: Args) {
-  const { center, zone, date } = await params
+  const { center, zone: zoneParam, date } = await params
+  const zone = zoneSlugFromParam(zoneParam)
 
   await assertDatedForecastAvailable(center, date)
 
@@ -145,7 +147,8 @@ export default async function Page({ params }: Args) {
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { zone, date } = await params
+  const { zone: zoneParam, date } = await params
+  const zone = zoneSlugFromParam(zoneParam)
 
   const zoneName = formatZoneName(zone)
   const dateLabel = DATE_PATTERN.test(date) ? format(parseISO(date), 'MMMM d, yyyy') : date
