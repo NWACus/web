@@ -9,14 +9,15 @@
  * representation in the v2 model, so it is not surfaced.
  *
  * The archived notice is settled at render time, but expiry is not: it turns over on the clock
- * alone, so it is decided here and then kept honest client-side by `ExpiryNotice`.
+ * alone, so it is delegated to `ProductExpiry`, which decides the server's answer and hands it to
+ * `ExpiryNotice` to keep honest.
  */
 import { History } from 'lucide-react'
 import Link from 'next/link'
 
 import type { ForecastResult } from '@/services/nac/model/forecast'
 
-import { ExpiryNotice } from './ExpiryNotice.client'
+import { ProductExpiry } from './ProductExpiry'
 
 interface ValidityBannerProps {
   forecast: Pick<ForecastResult, 'expires_time'>
@@ -46,14 +47,7 @@ export function ValidityBanner({ forecast, selectedDate, basePath }: ValidityBan
     )
   }
 
-  // Live view: has the current product's validity window passed? A product with no expiry never
-  // lapses, so there is nothing for the client to watch for.
-  if (forecast.expires_time == null) return null
-
-  return (
-    <ExpiryNotice
-      expiresTime={forecast.expires_time}
-      initiallyExpired={Date.now() > new Date(forecast.expires_time).getTime()}
-    />
-  )
+  // Live view: has the current product's validity window passed? Decided on the server and then
+  // kept honest client-side, since it turns over on the clock alone.
+  return <ProductExpiry forecast={forecast} />
 }
