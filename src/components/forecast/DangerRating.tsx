@@ -55,7 +55,7 @@ export function DangerRating({
       <CardHeader>
         <CardTitle>Avalanche Danger</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 print:space-y-4">
         <DangerDayColumns
           today={today}
           tomorrow={tomorrow}

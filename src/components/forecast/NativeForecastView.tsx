@@ -70,7 +70,10 @@ export function NativeForecastView({
   weather,
 }: NativeForecastViewProps) {
   return (
-    <div className="container space-y-6 py-6">
+    // `print:py-0` / `print:space-y-4`: the @page margin already frames the sheet, and screen
+    // rhythm costs about three quarters of an inch before the bottom line — enough to decide
+    // whether the danger card clears the first page boundary. See print.css.
+    <div className="container space-y-6 py-6 print:space-y-4 print:py-0">
       <ForecastTitleRow
         center={center}
         zone={zone}
@@ -95,7 +98,7 @@ export function NativeForecastView({
 
       {/* `data-print-section` marks what the print dialog's checkboxes toggle; the print
           stylesheet in print.css hides any section the reader left unchecked. */}
-      <div data-print-section="bottomLine" className="space-y-6">
+      <div data-print-section="bottomLine" className="space-y-6 print:space-y-4">
         <ForecastLead
           forecastResult={forecastResult}
           elevationBandNames={zone.zone.config.elevation_band_names}

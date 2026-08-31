@@ -15,7 +15,9 @@ export function ForecastDisclaimer({ centerType, centerName }: ForecastDisclaime
   const provider = centerType === AvalancheCenterType.USFS ? 'U.S.D.A. Forest Service' : centerName
 
   return (
-    <p className="py-6 text-center text-sm text-muted-foreground">
+    // On paper this is a footnote, not body copy: set small and tight, it fits in the slack at
+    // the foot of the last content page instead of claiming a sheet of its own.
+    <p className="py-6 text-center text-sm text-muted-foreground print:py-1 print:text-xs">
       This information is provided by the {provider} and describes general backcountry avalanche
       hazard and conditions.{' '}
       {/* afp breaks the second sentence onto its own line on desktop, inline on mobile. */}
