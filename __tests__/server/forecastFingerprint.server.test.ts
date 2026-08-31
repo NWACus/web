@@ -103,12 +103,32 @@ describe('forecastFreshnessEndpoint', () => {
   it('is the same address whichever page asks about a zone', () => {
     // The all-zones grid and the zone page render the same product pair, so they must produce the
     // same URL — that shared address is what lets the grid ride the zone page's edge cache entry
-    // instead of opening a key of its own.
-    expect(forecastFreshnessEndpoint('nwac', ZONE, base, warning)).toBe(
-      forecastFreshnessEndpoint('nwac', ZONE, base, warning),
+    // instead of opening a key of its own. The two products here are parsed and mapped separately,
+    // as the two pages' own fetches would be: passing the *same* object twice would assert nothing
+    // beyond the function being a function.
+    const asTheGridSawIt = mapV2ForecastResult(forecastResultSchema.parse(nwacForecastActive))
+    const asTheZonePageSawIt = mapV2ForecastResult(forecastResultSchema.parse(nwacForecastActive))
+
+    expect(
+      forecastFreshnessEndpoint('nwac', ZONE, asTheGridSawIt, warningFixture(ProductType.Warning)),
+    ).toBe(
+      forecastFreshnessEndpoint(
+        'nwac',
+        ZONE,
+        asTheZonePageSawIt,
+        warningFixture(ProductType.Warning),
+      ),
     )
+  })
+
+  it('is a different address once one of the two products moves', () => {
+    // Otherwise the grid and the zone page would share a cache entry across a publish, and the
+    // "you're current" answer would outlive the render it was true of.
     expect(forecastFreshnessEndpoint('nwac', ZONE, base, warning)).not.toBe(
       forecastFreshnessEndpoint('nwac', ZONE, base, null),
+    )
+    expect(forecastFreshnessEndpoint('nwac', ZONE, base, null)).not.toBe(
+      forecastFreshnessEndpoint('nwac', ZONE, { ...base, bottom_line: 'CORRECTED' }, null),
     )
   })
 })
