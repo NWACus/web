@@ -12,7 +12,8 @@ const ENDPOINT = '/api/nwac/forecast-freshness/west-slopes-north/' + 'a'.repeat(
 /** Two more zones, as the all-zones grid would supply alongside the first. */
 const NEIGHBOURS = ['b', 'c'].map((c) => `/api/nwac/forecast-freshness/zone-${c}/` + c.repeat(40))
 const GRID = [ENDPOINT, ...NEIGHBOURS]
-const RECHECK_INTERVAL_MS = 5 * 60 * 1000
+const RECHECK_INTERVAL_MS = 2 * 60 * 1000
+const MIN_CHECK_INTERVAL_MS = 30 * 1000
 
 let visibility: DocumentVisibilityState = 'visible'
 let mockFetch: jest.Mock
@@ -29,8 +30,16 @@ function answer(body: unknown, ok = true) {
   return Promise.resolve({ ok, json: () => Promise.resolve(body) })
 }
 
-/** Flip the tab's visibility and dispatch the event the browser would. */
-async function setVisibility(next: DocumentVisibilityState) {
+/**
+ * Flip the tab's visibility and dispatch the event the browser would, having first let enough of
+ * the clock pass that the minimum-gap floor is not what is under test. Pass `0` to flip inside it.
+ */
+async function setVisibility(next: DocumentVisibilityState, afterMs = MIN_CHECK_INTERVAL_MS) {
+  if (afterMs > 0) {
+    await act(async () => {
+      jest.advanceTimersByTime(afterMs)
+    })
+  }
   visibility = next
   await act(async () => {
     document.dispatchEvent(new Event('visibilitychange'))
@@ -171,6 +180,44 @@ describe('RevalidateOnView', () => {
     expect(mockFetch).toHaveBeenCalledTimes(afterFlips + 1)
   })
 
+  it('does not re-check on a visibility flip inside the minimum gap', async () => {
+    // Returning to visibility is the one trigger a viewer fires at will, and on the all-zones grid
+    // each one costs a request per zone. Inside the unchanged answer's edge TTL there is nothing
+    // newer to be told, so suppressing it costs no freshness.
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+
+    for (let i = 0; i < 5; i++) {
+      await setVisibility('hidden', 0)
+      await setVisibility('visible', 0)
+    }
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('re-checks on the next flip once the minimum gap has passed', async () => {
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    await setVisibility('hidden', 0)
+    await setVisibility('visible', MIN_CHECK_INTERVAL_MS)
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('checks on mount however recently the last one ran', async () => {
+    // A remount is a new page: the floor is per-armed-effect, and the mount check is unconditional.
+    const { unmount } = render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+    unmount()
+
+    render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+  })
+
   it('stops checking once unmounted', async () => {
     const { unmount } = render(<RevalidateOnView endpoints={[ENDPOINT]} />)
     await settle()
@@ -182,6 +229,23 @@ describe('RevalidateOnView', () => {
     await settle()
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('aborts an in-flight check on unmount', async () => {
+    // Navigating away mid-check must not land a router.refresh() on the page the viewer moved to.
+    let signal: AbortSignal | undefined
+    mockFetch.mockImplementation((_url: string, init: RequestInit) => {
+      signal = init.signal ?? undefined
+      return new Promise(() => {}) // never settles, so the abort is the only way out
+    })
+
+    const { unmount } = render(<RevalidateOnView endpoints={[ENDPOINT]} />)
+    await settle()
+    expect(signal?.aborted).toBe(false)
+
+    unmount()
+
+    expect(signal?.aborted).toBe(true)
   })
 
   it('re-arms against the new endpoint after the page refreshes', async () => {
