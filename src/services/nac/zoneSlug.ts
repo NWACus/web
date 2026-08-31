@@ -17,6 +17,22 @@ export function zoneSlugFromUrl(url: string): string | undefined {
 }
 
 /**
+ * The zone slug as the zone list spells it, read from a route param.
+ *
+ * Next hands a dynamic path segment percent-encoded, so a zone whose name contains `&` — three of
+ * Sawtooth's four active zones do — arrives as `soldier-%26-wood-river-valley-mtns` and matches
+ * nothing in the zone list, which is built from the center's own zone URLs. Falls back to the raw
+ * value for anything that is not valid percent-encoding, which `decodeURIComponent` would throw on.
+ */
+export function zoneSlugFromParam(param: string): string {
+  try {
+    return decodeURIComponent(param)
+  } catch {
+    return param
+  }
+}
+
+/**
  * The AvyWeb path for a zone, derived from the upstream link.
  *
  * The map layer's `link` points at the avalanche center's *own* website, because the legacy widget
