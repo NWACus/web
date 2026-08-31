@@ -277,4 +277,19 @@ describe('forecast-freshness route', () => {
     expect(res.headers.get('Cache-Control')).toBe('no-store')
     expect(mockGetForecastFresh).not.toHaveBeenCalled()
   })
+
+  it('answers indeterminate, not 500, when the zone list itself is unreachable', async () => {
+    // Resolving the slug is the one upstream call here that throws rather than returning null.
+    // Uncaught it was an unhandled 500 — an answer with no cache policy of its own, on the route
+    // whose whole design is that only one of its answers may be cached.
+    mockResolveZone.mockRejectedValue(new Error('NAC API request failed with status 503'))
+
+    const res = await answer(await check(etag))
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({ changed: false, reason: 'indeterminate' })
+    expect(res.cacheControl).toBe('no-store')
+    expect(mockRevalidateTag).not.toHaveBeenCalled()
+    expect(mockGetForecastFresh).not.toHaveBeenCalled()
+  })
 })

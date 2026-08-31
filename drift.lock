@@ -153,12 +153,12 @@ sig = "2f6941731c97ccaa"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route.ts"
-sig = "8f4f55c34fe51e92"
+sig = "256f2726bc04a27c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/warning-freshness/[fingerprint]/route.ts"
-sig = "948a05377469fa9c"
+sig = "0be2f6a4ddbad721"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -229,6 +229,11 @@ sig = "003ff75b0e6ac502"
 doc = "docs/agents/triage-labels.md"
 target = ".github/workflows/pr-visual-recap.yml"
 sig = "564c0ea050a68e81"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/utilities/cooldown.ts"
+sig = "7f33707ac24bf998"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
