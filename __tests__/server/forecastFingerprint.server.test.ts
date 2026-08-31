@@ -1,4 +1,8 @@
-import { forecastPageFingerprint, productFingerprint } from '@/services/nac/forecastFingerprint'
+import {
+  forecastFreshnessEndpoint,
+  forecastPageFingerprint,
+  productFingerprint,
+} from '@/services/nac/forecastFingerprint'
 import { ProductType } from '@/services/nac/model/forecast'
 import { mapV2ForecastResult } from '@/services/nac/sources/v2/mappers'
 import { forecastResultSchema } from '@/services/nac/types/forecastSchemas'
@@ -66,5 +70,45 @@ describe('productFingerprint', () => {
     expect(productFingerprint(base)).toBe(productFingerprint({ ...base }))
     expect(productFingerprint(warning)).not.toBe(productFingerprint(base))
     expect(productFingerprint(null)).not.toBe(productFingerprint(warning))
+  })
+})
+
+describe('forecastFreshnessEndpoint', () => {
+  const base = mapV2ForecastResult(forecastResultSchema.parse(nwacForecastActive))
+  const ZONE = 'west-slopes-north'
+
+  it('builds the path shape the route matches', () => {
+    expect(forecastFreshnessEndpoint('nwac', ZONE, base, null)).toBe(
+      `/api/nwac/forecast-freshness/${ZONE}/${forecastPageFingerprint(base, null)}`,
+    )
+  })
+
+  it('ends in a segment the route will accept', () => {
+    // The route 400s anything that isn't lowercase sha1 hex before it goes upstream, so a builder
+    // that stopped producing one would lock every viewer out of the check with no test failing.
+    const segments = forecastFreshnessEndpoint('nwac', ZONE, base, warning).split('/')
+
+    expect(isFingerprint(segments[segments.length - 1])).toBe(true)
+  })
+
+  it('encodes the zone slug, and decodes back to it', () => {
+    const awkward = 'mt hood/south'
+    const segments = forecastFreshnessEndpoint('nwac', awkward, base, null).split('/')
+
+    // Encoded, so a slug carrying a slash or a space cannot forge extra path segments.
+    expect(segments).toHaveLength(6)
+    expect(decodeURIComponent(segments[4])).toBe(awkward)
+  })
+
+  it('is the same address whichever page asks about a zone', () => {
+    // The all-zones grid and the zone page render the same product pair, so they must produce the
+    // same URL — that shared address is what lets the grid ride the zone page's edge cache entry
+    // instead of opening a key of its own.
+    expect(forecastFreshnessEndpoint('nwac', ZONE, base, warning)).toBe(
+      forecastFreshnessEndpoint('nwac', ZONE, base, warning),
+    )
+    expect(forecastFreshnessEndpoint('nwac', ZONE, base, warning)).not.toBe(
+      forecastFreshnessEndpoint('nwac', ZONE, base, null),
+    )
   })
 })
