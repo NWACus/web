@@ -46,8 +46,14 @@ export function productFingerprint(product: ForecastResult | WarningProduct | nu
 }
 
 /**
- * The freshness endpoint a page asks about a zone. Tenant-relative, so it is rewritten to the
- * current center the same way every other in-app path is.
+ * The freshness endpoint a page asks about a zone.
+ *
+ * The center is in the path rather than inferred, because `/api` is excluded from the middleware
+ * matcher and so is never rewritten the way an in-app page path is. That exclusion is what makes
+ * the answer cacheable at all: no middleware means no `payload-tenant` `Set-Cookie` on the
+ * response, and Vercel's CDN will not cache a response that carries one.
+ *
+ * The zone slug is encoded, so a slug carrying a `/` cannot forge extra path segments.
  */
 export function forecastFreshnessEndpoint(
   centerSlug: string,
