@@ -27,7 +27,9 @@
  *   alert at all — gates it.
  * - Freshness is an **open-tab** guarantee, not just a page-load one. These pages get left open all
  *   day in patrol rooms, forecast offices and on wall displays, so a tab that has been up for hours
- *   has to keep asking: on every return to visibility, and on a slow interval while visible.
+ *   has to keep asking: on every return to visibility, and on a slow interval while visible. The
+ *   interval is set so that an untouched tab's worst case stays inside the page's own ISR window —
+ *   see `RECHECK_INTERVAL_MS`.
  */
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -35,10 +37,28 @@ import { useEffect } from 'react'
 import type { FreshnessAnswer } from '@/utilities/freshnessResponses'
 
 /**
- * Backstop for a tab that is visible but untouched. Deliberately slow: the visibility trigger
- * covers the common case, and almost every one of these requests is answered from the edge.
+ * Backstop for a tab that is visible but untouched. The visibility trigger covers the common case,
+ * and almost every one of these requests is answered from the edge, so this can stay slow.
+ *
+ * Two minutes rather than five, so that the open-tab guarantee is at least as good as the one this
+ * whole path exists because it thinks is too weak. A check's own detection budget is 60s (30s
+ * upstream fresh-fetch cache + 30s at the edge), so at a five-minute interval an untouched tab's
+ * worst case was ~360s — *longer* than the 300s ISR window. At two minutes it is 180s, comfortably
+ * inside the backstop.
  */
-const RECHECK_INTERVAL_MS = 5 * 60 * 1000
+const RECHECK_INTERVAL_MS = 2 * 60 * 1000
+
+/**
+ * The shortest gap between two checks. Returning to visibility re-checks, and nothing else bounds
+ * how often that fires — a viewer cycling between windows would spend one request per endpoint per
+ * flip, which on the all-zones grid is a dozen.
+ *
+ * Matched to the unchanged answer's edge TTL, because inside that window the edge has nothing newer
+ * to say: a suppressed check costs no freshness at all. It also cannot starve the check, being far
+ * shorter than the interval above — a viewer flipping faster than the floor still gets a check
+ * every 30s, which is more often than the interval would have managed.
+ */
+const MIN_CHECK_INTERVAL_MS = 30 * 1000
 
 /** Not a URL character, so joining on it round-trips any set of endpoints exactly. */
 const KEY_SEPARATOR = '\n'
@@ -62,8 +82,10 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
 
     const controller = new AbortController()
     let interval: ReturnType<typeof setInterval> | undefined
+    let lastCheckAt = 0
 
     function check() {
+      lastCheckAt = Date.now()
       Promise.all(
         urls.map((url) =>
           fetch(url, { signal: controller.signal })
@@ -83,6 +105,12 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
       })
     }
 
+    /** The visibility path, which is the only one a viewer can fire at will. */
+    function checkIfDue() {
+      if (Date.now() - lastCheckAt < MIN_CHECK_INTERVAL_MS) return
+      check()
+    }
+
     function stopInterval() {
       if (interval === undefined) return
       clearInterval(interval)
@@ -100,10 +128,12 @@ export function RevalidateOnView({ endpoints }: RevalidateOnViewProps) {
         stopInterval()
         return
       }
-      check()
+      checkIfDue()
       startInterval()
     }
 
+    // Unconditional, and deliberately not through `checkIfDue`: the mount check is a safety
+    // invariant, not something the floor above gets a say in.
     check()
     if (document.visibilityState !== 'hidden') startInterval()
     document.addEventListener('visibilitychange', onVisibilityChange)
