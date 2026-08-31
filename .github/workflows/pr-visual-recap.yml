@@ -9,7 +9,7 @@ name: PR Visual Recap
 #      immediately, huge PRs pass immediately, and borderline PRs are judged
 #      by Claude Sonnet against the visual-recap "when to use it" criteria.
 #      Adding the `visual-recap` label to a PR forces a recap regardless of
-#      what the gate would decide.
+#      what the gate would decide; the `no-visual-recap` label suppresses one.
 #   2. visual-recap — BuilderIO's reusable workflow runs the recap with
 #      Claude Opus and posts/updates the sticky PR comment.
 #   3. publicize-recap — flips the published plan to public visibility so
@@ -78,13 +78,23 @@ jobs:
               return decide(hasRecap, hasRecap ? 'merged PR with existing recap' : 'merged PR without a recap');
             }
 
-            // Manual override: the `visual-recap` label forces a recap on this
-            // and every subsequent push, bypassing the size heuristics.
+            // Manual overrides: the `visual-recap` label forces a recap and the
+            // `no-visual-recap` label suppresses one, on this and every
+            // subsequent push, bypassing the size heuristics. Both are read from
+            // the PR's current labels rather than the triggering event so they
+            // still apply to later `synchronize` pushes.
             const FORCE_LABEL = 'visual-recap';
+            const SKIP_LABEL = 'no-visual-recap';
             const labelNames = (pr.labels || [])
               .map((l) => (typeof l === 'string' ? l : l?.name))
               .filter(Boolean)
               .map((name) => name.toLowerCase());
+            // Skip wins when both labels are present: adding `no-visual-recap` to
+            // a PR already carrying `visual-recap` is a change of mind, and the
+            // cheaper outcome is the safer one to land on.
+            if (labelNames.includes(SKIP_LABEL)) {
+              return decide(false, `${SKIP_LABEL} label present`);
+            }
             if (context.payload.action === 'labeled') {
               const added = (context.payload.label?.name || '').toLowerCase();
               if (added !== FORCE_LABEL) return decide(false, `label '${added}' is not the ${FORCE_LABEL} force label`);
