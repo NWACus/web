@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Check authorization
         id: auth-check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-encoding: string
@@ -48,7 +48,7 @@ jobs:
 
       - name: Post unauthorized comment
         if: steps.auth-check.outputs.result == 'unauthorized'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
