@@ -1,11 +1,9 @@
 'use client'
 
-import type { Announcement } from '@/payload-types'
 import { useAnnouncementBanners } from '@/providers/AnnouncementBannerProvider'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import RichText from '../RichText'
-import { isExpired } from './isExpired'
 import { scrollAnnouncementsIntoView } from './scrollAnnouncementsIntoView'
 
 const STORAGE_KEY = 'announcement-banners'
@@ -34,17 +32,13 @@ function setStoredState(state: BannerState) {
   }
 }
 
-interface AnnouncementBannersProps {
-  banners: Announcement[]
-}
-
-export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
-  const { collapsed, collapse, expand } = useAnnouncementBanners()
+export function AnnouncementBanners() {
+  // Expiry- and device-filtered banners come from the provider so the banner list
+  // and the count surfaced elsewhere (e.g. the mobile nav badge) stay in lockstep.
+  const { activeBanners, collapsed, collapse, expand } = useAnnouncementBanners()
   const [seenIds, setSeenIds] = useState<number[]>([])
   const contentRef = useRef<HTMLDivElement>(null)
   const [contentHeight, setContentHeight] = useState(0)
-
-  const activeBanners = banners.filter((b) => !isExpired(b))
 
   useEffect(() => {
     if (!contentRef.current) return

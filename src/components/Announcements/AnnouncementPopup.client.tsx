@@ -5,13 +5,12 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import RichText from '../RichText'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
-import { matchesPage, shouldShow } from './announcementUtils'
+import { matchesDevice, matchesPage, shouldShow } from './announcementUtils'
 import { isExpired } from './isExpired'
 
 const STORAGE_KEY_PREFIX = 'announcement-popup-'
 const SESSION_KEY_PREFIX = 'announcement-popup-shown-'
 const POPUP_DELAY_MS = 1000
-const MOBILE_BREAKPOINT = 768
 
 interface PopupState {
   dismissed: boolean
@@ -51,18 +50,6 @@ function markSessionShown(id: number) {
   } catch {
     // Ignore storage errors
   }
-}
-
-function isMobile(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.innerWidth < MOBILE_BREAKPOINT
-}
-
-function matchesDevice(target: Announcement['deviceTarget']): boolean {
-  if (!target || target === 'all') return true
-  if (target === 'mobile_only') return isMobile()
-  if (target === 'desktop_only') return !isMobile()
-  return true
 }
 
 interface AnnouncementPopupProps {
