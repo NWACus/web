@@ -1,4 +1,8 @@
-import { matchesPage, shouldShow } from '@/components/Announcements/announcementUtils'
+import {
+  matchesDevice,
+  matchesPage,
+  shouldShow,
+} from '@/components/Announcements/announcementUtils'
 import { isExpired } from '@/components/Announcements/isExpired'
 import { scrollAnnouncementsIntoView } from '@/components/Announcements/scrollAnnouncementsIntoView'
 import type { Announcement } from '@/payload-types'
@@ -54,6 +58,66 @@ describe('matchesPage', () => {
 
   it('does not match a different center homepage', () => {
     expect(matchesPage('homepage_only', '/dvac', 'nwac')).toBe(false)
+  })
+})
+
+describe('matchesDevice', () => {
+  const originalWidth = window.innerWidth
+
+  function setViewportWidth(width: number) {
+    Object.defineProperty(window, 'innerWidth', {
+      value: width,
+      writable: true,
+      configurable: true,
+    })
+  }
+
+  afterEach(() => {
+    setViewportWidth(originalWidth)
+  })
+
+  // 768px is the shared mobile breakpoint: widths below it are mobile.
+  const MOBILE_WIDTH = 375
+  const DESKTOP_WIDTH = 1280
+
+  it('matches every device when target is all', () => {
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice('all')).toBe(true)
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice('all')).toBe(true)
+  })
+
+  it('matches every device when target is unset (legacy rows)', () => {
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice(null)).toBe(true)
+    expect(matchesDevice(undefined)).toBe(true)
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice(null)).toBe(true)
+    expect(matchesDevice(undefined)).toBe(true)
+  })
+
+  it('shows mobile_only only on mobile viewports', () => {
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice('mobile_only')).toBe(true)
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice('mobile_only')).toBe(false)
+  })
+
+  it('shows desktop_only only on desktop viewports', () => {
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice('desktop_only')).toBe(true)
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice('desktop_only')).toBe(false)
+  })
+
+  it('treats the 768px breakpoint as desktop (not mobile)', () => {
+    setViewportWidth(768)
+    expect(matchesDevice('desktop_only')).toBe(true)
+    expect(matchesDevice('mobile_only')).toBe(false)
+
+    setViewportWidth(767)
+    expect(matchesDevice('mobile_only')).toBe(true)
+    expect(matchesDevice('desktop_only')).toBe(false)
   })
 })
 
