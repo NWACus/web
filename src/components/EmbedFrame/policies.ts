@@ -2,9 +2,10 @@
  * Per-block sanitize/sandbox policies for embed blocks.
  *
  * Splitting these out keeps each embed block's security boundary explicit: the generic block
- * stays free of provider-specific concessions, the video block never executes scripts, and only
- * the form block opts into the broader permissions (e.g. `dbox-widget`, payment attributes)
- * required by script-based form/donation providers like DonorBox.
+ * stays free of provider-specific concessions, and the video block never executes scripts.
+ * The form block shares this attribute list but sets its own policy in
+ * `src/blocks/FormEmbed/Component.tsx` — it renders in the page instead of in a sandboxed
+ * iframe, because checkout SDKs need a rewritable document URL and a full-viewport overlay.
  */
 
 // Attributes common to all sandboxed embeds.
