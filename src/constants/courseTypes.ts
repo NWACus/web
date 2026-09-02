@@ -49,4 +49,8 @@ export const courseTypesData: CourseType[] = [
     label: 'Level 1 + Rescue Combined',
     value: 'level-1-rescue-combined',
   },
+  {
+    label: 'Level 2 + Rescue Combined',
+    value: 'level-2-rescue-combined',
+  },
 ]
