@@ -41,4 +41,16 @@ export const courseTypesData: CourseType[] = [
       'Introductory avalanche awareness sessions offered by external providers, covering basic avalanche safety concepts.',
     value: 'awareness-external',
   },
+  {
+    label: 'Intro to Avalanches Field Course',
+    value: 'intro-to-avalanches-field-course',
+  },
+  {
+    label: 'Level 1 + Rescue Combined',
+    value: 'level-1-rescue-combined',
+  },
+  {
+    label: 'Level 2 + Rescue Combined',
+    value: 'level-2-rescue-combined',
+  },
 ]
