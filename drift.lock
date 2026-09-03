@@ -48,7 +48,7 @@ sig = "670dda646337e58d"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/decisions/README.md"
-sig = "247601da82e8c82c"
+sig = "99d827f3e40686ff"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -344,6 +344,31 @@ sig = "3e50277f603c25bb"
 doc = "docs/decisions/016-per-tenant-globals-as-unique-tenant-collections.md"
 target = "src/fields/tenantField/index.ts"
 sig = "f36be45edf4c3ced"
+
+[[bindings]]
+doc = "docs/decisions/017-form-embeds-in-page.md"
+target = "src/blocks/FormEmbed/Component.tsx"
+sig = "4252e20af0a862c3"
+
+[[bindings]]
+doc = "docs/decisions/017-form-embeds-in-page.md"
+target = "src/blocks/FormEmbed/config.ts"
+sig = "c42ac43d05f5c632"
+
+[[bindings]]
+doc = "docs/decisions/017-form-embeds-in-page.md"
+target = "src/components/EmbedFrame/index.tsx"
+sig = "6d53479675448b29"
+
+[[bindings]]
+doc = "docs/decisions/017-form-embeds-in-page.md"
+target = "src/components/EmbedFrame/policies.ts"
+sig = "0ba18c96d0dfaec4"
+
+[[bindings]]
+doc = "docs/decisions/017-form-embeds-in-page.md"
+target = "src/components/Footer/Footer.tsx"
+sig = "6f294cd17dcdfd2c"
 
 [[bindings]]
 doc = "docs/doc-drift.md"
