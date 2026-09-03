@@ -1,0 +1,21 @@
+diff --git a/dist/utilities/addDataAndFileToRequest.js b/dist/utilities/addDataAndFileToRequest.js
+index 70707e01d842d471b9d2134262595bee7e4a25a9..e32841aaf6c9bcbc3c5aefe2a7c92c8e952a44bc 100644
+--- a/dist/utilities/addDataAndFileToRequest.js
++++ b/dist/utilities/addDataAndFileToRequest.js
+@@ -11,6 +11,7 @@ import { processMultipartFormdata } from '../uploads/fetchAPI-multipart/index.js
+     ].includes(method.toUpperCase()) && body) {
+         const [contentType] = (headers.get('Content-Type') || '').split(';', 1);
+         const bodyByteSize = parseInt(req.headers.get('Content-Length') || '0', 10);
++        const hasBodyStream = req.body !== null;
+         if (contentType === 'application/json') {
+             try {
+                 const text = await req.text?.();
+@@ -25,7 +26,7 @@ import { processMultipartFormdata } from '../uploads/fetchAPI-multipart/index.js
+                 req.payload.logger.error(error);
+                 throw error;
+             }
+-        } else if (bodyByteSize && contentType?.includes('multipart/')) {
++        } else if ((bodyByteSize || hasBodyStream) && contentType?.includes('multipart/')) {
+             const { error, fields, files } = await processMultipartFormdata({
+                 options: {
+                     ...payload.config.bodyParser || {},
