@@ -9,7 +9,7 @@ patchedDependencies:
     hash: a39fff1a18106977d061a3628729288c14c0620d17f6ad6be9f7fd642a40360a
     path: patches/@payloadcms__plugin-mcp.patch
   '@payloadcms/storage-vercel-blob':
-    hash: 6aebc87a9520ade74c818974e5ef5ebb6e10c1fdbe6c5a49896f5eb078f9de3d
+    hash: feea4b227a137feaea99b95753223648c29e99c4483780568d0ba6ff0d07f714
     path: patches/@payloadcms__storage-vercel-blob.patch
 
 importers:
@@ -65,7 +65,7 @@ importers:
         version: 3.81.0(@faceless-ui/modal@3.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@faceless-ui/scroll-info@2.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@payloadcms/next@3.81.0(@types/react@19.2.14)(graphql@16.10.0)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3))(@types/react@19.2.14)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3)(yjs@13.6.24)
       '@payloadcms/storage-vercel-blob':
         specifier: 3.81.0
-        version: 3.81.0(patch_hash=6aebc87a9520ade74c818974e5ef5ebb6e10c1fdbe6c5a49896f5eb078f9de3d)(@types/react@19.2.14)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
+        version: 3.81.0(patch_hash=feea4b227a137feaea99b95753223648c29e99c4483780568d0ba6ff0d07f714)(@types/react@19.2.14)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
       '@payloadcms/ui':
         specifier: 3.81.0
         version: 3.81.0(@types/react@19.2.14)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
@@ -16269,7 +16269,7 @@ snapshots:
       - utf-8-validate
       - yjs
 
-  '@payloadcms/storage-vercel-blob@3.81.0(patch_hash=6aebc87a9520ade74c818974e5ef5ebb6e10c1fdbe6c5a49896f5eb078f9de3d)(@types/react@19.2.14)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3)':
+  '@payloadcms/storage-vercel-blob@3.81.0(patch_hash=feea4b227a137feaea99b95753223648c29e99c4483780568d0ba6ff0d07f714)(@types/react@19.2.14)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3)':
     dependencies:
       '@payloadcms/plugin-cloud-storage': 3.81.0(@types/react@19.2.14)(monaco-editor@0.52.2)(next@15.4.11(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.77.4))(payload@3.81.0(graphql@16.10.0)(typescript@5.7.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
       '@vercel/blob': 2.3.1

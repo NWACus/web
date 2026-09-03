@@ -23,24 +23,25 @@ index 94a3512c0436805acba26910adb595cf970f4961..cda0b0aea5769c0522b7e9d609d9b919
              apiRoute,
              path: serverHandlerPath,
 diff --git a/dist/getClientUploadRoute.d.ts b/dist/getClientUploadRoute.d.ts
-index b0d9157554801e9a873ad09c1ace7c6c5db43a90..519f19e05145f5aaabd7afe8571149b529019b50 100644
+index b0d9157554801e9a873ad09c1ace7c6c5db43a90..be7795be4020f485ab56f45ebfd36e05f4f16e35 100644
 --- a/dist/getClientUploadRoute.d.ts
 +++ b/dist/getClientUploadRoute.d.ts
-@@ -5,9 +5,10 @@ type Args = {
+@@ -5,9 +5,11 @@ type Args = {
          req: PayloadRequest;
      }) => boolean | Promise<boolean>;
      addRandomSuffix?: boolean;
 +    allowOverwrite?: boolean;
      cacheControlMaxAge?: number;
++    maximumSizeInBytes?: number;
      token: string;
  };
 -export declare const getClientUploadRoute: ({ access, addRandomSuffix, cacheControlMaxAge, token }: Args) => PayloadHandler;
-+export declare const getClientUploadRoute: ({ access, addRandomSuffix, allowOverwrite, cacheControlMaxAge, token }: Args) => PayloadHandler;
++export declare const getClientUploadRoute: ({ access, addRandomSuffix, allowOverwrite, cacheControlMaxAge, maximumSizeInBytes, token }: Args) => PayloadHandler;
  export {};
  //# sourceMappingURL=getClientUploadRoute.d.ts.map
 \ No newline at end of file
 diff --git a/dist/getClientUploadRoute.js b/dist/getClientUploadRoute.js
-index e11cf568867309efcb243fab490a33c6b01c46a8..bfeeee12b5180db867576f1a33738ebd076850a7 100644
+index e11cf568867309efcb243fab490a33c6b01c46a8..c2216cf1c9466d4621c2ce8f890bcaa94317a63e 100644
 --- a/dist/getClientUploadRoute.js
 +++ b/dist/getClientUploadRoute.js
 @@ -1,7 +1,7 @@
@@ -48,18 +49,33 @@ index e11cf568867309efcb243fab490a33c6b01c46a8..bfeeee12b5180db867576f1a33738ebd
  import { APIError, Forbidden } from 'payload';
  const defaultAccess = ({ req })=>!!req.user;
 -export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix, cacheControlMaxAge, token })=>async (req)=>{
-+export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix, allowOverwrite, cacheControlMaxAge, token })=>async (req)=>{
++export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix, allowOverwrite, cacheControlMaxAge, maximumSizeInBytes, token })=>async (req)=>{
          const body = await req.json();
          try {
              const jsonResponse = await handleUpload({
-@@ -18,6 +18,7 @@ export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix,
+@@ -16,9 +16,21 @@ export const getClientUploadRoute = ({ access = defaultAccess, addRandomSuffix,
+                     })) {
+                         throw new Forbidden();
                      }
++                    // Client uploads go straight from the browser to Vercel Blob, so
++                    // neither checkFileRestrictions nor any collection hook ever sees
++                    // the bytes. Mirror the collection's own allow list onto the upload
++                    // token so the declared content type and size are still bounded.
++                    const collectionConfig = req.payload.collections?.[collectionSlug]?.config;
++                    const uploadConfig = collectionConfig && typeof collectionConfig.upload === 'object' ? collectionConfig.upload : undefined;
++                    // Entries starting with '.' are filename extensions rather than media
++                    // types; Vercel Blob only matches media types, so drop them.
++                    const allowedContentTypes = Array.isArray(uploadConfig?.mimeTypes) ? uploadConfig.mimeTypes.filter((type)=>!type.startsWith('.')) : undefined;
                      return Promise.resolve({
                          addRandomSuffix,
+-                        cacheControlMaxAge
++                        allowedContentTypes,
 +                        allowOverwrite,
-                         cacheControlMaxAge
++                        cacheControlMaxAge,
++                        maximumSizeInBytes
                      });
                  },
+                 onUploadCompleted: async ()=>{},
 diff --git a/dist/handleUpload.d.ts b/dist/handleUpload.d.ts
 index 74b7b972fc9dbeffb7a2c79c8b472c831e61a670..404b4e4f2adc0d8f0180fae9428444232a2e4d6f 100644
 --- a/dist/handleUpload.d.ts
@@ -92,7 +108,7 @@ index db797445156822d2a2a0024b303df940b446e4c2..eedefda709bf53e7f0b4bd2f1b0cdc81
              contentType: mimeType,
              token
 diff --git a/dist/index.d.ts b/dist/index.d.ts
-index 8949c2db42d2657bdd7a72e1476420ce9766ea23..1edaf94546ad7876d4577a7150ed3b85f14f1585 100644
+index 8949c2db42d2657bdd7a72e1476420ce9766ea23..63e7e68aedf8c50b5951b0ddc46159f4dab6611f 100644
 --- a/dist/index.d.ts
 +++ b/dist/index.d.ts
 @@ -14,6 +14,13 @@ export type VercelBlobStorageOptions = {
@@ -109,8 +125,20 @@ index 8949c2db42d2657bdd7a72e1476420ce9766ea23..1edaf94546ad7876d4577a7150ed3b85
      /**
       * When enabled, fields (like the prefix field) will always be inserted into
       * the collection schema regardless of whether the plugin is enabled. This
+@@ -30,6 +37,11 @@ export type VercelBlobStorageOptions = {
+      * @default 365 * 24 * 60 * 60 // (1 Year)
+      */
+     cacheControlMaxAge?: number;
++    /**
++     * Maximum size, in bytes, accepted for a direct-to-blob client upload.
++     * Applied to the generated upload token.
++     */
++    maximumSizeInBytes?: number;
+     /**
+      * Do uploads directly on the client, to bypass limits on Vercel.
+      */
 diff --git a/dist/index.js b/dist/index.js
-index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1ae5949021 100644
+index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..454e04053a48fc8dc65417cb8828ce548c05b720 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -8,6 +8,7 @@ import { getStaticHandler } from './staticHandler.js';
@@ -121,7 +149,7 @@ index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1a
      cacheControlMaxAge: 60 * 60 * 24 * 365,
      enabled: true
  };
-@@ -32,12 +33,14 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
+@@ -32,13 +33,16 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
              enabled: !isPluginDisabled && Boolean(options.clientUploads),
              extraClientHandlerProps: (collection)=>({
                      addRandomSuffix: !!optionsWithDefaults.addRandomSuffix,
@@ -134,9 +162,11 @@ index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1a
                  addRandomSuffix: optionsWithDefaults.addRandomSuffix,
 +                allowOverwrite: optionsWithDefaults.allowOverwrite,
                  cacheControlMaxAge: options.cacheControlMaxAge,
++                maximumSizeInBytes: options.maximumSizeInBytes,
                  token: options.token ?? ''
              }),
-@@ -96,7 +99,7 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
+             serverHandlerPath: '/vercel-blob-client-upload-route'
+@@ -96,7 +100,7 @@ export const vercelBlobStorage = (options)=>(incomingConfig)=>{
      };
  function vercelBlobStorageInternal(options) {
      return ({ collection, prefix })=>{
@@ -145,7 +175,7 @@ index 7c56ee05908afb9dfb3bfa20f2a5b9ed3e4cca69..7ca12e268e986d595c86840cce40dd1a
          if (!token) {
              throw new Error('Vercel Blob storage token is required');
          }
-@@ -115,6 +118,7 @@ function vercelBlobStorageInternal(options) {
+@@ -115,6 +119,7 @@ function vercelBlobStorageInternal(options) {
              handleUpload: getHandleUpload({
                  access,
                  addRandomSuffix,
