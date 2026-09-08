@@ -30,8 +30,10 @@ the PR list from it. Otherwise, collect the unreleased PRs yourself:
 ```
 
 The NWAC release flow is **`release` ← `main`**: a release promotes everything currently
-on `main` that isn't yet on the `release` branch. `unreleased-prs.sh` walks
-`git log release..main --first-parent` and extracts each PR number, date, and branch name.
+on `main` that isn't yet on the `release` branch. `unreleased-prs.sh` fetches both branches
+and walks `git log origin/release..origin/main --first-parent`, extracting each PR number,
+date, and branch name. It compares the remote-tracking refs so it reports the same answer
+from any worktree, including one with `main` or `release` checked out.
 
 For fuller titles than the branch names in the merge commits, pull from GitHub:
 
