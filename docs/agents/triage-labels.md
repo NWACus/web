@@ -39,6 +39,8 @@ Skip it — that is, do nothing — for anything that reviews faster in the GitH
 
 Adding the label generates a recap immediately and keeps it refreshed on every later push, plus marks the plan merged when the PR merges. Removing it stops further runs, but leaves an already-published recap marked unmerged.
 
+A recap that fails to generate now fails the workflow rather than quietly posting a "generation failed" comment under a green run. That check is not required, so it never blocks a merge — but it is the signal that the recap plumbing needs attention, most often an expired `PLAN_RECAP_TOKEN` or an inactive organization on the Plan app. The gate probes for both before spending ~15 minutes of Opus on a recap it cannot publish.
+
 ## Auto-labeling on arrival
 
 Issue templates stamp a starting state so the untriaged bucket never silently regrows:

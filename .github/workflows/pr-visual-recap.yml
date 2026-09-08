@@ -14,9 +14,15 @@ name: PR Visual Recap
 #      Never starts a runner at all for an unlabeled or draft PR.
 #   2. visual-recap — BuilderIO's reusable workflow runs the recap with
 #      Claude Opus and posts/updates the sticky PR comment.
-#   3. publicize-recap — flips the published plan to public visibility so
-#      anonymous visitors to this public repo can open the recap link.
-#      (The recap CLI hard-codes org-only visibility on publish.)
+#   3. publicize-recap — verifies the recap actually published, then flips the
+#      plan to public visibility so anonymous visitors to this public repo can
+#      open the recap link. (The recap CLI hard-codes org-only visibility on
+#      publish, which is also why an inactive org fails the whole run.)
+#
+# Every step in the reusable workflow is `continue-on-error`, so a failed
+# publish otherwise leaves a green run with a "generation failed" comment on the
+# PR. The preflight in job 1 and the verification in job 3 are what make that
+# outcome visible.
 #
 # Required repo secrets:
 #   PLAN_RECAP_TOKEN        — org-scoped service token for plan.agent-native.com
@@ -95,6 +101,65 @@ jobs:
 
             return decide(true, `${RECAP_LABEL} label present`);
 
+      # The recap agent burns ~15 minutes of Opus before it ever tries to
+      # publish, so an identity the plan app will not accept should surface
+      # here rather than there. The reusable workflow runs its own probe but
+      # only special-cases 401, which is how an org-guard 403 hid behind a week
+      # of green runs.
+      - name: Preflight plan-app publish auth
+        if: steps.decide.outputs.recap == 'true'
+        uses: actions/github-script@v8
+        env:
+          PLAN_RECAP_TOKEN: ${{ secrets.PLAN_RECAP_TOKEN }}
+        with:
+          script: |
+            // Empty body on purpose: it cannot create a plan, so this is safe to
+            // fire on every gated run. We only care whether the app rejects the
+            // identity before it gets as far as validating a payload.
+            let res;
+            try {
+              res = await fetch('https://plan.agent-native.com/_agent-native/actions/create-visual-recap', {
+                method: 'POST',
+                headers: {
+                  authorization: `Bearer ${process.env.PLAN_RECAP_TOKEN}`,
+                  'content-type': 'application/json',
+                  accept: 'application/json',
+                },
+                body: '{}',
+                signal: AbortSignal.timeout(10000),
+              });
+            } catch (e) {
+              return core.warning(`Plan-app preflight could not reach the app (${e.message}); continuing.`);
+            }
+            const body = (await res.text()).slice(0, 400);
+
+            if (res.status === 401) {
+              return core.setFailed(
+                'PLAN_RECAP_TOKEN is expired or revoked (HTTP 401). Re-mint it with ' +
+                  '`npx -y @agent-native/core@latest reconnect https://plan.agent-native.com` ' +
+                  `and update the repo secret. Response: ${body}`,
+              );
+            }
+            // The recap CLI hard-codes `visibility: "org"` on publish, so the app
+            // refuses the entire run when the token's organization is not active.
+            // Matched on the message rather than a bare 403 so an unrelated 403 —
+            // from a payload the app dislikes, say — cannot block every recap.
+            if (/active organization/i.test(body)) {
+              return core.setFailed(
+                `Plan app will not publish an org-visible recap (HTTP ${res.status}). The ` +
+                  'PLAN_RECAP_TOKEN identity needs an active organization on ' +
+                  `plan.agent-native.com. Response: ${body}`,
+              );
+            }
+            // A 400/422 is the expected answer to an empty body and means the
+            // identity is healthy. Everything else is surfaced but not fatal —
+            // including a 403 that does not carry the org message, since that is
+            // more likely to be about the payload than about the token.
+            if (res.status === 400 || res.status === 422) {
+              return core.notice(`Plan-app preflight OK (HTTP ${res.status}).`);
+            }
+            core.warning(`Plan-app preflight returned an unexpected HTTP ${res.status}; continuing. Response: ${body}`);
+
   visual-recap:
     name: Generate visual recap
     needs: gate
@@ -118,7 +183,7 @@ jobs:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
   publicize-recap:
-    name: Make recap public
+    name: Verify and publicize recap
     needs: visual-recap
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -133,7 +198,7 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
-            if (!pr) return core.notice('No pull_request payload; nothing to publicize.');
+            if (!pr) return core.notice('No pull_request payload; nothing to verify.');
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -144,8 +209,44 @@ jobs:
             const recapComment = comments.find(
               (c) => c.user?.type === 'Bot' && c.body?.includes('<!-- pr-visual-recap -->')
             );
-            const planId = recapComment?.body?.match(/<!--\s*plan-id:\s*([A-Za-z0-9_-]{1,64})\s*-->/)?.[1];
-            if (!planId) return core.notice('No plan-id marker in the recap comment; nothing to publicize.');
+            if (!recapComment) {
+              return core.notice('No recap comment; the reusable workflow produced nothing to verify.');
+            }
+            const body = recapComment.body || '';
+
+            // Each run upserts the comment stamped with the head it ran against.
+            // A stale stamp means this run wrote no comment of its own, so there
+            // is no outcome here to hold it to.
+            const stampedSha = body.match(/<!--\s*head-sha:\s*([0-9a-f]{7,40})\s*-->/)?.[1];
+            if (stampedSha && stampedSha !== pr.head.sha) {
+              return core.notice(
+                `Recap comment is stamped ${stampedSha}, not ${pr.head.sha}; nothing from this run to verify.`,
+              );
+            }
+
+            // The one outcome that has to go red. The reusable workflow marks
+            // every publish step continue-on-error, so without this the run
+            // reports success while the PR carries a failure comment — which is
+            // exactly how a broken publish survived a week unnoticed.
+            if (body.includes('### Visual recap — generation failed')) {
+              const section = body.split('### Visual recap — generation failed')[1]?.split('<!--')[0] || '';
+              // The comment leads with boilerplate ("informational only, does not
+              // block the PR" — no longer true here) and puts the actual cause
+              // under a Diagnostic: heading, so prefer that when it is present.
+              const detail = (section.split('Diagnostic:')[1] || section).replace(/\s+/g, ' ').trim().slice(0, 400);
+              return core.setFailed(`Visual recap failed to publish. ${detail || 'See the recap comment on the PR.'}`);
+            }
+
+            // A deliberate upstream suppression (a secret matched in the diff),
+            // not a failure.
+            if (body.includes('### Visual recap — not generated')) {
+              return core.notice('Recap was suppressed upstream; nothing to publicize.');
+            }
+
+            const planId = body.match(/<!--\s*plan-id:\s*([A-Za-z0-9_-]{1,64})\s*-->/)?.[1];
+            if (!planId) {
+              return core.setFailed('Recap comment reports success but carries no plan-id marker; cannot publicize the plan.');
+            }
 
             // The recap CLI publishes plans with org-only visibility and offers no
             // override, so flip the plan to public (anyone with the link) here.
