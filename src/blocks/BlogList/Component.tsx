@@ -6,17 +6,21 @@ import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
 import RichText from '@/components/RichText'
 import type { BlogListBlock as BlogListBlockProps, Post } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
+import type { GetPostsResult } from '@/utilities/queries/getPosts'
 import {
   filterValidPublishedRelationships,
   filterValidRelationships,
 } from '@/utilities/relationships'
 import { cn } from '@/utilities/ui'
-import { useEffect, useState } from 'react'
+import { AlertCircle, Loader2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 
 type BlogListComponentProps = BlogListBlockProps & {
   isLayoutBlock: boolean
   className?: string
 }
+
+type FetchStatus = 'loading' | 'ready' | 'error'
 
 export const BlogListBlockComponent = (args: BlogListComponentProps) => {
   const {
@@ -31,57 +35,111 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
   const { filterByTags, sortBy, maxPosts } = args.dynamicOptions || {}
   const { staticPosts } = args.staticOptions || {}
   const { tenant } = useTenant()
+
+  const isDynamic = postOptions === 'dynamic'
   const [fetchedPosts, setFetchedPosts] = useState<Post[]>([])
-  const [postsPageParams, setPostsPageParams] = useState<string>('')
+  const [status, setStatus] = useState<FetchStatus>(isDynamic ? 'loading' : 'ready')
+  const [error, setError] = useState<string | null>(null)
+
+  // Derived during render rather than inside the effect so the "View all" link carries
+  // the block's filters in the server-rendered HTML, not just after hydration.
+  const { filterParams, hasUnresolvableTags } = useMemo(() => {
+    const configuredTagCount = filterByTags?.length ?? 0
+    const tagSlugs = filterValidRelationships(filterByTags).map(({ slug }) => slug)
+
+    // The /blog listing page reads these same `sort` and `tags` query params.
+    const params = new URLSearchParams()
+    if (sortBy) {
+      params.set('sort', sortBy)
+    }
+    if (tagSlugs.length > 0) {
+      params.set('tags', tagSlugs.join(','))
+    }
+
+    return {
+      filterParams: params,
+      // Every configured tag failed to resolve (e.g. the Tag was deleted). Fetching without
+      // a `tags` param would silently return posts from every tag, so fail closed instead.
+      hasUnresolvableTags: configuredTagCount > 0 && tagSlugs.length === 0,
+    }
+  }, [filterByTags, sortBy])
+
+  const postsPageParams = filterParams.toString()
+  const tenantSlug = tenant?.slug
 
   useEffect(() => {
-    if (postOptions !== 'dynamic') return
+    if (!isDynamic || !tenantSlug || hasUnresolvableTags) {
+      setFetchedPosts([])
+      setStatus('ready')
+      return
+    }
+
+    const controller = new AbortController()
 
     const fetchPosts = async () => {
-      const tenantSlug = typeof tenant === 'object' && tenant?.slug
-      if (!tenantSlug) return
+      setStatus('loading')
+      setError(null)
 
-      const filterByTagsSlugs = filterValidRelationships(filterByTags).map(({ slug }) => slug)
-
-      // Filters shared by both the posts API fetch and the "View all" /blog link.
-      // The /blog listing page reads the same `sort` and `tags` query params.
-      const filterParams = new URLSearchParams()
-      if (sortBy) {
-        filterParams.set('sort', sortBy)
-      }
-      if (filterByTagsSlugs.length > 0) {
-        filterParams.set('tags', filterByTagsSlugs.join(','))
-      }
-
-      setPostsPageParams(filterParams.toString())
-
-      // The API fetch additionally needs the result limit.
       const apiParams = new URLSearchParams(filterParams)
       apiParams.set('limit', String(maxPosts || 4))
 
-      const response = await fetch(`/api/${tenantSlug}/posts?${apiParams.toString()}`, {
-        cache: 'no-store',
-      })
+      try {
+        const response = await fetch(`/api/${tenantSlug}/posts?${apiParams.toString()}`, {
+          cache: 'no-store',
+          signal: controller.signal,
+        })
+        const result: GetPostsResult = await response.json()
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch posts')
+        if (!response.ok || result.error) {
+          setFetchedPosts([])
+          setError(result.error || 'Failed to load posts. Please reload the page.')
+          setStatus('error')
+          return
+        }
+
+        setFetchedPosts(result.posts)
+        setStatus('ready')
+      } catch (_error) {
+        if (controller.signal.aborted) return
+        setFetchedPosts([])
+        setError('An unexpected error occurred. Please try again.')
+        setStatus('error')
       }
-
-      const data = await response.json()
-      setFetchedPosts(data.posts || [])
     }
 
     fetchPosts()
-  }, [tenant, filterByTags, sortBy, postOptions, maxPosts])
 
-  let posts: Post[] = filterValidPublishedRelationships(staticPosts)
+    return () => controller.abort()
+  }, [isDynamic, tenantSlug, filterParams, hasUnresolvableTags, maxPosts])
 
-  if (postOptions === 'dynamic') {
-    posts = filterValidPublishedRelationships(fetchedPosts)
-  }
+  const posts = filterValidPublishedRelationships(isDynamic ? fetchedPosts : staticPosts)
 
-  if (!posts) {
-    return null
+  const renderPosts = () => {
+    if (isDynamic && status === 'loading') {
+      return (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="sr-only">Loading posts</span>
+        </div>
+      )
+    }
+
+    if (isDynamic && status === 'error') {
+      return (
+        <div className="flex items-start gap-2">
+          <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
+          <p className="text-muted-foreground">{error}</p>
+        </div>
+      )
+    }
+
+    if (posts.length === 0) {
+      return <h3>There are no posts matching these results.</h3>
+    }
+
+    return posts.map((post, index) => (
+      <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
+    ))
   }
 
   return (
@@ -106,22 +164,13 @@ export const BlogListBlockComponent = (args: BlogListComponentProps) => {
         <div
           className={cn(
             'grid gap-4 lg:gap-6 not-prose max-h-[400px] overflow-y-auto',
-            posts && posts.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
+            posts.length > 1 && '@3xl:grid-cols-2 @6xl:grid-cols-3',
           )}
         >
-          {posts && posts?.length > 0 ? (
-            posts?.map((post, index) => (
-              <PostPreviewSmallRow doc={post} key={`${post.id}__${index}`} />
-            ))
-          ) : (
-            <h3>There are no posts matching these results.</h3>
-          )}
+          {renderPosts()}
         </div>
-        {postOptions === 'dynamic' && (
-          <ButtonLink
-            href={`/blog?${postsPageParams.toString()}`}
-            className="not-prose md:self-start"
-          >
+        {isDynamic && (
+          <ButtonLink href={`/blog?${postsPageParams}`} className="not-prose md:self-start">
             View all {heading}
           </ButtonLink>
         )}
