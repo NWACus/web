@@ -134,7 +134,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 ### Tech Stack
 
 - **Framework**: Next.js 15.5.9 (App Router)
-- **CMS**: PayloadCMS 3.68.3
+- **CMS**: PayloadCMS 3.88.0
 - **Database**: SQLite locally (WAL mode), Turso (libSQL) in production
 - **Storage**: Vercel Blob
 - **Styling**: Tailwind CSS with Radix UI components

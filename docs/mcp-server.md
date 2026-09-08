@@ -46,7 +46,7 @@ Keep it read-only (`find: true` only). Update the collection list at the top of 
 2. Navigate to **Admin > MCP API Keys**
 3. Click **Create New**
 4. Fill in a label (e.g., "Claude Code local dev")
-5. Associate it with your user account
+5. The key is bound to the user creating it. Since Payload 3.88 the plugin makes the `user` field read-only on create and update, so a key always acts as its creator; to issue a key for a different user, log in as that user.
 6. Toggle **Enable API Key** on
 7. Check the collections you want to access (typically all of them for development)
 8. Save — copy the generated API key
@@ -93,26 +93,20 @@ The MCP server returns instructions to clients during initialization that descri
 - Common query patterns (filtering by tenant, sorting, selecting fields)
 - Available where clause operators
 
-These instructions are configured in `src/plugins/index.ts` via `mcp.serverOptions.instructions` and are surfaced automatically in the MCP client's system prompt.
+These instructions are configured in `src/plugins/index.ts` via `mcp.serverOptions.instructions` and are surfaced automatically in the MCP client's system prompt. The `instructions` option is native to the plugin since Payload 3.84.0.
 
-> **Note**: The `instructions` field is supported via a local patch (`patches/@payloadcms__plugin-mcp.patch`).
+## Auth depth: the `overrideAuth` hook
 
-## Patch: authDepth and instructions
+The plugin's default API key resolver looks up the key document at `depth: 1`. That populates the key's `user`, but leaves the user's `roles.docs[]` and `globalRoleAssignments.docs[]` as bare IDs, so our RBAC access functions (which need `role.rules`, `globalRole.rules` and `tenant` resolved) deny everything.
 
-We maintain a patch on `@payloadcms/plugin-mcp` that adds two features not yet in the upstream plugin:
-
-1. **`authDepth`** — Controls the population depth when authenticating API key users. Our RBAC system requires depth 3 to resolve `globalRoleAssignments.docs[].globalRole.rules`. Without this, access control checks fail silently.
-
-2. **`instructions`** Passes the MCP protocol's `instructions` field through to the underlying SDK. This allows the server to describe its data model and usage patterns to LLM clients.
-
-Both are backwards-compatible and we should open PRs on the plugin for these patches.
+We use the plugin's `overrideAuth` option in `src/plugins/index.ts` to fix this without patching the package: it calls the default resolver to validate the key, then re-fetches the user at `depth: 2` and swaps it into the returned access settings before the MCP tools run their access checks. Depth 2 resolves user → assignment docs → role / globalRole / tenant, which is everything `byTenantRole` and friends read.
 
 ## Security
 
 - **Read-only by configuration**: Only `find` operations are enabled at the plugin config level (see above)
 - **Super-admin-only key management**: The `payload-mcp-api-keys` collection is locked to super admins via `hasSuperAdminPermissions` access control
 - **RBAC enforcement**: The API key's associated user determines access. If the user can't read a collection via normal Payload access control, the MCP server won't return that data either
-- **Auth depth for deep population**: Our RBAC system requires deeply populated user data (depth 3) to resolve role chains. The `authDepth` patch ensures the full chain is resolved during authentication
+- **Auth depth for deep population**: Our RBAC system requires deeply populated user data to resolve role chains. The `overrideAuth` hook (see above) re-fetches the key's user at depth 2 during authentication
 - **No experimental tools**: Payload's experimental MCP tools (schema modifications, auth operations) are automatically disabled in production regardless of config
 
 ## Troubleshooting
@@ -122,5 +116,3 @@ Both are backwards-compatible and we should open PRs on the plugin for these pat
 **403 on all requests**: The API key may be invalid, expired, or the associated user may lack permissions. Verify the key in the admin panel and check that the user has appropriate role assignments.
 
 **Empty results**: The API key's permissions are per-collection. Check that the relevant collection checkboxes are enabled on the API key in the admin panel.
-
-**TypeScript error on `instructions`**: Run `pnpm install` to ensure the patch is applied. The `instructions` field is added by our local patch.

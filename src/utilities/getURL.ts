@@ -19,6 +19,15 @@ export function getRootDomainURL() {
 }
 
 /**
+ * Appends a cache tag as a query parameter, joining with `&` when the URL
+ * already carries a query string (Payload's upload URLs include `?prefix=...`).
+ */
+const withCacheTag = (url: string, cacheTag?: string | null): string => {
+  if (!cacheTag) return url
+  return `${url}${url.includes('?') ? '&' : '?'}${cacheTag}`
+}
+
+/**
  * Processes media resource URL to ensure proper formatting
  * @param url The original URL from the resource
  * @param cacheTag Optional cache tag to append to the URL
@@ -33,10 +42,10 @@ export const getMediaURL = (
 
   // Check if URL is absolute url
   if (isAbsoluteUrl(url)) {
-    return cacheTag ? `${url}?${cacheTag}` : url
+    return withCacheTag(url, cacheTag)
   }
 
   // Otherwise assume it's a relative path and prepend base url
   const baseUrl = getURL(hostname)
-  return cacheTag ? `${baseUrl}${url}?${cacheTag}` : `${baseUrl}${url}`
+  return withCacheTag(`${baseUrl}${url}`, cacheTag)
 }
