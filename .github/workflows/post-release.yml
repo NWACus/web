@@ -13,7 +13,9 @@ on:
 jobs:
   post_release:
     permissions:
-      contents: read
+      # `releases/generate-notes` 403s on `contents: read` -- it is a POST, and
+      # GitHub scopes it as a write even though it only renders notes.
+      contents: write
       issues: write
       pull-requests: write
     runs-on: blacksmith-2vcpu-ubuntu-2404
