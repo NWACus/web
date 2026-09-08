@@ -1,8 +1,8 @@
 'use client'
 
-import type { BlogListBlock, Post } from '@/payload-types'
+import type { BlogListBlock } from '@/payload-types'
 import { useTenant } from '@/providers/TenantProvider'
-import type { GetPostsResult } from '@/utilities/queries/getPosts'
+import type { GetPostsResult, PostListItem } from '@/utilities/queries/getPosts'
 import { filterValidRelationships } from '@/utilities/relationships'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -11,7 +11,7 @@ type DynamicOptions = NonNullable<BlogListBlock['dynamicOptions']>
 export type DynamicPostsStatus = 'loading' | 'ready' | 'error'
 
 type DynamicPostsState = {
-  posts: Post[]
+  posts: PostListItem[]
   status: DynamicPostsStatus
   error: string | null
   /** Query string for the "View all" link. The /blog page reads the same `sort` and `tags` params. */
@@ -29,7 +29,7 @@ export const useDynamicPosts = (
   enabled: boolean,
 ): DynamicPostsState => {
   const { tenant } = useTenant()
-  const [posts, setPosts] = useState<Post[]>([])
+  const [posts, setPosts] = useState<PostListItem[]>([])
   const [status, setStatus] = useState<DynamicPostsStatus>(enabled ? 'loading' : 'ready')
   const [error, setError] = useState<string | null>(null)
 

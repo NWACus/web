@@ -1,10 +1,10 @@
 import { PostPreviewSmallRow } from '@/components/PostPreviewSmallRow'
-import type { Post } from '@/payload-types'
+import type { PostListItem } from '@/utilities/queries/getPosts'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import type { DynamicPostsStatus } from './useDynamicPosts'
 
 type BlogListPostsProps = {
-  posts: Post[]
+  posts: PostListItem[]
   status: DynamicPostsStatus
   error: string | null
 }
