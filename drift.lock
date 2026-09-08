@@ -348,7 +348,7 @@ sig = "f36be45edf4c3ced"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/blocks/FormEmbed/Component.tsx"
-sig = "fee101586a8f855b"
+sig = "9f139eb3ec8427a2"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
@@ -368,7 +368,7 @@ sig = "c5f9231be4439e83"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/components/EmbedFrame/policies.ts"
-sig = "0ba18c96d0dfaec4"
+sig = "dee08deaf24bebad"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"

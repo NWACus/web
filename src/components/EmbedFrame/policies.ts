@@ -8,7 +8,8 @@
  * iframe, because checkout SDKs need a rewritable document URL and a full-viewport overlay.
  */
 
-// Attributes common to all sandboxed embeds.
+// Attributes common to all embed blocks. `sandbox` is here as an attribute a snippet may put on an
+// <iframe> of its own; the sandbox each block renders *into* is set alongside its policy.
 export const BASE_ADD_ATTR = [
   'allow',
   'allowfullscreen',

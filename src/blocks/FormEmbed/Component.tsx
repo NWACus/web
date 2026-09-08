@@ -11,44 +11,33 @@ type Props = FormEmbedBlockProps & {
   className?: string
 }
 
-// Sanitize policy for form/donation provider snippets. There is no sandbox here: unlike the
-// generic and video embeds, this block renders into the page rather than into an iframe.
-// Checkout SDKs (Classy/GoFundMe, DonorBox, …) drive their state through `history.pushState` and
-// read it back off `window.location`, and they open their payment flow as a full-viewport overlay.
-// A `blob:`/`srcdoc` iframe document has no rewritable URL, so `pushState` throws a SecurityError
-// and the flow dies on the first click; an auto-height iframe also collapses the overlay to
-// nothing. `script` is in the allowlist below, so DOMPurify passes inline JS through untouched:
-// it removes markup an editor did not intend to write, not code they deliberately pasted. Who may
-// edit content holding this block is the real boundary — see docs/decisions/017-form-embeds-in-page.md.
+// Sanitize policy for form/donation provider snippets. Unlike the generic and video embeds there is
+// no sandbox: this block renders into the page, because checkout SDKs need a rewritable document
+// URL and a full-viewport overlay. `script` is in the allowlist, so DOMPurify is not a boundary
+// here — who may edit content holding this block is. See docs/decisions/017-form-embeds-in-page.md.
 export const FORM_EMBED_POLICY = {
   addTags: ['iframe', 'script', 'style', 'dbox-widget'],
   addAttr: [...BASE_ADD_ATTR, 'allowpaymentrequest', 'campaign', 'classy', 'enable-auto-scroll'],
 }
 
-// How long to wait on a blocking loader before inserting the scripts that follow it. A CDN that
-// accepts the connection and never answers fires neither `load` nor `error` until the network
-// layer gives up, which is far longer than a donor will wait.
+// A hung CDN fires neither `load` nor `error` until the network layer gives up, which is far longer
+// than a donor will wait for the scripts queued behind it.
 const SCRIPT_LOAD_TIMEOUT_MS = 10_000
 
 // Matches the run of `@charset`/`@import` statements at the very start of a stylesheet, along with
-// any whitespace and comments between them. Those two at-rules are only legal at the top of a
-// stylesheet, so they have to be hoisted back out of the `@scope` wrapper below.
+// any whitespace and comments between them.
 const LEADING_AT_RULES = /^(?:\s+|\/\*[\s\S]*?\*\/|@(?:charset|import)\b[^;]*;)+/i
 
-// Tailwind's Preflight zeroes borders and padding on every element and strips button backgrounds.
-// Provider snippets were written for a document without it and mostly style only what they mean to
-// change, so restore the browser defaults for form controls inside the embed — otherwise the
-// Mailchimp footer forms render their fields with no visible boundary. These element selectors beat
-// Preflight's `*` and lose to the provider's own `#id`-based rules.
+// Restores what Tailwind's Preflight resets, for form controls inside the embed only. Element
+// selectors beat Preflight's `*` and lose to the provider's own `#id`-based rules.
 const controlReset = (scopeId: string) =>
   `@scope ([data-form-embed="${scopeId}"]) {\n` +
   `input, select, textarea, button { border: revert; padding: revert; background-color: revert; background-image: revert; }\n` +
   `}`
 
-// Provider CSS is written for a document of its own. Confine each <style> to this embed before it
-// reaches the page, so a bare `html, body { … }` rule — which the Mailchimp footer snippets ship —
-// cannot restyle the rest of the site. @scope leaves the rules' own specificity alone, and a
-// browser without it drops the block, costing the embed its styling rather than leaking it.
+// Confines each provider <style> to this embed, so a bare `html, body { … }` rule — which the
+// Mailchimp footer snippets ship — cannot restyle the rest of the site. `@charset`/`@import` are
+// only legal at the top of a stylesheet, so a leading run of them is hoisted back out.
 const scopeStyles = (fragment: DocumentFragment, scopeId: string) => {
   for (const style of Array.from(fragment.querySelectorAll('style'))) {
     const css = style.textContent ?? ''
@@ -82,11 +71,9 @@ export const FormEmbedBlockComponent = ({
     scopeStyles(fragment, scopeId)
     container.appendChild(fragment)
 
-    // A <script> parsed out of a string is inert. Rebuild each one so the browser runs it, and
-    // insert them one at a time: an inline script runs the moment it lands in the document, so a
-    // snippet pairing a loader with an inline call into it (Mailchimp, Eventbrite) needs the loader
-    // to have finished first. `async = false` alone only orders the external scripts against each
-    // other — under the HTML parser a blocking external script also held back the inline ones.
+    // A <script> parsed out of a string is inert, so each one is rebuilt as a fresh element. They
+    // go in one at a time: an inline script runs the moment it lands, so a snippet pairing a loader
+    // with an inline call into it (Mailchimp, Eventbrite) needs the loader to have finished first.
     let cancelled = false
     let releasePending: (() => void) | null = null
 
@@ -104,7 +91,7 @@ export const FormEmbedBlockComponent = ({
         const settled = blocks
           ? new Promise<void>((resolve) => {
               // A provider CDN that 404s or hangs shouldn't strand the rest of the snippet, and
-              // neither should an unmount that lands while the wait is still open.
+              // neither should an unmount landing while the wait is still open.
               const timer = setTimeout(resolve, SCRIPT_LOAD_TIMEOUT_MS)
               const release = () => {
                 clearTimeout(timer)
@@ -125,9 +112,8 @@ export const FormEmbedBlockComponent = ({
 
     void runScripts()
 
-    // Only our own nodes come back out. The provider's globals and whatever it appended elsewhere
-    // (modal roots on document.body) stay. Note the provider script re-runs on every mount, so a
-    // navigation away and back re-initializes the SDK on a page where its globals already exist.
+    // Only our own nodes come back out; the provider's globals and anything it appended to
+    // document.body stay for the life of the page.
     return () => {
       cancelled = true
       releasePending?.()
@@ -135,8 +121,8 @@ export const FormEmbedBlockComponent = ({
     }
   }, [html, scopeId])
 
-  // `EmbedFrame` rendered nothing without a snippet; without this the wrapper's own padding would
-  // leave a band of blank space on a page whose embed code has not been filled in yet.
+  // Without this the wrapper's own padding leaves a band of blank space on a page whose embed code
+  // has not been filled in yet.
   if (!html) return null
 
   return (
