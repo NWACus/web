@@ -104,6 +104,8 @@ describe('pr-visual-recap workflow scripts', () => {
       expect(result.message).toContain('expired or revoked')
     })
 
+    // Unreachable with an empty body today, since validation rejects it first.
+    // Kept as a safety net for the app surfacing the guard earlier.
     it('fails the gate on the inactive-organization guard', async () => {
       const result = await probe({ status: 403, body: ORG_GUARD_BODY })
       expect(result.outcome).toBe('failed')
@@ -115,6 +117,10 @@ describe('pr-visual-recap workflow scripts', () => {
       expect(result.outcome).toBe('failed')
     })
 
+    // Verified against the live app: it answers auth (401) before it validates
+    // the payload (400), and only applies the org-visibility guard (403) after
+    // that. So a 400 here means the token cleared auth — which is as far as a
+    // probe that cannot create a plan is able to see.
     it('treats the rejection of its empty probe body as healthy', async () => {
       for (const status of [400, 422]) {
         const result = await probe({ status, body: '{"error":"title is required"}' })

@@ -21,8 +21,8 @@ name: PR Visual Recap
 #
 # Every step in the reusable workflow is `continue-on-error`, so a failed
 # publish otherwise leaves a green run with a "generation failed" comment on the
-# PR. The preflight in job 1 and the verification in job 3 are what make that
-# outcome visible.
+# PR. The verification in job 3 is what makes that visible; the preflight in
+# job 1 only front-runs the subset of causes a probe can detect cheaply.
 #
 # Required repo secrets:
 #   PLAN_RECAP_TOKEN        — org-scoped service token for plan.agent-native.com
@@ -102,10 +102,14 @@ jobs:
             return decide(true, `${RECAP_LABEL} label present`);
 
       # The recap agent burns ~15 minutes of Opus before it ever tries to
-      # publish, so an identity the plan app will not accept should surface
-      # here rather than there. The reusable workflow runs its own probe but
-      # only special-cases 401, which is how an org-guard 403 hid behind a week
-      # of green runs.
+      # publish, so a dead token should surface here rather than there.
+      #
+      # Scope, measured against the live app: it answers auth first (401),
+      # then validates the payload (400), and only then applies the
+      # org-visibility guard (403). A probe cannot reach that third stage
+      # without sending a payload valid enough to create a real plan, so this
+      # catches an expired or revoked token but NOT an inactive organization.
+      # The verification in publicize-recap is what covers the latter.
       - name: Preflight plan-app publish auth
         if: steps.decide.outputs.recap == 'true'
         uses: actions/github-script@v8
@@ -113,9 +117,10 @@ jobs:
           PLAN_RECAP_TOKEN: ${{ secrets.PLAN_RECAP_TOKEN }}
         with:
           script: |
-            // Empty body on purpose: it cannot create a plan, so this is safe to
-            // fire on every gated run. We only care whether the app rejects the
-            // identity before it gets as far as validating a payload.
+            // Empty body on purpose: the app rejects it at the validation stage,
+            // so this can never create a plan and is safe to fire on every gated
+            // run. All we are asking is whether the identity survives the auth
+            // stage that runs ahead of validation.
             let res;
             try {
               res = await fetch('https://plan.agent-native.com/_agent-native/actions/create-visual-recap', {
@@ -141,9 +146,11 @@ jobs:
               );
             }
             // The recap CLI hard-codes `visibility: "org"` on publish, so the app
-            // refuses the entire run when the token's organization is not active.
-            // Matched on the message rather than a bare 403 so an unrelated 403 —
-            // from a payload the app dislikes, say — cannot block every recap.
+            // refuses the whole run when the token's organization is not active.
+            // An empty body never gets that far today, so this is a safety net
+            // for the app surfacing the guard earlier rather than the mechanism
+            // that catches it. Matched on the message rather than a bare 403 so
+            // an unrelated 403 cannot block every recap.
             if (/active organization/i.test(body)) {
               return core.setFailed(
                 `Plan app will not publish an org-visible recap (HTTP ${res.status}). The ` +
@@ -151,10 +158,11 @@ jobs:
                   `plan.agent-native.com. Response: ${body}`,
               );
             }
-            // A 400/422 is the expected answer to an empty body and means the
-            // identity is healthy. Everything else is surfaced but not fatal —
-            // including a 403 that does not carry the org message, since that is
-            // more likely to be about the payload than about the token.
+            // A 400/422 is the expected answer to an empty body: the token
+            // cleared auth and the payload was rejected, which is as far as a
+            // side-effect-free probe can go. Everything else is surfaced but not
+            // fatal — including a 403 without the org message, which is more
+            // likely to be about the payload than about the token.
             if (res.status === 400 || res.status === 422) {
               return core.notice(`Plan-app preflight OK (HTTP ${res.status}).`);
             }
