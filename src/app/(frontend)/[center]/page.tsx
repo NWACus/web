@@ -15,10 +15,11 @@ export const revalidate = 3600 // Next.js requires a static literal here
 export const dynamicParams = true
 
 // The danger map widget's own CSS renders the map at 500px and centers like that size, so we
-// deliberately ignore the AFP-configured `widget_config.danger_map.height` and pin it here. The
-// same value is passed to the widget as `mapWidgetData.height` so the rendered height can't
-// drift if the widget's CSS default ever changes, and it feeds the wrapper's min-height below
-// so the page doesn't shift while the widget loads.
+// deliberately ignore the AFP-configured `widget_config.danger_map.height` and pin it here. It
+// feeds the wrapper's min-height below so the page doesn't shift while the widget loads, and is
+// passed to the widget as `mapWidgetData.height` for builds that read it. Older (Google Maps)
+// widget builds ignore that and write the AFP height inline instead, so nac-widgets.css also
+// forces the map container to this height. Keep the two values in sync.
 const DANGER_MAP_HEIGHT = 500
 const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 
