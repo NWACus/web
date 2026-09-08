@@ -29,14 +29,15 @@ These are not triage states, but they coexist with them on issues:
 | `tenant:<slug>`     | scoping   | Specific to one avalanche center (e.g. `tenant:nwac`). New slugs created on demand. |
 | `dependencies`      | PR label  | Dependabot dependency-update PRs. Not part of issue triage.               |
 | `javascript`        | PR label  | Dependabot JavaScript PRs. Not part of issue triage.                       |
-| `visual-recap`      | PR label  | Forces an interactive visual recap on a PR the size gate would skip. Not part of issue triage. |
-| `no-visual-recap`   | PR label  | Opts a PR out of the visual recap. Beats `visual-recap` and the size gate. Not part of issue triage. |
+| `visual-recap`      | PR label  | Opts a PR in to an interactive visual recap. Nothing runs without it. Not part of issue triage. |
 
-### When to reach for `no-visual-recap`
+### When to reach for `visual-recap`
 
-The [PR Visual Recap workflow](../../.github/workflows/pr-visual-recap.yml) already skips tiny diffs on its own, so the label is only worth adding when the gate would say *run* but a recap would not earn its keep. In practice that means a diff that is **large or touches a sensitive path, yet is mechanical**: a codemod or rename sweep, a formatting pass, regenerated types, a lockfile bump, or generated migration boilerplate. The gate force-runs at 25+ files or 1500+ changed lines, and any touch of `src/collections`, `src/migrations`, `src/access`, `src/globals`, `src/middleware.ts`, `src/payload.config.ts`, or `src/app/api` disqualifies a PR from the tiny-diff skip — those are the cases where a human or agent knows better than the heuristic.
+The [PR Visual Recap workflow](../../.github/workflows/pr-visual-recap.yml) is opt-in: no recap is generated until this label is on the PR. Add it when the diff is genuinely worth a guided walkthrough — large or multi-file, UI-heavy, or touching database schema, API contracts, permissions/access control, or architecture. `src/collections`, `src/migrations`, `src/access`, `src/globals`, `src/middleware.ts`, `src/payload.config.ts`, and `src/app/api` are the review-critical paths where a recap most often earns its keep.
 
-Do not add it to ordinary small PRs; the gate handles those, and the label just adds noise. Adding it to a PR that already has a published recap stops further runs but leaves that recap marked unmerged.
+Skip it — that is, do nothing — for anything that reviews faster in the GitHub diff: small fixes, mechanical sweeps, formatting passes, regenerated types, lockfile bumps, generated migration boilerplate.
+
+Adding the label generates a recap immediately and keeps it refreshed on every later push, plus marks the plan merged when the PR merges. Removing it stops further runs, but leaves an already-published recap marked unmerged.
 
 ## Auto-labeling on arrival
 
