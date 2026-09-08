@@ -183,6 +183,14 @@ jobs:
     uses: BuilderIO/agent-native/.github/workflows/pr-visual-recap-reusable.yml@main
     with:
       model: claude-opus-5
+      # Load-bearing, despite our own gate already enforcing the label: the
+      # reusable workflow's gate carries
+      # `if: github.event.action != 'labeled' || inputs.required-labels != ''`,
+      # so without this it drops every `labeled` event on the floor. That was
+      # harmless when the label was a force-override on a default-on gate, but
+      # under opt-in `labeled` is the trigger — leave this unset and adding the
+      # label does nothing until the next push.
+      required-labels: visual-recap
     secrets:
       PLAN_RECAP_TOKEN: ${{ secrets.PLAN_RECAP_TOKEN }}
       # Subscription auth, not the usage-billed ANTHROPIC_API_KEY. The reusable
