@@ -1,10 +1,9 @@
 'use client'
 
+import { EmbedLayout } from '@/components/EmbedFrame/EmbedLayout'
 import { BASE_ADD_ATTR } from '@/components/EmbedFrame/policies'
+import { sanitizeEmbedFragment } from '@/components/EmbedFrame/sanitize'
 import type { FormEmbedBlock as FormEmbedBlockProps } from '@/payload-types'
-import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
-import { cn } from '@/utilities/ui'
-import DOMPurify from 'dompurify'
 import { useEffect, useId, useRef } from 'react'
 
 type Props = FormEmbedBlockProps & {
@@ -64,35 +63,21 @@ const scopeStyles = (fragment: DocumentFragment, scopeId: string) => {
 
 export const FormEmbedBlockComponent = ({
   html,
-  backgroundColor = 'transparent',
-  alignContent = 'left',
+  backgroundColor,
+  alignContent,
   className,
-  isLayoutBlock = true,
+  isLayoutBlock,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null)
   // Identifies this embed's subtree so its CSS can be scoped to it. React's useId wraps the value
   // in punctuation that is awkward inside a selector, so keep only the alphanumeric part.
   const scopeId = useId().replace(/[^a-zA-Z0-9]/g, '')
 
-  const bgColorClass = `bg-${backgroundColor}`
-  const textColor = getTextColorFromBgColor(backgroundColor)
-
   useEffect(() => {
     const container = containerRef.current
     if (!container || !html) return
 
-    // Normalize curly quotes that DOMParser/DOMPurify parse incorrectly
-    const normalizedHTML = html.replaceAll('“', '"').replaceAll('”', '"')
-
-    // DOMPurify parses through DOMParser, which marks <script> elements unexecutable, and
-    // FORCE_BODY keeps a leading one from being hoisted into <head> — which is exactly where
-    // provider snippets put theirs. Taking the fragment back saves a serialize and a re-parse.
-    const fragment = DOMPurify.sanitize(normalizedHTML, {
-      ADD_TAGS: FORM_EMBED_POLICY.addTags,
-      ADD_ATTR: FORM_EMBED_POLICY.addAttr,
-      FORCE_BODY: true,
-      RETURN_DOM_FRAGMENT: true,
-    })
+    const fragment = sanitizeEmbedFragment(html, FORM_EMBED_POLICY)
 
     scopeStyles(fragment, scopeId)
     container.appendChild(fragment)
@@ -155,20 +140,14 @@ export const FormEmbedBlockComponent = ({
   if (!html) return null
 
   return (
-    <div className={cn(bgColorClass, textColor)}>
+    <EmbedLayout
+      backgroundColor={backgroundColor}
+      alignContent={alignContent}
+      isLayoutBlock={isLayoutBlock}
+      className={className}
+    >
       <style>{controlReset(scopeId)}</style>
-      <div
-        className={cn(
-          isLayoutBlock && 'container py-10',
-          'flex flex-col',
-          alignContent === 'left' && 'items-start',
-          alignContent === 'center' && 'items-center',
-          alignContent === 'right' && 'items-end',
-          className,
-        )}
-      >
-        <div ref={containerRef} data-form-embed={scopeId} className="w-full" />
-      </div>
-    </div>
+      <div ref={containerRef} data-form-embed={scopeId} className="w-full" />
+    </EmbedLayout>
   )
 }
