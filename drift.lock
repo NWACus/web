@@ -63,7 +63,7 @@ sig = "808ab876088e8462"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/mcp-server.md"
-sig = "649efa503f3c8f25"
+sig = "1c5875f6bdcd750e"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -408,7 +408,7 @@ sig = "60bbd2c2347a4abd"
 [[bindings]]
 doc = "docs/error-tracking.md"
 target = "src/plugins/index.ts"
-sig = "d7604222dbe3baf9"
+sig = "3436eed2ed79916b"
 
 [[bindings]]
 doc = "docs/error-tracking.md"
@@ -478,7 +478,7 @@ sig = "cdbcb90cb1c106cf"
 [[bindings]]
 doc = "docs/mcp-server.md"
 target = "src/plugins/index.ts"
-sig = "d7604222dbe3baf9"
+sig = "3436eed2ed79916b"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
