@@ -26,6 +26,42 @@ export const FORM_EMBED_POLICY = {
   addAttr: [...BASE_ADD_ATTR, 'allowpaymentrequest', 'campaign', 'classy', 'enable-auto-scroll'],
 }
 
+// How long to wait on a blocking loader before inserting the scripts that follow it. A CDN that
+// accepts the connection and never answers fires neither `load` nor `error` until the network
+// layer gives up, which is far longer than a donor will wait.
+const SCRIPT_LOAD_TIMEOUT_MS = 10_000
+
+// Matches the run of `@charset`/`@import` statements at the very start of a stylesheet, along with
+// any whitespace and comments between them. Those two at-rules are only legal at the top of a
+// stylesheet, so they have to be hoisted back out of the `@scope` wrapper below.
+const LEADING_AT_RULES = /^(?:\s+|\/\*[\s\S]*?\*\/|@(?:charset|import)\b[^;]*;)+/i
+
+// Tailwind's Preflight zeroes borders and padding on every element and strips button backgrounds.
+// Provider snippets were written for a document without it and mostly style only what they mean to
+// change, so restore the browser defaults for form controls inside the embed — otherwise the
+// Mailchimp footer forms render their fields with no visible boundary. These element selectors beat
+// Preflight's `*` and lose to the provider's own `#id`-based rules.
+const controlReset = (scopeId: string) =>
+  `@scope ([data-form-embed="${scopeId}"]) {\n` +
+  `input, select, textarea, button { border: revert; padding: revert; background-color: revert; background-image: revert; }\n` +
+  `}`
+
+// Provider CSS is written for a document of its own. Confine each <style> to this embed before it
+// reaches the page, so a bare `html, body { … }` rule — which the Mailchimp footer snippets ship —
+// cannot restyle the rest of the site. @scope leaves the rules' own specificity alone, and a
+// browser without it drops the block, costing the embed its styling rather than leaking it.
+const scopeStyles = (fragment: DocumentFragment, scopeId: string) => {
+  for (const style of Array.from(fragment.querySelectorAll('style'))) {
+    const css = style.textContent ?? ''
+    const leading = css.match(LEADING_AT_RULES)?.[0] ?? ''
+    // Only hoist when the leading run actually held an at-rule; a stray comment can stay put.
+    const hoisted = /@(?:charset|import)\b/i.test(leading) ? `${leading.trim()}\n` : ''
+    const rules = hoisted ? css.slice(leading.length) : css
+
+    style.textContent = `${hoisted}@scope ([data-form-embed="${scopeId}"]) {\n${rules}\n}`
+  }
+}
+
 export const FormEmbedBlockComponent = ({
   html,
   backgroundColor = 'transparent',
@@ -48,26 +84,18 @@ export const FormEmbedBlockComponent = ({
     // Normalize curly quotes that DOMParser/DOMPurify parse incorrectly
     const normalizedHTML = html.replaceAll('“', '"').replaceAll('”', '"')
 
-    const sanitized = DOMPurify.sanitize(normalizedHTML, {
+    // DOMPurify parses through DOMParser, which marks <script> elements unexecutable, and
+    // FORCE_BODY keeps a leading one from being hoisted into <head> — which is exactly where
+    // provider snippets put theirs. Taking the fragment back saves a serialize and a re-parse.
+    const fragment = DOMPurify.sanitize(normalizedHTML, {
       ADD_TAGS: FORM_EMBED_POLICY.addTags,
       ADD_ATTR: FORM_EMBED_POLICY.addAttr,
       FORCE_BODY: true,
+      RETURN_DOM_FRAGMENT: true,
     })
 
-    // A <template> parses the snippet as-is. Parsing it as a document would hoist a leading
-    // <script> into <head>, which is exactly where provider snippets put theirs.
-    const template = document.createElement('template')
-    template.innerHTML = sanitized
-
-    // Provider CSS is written for a document of its own. Confine each <style> to this embed before
-    // it reaches the page, so a bare `html, body { … }` rule — which the Mailchimp footer snippets
-    // ship — cannot restyle the rest of the site. @scope leaves the rules' own specificity alone,
-    // and a browser without it drops the block, costing the embed its styling rather than leaking.
-    for (const style of Array.from(template.content.querySelectorAll('style'))) {
-      style.textContent = `@scope ([data-form-embed="${scopeId}"]) {\n${style.textContent}\n}`
-    }
-
-    container.appendChild(document.importNode(template.content, true))
+    scopeStyles(fragment, scopeId)
+    container.appendChild(fragment)
 
     // A <script> parsed out of a string is inert. Rebuild each one so the browser runs it, and
     // insert them one at a time: an inline script runs the moment it lands in the document, so a
@@ -75,6 +103,7 @@ export const FormEmbedBlockComponent = ({
     // to have finished first. `async = false` alone only orders the external scripts against each
     // other — under the HTML parser a blocking external script also held back the inline ones.
     let cancelled = false
+    let releasePending: (() => void) | null = null
 
     const runScripts = async () => {
       for (const inert of Array.from(container.querySelectorAll('script'))) {
@@ -89,9 +118,18 @@ export const FormEmbedBlockComponent = ({
         const blocks = Boolean(script.src) && !script.async
         const settled = blocks
           ? new Promise<void>((resolve) => {
-              script.onload = () => resolve()
-              // A provider CDN that 404s shouldn't strand the rest of the snippet.
-              script.onerror = () => resolve()
+              // A provider CDN that 404s or hangs shouldn't strand the rest of the snippet, and
+              // neither should an unmount that lands while the wait is still open.
+              const timer = setTimeout(resolve, SCRIPT_LOAD_TIMEOUT_MS)
+              const release = () => {
+                clearTimeout(timer)
+                releasePending = null
+                resolve()
+              }
+
+              script.onload = release
+              script.onerror = release
+              releasePending = release
             })
           : null
 
@@ -107,12 +145,18 @@ export const FormEmbedBlockComponent = ({
     // navigation away and back re-initializes the SDK on a page where its globals already exist.
     return () => {
       cancelled = true
+      releasePending?.()
       container.replaceChildren()
     }
   }, [html, scopeId])
 
+  // `EmbedFrame` rendered nothing without a snippet; without this the wrapper's own padding would
+  // leave a band of blank space on a page whose embed code has not been filled in yet.
+  if (!html) return null
+
   return (
     <div className={cn(bgColorClass, textColor)}>
+      <style>{controlReset(scopeId)}</style>
       <div
         className={cn(
           isLayoutBlock && 'container py-10',

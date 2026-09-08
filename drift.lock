@@ -348,7 +348,7 @@ sig = "f36be45edf4c3ced"
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
 target = "src/blocks/FormEmbed/Component.tsx"
-sig = "4252e20af0a862c3"
+sig = "dae7ef4454eba5e9"
 
 [[bindings]]
 doc = "docs/decisions/017-form-embeds-in-page.md"
