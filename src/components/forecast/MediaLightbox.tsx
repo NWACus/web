@@ -1,19 +1,14 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useRef } from 'react'
+import { type ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from '@/components/ui/carousel'
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
+import { Lightbox, LightboxSlide, useLightboxCarousel } from '@/components/Lightbox'
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 
 import { MediaSlide } from './MediaSlide'
 import type { LightboxMedia } from './lightboxMedia'
+import { resolveMediaSlide } from './mediaItem'
 
 interface MediaLightboxProps {
   /**
@@ -28,120 +23,62 @@ interface MediaLightboxProps {
   onOpenChange: (open: boolean) => void
 }
 
-/** Sync the carousel to `initialIndex`, and track the slide the user has scrolled to. */
-function useCarouselIndex(initialIndex: number) {
-  const [api, setApi] = useState<CarouselApi>()
-  const [current, setCurrent] = useState(initialIndex)
-
-  useEffect(() => {
-    if (!api) return
-    // Jump to the initial index when the lightbox opens or initialIndex changes
-    api.scrollTo(initialIndex, true)
-    setCurrent(initialIndex)
-  }, [api, initialIndex])
-
-  useEffect(() => {
-    if (!api) return
-    const onSelect = () => setCurrent(api.selectedScrollSnap())
-    api.on('select', onSelect)
-    return () => {
-      api.off('select', onSelect)
-    }
-  }, [api])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        e.preventDefault()
-        api?.scrollPrev()
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault()
-        api?.scrollNext()
-      }
-    },
-    [api],
-  )
-
-  return { api, setApi, current, handleKeyDown }
-}
-
+/**
+ * A forecast product's media, viewed full-screen.
+ *
+ * The chrome — counter, zoom, edge arrows, close — comes from the shared `Lightbox` shell, so this
+ * frames the same way as the Gallery block and as the legacy NAC widget it replaces. What is left
+ * here is the part that is the forecast's own: slides built from remote AFP URLs rather than
+ * Payload `Media` documents, and captions the server already sanitized.
+ */
 export function MediaLightbox({ media, initialIndex, open, onOpenChange }: MediaLightboxProps) {
-  const { setApi, current, handleKeyDown } = useCarouselIndex(initialIndex)
+  const { setApi, index, scrollPrev, scrollNext } = useLightboxCarousel(initialIndex, open)
+  const transformRef = useRef<ReactZoomPanPinchRef>(null)
+
+  const activeItem = media[index]?.item
+  // Only a still photo mounts a zoom surface, so only a still photo should advertise zoom controls.
+  const activeCanZoom = activeItem ? resolveMediaSlide(activeItem).kind === 'photo' : false
 
   if (media.length === 0) return null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-w-4xl border-none bg-black/95 p-0 sm:rounded-xl"
-        overlayClassName="bg-black/90"
-        closeClassName="text-white hover:text-white/80"
-        onKeyDown={handleKeyDown}
-      >
-        <DialogTitle className="sr-only">Media viewer</DialogTitle>
-        <DialogDescription className="sr-only">
-          Viewing {current + 1} of {media.length} media items. Use arrow keys to navigate.
-        </DialogDescription>
-
-        <div className="relative px-14 py-8">
-          <LightboxCarousel media={media} initialIndex={initialIndex} setApi={setApi} />
-          <LightboxFooter media={media} current={current} />
-        </div>
-      </DialogContent>
-    </Dialog>
+    <Lightbox
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Media viewer"
+      index={index}
+      count={media.length}
+      onPrev={scrollPrev}
+      onNext={scrollNext}
+      zoomRef={activeCanZoom ? transformRef : undefined}
+    >
+      {open && (
+        <Carousel
+          opts={{ startIndex: initialIndex, loop: media.length > 1, watchDrag: false }}
+          setApi={setApi}
+        >
+          <CarouselContent>
+            {media.map(({ item, captionHtml }, idx) => (
+              <CarouselItem key={idx}>
+                <LightboxSlide caption={captionHtml ? <Caption html={captionHtml} /> : undefined}>
+                  <MediaSlide item={item} isActive={idx === index} transformRef={transformRef} />
+                </LightboxSlide>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      )}
+    </Lightbox>
   )
 }
 
-function LightboxCarousel({
-  media,
-  initialIndex,
-  setApi,
-}: {
-  media: LightboxMedia[]
-  initialIndex: number
-  setApi: (api: CarouselApi) => void
-}) {
-  const multiple = media.length > 1
-
+/** A caption may carry HTML tags (e.g. `<p>`, `&nbsp;`), sanitized on the server — see
+ * `./lightboxMedia`. */
+function Caption({ html }: { html: string }) {
   return (
-    <Carousel setApi={setApi} opts={{ startIndex: initialIndex, loop: multiple, watchDrag: false }}>
-      <CarouselContent>
-        {media.map(({ item }, idx) => (
-          <CarouselItem key={idx}>
-            <div className="flex flex-col items-center gap-3">
-              <MediaSlide item={item} />
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-
-      {multiple && (
-        <>
-          <CarouselPrevious className="left-1 border-white/20 bg-white/10 text-white hover:bg-white/20" />
-          <CarouselNext className="right-1 border-white/20 bg-white/10 text-white hover:bg-white/20" />
-        </>
-      )}
-    </Carousel>
-  )
-}
-
-function LightboxFooter({ media, current }: { media: LightboxMedia[]; current: number }) {
-  const captionHtml = media[current]?.captionHtml
-
-  return (
-    <div className="mt-3 text-center">
-      {/* Captions may contain HTML tags (e.g. <p>, &nbsp;), sanitized on the server. */}
-      {captionHtml && (
-        <div
-          className="prose prose-sm prose-invert max-w-none text-white/80"
-          dangerouslySetInnerHTML={{ __html: captionHtml }}
-        />
-      )}
-      {media.length > 1 && (
-        <p className="mt-1 text-xs text-white/50">
-          {current + 1} / {media.length}
-        </p>
-      )}
-    </div>
+    <div
+      className="prose prose-sm prose-invert max-w-none text-white/80"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   )
 }
