@@ -1,31 +1,15 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ChartPrefs } from './stationGraphPrefs'
-import {
-  defaultChartPrefs,
-  loadChartPrefs,
-  moveToKey,
-  saveChartPrefs,
-  swapWithNeighbor,
-} from './stationGraphPrefs'
+import { defaultChartPrefs, moveToKey, swapWithNeighbor } from './stationGraphPrefs'
 import type { GraphPreset } from './stationGraphPresets'
 
-// Chart order and visibility, persisted per browser. Saves wait for the
-// post-mount localStorage load so defaults never clobber a stored arrangement.
-// `emptyKeys` (sensors absent on this station) only filters what renders, so
-// one station's missing sensors never rewrite the stored order.
+// Chart order and visibility for one visit. `emptyKeys` (sensors absent on this
+// station) only filters what renders, so one station's missing sensors never
+// rewrite the order.
 export function useChartArrangement(presets: GraphPreset[], emptyKeys: ReadonlySet<string>) {
-  const presetKeys = useMemo(() => presets.map((p) => p.key), [presets])
-  const [prefs, setPrefs] = useState<ChartPrefs>(() => defaultChartPrefs(presetKeys))
-  const [prefsLoaded, setPrefsLoaded] = useState(false)
-  useEffect(() => {
-    setPrefs(loadChartPrefs(presetKeys))
-    setPrefsLoaded(true)
-  }, [presetKeys])
-  useEffect(() => {
-    if (prefsLoaded) saveChartPrefs(prefs)
-  }, [prefs, prefsLoaded])
+  const [prefs, setPrefs] = useState<ChartPrefs>(() => defaultChartPrefs(presets))
 
   const presetByKey = useMemo(() => new Map(presets.map((p) => [p.key, p])), [presets])
   const orderedPresets = useMemo(
@@ -51,6 +35,6 @@ export function useChartArrangement(presets: GraphPreset[], emptyKeys: ReadonlyS
     hideChart: (key: string) => setPrefs((prev) => ({ ...prev, hidden: [...prev.hidden, key] })),
     showChart: (key: string) =>
       setPrefs((prev) => ({ ...prev, hidden: prev.hidden.filter((k) => k !== key) })),
-    resetArrangement: () => setPrefs(defaultChartPrefs(presetKeys)),
+    resetArrangement: () => setPrefs(defaultChartPrefs(presets)),
   }
 }

@@ -55,12 +55,23 @@ export function convertGraphData(data: GraphData, system: UnitSystem): GraphData
   }
 }
 
-// The only unit-ful preset config is the reference line (32°F freezing);
-// pinned axis bounds are all unitless (RH 0-100 %).
+// Both the reference line (32°F freezing) and the axis floor are stated in the
+// sensor's imperial units, so they convert with the preset's own variable.
+// Unitless bounds (RH 0-100 %, pressure in mb, volts) have no conversion and
+// pass through untouched.
 export function convertPreset(preset: GraphPreset, system: UnitSystem): GraphPreset {
-  if (system === 'imperial' || preset.refLine === undefined) return preset
+  if (system === 'imperial') return preset
   const conversion = metricConversionFor(preset.variables[0])
-  return conversion
-    ? { ...preset, refLine: Math.round(conversion.convert(preset.refLine)) }
-    : preset
+  if (!conversion) return preset
+  const convertBound = (v: number | undefined) =>
+    v === undefined ? undefined : conversion.convert(v)
+  return {
+    ...preset,
+    ...(preset.refLine === undefined
+      ? {}
+      : { refLine: Math.round(conversion.convert(preset.refLine)) }),
+    ...(preset.axis === undefined
+      ? {}
+      : { axis: { min: convertBound(preset.axis.min), max: convertBound(preset.axis.max) } }),
+  }
 }

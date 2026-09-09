@@ -10,7 +10,7 @@ Issues and PRDs live in this repo's GitHub Issues (`NWACus/web`), via the `gh` C
 
 ### Triage labels
 
-Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), plus the PR-only `visual-recap` label. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
@@ -134,7 +134,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 ### Tech Stack
 
 - **Framework**: Next.js 15.5.9 (App Router)
-- **CMS**: PayloadCMS 3.68.3
+- **CMS**: PayloadCMS 3.88.0
 - **Database**: SQLite locally (WAL mode), Turso (libSQL) in production
 - **Storage**: Vercel Blob
 - **Styling**: Tailwind CSS with Radix UI components
@@ -488,6 +488,7 @@ When asked to write a PR description, follow the template in `.github/PULL_REQUE
 3. Reference the issue number (e.g., "Fixes #123")
 4. Describe what was changed and why
 5. Note any decisions made or alternatives considered
+6. Add the `visual-recap` label if an interactive recap would genuinely help review — a large or multi-file diff, UI-heavy work, or changes to schema, API contracts, access control, or architecture. Recaps are opt-in and cost a full Opus run, so leave the label off for anything that reviews faster in the GitHub diff, including mechanical sweeps over sensitive paths — see [`/docs/agents/triage-labels.md`](docs/agents/triage-labels.md).
 
 ### Quality Checklist
 

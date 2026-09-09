@@ -45,6 +45,14 @@
   min-height: 100vh !important;
 }
 
+/* Pin the danger map to the height the home page reserves for it (DANGER_MAP_HEIGHT in
+   [center]/page.tsx), whichever widget build is loaded. The Google Maps build writes the
+   AFP-configured height inline and ignores mapWidgetData.height; the Mapbox build uses
+   mapWidgetData.height or its own 500px default. Keep in sync with DANGER_MAP_HEIGHT. */
+#nac-app #nac-danger-map-widget .nac-map-container {
+  height: 500px !important;
+}
+
 #nac-app .nac-station-table-container {
   height: auto !important;
 }

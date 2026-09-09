@@ -78,8 +78,8 @@ export const plugins: Plugin[] = [
         prefix: getEnvironmentFriendlyName(),
       },
     },
+    // Re-uploads to an existing blob key always overwrite (upstream behaviour since 3.87.0)
     clientUploads: true,
-    allowOverwrite: true,
     token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN,
   }),
   sentryPlugin({
@@ -142,10 +142,24 @@ export const plugins: Plugin[] = [
         ].join('\n'),
       },
     },
-    // Our RBAC access functions need deeply populated user relationships
-    // (globalRoleAssignments.docs[].globalRole.rules). The plugin defaults
-    // to depth:1 which isn't enough — depth:3 resolves the full chain.
-    authDepth: 3,
+    // The default API key resolver populates the key's user at depth 1, which
+    // leaves roles.docs[] and globalRoleAssignments.docs[] as bare IDs and makes
+    // our RBAC access functions deny everything. Re-fetch the user at depth 2 so
+    // each assignment's role / globalRole / tenant is resolved before the MCP
+    // tools run access checks with it.
+    overrideAuth: async (req, getDefaultMcpAccessSettings) => {
+      const accessSettings = await getDefaultMcpAccessSettings()
+      const user = await req.payload.findByID({
+        collection: 'users',
+        id: accessSettings.user.id,
+        depth: 2,
+        req,
+      })
+      return {
+        ...accessSettings,
+        user: Object.assign(user, { collection: 'users' as const, _strategy: 'mcp-api-key' }),
+      }
+    },
     // Restrict MCP API key management to super admins only
     overrideApiKeyCollection: (collection) => ({
       ...collection,

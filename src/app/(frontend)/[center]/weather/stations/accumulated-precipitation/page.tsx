@@ -1,20 +1,22 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
+import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import { PRECIP_STATION_STIDS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 
-// Rendered per request: prerendering would call SnowObs at build time, where
-// SNOWOBS_TOKEN isn't available (the [center] layout's generateStaticParams
-// otherwise forces static generation). The fetch Data Cache still dedups
-// upstream calls to one per window, matching the legacy 5-minute cadence.
+// Rendered per request (the [center] layout's generateStaticParams otherwise forces
+// static generation). This predates the token move and is now stricter than the
+// sibling station page, which prerenders the same upstream with revalidate = 600;
+// worth reconciling. The fetch Data Cache still dedups upstream calls to one per
+// window, matching the legacy 5-minute cadence.
 export const dynamic = 'force-dynamic'
 const REVALIDATE_SECONDS = 300
 
 const ROUTE_TITLE = 'Accumulated Precipitation'
-const CANONICAL = '/weather/accumulations/precipitation'
+const CANONICAL = '/weather/stations/accumulated-precipitation'
 
 type Args = {
   params: Promise<{ center: string }>
@@ -35,13 +37,18 @@ export default async function Page({ params }: Args) {
   const table = buildPrecipAccumulationTable(response, PRECIP_STATION_STIDS)
 
   return (
-    <div className="container my-8 space-y-4">
-      <h1 className="text-3xl font-bold">{ROUTE_TITLE}</h1>
-      <div className="overflow-x-auto">
-        <PrecipAccumulationTable table={table} />
+    <div className="mb-10 flex flex-col gap-4">
+      <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
+        <div className="prose dark:prose-invert max-w-none">
+          <h1 className="font-bold">{ROUTE_TITLE}</h1>
+        </div>
+        <div className="flex flex-col items-end">
+          <StationPicker />
+        </div>
       </div>
-      <div className="text-sm text-muted-foreground">
-        <p>
+      <div className="container flex flex-col gap-3">
+        <PrecipAccumulationTable table={table} />
+        <p className="text-sm text-muted-foreground">
           Data not quality controlled. Accumulated precipitation does not reflect weather station
           outages or other technical errors.
         </p>

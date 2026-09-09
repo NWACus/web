@@ -77,7 +77,7 @@ Pre-filtered to show only Washington and Oregon providers:
 - Providers are grouped by their `statesServiced` field (a provider can appear under multiple states)
 - When the `states` param is present, only the selected states' sections are rendered; a provider appears under a selected state if that state is among its `statesServiced`
 - States are sorted alphabetically and split into two columns
-- Clicking a provider opens a modal with details: name, course types offered, location, website, email, and phone
+- Clicking a provider opens a modal with details: name, course types offered, email, phone, and website
 
 ## Courses Embed
 

@@ -1,8 +1,7 @@
 'use client'
 
 import { useFiltersTotalContext } from '@/contexts/FiltersTotalContext'
-import type { Post } from '@/payload-types'
-import type { GetPostsResult } from '@/utilities/queries/getPosts'
+import type { GetPostsResult, PostListItem } from '@/utilities/queries/getPosts'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { createSerializer, parseAsInteger, parseAsString } from 'nuqs'
@@ -18,7 +17,7 @@ const searchParamsSerializer = createSerializer({
 })
 
 interface PostsListProps {
-  initialPosts: Post[]
+  initialPosts: PostListItem[]
   initialHasMore: boolean
   initialError?: string
   center: string
@@ -32,7 +31,7 @@ export const PostsList = ({
   center,
   defaultSort = '-publishedAt',
 }: PostsListProps) => {
-  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [posts, setPosts] = useState<PostListItem[]>(initialPosts)
   const [offset, setOffset] = useState(initialPosts.length)
   const [hasMoreData, setHasMoreData] = useState(initialHasMore)
   const [isLoading, setIsLoading] = useState(false)

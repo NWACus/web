@@ -805,7 +805,7 @@ export interface Event {
    */
   subtitle?: string | null;
   /**
-   * Short description/summary for event previews
+   * Short description/summary for event previews.
    */
   description?: string | null;
   startDate: string;
@@ -1188,9 +1188,6 @@ export interface Form {
       )[]
     | null;
   submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
   confirmationType?: ('message' | 'redirect') | null;
   confirmationMessage?: {
     root: {
@@ -1210,9 +1207,6 @@ export interface Form {
   redirect?: {
     url: string;
   };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
   emails?:
     | {
         emailTo?: string | null;
@@ -1221,9 +1215,6 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
         message?: {
           root: {
             type: string;
@@ -1252,7 +1243,7 @@ export interface Form {
  */
 export interface FormEmbedBlock {
   /**
-   * For donation and form widgets that ship their own scripts (DonorBox, Classy, Eventbrite, etc.). Paste the provider embed code, including any <script> tags. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   * For donation and form widgets that ship their own scripts (DonorBox, Classy/GoFundMe, Eventbrite, etc.). Paste the provider embed code, including any <script> tags. This code runs in the page itself so that checkout flows and their pop-over payment forms work, so only paste code from a provider you trust. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
    */
   html: string;
   backgroundColor: string;

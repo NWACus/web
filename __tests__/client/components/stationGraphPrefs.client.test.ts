@@ -1,32 +1,23 @@
 import {
-  loadChartPrefs,
+  defaultChartPrefs,
   moveToKey,
-  reconcileChartPrefs,
-  saveChartPrefs,
   swapWithNeighbor,
 } from '@/components/WeatherStations/stationGraphPrefs'
+import type { GraphPreset } from '@/components/WeatherStations/stationGraphPresets'
 
-describe('reconcileChartPrefs', () => {
-  it('drops unknown keys and appends new presets in default position', () => {
-    const stored = { order: ['b', 'gone', 'a'], hidden: ['gone', 'b'] }
-    expect(reconcileChartPrefs(stored, ['a', 'b', 'c'])).toEqual({
-      order: ['b', 'a', 'c'],
-      hidden: ['b'],
-    })
-  })
+const preset = (key: string, defaultHidden?: boolean): GraphPreset => ({
+  key,
+  title: key,
+  variables: [key],
+  ...(defaultHidden ? { defaultHidden } : {}),
 })
 
-describe('load/save round trip', () => {
-  beforeEach(() => window.localStorage.clear())
-
-  it('restores a saved arrangement', () => {
-    saveChartPrefs({ order: ['b', 'a'], hidden: ['a'] })
-    expect(loadChartPrefs(['a', 'b'])).toEqual({ order: ['b', 'a'], hidden: ['a'] })
-  })
-
-  it('falls back to defaults on garbage', () => {
-    window.localStorage.setItem('nwac-station-graph-prefs', '{"order": "nope"}')
-    expect(loadChartPrefs(['a', 'b'])).toEqual({ order: ['a', 'b'], hidden: [] })
+describe('defaultChartPrefs', () => {
+  it('orders by the preset list and hides the default-hidden charts', () => {
+    expect(defaultChartPrefs([preset('a'), preset('b', true), preset('c')])).toEqual({
+      order: ['a', 'b', 'c'],
+      hidden: ['b'],
+    })
   })
 })
 

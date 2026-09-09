@@ -39,11 +39,25 @@ describe('server-side utilities: getMediaURL', () => {
     expect(result).toBe('http://customhostname.com/images/photo.jpg')
   })
 
-  it('handles URLs with query parameters correctly', () => {
+  it('joins the cache tag with & when the URL already has a query string', () => {
     const relativeUrl = '/images/photo.jpg?existing=param'
     const cacheTag = 'v789'
     const result = getMediaURL(relativeUrl, cacheTag)
-    expect(result).toBe('http://envvar.localhost:3000/images/photo.jpg?existing=param?v789')
+    expect(result).toBe('http://envvar.localhost:3000/images/photo.jpg?existing=param&v789')
+  })
+
+  it('keeps Payload upload URLs with a prefix query intact when adding a cache tag', () => {
+    // Payload >= 3.82 emits upload URLs like this; a second "?" would break the file route
+    const uploadUrl = '/api/media/file/nwac-banner.webp?prefix=prod'
+    const result = getMediaURL(uploadUrl, '2026-09-08T18:04:25.284Z')
+    expect(result).toBe(
+      'http://envvar.localhost:3000/api/media/file/nwac-banner.webp?prefix=prod&2026-09-08T18:04:25.284Z',
+    )
+  })
+
+  it('joins the cache tag with & on absolute URLs that already have a query string', () => {
+    const result = getMediaURL('https://example.com/image.jpg?prefix=prod', 'v1')
+    expect(result).toBe('https://example.com/image.jpg?prefix=prod&v1')
   })
 
   it('handles ftp protocol URLs as absolute', () => {
