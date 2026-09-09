@@ -10,6 +10,12 @@ const photo = (caption: string | null): MediaItem => ({
   caption,
 })
 
+const youTube = (): MediaItem => ({
+  type: MediaType.Video,
+  url: 'dQw4w9WgXcQ',
+  caption: null,
+})
+
 /** A caption as the forecaster wrote it, before anything cleaned it. */
 const AUTHORED = '<img src="x" onerror="alert(1)">Erik'
 /** The same caption after the server's sanitize pass — what the lightbox is handed. */
@@ -55,6 +61,25 @@ describe('MediaLightbox', () => {
     open([{ item: photo(null), captionHtml: null }])
 
     expect(screen.queryByText(/Photo:/)).not.toBeInTheDocument()
+  })
+
+  /**
+   * The chrome's zoom buttons drive the active slide's zoom surface through a ref, and only a
+   * still photo mounts one. A video slide advertising them would give the reader three buttons
+   * that do nothing.
+   */
+  it('offers zoom controls on a photo slide', () => {
+    open([{ item: photo('A photo'), captionHtml: '<p>A photo</p>' }])
+
+    expect(screen.getByRole('button', { name: 'Zoom in' })).toBeInTheDocument()
+  })
+
+  it('drops the zoom controls when the active slide is a video', () => {
+    open([{ item: youTube(), captionHtml: null }])
+
+    expect(screen.queryByRole('button', { name: 'Zoom in' })).not.toBeInTheDocument()
+    // Close is still the way out.
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
   })
 
   it('shows the position only when there is more than one slide', () => {
