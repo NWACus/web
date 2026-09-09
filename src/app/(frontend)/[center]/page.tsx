@@ -52,8 +52,8 @@ export default async function Page({ params }: Args) {
   if (!isValidTenantSlug(center)) {
     notFound()
   }
-  const { quickLinks, highlightedContent, layout } =
-    (await getCachedHomePage(center, draft)()) ?? {}
+  // Deliberately unguarded: a throw here fails the build instead of shipping a blank page.
+  const { quickLinks, highlightedContent, layout } = await getCachedHomePage(center, draft)()
 
   return (
     <>

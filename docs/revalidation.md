@@ -114,6 +114,16 @@ Add three fields and one hook to any collection that needs reference tracking:
 - **Routable collection data**: `getCachedDocument()` with tags like `{collection}_{slug}` (this isn't currently used very much since we need to make query documents based on center + slug typically -- might be a good function to update as we go forward)
 - **Navigation data**: Cached with tenant-specific tags
 
+### Never cache a miss
+
+Our `unstable_cache` callers pass `tags` but no `revalidate`. Next stores those entries with its `CACHE_ONE_YEAR` default, so a tag invalidation is the only thing that ever clears them. That is what we want for a document we found, and it is a trap for a document we did not.
+
+If a cached lookup returns `undefined` because the database was momentarily unreachable or mid-restore, that miss is pinned for a year. Nothing clears it, because the corresponding `revalidateTag` only fires when an editor saves the document. The page keeps regenerating on its ISR interval and keeps reading the same empty result, so it renders blank until someone re-saves or a new deployment replaces it.
+
+**Throw instead of returning an empty result.** `unstable_cache` only writes an entry after the callback resolves, so a rejected callback leaves nothing behind and the next read retries against the database. `getCachedHomePage` and `getCachedTopLevelNavItems` both do this. Callers that can genuinely tolerate missing data catch the error themselves, as `getCanonicalUrlForSlug` does.
+
+The same rule applies to the page: don't fall back to rendering a partial page when the lookup fails. Letting the error surface fails the build if a prerender hits a bad database, which is much better than shipping a deployment full of blank pages.
+
 ### Tag Naming Conventions
 - **Global data**: `global_{globalSlug}`
 - **Routable collection data**: `{collection}_{slug}` (again, not used at the moment)
@@ -173,7 +183,11 @@ When adding a new collection that will have frontend routes:
 
 On-demand revalidation handles most cache invalidation. Time-based revalidation (ISR) serves as a safety net for any edge cases not covered by reference tracking. Current setting:
 
-- **All routable pages**: 3600 seconds (1 hour)
+- **All routable pages**: 3600 seconds (1 hour) as declared in the route's `revalidate` export
+
+Note that the declared value is a ceiling, not the effective one. Next takes the lowest `revalidate` of anything rendered on the page, so `getActiveAnnouncements` and its 60 second interval pull the tenant home page down to 60 seconds. `next build` prints the effective value per route in its Revalidate column.
+
+This interval only regenerates the HTML. It does not refresh anything behind `unstable_cache`, which is why a cached miss survives it indefinitely. See [Never cache a miss](#never-cache-a-miss).
 
 ### Best Practices
 
