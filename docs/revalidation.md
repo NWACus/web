@@ -116,13 +116,15 @@ Add three fields and one hook to any collection that needs reference tracking:
 
 ### Never cache a miss
 
-Our `unstable_cache` callers pass `tags` but no `revalidate`. Next stores those entries with its `CACHE_ONE_YEAR` default, so a tag invalidation is the only thing that ever clears them. That is what we want for a document we found, and it is a trap for a document we did not.
+Most of our `unstable_cache` callers pass `tags` but no `revalidate`. Next stores those entries with its `CACHE_ONE_YEAR` default, so a tag invalidation is the only thing that ever clears them. That is what we want for a document we found, and it is a trap for a document we did not.
 
 If a cached lookup returns `undefined` because the database was momentarily unreachable or mid-restore, that miss is pinned for a year. Nothing clears it, because the corresponding `revalidateTag` only fires when an editor saves the document. The page keeps regenerating on its ISR interval and keeps reading the same empty result, so it renders blank until someone re-saves or a new deployment replaces it.
 
 **Throw instead of returning an empty result.** `unstable_cache` only writes an entry after the callback resolves, so a rejected callback leaves nothing behind and the next read retries against the database. `getCachedHomePage` and `getCachedTopLevelNavItems` both do this. Callers that can genuinely tolerate missing data catch the error themselves, as `getCanonicalUrlForSlug` does.
 
-The same rule applies to the page: don't fall back to rendering a partial page when the lookup fails. Letting the error surface fails the build if a prerender hits a bad database, which is much better than shipping a deployment full of blank pages.
+**Catch at the call site, not inside the cached function.** The throw exists to keep the miss out of the cache, not to fail the page. `Header.tsx` and the tenant home page each catch, log at error level, and render their degraded version. Because nothing was written to the cache, the next ISR regeneration retries the database and the page repairs itself with no deploy and no re-save. That self-healing is what makes a degraded render safe, and it is exactly what a pinned miss used to prevent. It also keeps ordinary content states out of the build: `generateStaticParams` prerenders every tenant row, so an unpublished home page or a half-provisioned tenant would otherwise fail the whole build rather than one route.
+
+One exception: a cached function nested inside another cached function should let the error propagate. `pages-sitemap.xml` calls `getCachedTopLevelNavItems` from inside its own `unstable_cache`, so catching there would write a partial sitemap into the outer entry for a year. Failing the request leaves both entries unwritten.
 
 ### Tag Naming Conventions
 - **Global data**: `global_{globalSlug}`
@@ -185,7 +187,7 @@ On-demand revalidation handles most cache invalidation. Time-based revalidation 
 
 - **All routable pages**: 3600 seconds (1 hour) as declared in the route's `revalidate` export
 
-Note that the declared value is a ceiling, not the effective one. Next takes the lowest `revalidate` of anything rendered on the page, so `getActiveAnnouncements` and its 60 second interval pull the tenant home page down to 60 seconds. `next build` prints the effective value per route in its Revalidate column.
+Note that the declared value is a ceiling, not the effective one. Next takes the lowest `revalidate` of anything rendered on the page, and `Announcements` sits in `[center]/layout.tsx`, so `getActiveAnnouncements` and its 60 second interval pull every route under `/[center]` down to 60 seconds. That interval is load-bearing: announcements activate and expire on `startDate`/`endDate`, and no hook fires when the clock crosses them. `next build` prints the effective value per route in its Revalidate column.
 
 This interval only regenerates the HTML. It does not refresh anything behind `unstable_cache`, which is why a cached miss survives it indefinitely. See [Never cache a miss](#never-cache-a-miss).
 

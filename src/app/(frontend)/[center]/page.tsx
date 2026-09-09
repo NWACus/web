@@ -52,8 +52,13 @@ export default async function Page({ params }: Args) {
   if (!isValidTenantSlug(center)) {
     notFound()
   }
-  // Deliberately unguarded: a throw here fails the build instead of shipping a blank page.
-  const { quickLinks, highlightedContent, layout } = await getCachedHomePage(center, draft)()
+  // The miss is never cached, so the next regeneration retries the database and this repairs itself.
+  const homePage = await getCachedHomePage(center, draft)().catch((err) => {
+    payload.logger.error({ err }, `Rendering home page for ${center} without CMS content`)
+    return undefined
+  })
+
+  const { quickLinks, highlightedContent, layout } = homePage ?? {}
 
   return (
     <>

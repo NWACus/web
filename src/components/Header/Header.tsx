@@ -42,7 +42,11 @@ export async function Header({ center }: { center: string }) {
     `Depth not set correctly when querying settings. USFS Logo for tenant ${center} exists but is not an object.`,
   )
 
-  const { topLevelNavItems } = await getCachedTopLevelNavItems(center, draft)()
+  // The miss is never cached, so the next regeneration retries the database and this repairs itself.
+  const { topLevelNavItems } = await getCachedTopLevelNavItems(center, draft)().catch((err) => {
+    payload.logger.error({ err }, `Rendering header for ${center} without navigation`)
+    return { topLevelNavItems: [] }
+  })
 
   return (
     // Below lg this pins to the top of the viewport as the page scrolls, via the sticky wrapper it

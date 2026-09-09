@@ -78,7 +78,7 @@ sig = "1305c6039963f400"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "5fbbba79c7cb573a"
+sig = "8645dd7efc9225d1"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -527,8 +527,13 @@ sig = "3bf6823a594d39d3"
 
 [[bindings]]
 doc = "docs/revalidation.md"
+target = "src/app/(frontend)/[center]/(sitemaps)/pages-sitemap.xml/route.ts"
+sig = "57977783926aa724"
+
+[[bindings]]
+doc = "docs/revalidation.md"
 target = "src/app/(frontend)/[center]/page.tsx"
-sig = "fa73c78ad00a12ac"
+sig = "da6c4e6ea3c599cc"
 
 [[bindings]]
 doc = "docs/revalidation.md"
@@ -559,6 +564,11 @@ sig = "451f20e9ac806646"
 doc = "docs/revalidation.md"
 target = "src/collections/Teams/hooks/revalidateTeam.ts"
 sig = "409cffc372032d25"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/components/Header/Header.tsx"
+sig = "d22b1ef080899d7d"
 
 [[bindings]]
 doc = "docs/revalidation.md"
