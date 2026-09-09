@@ -2,8 +2,11 @@
  * All-zones forecast grid: fetches and renders compact forecast cards
  * for every active zone in a center, in parallel.
  */
+import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
 import { getActiveForecastZones, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { getForecastSource, getWarningSource } from '@/services/nac/sources'
+
+import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 
 import { ForecastErrorBoundary } from './ForecastErrorBoundary'
 import { ZoneForecastCard } from './ZoneForecastCard'
@@ -40,6 +43,16 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
     }),
   )
 
+  // Every card is a live danger rating, so this page needs the same open-tab guarantee the
+  // individual forecast pages have. It asks the very same per-zone addresses they do — one card's
+  // (forecast, warning) pair is exactly one zone page's — so the grid shares their edge cache
+  // entries and adds no origin traffic of its own, and their purges invalidate this page's route
+  // cache through the same tags. Asked as one set, so a daily publish across every zone is a
+  // single refresh rather than one per card.
+  const freshnessEndpoints = results.map(({ slug, forecast, warning }) =>
+    forecastFreshnessEndpoint(centerSlug, slug, forecast, warning),
+  )
+
   return (
     <div className="container space-y-6 py-6">
       {results.map(({ slug, zone, forecast, warning }) => (
@@ -57,6 +70,7 @@ export async function AllZonesForecast({ centerSlug }: AllZonesForecastProps) {
           />
         </ForecastErrorBoundary>
       ))}
+      <RevalidateOnView endpoints={freshnessEndpoints} />
     </div>
   )
 }
