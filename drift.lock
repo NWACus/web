@@ -3,7 +3,7 @@ version = 1
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/a3-embeds.md"
-sig = "70ed4211b6b991a3"
+sig = "7d4cb578103b1f0b"
 
 [[bindings]]
 doc = "CLAUDE.md"

@@ -41,7 +41,7 @@ Displays all published avalanche education providers organized by state in a two
   id="avy-web-embed-provider"
   src="https://yoursite.com/embeds/providers"
   height="0"
-  scrolling="true"
+  scrolling="no"
   width="100%"
 ></iframe>
 <script type="module">
@@ -50,13 +50,15 @@ Displays all published avalanche education providers organized by state in a two
 </script>
 ```
 
+The examples below omit the iframe-resizer script; include it as shown above whenever the iframe uses `height="0"`.
+
 With a custom title:
 ```html
 <iframe
   id="avy-web-embed-provider"
   src="https://yoursite.com/embeds/providers?title=Find%20a%20Provider"
   height="0"
-  scrolling="true"
+  scrolling="no"
   width="100%"
 ></iframe>
 ```
@@ -67,7 +69,7 @@ Pre-filtered to show only Washington and Oregon providers:
   id="avy-web-embed-provider"
   src="https://yoursite.com/embeds/providers?states=WA,OR"
   height="0"
-  scrolling="true"
+  scrolling="no"
   width="100%"
 ></iframe>
 ```
@@ -136,7 +138,7 @@ Basic embed showing all upcoming courses:
 <iframe
   src="https://yoursite.com/embeds/courses"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
@@ -146,7 +148,7 @@ With filters enabled:
 <iframe
   src="https://yoursite.com/embeds/courses?showFilters=true"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
@@ -156,7 +158,7 @@ Pre-filtered to show only Rec 1 courses in Washington:
 <iframe
   src="https://yoursite.com/embeds/courses?types=rec-1&states=WA"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
@@ -166,7 +168,7 @@ Multiple filters (Rec 1 and Rec 2 courses for women):
 <iframe
   src="https://yoursite.com/embeds/courses?types=rec-1,rec-2&affinityGroups=women&showFilters=true"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
