@@ -26,13 +26,13 @@ test.describe('Media lightbox', () => {
     const dialog = page.getByRole('dialog', { name: 'Media viewer' })
     await clickUntil(page.getByRole('button', { name: 'Open media 1 of 4' }), dialog)
 
-    await dialog.getByRole('button', { name: 'Next slide' }).click()
+    await dialog.getByRole('button', { name: 'Next' }).click()
     await expect(dialog.getByText('2 / 4')).toBeVisible()
 
-    await dialog.getByRole('button', { name: 'Next slide' }).click()
+    await dialog.getByRole('button', { name: 'Next' }).click()
     await expect(dialog.getByText('3 / 4')).toBeVisible()
 
-    await dialog.getByRole('button', { name: 'Previous slide' }).click()
+    await dialog.getByRole('button', { name: 'Previous' }).click()
     await expect(dialog.getByText('2 / 4')).toBeVisible()
   })
 
@@ -66,6 +66,14 @@ test.describe('Media lightbox', () => {
     const dialog = page.getByRole('dialog', { name: 'Media viewer' })
     await clickUntil(page.getByRole('button', { name: /^Open media/ }).first(), dialog)
 
-    await expect(dialog.locator('iframe[title]')).toHaveAttribute('src', YOUTUBE_EMBED)
+    // Only the active slide mounts its player, so the video has to be on screen to be asserted on.
+    // Walked to rather than opened directly: nothing in the thumbnail grid says which item is the
+    // video, and the capture this is blocked on has not fixed where it sits. The inner timeout is
+    // what absorbs the re-render after a click, so the walk cannot step past the slide it wants.
+    const player = dialog.locator('iframe[title]')
+    await expect(async () => {
+      if ((await player.count()) === 0) await dialog.getByRole('button', { name: 'Next' }).click()
+      await expect(player).toHaveAttribute('src', YOUTUBE_EMBED, { timeout: 1000 })
+    }).toPass({ timeout: 15000 })
   })
 })
