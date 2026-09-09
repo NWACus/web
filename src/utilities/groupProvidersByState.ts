@@ -5,19 +5,19 @@ type GroupableProvider = Pick<Provider, 'name' | 'statesServiced'>
 
 export type ProvidersByState<T extends GroupableProvider = Provider> = { [state: string]: T[] }
 
-// Parse a comma-separated states filter param into trimmed, non-empty state codes
+// Parse a comma-separated states filter param into trimmed, uppercased, non-empty state codes
 export function parseStatesFilter(states: string | null | undefined): string[] {
   if (!states) return []
   return states
     .split(',')
-    .map((s) => s.trim())
+    .map((s) => s.trim().toUpperCase())
     .filter((s) => s.length > 0)
 }
 
 /**
  * Groups published providers by the states they service and returns the sorted
- * list of states to render. When `statesFilter` (a comma-separated list of state
- * codes) is provided, the returned states are restricted to the selected set
+ * list of states to render. When `statesFilter` (a comma-separated, case-insensitive
+ * list of state codes) is provided, the returned states are restricted to the selected set
  * (intersected with the states that actually have providers). States are sorted
  * alphabetically with `INTL` always last.
  */

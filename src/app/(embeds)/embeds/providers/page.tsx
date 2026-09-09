@@ -43,11 +43,6 @@ export default async function ProvidersEmbedPage({
   // multiple states) and restrict to the selected states when a filter is given
   const { states, providersByState } = groupProvidersByState(result.docs, statesFilter)
 
-  // Split states into two columns for vertical flow
-  const midpoint = Math.ceil(states.length / 2)
-  const leftColumnStates = states.slice(0, midpoint)
-  const rightColumnStates = states.slice(midpoint)
-
   return (
     <>
       <div className="py-4">
@@ -57,16 +52,47 @@ export default async function ProvidersEmbedPage({
           </div>
         )}
         <A3Banner />
-        <div className="grid sm:grid-cols-2 gap-x-4">
-          <StatesAccordion states={leftColumnStates} providersByState={providersByState} />
-          <StatesAccordion states={rightColumnStates} providersByState={providersByState} />
-        </div>
+        <ProvidersByStateSection
+          states={states}
+          providersByState={providersByState}
+          hasStatesFilter={Boolean(statesFilter)}
+        />
       </div>
       <Script
         type="module"
         src="https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@latest/dist/index.js"
       />
     </>
+  )
+}
+
+function ProvidersByStateSection({
+  states,
+  providersByState,
+  hasStatesFilter,
+}: {
+  states: string[]
+  providersByState: ProvidersByState
+  hasStatesFilter: boolean
+}) {
+  if (states.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">
+          {hasStatesFilter ? 'No providers found for the selected states.' : 'No providers found.'}
+        </p>
+      </div>
+    )
+  }
+
+  // Split states into two columns for vertical flow
+  const midpoint = Math.ceil(states.length / 2)
+
+  return (
+    <div className="grid sm:grid-cols-2 gap-x-4">
+      <StatesAccordion states={states.slice(0, midpoint)} providersByState={providersByState} />
+      <StatesAccordion states={states.slice(midpoint)} providersByState={providersByState} />
+    </div>
   )
 }
 

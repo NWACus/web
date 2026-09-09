@@ -13,8 +13,8 @@ describe('parseStatesFilter', () => {
     expect(parseStatesFilter('')).toEqual([])
   })
 
-  it('splits, trims, and drops empty entries', () => {
-    expect(parseStatesFilter('WA, OR ,,CA')).toEqual(['WA', 'OR', 'CA'])
+  it('splits, trims, uppercases, and drops empty entries', () => {
+    expect(parseStatesFilter('WA, or ,,Ca')).toEqual(['WA', 'OR', 'CA'])
   })
 })
 
@@ -53,6 +53,11 @@ describe('groupProvidersByState', () => {
 
   it('keeps INTL last even when filtered', () => {
     const { states } = groupProvidersByState(providers, 'INTL,WA')
+    expect(states).toEqual(['WA', 'INTL'])
+  })
+
+  it('matches state codes case-insensitively', () => {
+    const { states } = groupProvidersByState(providers, 'wa,intl')
     expect(states).toEqual(['WA', 'INTL'])
   })
 
