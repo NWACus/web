@@ -1885,7 +1885,19 @@ export interface Provider {
   /**
    * These are the course types this provider is approved to create.
    */
-  courseTypes: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[];
+  courseTypes: (
+    | 'rec-1'
+    | 'rec-2'
+    | 'pro-1'
+    | 'pro-2'
+    | 'rescue'
+    | 'awareness-external'
+    | 'intro-to-avalanches-field-course'
+    | 'level-1-rescue-combined'
+    | 'level-2-rescue-combined'
+    | 'pro-rescue'
+    | 'pro-avsar'
+  )[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1996,7 +2008,18 @@ export interface Course {
    * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
    */
   slug: string;
-  courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
+  courseType:
+    | 'rec-1'
+    | 'rec-2'
+    | 'pro-1'
+    | 'pro-2'
+    | 'rescue'
+    | 'awareness-external'
+    | 'intro-to-avalanches-field-course'
+    | 'level-1-rescue-combined'
+    | 'level-2-rescue-combined'
+    | 'pro-rescue'
+    | 'pro-avsar';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
   affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
   provider?: (number | null) | Provider;
