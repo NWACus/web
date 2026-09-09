@@ -74,6 +74,31 @@ const initialOptions: EmbedOptions = {
   endDate: undefined,
 }
 
+const stateSelectOptions: OptionObject[] = stateOptionsWIntl.map((state) => ({
+  label: state.label,
+  value: state.value,
+}))
+
+function StatesSelect({
+  value,
+  onChange,
+}: {
+  value: string[]
+  onChange: (states: string[]) => void
+}) {
+  return (
+    <SelectInput
+      label="States"
+      name="states"
+      path="states"
+      options={stateSelectOptions}
+      value={value}
+      onChange={(selected) => onChange(extractStringValues(selected))}
+      hasMany
+    />
+  )
+}
+
 function formatDateForParam(date: Date | undefined): string {
   if (!date) return ''
   return format(date, 'MM-dd-yyyy')
@@ -83,6 +108,10 @@ function generateEmbedCode(type: EmbedType, options: EmbedOptions, baseUrl: stri
   const params = new URLSearchParams()
 
   if (options.title) params.set('title', options.title)
+
+  if (type === 'providers') {
+    if (options.states.length) params.set('states', options.states.join(','))
+  }
 
   if (type === 'courses') {
     if (options.showFilters) params.set('showFilters', 'true')
@@ -227,6 +256,21 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
         />
       )}
 
+      {/* Providers-specific Options */}
+      {embedType === 'providers' && (
+        <>
+          <div className="field-description">
+            <strong>Pre-filter options:</strong> Select states below to pre-filter the providers
+            shown in the embed. Leave empty to show all states.
+          </div>
+
+          <StatesSelect
+            value={options.states}
+            onChange={(states) => updateOption('states', states)}
+          />
+        </>
+      )}
+
       {/* Courses-specific Options */}
       {embedType === 'courses' && (
         <>
@@ -271,17 +315,9 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
             hasMany
           />
 
-          {/* States */}
-          <SelectInput
-            label="States"
-            name="states"
-            path="states"
-            options={stateOptionsWIntl.map((state) => ({ label: state.label, value: state.value }))}
+          <StatesSelect
             value={options.states}
-            onChange={(selected) => {
-              updateOption('states', extractStringValues(selected))
-            }}
-            hasMany
+            onChange={(states) => updateOption('states', states)}
           />
 
           {/* Affinity Groups */}

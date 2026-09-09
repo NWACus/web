@@ -32,6 +32,7 @@ Displays all published avalanche education providers organized by state in a two
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `title` | string | none | Optional header title to display above the provider list |
+| `states` | string | none | Pre-filter to only the given states (comma-separated state codes, e.g. `WA,OR`; case-insensitive). Uses `INTL` for International. When omitted, all states are shown. |
 
 ### Example Usage
 
@@ -40,7 +41,7 @@ Displays all published avalanche education providers organized by state in a two
   id="avy-web-embed-provider"
   src="https://yoursite.com/embeds/providers"
   height="0"
-  scrolling="true"
+  scrolling="no"
   width="100%"
 ></iframe>
 <script type="module">
@@ -49,13 +50,26 @@ Displays all published avalanche education providers organized by state in a two
 </script>
 ```
 
+The examples below omit the iframe-resizer script; include it as shown above whenever the iframe uses `height="0"`.
+
 With a custom title:
 ```html
 <iframe
   id="avy-web-embed-provider"
   src="https://yoursite.com/embeds/providers?title=Find%20a%20Provider"
   height="0"
-  scrolling="true"
+  scrolling="no"
+  width="100%"
+></iframe>
+```
+
+Pre-filtered to show only Washington and Oregon providers:
+```html
+<iframe
+  id="avy-web-embed-provider"
+  src="https://yoursite.com/embeds/providers?states=WA,OR"
+  height="0"
+  scrolling="no"
   width="100%"
 ></iframe>
 ```
@@ -63,6 +77,9 @@ With a custom title:
 ### Behavior
 
 - Providers are grouped by their `statesServiced` field (a provider can appear under multiple states)
+- When the `states` param is present, only the selected states' sections are rendered; a provider appears under a selected state if that state is among its `statesServiced`
+- If no providers match the selected states, a "No providers found for the selected states." message is shown instead of the accordion
+- State sections start collapsed by default; when the `states` param is present, the selected states' sections start expanded
 - States are sorted alphabetically and split into two columns
 - Clicking a provider opens a modal with details: name, course types offered, email, phone, and website
 
@@ -123,7 +140,7 @@ Basic embed showing all upcoming courses:
 <iframe
   src="https://yoursite.com/embeds/courses"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
@@ -133,7 +150,7 @@ With filters enabled:
 <iframe
   src="https://yoursite.com/embeds/courses?showFilters=true"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
@@ -143,7 +160,7 @@ Pre-filtered to show only Rec 1 courses in Washington:
 <iframe
   src="https://yoursite.com/embeds/courses?types=rec-1&states=WA"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
@@ -153,7 +170,7 @@ Multiple filters (Rec 1 and Rec 2 courses for women):
 <iframe
   src="https://yoursite.com/embeds/courses?types=rec-1,rec-2&affinityGroups=women&showFilters=true"
   height="800px"
-  scrolling="true"
+  scrolling="auto"
   width="100%"
 ></iframe>
 ```
