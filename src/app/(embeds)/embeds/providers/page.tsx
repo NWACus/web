@@ -90,8 +90,16 @@ function ProvidersByStateSection({
 
   return (
     <div className="grid sm:grid-cols-2 gap-x-4">
-      <StatesAccordion states={states.slice(0, midpoint)} providersByState={providersByState} />
-      <StatesAccordion states={states.slice(midpoint)} providersByState={providersByState} />
+      <StatesAccordion
+        states={states.slice(0, midpoint)}
+        providersByState={providersByState}
+        defaultExpanded={hasStatesFilter}
+      />
+      <StatesAccordion
+        states={states.slice(midpoint)}
+        providersByState={providersByState}
+        defaultExpanded={hasStatesFilter}
+      />
     </div>
   )
 }
@@ -99,12 +107,14 @@ function ProvidersByStateSection({
 function StatesAccordion({
   states,
   providersByState,
+  defaultExpanded,
 }: {
   states: string[]
   providersByState: ProvidersByState
+  defaultExpanded: boolean
 }) {
   return (
-    <Accordion type="multiple">
+    <Accordion type="multiple" defaultValue={defaultExpanded ? states : undefined}>
       {states.map((stateCode) => {
         const providers = providersByState[stateCode]
         const stateLabel = getStateLabel(stateCode)
