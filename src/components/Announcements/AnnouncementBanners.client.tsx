@@ -5,7 +5,6 @@ import { useAnnouncementBanners } from '@/providers/AnnouncementBannerProvider'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import RichText from '../RichText'
-import { isExpired } from './isExpired'
 import { scrollAnnouncementsIntoView } from './scrollAnnouncementsIntoView'
 
 const STORAGE_KEY = 'announcement-banners'
@@ -34,17 +33,66 @@ function setStoredState(state: BannerState) {
   }
 }
 
-interface AnnouncementBannersProps {
-  banners: Announcement[]
+// The banners open on load when one of them is new to this visitor; otherwise their last
+// expand/collapse choice stands.
+function shouldExpandOnLoad(activeIds: number[], stored: BannerState): boolean {
+  return !stored.collapsed || activeIds.some((id) => !stored.seenIds.includes(id))
 }
 
-export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
-  const { collapsed, collapse, expand } = useAnnouncementBanners()
+// Carries the visitor's collapse choice and the banners they have already seen across visits.
+// Nothing is read or written until the provider has narrowed the list by device: before that the
+// list still holds banners meant for the other device, and marking those seen here would keep
+// them from expanding on the device they were written for.
+function useStoredBannerState({
+  activeBanners,
+  deviceResolved,
+  collapsed,
+  collapse,
+  expand,
+}: {
+  activeBanners: Announcement[]
+  deviceResolved: boolean
+  collapsed: boolean
+  collapse: () => void
+  expand: () => void
+}) {
   const [seenIds, setSeenIds] = useState<number[]>([])
+  const restored = useRef(false)
+
+  useEffect(() => {
+    if (!deviceResolved || activeBanners.length === 0) return
+
+    const activeIds = activeBanners.map((b) => b.id)
+
+    if (shouldExpandOnLoad(activeIds, getStoredState())) {
+      expand()
+    } else {
+      collapse()
+    }
+
+    setSeenIds(activeIds)
+    restored.current = true
+  }, [deviceResolved]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!restored.current) return
+    setStoredState({ collapsed, seenIds })
+  }, [collapsed, seenIds])
+}
+
+// The expandable strip itself. It measures its own content so the collapse/expand transition has
+// a height to animate to.
+function BannerPanel({
+  banners,
+  collapsed,
+  onCollapse,
+}: {
+  banners: Announcement[]
+  collapsed: boolean
+  onCollapse: () => void
+}) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [contentHeight, setContentHeight] = useState(0)
-
-  const activeBanners = banners.filter((b) => !isExpired(b))
 
   useEffect(() => {
     if (!contentRef.current) return
@@ -55,40 +103,7 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
     })
     observer.observe(contentRef.current)
     return () => observer.disconnect()
-  }, [activeBanners.length])
-
-  useEffect(() => {
-    const stored = getStoredState()
-    const hasUnseenBanners = activeBanners.some((b) => !stored.seenIds.includes(b.id))
-    const activeIds = activeBanners.map((b) => b.id)
-
-    if (hasUnseenBanners) {
-      expand()
-      setSeenIds(activeIds)
-      setStoredState({ collapsed: false, seenIds: activeIds })
-    } else {
-      if (stored.collapsed) {
-        collapse()
-      } else {
-        expand()
-      }
-      setSeenIds(activeIds)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Persist collapsed state to localStorage
-  useEffect(() => {
-    setStoredState({ collapsed, seenIds })
-  }, [collapsed, seenIds])
-
-  const handleCollapse = useCallback(() => {
-    collapse()
-  }, [collapse])
-
-  const handleExpand = useCallback(() => {
-    expand()
-    scrollAnnouncementsIntoView()
-  }, [expand])
+  }, [banners.length])
 
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -96,50 +111,67 @@ export function AnnouncementBanners({ banners }: AnnouncementBannersProps) {
         e.target instanceof HTMLElement &&
         e.target.closest('a, button:not([aria-label="Collapse announcements"])')
       ) {
-        handleCollapse()
+        onCollapse()
       }
     },
-    [handleCollapse],
+    [onCollapse],
   )
+
+  return (
+    // Capped below lg because the banners are pinned there: a long announcement would otherwise
+    // take the whole phone screen and leave nowhere to read the page. Past the cap it scrolls.
+    <div
+      className="max-h-[35dvh] overflow-x-hidden overflow-y-auto transition-[height] duration-300 ease-in-out lg:max-h-none lg:overflow-y-hidden"
+      style={{ height: collapsed ? 0 : contentHeight }}
+    >
+      <div ref={contentRef} className="relative bg-callout" onClick={handleContentClick}>
+        {banners.map((banner, index) => (
+          <Fragment key={banner.id}>
+            {index > 0 && <hr className="container mx-auto border-callout-foreground/25" />}
+            <div className="bg-callout px-4 py-3 text-callout-foreground">
+              <div className="container mx-auto">
+                <h3 className="mb-1 pr-24 font-semibold">{banner.title}</h3>
+                {banner.content && (
+                  <RichText
+                    data={banner.content}
+                    enableGutter={false}
+                    className="prose-sm max-w-none [&_p]:mb-2 [&_p_a]:text-callout-foreground [&_p_a]:underline [&_p_a]:decoration-callout-foreground/50 hover:[&_p_a]:decoration-callout-foreground [&_.my-4]:mt-0 [&_.my-4]:mb-4 [&_.my-4:last-child]:mb-1 [&_.my-4_a]:h-9 [&_.my-4_a]:px-3"
+                  />
+                )}
+              </div>
+            </div>
+          </Fragment>
+        ))}
+        <button
+          onClick={onCollapse}
+          className="absolute right-0 top-0 flex items-center gap-1.5 px-4 py-1.5 text-sm text-callout-foreground transition-colors hover:bg-callout-foreground/10"
+          aria-label="Collapse announcements"
+        >
+          Collapse
+          <ChevronUp className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function AnnouncementBanners() {
+  // Expiry- and device-filtered banners come from the provider so the banner list
+  // and the count surfaced elsewhere (e.g. the mobile nav badge) stay in lockstep.
+  const { activeBanners, deviceResolved, collapsed, collapse, expand } = useAnnouncementBanners()
+
+  useStoredBannerState({ activeBanners, deviceResolved, collapsed, collapse, expand })
+
+  const handleExpand = useCallback(() => {
+    expand()
+    scrollAnnouncementsIntoView()
+  }, [expand])
 
   if (activeBanners.length === 0) return null
 
   return (
     <>
-      {/* Capped below lg because the banners are pinned there: a long announcement would otherwise
-          take the whole phone screen and leave nowhere to read the page. Past the cap it scrolls. */}
-      <div
-        className="max-h-[35dvh] overflow-x-hidden overflow-y-auto transition-[height] duration-300 ease-in-out lg:max-h-none lg:overflow-y-hidden"
-        style={{ height: collapsed ? 0 : contentHeight }}
-      >
-        <div ref={contentRef} className="relative bg-callout" onClick={handleContentClick}>
-          {activeBanners.map((banner, index) => (
-            <Fragment key={banner.id}>
-              {index > 0 && <hr className="container mx-auto border-callout-foreground/25" />}
-              <div className="bg-callout px-4 py-3 text-callout-foreground">
-                <div className="container mx-auto">
-                  <h3 className="mb-1 pr-24 font-semibold">{banner.title}</h3>
-                  {banner.content && (
-                    <RichText
-                      data={banner.content}
-                      enableGutter={false}
-                      className="prose-sm max-w-none [&_p]:mb-2 [&_p_a]:text-callout-foreground [&_p_a]:underline [&_p_a]:decoration-callout-foreground/50 hover:[&_p_a]:decoration-callout-foreground [&_.my-4]:mt-0 [&_.my-4]:mb-4 [&_.my-4:last-child]:mb-1 [&_.my-4_a]:h-9 [&_.my-4_a]:px-3"
-                    />
-                  )}
-                </div>
-              </div>
-            </Fragment>
-          ))}
-          <button
-            onClick={handleCollapse}
-            className="absolute right-0 top-0 flex items-center gap-1.5 px-4 py-1.5 text-sm text-callout-foreground transition-colors hover:bg-callout-foreground/10"
-            aria-label="Collapse announcements"
-          >
-            Collapse
-            <ChevronUp className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
+      <BannerPanel banners={activeBanners} collapsed={collapsed} onCollapse={collapse} />
       {collapsed && (
         <button
           onClick={handleExpand}

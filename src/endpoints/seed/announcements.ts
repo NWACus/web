@@ -64,6 +64,50 @@ export const getAnnouncementsData = (
       _status: 'published',
     },
     {
+      title: 'Text Alerts for Forecast Updates',
+      type: 'banner',
+      tenant: tenant.id,
+      startDate: oneMonthAgo.toISOString(),
+      deviceTarget: 'mobile_only',
+      content: richTextRoot(
+        paragraphNode(
+          'Heading out? Sign up for text alerts and get forecast changes and special bulletins on your phone.',
+        ),
+        blockNode({
+          blockType: 'buttonBlock',
+          button: {
+            type: 'external',
+            url: 'https://avalanche.org',
+            label: 'Sign Up for Alerts',
+            variant: 'default',
+          },
+        }),
+      ),
+      _status: 'published',
+    },
+    {
+      title: 'Explore the Interactive Danger Map',
+      type: 'banner',
+      tenant: tenant.id,
+      startDate: oneMonthAgo.toISOString(),
+      deviceTarget: 'desktop_only',
+      content: richTextRoot(
+        paragraphNode(
+          'Compare danger ratings across every zone, layer in weather stations, and zoom into the terrain you are planning for.',
+        ),
+        blockNode({
+          blockType: 'buttonBlock',
+          button: {
+            type: 'external',
+            url: 'https://avalanche.org',
+            label: 'Open the Map',
+            variant: 'default',
+          },
+        }),
+      ),
+      _status: 'published',
+    },
+    {
       title: 'Past Season Summary Available',
       type: 'banner',
       tenant: tenant.id,
