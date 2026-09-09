@@ -33,40 +33,49 @@ function setStoredState(state: BannerState) {
   }
 }
 
+// The banners open on load when one of them is new to this visitor; otherwise their last
+// expand/collapse choice stands.
+function shouldExpandOnLoad(activeIds: number[], stored: BannerState): boolean {
+  return !stored.collapsed || activeIds.some((id) => !stored.seenIds.includes(id))
+}
+
 // Carries the visitor's collapse choice and the banners they have already seen across visits.
+// Nothing is read or written until the provider has narrowed the list by device: before that the
+// list still holds banners meant for the other device, and marking those seen here would keep
+// them from expanding on the device they were written for.
 function useStoredBannerState({
   activeBanners,
+  deviceResolved,
   collapsed,
   collapse,
   expand,
 }: {
   activeBanners: Announcement[]
+  deviceResolved: boolean
   collapsed: boolean
   collapse: () => void
   expand: () => void
 }) {
   const [seenIds, setSeenIds] = useState<number[]>([])
+  const restored = useRef(false)
 
   useEffect(() => {
-    const stored = getStoredState()
-    const hasUnseenBanners = activeBanners.some((b) => !stored.seenIds.includes(b.id))
+    if (!deviceResolved || activeBanners.length === 0) return
+
     const activeIds = activeBanners.map((b) => b.id)
 
-    if (hasUnseenBanners) {
+    if (shouldExpandOnLoad(activeIds, getStoredState())) {
       expand()
-      setSeenIds(activeIds)
-      setStoredState({ collapsed: false, seenIds: activeIds })
     } else {
-      if (stored.collapsed) {
-        collapse()
-      } else {
-        expand()
-      }
-      setSeenIds(activeIds)
+      collapse()
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    setSeenIds(activeIds)
+    restored.current = true
+  }, [deviceResolved]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!restored.current) return
     setStoredState({ collapsed, seenIds })
   }, [collapsed, seenIds])
 }
@@ -149,9 +158,9 @@ function BannerPanel({
 export function AnnouncementBanners() {
   // Expiry- and device-filtered banners come from the provider so the banner list
   // and the count surfaced elsewhere (e.g. the mobile nav badge) stay in lockstep.
-  const { activeBanners, collapsed, collapse, expand } = useAnnouncementBanners()
+  const { activeBanners, deviceResolved, collapsed, collapse, expand } = useAnnouncementBanners()
 
-  useStoredBannerState({ activeBanners, collapsed, collapse, expand })
+  useStoredBannerState({ activeBanners, deviceResolved, collapsed, collapse, expand })
 
   const handleExpand = useCallback(() => {
     expand()

@@ -6,6 +6,7 @@ import React, { createContext, use, useCallback, useEffect, useMemo, useState } 
 
 interface AnnouncementBannerContextValue {
   activeBanners: Announcement[]
+  deviceResolved: boolean
   count: number
   collapsed: boolean
   collapse: () => void
@@ -15,6 +16,7 @@ interface AnnouncementBannerContextValue {
 
 const AnnouncementBannerContext = createContext<AnnouncementBannerContextValue>({
   activeBanners: [],
+  deviceResolved: false,
   count: 0,
   collapsed: true,
   collapse: () => {},
@@ -52,7 +54,15 @@ export function AnnouncementBannerProvider({
 
   return (
     <AnnouncementBannerContext
-      value={{ activeBanners, count: activeBanners.length, collapsed, collapse, expand, toggle }}
+      value={{
+        activeBanners,
+        deviceResolved,
+        count: activeBanners.length,
+        collapsed,
+        collapse,
+        expand,
+        toggle,
+      }}
     >
       {children}
     </AnnouncementBannerContext>
