@@ -6,6 +6,8 @@ interface Window {
     mountId: string
     baseUrl: string
     controlledMount?: boolean
+    /** Danger map only: pixel height of the map container. */
+    height?: number
   }
   mediaWidgetData?: (typeof Window)['mediaWidgetData']
   forecastWidgetData?: (typeof Window)['mapWidgetData']
