@@ -133,9 +133,7 @@ export const Announcements: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-        // Device targeting applies to both banners and pop-ups.
-        condition: (_, siblingData) =>
-          siblingData?.type === 'banner' || siblingData?.type === 'popup',
+        // No condition: device targeting applies to both banners and pop-ups.
         description: 'Which devices this announcement is shown on',
       },
     },

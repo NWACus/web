@@ -2,9 +2,9 @@ import type { Announcement } from '@/payload-types'
 
 // Shared definition of the mobile/desktop split so banners and pop-ups target
 // devices by the same rule. Viewports narrower than this (px) count as mobile.
-export const MOBILE_BREAKPOINT = 768
+const MOBILE_BREAKPOINT = 768
 
-export function isMobile(): boolean {
+function isMobile(): boolean {
   if (typeof window === 'undefined') return false
   return window.innerWidth < MOBILE_BREAKPOINT
 }
