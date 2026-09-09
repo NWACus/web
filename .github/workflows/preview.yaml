@@ -12,7 +12,10 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deploy:
-    if: ${{ github.event_name != 'merge_group' }}
+    # Dependabot-triggered runs only receive Dependabot secrets, so the Turso,
+    # Vercel, blob, and seed-password secrets this job needs are empty and the
+    # seed step fails. Push a commit to a Dependabot branch to get a preview.
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: blacksmith-2vcpu-ubuntu-2404
     environment: Preview
     env:

@@ -1,6 +1,10 @@
 **/payload-types.ts
 src/app/(payload)/admin/importMap.js
 fallow-baselines/
+# pnpm serializes this file itself. Formatting it means every regenerated
+# lockfile (Dependabot, or an install committed with hooks bypassed) fails
+# the prettier check and produces a whole-file diff.
+pnpm-lock.yaml
 .tmp
 **/.git
 **/.hg
