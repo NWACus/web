@@ -87,10 +87,13 @@ export function NACWidget({
   center,
   widget,
   mediaMode,
+  mapHeight,
 }: {
   center: string
   widget: Widget
   mediaMode?: 'carousel' | 'grid'
+  /** Pixel height of the danger map, passed as `mapWidgetData.height`. Only used when `widget` is `'map'`. */
+  mapHeight?: number
 }) {
   const { version, baseUrl, devMode } = useNACWidgetsConfig()
   const widgetId = `nac-widget-${widget}`
@@ -123,6 +126,7 @@ export function NACWidget({
       baseUrl: baseUrl,
       controlledMount: true,
       ...(widget === 'media' && { mode: mediaMode }),
+      ...(widget === 'map' && { height: mapHeight }),
     }
 
     window[widgetDataKey] = widgetData
