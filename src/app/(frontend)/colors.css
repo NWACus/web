@@ -198,46 +198,48 @@
   --nav-underline: var(--callout);
 }
 
-/* Payette Avalanche Center */
+/* Payette Avalanche Center — Deep Lake */
 .pac {
-  /* PAC BRAND COLORS */
-  --teal: hsl(178 83% 35%); /* rgb(15 166 162) - primary accent from links/logo */
-  --slate: hsl(210 9% 14%); /* rgb(32 35 38) - body text / dark */
-  --slate-gray: hsl(0 0% 22%); /* rgb(55 55 55) - footer */
-  /*--------------------------*/
+  --brand-50: hsl(199 55% 97%);
+  --brand-100: hsl(199 55% 94%);
+  --brand-200: hsl(199 55% 88%);
+  --brand-300: hsl(199 55% 76%);
+  --brand-400: hsl(199 55% 62%);
+  --brand-500: hsl(199 55% 48%);
+  --brand-600: hsl(199 55% 38%);
+  --brand-700: hsl(199 55% 29%);
+  --brand-800: hsl(199 55% 20%);
+  --brand-900: hsl(199 55% 13%);
+  --brand-950: hsl(199 55% 8%);
 
-  --brand-50: hsl(178 60% 96%);
-  --brand-100: hsl(178 64% 90%);
-  --brand-200: hsl(178 68% 78%);
-  --brand-300: hsl(178 73% 60%);
-  --brand-400: hsl(178 79% 44%);
-  --brand-500: var(--teal);
-  --brand-600: hsl(178 83% 29%);
-  --brand-700: hsl(181 58% 22%);
-  --brand-800: hsl(198 22% 18%);
-  --brand-900: var(--slate);
-  --brand-950: hsl(210 12% 10%);
+  --brand-foreground-50: hsl(240 10% 3.9%);
+  --brand-foreground-100: hsl(240 10% 3.9%);
+  --brand-foreground-200: hsl(240 10% 3.9%);
+  --brand-foreground-300: hsl(240 10% 3.9%);
+  --brand-foreground-400: hsl(240 10% 3.9%);
+  --brand-foreground-500: hsl(0 0% 100%);
+  --brand-foreground-600: hsl(0 0% 100%);
+  --brand-foreground-700: hsl(0 0% 100%);
+  --brand-foreground-800: hsl(0 0% 100%);
+  --brand-foreground-900: hsl(0 0% 100%);
+  --brand-foreground-950: hsl(0 0% 100%);
 
-  --primary: var(--teal);
-  --primary-hover: hsla(178 83% 35% / 0.85);
-
-  --secondary: var(--slate);
-  --secondary-hover: hsla(210 9% 14% / 0.85);
-  --secondary-foreground: hsl(0 0% 98%);
-
-  --header: hsl(0 0% 100%);
-  --header-foreground: var(--slate);
-  --header-foreground-highlight: var(--brand-700);
-
-  --footer: var(--slate-gray);
+  --primary: hsl(199 70% 20%);
+  --primary-hover: hsla(199 70% 20% / 0.85);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(193 55% 45%);
+  --secondary-hover: hsla(193 55% 45% / 0.85);
+  --secondary-foreground: hsl(0 0% 100%);
+  --header: hsl(199 70% 16%);
+  --header-foreground: hsl(193 45% 77%);
+  --header-foreground-highlight: hsl(0 0% 100%);
+  --footer: hsl(199 70% 12%);
   --footer-foreground: hsl(0 0% 100%);
-  --header-foreground-highlight: var(--brand-700);
-
-  --callout: var(--teal);
-  --callout-hover: hsla(178 83% 35% / 0.85);
-  --callout-foreground: hsl(0 0% 100%);
-
-  --nav-underline: var(--teal);
+  --footer-foreground-highlight: hsl(0 0% 100%);
+  --callout: hsl(43 96% 50%);
+  --callout-hover: hsla(43 96% 50% / 0.85);
+  --callout-foreground: hsl(200 60% 10%);
+  --nav-underline: hsl(43 96% 50%);
 }
 
 .a3 {

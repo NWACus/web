@@ -64,7 +64,7 @@ With a custom title:
 
 - Providers are grouped by their `statesServiced` field (a provider can appear under multiple states)
 - States are sorted alphabetically and split into two columns
-- Clicking a provider opens a modal with details: name, course types offered, location, website, email, and phone
+- Clicking a provider opens a modal with details: name, course types offered, email, phone, and website
 
 ## Courses Embed
 

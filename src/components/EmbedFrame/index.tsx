@@ -1,9 +1,8 @@
 'use client'
 
-import getTextColorFromBgColor from '@/utilities/getTextColorFromBgColor'
-import { cn } from '@/utilities/ui'
+import { EmbedLayout } from '@/components/EmbedFrame/EmbedLayout'
+import { sanitizeEmbedHtml } from '@/components/EmbedFrame/sanitize'
 import { IframeResizer } from '@open-iframe-resizer/react'
-import DOMPurify from 'dompurify'
 import { useEffect, useState } from 'react'
 
 type IframeContent = { type: 'srcDoc'; value: string } | { type: 'src'; value: string }
@@ -28,30 +27,20 @@ export type EmbedFrameProps = {
 export const EmbedFrame = ({
   id,
   html,
-  backgroundColor = 'transparent',
-  alignContent = 'left',
+  backgroundColor,
+  alignContent,
   className,
-  isLayoutBlock = true,
+  isLayoutBlock,
   addTags,
   addAttr,
   sandbox,
 }: EmbedFrameProps) => {
   const [iframeContent, setIframeContent] = useState<IframeContent | null>(null)
 
-  const bgColorClass = `bg-${backgroundColor}`
-  const textColor = getTextColorFromBgColor(backgroundColor)
-
   useEffect(() => {
     if (typeof window === 'undefined' || !html) return
 
-    // Normalize curly quotes that DOMParser/DOMPurify parse incorrectly
-    const normalizedHTML = html.replaceAll('“', '"').replaceAll('”', '"')
-
-    const sanitized = DOMPurify.sanitize(normalizedHTML, {
-      ADD_TAGS: addTags,
-      ADD_ATTR: addAttr,
-      FORCE_BODY: true,
-    })
+    const sanitized = sanitizeEmbedHtml(html, { addTags, addAttr })
 
     const styleOverrides = `
       <style>
@@ -82,28 +71,22 @@ export const EmbedFrame = ({
   if (iframeContent === null) return null
 
   return (
-    <div className={cn(bgColorClass, textColor)}>
-      <div
-        className={cn(
-          isLayoutBlock && 'container py-10',
-          'flex flex-col',
-          alignContent === 'left' && 'items-start',
-          alignContent === 'center' && 'items-center',
-          alignContent === 'right' && 'items-end',
-          className,
-        )}
-      >
-        <IframeResizer
-          id={String(id)}
-          title={`Embedded content ${id}`}
-          {...(iframeContent.type === 'src'
-            ? { src: iframeContent.value }
-            : { srcDoc: iframeContent.value })}
-          sandbox={sandbox}
-          className="w-full border-none m-0 p-0 transition-[height] duration-200 ease-in-out"
-          height={0} // Resizes to content height; 0 avoids the browser default 150px
-        />
-      </div>
-    </div>
+    <EmbedLayout
+      backgroundColor={backgroundColor}
+      alignContent={alignContent}
+      isLayoutBlock={isLayoutBlock}
+      className={className}
+    >
+      <IframeResizer
+        id={String(id)}
+        title={`Embedded content ${id}`}
+        {...(iframeContent.type === 'src'
+          ? { src: iframeContent.value }
+          : { srcDoc: iframeContent.value })}
+        sandbox={sandbox}
+        className="w-full border-none m-0 p-0 transition-[height] duration-200 ease-in-out"
+        height={0} // Resizes to content height; 0 avoids the browser default 150px
+      />
+    </EmbedLayout>
   )
 }

@@ -3,11 +3,16 @@ import Link from 'next/link'
 
 import type { Post } from '@/payload-types'
 
+export type PostPreviewSmallRowData = Pick<Post, 'featuredImage' | 'publishedAt' | 'slug' | 'title'>
+
 import { getRelativeTime } from '@/utilities/getRelativeTime'
 import { BookText } from 'lucide-react'
 import { ImageMedia } from './Media/ImageMedia'
 
-export const PostPreviewSmallRow = (props: { className?: string; doc?: Post }) => {
+export const PostPreviewSmallRow = (props: {
+  className?: string
+  doc?: PostPreviewSmallRowData
+}) => {
   const { className, doc } = props
 
   if (!doc) return null

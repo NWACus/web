@@ -16,6 +16,7 @@ export const NWAC_STATION_REGIONS = [
   'Mt Rainier',
   'Chinook Pass',
   'White Pass',
+  'Mt St Helens',
   'Washington Pass',
   'Lake Wenatchee to Mission Ridge',
   'Mt Hood',
@@ -32,6 +33,9 @@ export type WeatherStationGroup = {
   /** Unique SnowObs station ids fetched for this group. */
   stids: string[]
   columns: StationColumnConfig[]
+  /** The physical station is gone but its history is still queryable, so the
+   * page stays up for downloads only. SnowObs carries the decommission note. */
+  archived?: boolean
 }
 
 // Ported from the legacy nwac_weatherstation plugin's station_group_tables_config.
@@ -371,6 +375,23 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     ],
   },
   {
+    slug: 'mt-st-helens',
+    legacySlug: 'mtsthelens',
+    displayName: 'Mt. St. Helens',
+    region: 'Mt St Helens',
+    stids: ['40'],
+    archived: true,
+    columns: [
+      ['40', 'air_temp'],
+      ['40', 'relative_humidity'],
+      ['40', 'wind_speed_min'],
+      ['40', 'wind_speed'],
+      ['40', 'wind_gust'],
+      ['40', 'wind_direction'],
+      ['40', 'precip_accum_one_hour'],
+    ],
+  },
+  {
     slug: 'mazama',
     legacySlug: 'mazama',
     displayName: 'Mazama',
@@ -594,11 +615,15 @@ export function getStationGroup(slug: string): WeatherStationGroup | undefined {
 // Graphs-tab comparison cap; the graph-data route derives its station cap from this.
 export const MAX_COMPARE_STATIONS = 3
 
-// Every station with a configured hourly-precip column — the row set for the
-// Accumulated Precipitation page (legacy /data-portal/accumulations/precipitation/).
+// Every live station with a configured hourly-precip column — the row set for
+// the Accumulated Precipitation page (legacy
+// /data-portal/accumulations/precipitation/). Archived stations are left out:
+// a decommissioned gauge would sit there reading "missing" forever, which is
+// why legacy omits them too.
 export const PRECIP_STATION_STIDS = Array.from(
   new Set(
-    NWAC_WEATHER_STATION_GROUPS.flatMap((g) => g.columns)
+    NWAC_WEATHER_STATION_GROUPS.filter((g) => !g.archived)
+      .flatMap((g) => g.columns)
       .filter(([, variable]) => variable === 'precip_accum_one_hour')
       .map(([stid]) => stid),
   ),

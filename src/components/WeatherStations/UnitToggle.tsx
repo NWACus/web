@@ -28,17 +28,20 @@ export function UnitToggle({
   unit: UnitSystem
   onChange: (unit: UnitSystem) => void
 }) {
-  const chip = (system: UnitSystem, text: string) => (
+  // Abbreviated on phones, where the full words ate most of the screen width.
+  const chip = (system: UnitSystem, text: string, short: string) => (
     <button
       type="button"
       onClick={() => onChange(system)}
       aria-pressed={unit === system}
+      aria-label={text}
       className={cn(
-        'relative z-10 w-20 rounded-md py-1.5 text-center text-sm transition-colors',
+        'relative z-10 w-12 rounded-md py-1.5 text-center text-sm transition-colors sm:w-20',
         unit === system ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
       )}
     >
-      {text}
+      <span className="sm:hidden">{short}</span>
+      <span className="hidden sm:inline">{text}</span>
     </button>
   )
   return (
@@ -47,12 +50,12 @@ export function UnitToggle({
       <span
         aria-hidden
         className={cn(
-          'absolute inset-y-1 left-1 w-20 rounded-md bg-primary transition-transform duration-200',
-          unit === 'metric' && 'translate-x-20',
+          'absolute inset-y-1 left-1 w-12 rounded-md bg-primary transition-transform duration-200 sm:w-20',
+          unit === 'metric' && 'translate-x-12 sm:translate-x-20',
         )}
       />
-      {chip('imperial', 'Imperial')}
-      {chip('metric', 'Metric')}
+      {chip('imperial', 'Imperial', 'Imp')}
+      {chip('metric', 'Metric', 'Met')}
     </div>
   )
 }
