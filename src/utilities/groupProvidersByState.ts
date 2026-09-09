@@ -3,7 +3,7 @@ import type { Provider } from '@/payload-types'
 // The grouping logic only depends on a provider's name and serviced states
 type GroupableProvider = Pick<Provider, 'name' | 'statesServiced'>
 
-export type ProvidersByState = { [state: string]: Provider[] }
+export type ProvidersByState<T extends GroupableProvider = Provider> = { [state: string]: T[] }
 
 // Parse a comma-separated states filter param into trimmed, non-empty state codes
 export function parseStatesFilter(states: string | null | undefined): string[] {
@@ -24,8 +24,8 @@ export function parseStatesFilter(states: string | null | undefined): string[] {
 export function groupProvidersByState<T extends GroupableProvider>(
   providers: T[],
   statesFilter?: string | null,
-): { states: string[]; providersByState: { [state: string]: T[] } } {
-  const providersByState: { [state: string]: T[] } = {}
+): { states: string[]; providersByState: ProvidersByState<T> } {
+  const providersByState: ProvidersByState<T> = {}
 
   providers.forEach((provider) => {
     if (provider.statesServiced && provider.statesServiced.length > 0) {

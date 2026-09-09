@@ -74,6 +74,31 @@ const initialOptions: EmbedOptions = {
   endDate: undefined,
 }
 
+const stateSelectOptions: OptionObject[] = stateOptionsWIntl.map((state) => ({
+  label: state.label,
+  value: state.value,
+}))
+
+function StatesSelect({
+  value,
+  onChange,
+}: {
+  value: string[]
+  onChange: (states: string[]) => void
+}) {
+  return (
+    <SelectInput
+      label="States"
+      name="states"
+      path="states"
+      options={stateSelectOptions}
+      value={value}
+      onChange={(selected) => onChange(extractStringValues(selected))}
+      hasMany
+    />
+  )
+}
+
 function formatDateForParam(date: Date | undefined): string {
   if (!date) return ''
   return format(date, 'MM-dd-yyyy')
@@ -239,17 +264,9 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
             shown in the embed. Leave empty to show all states.
           </div>
 
-          {/* States */}
-          <SelectInput
-            label="States"
-            name="states"
-            path="states"
-            options={stateOptionsWIntl.map((state) => ({ label: state.label, value: state.value }))}
+          <StatesSelect
             value={options.states}
-            onChange={(selected) => {
-              updateOption('states', extractStringValues(selected))
-            }}
-            hasMany
+            onChange={(states) => updateOption('states', states)}
           />
         </>
       )}
@@ -298,17 +315,9 @@ export function EmbedGeneratorForm({ baseUrl }: { baseUrl: string }) {
             hasMany
           />
 
-          {/* States */}
-          <SelectInput
-            label="States"
-            name="states"
-            path="states"
-            options={stateOptionsWIntl.map((state) => ({ label: state.label, value: state.value }))}
+          <StatesSelect
             value={options.states}
-            onChange={(selected) => {
-              updateOption('states', extractStringValues(selected))
-            }}
-            hasMany
+            onChange={(states) => updateOption('states', states)}
           />
 
           {/* Affinity Groups */}
