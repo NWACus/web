@@ -1,3 +1,4 @@
+import { FOLDERS_SLUG } from '@/folders'
 import type { CollectionBeforeDeleteHook } from 'payload'
 
 export const TENANT_SCOPED_COLLECTIONS = [
@@ -19,6 +20,7 @@ export const TENANT_SCOPED_COLLECTIONS = [
   'redirects',
   'roleAssignments',
   'forms',
+  FOLDERS_SLUG,
 ] as const
 
 /**
