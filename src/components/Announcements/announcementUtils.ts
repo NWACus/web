@@ -1,8 +1,10 @@
 import type { Announcement } from '@/payload-types'
 
-// Shared definition of the mobile/desktop split so banners and pop-ups target
-// devices by the same rule. Viewports narrower than this (px) count as mobile.
-const MOBILE_BREAKPOINT = 768
+// Shared definition of the mobile/desktop split so banners and pop-ups target devices by the same
+// rule. Viewports narrower than this (px) count as mobile. It is Tailwind's `lg`, the width where
+// the site itself switches to the mobile header and pins the banners, so an editor targeting
+// mobile reaches exactly the visitors seeing the mobile layout.
+const MOBILE_BREAKPOINT = 1024
 
 function isMobile(): boolean {
   if (typeof window === 'undefined') return false

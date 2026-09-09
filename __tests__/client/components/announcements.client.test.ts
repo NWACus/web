@@ -76,7 +76,7 @@ describe('matchesDevice', () => {
     setViewportWidth(originalWidth)
   })
 
-  // 768px is the shared mobile breakpoint: widths below it are mobile.
+  // 1024px is the shared mobile breakpoint: widths below it are mobile.
   const MOBILE_WIDTH = 375
   const DESKTOP_WIDTH = 1280
 
@@ -110,12 +110,18 @@ describe('matchesDevice', () => {
     expect(matchesDevice('desktop_only')).toBe(false)
   })
 
-  it('treats the 768px breakpoint as desktop (not mobile)', () => {
-    setViewportWidth(768)
+  it('counts a tablet-width viewport as mobile, matching the layout it renders', () => {
+    setViewportWidth(900)
+    expect(matchesDevice('mobile_only')).toBe(true)
+    expect(matchesDevice('desktop_only')).toBe(false)
+  })
+
+  it('treats the 1024px breakpoint as desktop (not mobile)', () => {
+    setViewportWidth(1024)
     expect(matchesDevice('desktop_only')).toBe(true)
     expect(matchesDevice('mobile_only')).toBe(false)
 
-    setViewportWidth(767)
+    setViewportWidth(1023)
     expect(matchesDevice('mobile_only')).toBe(true)
     expect(matchesDevice('desktop_only')).toBe(false)
   })

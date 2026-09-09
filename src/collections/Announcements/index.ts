@@ -134,7 +134,8 @@ export const Announcements: CollectionConfig = {
       admin: {
         position: 'sidebar',
         // No condition: device targeting applies to both banners and pop-ups.
-        description: 'Which devices this announcement is shown on',
+        description:
+          'Which devices this announcement is shown on. Mobile covers phones and tablets, matching the narrow layout of the site.',
       },
     },
     {

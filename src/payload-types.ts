@@ -1735,7 +1735,7 @@ export interface Announcement {
   displayInterval?: number | null;
   pageScope?: ('all_pages' | 'homepage_only') | null;
   /**
-   * Which devices this announcement is shown on
+   * Which devices this announcement is shown on. Mobile covers phones and tablets, matching the narrow layout of the site.
    */
   deviceTarget?: ('all' | 'mobile_only' | 'desktop_only') | null;
   startDate?: string | null;

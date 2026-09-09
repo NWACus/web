@@ -10,7 +10,7 @@ jest.mock('../../../src/components/RichText', () => ({
   default: () => null,
 }))
 
-// 375px is a phone-width viewport, well under the 768px mobile/desktop split.
+// 375px is a phone-width viewport, well under the 1024px mobile/desktop split.
 const MOBILE_WIDTH = 375
 const STORAGE_KEY = 'announcement-banners'
 
