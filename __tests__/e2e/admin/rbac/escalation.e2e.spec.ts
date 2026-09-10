@@ -20,6 +20,7 @@ async function countAssignments(page: Page, userId: number): Promise<number> {
     page,
     `/api/roleAssignments?where[user][equals]=${userId}&limit=1&depth=0`,
   )
+  expect(result.ok, `counting role assignments failed (${result.status})`).toBeTruthy()
   return result.body.totalDocs
 }
 
@@ -46,7 +47,10 @@ async function expectEscalationRefused(
 }
 
 authTest.describe('Role assignment escalation protection', () => {
-  authTest.describe.configure({ timeout: 90000 })
+  // Serial: the positive control below creates and deletes a roleAssignment for the
+  // same user the escalation tests count before and after, and `fullyParallel` would
+  // otherwise let those tests interleave across workers.
+  authTest.describe.configure({ mode: 'serial', timeout: 90000 })
 
   let adminRoleId: number
   let forecasterRoleId: number

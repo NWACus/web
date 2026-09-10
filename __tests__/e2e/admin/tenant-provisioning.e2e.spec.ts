@@ -111,7 +111,10 @@ test.describe('Tenant provisioning', () => {
       expect(first.homePageCount).toBe(1)
       expect(first.settingsCount).toBe(1)
 
-      // Rerun: nothing is duplicated and the status stays complete
+      // Rerun: nothing is duplicated and the status stays complete. Wait out the
+      // auto-provision's own "Provisioning complete" toast first, or the assertion
+      // below matches that stale toast and the test races ahead of the rerun.
+      await expect(page.locator('.toast-success')).toHaveCount(0, { timeout: 15000 })
       await page.getByRole('button', { name: 'Rerun provisioning' }).click()
       await expect(
         page.locator('.toast-success', { hasText: 'Provisioning complete' }),
