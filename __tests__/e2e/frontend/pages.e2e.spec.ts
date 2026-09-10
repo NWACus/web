@@ -157,3 +157,50 @@ test.describe('Embed pages load correctly', () => {
     expect(errors).toEqual([])
   })
 })
+
+test.describe('Providers embed states filter', () => {
+  test.describe.configure({ timeout: 60000 })
+
+  // Seeded providers cover CA, CO, ID, WA and WY; none cover OR.
+  const SEEDED_STATES = ['California', 'Colorado', 'Idaho', 'Washington', 'Wyoming']
+
+  test('states param keeps only the given states, case-insensitively, and expands them', async ({
+    page,
+  }) => {
+    const errors = await loadPage(page, '/embeds/providers?states=wa,or')
+
+    const washington = page.getByRole('button', { name: 'Washington' })
+    await expect(washington).toBeVisible()
+    await expect(washington).toHaveAttribute('data-state', 'open')
+    await expect(page.getByText('Mountain Education Center')).toBeVisible()
+
+    for (const state of SEEDED_STATES.filter((name) => name !== 'Washington')) {
+      await expect(page.getByRole('button', { name: state })).toHaveCount(0)
+    }
+    // A selected state with no providers is not rendered as an empty section
+    await expect(page.getByRole('button', { name: 'Oregon' })).toHaveCount(0)
+
+    expect(errors).toEqual([])
+  })
+
+  test('a filter matching no providers shows a message, not a blank embed', async ({ page }) => {
+    const errors = await loadPage(page, '/embeds/providers?states=OR')
+
+    await expect(page.getByText('No providers found for the selected states.')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Oregon' })).toHaveCount(0)
+
+    expect(errors).toEqual([])
+  })
+
+  test('without a states param every state renders collapsed', async ({ page }) => {
+    const errors = await loadPage(page, '/embeds/providers')
+
+    for (const state of SEEDED_STATES) {
+      const trigger = page.getByRole('button', { name: state })
+      await expect(trigger).toBeVisible()
+      await expect(trigger).toHaveAttribute('data-state', 'closed')
+    }
+
+    expect(errors).toEqual([])
+  })
+})
