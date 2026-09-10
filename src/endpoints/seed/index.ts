@@ -89,10 +89,11 @@ const defaultNacWidgetsConfig = {
  */
 const nativeProductsByTenant: Record<
   string,
-  { forecast: boolean; warning: boolean; dangerMap: boolean }
+  { forecast: boolean; warning: boolean; dangerMap: boolean; stationMap: boolean }
 > = {
-  snfac: { forecast: true, warning: true, dangerMap: true },
-  nwac: { forecast: true, warning: true, dangerMap: true },
+  snfac: { forecast: true, warning: true, dangerMap: true, stationMap: false },
+  nwac: { forecast: true, warning: true, dangerMap: true, stationMap: false },
+  sac: { forecast: false, warning: false, dangerMap: false, stationMap: true },
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
@@ -560,6 +561,7 @@ export const seed = async ({
             forecast: false,
             warning: false,
             dangerMap: false,
+            stationMap: false,
           },
           footerForm: {
             type: 'none',
