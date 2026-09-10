@@ -1,7 +1,6 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import { NACWidget } from '@/components/NACWidget'
-import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
+import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
 import { AllZonesForecast } from '@/components/forecast/AllZonesForecast'
 import {
   assertCenterPlatform,
@@ -30,13 +29,9 @@ export default async function Page({ params }: CenterRouteArgs) {
   }
 
   return (
-    <>
-      <WidgetRouterHandler initialPath="/all/" widgetPageKey="forecasts" />
+    <ForecastWidget center={center} initialPath="/all/" widgetPageKey="forecasts">
       <ZoneLinkHijacker />
-      <div className="container flex flex-col">
-        <NACWidget center={center} widget="forecast" />
-      </div>
-    </>
+    </ForecastWidget>
   )
 }
 
