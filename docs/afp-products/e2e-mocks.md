@@ -56,9 +56,13 @@ It has to be that loud because of how these pages behave. `nacFetch` turns any f
 
 A gap we already know about is different: it goes in `scenarios.json` under `absent`, answers the way v2 answers (a warning nomatch is a five-key all-null object; a forecast nomatch is a 200 carrying the legacy PHP error page), and is not recorded as a harness bug.
 
+## SnowObs is mocked too, but not from a corpus
+
+The station map reads SnowObs, which has no v2→v3 migration and so no golden corpus (see architecture.md, "Where test data comes from"). `handlers.mjs` answers `api.snowobs.com` from `__tests__/e2e/mocks/snowobs/` — one current-conditions response and one webcam list, served to every center — so the station-map spec asserts on what the endpoint mapped and listed, not on any center's real stations. An unmapped SnowObs URL passes through like any other non-NAC origin; only the NAC/AFP catch-alls record a miss. The map itself needs a Mapbox token to mount at all, so `run-with-mocks.mjs` injects a placeholder `NEXT_PUBLIC_MAPBOX_TOKEN`; the spec stubs `api.mapbox.com` with an empty style, so the token is never presented and no tiles are fetched.
+
 ## Rollout state lives in the seed
 
-`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **nwac** render every native product (forecast, warning and danger map), **dvac** and **sac** stay on the widget. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
+`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **nwac** render every native product (forecast, warning and danger map), **dvac** and **sac** stay on the widget — except the station map, which **sac** alone renders natively (it is the seeded center with alternate zones) while nwac keeps that widget, so the station-map spec has one tenant on each side too. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
 
 ## Changing a native product page
 
