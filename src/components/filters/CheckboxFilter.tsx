@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/utilities/ui'
 import Fuse from 'fuse.js'
 import { Search, X } from 'lucide-react'
-import { parseAsArrayOf, parseAsString, useQueryState } from 'nuqs'
-import { useCallback, useMemo, useState } from 'react'
+import { parseAsArrayOf, parseAsString, useQueryState, useQueryStates } from 'nuqs'
+import { useCallback, useId, useMemo, useState } from 'react'
 import { FilterSection } from './FilterSection'
 
 export type CheckboxOption = {
@@ -27,7 +27,17 @@ export type CheckboxFilterProps = {
   showBottomBorder?: boolean
   enableSearch?: boolean
   searchPlaceholder?: string
+  /**
+   * Whether a change stays client-side (the default; the list beside it refetches on its own) or
+   * re-renders the server component tree with the new URL, for a page whose list is rendered on the
+   * server from the search params.
+   */
+  shallow?: boolean
+  /** Other params cleared whenever this filter changes — a `page` number, typically. */
+  resetParams?: string[]
 }
+
+const EMPTY_RESET_PARAMS: string[] = []
 
 export const CheckboxFilter = ({
   title,
@@ -40,11 +50,21 @@ export const CheckboxFilter = ({
   showBottomBorder = true,
   enableSearch = false,
   searchPlaceholder = 'Search...',
+  shallow = true,
+  resetParams = EMPTY_RESET_PARAMS,
 }: CheckboxFilterProps) => {
   const [selectedValues, setSelectedValues] = useQueryState(
     urlParam,
-    parseAsArrayOf(parseAsString).withDefault([]),
+    parseAsArrayOf(parseAsString).withDefault([]).withOptions({ shallow }),
   )
+  const [, setResetParams] = useQueryStates(
+    Object.fromEntries(resetParams.map((key) => [key, parseAsString])),
+    { shallow },
+  )
+  // The same filter renders twice on a page — in the sidebar and again in the mobile drawer — so
+  // an id made from the value alone is duplicated, and every label's `for` then binds to the
+  // hidden copy, leaving the visible checkbox without an accessible name.
+  const idPrefix = useId()
   const [searchQuery, setSearchQuery] = useState('')
 
   // Initialize Fuse.js for fuzzy search
@@ -66,18 +86,27 @@ export const CheckboxFilter = ({
     return fuse.search(searchQuery).map((result) => result.item)
   }, [enableSearch, searchQuery, options, fuse])
 
+  // nuqs coalesces updates queued in the same tick into one URL change, so clearing the reset
+  // params beside the value is a single navigation.
+  const clearResetParams = useCallback(() => {
+    if (resetParams.length === 0) return
+    setResetParams(Object.fromEntries(resetParams.map((key) => [key, null])))
+  }, [resetParams, setResetParams])
+
   const toggleValue = useCallback(
     (value: string) => {
       const newValues = selectedValues.includes(value)
         ? selectedValues.filter((v) => v !== value)
         : [...selectedValues, value]
       setSelectedValues(newValues.length > 0 ? newValues : null)
+      clearResetParams()
     },
-    [selectedValues, setSelectedValues],
+    [selectedValues, setSelectedValues, clearResetParams],
   )
 
   const clearFilter = () => {
     setSelectedValues(null)
+    clearResetParams()
   }
 
   if (hideOnEmpty && options.length === 0) {
@@ -113,6 +142,7 @@ export const CheckboxFilter = ({
         />
       )}
       <FilterOptions
+        idPrefix={idPrefix}
         options={filteredOptions}
         selectedValues={selectedValues}
         onToggle={toggleValue}
@@ -156,12 +186,15 @@ const FilterSearch = ({
 )
 
 const FilterOptions = ({
+  idPrefix,
   options,
   selectedValues,
   onToggle,
   maxHeight,
   emptyMessage,
 }: {
+  /** Makes the option ids unique per rendered instance of the filter. */
+  idPrefix: string
   options: CheckboxOption[]
   selectedValues: string[]
   onToggle: (value: string) => void
@@ -181,9 +214,12 @@ const FilterOptions = ({
     >
       {options.map((option) => (
         <li key={option.value}>
-          <Label htmlFor={option.value} className="cursor-pointer flex items-center">
+          <Label
+            htmlFor={`${idPrefix}${option.value}`}
+            className="cursor-pointer flex items-center"
+          >
             <Checkbox
-              id={option.value}
+              id={`${idPrefix}${option.value}`}
               className="mr-2"
               checked={selectedValues.includes(option.value)}
               onCheckedChange={() => onToggle(option.value)}
