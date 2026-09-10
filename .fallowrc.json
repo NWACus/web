@@ -9,6 +9,7 @@
   ],
   "ignoreDependencies": [
     "node_modules",
+    "react-dom",
     "@libsql/client",
     "libsql",
     "@react-email/preview-server",
@@ -50,6 +51,7 @@
     "unresolved-imports": "error",
     "unlisted-dependencies": "error",
     "circular-dependencies": "warn",
+    "dynamic-segment-name-conflict": "off",
     "duplicate-exports": "warn"
   }
 }
