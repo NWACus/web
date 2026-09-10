@@ -1,0 +1,182 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "49ee81f2-734e-475e-8f89-e9630a31d37a",
+        "stid": "57",
+        "name": "White Chuck Mountain",
+        "latitude": 48.22067,
+        "longitude": -121.44057,
+        "elevation": 5030,
+        "timezone": "US/Pacific",
+        "source": "nwac",
+        "data": {
+          "air_temp": 40,
+          "date_time": "2026-09-04T04:00:00Z",
+          "wind_gust": 0,
+          "snow_depth": 1,
+          "wind_speed": 0,
+          "wind_direction": 119,
+          "wind_speed_min": 0,
+          "battery_voltage": 10,
+          "solar_radiation": 0,
+          "relative_humidity": 96,
+          "snow_depth_24hr": -0.65
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-121.44057, 48.22067]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "17c4befc-be9c-43cf-be9a-139b87c7b409",
+        "stid": "502",
+        "name": "Green Lake",
+        "latitude": 46.54741,
+        "longitude": -121.17093,
+        "elevation": 5920,
+        "timezone": "PST",
+        "source": "snotel",
+        "data": {
+          "air_temp": 57,
+          "date_time": "2026-09-10T22:00:00Z",
+          "snow_depth": 0,
+          "precip_accum": 40.8,
+          "precip_accum_24hr": -0.1,
+          "snow_depth_24hr": 0
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-121.17093, 46.54741]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "b66c17ee-766a-40d6-9f8e-5cca03352d55",
+        "stid": "C6318",
+        "name": "CW6318 Welches",
+        "latitude": 45.35583,
+        "longitude": -121.96767,
+        "elevation": 1290.68,
+        "timezone": "America/Los_Angeles",
+        "source": "mesowest",
+        "data": {
+          "air_temp": 76,
+          "pressure": 953,
+          "date_time": "2026-09-10T22:35:00Z",
+          "wind_gust": 0,
+          "wind_speed": 0,
+          "wind_direction": 229,
+          "solar_radiation": 246,
+          "relative_humidity": 58,
+          "precip_accum_24_hour": 0
+        }
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-121.96767, 45.35583]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "x",
+        "stid": "999",
+        "name": "No Coordinates",
+        "source": "nwac",
+        "data": {
+          "air_temp": 10,
+          "date_time": "2026-09-10T20:00:00Z"
+        }
+      },
+      "geometry": null
+    }
+  ],
+  "properties": {
+    "variables": [
+      {
+        "variable": "wind_direction",
+        "long_name": "Wind Direction"
+      },
+      {
+        "variable": "air_temp",
+        "long_name": "Air Temperature"
+      },
+      {
+        "variable": "wind_gust",
+        "long_name": "Wind Gust"
+      },
+      {
+        "variable": "wind_speed",
+        "long_name": "Wind Speed"
+      },
+      {
+        "variable": "soil_temperature_b",
+        "long_name": "Soil Temperature B"
+      },
+      {
+        "variable": "snow_depth",
+        "long_name": "Snow Depth"
+      },
+      {
+        "variable": "battery_voltage",
+        "long_name": "Battery Voltage"
+      },
+      {
+        "variable": "wet_bulb",
+        "long_name": "Wet Bulb"
+      },
+      {
+        "variable": "equip_temperature",
+        "long_name": "Equipment Temperature"
+      },
+      {
+        "variable": "relative_humidity",
+        "long_name": "Relative Humidity"
+      },
+      {
+        "variable": "pressure",
+        "long_name": "Pressure"
+      },
+      {
+        "variable": "precip_accum",
+        "long_name": "Precip Accumulated"
+      }
+    ],
+    "units": {
+      "air_temp": "fahrenheit",
+      "battery_voltage": "volt",
+      "equip_temperature": "fahrenheit",
+      "intermittent_snow": "inches",
+      "net_solar": "MJ/m**2",
+      "precip_accum": "inches",
+      "precip_accum_24_hour": "inches",
+      "precip_accum_one_hour": "inches",
+      "pressure": "millibar",
+      "relative_humidity": "%",
+      "snow_depth": "inches",
+      "snow_depth_24h": "inches",
+      "snow_water_equiv": "inches",
+      "soil_temperature_a": "fahrenheit",
+      "soil_temperature_b": "fahrenheit",
+      "soil_temperature_c": "fahrenheit",
+      "solar_radiation": "W/m**2",
+      "wet_bulb": "fahrenheit",
+      "wet_bulb_temperature": "fahrenheit",
+      "wind_direction": "degrees",
+      "wind_gust": "mph",
+      "wind_speed": "mph",
+      "wind_speed_min": "mph",
+      "precip_accum_24hr": "inches",
+      "snow_water_equiv_24hr": "inches",
+      "snow_depth_24hr": "inches"
+    }
+  }
+}
