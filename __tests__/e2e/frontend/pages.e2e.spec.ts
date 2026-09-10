@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test'
+import { type TenantSlug, tenantBaseUrl } from '../helpers/tenant-url'
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
-const TENANT = 'nwac'
-const TENANT_BASE_URL = `http://${TENANT}.${ROOT_DOMAIN}`
+const TENANT_BASE_URL = tenantBaseUrl('nwac')
 
 /**
  * Helper to set up error tracking for a page.
@@ -156,5 +155,133 @@ test.describe('Embed pages load correctly', () => {
     await expect(page.locator('[data-state]').first()).toBeVisible()
 
     expect(errors).toEqual([])
+  })
+})
+
+test.describe('Providers embed states filter', () => {
+  test.describe.configure({ timeout: 60000 })
+
+  // Seeded providers cover CA, CO, ID, WA and WY; none cover OR.
+  const SEEDED_STATES = ['California', 'Colorado', 'Idaho', 'Washington', 'Wyoming']
+
+  test('states param keeps only the given states, case-insensitively, and expands them', async ({
+    page,
+  }) => {
+    const errors = await loadPage(page, '/embeds/providers?states=wa,or')
+
+    const washington = page.getByRole('button', { name: 'Washington' })
+    await expect(washington).toBeVisible()
+    await expect(washington).toHaveAttribute('data-state', 'open')
+    await expect(page.getByText('Mountain Education Center')).toBeVisible()
+
+    for (const state of SEEDED_STATES.filter((name) => name !== 'Washington')) {
+      await expect(page.getByRole('button', { name: state })).toHaveCount(0)
+    }
+    // A selected state with no providers is not rendered as an empty section
+    await expect(page.getByRole('button', { name: 'Oregon' })).toHaveCount(0)
+
+    expect(errors).toEqual([])
+  })
+
+  test('a filter matching no providers shows a message, not a blank embed', async ({ page }) => {
+    const errors = await loadPage(page, '/embeds/providers?states=OR')
+
+    await expect(page.getByText('No providers found for the selected states.')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Oregon' })).toHaveCount(0)
+
+    expect(errors).toEqual([])
+  })
+
+  test('without a states param every state renders collapsed', async ({ page }) => {
+    const errors = await loadPage(page, '/embeds/providers')
+
+    for (const state of SEEDED_STATES) {
+      const trigger = page.getByRole('button', { name: state })
+      await expect(trigger).toBeVisible()
+      await expect(trigger).toHaveAttribute('data-state', 'closed')
+    }
+
+    expect(errors).toEqual([])
+  })
+})
+
+test.describe('Tenant routing', () => {
+  test.describe.configure({ timeout: 60000 })
+
+  test('an internal redirect resolves to its target page', async ({ page }) => {
+    const errors = await loadPage(page, `${TENANT_BASE_URL}/redirect-to-about`)
+
+    await expect(page).toHaveURL(/\/about\/about-us$/)
+    await expect(page.getByRole('heading', { name: 'About Us', level: 1 })).toBeVisible()
+
+    expect(errors).toEqual([])
+  })
+
+  test('an external redirect leaves the site', async ({ page }) => {
+    // Stub the destination so the test never depends on the real site
+    await page.route('https://avalanche.org/**', (route) =>
+      route.fulfill({ status: 200, contentType: 'text/html', body: '<h1>stub</h1>' }),
+    )
+
+    await page.goto(`${TENANT_BASE_URL}/redirect-to-external`)
+
+    await expect(page).toHaveURL('https://avalanche.org/')
+  })
+
+  const TENANTS: TenantSlug[] = ['nwac', 'sac']
+  for (const tenant of TENANTS) {
+    test(`robots.txt and sitemap.xml are served for ${tenant}`, async ({ page }) => {
+      const origin = tenantBaseUrl(tenant)
+
+      const robots = await page.goto(`${origin}/robots.txt`)
+      expect(robots?.status()).toBe(200)
+      const robotsText = (await robots?.text()) ?? ''
+      expect(robotsText).toContain('Disallow: /admin')
+      expect(robotsText).toContain(`Sitemap: ${origin}/sitemap.xml`)
+
+      const sitemap = await page.goto(`${origin}/sitemap.xml`)
+      expect(sitemap?.status()).toBe(200)
+      const sitemapText = (await sitemap?.text()) ?? ''
+      expect(sitemapText).toContain(`${origin}/pages-sitemap.xml`)
+      expect(sitemapText).toContain(`${origin}/posts-sitemap.xml`)
+    })
+  }
+
+  test('an unknown path renders the themed 404', async ({ page }) => {
+    const response = await page.goto(`${TENANT_BASE_URL}/this-page-does-not-exist-e2e`)
+    expect(response?.status()).toBe(404)
+
+    await expect(page.getByRole('heading', { name: 'Route not found' })).toBeVisible()
+    // Still wrapped in the tenant's chrome and theme
+    await expect(page.locator('header')).toBeVisible()
+    await expect(page.locator('footer')).toBeVisible()
+    await expect(page.locator('div.nwac')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Back to home' })).toBeVisible()
+  })
+
+  test('two tenants render distinct branding with no bleed', async ({ page }) => {
+    const branding = async (tenant: TenantSlug) => {
+      const errors = await loadPage(page, `${tenantBaseUrl(tenant)}/`)
+      expect(errors).toEqual([])
+      await expect(page.locator(`div.${tenant}`)).toBeVisible()
+      return {
+        title: await page.title(),
+        headerColor: await page
+          .locator('header')
+          .evaluate((element) => getComputedStyle(element).backgroundColor),
+        footerText: (await page.locator('footer').textContent()) ?? '',
+      }
+    }
+
+    const nwac = await branding('nwac')
+    const sac = await branding('sac')
+
+    expect(nwac.title).toContain('Northwest Avalanche Center')
+    expect(sac.title).toContain('Sierra Avalanche Center')
+    expect(nwac.footerText).toContain('info@nwac.us')
+    expect(sac.footerText).toContain('info@sierraavalanchecenter.org')
+    expect(nwac.footerText).not.toContain('info@sierraavalanchecenter.org')
+    expect(sac.footerText).not.toContain('info@nwac.us')
+    expect(nwac.headerColor).not.toBe(sac.headerColor)
   })
 })

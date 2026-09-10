@@ -113,6 +113,13 @@ test('example', async ({ loginAs, isTenantSelectorVisible }) => {
 })
 ```
 
+To log in through the form on a tenant domain (which is where the domain-scoping login hook runs), pass an origin: `loginWithCredentials(email, password, { origin: tenantBaseUrl('nwac') })`.
+
+Two things to know when a test reaches outside the admin UI:
+
+- **Drive tenant hosts from the browser.** Build tenant origins with `tenantBaseUrl(slug)` from `helpers/tenant-url.ts` and use `page.goto` or an in-page fetch. Chromium resolves `*.localhost` to loopback on its own; Node (and therefore Playwright's `request` fixture) relies on the OS resolver, which has no such rule in the CI container.
+- **Call the REST API from inside the page.** `apiRequest(page, path, init)` runs `fetch` in the page so the call carries the session and tenant cookies plus an `Origin` header. Payload ignores cookie auth on requests without an `Origin`, so a Node-side request with the same cookies runs unauthenticated.
+
 ### Authentication Caching
 
 The `auth.setup.ts` file runs before all test projects. It authenticates each role in the `userRoles` list (from `test-users.ts`) once via the REST login endpoint (`POST /api/users/login`) — not the login form — and saves the resulting `payload-token` cookie to `__tests__/e2e/.auth/<role>.json`. Test fixtures then load these files via `storageState` instead of repeating the login flow, saving ~5-15 seconds per test. (The login _form_ itself is covered separately by `admin/login.e2e.spec.ts`.)
