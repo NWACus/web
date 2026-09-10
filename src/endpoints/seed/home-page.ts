@@ -163,6 +163,8 @@ export const homePage: (
         },
       },
     ],
+    // Drafts are enabled, so without this the seeded doc never matches the published query.
+    _status: 'published',
     publishedAt: new Date().toISOString(),
   }
 }
