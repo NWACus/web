@@ -16,61 +16,21 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '../ui/breadcrumb'
-
-type BreadcrumbType = {
-  name: string
-  isLast: boolean
-  href: string | null
-}
+import { buildBreadcrumbs, type BreadcrumbItemData } from './buildBreadcrumbs'
 
 export function Breadcrumbs() {
   const segments = useSelectedLayoutSegments()
-  const decodedSegments = segments.map(decodeURIComponent)
 
   const { isNotFound } = useNotFound()
   const { pageLabel } = useBreadcrumbs()
   const { captureWithTenant } = useAnalytics()
   const { tenant } = useTenant()
 
-  if (decodedSegments.length === 0 || isNotFound) return null
+  if (segments.length === 0 || isNotFound) return null
 
-  const knownPathsWithoutPages = ['/forecasts', '/weather', '/observations/avalanches']
-  // Only NWAC has a /weather/stations index page, so only its crumb links.
-  if (tenant?.slug !== 'nwac') knownPathsWithoutPages.push('/weather/stations')
-
-  const createBreadcrumbItem = (
-    name: string,
-    href: string | null,
-    isLast: boolean,
-  ): BreadcrumbType => ({
-    name: name.replace(/-/g, ' '),
-    href: href && knownPathsWithoutPages.includes(href) ? null : href,
-    isLast,
-  })
-
-  const processNestedSegments = (nestedSegments: string[], index: number): BreadcrumbType[] => {
-    const prependedSegments = nestedSegments
-      .slice(0, -1)
-      .map((segment) => createBreadcrumbItem(segment, null, false))
-
-    const lastNestedSegment = nestedSegments[nestedSegments.length - 1]
-    const href = '/' + [...nestedSegments.slice(0, index), lastNestedSegment].join('/')
-    const isLast = index === decodedSegments.length - 1
-
-    return [...prependedSegments, createBreadcrumbItem(lastNestedSegment, href, isLast)]
-  }
-
-  const breadcrumbItems: BreadcrumbType[] = decodedSegments.flatMap((segment, index) => {
-    const nestedSegments = segment.split('/').filter((seg) => seg !== '')
-
-    if (nestedSegments.length > 1) {
-      return processNestedSegments(nestedSegments, index)
-    } else {
-      const href = '/' + decodedSegments.slice(0, index + 1).join('/')
-      const isLast = index === decodedSegments.length - 1
-
-      return [createBreadcrumbItem(segment, href, isLast)]
-    }
+  const breadcrumbItems = buildBreadcrumbs({
+    center: tenant?.slug ?? '',
+    path: '/' + segments.join('/'),
   })
 
   // Apply page label override to the last breadcrumb if provided
@@ -78,7 +38,7 @@ export function Breadcrumbs() {
     breadcrumbItems[breadcrumbItems.length - 1].name = pageLabel
   }
 
-  const onClick = (item: BreadcrumbType, depth: string) => {
+  const onClick = (item: BreadcrumbItemData, depth: string) => {
     captureWithTenant('breadcrumb_click', {
       breadcrumb_name: item.name,
       from_page: window.location.pathname,
@@ -114,7 +74,7 @@ export function Breadcrumbs() {
                   {item.name}
                 </BreadcrumbPage>
               ) : (
-                <BreadcrumbLink asChild onClick={() => onClick(item, (index++).toString())}>
+                <BreadcrumbLink asChild onClick={() => onClick(item, index.toString())}>
                   <Link href={item.href} className="capitalize">
                     {item.name}
                   </Link>
