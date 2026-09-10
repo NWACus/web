@@ -1,26 +1,7 @@
 import { expect, authTest as test } from '../fixtures/auth.fixture'
-import { TenantIds } from '../helpers/tenant-cookie'
+import { getChecklist, TenantIds } from '../helpers'
 
 test.describe.configure({ mode: 'serial', timeout: 60000 })
-
-/** Returns a scoped locator for the onboarding checklist. */
-async function getChecklist(page: import('@playwright/test').Page) {
-  await page.locator('form[data-form-ready="true"]').waitFor({ timeout: 15000 })
-
-  const heading = page.getByText('Onboarding Checklist', { exact: true })
-  await expect(heading).toBeVisible({ timeout: 10000 })
-
-  // Scope to the checklist's outermost container (the rounded-lg border div)
-  const checklist = page.locator('.rounded-lg', { has: heading })
-  await expect(checklist).toBeVisible({ timeout: 10000 })
-
-  // On a tenant edit page the body is gated behind a provisioning-status server
-  // action that renders a "Loading..." spinner until it resolves; wait for that
-  // to clear so the checklist is fully loaded. (No tenant on create = no loader.)
-  await checklist.getByText('Loading...').waitFor({ state: 'hidden', timeout: 20000 })
-
-  return checklist
-}
 
 test.describe('Onboarding Checklist', () => {
   test('displays checklist on tenant edit page', async ({ adminPage: page }) => {

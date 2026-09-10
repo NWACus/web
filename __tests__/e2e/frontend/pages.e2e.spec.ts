@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test'
+import { tenantBaseUrl } from '../helpers/tenant-url'
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
-const TENANT = 'nwac'
-const TENANT_BASE_URL = `http://${TENANT}.${ROOT_DOMAIN}`
+const TENANT_BASE_URL = tenantBaseUrl('nwac')
 
 /**
  * Helper to set up error tracking for a page.

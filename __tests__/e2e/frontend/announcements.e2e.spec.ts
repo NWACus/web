@@ -1,24 +1,27 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+import { tenantBaseUrl } from '../helpers/tenant-url'
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'
-const TENANT = 'nwac'
-const TENANT_BASE_URL = `http://${TENANT}.${ROOT_DOMAIN}`
+const TENANT_BASE_URL = tenantBaseUrl('nwac')
+
+/** Marks popups as dismissed so they don't overlay banner tests. */
+async function dismissPopups(page: Page) {
+  await page.addInitScript(() => {
+    const original = Storage.prototype.getItem
+    Storage.prototype.getItem = function (key: string) {
+      if (key.startsWith('announcement-popup-')) {
+        return JSON.stringify({ dismissed: true, visitCount: 100 })
+      }
+      if (key === 'announcement-banners') return null
+      return original.call(this, key)
+    }
+  })
+}
 
 test.describe('Announcement banners', () => {
   test.describe.configure({ timeout: 60000 })
 
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      // Mark popups as dismissed so they don't overlay banner tests
-      const original = Storage.prototype.getItem
-      Storage.prototype.getItem = function (key: string) {
-        if (key.startsWith('announcement-popup-')) {
-          return JSON.stringify({ dismissed: true, visitCount: 100 })
-        }
-        if (key === 'announcement-banners') return null
-        return original.call(this, key)
-      }
-    })
+    await dismissPopups(page)
   })
 
   test('banner is visible on the homepage', async ({ page }) => {
