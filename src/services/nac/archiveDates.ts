@@ -20,8 +20,10 @@ import { subMonths } from 'date-fns/subMonths'
 const RENDERABLE_PRODUCT_TYPES = new Set(['forecast', 'summary'])
 
 /**
- * The minimal slice of an archive product this module needs. The full archive is ~13MB for
- * NWAC — too large for Next's 2MB data cache — so callers cache only these fields (~1MB).
+ * The minimal slice of an archive product this module and the archive browser need. The full
+ * archive is ~10MB for NWAC — too large for Next's 2MB data cache — so callers cache only these
+ * fields (~1.5MB for the whole NWAC archive; every caller narrows by date window, so no cache
+ * entry actually holds all of it).
  */
 export interface ArchiveProductSummary {
   id: number
@@ -29,6 +31,13 @@ export interface ArchiveProductSummary {
   published_time: string
   /** Overall danger rating (0-5; -1 = general info). Used to color the picker. */
   danger_rating: number
+  /** Forecaster name, for the archive browser's rows. Null on bulk-imported history. */
+  author: string | null
+  /**
+   * Null on products bulk-imported from a pre-AFP system, which the legacy archive browser hides
+   * (`updated_at != null`). Present only so the native browser can apply the same rule.
+   */
+  updated_at: string | null
   forecast_zone: { id: number }[]
 }
 

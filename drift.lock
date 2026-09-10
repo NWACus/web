@@ -152,6 +152,11 @@ sig = "2f6941731c97ccaa"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/page.tsx"
+sig = "6141c09b31065bf1"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/app/api/[center]/forecast-freshness/[zone]/[fingerprint]/route.ts"
 sig = "ea45b8c0ac6b4c43"
 
@@ -188,7 +193,7 @@ sig = "e7ced064bdd93343"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/ValidityBanner.tsx"
-sig = "d926441229ca3ca6"
+sig = "9db4a6c4303ac83c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -209,6 +214,11 @@ sig = "357f465f8fcd1368"
 doc = "docs/afp-products/architecture.md"
 target = "src/components/warnings/CenterWarnings.tsx"
 sig = "620e3b1733d93855"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/forecastArchive.ts"
+sig = "e0674a66dba8cf39"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
