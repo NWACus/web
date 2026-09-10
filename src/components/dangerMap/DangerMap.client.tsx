@@ -57,9 +57,11 @@ export interface DangerMapProps {
   /** The center's upstream id (e.g. `NWAC`), used to decide which links stay in this tab. */
   centerId: string
   settings: DangerMapSettings
+  /** The center is an information exchange, so its own zones describe observations, not danger. */
+  informationExchange: boolean
 }
 
-export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
+export function DangerMap({ centerSlug, centerId, settings, informationExchange }: DangerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   // Mounted into Mapbox's top-right control stack.
   const recenterRef = useRef<HTMLDivElement>(null)
@@ -91,8 +93,12 @@ export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
 
   useZoneLayers(mapRef, zones, () => recenter(false))
   useWarningFlash(mapRef, zones)
-  // `centerId` rides along in the popup settings so the link rule lives in one place.
-  const popupSettings = useMemo(() => ({ ...settings, centerId }), [settings, centerId])
+  // `centerId` and the exchange flag ride along in the popup settings so the link and framing
+  // rules live in one place, shared by the hover card, the click handler and the zone list.
+  const popupSettings = useMemo(
+    () => ({ ...settings, centerId, informationExchange }),
+    [settings, centerId, informationExchange],
+  )
   const hovered = useZoneInteractions(mapRef, zones, popupSettings)
 
   if (!token) {

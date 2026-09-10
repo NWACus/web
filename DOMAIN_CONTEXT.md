@@ -172,6 +172,10 @@ The per-Tenant × per-Product `nativeProducts` checkbox in Settings that decides
 A per-center boolean from the NAC capability feed — `forecasts`, `warnings`, `stations`, `obs`, `weather` — declaring whether a center _has_ that product at all. Read-only to AvyWeb and evaluated **above** the Rollout flag: no capability, no page, whatever Settings says.
 _Note_: NWAC's `weather` is `false` — NWAC authors mountain weather in its own system rather than in AFP.
 
+**Information exchange**:
+A center that collects observations and hosts weather stations but issues no forecasts — EWYAIX and SOAIX today. Not a field: derived from Capability flags as `!platforms.forecasts && platforms.obs` (`isInformationExchange`), per #269's no-discriminator rule. Products that frame zones in terms of danger pivot to observations on an exchange — the danger map drops its scale and its zone popups read "View Observations" (the legacy widget's AIX mode, which it selects by the `AIX` id suffix instead).
+_Avoid_: "AIX" outside a reference to the widget or an upstream id — it is the legacy spelling, not a concept of ours; "non-forecasting center" — UAC and CAIC don't forecast either and are not exchanges.
+
 **Mountain Weather Forecast (MWF)**:
 NWAC's in-house mountain weather product, migrating out of a legacy app into the AFP's `products-api`. Served exclusively by dedicated `/mwf/*` endpoints, so unlike every other Product it has no legacy v2 equivalent to fall back to — "default to v2" is a per-Product default, not an invariant. Not consumed by AvyWeb yet.
 _Contrast_: the traditional weather product, which other centers author in AFP and which a forecast points at via `weather_data.weather_product_id`. MWF has no such pointer — its morning and afternoon forecasts derive from center plus service date.

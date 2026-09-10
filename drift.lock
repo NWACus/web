@@ -217,6 +217,11 @@ sig = "7071f2438a84dd5c"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/informationExchange.ts"
+sig = "8b8b877ec686112e"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/model/forecast.ts"
 sig = "f7eba3911fdb5790"
 

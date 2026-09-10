@@ -149,7 +149,7 @@ describe('popupDangerLevel', () => {
 })
 
 describe('zonePopup', () => {
-  const settings = { advice: true, allCenters: false, centerId: 'NWAC' }
+  const settings = { advice: true, allCenters: false, centerId: 'NWAC', informationExchange: false }
 
   it('headlines a rated zone with the numbered danger level', () => {
     const popup = zonePopup(zone(), settings)
@@ -195,9 +195,7 @@ describe('zonePopup', () => {
     })
 
     it('is omitted when the center turned advice off', () => {
-      expect(
-        zonePopup(zone(), { advice: false, allCenters: false, centerId: 'NWAC' }).advice,
-      ).toBeNull()
+      expect(zonePopup(zone(), { ...settings, advice: false }).advice).toBeNull()
     })
   })
 
@@ -233,7 +231,7 @@ describe('zonePopup', () => {
 
   describe('the center name', () => {
     it('is shown when the map is drawing every center', () => {
-      const popup = zonePopup(zone(), { advice: true, allCenters: true, centerId: 'NWAC' })
+      const popup = zonePopup(zone(), { ...settings, allCenters: true })
 
       expect(popup.centerName).toBe('Northwest Avalanche Center')
     })
@@ -334,7 +332,7 @@ describe('zoneBounds', () => {
 })
 
 describe('zonePopup — where a zone links to', () => {
-  const settings = { advice: true, allCenters: true, centerId: 'NWAC' }
+  const settings = { advice: true, allCenters: true, centerId: 'NWAC', informationExchange: false }
 
   // Upstream always hands back the center's own website. On AvyWeb that would walk the reader off
   // the site and past the native forecast page, so our own zones are rewritten to their route.
@@ -367,6 +365,113 @@ describe('zonePopup — where a zone links to', () => {
     const popup = zonePopup(zone({ link: 'https://www.nwac.us/' }), settings)
 
     expect(popup.href).toBe('https://www.nwac.us/')
+    expect(popup.isExternal).toBe(true)
+  })
+})
+
+describe('zonePopup — on an information exchange', () => {
+  const settings = {
+    advice: true,
+    allCenters: false,
+    centerId: 'EWYAIX',
+    informationExchange: true,
+  }
+
+  /** A zone as the map layer returns it for EWYAIX: unrated, undated, linked to the exchange's site. */
+  const exchangeZone = (overrides: Partial<ZoneProperties> = {}) =>
+    zone({
+      name: 'Big Horns',
+      center: 'Eastern Wyoming Avalanche Info Exchange',
+      center_link: 'https://ewyoavalanche.org',
+      timezone: 'America/Denver',
+      center_id: 'EWYAIX',
+      state: 'WY',
+      danger: 'no rating',
+      danger_level: -1,
+      color: '#888888',
+      link: 'https://ewyoavalanche.org',
+      start_date: null,
+      end_date: null,
+      ...overrides,
+    })
+
+  // The widget's AIX header: the zone is an invitation to read observations, not a rating.
+  it('headlines the zone with observations rather than a rating', () => {
+    const popup = zonePopup(exchangeZone(), settings)
+
+    expect(popup.headline).toBe('View Observations')
+    expect(popup.subhead).toBe('Avalanche Info Exchange')
+    expect(popup.dangerLevel).toBe(0)
+  })
+
+  it('suppresses travel advice even though the exchange has advice switched on', () => {
+    expect(zonePopup(exchangeZone(), settings).advice).toBeNull()
+  })
+
+  it('sends the zone to the native observations page, not the external viewer', () => {
+    const popup = zonePopup(exchangeZone(), settings)
+
+    expect(popup.href).toBe('/observations')
+    expect(popup.isExternal).toBe(false)
+  })
+
+  // SOAIX's link ends in `#/view/observations`; read as a zone URL it would route to the forecast
+  // page of a zone called "observations", on a center that has no forecast pages at all.
+  it('never derives a forecast route from the exchange link', () => {
+    const popup = zonePopup(
+      exchangeZone({
+        center_id: 'SOAIX',
+        link: 'https://www.oregonsnow.org/observations/#/view/observations',
+      }),
+      { ...settings, centerId: 'SOAIX' },
+    )
+
+    expect(popup.href).toBe('/observations')
+  })
+
+  it('still points at observations when upstream sent no link', () => {
+    expect(zonePopup(exchangeZone({ link: null }), settings).href).toBe('/observations')
+  })
+
+  // Off-season wins here as it does for styling: the header says the season ended, and the
+  // validity window stays suppressed.
+  it('lets off-season outrank the observations framing', () => {
+    const popup = zonePopup(exchangeZone({ off_season: true }), settings)
+
+    expect(popup.headline).toBe('Forecasts ended for the season')
+    expect(popup.subhead).toBeNull()
+    expect(popup.href).toBe('/observations')
+  })
+
+  // The widget shows the warning strip in AIX mode too; a warning is a warning wherever it lands.
+  it('still flags an active warning', () => {
+    expect(zonePopup(exchangeZone({ warning: { product: 'warning' } }), settings).hasWarning).toBe(
+      true,
+    )
+  })
+
+  // Deliberate divergence from the widget, which pivots every zone on the map: a neighboring
+  // forecast center's zone on an exchange's all-centers map keeps its rating, advice and link —
+  // headlining a Considerable zone "View Observations" and then opening a forecast would be wrong
+  // twice over.
+  it("leaves another center's rated zone framed as danger on an all-centers map", () => {
+    const popup = zonePopup(zone(), { ...settings, allCenters: true })
+
+    expect(popup.headline).toBe('3 - Considerable')
+    expect(popup.subhead).toBe('Avalanche Danger')
+    expect(popup.advice).toContain('Dangerous avalanche conditions.')
+    expect(popup.href).toBe('http://www.nwac.us/avalanche-forecast/#/west-slopes-central')
+    expect(popup.isExternal).toBe(true)
+  })
+
+  // The same unrated, undated zone on a forecasting center stays "No Rating": only the capability
+  // flag, never the data shape, selects the observations framing.
+  it('does not pivot an unrated zone on a center that is not an exchange', () => {
+    const popup = zonePopup(exchangeZone(), { ...settings, informationExchange: false })
+
+    expect(popup.headline).toBe('No Rating')
+    expect(popup.subhead).toBe('Information Available')
+    expect(popup.href).toBe('https://ewyoavalanche.org')
     expect(popup.isExternal).toBe(true)
   })
 })

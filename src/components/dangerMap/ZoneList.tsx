@@ -6,7 +6,8 @@
  * readers cannot get at. This renders the same zones as a visually hidden list of links — the
  * rating, whether a warning is in effect, and the forecast — so the information is available to
  * everyone even though the picture isn't. Becomes visible on focus, so a keyboard user can see
- * where they are while tabbing through it.
+ * where they are while tabbing through it. On an information exchange the same list points at
+ * observations, as the map's popups do.
  */
 import type {
   ZonePopup,
@@ -26,7 +27,11 @@ export function ZoneList({ zones, settings }: ZoneListProps) {
 
   return (
     <div className="sr-only focus-within:not-sr-only focus-within:block">
-      <h3>Avalanche danger by forecast zone</h3>
+      <h3>
+        {settings.informationExchange
+          ? 'Observations by zone'
+          : 'Avalanche danger by forecast zone'}
+      </h3>
       <ul>
         {features.map((zone) => (
           <ZoneListItem
