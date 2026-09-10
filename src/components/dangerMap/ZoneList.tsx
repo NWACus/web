@@ -21,17 +21,23 @@ interface ZoneListProps {
   settings: ZonePopupSettings
 }
 
+/**
+ * What the list is a list of. An exchange's own zones are ways into observations, but on an
+ * all-centers map they sit beside neighboring centers' rated zones, and a heading that named
+ * either would misdescribe the other — so that case gets a heading that claims nothing.
+ */
+function listHeading({ informationExchange, allCenters }: ZonePopupSettings): string {
+  if (!informationExchange) return 'Avalanche danger by forecast zone'
+  return allCenters ? 'Forecast zones on the map' : 'Observations by zone'
+}
+
 export function ZoneList({ zones, settings }: ZoneListProps) {
   const features = zones?.features ?? []
   if (features.length === 0) return null
 
   return (
     <div className="sr-only focus-within:not-sr-only focus-within:block">
-      <h3>
-        {settings.informationExchange
-          ? 'Observations by zone'
-          : 'Avalanche danger by forecast zone'}
-      </h3>
+      <h3>{listHeading(settings)}</h3>
       <ul>
         {features.map((zone) => (
           <ZoneListItem

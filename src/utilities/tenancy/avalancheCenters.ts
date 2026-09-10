@@ -12,9 +12,9 @@
  * - CAC (Cordova Avalanche Center) — only blog_title returned
  * - CAIC (Colorado Avalanche Information Center) — no config fields returned
  * - EARAC (Eastern Alaska Range Avalanche Center) — only blog_title returned
- * - EWYAIX (Eastern Wyoming Avalanche Info Exchange) — no config object at all
- * - SOAIX (Southern Oregon Avalanche Info Exchange) — no config object at all
- * - UAC (Utah Avalanche Center) — no config object at all
+ * - EWYAIX (Eastern Wyoming Avalanche Info Exchange) — `config: null` (also `city: null`, `type: "other"`)
+ * - SOAIX (Southern Oregon Avalanche Info Exchange) — `config: null` (also `city: null`, `type: "other"`)
+ * - UAC (Utah Avalanche Center) — `config: null`
  */
 type AvalancheCenterInfo = {
   readonly name: string

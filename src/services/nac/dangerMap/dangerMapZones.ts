@@ -20,6 +20,7 @@ import {
   NO_RATING_ADVICE,
   dangerLevelFromRating,
   dangerLevelLabel,
+  dangerName,
   dangerScaleRows,
 } from '../dangerScale'
 import type { ZoneFeature, ZoneProperties } from '../model/mapLayer'
@@ -125,19 +126,16 @@ export interface ZonePopup {
   zoneName: string
   /** The zone's avalanche center, shown only on an all-centers map where zones differ. */
   centerName: string | null
-  offSeason: boolean
+  subject: PopupSubject
   hasWarning: boolean
   dangerLevel: DangerLevel
-  /** Popup title: the season-ended notice, or the zone's rating. */
+  /** Popup title: the season-ended notice, the observations invitation, or the zone's rating. */
   headline: string
   /** Qualifier under the headline; absent off-season, where the headline says it all. */
   subhead: string | null
   publishedText: string | null
   expiresText: string | null
-  /**
-   * Travel advice as sanitizable HTML; null off-season, on an exchange's own zone, or when the
-   * center disabled it.
-   */
+  /** Travel advice as sanitizable HTML; null unless the subject is a rating and advice is on. */
   advice: string | null
   /** Where opening the zone goes — an AvyWeb forecast or observations page, or another center's site. */
   href: string | null
@@ -161,6 +159,11 @@ export interface ZonePopupSettings {
 /** The native observations page — where an exchange's zones point instead of a forecast. */
 const OBSERVATIONS_PATH = '/observations'
 
+/** Whether the zone belongs to the center whose site the reader is on. */
+function isOwnZone(properties: Pick<ZoneProperties, 'center_id'>, centerId: string): boolean {
+  return properties.center_id === centerId
+}
+
 /**
  * Whether this zone belongs to the information exchange the reader is on.
  *
@@ -170,14 +173,19 @@ const OBSERVATIONS_PATH = '/observations'
  * rated zone "View Observations" and then open a forecast. A recorded divergence from M3.
  */
 function isOwnExchangeZone(properties: ZoneProperties, settings: ZonePopupSettings): boolean {
-  return settings.informationExchange && properties.center_id === settings.centerId
+  return settings.informationExchange && isOwnZone(properties, settings.centerId)
 }
 
 /**
- * What the popup is about. Off-season outranks everything, as it does for styling; observations
- * next, since a rating on an exchange's zone would describe a forecast that never existed.
+ * What the popup is about, in precedence order: off-season outranks everything, as it does for
+ * styling; an exchange's own unrated zone is an invitation to read observations; anything else is
+ * described by its rating or the lack of one.
+ *
+ * A *rated* zone keeps its rating even on an exchange. The capability feed and the map layer can
+ * disagree — a center's forecasts platform switched off while its zones still carry today's
+ * rating — and when they do, the rating is the safety-relevant fact, so it is what the popup says.
  */
-type PopupSubject = 'offSeason' | 'observations' | 'unrated' | 'rated'
+export type PopupSubject = 'offSeason' | 'observations' | 'unrated' | 'rated'
 
 function popupSubject(
   properties: ZoneProperties,
@@ -185,9 +193,9 @@ function popupSubject(
   dangerLevel: DangerLevel,
 ): PopupSubject {
   if (properties.off_season) return 'offSeason'
-  if (isOwnExchangeZone(properties, settings)) return 'observations'
-  if (dangerLevel === DangerLevel.None || dangerKey(properties) === 'no rating') return 'unrated'
-  return 'rated'
+  const unrated = dangerLevel === DangerLevel.None || dangerKey(properties) === 'no rating'
+  if (!unrated) return 'rated'
+  return isOwnExchangeZone(properties, settings) ? 'observations' : 'unrated'
 }
 
 /** The popup's title and its qualifier, as the widget words them for each subject. */
@@ -201,28 +209,34 @@ function popupTitle(
     case 'observations':
       return { headline: 'View Observations', subhead: 'Avalanche Info Exchange' }
     case 'unrated':
-      return { headline: 'No Rating', subhead: 'Information Available' }
+      return { headline: dangerName(DangerLevel.None), subhead: 'Information Available' }
     case 'rated':
       return { headline: dangerLevelLabel(dangerLevel), subhead: 'Avalanche Danger' }
   }
 }
 
 /**
- * Where a zone's forecast link should point.
+ * Where opening a zone should go.
  *
  * Upstream's `link` is always the avalanche center's *own* website, which was right when the
  * widget was embedded there. On AvyWeb that would walk the reader off the site and past the native
  * forecast page, so this center's zones are rewritten to their AvyWeb route. Zones belonging to
  * another center — only reachable on an all-centers map — keep their external link.
+ *
+ * An exchange's own zones go to the native observations page regardless of `link`, and whatever
+ * the season or the rating says: the link points at the exchange's *external* observations viewer
+ * and, read as a zone URL, would yield a forecast route for a zone that has no forecast.
  */
 function resolveHref(
   properties: ZoneProperties,
-  centerId: string,
-): { href: string | null; isExternal: boolean } {
+  settings: ZonePopupSettings,
+): Pick<ZonePopup, 'href' | 'isExternal'> {
+  if (isOwnExchangeZone(properties, settings)) return { href: OBSERVATIONS_PATH, isExternal: false }
+
   const link = properties.link
   if (!link) return { href: null, isExternal: false }
 
-  if (properties.center_id === centerId) {
+  if (isOwnZone(properties, settings.centerId)) {
     const path = nativeZonePath(link)
     if (path) return { href: path, isExternal: false }
   }
@@ -234,14 +248,11 @@ export function zonePopup(properties: ZoneProperties, settings: ZonePopupSetting
   const dangerLevel = popupDangerLevel(properties)
   const subject = popupSubject(properties, settings, dangerLevel)
   const offSeason = subject === 'offSeason'
-  // Not `subject === 'observations'`: where the zone *goes* is a property of the zone, not of the
-  // season, so an exchange's zone still opens observations while its off-season header is up.
-  const ownExchangeZone = isOwnExchangeZone(properties, settings)
 
   return {
     zoneName: properties.name,
     centerName: settings.allCenters ? (properties.center ?? null) : null,
-    offSeason,
+    subject,
     hasWarning: hasActiveWarning(properties),
     dangerLevel,
     ...popupTitle(subject, dangerLevel),
@@ -249,16 +260,15 @@ export function zonePopup(properties: ZoneProperties, settings: ZonePopupSetting
     // rather than shown stale — the same call the widget makes.
     publishedText: offSeason ? null : formatValidity(properties.start_date, properties.timezone),
     expiresText: offSeason ? null : formatValidity(properties.end_date, properties.timezone),
-    // Travel advice is keyed to a rating; an exchange's zone has none to key it to, so it is
-    // suppressed whatever the center's advice setting says — the widget does the same.
-    advice: offSeason || ownExchangeZone || !settings.advice ? null : adviceForLevel(dangerLevel),
-    // An exchange's own zones go to the native observations page regardless of upstream's `link`,
-    // which points at the exchange's *external* observations viewer and, read as a zone URL,
-    // would yield a forecast route for a zone that has no forecast.
-    ...(ownExchangeZone
-      ? { href: OBSERVATIONS_PATH, isExternal: false }
-      : resolveHref(properties, settings.centerId)),
+    // Travel advice is keyed to a rating. Off-season there is none current, and an observations
+    // zone has none at all, so both suppress it whatever the center's advice setting says.
+    advice: describesRating(subject) && settings.advice ? adviceForLevel(dangerLevel) : null,
+    ...resolveHref(properties, settings),
   }
+}
+
+function describesRating(subject: PopupSubject): boolean {
+  return subject === 'rated' || subject === 'unrated'
 }
 
 /**
@@ -302,7 +312,7 @@ export function featuresToFit<T extends { properties: Pick<ZoneProperties, 'cent
   centerId: string,
 ): T[] {
   const features = collection?.features ?? []
-  const own = features.filter((feature) => feature.properties.center_id === centerId)
+  const own = features.filter((feature) => isOwnZone(feature.properties, centerId))
   return own.length > 0 ? own : features
 }
 

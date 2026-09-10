@@ -173,7 +173,7 @@ A per-center boolean from the NAC capability feed — `forecasts`, `warnings`, `
 _Note_: NWAC's `weather` is `false` — NWAC authors mountain weather in its own system rather than in AFP.
 
 **Information exchange**:
-A center that collects observations and hosts weather stations but issues no forecasts — EWYAIX and SOAIX today. Not a field: derived from Capability flags as `!platforms.forecasts && platforms.obs` (`isInformationExchange`), per #269's no-discriminator rule. Products that frame zones in terms of danger pivot to observations on an exchange — the danger map drops its scale and its zone popups read "View Observations" (the legacy widget's AIX mode, which it selects by the `AIX` id suffix instead).
+A center that collects observations and hosts weather stations but issues no forecasts — EWYAIX and SOAIX today. Not a field: derived from Capability flags as `!platforms.forecasts && platforms.obs` (`isInformationExchange`), per the no-discriminator rule in #269 — Info-exchange homepage + platform support (land EWYAIX). Products that frame zones in terms of danger pivot to observations on an exchange — the danger map drops its scale and its zone popups read "View Observations" (the legacy widget's AIX mode, which it selects by the `AIX` id suffix instead).
 _Avoid_: "AIX" outside a reference to the widget or an upstream id — it is the legacy spelling, not a concept of ours; "non-forecasting center" — UAC and CAIC don't forecast either and are not exchanges.
 
 **Mountain Weather Forecast (MWF)**:

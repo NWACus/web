@@ -33,11 +33,14 @@ const DANGER_MAP_HEIGHT = 500
 const HEIGHT_OF_DANGER_SCALE_GRAPHIC = 73.59
 
 /**
- * The space the legend takes under the legacy widget's map. The widget draws no danger scale for
- * an information exchange (its AIX mode), so reserving one there would leave a permanent gap.
+ * The space the legend takes under the *legacy widget's* map, so the page doesn't jump when the
+ * widget mounts. The widget draws no danger scale in its AIX mode, which it enters by the center
+ * id's suffix — its rule, not ours, because this reservation predicts what the widget will draw.
+ * (`isInformationExchange` and the suffix agree on every exchange today; they differ on
+ * observation-only centers without the suffix, where the widget still draws its scale.)
  */
-function legendHeightFor(informationExchange: boolean): number {
-  return informationExchange ? 0 : HEIGHT_OF_DANGER_SCALE_GRAPHIC
+function legacyLegendHeight(centerId: string): number {
+  return centerId.endsWith('AIX') ? 0 : HEIGHT_OF_DANGER_SCALE_GRAPHIC
 }
 
 /**
@@ -61,9 +64,8 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
     getNativeProductFlag(centerSlug, 'dangerMap'),
   ])
 
-  // The exchanges' metadata carries `widget_config.danger_map` today, but `config` is null and
-  // nothing here may assume the rest of the object is complete — hence the optional chain, with
-  // the resolver supplying the dashboard's defaults for whatever is missing.
+  // `danger_map` is optional in the widget config — a center that never opened the dashboard's
+  // map settings has none — and the resolver supplies the dashboard's defaults in its place.
   const settings = resolveDangerMapSettings(metadata?.widget_config?.danger_map)
   const informationExchange = isInformationExchange(platforms)
 
@@ -71,7 +73,7 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
     return (
       <div
         className="w-full"
-        style={{ minHeight: DANGER_MAP_HEIGHT + legendHeightFor(informationExchange) }}
+        style={{ minHeight: DANGER_MAP_HEIGHT + legacyLegendHeight(metadata.id) }}
       >
         <NACWidget center={centerSlug} widget="map" mapHeight={DANGER_MAP_HEIGHT} />
       </div>

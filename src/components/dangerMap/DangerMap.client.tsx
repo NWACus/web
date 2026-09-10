@@ -119,7 +119,7 @@ export function DangerMap({ centerSlug, centerId, settings, informationExchange 
 
       <HoverCard hovered={hovered} containerRef={containerRef} />
 
-      <MapStatus zones={zones} failed={failed} />
+      <MapStatus zones={zones} failed={failed} informationExchange={informationExchange} />
 
       {/* The map itself is a canvas, so its content is unreachable by keyboard or screen reader.
           This is the same information as a list of links — visually hidden, but focusable. */}
@@ -152,19 +152,31 @@ function HoverCard({
   )
 }
 
-/** Covers the map while the zones load, and stays up if they never arrive. */
-function MapStatus({ zones, failed }: { zones: ZoneCollection | null; failed: boolean }) {
+/**
+ * Covers the map while the zones load, and stays up if they never arrive. Names what is loading
+ * the way the rest of the map does: danger on a forecast center, zones on an exchange.
+ */
+function MapStatus({
+  zones,
+  failed,
+  informationExchange,
+}: {
+  zones: ZoneCollection | null
+  failed: boolean
+  informationExchange: boolean
+}) {
+  const product = informationExchange ? 'The zone map' : 'Avalanche danger'
   if (failed) {
     return (
       <MapOverlay>
-        <span>Avalanche danger is unavailable right now.</span>
+        <span>{product} is unavailable right now.</span>
       </MapOverlay>
     )
   }
   if (!zones) {
     return (
       <MapOverlay>
-        <span>Loading avalanche danger…</span>
+        <span>Loading {product.toLowerCase()}…</span>
       </MapOverlay>
     )
   }

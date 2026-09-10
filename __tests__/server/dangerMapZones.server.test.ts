@@ -11,30 +11,7 @@ import {
 } from '@/services/nac/dangerMap/dangerMapZones'
 import { NO_RATING_ADVICE } from '@/services/nac/dangerScale'
 import type { ZoneFeature, ZoneGeometry, ZoneProperties } from '@/services/nac/model/mapLayer'
-
-/** A mid-winter Considerable zone — the ordinary case the map spends the season rendering. */
-function zone(overrides: Partial<ZoneProperties> = {}): ZoneProperties {
-  return {
-    name: 'West Slopes Central',
-    center: 'Northwest Avalanche Center',
-    center_link: 'https://www.nwac.us/',
-    timezone: 'America/Los_Angeles',
-    center_id: 'NWAC',
-    state: 'WA',
-    off_season: false,
-    travel_advice: 'Careful snowpack evaluation is essential.',
-    danger: 'considerable',
-    danger_level: 3,
-    color: '#f7941e',
-    stroke: '#104efb',
-    font_color: '#ffffff',
-    link: 'http://www.nwac.us/avalanche-forecast/#/west-slopes-central',
-    start_date: '2026-01-14T01:30:00',
-    end_date: '2026-01-15T01:30:00',
-    warning: { product: null },
-    ...overrides,
-  }
-}
+import { exchangeZone, zone } from '../fixtures/dangerMapZones'
 
 describe('zoneStyle', () => {
   it('paints a rated zone in the colors the server supplied', () => {
@@ -172,7 +149,7 @@ describe('zonePopup', () => {
   it('replaces the whole danger framing off-season', () => {
     const popup = zonePopup(zone({ off_season: true }), settings)
 
-    expect(popup.offSeason).toBe(true)
+    expect(popup.subject).toBe('offSeason')
     expect(popup.headline).toBe('Forecasts ended for the season')
     expect(popup.subhead).toBeNull()
     expect(popup.publishedText).toBeNull()
@@ -377,28 +354,11 @@ describe('zonePopup — on an information exchange', () => {
     informationExchange: true,
   }
 
-  /** A zone as the map layer returns it for EWYAIX: unrated, undated, linked to the exchange's site. */
-  const exchangeZone = (overrides: Partial<ZoneProperties> = {}) =>
-    zone({
-      name: 'Big Horns',
-      center: 'Eastern Wyoming Avalanche Info Exchange',
-      center_link: 'https://ewyoavalanche.org',
-      timezone: 'America/Denver',
-      center_id: 'EWYAIX',
-      state: 'WY',
-      danger: 'no rating',
-      danger_level: -1,
-      color: '#888888',
-      link: 'https://ewyoavalanche.org',
-      start_date: null,
-      end_date: null,
-      ...overrides,
-    })
-
   // The widget's AIX header: the zone is an invitation to read observations, not a rating.
   it('headlines the zone with observations rather than a rating', () => {
     const popup = zonePopup(exchangeZone(), settings)
 
+    expect(popup.subject).toBe('observations')
     expect(popup.headline).toBe('View Observations')
     expect(popup.subhead).toBe('Avalanche Info Exchange')
     expect(popup.dangerLevel).toBe(0)
@@ -433,14 +393,31 @@ describe('zonePopup — on an information exchange', () => {
     expect(zonePopup(exchangeZone({ link: null }), settings).href).toBe('/observations')
   })
 
-  // Off-season wins here as it does for styling: the header says the season ended, and the
-  // validity window stays suppressed.
-  it('lets off-season outrank the observations framing', () => {
+  // Off-season wins here as it does for styling and in the widget, whose off-season branch sits
+  // above its AIX branch. Where the zone *goes* is a property of the zone, not the season, so the
+  // link still opens observations. (NAC does not flag the exchanges off-season today.)
+  it('lets off-season outrank the observations framing but not the destination', () => {
     const popup = zonePopup(exchangeZone({ off_season: true }), settings)
 
     expect(popup.headline).toBe('Forecasts ended for the season')
     expect(popup.subhead).toBeNull()
     expect(popup.href).toBe('/observations')
+  })
+
+  // The feed and the map layer can disagree — forecasts switched off while a zone still carries
+  // a rating. The rating is the safety-relevant fact, so it is what the popup says; only the link
+  // follows the center's capabilities.
+  it('keeps a rated zone framed as danger, with advice, while still linking to observations', () => {
+    const popup = zonePopup(
+      exchangeZone({ danger: 'considerable', danger_level: 3, end_date: '2026-01-15T01:30:00' }),
+      settings,
+    )
+
+    expect(popup.subject).toBe('rated')
+    expect(popup.headline).toBe('3 - Considerable')
+    expect(popup.advice).toContain('Dangerous avalanche conditions.')
+    expect(popup.href).toBe('/observations')
+    expect(popup.isExternal).toBe(false)
   })
 
   // The widget shows the warning strip in AIX mode too; a warning is a warning wherever it lands.

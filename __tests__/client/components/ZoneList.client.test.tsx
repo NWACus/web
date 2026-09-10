@@ -1,42 +1,8 @@
 import { ZoneList } from '@/components/dangerMap/ZoneList'
-import type { ZoneRenderFeature } from '@/services/nac/dangerMap/dangerMapZones'
+import { decorateZoneFeatures } from '@/services/nac/dangerMap/dangerMapZones'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-
-function feature(
-  overrides: Partial<ZoneRenderFeature['properties']>,
-  id: number,
-): ZoneRenderFeature {
-  return {
-    type: 'Feature',
-    id,
-    geometry: null,
-    properties: {
-      name: 'West Slopes Central',
-      center: 'Northwest Avalanche Center',
-      center_link: 'https://www.nwac.us/',
-      center_id: 'NWAC',
-      timezone: 'America/Los_Angeles',
-      state: 'WA',
-      off_season: false,
-      travel_advice: 'Careful snowpack evaluation is essential.',
-      danger: 'considerable',
-      danger_level: 3,
-      color: '#f7941e',
-      stroke: '#104efb',
-      font_color: '#ffffff',
-      link: 'http://www.nwac.us/avalanche-forecast/#/west-slopes-central',
-      start_date: '2026-01-14T01:30:00',
-      end_date: '2026-01-15T01:30:00',
-      warning: { product: null },
-      fillColor: '#f7941e',
-      fillOpacity: 0.6,
-      strokeColor: '#104efb',
-      hasWarning: false,
-      ...overrides,
-    },
-  }
-}
+import { exchangeZone, zone, zoneFeature } from '../../fixtures/dangerMapZones'
 
 const forecastCenter = {
   advice: true,
@@ -46,27 +12,13 @@ const forecastCenter = {
 }
 const exchange = { advice: true, allCenters: false, centerId: 'EWYAIX', informationExchange: true }
 
-const exchangeZone = feature(
-  {
-    name: 'Big Horns',
-    center: 'Eastern Wyoming Avalanche Info Exchange',
-    center_link: 'https://ewyoavalanche.org',
-    center_id: 'EWYAIX',
-    timezone: 'America/Denver',
-    state: 'WY',
-    danger: 'no rating',
-    danger_level: -1,
-    color: '#888888',
-    link: 'https://ewyoavalanche.org',
-    start_date: null,
-    end_date: null,
-  },
-  2841,
-)
+// Styled the way the danger-map route styles them, so the list sees what the map sees.
+const nwacZones = { features: decorateZoneFeatures([zoneFeature(zone(), 1655)]) }
+const exchangeZones = { features: decorateZoneFeatures([zoneFeature(exchangeZone(), 2841)]) }
 
 describe('ZoneList', () => {
   it('lists each zone with its rating, linked to its forecast', () => {
-    render(<ZoneList zones={{ features: [feature({}, 1655)] }} settings={forecastCenter} />)
+    render(<ZoneList zones={nwacZones} settings={forecastCenter} />)
 
     expect(
       screen.getByRole('heading', { name: 'Avalanche danger by forecast zone' }),
@@ -81,11 +33,28 @@ describe('ZoneList', () => {
   // The list is the map's only keyboard- and screen-reader-reachable form, so it has to pivot
   // with the popups: an exchange's zones are a way into observations, not a rating.
   it("frames an exchange's zones as observations, linked to the native observations page", () => {
-    render(<ZoneList zones={{ features: [exchangeZone] }} settings={exchange} />)
+    render(<ZoneList zones={exchangeZones} settings={exchange} />)
 
     expect(screen.getByRole('heading', { name: 'Observations by zone' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Big Horns' })).toHaveAttribute('href', '/observations')
     expect(screen.getByRole('listitem')).toHaveTextContent('Big Horns: View Observations')
+  })
+
+  // Items pivot per zone, so an exchange's all-centers list mixes observations with neighbors'
+  // ratings; the heading has to be true of both.
+  it("uses a neutral heading over an exchange's all-centers list", () => {
+    const mixed = {
+      features: decorateZoneFeatures([
+        zoneFeature(exchangeZone(), 2841),
+        zoneFeature(zone(), 1655),
+      ]),
+    }
+    render(<ZoneList zones={mixed} settings={{ ...exchange, allCenters: true }} />)
+
+    expect(screen.getByRole('heading', { name: 'Forecast zones on the map' })).toBeInTheDocument()
+    const items = screen.getAllByRole('listitem')
+    expect(items[0]).toHaveTextContent('Big Horns: View Observations')
+    expect(items[1]).toHaveTextContent('West Slopes Central: 3 - Considerable')
   })
 
   it('renders nothing before the zones arrive', () => {
