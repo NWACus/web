@@ -47,8 +47,8 @@ The underlying fix belongs in the schema: a *required* tenant relationship shoul
 Every native product spec times out waiting for content that is plainly on the page in a browser. Check the rollout flags first:
 
 ```bash
-sqlite3 dev.db "select t.slug, s.native_products_forecast from settings s join tenants t on s.tenant_id = t.id order by t.slug;"
-# expected: dvac|1  nwac|0  sac|0  snfac|1
+sqlite3 dev.db "select t.slug, s.native_products_forecast, s.native_products_warning, s.native_products_danger_map from settings s join tenants t on s.tenant_id = t.id order by t.slug;"
+# expected: dvac|0|0|0  nwac|1|1|1  sac|0|0|0  snfac|1|1|1
 ```
 
 With the flag off, every native page renders the `NACWidget` branch instead, so `<main>` contains `widget-container` and none of the markup the specs look for. `globalSetup` does not check this — it verifies the server is the mocked production build and that every upstream call had a golden behind it, but not the seeded rollout state — so the symptom is ~20 unrelated-looking timeouts rather than one clear message. Seed the database (see above) and re-run; `pnpm test:e2e:afp-products` rebuilds, which it must, because the flag is read at prerender time. See [afp-products/e2e-mocks.md](afp-products/e2e-mocks.md#rollout-state-lives-in-the-seed).
