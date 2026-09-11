@@ -163,7 +163,7 @@ sig = "b1d9736649cf9b6a"
 [[bindings]]
 doc = "docs/coding-guide.md"
 target = "src/app/(frontend)/[center]/theme-preview/page.tsx"
-sig = "9e7de3d13536a518"
+sig = "092a1be704297a39"
 
 [[bindings]]
 doc = "docs/coding-guide.md"
@@ -428,7 +428,7 @@ sig = "e3dde955e6e1147b"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/app/(frontend)/[center]/events/page.tsx"
-sig = "05fc3e50378fced9"
+sig = "123312ea0418834d"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"

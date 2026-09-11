@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
@@ -150,7 +151,16 @@ export default async function Page({ params, searchParams }: Args) {
 
   const view = await resolveTabView(group, rangeParam, periodParam)
 
-  return <StationPageView group={group} table={view.table} tabContent={view.tabContent} />
+  return (
+    <>
+      <Breadcrumbs
+        center={center}
+        path={`/weather/stations/${station}`}
+        title={group.displayName}
+      />
+      <StationPageView group={group} table={view.table} tabContent={view.tabContent} />
+    </>
+  )
 }
 
 function resolveParentTitle(parent: ResolvedMetadata): Metadata['title'] {

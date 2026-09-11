@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import {
@@ -76,6 +77,20 @@ function AllStationsLinks() {
 
 const sectionHeadingClass = 'border-b pb-1 text-xl font-bold'
 
+function Intro() {
+  return (
+    <div className="container">
+      <div className="prose dark:prose-invert max-w-none">
+        <h1 className="font-bold">Weather Stations</h1>
+        <p>
+          Hourly readings from NWAC&apos;s weather stations. Each station has a table of recent
+          observations, graphs back to the start of the season, and CSV downloads.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default async function Page({ params }: Args) {
   const { center } = await params
 
@@ -84,28 +99,23 @@ export default async function Page({ params }: Args) {
   }
 
   return (
-    <div className="mb-10 flex flex-col gap-8">
-      {/* No station picker here — the zone lists below already name every station. */}
-      <div className="container">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">Weather Stations</h1>
-          <p>
-            Hourly readings from NWAC&apos;s weather stations. Each station has a table of recent
-            observations, graphs back to the start of the season, and CSV downloads.
-          </p>
-        </div>
+    <>
+      <Breadcrumbs center={center} path="/weather/stations" />
+      <div className="mb-10 flex flex-col gap-8">
+        {/* No station picker here — the zone lists below already name every station. */}
+        <Intro />
+
+        <section className="container flex flex-col gap-2">
+          <h2 className={sectionHeadingClass}>All stations</h2>
+          <AllStationsLinks />
+        </section>
+
+        <section className="container flex flex-col gap-3">
+          <h2 className={sectionHeadingClass}>By zone</h2>
+          <ZoneColumns />
+        </section>
       </div>
-
-      <section className="container flex flex-col gap-2">
-        <h2 className={sectionHeadingClass}>All stations</h2>
-        <AllStationsLinks />
-      </section>
-
-      <section className="container flex flex-col gap-3">
-        <h2 className={sectionHeadingClass}>By zone</h2>
-        <ZoneColumns />
-      </section>
-    </div>
+    </>
   )
 }
 

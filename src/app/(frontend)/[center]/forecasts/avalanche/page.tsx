@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
@@ -45,6 +46,7 @@ export default async function Page({ params }: Args) {
     <>
       <WidgetRouterHandler initialPath="/all/" widgetPageKey="forecasts" />
       <ZoneLinkHijacker />
+      <Breadcrumbs center={center} path="/forecasts/avalanche" />
       <div className="container flex flex-col">
         <NACWidget center={center} widget="forecast" />
       </div>
