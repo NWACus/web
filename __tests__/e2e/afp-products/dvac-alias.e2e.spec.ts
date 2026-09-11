@@ -4,16 +4,18 @@ import { loadPage, tenant } from './helpers'
 /**
  * DVAC shares NWAC's upstream data — `dvac` is normalised to `nwac` at every NAC/AFP call site.
  *
- * The alias has a structural proof as well as a visible one: no DVAC-keyed handler exists in the
- * mock, so if the normalisation regressed the catch-all would answer 501, the call would be
- * recorded, and globalTeardown would fail the run. These assertions cannot pass by accident.
+ * nwac is the rolled-out half of the pair and dvac the widget half, so these specs read the alias
+ * from both branches at once. The alias also has a structural proof underneath them: no DVAC-keyed
+ * handler exists in the mock, and the dvac pages still fetch upstream in widget mode (the platform
+ * gate, the zone lookup and the metadata description all run before the rollout flag is read), so
+ * if the normalisation regressed the catch-all would answer 501, the call would be recorded, and
+ * globalSetup would fail the run. These assertions cannot pass by accident.
  */
 
 test.describe('DVAC → NWAC alias', () => {
-  test('renders NWAC zones on a DVAC page', async ({ page }) => {
-    const errors = await loadPage(page, `${tenant('dvac')}/forecasts/avalanche`)
+  test('renders NWAC zones on the native NWAC page', async ({ page }) => {
+    const errors = await loadPage(page, `${tenant('nwac')}/forecasts/avalanche`)
 
-    // NWAC's own zone names, from the NWAC center metadata — not DVAC's and not Sawtooth's.
     await expect(page.getByRole('link', { name: 'Olympics' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Stevens Pass' })).toBeVisible()
     // Ten active zones; the three disabled ones must not appear.
@@ -29,7 +31,7 @@ test.describe('DVAC → NWAC alias', () => {
    * visible copy, never a blank page or a silently missing section.
    */
   test('a zone with no upstream product says so rather than rendering blank', async ({ page }) => {
-    const errors = await loadPage(page, `${tenant('dvac')}/forecasts/avalanche/olympics`)
+    const errors = await loadPage(page, `${tenant('nwac')}/forecasts/avalanche/olympics`)
 
     await expect(
       page.getByText('Unable to load forecast data. Please try again later.'),
@@ -40,10 +42,15 @@ test.describe('DVAC → NWAC alias', () => {
     expect(errors).toEqual([])
   })
 
-  test('the same zone renders the widget for NWAC, which is not rolled out', async ({ page }) => {
-    await loadPage(page, `${tenant('nwac')}/forecasts/avalanche/olympics`)
+  test('the same zone renders the widget for DVAC, which is not rolled out', async ({ page }) => {
+    await loadPage(page, `${tenant('dvac')}/forecasts/avalanche/olympics`)
 
     // Same upstream center, different rollout state — Control 1 is per tenant, not per center.
     await expect(page.locator('#widget-container[data-widget="forecast"]')).toBeVisible()
+
+    // The widget branch carries the alias too: it is handed NWAC, never DVAC. Read off the global
+    // the component writes, because everything the widget itself would draw comes from a stubbed
+    // third-party CDN.
+    await expect.poll(() => page.evaluate(() => window.forecastWidgetData?.centerId)).toBe('NWAC')
   })
 })
