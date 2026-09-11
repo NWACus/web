@@ -23,14 +23,20 @@ authTest.describe('Navigations save', () => {
     await setTenantCookie(adminPage.context(), TenantSlugs.nwac)
     await adminPage.goto(`${SERVER_URL}/admin`)
 
-    const read = await adminPage.evaluate(async () => {
-      const res = await fetch('/api/navigations?limit=1&depth=0')
-      return { ok: res.ok, status: res.status, body: await res.json() }
-    })
+    // The tenant cookie scopes the admin list view, not the REST API, and a super admin's access
+    // adds no tenant constraint, so the navigation has to be looked up by tenant explicitly.
+    const read = await adminPage.evaluate(async (slug) => {
+      const tenants = await fetch(`/api/tenants?where[slug][equals]=${slug}&limit=1&depth=0`)
+      const tenantId = (await tenants.json()).docs?.[0]?.id
+      const res = await fetch(`/api/navigations?where[tenant][equals]=${tenantId}&limit=1&depth=0`)
+      return { ok: res.ok, status: res.status, tenantId, body: await res.json() }
+    }, TenantSlugs.nwac)
+    expect(read.tenantId, `no ${TenantSlugs.nwac} tenant seeded`).toBeTruthy()
     expect(read.ok, `read navigations failed (${read.status})`).toBeTruthy()
 
+    // The seed creates one navigation per tenant, so this only fails on an unseeded database
     const doc = read.body.docs?.[0]
-    expect(doc, 'no navigation seeded for nwac').toBeTruthy()
+    expect(doc, `no navigation seeded for ${TenantSlugs.nwac}`).toBeTruthy()
 
     const items: NavItemData[] = doc.education?.items ?? []
     expect(
