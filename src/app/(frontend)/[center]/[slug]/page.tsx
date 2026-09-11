@@ -1,3 +1,6 @@
+// fallow-ignore-file dynamic-segment-name-conflict
+// False positive: Next.js only rejects two *named* dynamic siblings. The sibling
+// `[...segments]` catch-all is legal, and this route wins for single-segment paths.
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next'
 
