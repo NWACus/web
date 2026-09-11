@@ -142,7 +142,7 @@ _Avoid_: EventTag (different entity)
 
 ## Native Product Pages
 
-AvyWeb rendering NAC/AFP product data itself, on its own design system, instead of embedding a NAC widget. This cluster is **not tenant-owned data** — the products come from upstream APIs; what is tenant-scoped is only the decision to render them natively. See [architecture.md](docs/afp-products/architecture.md) for how the layers fit together and [ADR 018](docs/decisions/018-native-product-page-architecture.md) for why.
+AvyWeb rendering NAC/AFP product data itself, on its own design system, instead of embedding a NAC widget. This cluster is **not tenant-owned data** — the products come from upstream APIs; what is tenant-scoped is only the decision to render them natively. See [architecture.md](docs/afp-products/architecture.md) for how the layers fit together and [ADR 019](docs/decisions/019-native-product-page-architecture.md) for why.
 
 **Native product page**:
 An AvyWeb-rendered page that displays a NAC/AFP Product — forecast, warning, danger map, weather, observations — natively, replacing the embedded NAC widget for that Product. Chosen per Tenant and per Product, so a center can run a native forecast while its observations stay on the widget.
