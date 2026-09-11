@@ -12,6 +12,7 @@ export type UserRole =
   | 'providerManager'
   | 'multiTenantAdmin'
   | 'singleTenantAdmin'
+  | 'sacTenantAdmin'
   | 'singleTenantForecaster'
   | 'singleTenantStaff'
   | 'providerUser'
@@ -54,6 +55,15 @@ export const testUsers: Record<UserRole, TestUser> = {
     password: TEST_PASSWORD,
     description: 'Admin for NWAC tenant only',
     tenants: ['nwac'],
+    providers: [],
+  },
+  // A second single-tenant admin, scoped to a different tenant than
+  // singleTenantAdmin, for cross-tenant and domain-scoping assertions.
+  sacTenantAdmin: {
+    email: 'admin@sierraavalanchecenter.org',
+    password: TEST_PASSWORD,
+    description: 'Admin for SAC tenant only',
+    tenants: ['sac'],
     providers: [],
   },
   singleTenantForecaster: {
@@ -104,6 +114,7 @@ export const userRoles: readonly UserRole[] = [
   'providerManager',
   'multiTenantAdmin',
   'singleTenantAdmin',
+  'sacTenantAdmin',
   'singleTenantForecaster',
   'singleTenantStaff',
   'providerUser',
