@@ -27,8 +27,13 @@ interface ArchiveProductRowProps {
   row: ArchiveRow
 }
 
-/** One of the two lines; on wide screens its children become grid cells. */
-const LINE = 'flex flex-wrap items-center gap-x-4 gap-y-1 xl:contents'
+/**
+ * One of the two lines; on wide screens its children become grid cells. The first line may wrap,
+ * so a long zone name drops under the date whole; the second never does — the author truncates.
+ */
+const LINE = 'flex items-center gap-x-4 gap-y-1 xl:contents'
+const FIRST_LINE = `${LINE} flex-wrap`
+const SECOND_LINE = `${LINE} flex-nowrap`
 
 export function ArchiveProductRow({ row }: ArchiveProductRowProps) {
   const level = dangerLevelFromRating(row.dangerLevel)
@@ -51,11 +56,11 @@ export function ArchiveProductRow({ row }: ArchiveProductRowProps) {
 function RowLines({ row, level }: { row: ArchiveRow; level: DangerLevel }) {
   return (
     <div className="space-y-1 xl:grid xl:grid-cols-[7rem_minmax(0,1fr)_11rem_14rem] xl:items-center xl:gap-x-4 xl:space-y-0">
-      <div className={LINE}>
+      <div className={FIRST_LINE}>
         <span className="shrink-0 font-semibold">{formatArchiveDate(row.date)}</span>
         <ZoneCell name={row.zoneName} />
       </div>
-      <div className={LINE}>
+      <div className={SECOND_LINE}>
         <DangerCell level={level} />
         <AuthorCell author={row.author} />
       </div>
@@ -68,7 +73,7 @@ function DangerCell({ level }: { level: DangerLevel }) {
   const iconSize = dangerIconSize(level)
 
   return (
-    <span className="flex items-center gap-2 whitespace-nowrap">
+    <span className="flex shrink-0 items-center gap-2 whitespace-nowrap">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={dangerIconUrl(level)}
@@ -95,14 +100,17 @@ function ZoneCell({ name }: { name: string }) {
   )
 }
 
-/** Absent on bulk-imported history. */
+/**
+ * Truncated rather than wrapped when the line is short of room; the full name is in the `title`
+ * for a hover, and the dated page it links to shows it in full. Absent on bulk-imported history.
+ */
 function AuthorCell({ author }: { author: string | null }) {
   if (!author) return null
 
   return (
-    <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+    <span className="flex min-w-0 items-center gap-1 text-muted-foreground" title={author}>
       <User className="h-4 w-4 shrink-0" aria-hidden="true" />
-      <span className="min-w-0 truncate">{author}</span>
+      <span className="truncate">{author}</span>
     </span>
   )
 }
