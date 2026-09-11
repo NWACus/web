@@ -189,7 +189,8 @@ function FilterChips({
         type="button"
         variant="link"
         size="sm"
-        className="h-6 gap-1 px-1 text-xs"
+        // The link variant top-aligns its content; the chips beside it are centered.
+        className="h-6 items-center gap-1 px-1 text-xs"
         onClick={onReset}
       >
         <RefreshCw className="h-3 w-3" aria-hidden="true" />
