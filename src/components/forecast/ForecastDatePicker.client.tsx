@@ -15,7 +15,7 @@
  * `./datePickerNavigation` so they can be unit-tested without React.
  */
 import { endOfMonth, format, parseISO, startOfMonth } from 'date-fns'
-import { CalendarIcon, ChevronLeft, ChevronRight, Loader2, MapPin } from 'lucide-react'
+import { CalendarIcon, ChevronLeft, ChevronRight, History, Loader2, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useMemo, useState, type ComponentProps } from 'react'
 import type { DayButton } from 'react-day-picker'
@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { dangerColor, dangerLevelFromRating, dangerTextColor } from '@/services/nac/dangerScale'
+import { ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import { cn } from '@/utilities/ui'
 
 import {
@@ -267,7 +268,7 @@ function CalendarPopover({
           loading={loading}
           loadMonth={loadMonth}
         />
-        {showBackToCurrent && <BackToCurrentLink basePath={basePath} />}
+        <PopoverFooter basePath={basePath} showBackToCurrent={showBackToCurrent} />
       </PopoverContent>
     </Popover>
   )
@@ -282,12 +283,29 @@ function ZoneHeading({ zoneName }: { zoneName: string }) {
   )
 }
 
-/** Shown only on a dated page: a way back to the live forecast. */
-function BackToCurrentLink({ basePath }: { basePath: string }) {
+/**
+ * Under the calendar: a way back to the live forecast (dated pages only), and the center-wide
+ * archive browser, as the legacy calendar dropdown offers under its calendar.
+ */
+function PopoverFooter({
+  basePath,
+  showBackToCurrent,
+}: {
+  basePath: string
+  showBackToCurrent: boolean
+}) {
   return (
     <div className="border-t p-1">
-      <Button asChild variant="ghost" className="w-full justify-center">
-        <Link href={basePath}>Current forecast</Link>
+      {showBackToCurrent && (
+        <Button asChild variant="ghost" className="w-full justify-center">
+          <Link href={basePath}>Current forecast</Link>
+        </Button>
+      )}
+      <Button asChild variant="ghost" className="w-full justify-center gap-2">
+        <Link href={ARCHIVE_PATH}>
+          <History className="h-4 w-4" aria-hidden="true" />
+          All archived forecasts
+        </Link>
       </Button>
     </div>
   )

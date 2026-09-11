@@ -4,9 +4,8 @@
  * wording matches the legacy afp ForecastBanner word-for-word ("This is an archived product." /
  * "This product is expired.").
  *
- * afp also offers an "all archived forecasts" link; native has no all-archives page yet (the date
- * picker on this page covers per-zone history), so that clause is omitted. "Withdrawn" has no
- * representation in the v2 model, so it is not surfaced.
+ * The archived notice also links to the center's archive browser, as afp's does. "Withdrawn" has
+ * no representation in the v2 model, so it is not surfaced.
  *
  * The archived notice is settled at render time, but expiry is not: it turns over on the clock
  * alone, so it is delegated to `ProductExpiry`, which decides the server's answer and hands it to
@@ -15,6 +14,7 @@
 import { History } from 'lucide-react'
 import Link from 'next/link'
 
+import { ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import type { ForecastResult } from '@/services/nac/model/forecast'
 
 import { ProductExpiry } from './ProductExpiry'
@@ -40,6 +40,13 @@ export function ValidityBanner({ forecast, selectedDate, basePath }: ValidityBan
             className="font-medium underline underline-offset-2 hover:no-underline"
           >
             most recent forecast
+          </Link>{' '}
+          or{' '}
+          <Link
+            href={ARCHIVE_PATH}
+            className="font-medium underline underline-offset-2 hover:no-underline"
+          >
+            all archived forecasts
           </Link>
           .
         </span>
