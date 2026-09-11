@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation'
 import type { RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import { asControl, disableRotation, MAP_STYLE } from '@/components/map/mapbox'
+import { asControl, disableRotation, hasSource, isLive, MAP_STYLE } from '@/components/map/mapbox'
 import { mapboxZoomFor, type DangerMapSettings } from '@/services/nac/dangerMap/dangerMapSettings'
 import type { ZonePopup, ZoneRenderFeature } from '@/services/nac/dangerMap/dangerMapZones'
 import { zonePopup, type ZonePopupSettings } from '@/services/nac/dangerMap/dangerMapZones'
@@ -198,7 +198,7 @@ export function useZoneLayers(mapRef: MapRef, zones: ZoneCollection | null, onRe
     else map.once('load', addZoneLayers)
 
     return () => {
-      if (!map.getSource(SOURCE_ID)) return
+      if (!hasSource(map, SOURCE_ID)) return
       for (const id of [FILL_LAYER_ID, OUTLINE_LAYER_ID]) {
         if (map.getLayer(id)) map.removeLayer(id)
       }
@@ -245,7 +245,7 @@ export function useWarningFlash(mapRef: MapRef, zones: ZoneCollection | null) {
 
     return () => {
       cancelAnimationFrame(frame)
-      if (!map.getSource(SOURCE_ID)) return
+      if (!hasSource(map, SOURCE_ID)) return
       for (const id of warnedIds) {
         // Drop the state rather than pinning a final opacity, so the zone falls back to the
         // fill-opacity baked into its own properties.
@@ -275,7 +275,7 @@ export function useZoneInteractions(
     let hoveredId: string | number | null = null
 
     const dropHoverState = () => {
-      if (hoveredId != null && map.getSource(SOURCE_ID)) {
+      if (hoveredId != null && hasSource(map, SOURCE_ID)) {
         map.removeFeatureState({ source: SOURCE_ID, id: hoveredId }, 'hover')
       }
       hoveredId = null
@@ -351,7 +351,10 @@ export function useZoneInteractions(
       map.off('mousemove', onMouseMove)
       map.off('mouseout', clearHover)
       map.off('click', onClick)
-      clearHover()
+      dropHoverState()
+      // The canvas is gone with the map; the pointer state is React's and still needs clearing.
+      if (isLive(map)) map.getCanvas().style.cursor = ''
+      setHovered(null)
     }
   }, [mapRef, zones, settings, router])
 

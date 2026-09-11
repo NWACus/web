@@ -28,3 +28,21 @@ export function disableRotation(map: MapboxMap): void {
   map.touchPitch.disable()
   map.touchZoomRotate.disableRotation()
 }
+
+/**
+ * Whether the map can still be touched.
+ *
+ * `map.remove()` drops the style, and after it every source, layer and feature-state call throws.
+ * React runs a component's unmount cleanups in hook order, so the hook that built the map (declared
+ * first) removes it before the hooks that put layers on it get to take them off — which is exactly
+ * what happens on a client-side navigation away from a map page. Those cleanups check this first.
+ * `getStyle()` is the public signal: it is `undefined` once the style is gone.
+ */
+export function isLive(map: MapboxMap): boolean {
+  return map.getStyle() !== undefined
+}
+
+/** A source is there to take down only while the map is live — see `isLive`. */
+export function hasSource(map: MapboxMap, sourceId: string): boolean {
+  return isLive(map) && map.getSource(sourceId) !== undefined
+}
