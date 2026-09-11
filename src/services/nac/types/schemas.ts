@@ -135,6 +135,8 @@ export const avalancheCenterStationsWidgetConfigurationSchema = z.object({
   timezone: z.string().optional(),
   color_rules: z.boolean().optional(),
   source_legend: z.boolean().optional(),
+  // Color station markers by data source; dashboard-v2 treats an unset value as on.
+  source_marker_color: z.boolean().optional(),
   sources: z.array(z.string()).optional(),
   within: z.union([z.string(), z.number()]).optional(),
   external_modal_links: z
@@ -142,6 +144,9 @@ export const avalancheCenterStationsWidgetConfigurationSchema = z.object({
     .optional(),
   token: z.string().optional(),
 })
+export type AvalancheCenterStationsWidgetConfiguration = z.infer<
+  typeof avalancheCenterStationsWidgetConfigurationSchema
+>
 
 // the widget configurations are present if and when each forecast center opts into specific NAC functionality
 export const avalancheCenterWidgetConfigurationSchema = z.object({

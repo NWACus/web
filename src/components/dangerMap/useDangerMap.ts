@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation'
 import type { RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
+import { asControl, disableRotation, hasSource, isLive, MAP_STYLE } from '@/components/map/mapbox'
 import { mapboxZoomFor, type DangerMapSettings } from '@/services/nac/dangerMap/dangerMapSettings'
 import type { ZonePopup, ZoneRenderFeature } from '@/services/nac/dangerMap/dangerMapZones'
 import { zonePopup, type ZonePopupSettings } from '@/services/nac/dangerMap/dangerMapZones'
@@ -29,9 +30,6 @@ import {
   SOURCE_ID,
   toMapboxCollection,
 } from './zoneLayers'
-
-/** The `avalanche-org` "AFP Custom" style, shared with afp-public-widgets and dashboard-v2. */
-const MAP_STYLE = 'mapbox://styles/avalanche-org/cmg1bsw48002301pshwzoen5y'
 
 /** Roughly the centre of the western US — only ever seen before the zones arrive. */
 const FALLBACK_CENTER: [number, number] = [-114.7, 44]
@@ -96,16 +94,6 @@ export function useMapInstance(
   return mapRef
 }
 
-/**
- * Hand an existing React-rendered node to Mapbox as a control.
- *
- * `onRemove` deliberately does nothing: React created the node and React unmounts it, so detaching
- * it here too would be a double removal. Mapbox only needs to be told where to put it.
- */
-function asControl(element: HTMLElement): mapboxgl.IControl {
-  return { onAdd: () => element, onRemove: () => {} }
-}
-
 function buildMap(
   container: HTMLDivElement,
   token: string,
@@ -122,10 +110,7 @@ function buildMap(
     cooperativeGestures: true,
   })
 
-  // Rotation and pitch add nothing to a polygon map and make it easy to get lost.
-  map.dragRotate.disable()
-  map.touchPitch.disable()
-  map.touchZoomRotate.disableRotation()
+  disableRotation(map)
   map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
 
   if (settings.geolocate) {
@@ -213,7 +198,7 @@ export function useZoneLayers(mapRef: MapRef, zones: ZoneCollection | null, onRe
     else map.once('load', addZoneLayers)
 
     return () => {
-      if (!map.getSource(SOURCE_ID)) return
+      if (!hasSource(map, SOURCE_ID)) return
       for (const id of [FILL_LAYER_ID, OUTLINE_LAYER_ID]) {
         if (map.getLayer(id)) map.removeLayer(id)
       }
@@ -260,7 +245,7 @@ export function useWarningFlash(mapRef: MapRef, zones: ZoneCollection | null) {
 
     return () => {
       cancelAnimationFrame(frame)
-      if (!map.getSource(SOURCE_ID)) return
+      if (!hasSource(map, SOURCE_ID)) return
       for (const id of warnedIds) {
         // Drop the state rather than pinning a final opacity, so the zone falls back to the
         // fill-opacity baked into its own properties.
@@ -290,7 +275,7 @@ export function useZoneInteractions(
     let hoveredId: string | number | null = null
 
     const dropHoverState = () => {
-      if (hoveredId != null && map.getSource(SOURCE_ID)) {
+      if (hoveredId != null && hasSource(map, SOURCE_ID)) {
         map.removeFeatureState({ source: SOURCE_ID, id: hoveredId }, 'hover')
       }
       hoveredId = null
@@ -366,7 +351,10 @@ export function useZoneInteractions(
       map.off('mousemove', onMouseMove)
       map.off('mouseout', clearHover)
       map.off('click', onClick)
-      clearHover()
+      dropHoverState()
+      // The canvas is gone with the map; the pointer state is React's and still needs clearing.
+      if (isLive(map)) map.getCanvas().style.cursor = ''
+      setHovered(null)
     }
   }, [mapRef, zones, settings, router])
 

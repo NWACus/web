@@ -3042,6 +3042,10 @@ export interface Setting {
      * Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.
      */
     dangerMap?: boolean | null;
+    /**
+     * Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.
+     */
+    stationMap?: boolean | null;
   };
   socialMedia?: {
     instagram?: string | null;
@@ -4849,6 +4853,7 @@ export interface SettingsSelect<T extends boolean = true> {
         forecast?: T;
         warning?: T;
         dangerMap?: T;
+        stationMap?: T;
       };
   socialMedia?:
     | T

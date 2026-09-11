@@ -59,6 +59,9 @@ function run(command, extraNodeOptions = []) {
       AFP_HOST: 'http://afp.e2e-mock.invalid',
       PORT: port,
       NEXT_PUBLIC_ROOT_DOMAIN: `localhost:${port}`,
+      // The native maps refuse to mount without a token. Any `pk.` value gets them as far as
+      // constructing the map; the specs stub api.mapbox.com, so the token is never presented.
+      NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.e2e-mock',
       // Pin the clock: the goldens are Mountain-time products, and the valid-date cutover, the
       // archive window and the expiry banner all read a timezone.
       TZ: 'America/Denver',
