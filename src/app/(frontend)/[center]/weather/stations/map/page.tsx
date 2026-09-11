@@ -46,15 +46,6 @@ async function NativeStationMap({ center }: { center: string }) {
   const settings = resolveStationMapSettings(metadata.widget_config.stations)
   const hasNativeStationPages = center === STATIONS_TENANT_SLUG
 
-  if (settings.alternateZones) {
-    // A known parity gap (see settings.ts): the flag should not be on for this center yet.
-    const payload = await getPayload({ config: configPromise })
-    payload.logger.warn(
-      { center, alternateZones: settings.alternateZones },
-      'Native station map is on for a center with alternate_zones, which it does not honor',
-    )
-  }
-
   return (
     <div className="container">
       <StationMapLoader

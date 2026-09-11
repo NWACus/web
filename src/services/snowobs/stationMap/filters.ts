@@ -7,6 +7,8 @@
  */
 import { boundsOfGeometries, type Bounds } from '@/utilities/geo/bounds'
 
+import { OTHER_ZONE } from './mappers'
+
 import type { StationMapStation, StationMapUnits, StationMapWebcam, StationMapZone } from './model'
 
 export const SHOW_ALL_VARIABLE = 'show_all'
@@ -195,9 +197,12 @@ export function dataSources(stations: StationMapStation[]): string[] {
   return Array.from(new Set(stations.map((station) => station.source)))
 }
 
-/** The box around the zones a reader chose, or null when nothing is chosen to frame. */
+/**
+ * The box around the zones a reader chose, or null when there is nothing to frame — including a
+ * choice that takes in `Other`, which the widget answers by resetting the view.
+ */
 export function chosenZoneBounds(zones: StationMapZone[], chosenNames: string[]): Bounds | null {
-  if (chosenNames.length === 0) return null
+  if (chosenNames.length === 0 || chosenNames.includes(OTHER_ZONE)) return null
   const chosen = zones.filter((zone) => chosenNames.includes(zone.name))
   return boundsOfGeometries(chosen.map((zone) => zone.geometry))
 }

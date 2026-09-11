@@ -11,12 +11,6 @@
  * table values (the table is the native station pages' job); the timezone toggle is unused by the
  * legacy map, which formats in browser time; and the modal links pointed at the legacy nwac.us
  * pages the native station pages have superseded.
- *
- * **`alternate_zones` is not honored yet — a known gap.** When set (a KML URL; SAC, SNFAC and
- * BTAC have one as of 2026-09), the widget classifies, filters, outlines and frames by *those*
- * forecaster-drawn polygons instead of the forecast zones. The native map always uses the
- * forecast-zone map layer. `alternateZones` is surfaced here so the page can say so, and the
- * flag should stay off for a center with one until the KML path is built.
  */
 import { mapboxZoomFor } from '@/services/nac/dangerMap/dangerMapSettings'
 import type { AvalancheCenterStationsWidgetConfiguration } from '@/services/nac/types/schemas'
@@ -37,7 +31,10 @@ export interface StationMapSettings {
   sourceLegend: boolean
   /** Color markers by data source; off paints every station the same. */
   sourceMarkerColor: boolean
-  /** The KML URL of the center's own station-grouping polygons, when it has one. Not honored. */
+  /**
+   * The KML URL of the center's own station groupings (SAC, SNFAC and BTAC have one). When set,
+   * stations are grouped, filtered and framed by those polygons instead of the forecast zones.
+   */
   alternateZones: string | null
 }
 

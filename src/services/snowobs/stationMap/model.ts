@@ -58,9 +58,15 @@ export interface StationMapVariable {
 export interface StationMapData {
   stations: StationMapStation[]
   webcams: StationMapWebcam[]
+  /**
+   * The zones stations are grouped by — filtered, ordered and framed with. The center's alternate
+   * zones (forecaster-drawn station groupings from a KML) when it has them, else its forecast zones.
+   */
   zones: StationMapZone[]
-  /** Zone names in the center's own order, for the filter. */
+  /** Zone names in the order the filter lists them. */
   zoneNames: string[]
+  /** The outlines drawn on the map: always the forecast zones, as the widget draws them. */
+  outlines: StationMapZone[]
   variables: StationMapVariable[]
   /** Raw SnowObs unit per variable, e.g. `air_temp: 'fahrenheit'`. */
   units: Record<string, string>

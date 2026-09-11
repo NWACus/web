@@ -43,6 +43,7 @@ export const EMPTY_STATION_MAP_DATA: StationMapData = {
   webcams: [],
   zones: [],
   zoneNames: [],
+  outlines: [],
   variables: [],
   units: {},
   timezone: 'UTC',
@@ -207,6 +208,11 @@ function useZoneFraming(
   }, [map, zones, chosenNames])
 }
 
+/**
+ * The widget's `panToZone`: frame the chosen zones, or reset when the choice clears or includes
+ * `Other` (which has no outline to frame). Nothing moves until the zones have arrived, so a
+ * `?zone=` link waits for its data rather than resetting over the remembered viewport.
+ */
 function frameZones(
   map: MapboxMap,
   zones: StationMapZone[],
@@ -216,19 +222,29 @@ function frameZones(
 ) {
   const bounds = chosenZoneBounds(zones, chosenNames)
   if (bounds) map.fitBounds(bounds, { padding: ZONE_FIT_PADDING })
-  else if (chosenNames.length === 0 && hadChosen) resetView(false)
+  else if (shouldReset(zones, chosenNames, hadChosen)) resetView(false)
 }
 
-/** Everything the viewport does with the zones: draw them, frame the chosen ones, reset. */
+/** A choice just cleared, or a choice with nothing to frame once the zones are known. */
+function shouldReset(zones: StationMapZone[], chosenNames: string[], hadChosen: boolean): boolean {
+  if (hadChosen) return true
+  return chosenNames.length > 0 && zones.length > 0
+}
+
+/**
+ * Everything the viewport does with zones: draw the outlines, frame the chosen grouping zones,
+ * reset. The two sets differ for a center with alternate zones — the widget draws the forecast
+ * zones and frames its own.
+ */
 export function useZones(
   map: MapboxMap | null,
   styleReady: boolean,
-  zones: StationMapZone[],
+  view: Pick<StationMapData, 'zones' | 'outlines'>,
   chosenNames: string[],
   settings: StationMapSettings,
 ) {
-  useZoneOutline(map, styleReady, zones)
+  useZoneOutline(map, styleReady, view.outlines)
   const resetView = useResetView(map, settings)
-  useZoneFraming(map, zones, chosenNames, resetView)
+  useZoneFraming(map, view.zones, chosenNames, resetView)
   return resetView
 }

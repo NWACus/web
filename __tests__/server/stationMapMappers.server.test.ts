@@ -1,6 +1,7 @@
 import type { ZoneGeometry, ZoneMapLayer, ZoneProperties } from '@/services/nac/model/mapLayer'
 import {
   OTHER_ZONE,
+  alternateZoneNames,
   classifyZone,
   mapStations,
   mapWebcams,
@@ -170,5 +171,10 @@ describe('zones', () => {
 
   it('classifies a point outside every zone as Other', () => {
     expect(classifyZone([0, 0], [northZone])).toBe(OTHER_ZONE)
+  })
+
+  it("lists alternate zones in file order with Other last, as the widget's zoneNames does", () => {
+    const zones = [northZone, { ...northZone, name: 'Carson Range' }, northZone]
+    expect(alternateZoneNames(zones)).toEqual(['West Slopes North', 'Carson Range', OTHER_ZONE])
   })
 })

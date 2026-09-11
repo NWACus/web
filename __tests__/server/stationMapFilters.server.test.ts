@@ -1,6 +1,7 @@
 import {
   DEFAULT_FILTERS,
   SHOW_ALL_WITHIN,
+  chosenZoneBounds,
   dataSources,
   filterStations,
   filterWebcams,
@@ -152,5 +153,37 @@ describe('orderedPoints', () => {
 describe('dataSources', () => {
   it('lists each source once, in first-seen order', () => {
     expect(dataSources(stations)).toEqual(['nwac', 'snotel', 'synoptic-data'])
+  })
+})
+
+describe('chosenZoneBounds', () => {
+  const square = (name: string, offset: number) => ({
+    name,
+    geometry: {
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [offset, 0],
+          [offset + 1, 0],
+          [offset + 1, 1],
+          [offset, 1],
+          [offset, 0],
+        ],
+      ],
+    },
+  })
+  const zones = [square('A', 0), square('B', 5)]
+
+  it('frames every chosen zone', () => {
+    expect(chosenZoneBounds(zones, ['A', 'B'])).toEqual([
+      [0, 0],
+      [6, 1],
+    ])
+  })
+
+  it('has nothing to frame with no choice, an unknown zone, or Other in the choice', () => {
+    expect(chosenZoneBounds(zones, [])).toBeNull()
+    expect(chosenZoneBounds(zones, ['Nowhere'])).toBeNull()
+    expect(chosenZoneBounds(zones, ['A', 'Other'])).toBeNull()
   })
 })

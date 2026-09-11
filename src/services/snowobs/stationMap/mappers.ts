@@ -33,6 +33,14 @@ export function zonesFromMapLayer(mapLayer: ZoneMapLayer): StationMapZone[] {
 }
 
 /**
+ * The filter's names for a center's alternate zones: the KML's placemarks in file order, then
+ * `Other` for everything outside them — the widget's `zoneNames` when alternates are loaded.
+ */
+export function alternateZoneNames(zones: StationMapZone[]): string[] {
+  return Array.from(new Set([...zones.map((zone) => zone.name), OTHER_ZONE]))
+}
+
+/**
  * Zone names in the order the center lists them, with any the map layer knows but the center's
  * list doesn't at the end. The widget's zone filter walks the center's own active list.
  */
