@@ -491,7 +491,10 @@ async function fetchArchiveSummaries(
   const parsed = productListSchema.safeParse(data)
   if (!parsed.success) {
     await logNacError(parsed.error, 'Failed to parse product archive response')
-    return []
+    // Thrown rather than swallowed into []: an unparseable response is a broken archive, and the
+    // archive browser has to tell that from an empty one. `fetchProductArchive` turns it back
+    // into [] for the callers where the archive is a secondary feature.
+    throw new NACError(`Failed to parse product archive response: ${parsed.error.message}`)
   }
 
   return parsed.data.map((item) => ({

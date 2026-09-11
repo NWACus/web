@@ -12,7 +12,7 @@
 import { format, parseISO } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { useQueryStates } from 'nuqs'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import { FilterSection } from '@/components/filters/FilterSection'
 import { Button } from '@/components/ui/button'
@@ -63,6 +63,10 @@ export function ArchiveDateFilter({
     { season: seasonParser, from: fromParser, to: toParser, page: pageParser },
     { shallow: false, history: 'push' },
   )
+  // This filter renders twice on the page — in the sidebar and again in the mobile drawer, which
+  // stays mounted — so a fixed id is duplicated, and every label's `for` then binds to whichever
+  // copy comes first in the document, leaving the visible control unlabelled and its label inert.
+  const idPrefix = useId()
 
   const selectSeason = (value: string) => {
     const next = Number(value)
@@ -72,10 +76,15 @@ export function ArchiveDateFilter({
   return (
     <FilterSection title="Date" defaultOpen>
       <div className="flex flex-col gap-4 pb-4">
-        <SeasonSelect seasons={seasons} season={season} onChange={selectSeason} />
+        <SeasonSelect
+          id={`${idPrefix}season`}
+          seasons={seasons}
+          season={season}
+          onChange={selectSeason}
+        />
         <div className="flex gap-3">
           <ArchiveDateField
-            id="archive-from"
+            id={`${idPrefix}from`}
             label="Start date"
             value={from}
             min={window.from}
@@ -85,7 +94,7 @@ export function ArchiveDateFilter({
             }
           />
           <ArchiveDateField
-            id="archive-to"
+            id={`${idPrefix}to`}
             label="End date"
             value={to}
             min={from}
@@ -101,21 +110,23 @@ export function ArchiveDateFilter({
 }
 
 function SeasonSelect({
+  id,
   seasons,
   season,
   onChange,
 }: {
+  id: string
   seasons: { value: number; label: string }[]
   season: number
   onChange: (value: string) => void
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <Label htmlFor="archive-season" className="text-sm text-muted-foreground">
+      <Label htmlFor={id} className="text-sm text-muted-foreground">
         Season
       </Label>
       <Select value={String(season)} onValueChange={onChange}>
-        <SelectTrigger id="archive-season" aria-label="Season">
+        <SelectTrigger id={id} aria-label="Season">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
