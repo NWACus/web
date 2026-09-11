@@ -34,7 +34,6 @@ authTest.describe('Navigations save', () => {
     expect(read.tenantId, `no ${TenantSlugs.nwac} tenant seeded`).toBeTruthy()
     expect(read.ok, `read navigations failed (${read.status})`).toBeTruthy()
 
-    // The seed creates one navigation per tenant, so this only fails on an unseeded database
     const doc = read.body.docs?.[0]
     expect(doc, `no navigation seeded for ${TenantSlugs.nwac}`).toBeTruthy()
 

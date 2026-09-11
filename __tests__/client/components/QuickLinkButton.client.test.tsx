@@ -117,7 +117,7 @@ describe('QuickLinkButton', () => {
   })
 
   // Legacy rows typed internal with no reference render as external links, since
-  // handleReferenceURL falls back to url. Their newTab value is deliberately left alone.
+  // handleReferenceURL falls back to url.
   it('honors newTab on an internal row that only carries a url', () => {
     render(
       <QuickLinkButton

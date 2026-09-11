@@ -13,9 +13,8 @@ const validateLabel: TextFieldSingleValidation = (val, args) => {
   return Boolean(val) ? text(val, args) : 'You must define a label for an external link.'
 }
 
-// Internal links always open in place, so the newTab checkbox is hidden for them. Clear any value
-// left over from a link that used to be external. Runs at the field level so it also covers link
-// fields used directly on array rows, which have no group hook.
+// Runs at the field level so it also covers link fields used directly on array rows, which have no
+// group hook.
 //
 // Only links that resolve to a reference are cleared. Legacy rows typed internal that carry just a
 // url still render as external links, because handleReferenceURL falls back to url when there is no
