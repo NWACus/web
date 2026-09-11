@@ -23,10 +23,18 @@ import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 import { DangerMapLoader } from './DangerMapLoader.client'
 
 /**
- * The legacy widget's own CSS renders the map at 500px and ignores the AFP-configured height, so
- * the fallback pins it here: reserved as min-height so the page doesn't shift while the widget
- * loads, and passed as `mapWidgetData.height` for builds that read it. nac-widgets.css forces the
- * map container to the same value for builds that don't. Keep the two in sync.
+ * The height the map renders at, on both paths.
+ *
+ * Deliberately *not* the AFP-configured `danger_map.height`. The Mapbox widget build reads its
+ * height from `mapWidgetData.height` alone and otherwise falls back to its own 500px, so the
+ * height a forecaster sets in the dashboard reaches no embed in the NAC stack — the same story as
+ * `saturation` in `dangerMapSettings`. Honoring it on the native path only would make AvyWeb the
+ * one surface where the control does anything, and would visibly shrink the map on the flag flip
+ * for every center that configured less than 500 (most of them: 350–500 across the centers).
+ *
+ * Reserved as min-height under the widget so the page doesn't shift while it loads, and passed as
+ * `mapWidgetData.height` for builds that read it. nac-widgets.css pins the widget's map container
+ * to the same value for builds that don't. Keep the two in sync.
  */
 const DANGER_MAP_HEIGHT = 500
 /** Height of the danger-scale graphic under the legacy widget's map, reserved to avoid layout shift. */
@@ -84,10 +92,10 @@ export async function HomeDangerMap({ centerSlug }: HomeDangerMapProps) {
     <div className="space-y-2">
       {/*
         The map is client-only (Mapbox needs a browser), so it contributes nothing to the server
-        render. Reserving its configured height here — on a server-rendered element — is what keeps
-        the page from jumping when it hydrates, the same thing the legacy widget's fixed height did.
+        render. Reserving its height here — on a server-rendered element — is what keeps the page
+        from jumping when it hydrates, the same thing the legacy widget's fixed height did.
       */}
-      <div style={{ height: settings.height }}>
+      <div style={{ height: DANGER_MAP_HEIGHT }}>
         <DangerMapLoader
           centerSlug={centerSlug}
           centerId={metadata.id}

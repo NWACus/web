@@ -24,7 +24,11 @@ export interface DangerMapViewport {
 }
 
 export interface DangerMapSettings {
-  /** Map height in px, clamped to the range the dashboard's input allows. */
+  /**
+   * Map height in px, clamped to the range the dashboard's input allows — normalized for fidelity
+   * to the dashboard, but **nothing renders from it**. Both the widget and the native map use
+   * `DANGER_MAP_HEIGHT`; see the note there for why this control is inert everywhere.
+   */
   height: number
   /** Show the location search box. */
   search: boolean

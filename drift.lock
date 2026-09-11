@@ -168,7 +168,7 @@ sig = "afa29bc8184dea8e"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/dangerMap/HomeDangerMap.tsx"
-sig = "a6c9bcb3e3c65102"
+sig = "ebc483d7877a4d34"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -223,7 +223,7 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/dangerMap/dangerMapSettings.ts"
-sig = "d6e5ea0bc3e661ad"
+sig = "b8c71ce23146813d"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
