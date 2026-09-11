@@ -116,7 +116,7 @@ function ConfiguredStationMap({
     opening.view,
     opening.remember,
   )
-  const resetView = useZones(map, styleReady, view.zones, filters.zones, settings)
+  const resetView = useZones(map, styleReady, view, filters.zones, settings)
 
   const visible = useVisiblePoints(view, filters)
   const selection = useSelection(visible.points)

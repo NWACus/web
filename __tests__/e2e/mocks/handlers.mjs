@@ -197,6 +197,17 @@ export function buildHandlers() {
       }),
     ),
 
+    // SAC's alternate station-map zones: the KML its center metadata fixture points at, served
+    // from the real file so the station-map spec exercises the parser the way production does.
+    http.get('https://www.sierraavalanchecenter.org/api/documents/file/:file', () =>
+      HttpResponse.text(
+        readFileSync(join(mocksDir, 'kml', 'sac-weather-station-zones.kml'), 'utf8'),
+        {
+          headers: { 'content-type': 'application/vnd.google-earth.kml+xml' },
+        },
+      ),
+    ),
+
     // Registered last: anything else on these two origins is an unmapped upstream call.
     http.all(`${mockNacHost}/*`, ({ request }) => recordMissing(request)),
     http.all(`${mockAfpHost}/*`, ({ request }) => recordMissing(request)),

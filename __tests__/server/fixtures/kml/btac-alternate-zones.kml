@@ -1,0 +1,1016 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.opengis.net/kml/2.2 http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd http://www.google.com/kml/ext/2.2 http://code.google.com/apis/kml/schema/kml22gx.xsd">
+<Document id="BTAC_AlternateZones">
+  <name>BTAC_AlternateZones</name>
+  <snippet></snippet>
+  <Style id="PolyStyle00">
+    <LabelStyle>
+      <color>00000000</color>
+      <scale>0.000000</scale>
+    </LabelStyle>
+    <LineStyle>
+      <color>ff0000ff</color>
+      <width>1.000000</width>
+    </LineStyle>
+    <PolyStyle>
+      <color>000000ff</color>
+      <outline>1</outline>
+    </PolyStyle>
+  </Style>
+  <Folder id="FeatureLayer0">
+    <name>BTAC_AlternateZones</name>
+    <snippet></snippet>
+    <Placemark id="ID_00000">
+      <name>Tetons</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Tetons</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Tetons</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;1.98247454318333&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Tetons&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -110.7350524,43.53733288700005,0 -110.664888751,43.63112891800006,0 -110.641204569,43.86025138800005,0 -110.633213497,43.93672369700005,0 -110.648359564,43.97442271300008,0 -110.67050907,44.00048508500004,0 -110.685664335,44.01642562400008,0 -110.6871886229999,44.03496813800007,0 -110.6798864789999,44.06655589800005,0 -110.682571703,44.07647952500002,0 -110.728089137,44.11999168400007,0 -110.750071173,44.13164628200008,0 -110.797562157,44.13310957500005,0 -110.876934053,44.13202393500006,0 -110.900027031,44.12846050900004,0 -110.920577067,44.11888035900006,0 -110.953626854,44.09736227100007,0 -110.9712628679999,44.08283211700007,0 -110.971630836,44.06935002100005,0 -110.982301928,44.04951782800003,0 -111.002172238,44.02994355500005,0 -111.050376136,43.96959297500007,0 -111.044356169,43.84335759700008,0 -111.0149186739999,43.81192686600008,0 -111.011150674,43.76007250000004,0 -111.03493617,43.72553466200003,0 -111.047653168,43.66287339900003,0 -111.118152437,43.56603541600003,0 -111.113799182,43.55300734200006,0 -111.118262117,43.54098435200007,0 -111.112529713,43.52312755200006,0 -111.091074962,43.51239851100007,0 -111.053605788,43.49264667600005,0 -111.048231088,43.49027977900005,0 -111.043593946,43.48482216600007,0 -111.029453658,43.47602336800003,0 -110.996988002,43.46243582600005,0 -110.992431198,43.46215138000008,0 -110.98774307,43.46031172900007,0 -110.976142628,43.45726944500007,0 -110.960647168,43.44960600500008,0 -110.9205594109999,43.43304445600006,0 -110.909141695,43.43348601800005,0 -110.906038323,43.43627589300007,0 -110.9019193779999,43.43894206300007,0 -110.895731476,43.44124114900006,0 -110.877672576,43.44357197700003,0 -110.867191054,43.44150922800003,0 -110.799488205,43.46309480100007,0 -110.773636714,43.47527582500004,0 -110.762929566,43.48696449900007,0 -110.758202988,43.50326886900007,0 -110.741129429,43.52474473000007,0 -110.7350524,43.53733288700005,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00001">
+      <name>Big Holes</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Big Holes</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Big Holes</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;0.885174232216254&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Big Holes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -111.207498769,43.58018993800005,0 -111.217654705,43.64924272100006,0 -111.308727064,43.75849291500003,0 -111.34912841,43.77587156600003,0 -111.395735778,43.75735806300003,0 -111.535579657,43.65691035800006,0 -111.534254969,43.61920171800006,0 -111.449474982,43.57475186300007,0 -111.36734437,43.52098447200007,0 -111.343499999,43.52354591200003,0 -111.2834475079999,43.56675380000007,0 -111.239732827,43.57667123900006,0 -111.207498769,43.58018993800005,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00002">
+      <name>Snake River Range</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Snake River Range</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Snake River Range</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;1.61580206705872&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Snake River Range&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -110.867024696,43.43859762000005,0 -110.878416278,43.44108993300006,0 -110.895763785,43.43934174900005,0 -110.907184742,43.43167603800003,0 -110.916753652,43.43127255300004,0 -110.922001119,43.43086906500008,0 -110.957745627,43.44463097200003,0 -110.9782416149999,43.45498395900006,0 -110.992811052,43.46089915600004,0 -110.997379435,43.46116801500006,0 -111.031148426,43.47469903200005,0 -111.046026538,43.48415102400003,0 -111.050645107,43.48885516800004,0 -111.055471978,43.49185487200003,0 -111.1157008709999,43.52277298100006,0 -111.1210172629999,43.54106182600003,0 -111.1172686149999,43.55304760900003,0 -111.122824757,43.56584233500007,0 -111.166907336,43.57724792800008,0 -111.183884434,43.57515147400005,0 -111.192180062,43.57018957400004,0 -111.20057215,43.57144755900003,0 -111.2066491799999,43.57389356600004,0 -111.209928846,43.57074868100005,0 -111.225169651,43.57326460200005,0 -111.230185611,43.57193676800006,0 -111.23375466,43.57382368100008,0 -111.2408384989999,43.57182320200008,0 -111.253649697,43.56177612300007,0 -111.266159455,43.56428805100006,0 -111.287712412,43.55609659900006,0 -111.30594953,43.53872703800005,0 -111.352823442,43.50889215600006,0 -111.334134164,43.48790054500006,0 -111.282738653,43.45136649700004,0 -111.253058191,43.43153985100003,0 -111.220642022,43.39411463200003,0 -111.2146554239999,43.34991817800005,0 -111.201633219,43.34086894500007,0 -111.1971960229999,43.33195869200006,0 -111.192662366,43.32838019000008,0 -111.1866817969999,43.32634526200007,0 -111.177903866,43.32480147800004,0 -111.170765767,43.32578389100007,0 -111.166521492,43.32360852800008,0 -111.1649781199999,43.31890667000005,0 -111.1576471,43.32016989100003,0 -111.153306366,43.31876631000006,0 -111.147132875,43.32002953400007,0 -111.1448178159999,43.31876631000006,0 -111.146650571,43.31420444800005,0 -111.138354943,43.30879995200007,0 -111.1341106689999,43.30332477900004,0 -111.128998247,43.29939358200005,0 -111.122342453,43.28851126200004,0 -111.1150114329999,43.27783767600005,0 -111.113564522,43.27095503000004,0 -111.112310531,43.26547644900006,0 -111.109223786,43.26357990200006,0 -111.11703711,43.25184809600006,0 -111.1139503639999,43.25058345500003,0 -111.101892766,43.25205886700007,0 -111.1046901289999,43.24137888700005,0 -111.082407688,43.22598799400004,0 -111.0639836779999,43.21565494000004,0 -111.0548199039999,43.20749972900006,0 -111.0433410699999,43.19941374500007,0 -111.018550648,43.17219478000004,0 -111.000114922,43.17649363200007,0 -110.991879185,43.17805854200003,0 -110.983098556,43.17808730200005,0 -110.9710073259999,43.18217567700003,0 -110.966663544,43.18292883300006,0 -110.961789487,43.18266013000004,0 -110.953256042,43.18916064900003,0 -110.9446528399999,43.19233877100004,0 -110.930443956,43.19260212100005,0 -110.925572172,43.19579457500004,0 -110.920740865,43.19749819500004,0 -110.9132039259999,43.19520024900004,0 -110.905185247,43.19882418300006,0 -110.8746130919999,43.19633023100005,0 -110.8699685879999,43.19972273400003,0 -110.860344205,43.20452112000004,0 -110.85114917,43.20598086500007,0 -110.842819025,43.20686515800003,0 -110.8270160229999,43.20571840500003,0 -110.8134789539999,43.21295144500004,0 -110.7863787909999,43.21515605700006,0 -110.7856273309999,43.22686487700003,0 -110.7759954049999,43.23926592400005,0 -110.7795816239999,43.25655530900008,0 -110.802475832,43.30440200700008,0 -110.807343644,43.33321047300007,0 -110.82873081,43.34903324600003,0 -110.836677187,43.36554655900005,0 -110.823837966,43.39356113600007,0 -110.844053087,43.41028200000005,0 -110.8534881579999,43.43429512500006,0 -110.867024696,43.43859762000005,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00003">
+      <name>Togwotee</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Togwotee</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Togwotee</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;2.32326135502546&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Togwotee&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -110.588178726,43.63307090000006,0 -110.564290527,43.62907989200005,0 -110.5122976489999,43.63783081700007,0 -110.4797121729999,43.61923460900005,0 -110.451332819,43.60740792400003,0 -110.378703307,43.58892362700004,0 -110.316841578,43.57201758100007,0 -110.2898867389999,43.55035735500007,0 -110.2455368339999,43.52757088000004,0 -110.231664942,43.48229824400005,0 -110.140379097,43.43773207800007,0 -110.043626677,43.44507838700008,0 -109.948924001,43.45102678700005,0 -109.870698075,43.45618675200006,0 -109.8170856039999,43.48147202100006,0 -109.7552303319999,43.48752610100007,0 -109.756009002,43.52731738600005,0 -109.807016244,43.57937412100006,0 -109.873222239,43.60537748800004,0 -109.866662911,43.64940023600008,0 -109.824985295,43.70059350100007,0 -109.816664509,43.73308901200005,0 -109.813815425,43.77528712200007,0 -109.82385807,43.81621454200007,0 -109.843288596,43.82424239000005,0 -109.857106159,43.83102420700004,0 -109.913078911,43.83714306200005,0 -109.952794399,43.83978520300008,0 -109.99521569,43.83615978500006,0 -110.0262010979999,43.84806873400004,0 -110.053376504,43.86521909600003,0 -110.102662255,43.87323501700007,0 -110.145153685,43.87476739500005,0 -110.184885857,43.87415782200003,0 -110.237707649,43.87236473200005,0 -110.4371902889999,43.87191472100005,0 -110.5166937719999,43.85449529500005,0 -110.519393114,43.80790397800007,0 -110.535521352,43.77483642700003,0 -110.554473835,43.76835994500004,0 -110.5636005269999,43.75648315100005,0 -110.580104403,43.74641958600006,0 -110.5933129919999,43.73693765900003,0 -110.604053641,43.72744572400006,0 -110.619725221,43.71677798800005,0 -110.624718597,43.70607376200007,0 -110.623979225,43.69296834400006,0 -110.617476983,43.68282184200007,0 -110.597004285,43.67620041800006,0 -110.5839613479999,43.66364649300004,0 -110.584088332,43.64518347500007,0 -110.588178726,43.63307090000006,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00004">
+      <name>Salt River and Wyoming Ranges</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Salt River and Wyoming Ranges</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Salt River and Wyoming Ranges</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;3.39824388125147&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Salt River and Wyoming Ranges&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -110.792901134,43.29054507100005,0 -110.777025023,43.25779659900007,0 -110.7732732329999,43.23835418700003,0 -110.782744458,43.22572940800006,0 -110.783189168,43.21375528200008,0 -110.786846284,43.21226001300005,0 -110.8023370399999,43.21215643800008,0 -110.8116241069999,43.21064024600003,0 -110.828885995,43.20293550300005,0 -110.842195701,43.20499100800004,0 -110.85013627,43.20416348200007,0 -110.858318402,43.20287407900003,0 -110.867475293,43.19870035700006,0 -110.874379345,43.19434215100006,0 -110.904505824,43.19749052800006,0 -110.913126011,43.19389378100004,0 -110.92174547,43.19591381500004,0 -110.929153677,43.19087522900003,0 -110.941915394,43.19078989400003,0 -110.9518535619999,43.18702912600003,0 -110.9606986699999,43.18030952700008,0 -110.96759151,43.18115982500007,0 -110.983304252,43.17628727100004,0 -110.996566268,43.17600152700004,0 -111.018413128,43.17071423200008,0 -111.01941728,43.16593681700004,0 -111.0310448819999,43.16057399600004,0 -111.033475104,43.15945287300008,0 -111.036183012,43.15548396100007,0 -111.027247237,43.03613537700005,0 -110.9886760639999,42.84666756700005,0 -110.9886760639999,42.70025350300006,0 -111.000298899,42.65843290800007,0 -110.931413686,42.63405988100004,0 -110.9005160739999,42.53139917400006,0 -110.896041501,42.50461241800008,0 -110.839997081,42.43180569300006,0 -110.724734107,42.40680297500006,0 -110.562004579,42.41453035100005,0 -110.3836677149999,42.50121235300003,0 -110.382199922,42.52468937900005,0 -110.4166357349999,42.56215543500008,0 -110.453538752,42.60969132700006,0 -110.4513837279999,42.65763718400007,0 -110.451497893,42.69337767900004,0 -110.453294337,42.73427475100004,0 -110.462223799,42.77815884900008,0 -110.466401478,42.80728261800004,0 -110.4210201339999,42.86792899700004,0 -110.382183385,42.91652340600007,0 -110.379287526,42.94781355200007,0 -110.386163462,42.98020772300004,0 -110.423634302,43.03350621500005,0 -110.4214926509999,43.09361717500008,0 -110.375431732,43.13870252000004,0 -110.366184504,43.15824265100008,0 -110.376024506,43.17899958600003,0 -110.398977234,43.19631969100004,0 -110.4274366449999,43.22909623300006,0 -110.425361273,43.23492345600005,0 -110.381815615,43.24594400000007,0 -110.354669377,43.25167512900003,0 -110.32348947,43.25057109400007,0 -110.314183702,43.26050727800003,0 -110.314398845,43.28577105100004,0 -110.31581009,43.31388684500007,0 -110.329185821,43.35952948400006,0 -110.371317393,43.38378843900006,0 -110.380064292,43.39069565900007,0 -110.4168771339999,43.41403981400003,0 -110.437241647,43.43190573600003,0 -110.465991146,43.45537700800003,0 -110.564742962,43.46975530400005,0 -110.662506899,43.48118345700004,0 -110.73079198,43.47821479800007,0 -110.7875950329999,43.46657877500007,0 -110.809141498,43.42823017000006,0 -110.822750266,43.39279113400005,0 -110.8347285199999,43.36562132800003,0 -110.827094584,43.34971315000007,0 -110.80568794,43.33449624600007,0 -110.804073256,43.32462496300008,0 -110.800075061,43.30423190500005,0 -110.792901134,43.29054507100005,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00005">
+      <name>Southern Wyoming Range</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Southern Wyoming Range</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Southern Wyoming Range</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;2.45093327283322&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Southern Wyoming Range&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -110.861965601,42.05106132100008,0 -110.812103994,42.02780905000003,0 -110.7519810109999,42.02342471100008,0 -110.637903493,42.01336097500007,0 -110.562127683,42.02895820100008,0 -110.537134392,42.14659753100005,0 -110.490804077,42.19947401800005,0 -110.451684841,42.21667972000006,0 -110.411884626,42.26070956100006,0 -110.3699227719999,42.35107536900006,0 -110.366013637,42.37179441200004,0 -110.3771659339999,42.44171054000003,0 -110.3824328379999,42.47725158700007,0 -110.556810274,42.39964558400004,0 -110.7284207549999,42.38984451500005,0 -110.846525508,42.41670607500004,0 -110.905935137,42.49526108300006,0 -110.94109116,42.62925309300005,0 -111.010056334,42.65118713900006,0 -111.02931069,42.53236086800007,0 -111.0450377449999,42.43395252800008,0 -111.030001499,42.35247788700008,0 -111.02931069,42.22017619200005,0 -110.98840675,42.16277962100003,0 -110.9470652099999,42.08376896400006,0 -110.910191641,42.09838699700003,0 -110.8744538459999,42.15142639700008,0 -110.852423131,42.15919895500008,0 -110.861965601,42.05106132100008,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00006">
+      <name>Gros Ventre</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Gros Ventre</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Gros Ventre</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;2.9407880316696&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Gros Ventre&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -110.589305382,43.63147080200008,0 -110.672475666,43.55559898100006,0 -110.731382278,43.48219188400003,0 -110.662604693,43.48605368300008,0 -110.572876343,43.47407856300003,0 -110.512593615,43.46598352900003,0 -110.464069523,43.45903921000007,0 -110.412425169,43.41627147500003,0 -110.3651943949999,43.38549995600005,0 -110.322489431,43.36152674700003,0 -110.310433432,43.31504932200005,0 -110.308428592,43.25978379000003,0 -110.32102429,43.24642596600006,0 -110.3532942639999,43.24798692200005,0 -110.421202285,43.23275796100006,0 -110.421914402,43.22727190600006,0 -110.395450243,43.19782393000003,0 -110.372969212,43.18151878200007,0 -110.361448588,43.15827213400007,0 -110.373547732,43.13526553500003,0 -110.416322233,43.09229225200005,0 -110.418659181,43.04659284500008,0 -110.350810683,43.06972339500004,0 -110.299238358,43.06463375700008,0 -110.283774218,43.07201415200007,0 -110.27320066,43.08436774000006,0 -110.270039125,43.09535345800003,0 -110.263542457,43.09861014800003,0 -110.253836779,43.09991723100006,0 -110.231918972,43.10396222200006,0 -110.209160256,43.10781360300007,0 -110.133800267,43.15291173500003,0 -110.0485123729999,43.15818279300004,0 -109.996191824,43.20346211500004,0 -109.971377661,43.22312332600006,0 -109.881403748,43.27029822600008,0 -109.8566781979999,43.27477013100003,0 -109.8341976789999,43.28440432200006,0 -109.8157929179999,43.29536247100003,0 -109.784409237,43.30918168700003,0 -109.76023077,43.31449592800004,0 -109.75291853,43.34793286500008,0 -109.7562376609999,43.36632840200008,0 -109.771253343,43.37935223200003,0 -109.778287771,43.38028495600003,0 -109.786382004,43.39017516100006,0 -109.775936526,43.40162582100004,0 -109.767434094,43.42273977100007,0 -109.764166457,43.43886810900005,0 -109.755982438,43.48319228800005,0 -109.81408534,43.47855851600008,0 -109.87078113,43.45282460100003,0 -110.142305021,43.43443595500003,0 -110.23639492,43.48159302100004,0 -110.250679136,43.52486375000007,0 -110.293830328,43.54755153700006,0 -110.3209481489999,43.56923610300004,0 -110.4536673649999,43.60483515300007,0 -110.4825005439999,43.61782157200003,0 -110.513001414,43.63577191000007,0 -110.56441434,43.62766086500005,0 -110.589305382,43.63147080200008,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00007">
+      <name>SE Idaho</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>SE Idaho</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>SE Idaho</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;6.59222834599791&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Southeast Idaho&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -111.1954472199999,43.32741831500005,0 -111.211839409,43.34123176300005,0 -111.230837663,43.35567648600005,0 -111.2426027229999,43.38209384500004,0 -111.350820271,43.43441560100007,0 -111.5220483799999,43.52784242600006,0 -111.596805767,43.56903062500004,0 -111.6543634019999,43.58751472800003,0 -111.680449384,43.56339144400005,0 -111.798804307,43.54338631000007,0 -112.028199323,43.35633090500005,0 -112.0585242449999,43.25082226200004,0 -112.197875977,42.91821786600008,0 -112.755432129,42.68647341500008,0 -113.0493164059999,42.57735484000005,0 -112.9943847659999,42.41534611400004,0 -112.799377441,42.03093425000003,0 -112.2473144529999,42.02277326300003,0 -111.8847656249999,42.02277326300003,0 -111.865539551,42.28543700700004,0 -111.543391204,42.38017637000007,0 -111.301212025,42.32799726000007,0 -111.271059188,42.29376938300004,0 -111.26696163,42.28423956100005,0 -111.2702224609999,42.27668383700006,0 -111.238728642,42.10189084500007,0 -111.148209907,42.01199577400007,0 -111.052309136,42.00916268700007,0 -111.046177345,43.19124725700004,0 -111.098736226,43.21581821700005,0 -111.142319229,43.27847481700007,0 -111.1954472199999,43.32741831500005,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00008">
+      <name>Wind River Range</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Wind River Range</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Wind River Range</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;3.87514987535142&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Wind River Range&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -109.660915869,43.50544317500004,0 -109.716322057,43.49382675300006,0 -109.745914534,43.47721188000003,0 -109.762539213,43.39044700100004,0 -109.746626274,43.36519129500005,0 -109.757029793,43.31140266500006,0 -109.966176732,43.21817211400003,0 -110.047080245,43.14855659800003,0 -110.141695484,43.14172135500007,0 -110.146502718,43.11048230600005,0 -109.986636099,42.98331313200003,0 -109.76718118,42.77157441800006,0 -109.439942122,42.64909813600008,0 -109.327744426,42.57397506600006,0 -108.865254792,42.47052004600005,0 -108.743610001,42.52696398800003,0 -108.61992179,42.62433535100007,0 -108.798764799,42.83376579900005,0 -108.942314258,42.98777503000008,0 -109.0629525589999,43.07277931200008,0 -109.153298621,43.18484821100003,0 -109.3610355759999,43.37835435100004,0 -109.549181082,43.45973623500004,0 -109.630986267,43.47900102700004,0 -109.660915869,43.50544317500004,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+    <Placemark id="ID_00009">
+      <name>Cody</name>
+      <snippet></snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+<td>Cody</td>
+</tr>
+<tr>
+<td>
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+<tr>
+<td>Name</td>
+<td>Cody</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>FolderPath</td>
+<td>BTAC_AlternateZones/BTAC_AlternateZones</td>
+</tr>
+<tr>
+<td>SymbolID</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>AltMode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Clamped</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>Extruded</td>
+<td>0</td>
+</tr>
+<tr bgcolor="#D4E4F3">
+<td>Snippet</td>
+<td></td>
+</tr>
+<tr>
+<td>PopupInfo</td>
+<td>&lt;html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt"&gt;
+&lt;head&gt;
+&lt;META http-equiv="Content-Type" content="text/html"&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;/head&gt;
+&lt;body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;"&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px"&gt;
+&lt;tr style="text-align:center;font-weight:bold;background:#9CBCE2"&gt;
+&lt;td&gt;3.64404719370077&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px"&gt;
+&lt;tr&gt;
+&lt;td&gt;SHAPE&lt;/td&gt;
+&lt;td&gt;Polygon&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr bgcolor="#D4E4F3"&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Cody&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;&lt;script type="text/javascript"&gt;
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			&lt;/script&gt;&lt;/html&gt;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body><script type="text/javascript">
+				function changeImage(attElement, nameElement) {
+				document.getElementById('imageAttachment').src = attElement;
+				document.getElementById('imageName').innerHTML = nameElement;}
+			</script></html>
+]]></description>
+      <styleUrl>#PolyStyle00</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude><altitudeMode>clampToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -110.133539694,44.13709003300005,0 -110.089504891,43.92176015500007,0 -109.709056763,43.84647973800003,0 -109.257559841,43.74066010600006,0 -109.1032872059999,43.93742655000005,0 -109.054988123,44.33182651200008,0 -109.1274924149999,44.54712714200008,0 -109.302618312,44.75523946300007,0 -109.376561005,44.80541606900005,0 -109.895145836,44.78243423100002,0 -110.154241672,44.66326008600004,0 -110.1776474659999,44.30912595900003,0 -110.133539694,44.13709003300005,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
+  </Folder>
+</Document>
+</kml>
