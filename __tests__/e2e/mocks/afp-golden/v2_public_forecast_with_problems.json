@@ -1,0 +1,76 @@
+{
+  "id": 185371,
+  "published_time": "2026-05-04T17:59:00+00:00",
+  "expires_time": "2026-11-01T19:00:00+00:00",
+  "created_at": "2026-05-04T17:41:24+00:00",
+  "updated_at": "2026-05-04T18:00:02+00:00",
+  "author": "Test Forecaster A",
+  "product_type": "summary",
+  "bottom_line": "<p class=\"nac-html-p\">We are closed for the season. We would like to thank the many, many people who make the avalanche center what it is: the&nbsp;<a href=\"https://friends.sawtoothavalanche.com/\" target=\"_blank\" rel=\"noopener\">Friends of the Sawtooth Avalanche Center</a>, local businesses and sponsors, the guides and ski patrol workers, and the backcountry skiers and riders. It's a remarkable effort. Thank you all for your help, your donations, your observations, and your enthusiasm.&nbsp;</p>\n<p class=\"nac-html-p\">We will publish our 2026 Annual Report&nbsp;in late May or early June. During the summer months, we do monitor info@sawtoothavalanche.com.</p>",
+  "hazard_discussion": "<p><strong>SNOWPACK AND AVALANCHE GENERAL INFORMATION</strong></p>\n<p>Some basic points to remember until you put the sleds and boards away for the summer:</p>\n<ul>\n<li>Spring weather can rapidly alter snow conditions and snow stability. Think minutes and hours rather than days and weeks.</li>\n<li>Storm slab and wind slab avalanches are most likely during and immediately following a storm.&nbsp;</li>\n<li>Short periods of sunshine after a snowstorm can quickly create wet loose avalanche instabilities.</li>\n<li>Keep wet slab avalanches in mind, especially during rain events and when we go days without the temperature dropping below freezing. Many shady, upper elevation slopes have not yet gone through a \"spring transition\". Travel cautiously in this terrain when rain or hot, sunny spells push meltwater deeper into the snowpack.&nbsp;</li>\n<li>Give cornices a wide berth and don&rsquo;t linger beneath them.&nbsp;</li>\n<li>Complicated, consequential terrain doesn&rsquo;t get less complex or serious in the spring and summer. Respect the mountains, maintain safe travel procedures, and keep your guard up.<br><br></li>\n</ul>\n<hr>\n<p><strong>OBSERVATIONS</strong></p>\n<p>Even though we&rsquo;re done issuing forecasts, we&rsquo;ll continue posting observations when we get out in the mountains. We encourage you to do the same. Please let everyone know what you&rsquo;re seeing out there, especially if you see or trigger any avalanches. We&rsquo;re always trying to collect as much information as possible about large wet slab avalanches (where, when, etc); let us know if you come across any of these beasts in your travels. There are several ways to stay connected and to share what you see:</p>\n<p>Submit an Observation:</p>\n<ul>\n<li><a href=\"https://www.sawtoothavalanche.com/observations/submit#/form\" target=\"_blank\" rel=\"noopener\">CLICK HERE</a> for the online form</li>\n<li>Download the Avy App:&nbsp;<a href=\"https://apps.apple.com/us/app/avy-avalanche-weather-info/id6444379522\" target=\"_blank\" rel=\"noopener\">Apple</a>&nbsp;|&nbsp;<a href=\"https://play.google.com/store/apps/details?id=us.nwac.forecast&amp;hl=en_US&amp;gl=US\" target=\"_blank\" rel=\"noopener\">Android</a></li>\n<li>Email us: <a href=\"mailto:info@sawtoothavalanche.com\" target=\"_blank\" rel=\"noopener\">info@sawtoothavalanche.com</a></li>\n<li>Text us at <a href=\"tel:208-481-5921\" target=\"_blank\" rel=\"noopener\">208-481-5921</a></li>\n</ul>\n<p>&nbsp;</p>\n<p>View Observations:</p>\n<ul>\n<li><a href=\"https://www.sawtoothavalanche.com/observations#/view/observations\" target=\"_blank\" rel=\"noopener\">CLICK HERE</a>&nbsp;to view Observations.</li>\n<li><a href=\"https://www.sawtoothavalanche.com/observations#/view/avalanches\" target=\"_blank\" rel=\"noopener\">CLICK HERE</a> for details on recent Avalanches.</li>\n<li><a href=\"https://www.sawtoothavalanche.com/photos-videos\" target=\"_blank\" rel=\"noopener\">CLICK HERE</a> to view our Photos &amp; Video page.</li>\n</ul>",
+  "weather_discussion": null,
+  "announcement": null,
+  "status": "published",
+  "media": [
+    {
+      "id": 1,
+      "url": {
+        "large": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2026May4%20SNOTEL%20snip_69f8dc0ede471-large.png",
+        "medium": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2026May4%20SNOTEL%20snip_69f8dc0ede471-medium.png",
+        "original": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2026May4%20SNOTEL%20snip_69f8dc0ede471.png",
+        "thumbnail": "https://avalanche-org-media.s3.us-west-2.amazonaws.com/2026May4%20SNOTEL%20snip_69f8dc0ede471-thumbnail.png"
+      },
+      "type": "image",
+      "title": null,
+      "caption": "<p>(5/4/2026)&nbsp;Idaho snowpack as percent of average on May 4th - NRCS SNOTEL data.&nbsp;</p>\n<p>Photo: Sawtooth Avalanche Center</p>",
+      "favorite": true
+    }
+  ],
+  "weather_data": {
+    "weather_product_id": 185372
+  },
+  "json_data": null,
+  "avalanche_center": {
+    "id": "SNFAC",
+    "name": "Sawtooth Avalanche Center",
+    "url": "https://www.sawtoothavalanche.com/",
+    "city": "Ketchum",
+    "state": "ID"
+  },
+  "forecast_avalanche_problems": [],
+  "danger": [],
+  "forecast_zone": [
+    {
+      "id": 2904,
+      "name": "Galena Summit & Eastern Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/galena-summit-&-eastern-mtns",
+      "state": "ID",
+      "zone_id": "3",
+      "config": null
+    },
+    {
+      "id": 2905,
+      "name": "Soldier & Wood River Valley Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/soldier-&-wood-river-valley-mtns",
+      "state": "ID",
+      "zone_id": "4",
+      "config": null
+    },
+    {
+      "id": 2906,
+      "name": "Sawtooth & Western Smoky Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/sawtooth-&-western-smoky-mtns",
+      "state": "ID",
+      "zone_id": "2",
+      "config": null
+    },
+    {
+      "id": 2907,
+      "name": "Banner Summit",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/banner-summit",
+      "state": "ID",
+      "zone_id": "1",
+      "config": null
+    }
+  ]
+}

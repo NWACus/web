@@ -1,5 +1,6 @@
 import { PostsList } from '@/components/PostsList'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import { centerRouteMetadata } from '@/utilities/centerRoutePage'
 import { getPosts } from '@/utilities/queries/getPosts'
 import { getTags } from '@/utilities/queries/getTags'
 import type { Metadata, ResolvedMetadata } from 'next/types'
@@ -69,25 +70,11 @@ export async function generateMetadata(
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
   const { center } = await props.params
-  const parentMeta = await parent
 
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
-  const parentOg = parentMeta.openGraph
-
-  return {
-    title: `Blog | ${parentTitle}`,
-    alternates: {
-      canonical: '/blog',
-    },
-    openGraph: {
-      ...parentOg,
-      title: `Blog | ${parentTitle}`,
-      url: '/blog',
-      images: [{ url: `/api/${center}/og?routeTitle=Blog`, width: 1200, height: 630 }],
-    },
-  }
+  return centerRouteMetadata({
+    parent,
+    label: 'Blog',
+    path: '/blog',
+    center,
+  })
 }

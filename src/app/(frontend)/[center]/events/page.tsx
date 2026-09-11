@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 
 import { EventsList } from '@/components/EventsList'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
+import { centerRouteMetadata } from '@/utilities/centerRoutePage'
 import { getEventGroups } from '@/utilities/queries/getEventGroups'
 import { getEvents } from '@/utilities/queries/getEvents'
 import { getEventTags } from '@/utilities/queries/getEventTags'
@@ -114,24 +115,9 @@ export async function generateMetadata(
   _props: Args,
   parent: Promise<ResolvedMetadata>,
 ): Promise<Metadata> {
-  const parentMeta = await parent
-
-  const parentTitle =
-    parentMeta.title && typeof parentMeta.title !== 'string' && 'absolute' in parentMeta.title
-      ? parentMeta.title.absolute
-      : parentMeta.title
-
-  const parentOg = parentMeta.openGraph
-
-  return {
-    title: `Events | ${parentTitle}`,
-    alternates: {
-      canonical: '/events',
-    },
-    openGraph: {
-      ...parentOg,
-      title: `Events | ${parentTitle}`,
-      url: '/events',
-    },
-  }
+  return centerRouteMetadata({
+    parent,
+    label: 'Events',
+    path: '/events',
+  })
 }
