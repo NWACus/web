@@ -5,8 +5,10 @@
  * On a wide screen (`xl`, where the list column beside the filter sidebar has the room) it reads
  * date · zone · danger · author in fixed columns, so rows line up whatever the zone name's length.
  * Below that it is two lines — date and zone, then danger and author — which differs from the
- * widget (danger beside the date, zone below) by decision: the danger label never wraps this way,
- * and the first line answers "which forecast" before the second answers "how dangerous".
+ * widget (danger beside the date, zone below) by decision: neither the danger label nor the zone
+ * name breaks mid-phrase this way, and the first line answers "which forecast" before the second
+ * answers "how dangerous". Each line is its own flex row, so a wide danger label cannot squeeze the
+ * zone above it; a zone name too long for the line beside the date drops under it whole.
  */
 import { MapPin, User } from 'lucide-react'
 import Link from 'next/link'
@@ -25,6 +27,9 @@ interface ArchiveProductRowProps {
   row: ArchiveRow
 }
 
+/** One of the two lines; on wide screens its children become grid cells. */
+const LINE = 'flex flex-wrap items-center gap-x-4 gap-y-1 xl:contents'
+
 export function ArchiveProductRow({ row }: ArchiveProductRowProps) {
   const level = dangerLevelFromRating(row.dangerLevel)
 
@@ -36,14 +41,25 @@ export function ArchiveProductRow({ row }: ArchiveProductRowProps) {
         className="block rounded-lg border bg-card p-3 transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none"
         style={{ borderLeft: `4px solid ${dangerColor(level)}` }}
       >
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-1 xl:grid-cols-[7rem_minmax(0,1fr)_11rem_14rem]">
-          <span className="font-semibold">{formatArchiveDate(row.date)}</span>
-          <ZoneCell name={row.zoneName} />
-          <DangerCell level={level} />
-          <AuthorCell author={row.author} />
-        </div>
+        <RowLines row={row} level={level} />
       </Link>
     </li>
+  )
+}
+
+/** The two lines, which on wide screens flatten into the four grid columns. */
+function RowLines({ row, level }: { row: ArchiveRow; level: DangerLevel }) {
+  return (
+    <div className="space-y-1 xl:grid xl:grid-cols-[7rem_minmax(0,1fr)_11rem_14rem] xl:items-center xl:gap-x-4 xl:space-y-0">
+      <div className={LINE}>
+        <span className="shrink-0 font-semibold">{formatArchiveDate(row.date)}</span>
+        <ZoneCell name={row.zoneName} />
+      </div>
+      <div className={LINE}>
+        <DangerCell level={level} />
+        <AuthorCell author={row.author} />
+      </div>
+    </div>
   )
 }
 
@@ -72,9 +88,9 @@ function DangerCell({ level }: { level: DangerLevel }) {
 
 function ZoneCell({ name }: { name: string }) {
   return (
-    <span className="flex min-w-0 items-center gap-1">
+    <span className="flex items-center gap-1 whitespace-nowrap">
       <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-      <span className="min-w-0">{name}</span>
+      {name}
     </span>
   )
 }
