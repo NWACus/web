@@ -56,6 +56,14 @@ test.describe('Native vs widget station map', () => {
     // The fixture's fourth station has no coordinates and must not be listed.
     await expect(list).not.toContainText('No Coordinates')
 
+    // SAC groups stations by its own KML zones rather than its single forecast zone: the filter
+    // lists the KML's placemarks and Other, as the widget does.
+    await page.getByRole('button', { name: 'Zone' }).click()
+    await expect(page.getByLabel('Sierra Crest North')).toBeVisible()
+    await expect(page.getByLabel('Carson Range')).toBeVisible()
+    await expect(page.getByLabel('Other')).toBeVisible()
+    await expect(page.getByLabel('Central Sierra Nevada')).toHaveCount(0)
+
     expect(errors).toEqual([])
   })
 

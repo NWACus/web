@@ -8,14 +8,17 @@ import { getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { AvalancheForecastZoneStatus } from '@/services/nac/types/schemas'
 import type { SnowObsUnits } from '@/services/snowobs/snowobs'
 import { fetchCurrentStationData, fetchWebcams } from '@/services/snowobs/snowobs'
+import { fetchAlternateZones } from '@/services/snowobs/stationMap/alternateZones'
 import { variableDisplayName } from '@/services/snowobs/stationMap/format'
 import {
+  alternateZoneNames,
   mapStations,
   mapWebcams,
   orderZoneNames,
   zonesFromMapLayer,
 } from '@/services/snowobs/stationMap/mappers'
 import type { StationMapData, StationMapZone } from '@/services/snowobs/stationMap/model'
+import { resolveStationMapSettings } from '@/services/snowobs/stationMap/settings'
 import { NO_STORE, unknownCenterResponse } from '@/utilities/apiResponses'
 import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 import { NextRequest, NextResponse } from 'next/server'
@@ -33,16 +36,36 @@ function requestedUnits(request: NextRequest): SnowObsUnits {
 }
 
 /**
- * The forecast-zone outlines the stations are grouped by, or none. The legacy map draws them and
- * classifies stations into them, but it is a map of *stations*: a map layer that fails to load
- * costs the zone filter, not the map.
+ * The forecast-zone outlines, or none. The legacy map draws them, but it is a map of *stations*:
+ * a map layer that fails to load costs the outlines (and, without alternates, the zone filter),
+ * not the map.
  */
-async function loadZones(center: string): Promise<StationMapZone[]> {
+async function loadOutlines(center: string): Promise<StationMapZone[]> {
   try {
     return zonesFromMapLayer(await getZoneMapLayer(center))
   } catch {
     return []
   }
+}
+
+interface Grouping {
+  zones: StationMapZone[]
+  zoneNames: string[]
+}
+
+/**
+ * What stations are grouped by. A center with `alternate_zones` groups by its own KML polygons
+ * (the widget replaces the forecast zones with them outright; only the drawn outlines stay); one
+ * without — or whose KML fails — groups by the forecast zones in the center's own order.
+ */
+async function loadGrouping(
+  alternateZonesUrl: string | null,
+  outlines: StationMapZone[],
+  activeZoneNames: string[],
+): Promise<Grouping> {
+  const alternate = alternateZonesUrl ? await fetchAlternateZones(alternateZonesUrl) : null
+  if (alternate) return { zones: alternate, zoneNames: alternateZoneNames(alternate) }
+  return { zones: outlines, zoneNames: orderZoneNames(activeZoneNames, outlines) }
 }
 
 /**
@@ -66,10 +89,10 @@ export async function GET(
   const units = requestedUnits(request)
 
   try {
-    const [metadata, current, zones, webcamResult] = await Promise.all([
+    const [metadata, current, outlines, webcamResult] = await Promise.all([
       getAvalancheCenterMetadata(center),
       fetchCurrentStationData(center, units),
-      loadZones(center),
+      loadOutlines(center),
       fetchWebcams(center).then(
         (response) => ({ response, failed: false }),
         () => ({ response: { webcam: [] }, failed: true }),
@@ -78,6 +101,12 @@ export async function GET(
 
     const activeZoneNames = metadata.zones.flatMap((zone) =>
       zone.status === AvalancheForecastZoneStatus.Active ? [zone.name] : [],
+    )
+    const settings = resolveStationMapSettings(metadata.widget_config.stations)
+    const { zones, zoneNames } = await loadGrouping(
+      settings.alternateZones,
+      outlines,
+      activeZoneNames,
     )
 
     const body: StationMapData = {
@@ -88,7 +117,8 @@ export async function GET(
       }),
       webcams: mapWebcams(webcamResult.response, zones),
       zones,
-      zoneNames: orderZoneNames(activeZoneNames, zones),
+      zoneNames,
+      outlines,
       variables: current.properties.variables.map((variable) => ({
         variable: variable.variable,
         longName: variableDisplayName(variable.long_name),
