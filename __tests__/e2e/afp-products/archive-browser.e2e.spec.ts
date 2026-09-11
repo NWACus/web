@@ -21,9 +21,9 @@ test.describe('Forecast archive browser', () => {
       page.getByRole('list', { name: 'Archived products' }).getByRole('listitem'),
     ).toHaveCount(7)
 
-    // Date · danger · zone, linking to the dated forecast for that zone-day (inventory row F3).
+    // Date · zone · danger, linking to the dated forecast for that zone-day (inventory row F3).
     await expect(
-      page.getByRole('link', { name: /Apr 5, 2026.*Moderate \(2\).*Banner Summit/ }),
+      page.getByRole('link', { name: /Apr 5, 2026.*Banner Summit.*Moderate \(2\)/ }),
     ).toHaveAttribute('href', '/forecasts/avalanche/banner-summit/2026-04-05')
 
     const tally = page.getByRole('list', { name: 'Products by danger rating' })
