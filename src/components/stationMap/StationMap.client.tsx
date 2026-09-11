@@ -149,7 +149,9 @@ function ConfiguredStationMap({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    // Below `md` the map runs edge to edge (the container pads 1rem there); above, it stays inside
+    // the container like the station tables, with room before the footer.
+    <div className="flex flex-col gap-2 md:mb-8">
       <StationMapFilters
         filters={filters}
         onChange={changeFilters}
@@ -256,7 +258,7 @@ function MapSurface({ surface }: { surface: Surface }) {
       // `isolate` keeps the overlays' z-indexes inside the map: without it the info panel and
       // legend (and the selected marker, raised above its neighbours) would also clear the
       // sticky site header on phones.
-      className="relative isolate h-[calc(100dvh-14rem)] min-h-[420px] w-full overflow-hidden bg-neutral-100"
+      className="relative isolate -mx-4 h-[calc(100dvh-14rem)] min-h-[420px] overflow-hidden bg-neutral-100 md:mx-0"
       data-testid="station-map"
     >
       <div ref={surface.containerRef} className="h-full w-full" />
