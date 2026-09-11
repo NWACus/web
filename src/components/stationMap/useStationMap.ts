@@ -12,7 +12,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import type { RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import { MAP_STYLE, asControl, disableRotation } from '@/components/map/mapbox'
+import { MAP_STYLE, asControl, disableRotation, hasSource } from '@/components/map/mapbox'
 import type {
   StationMapData,
   StationMapUnits,
@@ -209,7 +209,7 @@ function addZoneLayers(map: MapboxMap, zones: StationMapZone[]) {
 }
 
 function removeZoneLayers(map: MapboxMap) {
-  if (!map.getSource(ZONES_SOURCE_ID)) return
+  if (!hasSource(map, ZONES_SOURCE_ID)) return
   for (const id of [ZONES_FILL_LAYER_ID, ZONES_OUTLINE_LAYER_ID]) {
     if (map.getLayer(id)) map.removeLayer(id)
   }
