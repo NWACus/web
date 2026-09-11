@@ -15,7 +15,8 @@ import { Expand, Play } from 'lucide-react'
  */
 export function MediaOverlay({ isVideo, onOpen }: { isVideo: boolean; onOpen: () => void }) {
   return (
-    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+    // Screen-only: an expand chip and a play button are meaningless on paper.
+    <span className="pointer-events-none absolute inset-0 flex items-center justify-center print:hidden">
       {isVideo && (
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60">
           <Play className="h-7 w-7 fill-white text-white" />

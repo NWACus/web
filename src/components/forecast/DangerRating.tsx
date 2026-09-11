@@ -55,14 +55,17 @@ export function DangerRating({
       <CardHeader>
         <CardTitle>Avalanche Danger</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 print:space-y-4">
         <DangerDayColumns
           today={today}
           tomorrow={tomorrow}
           headings={headings}
           elevationBandNames={elevationBandNames}
           // Today is wider/detailed on the dated view; the compact card renders both days compactly.
-          className={cn('flex flex-col gap-6', headings.dated && 'lg:flex-row lg:gap-8')}
+          className={cn(
+            'flex flex-col gap-6',
+            headings.dated && 'lg:flex-row lg:gap-8 printWide:flex-row printWide:gap-8',
+          )}
           todayVariant={headings.dated ? 'detailed' : 'compact'}
         />
         {headings.dated && <DatedDangerExtras noRatingToday={isNoRatingDay(today)} />}
@@ -90,7 +93,7 @@ function DangerDayColumns({
   return (
     <div className={className}>
       {today && (
-        <div className="lg:flex-[3]">
+        <div className="lg:flex-[3] printWide:flex-[3]">
           <DangerDay
             heading={headings.today}
             forecast={today}
@@ -100,7 +103,7 @@ function DangerDayColumns({
         </div>
       )}
       {tomorrow && (
-        <div className="lg:flex-[2]">
+        <div className="lg:flex-[2] printWide:flex-[2]">
           <DangerDay
             heading={headings.tomorrow}
             forecast={tomorrow}
@@ -198,7 +201,7 @@ function DangerDay({ heading, forecast, elevationBandNames, variant }: DangerDay
                   className="max-w-[45%] rounded border bg-background px-2 py-1 text-xs font-semibold leading-tight text-muted-foreground shadow-sm"
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(band.label) }}
                 />
-                <span className="ml-auto text-base font-bold sm:text-lg">
+                <span className="ml-auto text-base font-bold sm:text-lg printWide:text-lg">
                   {dangerLevelLabel(band.level)}
                 </span>
                 <Image
