@@ -1,7 +1,8 @@
 import { clearIrrelevantLinkValues } from '@/utilities/clearIrrelevantLinkValues'
 import { getTenantFilter } from '@/utilities/collectionFilters'
+import { isRecord } from '@/utilities/isRecord'
 import { validateExternalUrl } from '@/utilities/validateUrl'
-import { Field, NamedGroupField, TextFieldSingleValidation } from 'payload'
+import { Field, FieldHook, NamedGroupField, TextFieldSingleValidation } from 'payload'
 import { text } from 'payload/shared'
 
 const validateLabel: TextFieldSingleValidation = (val, args) => {
@@ -12,10 +13,21 @@ const validateLabel: TextFieldSingleValidation = (val, args) => {
   return Boolean(val) ? text(val, args) : 'You must define a label for an external link.'
 }
 
+// Runs at the field level so it also covers link fields used directly on array rows, which have no
+// group hook.
+//
+// Only links that resolve to a reference are cleared. Legacy rows typed internal that carry just a
+// url still render as external links, because handleReferenceURL falls back to url when there is no
+// reference, so their newTab value is left as-is rather than silently changed on the next save.
+const clearNewTabForInternalLink: FieldHook = ({ siblingData, value }) => {
+  if (isRecord(siblingData) && siblingData.type === 'internal' && siblingData.reference) return null
+  return value
+}
+
 type LinkFieldsOptions = {
   includeLabel?: boolean
-  /** When true, newTab checkbox only shows for external links and defaults to true */
-  newTabForExternalOnly?: boolean
+  /** When true, the newTab checkbox renders on its own row and defaults to checked */
+  newTabDefaultsToChecked?: boolean
   /** Custom admin Description component path for the label field */
   labelDescriptionComponent?: string
 }
@@ -30,17 +42,16 @@ type LinkFieldOptions = LinkFieldsOptions & {
  */
 const buildLinkFields = ({
   includeLabel = false,
-  newTabForExternalOnly = false,
+  newTabDefaultsToChecked = false,
   labelDescriptionComponent,
 }: LinkFieldsOptions = {}): Field[] => {
   const newTabField: Field = {
     name: 'newTab',
     type: 'checkbox',
     admin: {
-      ...(newTabForExternalOnly
-        ? {
-            condition: (_, siblingData) => siblingData?.type === 'external',
-          }
+      condition: (_, siblingData) => siblingData?.type === 'external',
+      ...(newTabDefaultsToChecked
+        ? {}
         : {
             style: {
               alignSelf: 'flex-end',
@@ -50,7 +61,10 @@ const buildLinkFields = ({
             width: '50%',
           }),
     },
-    ...(newTabForExternalOnly ? { defaultValue: true } : {}),
+    ...(newTabDefaultsToChecked ? { defaultValue: true } : {}),
+    hooks: {
+      beforeChange: [clearNewTabForInternalLink],
+    },
     label: 'Open in new tab',
   }
 
@@ -113,14 +127,14 @@ const buildLinkFields = ({
             { label: 'External link', value: 'external' },
           ],
         },
-        ...(newTabForExternalOnly ? [] : [newTabField]),
+        ...(newTabDefaultsToChecked ? [] : [newTabField]),
       ],
     },
     {
       type: 'row',
       fields: [referenceField, urlField, ...(includeLabel ? [labelField] : [])],
     },
-    ...(newTabForExternalOnly ? [newTabField] : []),
+    ...(newTabDefaultsToChecked ? [newTabField] : []),
   ]
 }
 
@@ -136,13 +150,13 @@ const buildLinkFields = ({
  * linkField({ fieldName: 'button', includeLabel: true })
  *
  * @example
- * // Navigation-style link (newTab only for external)
- * linkField({ includeLabel: true, newTabForExternalOnly: true })
+ * // Navigation-style link (newTab on its own row, checked by default)
+ * linkField({ includeLabel: true, newTabDefaultsToChecked: true })
  */
 export const linkField = ({
   fieldName = 'link',
   includeLabel = false,
-  newTabForExternalOnly = false,
+  newTabDefaultsToChecked = false,
   labelDescriptionComponent,
 }: LinkFieldOptions = {}): NamedGroupField => ({
   name: fieldName,
@@ -153,7 +167,7 @@ export const linkField = ({
   hooks: {
     beforeChange: [clearIrrelevantLinkValues],
   },
-  fields: buildLinkFields({ includeLabel, newTabForExternalOnly, labelDescriptionComponent }),
+  fields: buildLinkFields({ includeLabel, newTabDefaultsToChecked, labelDescriptionComponent }),
 })
 
 /**
