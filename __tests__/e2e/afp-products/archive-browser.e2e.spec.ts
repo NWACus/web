@@ -77,7 +77,7 @@ test.describe('Forecast archive browser', () => {
   test('a center still on the widget gets the widget archive at the same address', async ({
     page,
   }) => {
-    await loadPage(page, `${tenant('nwac')}/forecasts/avalanche/archive`)
+    await loadPage(page, `${tenant('sac')}/forecasts/avalanche/archive`)
 
     // The legacy archive is a hash route inside the forecast widget.
     await expect(page).toHaveURL(/#\/archive\/forecast$/)
