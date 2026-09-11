@@ -86,6 +86,51 @@ describe('QuickLinkButton', () => {
     }) => url ?? '/mock-href'
   })
 
+  it('opens in a new tab when newTab is set', () => {
+    render(
+      <QuickLinkButton
+        type="external"
+        label="Recent Avalanches"
+        newTab
+        url="https://example.com/avalanches"
+      />,
+    )
+
+    const link = screen.getByRole('link')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  it('opens in place when newTab is not set', () => {
+    render(
+      <QuickLinkButton
+        type="internal"
+        label="Avalanche Forecast"
+        reference={{ relationTo: 'pages', value: resolvedPage }}
+        url="/forecast"
+      />,
+    )
+
+    const link = screen.getByRole('link')
+    expect(link).not.toHaveAttribute('target')
+    expect(link).not.toHaveAttribute('rel')
+  })
+
+  // Legacy rows typed internal with no reference render as external links, since
+  // handleReferenceURL falls back to url. Their newTab value is deliberately left alone.
+  it('honors newTab on an internal row that only carries a url', () => {
+    render(
+      <QuickLinkButton
+        type="internal"
+        label="How to Use the Forecast"
+        newTab
+        url="https://example.com/tutorial"
+      />,
+    )
+
+    expect(screen.getByRole('link')).toHaveAttribute('target', '_blank')
+  })
+
   it('uses the resolved display label in analytics events', () => {
     render(
       <QuickLinkButton
