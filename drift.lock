@@ -173,7 +173,7 @@ sig = "ebc483d7877a4d34"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/dangerMap/ZoneList.tsx"
-sig = "ada632bf2ff40213"
+sig = "99fb6e77a8f00e1f"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

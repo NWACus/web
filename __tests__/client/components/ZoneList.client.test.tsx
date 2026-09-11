@@ -23,11 +23,11 @@ describe('ZoneList', () => {
     expect(
       screen.getByRole('heading', { name: 'Avalanche danger by forecast zone' }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'West Slopes Central' })).toHaveAttribute(
-      'href',
-      '/forecasts/avalanche/west-slopes-central',
-    )
-    expect(screen.getByRole('listitem')).toHaveTextContent('West Slopes Central: 3 - Considerable')
+    // The whole row is one link, so its accessible name carries the zone and what opening it gets
+    // you, rather than the zone alone.
+    expect(
+      screen.getByRole('link', { name: 'West Slopes Central 3 - Considerable' }),
+    ).toHaveAttribute('href', '/forecasts/avalanche/west-slopes-central')
   })
 
   // The list is the map's only keyboard- and screen-reader-reachable form, so it has to pivot
@@ -36,8 +36,10 @@ describe('ZoneList', () => {
     render(<ZoneList zones={exchangeZones} settings={exchange} />)
 
     expect(screen.getByRole('heading', { name: 'Observations by zone' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Big Horns' })).toHaveAttribute('href', '/observations')
-    expect(screen.getByRole('listitem')).toHaveTextContent('Big Horns: View Observations')
+    expect(screen.getByRole('link', { name: 'Big Horns View Observations' })).toHaveAttribute(
+      'href',
+      '/observations',
+    )
   })
 
   // Items pivot per zone, so an exchange's all-centers list mixes observations with neighbors'
@@ -53,8 +55,19 @@ describe('ZoneList', () => {
 
     expect(screen.getByRole('heading', { name: 'Forecast zones on the map' })).toBeInTheDocument()
     const items = screen.getAllByRole('listitem')
-    expect(items[0]).toHaveTextContent('Big Horns: View Observations')
-    expect(items[1]).toHaveTextContent('West Slopes Central: 3 - Considerable')
+    expect(items[0]).toHaveTextContent('View Observations')
+    expect(items[1]).toHaveTextContent('3 - Considerable')
+  })
+
+  it('carries an active warning into the row', () => {
+    const warned = {
+      features: decorateZoneFeatures([
+        zoneFeature(zone({ warning: { product: 'warning' } }), 1655),
+      ]),
+    }
+    render(<ZoneList zones={warned} settings={forecastCenter} />)
+
+    expect(screen.getByRole('listitem')).toHaveTextContent('Avalanche Warning in effect')
   })
 
   it('renders nothing before the zones arrive', () => {
