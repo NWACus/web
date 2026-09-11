@@ -25,8 +25,11 @@ const clearLinkWhenHasSubItems: FieldHook = ({ siblingData, value }) => {
   const hasItems = Array.isArray(items) && items.length > 0
 
   if (hasItems && value && typeof value === 'object') {
-    // Item has sub-items, clear the link data to avoid stale data in database
-    return null
+    // Item has sub-items, clear the link data to avoid stale data in database.
+    // Null each sub-field rather than the group itself: Payload treats a null group as the
+    // siblingData it traverses the group's sub-fields with, so returning null here makes every
+    // sub-field hook throw. Nulling the sub-fields also actually clears the DB columns.
+    return { type: 'internal', reference: null, url: null, label: null, newTab: null }
   }
 
   return value
