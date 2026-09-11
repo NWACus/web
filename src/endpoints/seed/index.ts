@@ -77,16 +77,22 @@ const defaultNacWidgetsConfig = {
  * that flipped a shared tenant's flag would race the other Playwright workers, and would not reach
  * an already-prerendered page anyway.
  *
- * snfac is native because the AFP golden corpus the E2E mocks are built from is SNFAC-centric;
- * dvac is native to exercise the dvac→nwac upstream alias; nwac and sac stay on the widget.
+ * A native tenant gets every native product, so seeded content exercises the whole feature rather
+ * than the forecast alone. snfac is native because the AFP golden corpus the E2E mocks are built
+ * from is SNFAC-centric.
+ *
+ * dvac and nwac are the same upstream center — dvac is normalised to nwac at every NAC/AFP call
+ * site — so whichever of the two is native, the pair is the proof that Control 1 is per tenant and
+ * not per center. nwac holds the native side and dvac the widget side, which also puts the widget's
+ * own dvac→nwac fallback under test. sac is the second widget tenant, on its own upstream center.
  * Kept in step with `__tests__/e2e/mocks/scenarios.json` by __tests__/server/e2eMocks.server.test.ts.
  */
 const nativeProductsByTenant: Record<
   string,
   { forecast: boolean; warning: boolean; dangerMap: boolean }
 > = {
-  snfac: { forecast: true, warning: false, dangerMap: false },
-  dvac: { forecast: true, warning: false, dangerMap: false },
+  snfac: { forecast: true, warning: true, dangerMap: true },
+  nwac: { forecast: true, warning: true, dangerMap: true },
 }
 
 // Next.js revalidation errors are normal when seeding the database without a server running
