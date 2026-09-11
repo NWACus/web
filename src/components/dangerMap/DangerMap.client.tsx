@@ -57,9 +57,11 @@ export interface DangerMapProps {
   /** The center's upstream id (e.g. `NWAC`), used to decide which links stay in this tab. */
   centerId: string
   settings: DangerMapSettings
+  /** The center is an information exchange, so its own zones describe observations, not danger. */
+  informationExchange: boolean
 }
 
-export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
+export function DangerMap({ centerSlug, centerId, settings, informationExchange }: DangerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   // Mounted into Mapbox's top-right control stack.
   const recenterRef = useRef<HTMLDivElement>(null)
@@ -91,8 +93,12 @@ export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
 
   useZoneLayers(mapRef, zones, () => recenter(false))
   useWarningFlash(mapRef, zones)
-  // `centerId` rides along in the popup settings so the link rule lives in one place.
-  const popupSettings = useMemo(() => ({ ...settings, centerId }), [settings, centerId])
+  // `centerId` and the exchange flag ride along in the popup settings so the link and framing
+  // rules live in one place, shared by the hover card, the click handler and the zone list.
+  const popupSettings = useMemo(
+    () => ({ ...settings, centerId, informationExchange }),
+    [settings, centerId, informationExchange],
+  )
   const hovered = useZoneInteractions(mapRef, zones, popupSettings)
 
   if (!token) {
@@ -113,7 +119,7 @@ export function DangerMap({ centerSlug, centerId, settings }: DangerMapProps) {
 
       <HoverCard hovered={hovered} containerRef={containerRef} />
 
-      <MapStatus zones={zones} failed={failed} />
+      <MapStatus zones={zones} failed={failed} informationExchange={informationExchange} />
 
       {/* The map itself is a canvas, so its content is unreachable by keyboard or screen reader.
           This is the same information as a list of links — visually hidden, but focusable. */}
@@ -146,19 +152,31 @@ function HoverCard({
   )
 }
 
-/** Covers the map while the zones load, and stays up if they never arrive. */
-function MapStatus({ zones, failed }: { zones: ZoneCollection | null; failed: boolean }) {
+/**
+ * Covers the map while the zones load, and stays up if they never arrive. Names what is loading
+ * the way the rest of the map does: danger on a forecast center, zones on an exchange.
+ */
+function MapStatus({
+  zones,
+  failed,
+  informationExchange,
+}: {
+  zones: ZoneCollection | null
+  failed: boolean
+  informationExchange: boolean
+}) {
+  const product = informationExchange ? 'The zone map' : 'Avalanche danger'
   if (failed) {
     return (
       <MapOverlay>
-        <span>Avalanche danger is unavailable right now.</span>
+        <span>{product} is unavailable right now.</span>
       </MapOverlay>
     )
   }
   if (!zones) {
     return (
       <MapOverlay>
-        <span>Loading avalanche danger…</span>
+        <span>Loading {product.toLowerCase()}…</span>
       </MapOverlay>
     )
   }

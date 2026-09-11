@@ -167,6 +167,16 @@ sig = "afa29bc8184dea8e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/dangerMap/HomeDangerMap.tsx"
+sig = "ebc483d7877a4d34"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/components/dangerMap/ZoneList.tsx"
+sig = "99fb6e77a8f00e1f"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/AllZonesForecast.tsx"
 sig = "3901fda9b0ddf4b1"
 
@@ -212,8 +222,23 @@ sig = "620e3b1733d93855"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/dangerMap/dangerMapSettings.ts"
+sig = "b8c71ce23146813d"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/dangerMap/dangerMapZones.ts"
+sig = "e2953840f345f764"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/forecastFingerprint.ts"
 sig = "7071f2438a84dd5c"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
+target = "src/services/nac/informationExchange.ts"
+sig = "8b8b877ec686112e"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -448,7 +473,7 @@ sig = "fd722c55fdb3239d"
 [[bindings]]
 doc = "docs/decisions/013-hardcoded-tenant-lookup.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "61c98b885fde238f"
+sig = "4acb32666aed55e5"
 
 [[bindings]]
 doc = "docs/decisions/014-built-in-pages-drive-navigation.md"
@@ -693,7 +718,7 @@ sig = "22a227eec96485e6"
 [[bindings]]
 doc = "docs/onboarding.md"
 target = "src/utilities/tenancy/avalancheCenters.ts"
-sig = "61c98b885fde238f"
+sig = "4acb32666aed55e5"
 
 [[bindings]]
 doc = "docs/revalidation.md"

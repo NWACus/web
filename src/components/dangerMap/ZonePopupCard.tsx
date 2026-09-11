@@ -2,9 +2,10 @@
  * The card shown when a reader hovers a zone on the danger map.
  *
  * Content and ordering follow the legacy danger-map widget's popup: a colored header stating the
- * rating (or that the season has ended), a warning strip when one is in effect, the zone name, the
- * publication window, and the danger scale's travel advice. All of it is derived server-side by
- * `zonePopup`; this only renders.
+ * rating (or that the season has ended, or — on an information exchange — that the zone is a way
+ * into observations), a warning strip when one is in effect, the zone name, the publication
+ * window, and the danger scale's travel advice. All of it is derived by `zonePopup`; this only
+ * renders.
  */
 import { AlertTriangle, OctagonAlert } from 'lucide-react'
 import Image from 'next/image'
@@ -23,7 +24,7 @@ import {
  * plain grey notice, since a rating would be describing a season that ended months ago.
  */
 function PopupHeader({ popup }: { popup: ZonePopup }) {
-  if (popup.offSeason) {
+  if (popup.subject === 'offSeason') {
     return (
       <div className="flex items-center gap-3 bg-neutral-200 px-4 py-3">
         <OctagonAlert className="h-9 w-9 shrink-0 text-neutral-500" aria-hidden="true" />
@@ -48,7 +49,9 @@ function PopupHeader({ popup }: { popup: ZonePopup }) {
       </div>
       <Image
         src={dangerIconUrl(popup.dangerLevel)}
-        alt={dangerName(popup.dangerLevel)}
+        // The widget draws the no-rating icon beside "View Observations" too, but announcing it as
+        // "No Rating" would assert the very thing the headline was reworded to avoid claiming.
+        alt={popup.subject === 'observations' ? '' : dangerName(popup.dangerLevel)}
         width={dangerIconSize(popup.dangerLevel).width}
         height={dangerIconSize(popup.dangerLevel).height}
         className="h-12 w-auto shrink-0"
