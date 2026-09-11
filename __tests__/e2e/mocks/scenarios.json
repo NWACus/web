@@ -129,18 +129,18 @@
   "tenants": {
     "snfac": {
       "forecast": true,
-      "warning": false,
-      "dangerMap": false
+      "warning": true,
+      "dangerMap": true
     },
     "dvac": {
-      "forecast": true,
+      "forecast": false,
       "warning": false,
       "dangerMap": false
     },
     "nwac": {
-      "forecast": false,
-      "warning": false,
-      "dangerMap": false
+      "forecast": true,
+      "warning": true,
+      "dangerMap": true
     },
     "sac": {
       "forecast": false,
