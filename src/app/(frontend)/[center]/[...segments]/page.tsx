@@ -1,3 +1,8 @@
+// fallow-ignore-file dynamic-segment-name-conflict
+// False positive: fallow flags this `[...segments]` catch-all as conflicting with its
+// sibling `[slug]` route under `[center]`. Next.js only rejects two *named* dynamic
+// siblings; a catch-all alongside a named segment is legal and the named segment wins for
+// single-segment paths. Both routes have shipped together since before this change.
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next'
 
