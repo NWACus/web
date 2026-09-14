@@ -491,7 +491,10 @@ async function fetchArchiveSummaries(
   const parsed = productListSchema.safeParse(data)
   if (!parsed.success) {
     await logNacError(parsed.error, 'Failed to parse product archive response')
-    return []
+    // Thrown rather than swallowed into []: an unparseable response is a broken archive, and the
+    // archive browser has to tell that from an empty one. `fetchProductArchive` turns it back
+    // into [] for the callers where the archive is a secondary feature.
+    throw new NACError(`Failed to parse product archive response: ${parsed.error.message}`)
   }
 
   return parsed.data.map((item) => ({
@@ -499,6 +502,8 @@ async function fetchArchiveSummaries(
     product_type: item.product_type,
     published_time: item.published_time,
     danger_rating: item.danger_rating ?? 0,
+    author: item.author ?? null,
+    updated_at: item.updated_at ?? null,
     forecast_zone: item.forecast_zone.map((zone) => ({ id: zone.id })),
   }))
 }
@@ -506,10 +511,11 @@ async function fetchArchiveSummaries(
 /**
  * The center's product archive for a date window (default: the whole archive), trimmed and
  * cached server-side so a given window is fetched at most once per 30-minute window rather
- * than per view. Callers filter the result to a single zone with `buildZoneArchiveDates`.
- * Returns [] on failure so the page degrades gracefully (no date list) rather than crashing.
+ * than per view. Throws on upstream failure; a failed window is never cached, so the next
+ * caller retries. Use this where an empty archive and a broken one must look different — the
+ * archive browser, whose whole page is this list.
  */
-export async function fetchProductArchive(
+export async function fetchProductArchiveOrThrow(
   centerSlug: string,
   range?: ArchiveDateRange,
 ): Promise<ArchiveProductSummary[]> {
@@ -521,8 +527,20 @@ export async function fetchProductArchive(
     { revalidate: 30 * 60 },
   )
 
+  return getCached()
+}
+
+/**
+ * `fetchProductArchiveOrThrow`, returning [] on failure so a page whose archive is a secondary
+ * feature (the date picker) degrades gracefully rather than crashing. Callers filter the result
+ * to a single zone with `buildZoneArchiveDates`.
+ */
+export async function fetchProductArchive(
+  centerSlug: string,
+  range?: ArchiveDateRange,
+): Promise<ArchiveProductSummary[]> {
   try {
-    return await getCached()
+    return await fetchProductArchiveOrThrow(centerSlug, range)
   } catch {
     return []
   }

@@ -15,6 +15,8 @@ function item(
     product_type: 'forecast',
     published_time: '2026-01-10T02:30:00+00:00',
     danger_rating: 2,
+    author: 'Forecaster',
+    updated_at: '2026-01-10T02:30:00+00:00',
     forecast_zone: [{ id: 1646 }],
     ...partial,
   }
