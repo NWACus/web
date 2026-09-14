@@ -56,6 +56,12 @@ test.describe('Native vs widget station map', () => {
     // The fixture's fourth station has no coordinates and must not be listed.
     await expect(list).not.toContainText('No Coordinates')
 
+    // Mapbox stamps role="img" / aria-label="Map marker" on every element it is handed as a
+    // marker, so MapMarker hands it one that is already hidden: the list above is how this
+    // content reaches a reader who can't see the canvas, not a few hundred nameless graphics.
+    await expect(page.locator('.mapboxgl-marker').first()).toBeAttached()
+    await expect(page.getByRole('img', { name: 'Map marker' })).toHaveCount(0)
+
     // SAC groups stations by its own KML zones rather than its single forecast zone: the filter
     // lists the KML's placemarks and Other, as the widget does.
     await page.getByRole('button', { name: 'Zone' }).click()

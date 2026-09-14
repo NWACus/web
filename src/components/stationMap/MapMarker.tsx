@@ -23,8 +23,15 @@ interface MapMarkerProps {
 }
 
 export function MapMarker({ map, lngLat, raised = false, children }: MapMarkerProps) {
-  // Created in the initializer so the portal has a target on the first render.
-  const [element] = useState(() => document.createElement('div'))
+  // Created in the initializer so the portal has a target on the first render, and hidden from
+  // assistive tech: Mapbox labels every marker element `role="img"` / "Map marker", which would
+  // put one nameless graphic per station in front of a screen reader. `StationList` is the text
+  // version of what the markers carry.
+  const [element] = useState(() => {
+    const node = document.createElement('div')
+    node.setAttribute('aria-hidden', 'true')
+    return node
+  })
 
   useEffect(() => {
     const marker = new mapboxgl.Marker({ element, anchor: 'center' }).setLngLat(lngLat).addTo(map)
