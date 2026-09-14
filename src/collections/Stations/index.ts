@@ -2,7 +2,10 @@ import { accessByTenantRole } from '@/access/byTenantRole'
 import { filterByTenant } from '@/access/filterByTenant'
 import { contentHashField } from '@/fields/contentHashField'
 import { tenantField } from '@/fields/tenantField'
-import { revalidateStationPages, revalidateStationPagesDelete } from '@/services/stations/revalidate'
+import {
+  revalidateStationPages,
+  revalidateStationPagesDelete,
+} from '@/services/stations/revalidate'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
 import { syncStationsNow } from './endpoints/syncStationsNow'
@@ -35,10 +38,10 @@ export const Stations: CollectionConfig = {
     group: 'Weather',
     defaultColumns: ['name', 'stid', 'group', 'elevation', 'hiddenOnPrecipTable', 'lastSyncedAt'],
     useAsTitle: 'name',
-    description:
-      'Every station SnowObs holds for this center. Identity is synced and read-only; assign a page and any flags here.',
     components: {
-      beforeListTable: ['@/collections/Stations/components/SyncStationsButton#SyncStationsButton'],
+      // Renders where the collection description normally does: under the
+      // title, above the search bar. Carries the description text itself.
+      Description: '@/collections/Stations/components/SyncStationsButton#SyncStationsButton',
     },
   },
   defaultSort: 'name',

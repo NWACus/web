@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@payloadcms/ui'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 type Outcome = { text: string; failed: boolean }
@@ -29,12 +29,20 @@ function SyncOutcome({ outcome }: { outcome: Outcome | null }) {
   return <p className={`snowobs-sync__outcome snowobs-sync__outcome--${tone}`}>{outcome.text}</p>
 }
 
-// Sits above the stations list. There is no scheduled sync: a station that
-// SnowObs adds waits here until someone clicks, which is a few times a decade.
+// Takes the collection description's slot, so it lands under the title and
+// above the search bar. One direction only: SnowObs' identity fields are
+// copied over the row, NWAC's own fields are never touched, and nothing is
+// deleted. There is no schedule: a station SnowObs adds waits here until
+// someone clicks, which is a few times a decade.
 export function SyncStationsButton() {
   const router = useRouter()
+  const pathname = usePathname()
   const [outcome, setOutcome] = useState<Outcome | null>(null)
   const [running, setRunning] = useState(false)
+
+  // The description slot is shared with the edit view; the button belongs on
+  // the list only.
+  const onList = /\/collections\/stations\/?$/.test(pathname ?? '')
 
   const sync = async () => {
     setRunning(true)
@@ -47,13 +55,17 @@ export function SyncStationsButton() {
   return (
     <div className="snowobs-sync">
       <p className="snowobs-sync__hint">
-        Station names, elevations and coordinates come from SnowObs. Sync to pick up a new or
-        renamed station; nothing you set here is overwritten.
+        Every station SnowObs holds for this center. Names, elevations and coordinates come from
+        SnowObs and are read-only; assign a page and any flags here.
       </p>
-      <Button buttonStyle="secondary" size="small" disabled={running} onClick={sync}>
-        {running ? 'Syncing…' : 'Sync from SnowObs'}
-      </Button>
-      <SyncOutcome outcome={outcome} />
+      {onList && (
+        <div className="snowobs-sync__action">
+          <Button buttonStyle="secondary" disabled={running} onClick={sync}>
+            {running ? 'Updating…' : 'Update from SnowObs'}
+          </Button>
+          <SyncOutcome outcome={outcome} />
+        </div>
+      )}
     </div>
   )
 }

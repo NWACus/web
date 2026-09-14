@@ -21,11 +21,22 @@
 }
 
 .snowobs-sync {
-  margin-bottom: calc(var(--base) * 0.75);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--base) * 0.5);
+  justify-content: flex-end;
+  margin-top: calc(var(--base) * 0.25);
 
   &__hint {
     color: var(--theme-elevation-500);
-    margin: 0 0 calc(var(--base) * 0.4);
+    margin: 0 auto 0 0;
+  }
+
+  &__action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: calc(var(--base) * 0.25);
   }
 
   .btn {
@@ -34,7 +45,7 @@
 
   &__outcome {
     font-size: 0.85rem;
-    margin: calc(var(--base) * 0.35) 0 0;
+    margin: 0;
 
     &--good {
       color: var(--theme-success-600);

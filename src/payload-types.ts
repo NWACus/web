@@ -2177,8 +2177,6 @@ export interface StationGroup {
   createdAt: string;
 }
 /**
- * Every station SnowObs holds for this center. Identity is synced and read-only; assign a page and any flags here.
- *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "stations".
  */
