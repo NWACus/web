@@ -2,7 +2,10 @@ import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { StationCsvForm } from '@/components/WeatherStations/StationCsvForm'
-import { STATION_GRAPH_PRESETS } from '@/components/WeatherStations/stationGraphPresets'
+import {
+  applyGroupAxes,
+  STATION_GRAPH_PRESETS,
+} from '@/components/WeatherStations/stationGraphPresets'
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { StationPageView } from '@/components/WeatherStations/StationPageView'
 import { resolveTablePeriod } from '@/components/WeatherStations/stationPeriods'
@@ -88,7 +91,7 @@ function graphsTabView(group: WeatherStationGroup): TabView {
     tabContent: (
       <StationGraphs
         stids={group.stids}
-        presets={STATION_GRAPH_PRESETS}
+        presets={applyGroupAxes(STATION_GRAPH_PRESETS, group.graphAxes)}
         currentSlug={group.slug}
         tabs={<StationRangeTabs activeKey="graphs" />}
       />

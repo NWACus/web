@@ -1,3 +1,19 @@
+export type GraphAxis = { min?: number; max?: number }
+
+export type GraphPresetKey =
+  | 'temp'
+  | 'wind'
+  | 'winddir'
+  | 'precip'
+  | 'snow24'
+  | 'intersnow'
+  | 'snowdepth'
+  | 'pyranometer'
+  | 'pressure'
+  | 'equiptemp'
+  | 'rh'
+  | 'battery'
+
 export type GraphPreset = {
   key: string
   title: string
@@ -6,7 +22,7 @@ export type GraphPreset = {
   symbolsOnly?: boolean
   /** Bounds the axis always covers, from the legacy plotter's
    * `getVariableBounds`. A floor, not a ceiling: real data widens the axis. */
-  axis?: { min?: number; max?: number }
+  axis?: GraphAxis
   /** Horizontal reference line (legacy: 32°F freezing line on temperature). */
   refLine?: number
   /** Render these two variables as a shaded band instead of their own lines
@@ -95,3 +111,18 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     defaultHidden: true,
   },
 ]
+
+// A station group's own floors, by preset key, laid over the defaults above.
+// Legacy tuned these per region (a 225" snow depth axis at Paradise, 85" at
+// Lake Wenatchee); a bound the group doesn't set keeps the preset's.
+export function applyGroupAxes(
+  presets: GraphPreset[],
+  graphAxes?: Partial<Record<GraphPresetKey, GraphAxis>>,
+): GraphPreset[] {
+  if (!graphAxes) return presets
+  const overrides: Partial<Record<string, GraphAxis>> = graphAxes
+  return presets.map((preset) => {
+    const override = overrides[preset.key]
+    return override ? { ...preset, axis: { ...preset.axis, ...override } } : preset
+  })
+}
