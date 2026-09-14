@@ -168,12 +168,12 @@ sig = "afa29bc8184dea8e"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/dangerMap/HomeDangerMap.tsx"
-sig = "ebc483d7877a4d34"
+sig = "753409d20ef021d9"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/dangerMap/ZoneList.tsx"
-sig = "99fb6e77a8f00e1f"
+sig = "fb0ceff48babcc51"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -223,12 +223,12 @@ sig = "620e3b1733d93855"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/dangerMap/dangerMapSettings.ts"
-sig = "b8c71ce23146813d"
+sig = "8e1fa7f78803002f"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/dangerMap/dangerMapZones.ts"
-sig = "e2953840f345f764"
+sig = "261c263be931bfeb"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -238,7 +238,7 @@ sig = "7071f2438a84dd5c"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/services/nac/informationExchange.ts"
-sig = "8b8b877ec686112e"
+sig = "b93909edace9424d"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

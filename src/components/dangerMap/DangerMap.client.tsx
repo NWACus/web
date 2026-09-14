@@ -93,8 +93,7 @@ export function DangerMap({ centerSlug, centerId, settings, informationExchange 
 
   useZoneLayers(mapRef, zones, () => recenter(false))
   useWarningFlash(mapRef, zones)
-  // `centerId` and the exchange flag ride along in the popup settings so the link and framing
-  // rules live in one place, shared by the hover card, the click handler and the zone list.
+  // Bundled into the popup settings so the link and framing rules live in one place.
   const popupSettings = useMemo(
     () => ({ ...settings, centerId, informationExchange }),
     [settings, centerId, informationExchange],
@@ -152,10 +151,7 @@ function HoverCard({
   )
 }
 
-/**
- * Covers the map while the zones load, and stays up if they never arrive. Names what is loading
- * the way the rest of the map does: danger on a forecast center, zones on an exchange.
- */
+/** Covers the map while the zones load, and stays up if they never arrive. */
 function MapStatus({
   zones,
   failed,

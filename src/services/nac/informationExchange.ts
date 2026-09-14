@@ -1,17 +1,11 @@
 /**
- * Whether a center is an avalanche information exchange.
+ * Whether a center is an avalanche information exchange: it collects observations but issues no
+ * forecasts, so a product that frames its zones in terms of danger has nothing true to say there.
  *
- * An information exchange — EWYAIX, SOAIX — collects observations and hosts weather stations but
- * issues no forecasts, so a product that frames its zones in terms of danger has nothing true to
- * say there. Upstream carries no discriminator for this: the legacy danger-map widget recognizes
- * one by its id ending in `AIX`. AvyWeb reads it off the capability feed instead (the rule #269
- * records — no `kind` field, `platforms.*` drives everything): no forecasts platform and an
- * observations platform.
- *
- * That agrees with the suffix on both exchanges and additionally classifies the observation-only
- * centers the suffix misses (CAC, EARAC — not tenants), for which the answer is equally right. A
- * center with neither platform (CAIC) or warnings-only (UAC) is not an exchange: it has nothing to
- * pivot *to*.
+ * Upstream has no discriminator — the legacy widget keys on the `AIX` id suffix. This is #269's
+ * capability rule, which reaches the same two centers (EWYAIX, SOAIX) plus the obs-only ones the
+ * suffix misses. `stations` is out of the test deliberately: both exchanges run them, but nothing
+ * on the map is a station, and requiring it would un-classify an obs-only center that runs none.
  */
 import type { AvalancheCenterPlatforms } from './types/schemas'
 

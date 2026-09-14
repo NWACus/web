@@ -49,8 +49,7 @@ function PopupHeader({ popup }: { popup: ZonePopup }) {
       </div>
       <Image
         src={dangerIconUrl(popup.dangerLevel)}
-        // The widget draws the no-rating icon beside "View Observations" too, but announcing it as
-        // "No Rating" would assert the very thing the headline was reworded to avoid claiming.
+        // Announcing the no-rating icon as "No Rating" would assert what the headline avoids.
         alt={popup.subject === 'observations' ? '' : dangerName(popup.dangerLevel)}
         width={dangerIconSize(popup.dangerLevel).width}
         height={dangerIconSize(popup.dangerLevel).height}

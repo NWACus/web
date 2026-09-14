@@ -148,42 +148,29 @@ export interface ZonePopupSettings {
   allCenters: boolean
   /** This site's avalanche center id, e.g. `NWAC` — decides which zones are our own. */
   centerId: string
-  /**
-   * This site's center is an information exchange (`isInformationExchange`): it collects
-   * observations and issues no forecasts, so its own zones are described in terms of observations
-   * rather than a rating. The legacy widget calls this AIX mode.
-   */
+  /** This site's center is an information exchange, so its own zones describe observations. */
   informationExchange: boolean
 }
 
-/** The native observations page — where an exchange's zones point instead of a forecast. */
 const OBSERVATIONS_PATH = '/observations'
 
-/** Whether the zone belongs to the center whose site the reader is on. */
 function isOwnZone(properties: Pick<ZoneProperties, 'center_id'>, centerId: string): boolean {
   return properties.center_id === centerId
 }
 
 /**
- * Whether this zone belongs to the information exchange the reader is on.
- *
- * Observations mode is decided *per zone*, not per map: only zones belonging to the exchange
- * itself pivot. On an all-centers map a neighboring forecast center's zone keeps its rating, its
- * advice and its forecast link — the widget pivots every zone on the map, which would headline a
- * rated zone "View Observations" and then open a forecast. A recorded divergence from M3.
+ * Observations mode is per zone, not per map: on an all-centers map a neighboring center's zone
+ * keeps its rating and its forecast link. The widget pivots every zone, which would headline a
+ * rated zone "View Observations" and then open a forecast — a deliberate divergence.
  */
 function isOwnExchangeZone(properties: ZoneProperties, settings: ZonePopupSettings): boolean {
   return settings.informationExchange && isOwnZone(properties, settings.centerId)
 }
 
 /**
- * What the popup is about, in precedence order: off-season outranks everything, as it does for
- * styling; an exchange's own unrated zone is an invitation to read observations; anything else is
- * described by its rating or the lack of one.
- *
- * A *rated* zone keeps its rating even on an exchange. The capability feed and the map layer can
- * disagree — a center's forecasts platform switched off while its zones still carry today's
- * rating — and when they do, the rating is the safety-relevant fact, so it is what the popup says.
+ * What the popup is about, in precedence order — off-season outranks everything, as it does for
+ * styling. A *rated* zone keeps its rating even on an exchange: the capability feed and the map
+ * layer can disagree, and when they do the rating is the safety-relevant fact.
  */
 export type PopupSubject = 'offSeason' | 'observations' | 'unrated' | 'rated'
 
@@ -223,9 +210,8 @@ function popupTitle(
  * forecast page, so this center's zones are rewritten to their AvyWeb route. Zones belonging to
  * another center — only reachable on an all-centers map — keep their external link.
  *
- * An exchange's own zones go to the native observations page regardless of `link`, and whatever
- * the season or the rating says: the link points at the exchange's *external* observations viewer
- * and, read as a zone URL, would yield a forecast route for a zone that has no forecast.
+ * An exchange's own zones go to `/observations` regardless: `link` points at its *external*
+ * observations viewer, and as a zone URL would yield a forecast route for a zone with no forecast.
  */
 function resolveHref(
   properties: ZoneProperties,
@@ -260,8 +246,7 @@ export function zonePopup(properties: ZoneProperties, settings: ZonePopupSetting
     // rather than shown stale — the same call the widget makes.
     publishedText: offSeason ? null : formatValidity(properties.start_date, properties.timezone),
     expiresText: offSeason ? null : formatValidity(properties.end_date, properties.timezone),
-    // Travel advice is keyed to a rating. Off-season there is none current, and an observations
-    // zone has none at all, so both suppress it whatever the center's advice setting says.
+    // Travel advice is keyed to a rating, so only a rating subject gets it.
     advice: describesRating(subject) && settings.advice ? adviceForLevel(dangerLevel) : null,
     ...resolveHref(properties, settings),
   }
