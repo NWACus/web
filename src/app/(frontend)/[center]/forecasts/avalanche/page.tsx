@@ -26,7 +26,12 @@ export default async function Page({ params }: CenterRouteArgs) {
   const useNative = await getNativeProductFlag(center, 'forecast')
 
   if (useNative) {
-    return <AllZonesForecast centerSlug={center} />
+    return (
+      <>
+        <Breadcrumbs center={center} path="/forecasts/avalanche" />
+        <AllZonesForecast centerSlug={center} />
+      </>
+    )
   }
 
   return (

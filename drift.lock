@@ -153,7 +153,7 @@ sig = "2f6941731c97ccaa"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/app/(frontend)/[center]/forecasts/avalanche/archive/page.tsx"
-sig = "6141c09b31065bf1"
+sig = "b4e81ee0b8579465"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
@@ -633,7 +633,7 @@ sig = "e3dde955e6e1147b"
 [[bindings]]
 doc = "docs/events-and-courses.md"
 target = "src/app/(frontend)/[center]/events/page.tsx"
-sig = "4836c72cf57814e5"
+sig = "43282c6a80a9303a"
 
 [[bindings]]
 doc = "docs/events-and-courses.md"
@@ -743,7 +743,7 @@ sig = "57977783926aa724"
 [[bindings]]
 doc = "docs/revalidation.md"
 target = "src/app/(frontend)/[center]/page.tsx"
-sig = "da6c4e6ea3c599cc"
+sig = "9ad142b6debe1108"
 
 [[bindings]]
 doc = "docs/revalidation.md"
