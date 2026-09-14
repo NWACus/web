@@ -294,11 +294,11 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
 function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
   const group = getStationGroupByStid(row.stid)
   const props = {
-    className: 'inline-flex fill-warning text-foreground',
+    className: 'inline-flex',
     title: row.notes.join(' '),
     'aria-label': `${row.name} has a station note`,
   }
-  const icon = <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
+  const icon = <TriangleAlert className="h-3.5 w-3.5 fill-warning" aria-hidden />
   return group ? (
     <Link href={`/weather/stations/${group.slug}`} {...props}>
       {icon}
@@ -312,7 +312,7 @@ function StationNoteLegend({ rows }: { rows: PrecipAccumulationRow[] }) {
   if (!rows.some((row) => row.notes.length > 0)) return null
   return (
     <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
-      <TriangleAlert className="h-3.5 w-3.5 shrink-0 fill-warning text-foreground" aria-hidden />
+      <TriangleAlert className="h-3.5 w-3.5 shrink-0 fill-warning" aria-hidden />
       Stations marked with a warning have an active station note. Open the station&apos;s page to
       read it.
     </p>

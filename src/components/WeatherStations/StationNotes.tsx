@@ -23,7 +23,7 @@ export function StationNotes({ notes }: { notes: StationNote[] }) {
   return (
     <aside className="rounded-md border-l-4 border-warning bg-warning/30 px-3 py-2">
       <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold">
-        <TriangleAlert className="h-4 w-4" aria-hidden />
+        <TriangleAlert className="h-4 w-4 fill-warning" aria-hidden />
         Station notes
       </h2>
       <ul className="flex flex-col gap-1 text-sm">
