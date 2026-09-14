@@ -35,16 +35,16 @@ function AlertBar({
   return (
     <>
       <AlertTriangle
-        className="h-9 w-9 shrink-0 sm:h-12 sm:w-12"
+        className="h-9 w-9 shrink-0 sm:h-12 sm:w-12 printWide:h-12 printWide:w-12"
         strokeWidth={1.5}
         aria-hidden="true"
       />
       <div className="grow space-y-1.5">
-        <h2 className="text-base font-bold uppercase tracking-wide sm:text-lg">
+        <h2 className="text-base font-bold uppercase tracking-wide sm:text-lg printWide:text-lg">
           {warningBannerHeading(warning.product_type)}
         </h2>
         {warning.bottom_line && <p className="text-sm leading-snug">{warning.bottom_line}</p>}
-        <div className="flex flex-col gap-x-6 gap-y-0.5 border-l-2 border-white/60 pl-2 text-xs sm:flex-row">
+        <div className="flex flex-col gap-x-6 gap-y-0.5 border-l-2 border-white/60 pl-2 text-xs sm:flex-row printWide:flex-row">
           <span>
             <span className="font-semibold uppercase">Issued</span>{' '}
             {formatDateTime(warning.published_time, timezone, DATE_FORMAT)}
