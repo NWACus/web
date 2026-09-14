@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { getStationGroupByStid } from '@/constants/weatherStations'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type {
@@ -19,6 +12,7 @@ import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp, TriangleAlert } from 'lucide-react'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
+import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
 // Totals come from the API in inches, elevation in feet; metric converts on display.
@@ -275,16 +269,19 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
       <div className="flex flex-wrap items-center justify-end gap-3">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
-      <Table className="mx-auto w-auto text-base">
-        <TableHeader>
+      <StationTableFrame
+        label="Accumulated precipitation by station"
+        className="mx-auto w-auto text-base"
+      >
+        <StationTableHeader>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
-        </TableHeader>
+        </StationTableHeader>
         <TableBody>
           {rows.map((row) => (
             <StationRow key={row.stid} row={row} unit={unit} />
           ))}
         </TableBody>
-      </Table>
+      </StationTableFrame>
       <StationNoteLegend rows={rows} />
     </div>
   )

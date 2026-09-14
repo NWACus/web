@@ -29,7 +29,8 @@ export function StationTableView({
   const display = useMemo(() => convertStationTable(table, unitSystem), [table, unitSystem])
   return (
     <div className="flex flex-col gap-2">
-      <StationViewBar>
+      {/* Not pinned: it would sit on top of the frozen table header. */}
+      <StationViewBar pinned={false}>
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ChipGroup chips={TABLE_PERIOD_CHIPS} activeKey={activePeriodKey} />
