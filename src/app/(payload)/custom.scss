@@ -19,3 +19,29 @@
 .tooltip .tooltip-content {
   text-wrap: auto;
 }
+
+.snowobs-sync {
+  margin-bottom: calc(var(--base) * 0.75);
+
+  &__hint {
+    color: var(--theme-elevation-500);
+    margin: 0 0 calc(var(--base) * 0.4);
+  }
+
+  .btn {
+    margin: 0;
+  }
+
+  &__outcome {
+    font-size: 0.85rem;
+    margin: calc(var(--base) * 0.35) 0 0;
+
+    &--good {
+      color: var(--theme-success-600);
+    }
+
+    &--bad {
+      color: var(--theme-error-600);
+    }
+  }
+}

@@ -36,15 +36,18 @@ type FetchOptions = {
   revalidate?: number
   // Skip SnowObs' default integer rounding (graphs want full precision).
   rawData?: boolean
+  // SnowObs source (and the center whose AFP config carries the token).
+  source?: string
 }
 
 // The token lives in the center's AFP config (`widget_config.stations.token`), the same
 // public token the legacy nwac.us widgets use. It is the only source — no env override.
-async function resolveSnowObsToken(): Promise<string> {
-  const metadata = await getAvalancheCenterMetadata(NWAC_SOURCE)
+// The SnowObs source name doubles as the center slug.
+export async function resolveSnowObsToken(source: string = NWAC_SOURCE): Promise<string> {
+  const metadata = await getAvalancheCenterMetadata(source)
   const token = metadata.widget_config.stations?.token
   if (!token) {
-    throw new SnowObsError(`No SnowObs token in the AFP config for ${NWAC_SOURCE}`)
+    throw new SnowObsError(`No SnowObs token in the AFP config for ${source}`)
   }
   return token
 }
@@ -63,7 +66,7 @@ function buildTimeseriesUrl(stids: string[], options: FetchOptions, token: strin
 
   const params = new URLSearchParams({
     token,
-    source: NWAC_SOURCE,
+    source: options.source ?? NWAC_SOURCE,
     stid: stids.join(','),
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
@@ -112,7 +115,7 @@ export async function fetchStationTimeseries(
   const revalidate = options.revalidate ?? 600
 
   try {
-    const url = buildTimeseriesUrl(stids, options, await resolveSnowObsToken())
+    const url = buildTimeseriesUrl(stids, options, await resolveSnowObsToken(options.source))
     const res = await fetch(url, { next: { revalidate } })
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {
