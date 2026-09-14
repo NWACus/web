@@ -29,8 +29,7 @@ export function StationTableView({
   const display = useMemo(() => convertStationTable(table, unitSystem), [table, unitSystem])
   return (
     <div className="flex flex-col gap-2">
-      {/* Not pinned: from xl the table's own header freezes at the top instead,
-          and a pinned bar would sit on top of it. */}
+      {/* Not pinned: it would sit on top of the frozen table header. */}
       <StationViewBar pinned={false}>
         {tabs}
         <div className="flex flex-wrap items-center justify-between gap-3">

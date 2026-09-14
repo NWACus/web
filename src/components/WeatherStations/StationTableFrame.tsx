@@ -2,19 +2,11 @@ import { TableHeader } from '@/components/ui/table'
 import { cn } from '@/utilities/ui'
 import type { ComponentProps, ReactNode } from 'react'
 
-// shadcn's Table wraps every table in an `overflow-auto` div, which is what a
-// sticky header resolves against, and it exposes no way to reach that div. This
-// is the same wrapper with the frozen-header layout on it, so ui/table.tsx can
-// stay as upstream ships it.
-//
-// Below xl the wrapper is capped at the viewport so it scrolls vertically too
-// and the header sticks inside it, under the 4rem sticky site header on phones.
-// From xl every station table fits its container (the widest, accumulated
-// precipitation, is ~1140px in a 1216px container), so the wrapper stops
-// scrolling and the header sticks to the viewport as the page scrolls instead.
-//
-// A table of plain text has nothing tabbable inside, so a wrapper that scrolls
-// can't be reached by keyboard without being a focusable region (WCAG 2.1.1).
+// A sticky header sticks to the nearest scroll container. Below xl that's this
+// wrapper, capped at the viewport so it scrolls vertically too; from xl every
+// station table fits its container (the widest is ~1140px in 1216px), so the
+// wrapper stops scrolling and the header sticks to the page. The region makes
+// the box reachable by keyboard.
 export function StationTableFrame({
   label,
   className,
@@ -36,8 +28,7 @@ export function StationTableFrame({
   )
 }
 
-// Collapsed row borders don't travel with a stuck header, so the cells draw
-// their own bottom rule.
+// Collapsed row borders don't move with a stuck header, so cells draw their own.
 export function StationTableHeader({ className, ...props }: ComponentProps<typeof TableHeader>) {
   return (
     <TableHeader
