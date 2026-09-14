@@ -82,7 +82,9 @@ export default async function Page({ params }: Args) {
 
   // Routing no longer rejects an unknown zone, so the route does it itself — before the rollout
   // flag is read, so a bad slug 404s the same way whether the center is on native or the widget.
-  if (!(await resolveZoneFromSlug(center, zone))) {
+  const resolvedZone = await resolveZoneFromSlug(center, zone)
+
+  if (!resolvedZone) {
     notFound()
   }
 
@@ -91,7 +93,11 @@ export default async function Page({ params }: Args) {
   if (useNative) {
     return (
       <>
-        <Breadcrumbs center={center} path={`/forecasts/avalanche/${zone}`} />
+        <Breadcrumbs
+          center={center}
+          path={`/forecasts/avalanche/${zone}`}
+          title={resolvedZone.zone.name}
+        />
         <NativeForecastPage centerSlug={center} zoneSlug={zone} />
       </>
     )
@@ -99,7 +105,11 @@ export default async function Page({ params }: Args) {
 
   return (
     <ForecastWidget center={center} initialPath={`/${zone}/`} widgetPageKey="forecast-zone">
-      <Breadcrumbs center={center} path={`/forecasts/avalanche/${zone}`} />
+      <Breadcrumbs
+        center={center}
+        path={`/forecasts/avalanche/${zone}`}
+        title={resolvedZone.zone.name}
+      />
     </ForecastWidget>
   )
 }
