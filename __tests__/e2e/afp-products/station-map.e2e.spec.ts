@@ -4,10 +4,11 @@ import { loadPage, tenant } from './helpers'
 /**
  * Inventory row S1 — the native weather station map, and its rollout flag.
  *
- * sac is seeded native for the station map and nwac stays on the widget; both are read, never
- * written. The map itself is a Mapbox canvas — what a browser can assert on is everything around
- * it: the toolbar, and the station list the map publishes as text for readers who can't see the
- * canvas, which is fed by the same data the markers are.
+ * Every tenant but dvac is seeded native for the station map (sac is the one whose alternate-zones
+ * KML the mocks serve) and dvac stays on the widget; both states are read, never written. The map
+ * itself is a Mapbox canvas — what a browser can assert on is everything around it: the toolbar,
+ * and the station list the map publishes as text for readers who can't see the canvas, which is
+ * fed by the same data the markers are.
  */
 
 const PHONE = { width: 375, height: 812 }
@@ -33,7 +34,7 @@ async function stubMapbox(page: Parameters<typeof loadPage>[0]) {
 
 test.describe('Native vs widget station map', () => {
   test('a widget tenant renders the embedded stations widget', async ({ page }) => {
-    const errors = await loadPage(page, `${tenant('nwac')}/weather/stations/map`)
+    const errors = await loadPage(page, `${tenant('dvac')}/weather/stations/map`)
 
     await expect(page.locator('#widget-container[data-widget="stations"]')).toBeVisible()
     await expect(page.getByTestId('station-map')).toHaveCount(0)

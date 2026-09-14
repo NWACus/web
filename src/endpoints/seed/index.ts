@@ -85,14 +85,16 @@ const defaultNacWidgetsConfig = {
  * site — so whichever of the two is native, the pair is the proof that Control 1 is per tenant and
  * not per center. nwac holds the native side and dvac the widget side, which also puts the widget's
  * own dvac→nwac fallback under test. sac is the second widget tenant, on its own upstream center.
+ * The station map is the exception: every tenant but dvac renders it natively, sac included, so the
+ * one center whose alternate-zones KML the e2e mocks serve is on the native side.
  * Kept in step with `__tests__/e2e/mocks/scenarios.json` by __tests__/server/e2eMocks.server.test.ts.
  */
 const nativeProductsByTenant: Record<
   string,
   { forecast: boolean; warning: boolean; dangerMap: boolean; stationMap: boolean }
 > = {
-  snfac: { forecast: true, warning: true, dangerMap: true, stationMap: false },
-  nwac: { forecast: true, warning: true, dangerMap: true, stationMap: false },
+  snfac: { forecast: true, warning: true, dangerMap: true, stationMap: true },
+  nwac: { forecast: true, warning: true, dangerMap: true, stationMap: true },
   sac: { forecast: false, warning: false, dangerMap: false, stationMap: true },
 }
 

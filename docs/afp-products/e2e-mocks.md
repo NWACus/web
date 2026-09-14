@@ -62,7 +62,7 @@ The station map reads SnowObs, which has no v2→v3 migration and so no golden c
 
 ## Rollout state lives in the seed
 
-`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **nwac** render every native product (forecast, warning and danger map), **dvac** and **sac** stay on the widget — except the station map, which **sac** alone renders natively (it is the seeded center with alternate zones) while nwac keeps that widget, so the station-map spec has one tenant on each side too. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
+`src/endpoints/seed/index.ts` fixes Control 1 per tenant: **snfac** and **nwac** render every native product (forecast, warning and danger map), **dvac** and **sac** stay on the widget — except the station map, which every tenant but **dvac** renders natively (sac is the seeded center whose alternate-zones KML the mocks serve), so the station-map spec still has one tenant on each side. Every spec reads that state and none writes it — a test that flipped a shared tenant's flag would race the other workers, and would not reach an already-prerendered page anyway. dvac and nwac are deliberately on opposite sides: they are the same center upstream, so the pair is what shows that Control 1 is per tenant rather than per center. One of the two has to stay on the widget for that to mean anything.
 
 ## Changing a native product page
 
