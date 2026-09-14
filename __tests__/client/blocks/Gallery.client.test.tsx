@@ -23,6 +23,10 @@ jest.mock('../../../src/components/ui/dialog', () => ({
     open ? <div data-testid="dialog">{children}</div> : null,
   DialogContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DialogTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DialogDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DialogClose: ({ children, ...props }: { children: React.ReactNode }) => (
+    <button {...props}>{children}</button>
+  ),
 }))
 
 // Passthrough carousel so lightbox slides render in tests.

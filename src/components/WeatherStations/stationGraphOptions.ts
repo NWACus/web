@@ -273,6 +273,9 @@ export function buildChartOption(
     // Values format per-series; the header date formats here.
     tooltip: {
       trigger: 'axis',
+      // ECharts hard-codes z-index:9999999 on its tooltip div, which floats it over the
+      // site header, nav dropdowns and dialogs. extraCssText lands after that default.
+      extraCssText: 'z-index: 10;',
       axisPointer: {
         label: {
           formatter: (params: { value: unknown }) =>

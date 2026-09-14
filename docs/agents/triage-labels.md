@@ -29,6 +29,17 @@ These are not triage states, but they coexist with them on issues:
 | `tenant:<slug>`     | scoping   | Specific to one avalanche center (e.g. `tenant:nwac`). New slugs created on demand. |
 | `dependencies`      | PR label  | Dependabot dependency-update PRs. Not part of issue triage.               |
 | `javascript`        | PR label  | Dependabot JavaScript PRs. Not part of issue triage.                       |
+| `visual-recap`      | PR label  | Opts a PR in to an interactive visual recap. Nothing runs without it. Not part of issue triage. |
+
+### When to reach for `visual-recap`
+
+The [PR Visual Recap workflow](../../.github/workflows/pr-visual-recap.yml) is opt-in: no recap is generated until this label is on the PR. Add it when the diff is genuinely worth a guided walkthrough — large or multi-file, UI-heavy, or touching database schema, API contracts, permissions/access control, or architecture. `src/collections`, `src/migrations`, `src/access`, `src/globals`, `src/middleware.ts`, `src/payload.config.ts`, and `src/app/api` are the review-critical paths where a recap most often earns its keep.
+
+Skip it — that is, do nothing — for anything that reviews faster in the GitHub diff: small fixes, mechanical sweeps, formatting passes, regenerated types, lockfile bumps, generated migration boilerplate.
+
+Adding the label generates a recap immediately and keeps it refreshed on every later push, plus marks the plan merged when the PR merges. Removing it stops further runs, but leaves an already-published recap marked unmerged.
+
+A recap that fails to generate now fails the workflow rather than quietly posting a "generation failed" comment under a green run. That check is not required, so it never blocks a merge — but it is the signal that the recap plumbing needs attention, most often an expired `PLAN_RECAP_TOKEN` or an organization the Plan app will not publish an org-visible recap for. The gate additionally probes the token before spending ~15 minutes of Opus, which catches the expired-token case early; the organization case only surfaces at publish time.
 
 ## Auto-labeling on arrival
 
