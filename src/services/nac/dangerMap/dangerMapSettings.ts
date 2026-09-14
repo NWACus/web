@@ -24,7 +24,10 @@ export interface DangerMapViewport {
 }
 
 export interface DangerMapSettings {
-  /** Map height in px, clamped to the range the dashboard's input allows. */
+  /**
+   * Map height in px, clamped like the dashboard's input. Inert: both paths render at
+   * `DANGER_MAP_HEIGHT`, for the reason recorded there.
+   */
   height: number
   /** Show the location search box. */
   search: boolean

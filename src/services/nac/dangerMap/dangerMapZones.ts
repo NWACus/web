@@ -20,6 +20,7 @@ import {
   NO_RATING_ADVICE,
   dangerLevelFromRating,
   dangerLevelLabel,
+  dangerName,
   dangerScaleRows,
 } from '../dangerScale'
 import type { ZoneFeature, ZoneProperties } from '../model/mapLayer'
@@ -125,18 +126,18 @@ export interface ZonePopup {
   zoneName: string
   /** The zone's avalanche center, shown only on an all-centers map where zones differ. */
   centerName: string | null
-  offSeason: boolean
+  subject: PopupSubject
   hasWarning: boolean
   dangerLevel: DangerLevel
-  /** Popup title: the season-ended notice, or the zone's rating. */
+  /** Popup title: the season-ended notice, the observations invitation, or the zone's rating. */
   headline: string
   /** Qualifier under the headline; absent off-season, where the headline says it all. */
   subhead: string | null
   publishedText: string | null
   expiresText: string | null
-  /** Travel advice as sanitizable HTML; null off-season or when the center disabled it. */
+  /** Travel advice as sanitizable HTML; null unless the subject is a rating and advice is on. */
   advice: string | null
-  /** Where "open this zone's forecast" goes — an AvyWeb path, or another center's own site. */
+  /** Where opening the zone goes — an AvyWeb forecast or observations page, or another center's site. */
   href: string | null
   /** True when `href` leaves AvyWeb, so callers can open it in a new tab. */
   isExternal: boolean
@@ -147,24 +148,81 @@ export interface ZonePopupSettings {
   allCenters: boolean
   /** This site's avalanche center id, e.g. `NWAC` — decides which zones are our own. */
   centerId: string
+  /** This site's center is an information exchange, so its own zones describe observations. */
+  informationExchange: boolean
+}
+
+const OBSERVATIONS_PATH = '/observations'
+
+function isOwnZone(properties: Pick<ZoneProperties, 'center_id'>, centerId: string): boolean {
+  return properties.center_id === centerId
 }
 
 /**
- * Where a zone's forecast link should point.
+ * Observations mode is per zone, not per map: on an all-centers map a neighboring center's zone
+ * keeps its rating and its forecast link. The widget pivots every zone, which would headline a
+ * rated zone "View Observations" and then open a forecast — a deliberate divergence.
+ */
+function isOwnExchangeZone(properties: ZoneProperties, settings: ZonePopupSettings): boolean {
+  return settings.informationExchange && isOwnZone(properties, settings.centerId)
+}
+
+/**
+ * What the popup is about, in precedence order — off-season outranks everything, as it does for
+ * styling. A *rated* zone keeps its rating even on an exchange: the capability feed and the map
+ * layer can disagree, and when they do the rating is the safety-relevant fact.
+ */
+export type PopupSubject = 'offSeason' | 'observations' | 'unrated' | 'rated'
+
+function popupSubject(
+  properties: ZoneProperties,
+  settings: ZonePopupSettings,
+  dangerLevel: DangerLevel,
+): PopupSubject {
+  if (properties.off_season) return 'offSeason'
+  const unrated = dangerLevel === DangerLevel.None || dangerKey(properties) === 'no rating'
+  if (!unrated) return 'rated'
+  return isOwnExchangeZone(properties, settings) ? 'observations' : 'unrated'
+}
+
+/** The popup's title and its qualifier, as the widget words them for each subject. */
+function popupTitle(
+  subject: PopupSubject,
+  dangerLevel: DangerLevel,
+): Pick<ZonePopup, 'headline' | 'subhead'> {
+  switch (subject) {
+    case 'offSeason':
+      return { headline: 'Forecasts ended for the season', subhead: null }
+    case 'observations':
+      return { headline: 'View Observations', subhead: 'Avalanche Info Exchange' }
+    case 'unrated':
+      return { headline: dangerName(DangerLevel.None), subhead: 'Information Available' }
+    case 'rated':
+      return { headline: dangerLevelLabel(dangerLevel), subhead: 'Avalanche Danger' }
+  }
+}
+
+/**
+ * Where opening a zone should go.
  *
  * Upstream's `link` is always the avalanche center's *own* website, which was right when the
  * widget was embedded there. On AvyWeb that would walk the reader off the site and past the native
  * forecast page, so this center's zones are rewritten to their AvyWeb route. Zones belonging to
  * another center — only reachable on an all-centers map — keep their external link.
+ *
+ * An exchange's own zones go to `/observations` regardless: `link` points at its *external*
+ * observations viewer, and as a zone URL would yield a forecast route for a zone with no forecast.
  */
 function resolveHref(
   properties: ZoneProperties,
-  centerId: string,
-): { href: string | null; isExternal: boolean } {
+  settings: ZonePopupSettings,
+): Pick<ZonePopup, 'href' | 'isExternal'> {
+  if (isOwnExchangeZone(properties, settings)) return { href: OBSERVATIONS_PATH, isExternal: false }
+
   const link = properties.link
   if (!link) return { href: null, isExternal: false }
 
-  if (properties.center_id === centerId) {
+  if (isOwnZone(properties, settings.centerId)) {
     const path = nativeZonePath(link)
     if (path) return { href: path, isExternal: false }
   }
@@ -173,29 +231,29 @@ function resolveHref(
 }
 
 export function zonePopup(properties: ZoneProperties, settings: ZonePopupSettings): ZonePopup {
-  const offSeason = Boolean(properties.off_season)
   const dangerLevel = popupDangerLevel(properties)
-  const unrated = dangerLevel === DangerLevel.None || dangerKey(properties) === 'no rating'
+  const subject = popupSubject(properties, settings, dangerLevel)
+  const offSeason = subject === 'offSeason'
 
   return {
     zoneName: properties.name,
     centerName: settings.allCenters ? (properties.center ?? null) : null,
-    offSeason,
+    subject,
     hasWarning: hasActiveWarning(properties),
     dangerLevel,
-    headline: offSeason
-      ? 'Forecasts ended for the season'
-      : unrated
-        ? 'No Rating'
-        : dangerLevelLabel(dangerLevel),
-    subhead: offSeason ? null : unrated ? 'Information Available' : 'Avalanche Danger',
+    ...popupTitle(subject, dangerLevel),
     // Off-season the window would describe a forecast that ended months ago, so it is suppressed
     // rather than shown stale — the same call the widget makes.
     publishedText: offSeason ? null : formatValidity(properties.start_date, properties.timezone),
     expiresText: offSeason ? null : formatValidity(properties.end_date, properties.timezone),
-    advice: offSeason || !settings.advice ? null : adviceForLevel(dangerLevel),
-    ...resolveHref(properties, settings.centerId),
+    // Travel advice is keyed to a rating, so only a rating subject gets it.
+    advice: describesRating(subject) && settings.advice ? adviceForLevel(dangerLevel) : null,
+    ...resolveHref(properties, settings),
   }
+}
+
+function describesRating(subject: PopupSubject): boolean {
+  return subject === 'rated' || subject === 'unrated'
 }
 
 /**
@@ -239,7 +297,7 @@ export function featuresToFit<T extends { properties: Pick<ZoneProperties, 'cent
   centerId: string,
 ): T[] {
   const features = collection?.features ?? []
-  const own = features.filter((feature) => feature.properties.center_id === centerId)
+  const own = features.filter((feature) => isOwnZone(feature.properties, centerId))
   return own.length > 0 ? own : features
 }
 
