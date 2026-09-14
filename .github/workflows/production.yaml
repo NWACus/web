@@ -37,7 +37,7 @@ jobs:
         env:
           TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Verify release branch is up to date
@@ -48,9 +48,9 @@ jobs:
             exit 1
           fi
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm

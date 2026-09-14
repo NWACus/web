@@ -3,13 +3,21 @@ import { getMediaURL } from '@/utilities/getURL'
 import { getHostnameFromTenant } from '@/utilities/tenancy/getHostnameFromTenant'
 import sharp from 'sharp'
 
+// Some assets carry a WebP mimeType without a .webp filename (or vice versa), so
+// check both — otherwise Satori is handed a WebP it can't render.
+export function isWebpMedia(media: Media): boolean {
+  return (
+    media.mimeType?.toLowerCase() === 'image/webp' ||
+    Boolean(media.filename?.toLowerCase().endsWith('.webp'))
+  )
+}
+
 export async function convertWebpToPng(media: Media, tenant: Tenant): Promise<string> {
   const { url, updatedAt } = media
   const hostname = getHostnameFromTenant(tenant)
   const mediaUrl = getMediaURL(url, updatedAt, hostname)
 
-  // Check if the media is WebP format
-  if (!media.filename?.toLowerCase().endsWith('.webp')) {
+  if (!isWebpMedia(media)) {
     // Return original URL if not WebP
     return mediaUrl
   }

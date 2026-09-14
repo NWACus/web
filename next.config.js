@@ -42,6 +42,10 @@ const nextConfig = {
         hostname: 'payetteavalanche.org',
         protocol: PROTOCOL,
       },
+      {
+        hostname: 'nwac.us',
+        protocol: PROTOCOL,
+      },
     ],
   },
   reactStrictMode: true,

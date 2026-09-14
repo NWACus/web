@@ -19,11 +19,11 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -41,11 +41,11 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -74,11 +74,11 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -119,11 +119,11 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -138,11 +138,11 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -161,13 +161,13 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Need full history for --changed-since origin/main
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -193,11 +193,11 @@ jobs:
       LOCAL_FLAG_ENABLE_LOCAL_PRODUCTION_BUILDS: 'true'
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -222,7 +222,7 @@ jobs:
       - name: 🧪 Run E2E tests
         run: pnpm test:e2e
       - name: 📤 Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
@@ -234,11 +234,11 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -271,13 +271,13 @@ jobs:
       pull-requests: write
     steps:
       - name: 🏗 Setup repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Need full history to compare with base branch
       - name: 🏗 Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24.x
           cache: pnpm
@@ -332,14 +332,14 @@ jobs:
       - name: Find existing migration safety comment
         if: steps.check-migrations.outputs.has_issues == 'true' && github.event_name == 'pull_request'
         id: find-comment
-        uses: peter-evans/find-comment@v2
+        uses: peter-evans/find-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: '### Migration Safety Check'
       - name: Create or update PR comment
         if: steps.check-migrations.outputs.has_issues == 'true' && github.event_name == 'pull_request'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v5
         with:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}

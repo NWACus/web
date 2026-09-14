@@ -3,11 +3,16 @@ import { performLogin } from '../helpers'
 import { authFile } from '../helpers/auth-state'
 import { UserRole } from './test-users'
 
+type LoginOptions = {
+  /** Origin to log in on, e.g. `http://nwac.localhost:3000`. Defaults to the root domain. */
+  origin?: string
+}
+
 type AuthFixtures = {
   /** Login as a specific user role and return the authenticated page */
   loginAs: (role: UserRole) => Promise<Page>
   /** Login with custom credentials */
-  loginWithCredentials: (email: string, password: string) => Promise<Page>
+  loginWithCredentials: (email: string, password: string, options?: LoginOptions) => Promise<Page>
   /** Get a pre-authenticated page for the super admin */
   adminPage: Page
 }
@@ -24,10 +29,14 @@ export const authTest = base.extend<AuthFixtures>({
   },
 
   loginWithCredentials: async ({ browser }, use) => {
-    const login = async (email: string, password: string): Promise<Page> => {
+    const login = async (
+      email: string,
+      password: string,
+      options?: LoginOptions,
+    ): Promise<Page> => {
       const context = await browser.newContext()
       const page = await context.newPage()
-      await performLogin(page, email, password)
+      await performLogin(page, email, password, options)
       return page
     }
     // eslint-disable-next-line react-hooks/rules-of-hooks -- Playwright's `use` is not a React hook

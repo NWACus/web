@@ -14,8 +14,23 @@ export interface GetPostsParams {
   center: string
 }
 
+/** The subset of Post fields `getPosts` selects. */
+export type PostListItem = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'slug'
+  | 'description'
+  | 'featuredImage'
+  | 'publishedAt'
+  | 'showAuthors'
+  | 'showDate'
+  | 'authors'
+  | '_status'
+>
+
 export interface GetPostsResult {
-  posts: Post[]
+  posts: PostListItem[]
   hasMore: boolean
   total: number
   error?: string
@@ -59,6 +74,17 @@ export async function getPosts(params: GetPostsParams): Promise<GetPostsResult> 
       page: limit && offset ? Math.floor(offset / limit) + 1 : undefined,
       sort: sort || '-publishedAt',
       depth: 2,
+      select: {
+        title: true,
+        slug: true,
+        description: true,
+        featuredImage: true,
+        publishedAt: true,
+        showAuthors: true,
+        showDate: true,
+        authors: true,
+        _status: true,
+      },
     })
 
     return {
