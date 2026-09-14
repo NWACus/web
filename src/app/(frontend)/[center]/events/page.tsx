@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import configPromise from '@payload-config'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { getPayload } from 'payload'
@@ -73,6 +74,7 @@ export default async function Page({ params, searchParams }: Args) {
 
   return (
     <FiltersTotalProvider initialTotal={total}>
+      <Breadcrumbs center={center} path="/events" />
       <div className="pt-4">
         <div className="container md:max-xl:max-w-none mb-16 flex flex-col md:flex-row flex-1 gap-6 md:gap-10 lg:gap-16">
           <div className="md:hidden">

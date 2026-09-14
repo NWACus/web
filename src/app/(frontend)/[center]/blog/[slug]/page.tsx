@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next'
 
 import { AuthorAvatar } from '@/components/AuthorAvatar'
@@ -60,38 +61,41 @@ export default async function Post({ params: paramsPromise }: Args) {
   if (!post) return <Redirects center={center} url={url} />
 
   return (
-    <article className="pt-4">
-      <div className="flex flex-col items-center gap-4 py-8">
-        <div className="container">
-          <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
-            <h1 className="font-bold">{post.title}</h1>
-          </div>
-          {(post.showAuthors || post.showDate) && (
-            <div className="max-w-[48rem] mx-auto">
-              <AuthorAvatar
-                authors={post.authors}
-                date={post.publishedAt ?? ''}
-                showAuthors={post.showAuthors}
-                showDate={post.showDate}
-              />
+    <>
+      <Breadcrumbs center={center} path={url} title={post.title} />
+      <article className="pt-4">
+        <div className="flex flex-col items-center gap-4 py-8">
+          <div className="container">
+            <div className="prose dark:prose-invert max-w-[48rem] mx-auto pb-8">
+              <h1 className="font-bold">{post.title}</h1>
             </div>
-          )}
-          <RichText
-            className="prose max-w-[48rem] mx-auto"
-            data={post.content}
-            enableGutter={false}
-          />
+            {(post.showAuthors || post.showDate) && (
+              <div className="max-w-[48rem] mx-auto">
+                <AuthorAvatar
+                  authors={post.authors}
+                  date={post.publishedAt ?? ''}
+                  showAuthors={post.showAuthors}
+                  showDate={post.showDate}
+                />
+              </div>
+            )}
+            <RichText
+              className="prose max-w-[48rem] mx-auto"
+              data={post.content}
+              enableGutter={false}
+            />
+          </div>
         </div>
-      </div>
-      {post.relatedPosts && post.relatedPosts.length > 0 && (
-        <div className="bg-brand-500 p-16">
-          <RelatedPosts
-            className="flex flex-col items-center md:flex-row md:justify-center md:items-stretch gap-4 max-w-[48rem] lg:px-0"
-            docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-          />
-        </div>
-      )}
-    </article>
+        {post.relatedPosts && post.relatedPosts.length > 0 && (
+          <div className="bg-brand-500 p-16">
+            <RelatedPosts
+              className="flex flex-col items-center md:flex-row md:justify-center md:items-stretch gap-4 max-w-[48rem] lg:px-0"
+              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+            />
+          </div>
+        )}
+      </article>
+    </>
   )
 }
 

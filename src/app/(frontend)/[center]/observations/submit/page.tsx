@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import configPromise from '@payload-config'
@@ -43,6 +44,7 @@ export default async function Page({ params }: Args) {
   return (
     <>
       <WidgetRouterHandler initialPath="/form" widgetPageKey="submit-observation" />
+      <Breadcrumbs center={center} path="/observations/submit" />
       <div className="container flex flex-col gap-8">
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center gap-4 prose dark:prose-invert max-w-none">

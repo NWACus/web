@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { PostsList } from '@/components/PostsList'
 import { FiltersTotalProvider } from '@/contexts/FiltersTotalContext'
 import { getPosts } from '@/utilities/queries/getPosts'
@@ -39,6 +40,7 @@ export default async function Page({ params, searchParams }: Args) {
 
   return (
     <FiltersTotalProvider initialTotal={total}>
+      <Breadcrumbs center={center} path="/blog" />
       <div className="pt-4">
         <div className="container md:max-xl:max-w-none mb-16 flex flex-col-reverse md:flex-row flex-1 gap-10 md:gap-16">
           <div className="grow">

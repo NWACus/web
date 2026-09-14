@@ -1,3 +1,7 @@
+// fallow-ignore-file dynamic-segment-name-conflict
+// False positive: Next.js only rejects two *named* dynamic siblings. The sibling
+// `[...segments]` catch-all is legal, and this route wins for single-segment paths.
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next'
 
 import { getCanonicalUrlForSlug } from '@/components/Header/utils'
@@ -80,14 +84,17 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { layout } = page
 
   return (
-    <article className="pt-4">
-      <div className="container mb-4">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">{page.title}</h1>
+    <>
+      <Breadcrumbs center={center} path={url} title={page.title} />
+      <article className="pt-4">
+        <div className="container mb-4">
+          <div className="prose dark:prose-invert max-w-none">
+            <h1 className="font-bold">{page.title}</h1>
+          </div>
         </div>
-      </div>
-      <RenderBlocks blocks={layout} payload={payload} />
-    </article>
+        <RenderBlocks blocks={layout} payload={payload} />
+      </article>
+    </>
   )
 }
 

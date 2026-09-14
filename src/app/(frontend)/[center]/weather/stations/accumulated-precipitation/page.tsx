@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
@@ -22,6 +23,19 @@ type Args = {
   params: Promise<{ center: string }>
 }
 
+function PageHeader() {
+  return (
+    <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
+      <div className="prose dark:prose-invert max-w-none">
+        <h1 className="font-bold">{ROUTE_TITLE}</h1>
+      </div>
+      <div className="flex flex-col items-end">
+        <StationPicker />
+      </div>
+    </div>
+  )
+}
+
 export default async function Page({ params }: Args) {
   const { center } = await params
 
@@ -37,23 +51,19 @@ export default async function Page({ params }: Args) {
   const table = buildPrecipAccumulationTable(response, PRECIP_STATION_STIDS)
 
   return (
-    <div className="mb-10 flex flex-col gap-4">
-      <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">{ROUTE_TITLE}</h1>
-        </div>
-        <div className="flex flex-col items-end">
-          <StationPicker />
+    <>
+      <Breadcrumbs center={center} path={CANONICAL} />
+      <div className="mb-10 flex flex-col gap-4">
+        <PageHeader />
+        <div className="container flex flex-col gap-3">
+          <PrecipAccumulationTable table={table} />
+          <p className="text-sm text-muted-foreground">
+            Data not quality controlled. Accumulated precipitation does not reflect weather station
+            outages or other technical errors.
+          </p>
         </div>
       </div>
-      <div className="container flex flex-col gap-3">
-        <PrecipAccumulationTable table={table} />
-        <p className="text-sm text-muted-foreground">
-          Data not quality controlled. Accumulated precipitation does not reflect weather station
-          outages or other technical errors.
-        </p>
-      </div>
-    </div>
+    </>
   )
 }
 

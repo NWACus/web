@@ -1,10 +1,8 @@
 import { ButtonLink } from '@/components/ButtonLink'
-import NotFoundClient from './not-found.client'
 
 export default function NotFound() {
   return (
     <>
-      <NotFoundClient />
       <div className="container py-28">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-12">
