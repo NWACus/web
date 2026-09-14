@@ -73,10 +73,13 @@ export default async function Page({ params }: Args) {
     <>
       {!useNative && <WidgetRouterHandler initialPath="/" widgetPageKey="weather-stations" />}
       <Breadcrumbs center={center} path="/weather/stations/map" />
-      <div className="flex flex-col gap-4">
-        <div className="container mb-4">
+      <div className="flex flex-col gap-2 sm:gap-4">
+        {/* The map is sized against what's left of the viewport, so the title is the one heading
+            on the site that gives ground on a phone: a full-size one wraps to two lines and
+            pushes the bottom of the forecast area below the fold. */}
+        <div className="container sm:mb-4">
           <div className="prose dark:prose-invert max-w-none">
-            <h1 className="font-bold">Weather Station Map</h1>
+            <h1 className="text-3xl font-bold sm:text-4xl">Weather Station Map</h1>
           </div>
         </div>
         {useNative ? (
