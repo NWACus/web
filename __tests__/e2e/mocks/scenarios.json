@@ -140,7 +140,7 @@
       "warning": true,
       "dangerMap": true,
       "weather": true,
-      "stationMap": false
+      "stationMap": true
     },
     "dvac": {
       "forecast": false,
@@ -154,7 +154,7 @@
       "warning": true,
       "dangerMap": true,
       "weather": false,
-      "stationMap": false
+      "stationMap": true
     },
     "sac": {
       "forecast": false,
