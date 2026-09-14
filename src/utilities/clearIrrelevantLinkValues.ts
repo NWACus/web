@@ -7,8 +7,9 @@ export const clearIrrelevantLinkValues: FieldHook = ({ value }) => {
   const { type } = value
 
   if (type === 'internal') {
-    // Clear external-only fields when switching to internal
-    const { url: _url, newTab: _newTab, ...rest } = value
+    // Clear external-only field when switching to internal.
+    // newTab is cleared by its own field-level hook so array-context links are covered too.
+    const { url: _url, ...rest } = value
     return rest
   }
 
