@@ -27,7 +27,7 @@ export function ProblemMediaFigure({ media, posterSrc, isVideo }: ProblemMediaFi
 
   return (
     <>
-      <figure className="mb-3 md:float-right md:mb-2 md:ml-6 md:w-1/2 lg:w-1/3">
+      <figure className="mb-3 md:float-right md:mb-2 md:ml-6 md:w-1/2 lg:w-1/3 printWide:float-right printWide:mb-2 printWide:ml-6 printWide:w-1/3">
         {/* Clicking the image opens the lightbox, as in the legacy widget. The overlay's button is
             what carries the keyboard affordance and the accessible name. */}
         <div className="relative cursor-zoom-in" onClick={() => setOpen(true)}>
