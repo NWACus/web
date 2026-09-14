@@ -38,6 +38,7 @@ const points: MapPoint[] = [
 function renderFilters(
   filters: Filters = DEFAULT_FILTERS,
   zoneNames = ['Olympics', 'Mt Hood', 'Stevens Pass'],
+  visibleCounts = { stations: 12, webcams: 0 },
 ) {
   const onChange = jest.fn()
   const onReset = jest.fn()
@@ -49,7 +50,7 @@ function renderFilters(
       onReset={onReset}
       variables={variables}
       zoneNames={zoneNames}
-      visibleCount={12}
+      visibleCounts={visibleCounts}
       searchPoints={points}
       onSearchSelect={onSearchSelect}
       tableHref="/weather/stations"
@@ -139,5 +140,29 @@ describe('StationMapFilters', () => {
   it('links to the table view', () => {
     renderFilters()
     expect(screen.getByRole('link', { name: /Table/ })).toHaveAttribute('href', '/weather/stations')
+  })
+})
+
+describe("the filter sheet's apply button", () => {
+  const zones = ['Olympics', 'Mt Hood', 'Stevens Pass']
+
+  function openSheet(visibleCounts: { stations: number; webcams: number }) {
+    renderFilters(DEFAULT_FILTERS, zones, visibleCounts)
+    fireEvent.click(screen.getByRole('button', { name: 'Filters' }))
+  }
+
+  it('counts the stations when only stations are on the map', () => {
+    openSheet({ stations: 12, webcams: 0 })
+    expect(screen.getByRole('button', { name: 'View 12 Stations' })).toBeInTheDocument()
+  })
+
+  it('counts the webcams when the type filter leaves only those', () => {
+    openSheet({ stations: 0, webcams: 4 })
+    expect(screen.getByRole('button', { name: 'View 4 Webcams' })).toBeInTheDocument()
+  })
+
+  it('counts both when both are on the map', () => {
+    openSheet({ stations: 12, webcams: 4 })
+    expect(screen.getByRole('button', { name: 'View 16 Stations & Webcams' })).toBeInTheDocument()
   })
 })

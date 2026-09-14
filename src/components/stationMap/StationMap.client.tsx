@@ -158,7 +158,7 @@ function ConfiguredStationMap({
         onReset={handlers.resetFilters}
         variables={view.variables}
         zoneNames={view.zoneNames}
-        visibleCount={visible.stations.length}
+        visibleCounts={{ stations: visible.stations.length, webcams: visible.webcams.length }}
         searchPoints={visible.points}
         onSearchSelect={searchSelect}
         tableHref={tableHref}

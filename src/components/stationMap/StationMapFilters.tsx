@@ -37,13 +37,29 @@ import {
 } from './FilterOptions'
 import { StationSearch } from './StationSearch'
 
+/** What the map will show once the sheet closes. */
+export interface VisibleCounts {
+  stations: number
+  webcams: number
+}
+
+/**
+ * The sheet's apply button, in the widget's words when only stations are on the map — which is
+ * every center without webcams, and any filter that hides them.
+ */
+function viewLabel({ stations, webcams }: VisibleCounts): string {
+  if (webcams === 0) return `View ${stations} Stations`
+  if (stations === 0) return `View ${webcams} Webcams`
+  return `View ${stations + webcams} Stations & Webcams`
+}
+
 export interface StationMapFiltersProps {
   filters: Filters
   onChange: (patch: Partial<Filters>) => void
   onReset: () => void
   variables: StationMapVariable[]
   zoneNames: string[]
-  visibleCount: number
+  visibleCounts: VisibleCounts
   searchPoints: MapPoint[]
   onSearchSelect: (point: MapPoint) => void
   /** The table view to link to, when this center has one. */
@@ -206,12 +222,12 @@ function MobileFilterSheet({
   groups,
   chips,
   search,
-  visibleCount,
+  visibleCounts,
 }: {
   groups: FilterGroup[]
   chips: ReactNode
   search: (onPicked: () => void) => ReactNode
-  visibleCount: number
+  visibleCounts: VisibleCounts
 }) {
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
@@ -233,7 +249,7 @@ function MobileFilterSheet({
             <div key={group.key}>{group.node}</div>
           ))}
           <Button type="button" onClick={close}>
-            View {visibleCount} Stations
+            {viewLabel(visibleCounts)}
           </Button>
         </div>
       </DialogContent>
@@ -277,7 +293,7 @@ export function StationMapFilters({
   onReset,
   variables,
   zoneNames,
-  visibleCount,
+  visibleCounts,
   searchPoints,
   onSearchSelect,
   tableHref,
@@ -307,7 +323,7 @@ export function StationMapFilters({
         <MobileFilterSheet
           groups={groups}
           chips={chips}
-          visibleCount={visibleCount}
+          visibleCounts={visibleCounts}
           search={sheetSearch}
         />
         {tableHref && <TableLink href={tableHref} />}
