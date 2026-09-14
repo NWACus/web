@@ -4,11 +4,26 @@ import { cn } from '@/utilities/ui'
 
 // `containerClassName` reaches the scroll wrapper, which is what sticky cells
 // resolve against while it scrolls.
+//
+// `scrollRegionLabel` makes the wrapper a focusable region. A table of plain
+// text has nothing tabbable inside, so a wrapper that scrolls vertically can't
+// be reached by keyboard without it (WCAG 2.1.1).
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement> & { containerClassName?: string }
->(({ className, containerClassName, ...props }, ref) => (
-  <div className={cn('relative w-full overflow-auto', containerClassName)}>
+  React.HTMLAttributes<HTMLTableElement> & {
+    containerClassName?: string
+    scrollRegionLabel?: string
+  }
+>(({ className, containerClassName, scrollRegionLabel, ...props }, ref) => (
+  <div
+    className={cn(
+      'relative w-full overflow-auto',
+      scrollRegionLabel &&
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+      containerClassName,
+    )}
+    {...(scrollRegionLabel ? { role: 'region', 'aria-label': scrollRegionLabel, tabIndex: 0 } : {})}
+  >
     <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
   </div>
 ))

@@ -31,6 +31,7 @@ export function StationNowTable({
 
   return (
     <Table
+      scrollRegionLabel="Station observations"
       containerClassName={stationTableContainerClass}
       className="mx-auto w-auto text-xs sm:text-base"
     >
