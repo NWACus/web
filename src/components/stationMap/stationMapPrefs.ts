@@ -76,14 +76,6 @@ export function writeStationMapPrefs(centerSlug: string, patch: StationMapPrefs)
   }
 }
 
-export function clearStationMapPrefs(centerSlug: string): void {
-  try {
-    window.localStorage.removeItem(storageKey(centerSlug))
-  } catch {
-    // Nothing to clear, or nowhere to clear it from.
-  }
-}
-
 // --- The zone filter rides in the URL, so a filtered map can be linked to. ---------------------
 
 const ZONE_PARAM = 'zone'

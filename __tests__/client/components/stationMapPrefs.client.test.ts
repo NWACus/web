@@ -1,5 +1,4 @@
 import {
-  clearStationMapPrefs,
   readStationMapPrefs,
   readZoneParam,
   withZoneParam,
@@ -35,12 +34,6 @@ describe('station map preferences', () => {
     expect(readStationMapPrefs('nwac')).toEqual({})
 
     window.localStorage.setItem('avyweb-station-map-nwac', 'not json')
-    expect(readStationMapPrefs('nwac')).toEqual({})
-  })
-
-  it('clears', () => {
-    writeStationMapPrefs('nwac', { variable: 'air_temp' })
-    clearStationMapPrefs('nwac')
     expect(readStationMapPrefs('nwac')).toEqual({})
   })
 })

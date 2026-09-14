@@ -24,7 +24,6 @@ import type { StationMapData, StationMapZone } from '@/services/snowobs/stationM
 import type { StationMapSettings } from '@/services/snowobs/stationMap/settings'
 
 import {
-  clearStationMapPrefs,
   readStationMapPrefs,
   readZoneParam,
   withZoneParam,
@@ -85,10 +84,12 @@ export function useStationMapFilters(centerSlug: string) {
     [centerSlug],
   )
 
+  // Writing the defaults is the whole reset: `writeStationMapPrefs` merges, so the three persisted
+  // filter fields go back to their defaults and the viewport the reader left the map at — stored
+  // under the same key, and reset by its own control — survives.
   const resetFilters = useCallback(() => {
-    clearStationMapPrefs(centerSlug)
     changeFilters({ ...DEFAULT_FILTERS })
-  }, [centerSlug, changeFilters])
+  }, [changeFilters])
 
   return { filters, changeFilters, resetFilters }
 }
