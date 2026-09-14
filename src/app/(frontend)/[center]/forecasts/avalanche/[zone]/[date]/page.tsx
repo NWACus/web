@@ -1,5 +1,6 @@
 import type { Metadata } from 'next/types'
 
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { NativeForecastView } from '@/components/forecast/NativeForecastView'
 import {
   buildZoneArchiveDates,
@@ -128,21 +129,29 @@ export default async function Page({ params }: Args) {
   const weather = await fetchArchivedWeather(center, forecastResult)
 
   return (
-    <NativeForecastView
-      center={center}
-      zone={resolvedZone}
-      timezone={metadata.timezone}
-      forecastResult={forecastResult}
-      // Historical view: the warning banner reflects current alerts, not point-in-time ones.
-      warning={null}
-      initialDates={initialDates}
-      initialRange={window}
-      currentDate={currentDate}
-      selectedDate={date}
-      basePath={`/forecasts/avalanche/${zone}`}
-      centerType={metadata.type}
-      weather={weather}
-    />
+    <>
+      <Breadcrumbs
+        center={center}
+        path={`/forecasts/avalanche/${zone}/${date}`}
+        // The raw date segment would render as "2026 09 14".
+        title={format(parseISO(date), 'MMMM d, yyyy')}
+      />
+      <NativeForecastView
+        center={center}
+        zone={resolvedZone}
+        timezone={metadata.timezone}
+        forecastResult={forecastResult}
+        // Historical view: the warning banner reflects current alerts, not point-in-time ones.
+        warning={null}
+        initialDates={initialDates}
+        initialRange={window}
+        currentDate={currentDate}
+        selectedDate={date}
+        basePath={`/forecasts/avalanche/${zone}`}
+        centerType={metadata.type}
+        weather={weather}
+      />
+    </>
   )
 }
 
