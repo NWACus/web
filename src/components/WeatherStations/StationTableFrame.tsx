@@ -28,12 +28,14 @@ export function StationTableFrame({
   )
 }
 
+// Sticky lives on the cells: a sticky thead lags behind a fling on iOS. The
+// corner cell stacks above the rest so the other headers slide under it.
 // Collapsed row borders don't move with a stuck header, so cells draw their own.
 export function StationTableHeader({ className, ...props }: ComponentProps<typeof TableHeader>) {
   return (
     <TableHeader
       className={cn(
-        'sticky top-0 z-20 bg-background [&_th]:shadow-[inset_0_-1px_0_var(--border)]',
+        '[&_th]:sticky [&_th]:top-0 [&_th]:z-20 [&_th]:bg-background [&_th]:shadow-[inset_0_-1px_0_var(--border)] [&_th:first-child]:z-30',
         className,
       )}
       {...props}
