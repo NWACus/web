@@ -26,14 +26,15 @@ Each record loosely follows the [ADR format](https://adr.github.io/) (Context, D
 | [015](015-national-course-catalog.md)          | National course catalog                             | 2026-06-16 | accepted                                           |
 | [016](016-per-tenant-globals-as-unique-tenant-collections.md) | Per-tenant "globals" are unique-tenant collections | 2026-06-16 | accepted                          |
 | [017](017-form-embeds-in-page.md)              | Form embeds render in the page                      | 2026-09-01 | accepted                                           |
+| [020](020-center-timezone-is-a-hardcoded-fact.md) | Center timezone is a hardcoded fact; AvyWeb owns AFP-derived values | 2026-09-14 | accepted                          |
 
-> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. New ADRs should continue from `018`.
+> **Note:** there are two ADRs numbered `007` ([dynamic tenant middleware](007-dynamic-tenants-middleware.md) and [persistent environments](007-persistent-envs-and-file-storage.md)). The number was reused by accident; both are kept as-is to preserve their stable filenames and any existing links. `018` and `019` are reserved by the `native-product-pages` branch; new ADRs should continue from `021`.
 
 ## Related reading
 
 These decisions are expanded on in the topic docs:
 
 - RBAC and the hybrid permission model → [004](004-rbac.md), [012](012-non-rbac-access-patterns.md)
-- Tenant resolution → [007](007-dynamic-tenants-middleware.md), [008](008-edge-config-tenant-lookup.md), [013](013-hardcoded-tenant-lookup.md)
+- Tenant resolution → [007](007-dynamic-tenants-middleware.md), [008](008-edge-config-tenant-lookup.md), [013](013-hardcoded-tenant-lookup.md), [020](020-center-timezone-is-a-hardcoded-fact.md)
 - ISR / revalidation → [011](011-incremental-static-regeneration.md) and [`../revalidation.md`](../revalidation.md)
 - Built-in pages & navigation → [009](009-built-in-pages.md), [014](014-built-in-pages-drive-navigation.md)

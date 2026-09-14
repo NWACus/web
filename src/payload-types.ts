@@ -813,13 +813,20 @@ export interface Event {
     | 'America/New_York'
     | 'America/Denver'
     | 'America/Los_Angeles'
+    | 'America/Phoenix'
     | 'America/Anchorage'
     | 'Pacific/Honolulu';
   /**
    * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
   endDate?: string | null;
-  endDate_tz: 'America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu';
+  endDate_tz:
+    | 'America/New_York'
+    | 'America/Denver'
+    | 'America/Los_Angeles'
+    | 'America/Phoenix'
+    | 'America/Anchorage'
+    | 'Pacific/Honolulu';
   location?: {
     /**
      * Check if this is a virtual event
@@ -915,7 +922,14 @@ export interface Event {
    */
   registrationDeadline?: string | null;
   registrationDeadline_tz?:
-    | ('America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu')
+    | (
+        | 'America/New_York'
+        | 'America/Denver'
+        | 'America/Los_Angeles'
+        | 'America/Phoenix'
+        | 'America/Anchorage'
+        | 'Pacific/Honolulu'
+      )
     | null;
   /**
    * Skill level required for this event
@@ -1923,13 +1937,20 @@ export interface Course {
     | 'America/New_York'
     | 'America/Denver'
     | 'America/Los_Angeles'
+    | 'America/Phoenix'
     | 'America/Anchorage'
     | 'Pacific/Honolulu';
   /**
    * Optional end date for multi-day events. Timezone will always be set to the startDate timezone.
    */
   endDate?: string | null;
-  endDate_tz: 'America/New_York' | 'America/Denver' | 'America/Los_Angeles' | 'America/Anchorage' | 'Pacific/Honolulu';
+  endDate_tz:
+    | 'America/New_York'
+    | 'America/Denver'
+    | 'America/Los_Angeles'
+    | 'America/Phoenix'
+    | 'America/Anchorage'
+    | 'Pacific/Honolulu';
   location: {
     placeName: string;
     address?: string | null;
@@ -2002,6 +2023,7 @@ export interface Course {
     | 'America/New_York'
     | 'America/Denver'
     | 'America/Los_Angeles'
+    | 'America/Phoenix'
     | 'America/Anchorage'
     | 'Pacific/Honolulu';
   /**
