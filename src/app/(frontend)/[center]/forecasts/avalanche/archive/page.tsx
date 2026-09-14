@@ -1,6 +1,7 @@
 import type { Metadata, ResolvedMetadata } from 'next/types'
 import { createLoader, type SearchParams } from 'nuqs/server'
 
+import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
 import { ForecastArchiveBrowser } from '@/components/forecast/archive/ForecastArchiveBrowser'
 import { archiveSearchParams } from '@/components/forecast/archive/archiveSearchParams'
@@ -33,13 +34,20 @@ export default async function Page({ params, searchParams }: Args) {
 
   if (useNative) {
     const query = await loadArchiveSearchParams(searchParams)
-    return <ForecastArchiveBrowser centerSlug={center} query={query} />
+    return (
+      <>
+        <Breadcrumbs center={center} path="/forecasts/avalanche/archive" />
+        <ForecastArchiveBrowser centerSlug={center} query={query} />
+      </>
+    )
   }
 
   // Widget fallback, so a link to this address keeps working when a center's flag is flipped back:
   // the legacy widget's archive is a hash route inside its forecast app.
   return (
-    <ForecastWidget center={center} initialPath="/archive/forecast" widgetPageKey="forecast-zone" />
+    <ForecastWidget center={center} initialPath="/archive/forecast" widgetPageKey="forecast-zone">
+      <Breadcrumbs center={center} path="/forecasts/avalanche/archive" />
+    </ForecastWidget>
   )
 }
 
