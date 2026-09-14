@@ -26,6 +26,12 @@ const config = {
       xl: `${breakpoints.xl}px`,
       '2xl': `${breakpoints['2xl']}px`,
       '3xl': `${breakpoints['3xl']}px`,
+      // Printing, on a page wide enough for the multi-column forecast layouts. Browsers lay print
+      // out against the paper box (a US Letter page with our 0.5in margins is ~720px), so this
+      // matches on a phone and a desktop alike — which is the point: the printed forecast should
+      // not depend on the screen it was printed from. It is a `raw` screen and declared last so it
+      // sorts after `lg`, letting `printWide:` utilities override the on-screen breakpoints.
+      printWide: { raw: 'print and (min-width: 700px)' },
     },
     container: {
       center: true,
