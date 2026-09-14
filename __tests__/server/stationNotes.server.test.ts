@@ -64,6 +64,17 @@ describe('activeStationNotes', () => {
     expect(activeStationNotes(response)).toEqual([])
   })
 
+  it('orders notes newest first, undated last', () => {
+    const response = responseWith([
+      station('44', 'Timberline Lodge', [
+        { status: 'active', note: 'Undated.', start_date: null },
+        { status: 'active', note: 'Old.', start_date: '2021-12-01T08:00:00Z' },
+        { status: 'active', note: 'New.', start_date: '2026-02-25T08:00:00Z' },
+      ]),
+    ])
+    expect(activeStationNotes(response).map((n) => n.note)).toEqual(['New.', 'Old.', 'Undated.'])
+  })
+
   it('groups several notes under one station', () => {
     const response = responseWith([
       station('20', 'Mt. Washington', [

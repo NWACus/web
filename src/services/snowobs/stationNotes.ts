@@ -17,8 +17,10 @@ export type StationNote = {
 // site and would read as a standing alarm on every station, every day.
 const ACTIVE_STATUS = 'active'
 
+// Newest first, so the current issue reads before the long-standing one;
+// undated notes keep their SnowObs order at the end.
 export function activeStationNotes(response: SnowObsTimeseriesResponse): StationNote[] {
-  return response.STATION.flatMap((station) =>
+  const notes = response.STATION.flatMap((station) =>
     (station.station_note ?? []).flatMap((note) => {
       const text = note.note?.trim()
       if (!text || note.status !== ACTIVE_STATUS) return []
@@ -32,6 +34,12 @@ export function activeStationNotes(response: SnowObsTimeseriesResponse): Station
       ]
     }),
   )
+  return notes.sort((a, b) => raisedAt(b) - raisedAt(a))
+}
+
+function raisedAt(note: StationNote): number {
+  const ms = note.startDate ? Date.parse(note.startDate) : Number.NaN
+  return Number.isNaN(ms) ? -Infinity : ms
 }
 
 export function activeNotesByStid(response: SnowObsTimeseriesResponse): Map<string, StationNote[]> {
