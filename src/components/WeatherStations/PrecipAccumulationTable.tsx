@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type {
   PrecipAccumulationTable as PrecipAccumulationData,
@@ -17,7 +10,7 @@ import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { stationTableContainerClass, stationTableHeaderClass } from './stationTableLayout'
+import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
 // Totals come from the API in inches, elevation in feet; metric converts on display.
@@ -271,20 +264,19 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
       <div className="flex flex-wrap items-center justify-end gap-3">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
-      <Table
-        scrollRegionLabel="Accumulated precipitation by station"
-        containerClassName={stationTableContainerClass}
+      <StationTableFrame
+        label="Accumulated precipitation by station"
         className="mx-auto w-auto text-base"
       >
-        <TableHeader className={stationTableHeaderClass}>
+        <StationTableHeader>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
-        </TableHeader>
+        </StationTableHeader>
         <TableBody>
           {rows.map((row) => (
             <StationRow key={row.stid} row={row} unit={unit} />
           ))}
         </TableBody>
-      </Table>
+      </StationTableFrame>
     </div>
   )
 }
