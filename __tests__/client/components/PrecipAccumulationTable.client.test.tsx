@@ -114,18 +114,18 @@ describe('PrecipAccumulationTable', () => {
 })
 
 describe('station notes', () => {
-  it('flags a station carrying an active note and spells it out below the table', () => {
+  it('flags a station carrying an active note and links the flag to its page', () => {
     const broken = buildRow({
-      stid: 'T',
+      stid: '44',
       name: 'Timberline',
       notes: ['The precipitation gauge is not recording correctly.'],
     })
     render(<PrecipAccumulationTable table={{ rows: [broken], timezoneLabel: 'PST' }} />)
 
-    expect(screen.getByLabelText('Timberline has a station note')).toBeInTheDocument()
-    expect(
-      screen.getByText('The precipitation gauge is not recording correctly.'),
-    ).toBeInTheDocument()
+    const flag = screen.getByLabelText('Timberline has a station note')
+    expect(flag).toHaveAttribute('href', '/weather/stations/timberline-base')
+    expect(flag).toHaveAttribute('title', 'The precipitation gauge is not recording correctly.')
+    expect(screen.getByText(/have an active station note/)).toBeInTheDocument()
   })
 
   it('leaves unflagged stations unmarked', () => {
@@ -135,5 +135,6 @@ describe('station notes', () => {
       />,
     )
     expect(screen.queryByLabelText(/has a station note/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/have an active station note/)).not.toBeInTheDocument()
   })
 })

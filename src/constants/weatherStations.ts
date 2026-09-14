@@ -637,6 +637,13 @@ export function getStationGroup(slug: string): WeatherStationGroup | undefined {
 }
 
 // Graphs-tab comparison cap; the graph-data route derives its station cap from this.
+// The page a logger belongs to. Archived groups lose to live ones when a
+// station id appears in both.
+export function getStationGroupByStid(stid: string): WeatherStationGroup | undefined {
+  const groups = NWAC_WEATHER_STATION_GROUPS.filter((g) => g.stids.includes(stid))
+  return groups.find((g) => !g.archived) ?? groups[0]
+}
+
 export const MAX_COMPARE_STATIONS = 3
 
 // Every live station with a configured hourly-precip column — the row set for

@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { getStationGroupByStid } from '@/constants/weatherStations'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type {
   PrecipAccumulationTable as PrecipAccumulationData,
@@ -16,6 +17,7 @@ import type {
 import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp, TriangleAlert } from 'lucide-react'
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { UnitToggle } from './UnitToggle'
 
@@ -156,17 +158,10 @@ function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
   return (
     <TableRow className="bg-background even:bg-muted">
       <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
-        {row.name}
-        {row.notes.length > 0 && (
-          <a
-            href={`#station-note-${row.stid}`}
-            className="ml-1 inline-flex align-text-top text-destructive"
-            title={row.notes.join(' ')}
-            aria-label={`${row.name} has a station note`}
-          >
-            <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
-          </a>
-        )}
+        <span className="inline-flex items-center gap-1">
+          {row.name}
+          {row.notes.length > 0 && <StationNoteFlag row={row} />}
+        </span>
       </TableCell>
       <AccumulationCells row={row} unit={unit} />
       <TableCell
@@ -290,28 +285,36 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
           ))}
         </TableBody>
       </Table>
-      <StationNoteFootnotes rows={rows} />
+      <StationNoteLegend rows={rows} />
     </div>
   )
 }
 
-// Why a row's totals look wrong, spelled out under the table: a gauge stuck at
-// flood level reads as real weather until you see the note saying it's broken.
-function StationNoteFootnotes({ rows }: { rows: PrecipAccumulationRow[] }) {
-  const flagged = rows.filter((row) => row.notes.length > 0)
-  if (flagged.length === 0) return null
+// The note itself lives on the station page; the flag gets the reader there.
+function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
+  const group = getStationGroupByStid(row.stid)
+  const props = {
+    className: 'inline-flex text-destructive',
+    title: row.notes.join(' '),
+    'aria-label': `${row.name} has a station note`,
+  }
+  const icon = <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
+  return group ? (
+    <Link href={`/weather/stations/${group.slug}`} {...props}>
+      {icon}
+    </Link>
+  ) : (
+    <span {...props}>{icon}</span>
+  )
+}
 
+function StationNoteLegend({ rows }: { rows: PrecipAccumulationRow[] }) {
+  if (!rows.some((row) => row.notes.length > 0)) return null
   return (
-    <dl className="mt-3 flex flex-col gap-1 text-sm">
-      {flagged.map((row) => (
-        <div key={row.stid} id={`station-note-${row.stid}`} className="flex gap-2">
-          <dt className="flex shrink-0 items-center gap-1 font-medium">
-            <TriangleAlert className="h-3.5 w-3.5 text-destructive" aria-hidden />
-            {row.name}
-          </dt>
-          <dd className="text-muted-foreground">{row.notes.join(' ')}</dd>
-        </div>
-      ))}
-    </dl>
+    <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
+      <TriangleAlert className="h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden />
+      Stations marked with a warning have an active station note. Open the station&apos;s page to
+      read it.
+    </p>
   )
 }
