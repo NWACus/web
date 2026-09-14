@@ -94,10 +94,15 @@ The consequence that surprises people: **NWAC's `platforms.weather` is hard-code
 | `/[center]/forecasts/avalanche`               | SSG + ISR       | 300s       | All-zones grid; asks one freshness address per card                            |
 | `/[center]/forecasts/avalanche/[zone]`        | SSG + ISR       | 300s       | `generateStaticParams` over every zone of every center; `dynamicParams = false` |
 | `/[center]/forecasts/avalanche/[zone]/[date]` | On-demand + ISR | 30 days    | `dynamicParams = true`, no static params, `robots: noindex`                     |
+| `/[center]/forecasts/avalanche/archive`       | Per request     | —          | The filters are the query string; data is one 30-minute `unstable_cache` entry per season |
 
 The current forecast is pre-rendered for every zone, so a request is normally served from a page that already exists — this is where the project's speed benefit comes from. See [ADR 011](../decisions/011-incremental-static-regeneration.md) for the platform's ISR conventions.
 
 Five minutes is a **backstop, not the freshness mechanism**. Historical pages are effectively immutable, hence the 30-day window and no freshness check at all.
+
+The archive browser is the one native forecast surface rendered per request: its filters live in the URL, so a filtered view is a shareable address and cannot be prerendered. Its data is not per-request, though — it reads the same trimmed product list the date picker does (a handful of fields per product, cached 30 minutes under the season's date window), and everything from the URL to the rows is pure functions in `src/services/nac/forecastArchive.ts`. Rows are addressed as zone-days, the same rule the date picker and the dated route use, so a zone-day with two publications shows only the later one where the legacy browser listed both.
+
+The browser reads that list through `fetchProductArchiveOrThrow` rather than `fetchProductArchive`. The two differ only in what a failure becomes, and the browser needs every upstream failure — a bad status, unreadable JSON, or a response the schema rejects — to arrive as a thrown error, because an empty list is an answer ("no products match") and a broken archive is not. Everywhere the archive is a secondary feature, `fetchProductArchive` turns the same failures back into `[]` so the page degrades rather than crashing.
 
 Server rendering is the default and the client bundle is deliberately small. The exceptions are genuinely interactive: the danger map (Mapbox), and the archive calendar, which lazily fetches per-month danger colors from a route handler rather than shipping the full product archive.
 
