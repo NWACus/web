@@ -110,8 +110,8 @@ export const getCachedTopLevelNavItems = (center: string, draft: boolean = false
       const navigation = navigationRes.docs[0]
 
       if (!navigation) {
-        payload.logger.error(`Navigation for tenant ${center} missing`)
-        return { topLevelNavItems: [] }
+        // Returning an empty nav would cache the miss for a year. See getCachedHomePage.
+        throw new Error(`Navigation for tenant "${center}" missing. Refusing to cache the miss.`)
       }
 
       const avalancheCenterPlatforms = await getAvalancheCenterPlatforms(center)

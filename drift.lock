@@ -78,7 +78,7 @@ sig = "1305c6039963f400"
 [[bindings]]
 doc = "CLAUDE.md"
 target = "docs/revalidation.md"
-sig = "7bfcb3404abb1915"
+sig = "8645dd7efc9225d1"
 
 [[bindings]]
 doc = "CLAUDE.md"
@@ -532,6 +532,16 @@ sig = "3bf6823a594d39d3"
 
 [[bindings]]
 doc = "docs/revalidation.md"
+target = "src/app/(frontend)/[center]/(sitemaps)/pages-sitemap.xml/route.ts"
+sig = "57977783926aa724"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/app/(frontend)/[center]/page.tsx"
+sig = "da6c4e6ea3c599cc"
+
+[[bindings]]
+doc = "docs/revalidation.md"
 target = "src/collections/Biographies/hooks/revalidateBiography.ts"
 sig = "b920b03ac8fd82e9"
 
@@ -562,6 +572,16 @@ sig = "409cffc372032d25"
 
 [[bindings]]
 doc = "docs/revalidation.md"
+target = "src/components/Header/Header.tsx"
+sig = "d22b1ef080899d7d"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/components/Header/utils.ts"
+sig = "61fad0d43fefe660"
+
+[[bindings]]
+doc = "docs/revalidation.md"
 target = "src/globals/NACWidgetsConfig/hooks/revalidateWidgetPages.ts"
 sig = "e67c282176cb5fe1"
 
@@ -579,6 +599,11 @@ sig = "4ac8868f8d8d2ba3"
 doc = "docs/revalidation.md"
 target = "src/utilities/findDocumentsWithReferences.ts"
 sig = "8d4561becad4d144"
+
+[[bindings]]
+doc = "docs/revalidation.md"
+target = "src/utilities/getCachedHomePage.ts"
+sig = "3b9b1daf53f8e500"
 
 [[bindings]]
 doc = "docs/revalidation.md"

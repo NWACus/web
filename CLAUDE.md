@@ -395,6 +395,7 @@ const collectionAccess: Access = ({ req: { user } }) => {
 ### Style Preferences
 
 - Only add code comments when necessary - i.e. the code is not easy to understand and needs more thorough explanation
+- **Keep comments short - one or two lines.** Explain why, don't restate what the code does or narrate how the code came to be. If it takes a paragraph, it belongs in `/docs` or the PR description, with a one-line pointer from the code. Prefer a clear name or a well-worded error message over a comment.
 - Always add a code comment for regex expressions or string replacements
 - Never use TypeScript type assertions / casting like `const someVar = val as SomeType`. Write code so that TypeScript can infer the correct type. Type guards can be helpful when you might otherwise use a type assertion.
 - Prefer Payload's logger over `console.log`

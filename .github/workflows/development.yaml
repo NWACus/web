@@ -1,4 +1,9 @@
 name: development
+# Runs destroy and re-clone the shared dev database, so they must never overlap.
+# Cancelling one mid-clone is the failure being prevented, hence cancel-in-progress: false.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
