@@ -64,11 +64,12 @@ test.describe('Native vs widget station map', () => {
 
     // SAC groups stations by its own KML zones rather than its single forecast zone: the filter
     // lists the KML's placemarks and Other, as the widget does.
+    // Role locators skip the hidden drawer's copy of each option; label locators would find both.
     await page.getByRole('button', { name: 'Zone' }).click()
-    await expect(page.getByLabel('Sierra Crest North')).toBeVisible()
-    await expect(page.getByLabel('Carson Range')).toBeVisible()
-    await expect(page.getByLabel('Other')).toBeVisible()
-    await expect(page.getByLabel('Central Sierra Nevada')).toHaveCount(0)
+    await expect(page.getByRole('checkbox', { name: 'Sierra Crest North' })).toBeVisible()
+    await expect(page.getByRole('checkbox', { name: 'Carson Range' })).toBeVisible()
+    await expect(page.getByRole('checkbox', { name: 'Other' })).toBeVisible()
+    await expect(page.getByRole('checkbox', { name: 'Central Sierra Nevada' })).toHaveCount(0)
 
     expect(errors).toEqual([])
   })
@@ -78,7 +79,7 @@ test.describe('Native vs widget station map', () => {
     await page.setViewportSize(PHONE)
     await loadPage(page, `${tenant('sac')}/weather/stations/map`)
 
-    await expect(page.getByRole('button', { name: 'Filters' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Open filters' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Station Labels' })).toBeHidden()
 
     // Nothing pushes the page wider than the phone.

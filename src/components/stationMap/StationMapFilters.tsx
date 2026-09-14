@@ -5,16 +5,16 @@
  *
  * Desktop shows one dropdown per filter in the widget's order — settings (units), marker label,
  * recency, zone, type — then the station search, then the link to the table view. Below `lg` the
- * same groups stack inside a dialog behind a "Filters" button, as the widget's mobile modal does.
- * Active filters show as removable chips under the bar with a reset.
+ * same groups stack inside the bottom drawer the events, blog and courses pages use. Active
+ * filters show as removable chips under the bar with a reset.
  */
-import { ChevronDown, RefreshCw, Settings, SlidersHorizontal, Table2, X } from 'lucide-react'
+import { ChevronDown, RefreshCw, Settings, Table2, X } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 
+import { MobileFiltersDrawer } from '@/components/filters/MobileFiltersDrawer'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   SHOW_ALL_VARIABLE,
@@ -37,20 +37,20 @@ import {
 } from './FilterOptions'
 import { StationSearch } from './StationSearch'
 
-/** What the map will show once the sheet closes. */
+/** What the map will show once the drawer closes. */
 export interface VisibleCounts {
   stations: number
   webcams: number
 }
 
 /**
- * The sheet's apply button, in the widget's words when only stations are on the map — which is
+ * What the drawer's apply button counts: stations alone when only they are on the map — which is
  * every center without webcams, and any filter that hides them.
  */
-function viewLabel({ stations, webcams }: VisibleCounts): string {
-  if (webcams === 0) return `View ${stations} Stations`
-  if (stations === 0) return `View ${webcams} Webcams`
-  return `View ${stations + webcams} Stations & Webcams`
+function visibleLabel({ stations, webcams }: VisibleCounts): string {
+  if (webcams === 0) return 'stations'
+  if (stations === 0) return 'webcams'
+  return 'stations & webcams'
 }
 
 export interface StationMapFiltersProps {
@@ -223,37 +223,35 @@ function MobileFilterSheet({
   chips,
   search,
   visibleCounts,
+  hasActiveFilters,
 }: {
   groups: FilterGroup[]
   chips: ReactNode
   search: (onPicked: () => void) => ReactNode
   visibleCounts: VisibleCounts
+  hasActiveFilters: boolean
 }) {
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="gap-1 lg:hidden">
-          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-          Filters
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto">
-        <DialogTitle>Filters</DialogTitle>
-        <div className="flex flex-col gap-4">
+    <div className="flex-1 lg:hidden">
+      <MobileFiltersDrawer
+        docLabel={visibleLabel(visibleCounts)}
+        docCount={visibleCounts.stations + visibleCounts.webcams}
+        hasActiveFilters={hasActiveFilters}
+        open={open}
+        onOpenChange={setOpen}
+      >
+        <div className="flex flex-col gap-4 py-4">
           {search(close)}
           {chips}
           {groups.map((group) => (
             <div key={group.key}>{group.node}</div>
           ))}
-          <Button type="button" onClick={close}>
-            {viewLabel(visibleCounts)}
-          </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </MobileFiltersDrawer>
+    </div>
   )
 }
 
@@ -278,7 +276,8 @@ function DesktopFilterBar({
 
 function TableLink({ href }: { href: string }) {
   return (
-    <Button asChild variant="outline" size="sm" className="gap-1">
+    // Level with the drawer's trigger below `lg` and with the dropdowns above it.
+    <Button asChild variant="outline" size="sm" className="h-10 gap-1 lg:h-9">
       <Link href={href}>
         <Table2 className="h-4 w-4" aria-hidden="true" />
         Table
@@ -324,6 +323,7 @@ export function StationMapFilters({
           groups={groups}
           chips={chips}
           visibleCounts={visibleCounts}
+          hasActiveFilters={isFilterActive(filters)}
           search={sheetSearch}
         />
         {tableHref && <TableLink href={tableHref} />}
