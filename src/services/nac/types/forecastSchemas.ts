@@ -30,11 +30,10 @@ export enum ProductType {
  *
  * `Published` is load-bearing through `z.nativeEnum(ProductStatus)` on `status` in the product
  * schemas below: zod validates against the member *value*, so dropping it would make zod reject
- * every real product. It is only ever used as a type (`ProductStatus` in the model), never
- * referenced by name as a value, which is why it reads as unused.
+ * every real product. Production code only ever uses it as a type (`ProductStatus` in the model);
+ * it is named as a value in test fixtures, which have to supply a concrete status.
  */
 export enum ProductStatus {
-  // fallow-ignore-next-line unused-enum-member
   Published = 'published',
 }
 
