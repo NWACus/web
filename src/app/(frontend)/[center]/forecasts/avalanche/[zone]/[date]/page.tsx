@@ -135,6 +135,9 @@ export default async function Page({ params }: Args) {
         path={`/forecasts/avalanche/${zone}/${date}`}
         // The raw date segment would render as "2026 09 14".
         title={format(parseISO(date), 'MMMM d, yyyy')}
+        // The zone's real name, not the slug: a derived crumb is lowercase in the DOM and only
+        // looks capitalized through CSS, so assistive tech reads it as the reader never sees it.
+        labels={{ [`/forecasts/avalanche/${zone}`]: resolvedZone.zone.name }}
       />
       <NativeForecastView
         center={center}
