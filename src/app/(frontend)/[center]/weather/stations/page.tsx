@@ -1,55 +1,38 @@
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import type { Metadata, ResolvedMetadata } from 'next/types'
 
-import {
-  NWAC_STATION_REGIONS,
-  NWAC_WEATHER_STATION_GROUPS,
-  STATIONS_TENANT_SLUG,
-  type WeatherStationGroup,
-} from '@/constants/weatherStations'
+import type { StationPage } from '@/services/stations/getStationPages'
+import { getStationPages } from '@/services/stations/getStationPages'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-static'
+// The page list is cached per center and busted by the admin hooks, so this can
+// stay static and still reflect a newly assigned station on the next request.
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{ center: string }>
 }
 
-export async function generateStaticParams() {
-  return [{ center: STATIONS_TENANT_SLUG }]
-}
-
-function StationLink({ group }: { group: WeatherStationGroup }) {
+function StationLink({ page }: { page: StationPage }) {
   return (
     <li>
-      <Link href={`/weather/stations/${group.slug}`} className="text-primary hover:underline">
-        {group.displayName}
+      <Link href={`/weather/stations/${page.slug}`} className="text-primary hover:underline">
+        {page.displayName}
       </Link>
       {/* Listed so legacy links still reach the downloads. */}
-      {group.archived && <span className="ml-1 text-xs text-muted-foreground">Archived</span>}
+      {page.archived && <span className="ml-1 text-xs text-muted-foreground">Archived</span>}
     </li>
   )
 }
 
-function ZoneColumns() {
+function StationColumns({ pages }: { pages: StationPage[] }) {
   return (
-    <div className="columns-1 gap-8 sm:columns-2 lg:columns-3">
-      {NWAC_STATION_REGIONS.map((region) => {
-        const groups = NWAC_WEATHER_STATION_GROUPS.filter((group) => group.region === region)
-        if (groups.length === 0) return null
-        return (
-          <section key={region} className="mb-6 break-inside-avoid">
-            <h3 className="mb-1 font-semibold">{region}</h3>
-            <ul className="leading-snug">
-              {groups.map((group) => (
-                <StationLink key={group.slug} group={group} />
-              ))}
-            </ul>
-          </section>
-        )
-      })}
-    </div>
+    <ul className="columns-1 gap-8 leading-snug sm:columns-2 lg:columns-3">
+      {pages.map((page) => (
+        <StationLink key={page.slug} page={page} />
+      ))}
+    </ul>
   )
 }
 
@@ -94,7 +77,9 @@ function Intro() {
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  if (center !== STATIONS_TENANT_SLUG) {
+  // A center with no station pages has no weather-stations section.
+  const pages = await getStationPages(center)
+  if (pages.length === 0) {
     notFound()
   }
 
@@ -102,7 +87,7 @@ export default async function Page({ params }: Args) {
     <>
       <Breadcrumbs center={center} path="/weather/stations" />
       <div className="mb-10 flex flex-col gap-8">
-        {/* No station picker here — the zone lists below already name every station. */}
+        {/* No station picker here — the list below already names every station. */}
         <Intro />
 
         <section className="container flex flex-col gap-2">
@@ -111,8 +96,8 @@ export default async function Page({ params }: Args) {
         </section>
 
         <section className="container flex flex-col gap-3">
-          <h2 className={sectionHeadingClass}>By zone</h2>
-          <ZoneColumns />
+          <h2 className={sectionHeadingClass}>By station</h2>
+          <StationColumns pages={pages} />
         </section>
       </div>
     </>

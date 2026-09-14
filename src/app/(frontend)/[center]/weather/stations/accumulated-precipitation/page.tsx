@@ -3,9 +3,14 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import { PRECIP_STATION_STIDS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
+import {
+  getStationPages,
+  precipStationIds,
+  toPageSummaries,
+} from '@/services/stations/getStationPages'
 import { notFound } from 'next/navigation'
 
 // Rendered per request (the [center] layout's generateStaticParams otherwise forces
@@ -23,14 +28,14 @@ type Args = {
   params: Promise<{ center: string }>
 }
 
-function PageHeader() {
+function PageHeader({ pages }: { pages: StationPageSummary[] }) {
   return (
     <div className="container flex flex-wrap items-start justify-between gap-3 pb-4">
       <div className="prose dark:prose-invert max-w-none">
         <h1 className="font-bold">{ROUTE_TITLE}</h1>
       </div>
       <div className="flex flex-col items-end">
-        <StationPicker />
+        <StationPicker pages={pages} />
       </div>
     </div>
   )
@@ -39,22 +44,25 @@ function PageHeader() {
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  if (center !== STATIONS_TENANT_SLUG) {
+  const pages = await getStationPages(center)
+  const stids = precipStationIds(pages)
+  if (stids.length === 0) {
     notFound()
   }
 
   // One 72h fetch covers every trailing window (1H..72H are sums over it).
-  const response = await fetchStationTimeseries(PRECIP_STATION_STIDS, {
+  const response = await fetchStationTimeseries(stids, {
     revalidate: REVALIDATE_SECONDS,
     windowHours: 72,
+    source: center,
   })
-  const table = buildPrecipAccumulationTable(response, PRECIP_STATION_STIDS)
+  const table = buildPrecipAccumulationTable(response, stids)
 
   return (
     <>
       <Breadcrumbs center={center} path={CANONICAL} />
       <div className="mb-10 flex flex-col gap-4">
-        <PageHeader />
+        <PageHeader pages={toPageSummaries(pages)} />
         <div className="container flex flex-col gap-3">
           <PrecipAccumulationTable table={table} />
           <p className="text-sm text-muted-foreground">
