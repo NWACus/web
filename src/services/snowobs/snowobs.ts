@@ -60,13 +60,19 @@ function buildTimeseriesUrl(stations: StationRef[], options: FetchOptions, token
   return `${SNOWOBS_API}/station/data/timeseries/?${params.toString()}`
 }
 
-// Best-effort logging: bootstrapping payload must never mask the original error.
-async function logSnowObsError(error: unknown, stids: string[]): Promise<void> {
+// Best-effort logging: bootstrapping payload must never mask the original error. Named by call
+// site, because the three SnowObs reads fail independently — a station-map outage should not read
+// as a station-page one.
+async function logSnowObsError(
+  operation: string,
+  error: unknown,
+  context: Record<string, unknown>,
+): Promise<void> {
   try {
     const payload = await getPayload({ config })
-    payload.logger.error({ err: error, stids }, 'fetchStationTimeseries error')
+    payload.logger.error({ err: error, ...context }, `${operation} error`)
   } catch {
-    console.error('fetchStationTimeseries error (payload logger unavailable)', { stids, error })
+    console.error(`${operation} error (payload logger unavailable)`, { ...context, error })
   }
 }
 
@@ -112,7 +118,7 @@ export async function fetchStationTimeseries(
     const res = await fetch(url, { next: { revalidate } })
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {
-    await logSnowObsError(error, stids)
+    await logSnowObsError('fetchStationTimeseries', error, { stids })
     throw toSnowObsError(error, stids)
   }
 }
@@ -160,7 +166,7 @@ export async function fetchCurrentStationData(
     })
     return snowObsCurrentGeojsonSchema.parse(await checkedJson(res, { centerSlug, units }))
   } catch (error) {
-    await logSnowObsError(error, [])
+    await logSnowObsError('fetchCurrentStationData', error, { centerSlug, units })
     throw error instanceof SnowObsError
       ? error
       : new SnowObsError('Failed to fetch SnowObs current station data', error, { centerSlug })
@@ -177,7 +183,7 @@ export async function fetchWebcams(centerSlug: string): Promise<SnowObsWebcamRes
     })
     return snowObsWebcamResponseSchema.parse(await checkedJson(res, { centerSlug }))
   } catch (error) {
-    await logSnowObsError(error, [])
+    await logSnowObsError('fetchWebcams', error, { centerSlug })
     throw error instanceof SnowObsError
       ? error
       : new SnowObsError('Failed to fetch SnowObs webcams', error, { centerSlug })
