@@ -9,7 +9,6 @@ import {
   SENSOR_LABELS,
   zonedParts,
 } from './constants'
-import { activeNotesFor } from './stationNotes'
 import type { SnowObsObservations, SnowObsTimeseriesResponse } from './types/schemas'
 
 // A [stid, variable] pair from the station registry describing one table column.
@@ -71,6 +70,32 @@ function timezoneLabelFor(iso: string): string {
 }
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
+
+// Station notes as SnowObs serves them, so a reader knows why a number looks wrong.
+export type StationNote = {
+  stid: string
+  stationName: string
+  note: string
+  /** ISO date the note was raised; null when SnowObs didn't record one. */
+  startDate: string | null
+}
+
+// Only `active` notes: `static` ones describe permanent site characteristics
+// and would read as a standing alarm on most stations, every day.
+export function activeNotesFor(station: ResponseStation): StationNote[] {
+  return (station.station_note ?? []).flatMap((note) => {
+    const text = note.note?.trim()
+    if (!text || note.status !== 'active') return []
+    return [
+      {
+        stid: station.stid,
+        stationName: station.name ?? station.stid,
+        note: text,
+        startDate: note.start_date ?? null,
+      },
+    ]
+  })
+}
 
 // Numeric series for a config column; computes cumulative precip on the fly.
 function columnSeries(

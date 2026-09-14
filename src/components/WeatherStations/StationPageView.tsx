@@ -2,8 +2,7 @@ import { StationLatestObservation } from '@/components/WeatherStations/StationLa
 import { StationNotes } from '@/components/WeatherStations/StationNotes'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
 import type { WeatherStationGroup } from '@/constants/weatherStations'
-import type { StationNote } from '@/services/snowobs/stationNotes'
-import type { StationTable } from '@/services/snowobs/tableHelpers'
+import type { StationNote, StationTable } from '@/services/snowobs/tableHelpers'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 

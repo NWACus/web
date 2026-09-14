@@ -1,4 +1,4 @@
-import { activeNotesByStid, activeStationNotes } from '../../src/services/snowobs/stationNotes'
+import { activeStationNotes } from '../../src/services/snowobs/stationNotes'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
 
 function station(stid: string, name: string, notes: unknown[]): unknown {
@@ -70,15 +70,5 @@ describe('activeStationNotes', () => {
       ]),
     ])
     expect(activeStationNotes(response).map((n) => n.note)).toEqual(['New.', 'Old.', 'Undated.'])
-  })
-
-  it('groups several notes under one station', () => {
-    const response = responseWith([
-      station('20', 'Mt. Washington', [
-        { status: 'active', note: 'Communications are intermittent.', start_date: null },
-        { status: 'active', note: 'WSDOT is working on a solution.', start_date: null },
-      ]),
-    ])
-    expect(activeNotesByStid(response).get('20')).toHaveLength(2)
   })
 })

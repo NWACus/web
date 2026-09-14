@@ -1,5 +1,5 @@
 import { NWAC_DISPLAY_TIMEZONE } from '@/services/snowobs/constants'
-import type { StationNote } from '@/services/snowobs/stationNotes'
+import type { StationNote } from '@/services/snowobs/tableHelpers'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
 import { TriangleAlert } from 'lucide-react'
