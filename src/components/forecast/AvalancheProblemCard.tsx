@@ -91,7 +91,7 @@ export function AvalancheProblemCard({ problem }: AvalancheProblemCardProps) {
  */
 function ProblemAttributes({ problem }: { problem: AvalancheProblem }) {
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 printWide:grid-cols-4">
       <div className="flex flex-col items-center gap-2 text-center">
         <h5 className="text-sm font-semibold">Problem Type</h5>
         {/* eslint-disable-next-line @next/next/no-img-element */}
