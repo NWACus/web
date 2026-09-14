@@ -18,6 +18,8 @@ import type {
   StationMapUnits,
   StationMapZone,
 } from '@/services/snowobs/stationMap/model'
+import type { StationMapSettings } from '@/services/snowobs/stationMap/settings'
+import type { Bounds } from '@/utilities/geo/bounds'
 
 export interface MapView {
   center: { lat: number; lng: number }
@@ -102,6 +104,62 @@ function viewOf(map: MapboxMap): MapView {
   return { center: { lat: center.lat, lng: center.lng }, zoom: map.getZoom() }
 }
 
+/** Padding for framing zones, so an outline is never flush with the map's edge. */
+export const ZONE_FIT_PADDING = 20
+
+/**
+ * Tag for a camera move the map made on the reader's behalf — the opening frame, a zone filter,
+ * the reset control. Mapbox merges a camera call's `eventData` into the `moveend` it emits, which
+ * is how `useMapInstance` tells these apart from a pan or a zoom the reader performed.
+ *
+ * Only the reader's own moves are worth remembering. Without this every frame the map computed
+ * would be saved as "where the reader left it", so filtering to one zone once would reopen the
+ * map on that zone for good.
+ */
+export const AUTOMATED_MOVE = { automated: true }
+
+function isAutomatedMove(event: object): boolean {
+  return 'automated' in event && event.automated === true
+}
+
+/** Whether the map, at `zoom`, is big enough to show all of `bounds`. */
+function holdsBounds(map: MapboxMap, bounds: Bounds, zoom: number): boolean {
+  const camera = map.cameraForBounds(bounds, { padding: ZONE_FIT_PADDING })
+  // Nothing frames these bounds at all — no container size yet, or a box wider than the world.
+  // Leave the configured view alone rather than guess at one.
+  if (camera?.zoom === undefined) return true
+  return camera.zoom >= zoom
+}
+
+/**
+ * Go to the center's configured view — where the map opens, and what its reset control returns to
+ * — widened to frame `zoneBounds` when the map is too small to hold them at the configured zoom.
+ *
+ * Forecasters set that viewport in the NAC dashboard against the widget's desktop embed, which is
+ * as wide as the page. The same zoom in a map a third that size leaves most of the forecast area
+ * off screen, so a phone gets a frame of the zones instead. On anything big enough for the
+ * configured view this is exactly the configured view.
+ */
+export function goToOpeningView(
+  map: MapboxMap,
+  settings: StationMapSettings,
+  zoneBounds: Bounds | null,
+  animate: boolean,
+) {
+  if (zoneBounds && !holdsBounds(map, zoneBounds, settings.zoom)) {
+    map.fitBounds(zoneBounds, { padding: ZONE_FIT_PADDING, animate }, AUTOMATED_MOVE)
+    return
+  }
+  map.flyTo(
+    {
+      center: [settings.center.lng, settings.center.lat],
+      zoom: settings.zoom,
+      animate,
+    },
+    AUTOMATED_MOVE,
+  )
+}
+
 /**
  * Build the Mapbox map once, into `containerRef`, and tear it down on unmount.
  *
@@ -155,7 +213,10 @@ export function useMapInstance(
       return
     }
     addControls(instance, resetRef.current, wrapperRef.current)
-    instance.on('moveend', () => onMoveEndRef.current(viewOf(instance)))
+    instance.on('moveend', (event) => {
+      if (isAutomatedMove(event)) return
+      onMoveEndRef.current(viewOf(instance))
+    })
     // Tracked as state rather than asked of the map later: `isStyleLoaded()` also reports false
     // while tiles are merely in flight, and `load` fires only once, so a layer effect that ran at
     // the wrong moment could wait for an event that had already happened.

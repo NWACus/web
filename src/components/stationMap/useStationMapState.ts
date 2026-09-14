@@ -1,9 +1,12 @@
 'use client'
 
 /**
- * The station map's state: the filters (and where they persist), what passes them, the selected
+ * The station map's state: the filters (and where they live), what passes them, the selected
  * point, and the viewport reactions. Kept apart from the Mapbox plumbing in `./useStationMap` and
  * the layout in `StationMap.client.tsx`.
+ *
+ * The filters and the viewport live in the URL (`./stationMapUrl`) so a reader can bookmark or
+ * share what they are looking at; only units is a saved preference (`./stationMapPrefs`).
  */
 import type { Map as MapboxMap } from 'mapbox-gl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -22,19 +25,26 @@ import {
 import { minutesSince } from '@/services/snowobs/stationMap/format'
 import type { StationMapData, StationMapZone } from '@/services/snowobs/stationMap/model'
 import type { StationMapSettings } from '@/services/snowobs/stationMap/settings'
+import { boundsOfGeometries, type Bounds } from '@/utilities/geo/bounds'
 
+import { readUnitsPref, writeUnitsPref } from './stationMapPrefs'
 import {
-  readStationMapPrefs,
-  readZoneParam,
-  withZoneParam,
-  writeStationMapPrefs,
-} from './stationMapPrefs'
-import { useZoneOutline, type MapView } from './useStationMap'
+  dropViewParam,
+  readFilterParams,
+  readViewParam,
+  writeFilterParams,
+  writeViewParam,
+} from './stationMapUrl'
+import {
+  AUTOMATED_MOVE,
+  ZONE_FIT_PADDING,
+  goToOpeningView,
+  useZoneOutline,
+  type MapView,
+} from './useStationMap'
 
 /** Re-derive reading ages this often, so a card left open eventually flags as stale. */
 const AGE_TICK_MS = 60_000
-/** Padding for framing a zone, so its outline isn't flush with the edge. */
-const ZONE_FIT_PADDING = 20
 
 /** What the data looks like before it arrives, so every consumer reads one shape. */
 export const EMPTY_STATION_MAP_DATA: StationMapData = {
@@ -51,26 +61,10 @@ export const EMPTY_STATION_MAP_DATA: StationMapData = {
 
 // --- Filters -------------------------------------------------------------------------------------
 
-/** The reader's saved preferences and the URL, over the defaults. */
+/** What the link asks for, over the defaults, with the reader's own units. */
 function initialFilters(centerSlug: string): Filters {
-  const prefs = readStationMapPrefs(centerSlug)
-  return {
-    ...DEFAULT_FILTERS,
-    variable: prefs.variable ?? DEFAULT_FILTERS.variable,
-    withinMinutes: prefs.withinMinutes ?? DEFAULT_FILTERS.withinMinutes,
-    units: prefs.units ?? DEFAULT_FILTERS.units,
-    zones: readZoneParam(window.location.search),
-  }
-}
-
-/** The widget persists label, recency and units; zone rides in the URL so a filtered map links. */
-function persistFilterPatch(centerSlug: string, patch: Partial<Filters>) {
-  const { variable, withinMinutes, units, zones } = patch
-  writeStationMapPrefs(centerSlug, { variable, withinMinutes, units })
-  if (zones !== undefined) {
-    const { pathname, search } = window.location
-    window.history.replaceState(null, '', `${pathname}${withZoneParam(search, zones)}`)
-  }
+  const units = readUnitsPref(centerSlug) ?? DEFAULT_FILTERS.units
+  return readFilterParams(window.location.search, units)
 }
 
 export function useStationMapFilters(centerSlug: string) {
@@ -78,17 +72,22 @@ export function useStationMapFilters(centerSlug: string) {
 
   const changeFilters = useCallback(
     (patch: Partial<Filters>) => {
-      setFilters((current) => ({ ...current, ...patch }))
-      persistFilterPatch(centerSlug, patch)
+      setFilters((current) => {
+        const next = { ...current, ...patch }
+        writeFilterParams(next)
+        return next
+      })
+      if (patch.units) writeUnitsPref(centerSlug, patch.units)
     },
     [centerSlug],
   )
 
-  // Writing the defaults is the whole reset: `writeStationMapPrefs` merges, so the three persisted
-  // filter fields go back to their defaults and the viewport the reader left the map at — stored
-  // under the same key, and reset by its own control — survives.
+  // Units is held back: it is a preference rather than a filter, it is never one of the chips this
+  // clears, and a reader who chose metric shouldn't lose it by dropping a zone. The viewport is
+  // untouched too — it has its own control on the map.
   const resetFilters = useCallback(() => {
-    changeFilters({ ...DEFAULT_FILTERS })
+    const { units: _units, ...viewFilters } = DEFAULT_FILTERS
+    changeFilters(viewFilters)
   }, [changeFilters])
 
   return { filters, changeFilters, resetFilters }
@@ -158,40 +157,77 @@ export function useMapRefs() {
 }
 
 /**
- * Where the map opens: the viewport the reader last left it at, else the center's configured one.
- * `remember` is the moveend handler that keeps that up to date.
+ * Where the map opens: the viewport a link pinned, else the center's configured one.
+ *
+ * `remember` is the moveend handler that keeps the link up to date, and `pinned` says which of the
+ * two the map got — the configured view is only a starting point until the zones arrive to frame,
+ * while a pinned one is what the reader asked for and is left alone.
  */
-export function useOpeningView(centerSlug: string, settings: StationMapSettings) {
-  const view = useMemo<MapView>(() => {
-    const prefs = readStationMapPrefs(centerSlug)
-    return { center: prefs.center ?? settings.center, zoom: prefs.zoom ?? settings.zoom }
-  }, [centerSlug, settings])
-  const remember = useCallback(
-    (moved: MapView) => writeStationMapPrefs(centerSlug, moved),
-    [centerSlug],
-  )
-  return { view, remember }
+export function useOpeningView(settings: StationMapSettings) {
+  const opening = useMemo(() => {
+    const pinned = readViewParam(window.location.search)
+    return {
+      view: pinned ?? { center: settings.center, zoom: settings.zoom },
+      pinned: pinned !== null,
+    }
+  }, [settings])
+  const remember = useCallback((moved: MapView) => writeViewParam(moved), [])
+  return { ...opening, remember, unpin: dropViewParam }
 }
 
-/** Return to the center's configured opening view — the widget's reset button. */
-function useResetView(map: MapboxMap | null, settings: StationMapSettings) {
+/** What `useZones` needs of the opening view: whether a link pinned it, and how to let go. */
+export interface OpeningView {
+  pinned: boolean
+  unpin: () => void
+}
+
+/**
+ * Return to the map's opening view — the widget's reset button — and drop the viewport from the
+ * link. Leaving it there would put the map back the moment the page was reloaded.
+ */
+function useResetView(
+  map: MapboxMap | null,
+  settings: StationMapSettings,
+  zoneBounds: Bounds | null,
+  unpin: () => void,
+) {
   return useCallback(
     (animate: boolean) => {
-      map?.flyTo({
-        center: [settings.center.lng, settings.center.lat],
-        zoom: settings.zoom,
-        animate,
-      })
+      if (!map) return
+      unpin()
+      goToOpeningView(map, settings, zoneBounds, animate)
     },
-    [map, settings],
+    [map, settings, zoneBounds, unpin],
   )
 }
 
 /**
- * Frame the chosen zones, and return to the configured view when the filter clears — the widget's
+ * Frame the center's zones once they arrive, on a visit whose link pinned no viewport.
+ *
+ * The map is built before the zones are fetched, so the configured view is all it can open at, and
+ * on a phone that view can cut the forecast area in half. A link that named a viewport gets it
+ * exactly, and a `?zone=` link is framed by `useZoneFraming` instead.
+ */
+function useOpeningFrame(
+  map: MapboxMap | null,
+  zoneBounds: Bounds | null,
+  pinned: boolean,
+  chosenNames: string[],
+  resetView: (animate: boolean) => void,
+) {
+  const framedRef = useRef(false)
+  useEffect(() => {
+    if (!map || pinned || framedRef.current || !zoneBounds) return
+    framedRef.current = true
+    if (chosenNames.length === 0) resetView(false)
+  }, [map, zoneBounds, pinned, chosenNames, resetView])
+}
+
+/**
+ * Frame the chosen zones, and return to the opening view when the filter clears — the widget's
  * `panToZone`. Frames whenever there is something to frame (including when the zones first
  * arrive for a `?zone=` link); resets only on a real chosen→none transition, so neither a data
- * refresh nor the map's own mount overrides the viewport the reader left it at.
+ * refresh nor the map's own mount overrides the viewport the link pinned.
  */
 function useZoneFraming(
   map: MapboxMap | null,
@@ -212,7 +248,7 @@ function useZoneFraming(
 /**
  * The widget's `panToZone`: frame the chosen zones, or reset when the choice clears or includes
  * `Other` (which has no outline to frame). Nothing moves until the zones have arrived, so a
- * `?zone=` link waits for its data rather than resetting over the remembered viewport.
+ * `?zone=` link waits for its data rather than resetting over the pinned viewport.
  */
 function frameZones(
   map: MapboxMap,
@@ -222,7 +258,7 @@ function frameZones(
   resetView: (animate: boolean) => void,
 ) {
   const bounds = chosenZoneBounds(zones, chosenNames)
-  if (bounds) map.fitBounds(bounds, { padding: ZONE_FIT_PADDING })
+  if (bounds) map.fitBounds(bounds, { padding: ZONE_FIT_PADDING }, AUTOMATED_MOVE)
   else if (shouldReset(zones, chosenNames, hadChosen)) resetView(false)
 }
 
@@ -243,9 +279,17 @@ export function useZones(
   view: Pick<StationMapData, 'zones' | 'outlines'>,
   chosenNames: string[],
   settings: StationMapSettings,
+  opening: OpeningView,
 ) {
   useZoneOutline(map, styleReady, view.outlines)
-  const resetView = useResetView(map, settings)
+  // The drawn forecast zones, not the grouping zones: those are what a reader means by "the
+  // forecast area", and for a center with alternate zones they are the ones on screen.
+  const zoneBounds = useMemo(
+    () => boundsOfGeometries(view.outlines.map((zone) => zone.geometry)),
+    [view.outlines],
+  )
+  const resetView = useResetView(map, settings, zoneBounds, opening.unpin)
+  useOpeningFrame(map, zoneBounds, opening.pinned, chosenNames, resetView)
   useZoneFraming(map, view.zones, chosenNames, resetView)
   return resetView
 }

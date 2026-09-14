@@ -109,14 +109,14 @@ function ConfiguredStationMap({
   const { data, failed, loading } = useStationMapData(centerSlug, filters.units)
   const view = data ?? EMPTY_STATION_MAP_DATA
 
-  const opening = useOpeningView(centerSlug, settings)
+  const opening = useOpeningView(settings)
   const { map, styleReady, unsupported } = useMapInstance(
     refs,
     token,
     opening.view,
     opening.remember,
   )
-  const resetView = useZones(map, styleReady, view, filters.zones, settings)
+  const resetView = useZones(map, styleReady, view, filters.zones, settings, opening)
 
   const visible = useVisiblePoints(view, filters)
   const selection = useSelection(visible.points)
