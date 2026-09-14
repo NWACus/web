@@ -2,6 +2,8 @@ import { BuiltInPage, Navigation, Page, Tenant } from '@/payload-types'
 import { Payload, RequiredDataFromCollectionSlug } from 'payload'
 import { SeedForecastZone } from './forecast-zones'
 
+// Pre-existing size; this change only adds a nav item.
+// fallow-ignore-next-line complexity
 export const navigationSeed = (
   payload: Payload,
   pages: Record<string, Record<string, Page>>,
@@ -140,6 +142,16 @@ export const navigationSeed = (
             label: 'Weather Stations',
           }),
         },
+        ...(tenant.slug === 'nwac'
+          ? [
+              {
+                link: builtInPageLink({
+                  url: '/weather/stations',
+                  label: 'Weather Data',
+                }),
+              },
+            ]
+          : []),
         {
           link: pageLink({
             slug: 'weather-tools',

@@ -1,6 +1,6 @@
 import { EmbedFrame } from '@/components/EmbedFrame'
 import { BASE_ADD_ATTR } from '@/components/EmbedFrame/policies'
-import type { GenericEmbedBlock as GenericEmbedBlockProps } from 'src/payload-types'
+import type { GenericEmbedBlock as GenericEmbedBlockProps } from '@/payload-types'
 
 type Props = GenericEmbedBlockProps & {
   isLayoutBlock: boolean

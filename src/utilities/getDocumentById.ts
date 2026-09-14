@@ -1,5 +1,5 @@
 'use server'
-import type { Config } from 'src/payload-types'
+import type { Config } from '@/payload-types'
 
 import configPromise from '@payload-config'
 import { DataFromCollectionSlug, getPayload } from 'payload'

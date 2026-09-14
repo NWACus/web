@@ -33,6 +33,7 @@ export const CoursesFilters = ({
         defaultOpen={true}
         titleClassName="text-lg"
       />
+      <ModesOfTravelFilter titleClassName="text-lg" />
       <CheckboxFilter
         title="Course Type"
         urlParam="types"
@@ -41,8 +42,7 @@ export const CoursesFilters = ({
       />
       <ProvidersFilter providers={providers} titleClassName="text-lg" />
       <StatesFilter states={states} titleClassName="text-lg" />
-      <AffinityGroupsFilter titleClassName="text-lg" />
-      <ModesOfTravelFilter showBottomBorder={false} titleClassName="text-lg" />
+      <AffinityGroupsFilter showBottomBorder={false} titleClassName="text-lg" />
     </>
   )
 }

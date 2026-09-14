@@ -28,10 +28,19 @@ export const prefixFilenameWithTenant: BeforeOperationHook = async ({ args, oper
     }
   }
 
-  // Add tenant prefix if we have a slug and the filename doesn't already
-  // start with the prefix or start with the slug (i.e. the file name is the slug)
-  // Avoids file names like 'dvac-dvac-icon.png' and 'dvac-DVAC.webp'
+  // Always prefix with the tenant slug, even when the name already starts with it
+  // (e.g. 'dvac-dvac-icon.png'), so every tenant's files are named consistently.
   if (tenantSlug) {
     req.file.name = `${tenantSlug}-` + req.file.name
+
+    // Admin uploads go straight from the browser to blob storage (clientUploads: true)
+    // under the original filename, and since Payload 3.82 the cloud-storage plugin skips
+    // the server-side upload for any file that still carries clientUploadContext. Left
+    // alone, the renamed document would point at a blob that was never written. Dropping
+    // the context makes the plugin upload req.file.data under the tenant-prefixed name,
+    // which is what happened for every upload before 3.82.
+    if ('clientUploadContext' in req.file) {
+      delete req.file.clientUploadContext
+    }
   }
 }

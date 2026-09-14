@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs live in this repo's GitHub Issues (`NWACus/web`), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), plus the PR-only `visual-recap` label. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `DOMAIN_CONTEXT.md` and `docs/decisions/` at the repo root. See `docs/agents/domain.md`.
+
 ## LLM Documentation References
 
 When working with frameworks in this project, reference the official LLM documentation:
@@ -120,7 +134,7 @@ Use the MCP server tools (`findPosts`, `findPages`, `findTenants`, etc.) when yo
 ### Tech Stack
 
 - **Framework**: Next.js 15.5.9 (App Router)
-- **CMS**: PayloadCMS 3.68.3
+- **CMS**: PayloadCMS 3.88.0
 - **Database**: SQLite locally (WAL mode), Turso (libSQL) in production
 - **Storage**: Vercel Blob
 - **Styling**: Tailwind CSS with Radix UI components
@@ -188,7 +202,22 @@ Read these docs for detailed guidance on specific topics:
 - **`/docs/revalidation.md`** - ISR and cache invalidation strategy
 - **`/docs/migration-safety.md`** - Automated checks for destructive migrations
 - **`/docs/onboarding.md`** - Checklist for new tenant setup
-- **`/docs/decisions/`** - Architectural decision records
+- **`/docs/troubleshooting.md`** - Common local-dev failures and fixes
+- **`/docs/error-tracking.md`** - Sentry + PostHog setup and wiring
+- **`/docs/fallow.md`** - Dead-code/code-health tooling: commands, `audit` vs full scan, baselines
+- **`/docs/doc-drift.md`** - How docs stay bound to code via drift, and how to clear a stale-doc flag
+- **`/docs/decisions/`** - Architectural decision records (see [`/docs/decisions/README.md`](docs/decisions/README.md) for the index)
+
+## Doc Drift
+
+Docs are bound to the code they describe via `drift.lock`. When bound code changes, drift flags the doc as stale so it gets reviewed. This runs in pre-commit (and should be wired into CI). For a human-readable explainer, see [`/docs/doc-drift.md`](docs/doc-drift.md).
+
+- When you **change code** that a doc describes: update the doc, then run `drift link <doc-path> <changed-file> --doc-is-still-accurate`
+- When you **create new code** covered by an existing doc: `drift link <doc-path> <new-file>`
+- When you **create a new doc**: link it to the code it references with `drift link`
+- When you **delete or rename code**: `drift unlink` the old path, `drift link` the new one
+- Run `drift refs <file>` to find which docs reference a file
+- **To verify all docs are current, run `pnpm drift:check` — never raw `drift check`.** The `pnpm` script wraps drift (via `scripts/drift-check.mjs`) to exclude vendored Claude skill bundles under `.agents/skills/` and `.claude/skills/`, whose internal cross-links otherwise show up as false-positive broken links. Pre-commit and CI use the wrapper.
 
 ## Development Environment
 
@@ -459,6 +488,7 @@ When asked to write a PR description, follow the template in `.github/PULL_REQUE
 3. Reference the issue number (e.g., "Fixes #123")
 4. Describe what was changed and why
 5. Note any decisions made or alternatives considered
+6. Add the `visual-recap` label if an interactive recap would genuinely help review — a large or multi-file diff, UI-heavy work, or changes to schema, API contracts, access control, or architecture. Recaps are opt-in and cost a full Opus run, so leave the label off for anything that reviews faster in the GitHub diff, including mechanical sweeps over sensitive paths — see [`/docs/agents/triage-labels.md`](docs/agents/triage-labels.md).
 
 ### Quality Checklist
 
@@ -469,4 +499,5 @@ Before marking work complete, verify:
 - [ ] No TypeScript errors (`pnpm tsc`)
 - [ ] No lint errors (`pnpm lint`)
 - [ ] Tests pass if applicable (`pnpm test`)
+- [ ] No new dead code or duplication introduced (`pnpm fallow:audit`, and `pnpm fallow:check` for whole-repo regression — see [`/docs/fallow.md`](docs/fallow.md))
 - [ ] No unrelated changes included

@@ -117,7 +117,12 @@ export default async function RootLayout({ children }: Args) {
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(lato.variable)} lang="en" suppressHydrationWarning>
+    // Anchor targets need to clear the sticky mobile header, which only exists below lg.
+    <html
+      className={cn(lato.variable, 'scroll-pt-16 lg:scroll-pt-0')}
+      lang="en"
+      suppressHydrationWarning
+    >
       <body>
         <PostHogProvider>
           <NuqsAdapter>

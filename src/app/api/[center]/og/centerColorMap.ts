@@ -17,6 +17,10 @@ export const centerColorMap = {
     header: 'hsl(0 0% 100%)',
     headerForeground: 'hsl(240 10% 3.9%)',
   },
+  pac: {
+    header: 'hsl(199 70% 16%)',
+    headerForeground: 'hsl(193 45% 77%)',
+  },
   default: {
     header: 'hsl(0 0% 100%)',
     headerForeground: 'hsl(240 10% 3.9%)',

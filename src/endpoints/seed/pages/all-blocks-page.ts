@@ -6,6 +6,7 @@ import { contentWithCallout } from '../blocks/content-with-callout'
 import { eventListBlock } from '../blocks/event-list'
 import { formBlock } from '../blocks/form'
 import { formEmbed } from '../blocks/form-embed'
+import { galleryBlock } from '../blocks/gallery'
 import { genericEmbed } from '../blocks/generic-embed'
 import { headerBlock } from '../blocks/header'
 import { imageLinkGrid } from '../blocks/image-link-grid'
@@ -28,6 +29,7 @@ type AllBlocksPageArgs = {
   contactForm: Form
   teams: Team[]
   sponsor: Sponsor
+  galleryId: number
 }
 
 const sectionLabel = (text: string): RequiredDataFromCollectionSlug<'pages'>['layout'][0] => ({
@@ -45,6 +47,7 @@ export const allBlocksPage = ({
   contactForm,
   teams,
   sponsor,
+  galleryId,
 }: AllBlocksPageArgs): RequiredDataFromCollectionSlug<'pages'> => {
   return {
     slug: 'blocks',
@@ -136,6 +139,8 @@ export const allBlocksPage = ({
         blockType: 'eventTable',
         backgroundColor: 'transparent',
       },
+      sectionLabel('Gallery'),
+      galleryBlock(galleryId),
       sectionLabel('Form Block'),
       formBlock(contactForm),
       sectionLabel('Sponsors Block'),

@@ -1,6 +1,6 @@
 import { EmbedFrame } from '@/components/EmbedFrame'
 import { BASE_ADD_ATTR } from '@/components/EmbedFrame/policies'
-import type { VideoEmbedBlock as VideoEmbedBlockProps } from 'src/payload-types'
+import type { VideoEmbedBlock as VideoEmbedBlockProps } from '@/payload-types'
 
 type Props = VideoEmbedBlockProps & {
   isLayoutBlock: boolean

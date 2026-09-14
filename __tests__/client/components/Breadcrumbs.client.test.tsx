@@ -10,10 +10,16 @@ jest.mock('next/navigation', () => ({
   useSelectedLayoutSegments: jest.fn(),
 }))
 
+let mockTenantSlug: string | null = null
+jest.mock('../../../src/providers/TenantProvider', () => ({
+  useTenant: () => ({ tenant: mockTenantSlug ? { slug: mockTenantSlug } : null }),
+}))
+
 const mockUseSelectedLayoutSegments = jest.mocked(useSelectedLayoutSegments)
 
 describe('Breadcrumbs', () => {
   afterEach(() => {
+    mockTenantSlug = null
     jest.clearAllMocks()
   })
 
@@ -40,11 +46,25 @@ describe('Breadcrumbs', () => {
     )
     // Home is always clickable
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/')
-    // weather and stations are in knownPathsWithoutPages, so not clickable
+    // weather is in knownPathsWithoutPages, so not clickable
     expect(screen.getByText('weather')).not.toHaveAttribute('href')
+    // stations only has an index page on NWAC, so not clickable here
     expect(screen.getByText('stations')).not.toHaveAttribute('href')
     // map is the last segment, not clickable
     expect(screen.getByText('map')).not.toHaveAttribute('href')
+  })
+
+  it('links the stations crumb on NWAC, which has a stations index page', () => {
+    mockTenantSlug = 'nwac'
+    mockUseSelectedLayoutSegments.mockReturnValue(['weather', 'stations', 'map'])
+    render(
+      <BreadcrumbProvider>
+        <NotFoundProvider>
+          <Breadcrumbs />
+        </NotFoundProvider>
+      </BreadcrumbProvider>,
+    )
+    expect(screen.getByText('stations').closest('a')).toHaveAttribute('href', '/weather/stations')
   })
 
   it('renders breadcrumbs for a catch-all segment (single string with slashes)', () => {

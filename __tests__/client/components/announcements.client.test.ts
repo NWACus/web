@@ -1,5 +1,10 @@
-import { matchesPage, shouldShow } from '@/components/Announcements/announcementUtils'
+import {
+  matchesDevice,
+  matchesPage,
+  shouldShow,
+} from '@/components/Announcements/announcementUtils'
 import { isExpired } from '@/components/Announcements/isExpired'
+import { scrollAnnouncementsIntoView } from '@/components/Announcements/scrollAnnouncementsIntoView'
 import type { Announcement } from '@/payload-types'
 
 function makeAnnouncement(overrides: Partial<Announcement> = {}): Announcement {
@@ -56,6 +61,72 @@ describe('matchesPage', () => {
   })
 })
 
+describe('matchesDevice', () => {
+  const originalWidth = window.innerWidth
+
+  function setViewportWidth(width: number) {
+    Object.defineProperty(window, 'innerWidth', {
+      value: width,
+      writable: true,
+      configurable: true,
+    })
+  }
+
+  afterEach(() => {
+    setViewportWidth(originalWidth)
+  })
+
+  // 1024px is the shared mobile breakpoint: widths below it are mobile.
+  const MOBILE_WIDTH = 375
+  const DESKTOP_WIDTH = 1280
+
+  it('matches every device when target is all', () => {
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice('all')).toBe(true)
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice('all')).toBe(true)
+  })
+
+  it('matches every device when target is unset (legacy rows)', () => {
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice(null)).toBe(true)
+    expect(matchesDevice(undefined)).toBe(true)
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice(null)).toBe(true)
+    expect(matchesDevice(undefined)).toBe(true)
+  })
+
+  it('shows mobile_only only on mobile viewports', () => {
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice('mobile_only')).toBe(true)
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice('mobile_only')).toBe(false)
+  })
+
+  it('shows desktop_only only on desktop viewports', () => {
+    setViewportWidth(DESKTOP_WIDTH)
+    expect(matchesDevice('desktop_only')).toBe(true)
+    setViewportWidth(MOBILE_WIDTH)
+    expect(matchesDevice('desktop_only')).toBe(false)
+  })
+
+  it('counts a tablet-width viewport as mobile, matching the layout it renders', () => {
+    setViewportWidth(900)
+    expect(matchesDevice('mobile_only')).toBe(true)
+    expect(matchesDevice('desktop_only')).toBe(false)
+  })
+
+  it('treats the 1024px breakpoint as desktop (not mobile)', () => {
+    setViewportWidth(1024)
+    expect(matchesDevice('desktop_only')).toBe(true)
+    expect(matchesDevice('mobile_only')).toBe(false)
+
+    setViewportWidth(1023)
+    expect(matchesDevice('mobile_only')).toBe(true)
+    expect(matchesDevice('desktop_only')).toBe(false)
+  })
+})
+
 describe('shouldShow', () => {
   it('always returns true when frequency is every_session', () => {
     const popup = makeAnnouncement({ displayFrequency: 'every_session' })
@@ -101,5 +172,53 @@ describe('shouldShow', () => {
     expect(shouldShow(popup, 1)).toBe(false)
     expect(shouldShow(popup, 2)).toBe(false)
     expect(shouldShow(popup, 3)).toBe(true)
+  })
+})
+
+describe('scrollAnnouncementsIntoView', () => {
+  const scrollTo = jest.fn()
+  let reducedMotion = false
+
+  beforeEach(() => {
+    scrollTo.mockClear()
+    reducedMotion = false
+
+    Object.defineProperty(window, 'scrollTo', { value: scrollTo, writable: true })
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: query.includes('prefers-reduced-motion') && reducedMotion,
+        media: query,
+      }),
+    })
+  })
+
+  function setScrollY(value: number) {
+    Object.defineProperty(window, 'scrollY', { value, writable: true })
+  }
+
+  it('does nothing when the page is already at the top', () => {
+    setScrollY(0)
+
+    scrollAnnouncementsIntoView()
+
+    expect(scrollTo).not.toHaveBeenCalled()
+  })
+
+  it('scrolls back to the banners when the page is scrolled away from them', () => {
+    setScrollY(1200)
+
+    scrollAnnouncementsIntoView()
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
+  })
+
+  it('jumps without animating when the reader prefers reduced motion', () => {
+    setScrollY(1200)
+    reducedMotion = true
+
+    scrollAnnouncementsIntoView()
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' })
   })
 })

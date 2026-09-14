@@ -16,6 +16,8 @@ const baseClass = 'admin-bar'
 
 const Title = () => <span>AvyFx Admin Panel</span>
 
+const ADMIN_BAR_HEIGHT = 36
+
 export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   const { adminBarProps } = props || {}
   const [show, setShow] = useState(false)
@@ -24,6 +26,17 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
   const onAuthChange = React.useCallback((user: PayloadMeUser) => {
     setShow(!!user?.id)
   }, [])
+
+  // The sticky mobile header reads this to park itself below the admin bar instead of under it.
+  React.useEffect(() => {
+    const root = document.documentElement
+
+    root.style.setProperty('--admin-bar-height', show ? `${ADMIN_BAR_HEIGHT}px` : '0px')
+
+    return () => {
+      root.style.removeProperty('--admin-bar-height')
+    }
+  }, [show])
 
   const pathname = usePathname()
   const { tenant } = useTenant()
@@ -69,12 +82,13 @@ export const AdminBar = (props: { adminBarProps?: PayloadAdminBarProps }) => {
           />
         </div>
       </div>
-      {/* content padding for mobile nav */}
+      {/* content padding since the admin bar is position: fixed */}
       <div
-        className={cn('h-[36px] bg-background', {
+        className={cn('bg-background', {
           block: show,
           hidden: !show,
         })}
+        style={{ height: ADMIN_BAR_HEIGHT }}
       />
     </>
   )

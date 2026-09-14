@@ -73,6 +73,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     media: Media;
+    galleries: Gallery;
     documents: Document;
     announcements: Announcement;
     sponsors: Sponsor;
@@ -125,6 +126,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    galleries: GalleriesSelect<false> | GalleriesSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     sponsors: SponsorsSelect<false> | SponsorsSelect<true>;
@@ -288,6 +290,7 @@ export interface HomePage {
     | EventTableBlock
     | FormBlock
     | FormEmbedBlock
+    | GalleryBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -396,6 +399,7 @@ export interface Page {
     | EventTableBlock
     | FormBlock
     | FormEmbedBlock
+    | GalleryBlock
     | GenericEmbedBlock
     | HeaderBlock
     | ImageLinkGridBlock
@@ -801,7 +805,7 @@ export interface Event {
    */
   subtitle?: string | null;
   /**
-   * Short description/summary for event previews
+   * Short description/summary for event previews.
    */
   description?: string | null;
   startDate: string;
@@ -1184,9 +1188,6 @@ export interface Form {
       )[]
     | null;
   submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
   confirmationType?: ('message' | 'redirect') | null;
   confirmationMessage?: {
     root: {
@@ -1206,9 +1207,6 @@ export interface Form {
   redirect?: {
     url: string;
   };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
   emails?:
     | {
         emailTo?: string | null;
@@ -1217,9 +1215,6 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
         message?: {
           root: {
             type: string;
@@ -1248,7 +1243,7 @@ export interface Form {
  */
 export interface FormEmbedBlock {
   /**
-   * For donation and form widgets that ship their own scripts (DonorBox, Classy, Eventbrite, etc.). Paste the provider embed code, including any <script> tags. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
+   * For donation and form widgets that ship their own scripts (DonorBox, Classy/GoFundMe, Eventbrite, etc.). Paste the provider embed code, including any <script> tags. This code runs in the page itself so that checkout flows and their pop-over payment forms work, so only paste code from a provider you trust. Helpful tip: <iframe> tags should have hardcoded height and width. You can use relative (100%) or pixel values (600px) for width. You must use pixel values for height.
    */
   html: string;
   backgroundColor: string;
@@ -1256,6 +1251,89 @@ export interface FormEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'formEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  gallery: number | Gallery;
+  layout: 'grid' | 'masonry';
+  columns: '2' | '3' | '4';
+  /**
+   * Optional rich text shown above the gallery. Supports links.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "galleries".
+ */
+export interface Gallery {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * A name to identify this gallery in the admin. Not shown on the page.
+   */
+  title: string;
+  /**
+   * Photos, uploaded videos, and hosted videos (YouTube, Vimeo) shown in the gallery grid.
+   */
+  items?:
+    | {
+        type: 'upload' | 'video';
+        media?: (number | null) | Media;
+        /**
+         * A YouTube or Vimeo URL, e.g. https://www.youtube.com/watch?v=… or https://vimeo.com/…
+         */
+        videoUrl?: string | null;
+        /**
+         * Describes the video for screen readers. Important for accessibility.
+         */
+        videoTitle?: string | null;
+        /**
+         * Optional. Shown beneath the item in the full-screen view.
+         */
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  contentHash?: string | null;
+  documentReferences?:
+    | {
+        collection?: string | null;
+        docId?: number | null;
+        instances?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1647,6 +1725,9 @@ export interface Announcement {
    */
   displayInterval?: number | null;
   pageScope?: ('all_pages' | 'homepage_only') | null;
+  /**
+   * Which devices this announcement is shown on. Mobile covers phones and tablets, matching the narrow layout of the site.
+   */
   deviceTarget?: ('all' | 'mobile_only' | 'desktop_only') | null;
   startDate?: string | null;
   endDate?: string | null;
@@ -1804,7 +1885,19 @@ export interface Provider {
   /**
    * These are the course types this provider is approved to create.
    */
-  courseTypes: ('rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external')[];
+  courseTypes: (
+    | 'rec-1'
+    | 'rec-2'
+    | 'pro-1'
+    | 'pro-2'
+    | 'rescue'
+    | 'awareness-external'
+    | 'intro-to-avalanches-field-course'
+    | 'level-1-rescue-combined'
+    | 'level-2-rescue-combined'
+    | 'pro-rescue'
+    | 'pro-avsar'
+  )[];
   contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1915,7 +2008,18 @@ export interface Course {
    * Auto-generated from title. Must be unique; lowercase letters, numbers, and hyphens only.
    */
   slug: string;
-  courseType: 'rec-1' | 'rec-2' | 'pro-1' | 'pro-2' | 'rescue' | 'awareness-external';
+  courseType:
+    | 'rec-1'
+    | 'rec-2'
+    | 'pro-1'
+    | 'pro-2'
+    | 'rescue'
+    | 'awareness-external'
+    | 'intro-to-avalanches-field-course'
+    | 'level-1-rescue-combined'
+    | 'level-2-rescue-combined'
+    | 'pro-rescue'
+    | 'pro-avsar';
   modeOfTravel?: ('ski' | 'splitboard' | 'motorized' | 'snowshoe')[] | null;
   affinityGroups?: ('lgbtq' | 'women' | 'youth')[] | null;
   provider?: (number | null) | Provider;
@@ -3164,6 +3268,10 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'galleries';
+        value: number | Gallery;
+      } | null)
+    | ({
         relationTo: 'documents';
         value: number | Document;
       } | null)
@@ -3346,6 +3454,7 @@ export interface HomePagesSelect<T extends boolean = true> {
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         formEmbed?: T | FormEmbedBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
@@ -3491,6 +3600,18 @@ export interface FormEmbedBlockSelect<T extends boolean = true> {
   html?: T;
   backgroundColor?: T;
   alignContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  gallery?: T;
+  layout?: T;
+  columns?: T;
+  description?: T;
   id?: T;
   blockName?: T;
 }
@@ -3682,6 +3803,7 @@ export interface PagesSelect<T extends boolean = true> {
         eventTable?: T | EventTableBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         formEmbed?: T | FormEmbedBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
         genericEmbed?: T | GenericEmbedBlockSelect<T>;
         headerBlock?: T | HeaderBlockSelect<T>;
         imageLinkGrid?: T | ImageLinkGridBlockSelect<T>;
@@ -3788,6 +3910,35 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "galleries_select".
+ */
+export interface GalleriesSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        type?: T;
+        media?: T;
+        videoUrl?: T;
+        videoTitle?: T;
+        caption?: T;
+        id?: T;
+      };
+  contentHash?: T;
+  documentReferences?:
+    | T
+    | {
+        collection?: T;
+        docId?: T;
+        instances?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

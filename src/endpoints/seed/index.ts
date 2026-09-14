@@ -23,6 +23,7 @@ import { contactForm as contactFormData } from './contact-form'
 import { seedCourses } from './courses'
 import { getEventsData } from './events'
 import { forecastZonesByTenant } from './forecast-zones'
+import { getGalleriesData } from './galleries'
 import { homePage } from './home-page'
 import { image1 } from './image-1'
 import { image2 } from './image-2'
@@ -41,6 +42,7 @@ const collections: CollectionSlug[] = [
   'announcements',
   'settings',
   'biographies',
+  'galleries',
   'homePages',
   'sponsors',
   'media',
@@ -63,7 +65,7 @@ const collections: CollectionSlug[] = [
 ]
 const defaultNacWidgetsConfig = {
   requiredFields: {
-    version: '20251207',
+    version: '20260527',
     baseUrl: 'https://du6amfiq9m9h7.cloudfront.net/public/v2',
     devMode: false,
   },
@@ -254,6 +256,7 @@ export const seed = async ({
               'settings',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -285,6 +288,7 @@ export const seed = async ({
               'tags',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -310,6 +314,7 @@ export const seed = async ({
               'tags',
               'media',
               'biographies',
+              'galleries',
               'teams',
               'forms',
               'formSubmissions',
@@ -976,6 +981,8 @@ export const seed = async ({
       tenantsById,
       (obj) => obj.url,
       Object.values(tenants)
+        // Pre-existing size; this change only adds a built-in page.
+        // fallow-ignore-next-line complexity
         .map((tenant): RequiredDataFromCollectionSlug<'builtInPages'>[] => {
           const zones = forecastZonesByTenant[tenant.slug] ?? []
           const zonePages =
@@ -990,6 +997,9 @@ export const seed = async ({
           return [
             ...zonePages,
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
+            ...(tenant.slug === 'nwac'
+              ? [builtInPage(tenant, 'Weather Data', '/weather/stations')]
+              : []),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
             builtInPage(tenant, 'Blog', '/blog'),
@@ -1021,6 +1031,25 @@ export const seed = async ({
       ...getAnnouncementsData(tenants['nwac']),
     ])
 
+    payload.logger.info(`— Seeding galleries...`)
+    const galleries = await upsert(
+      'galleries',
+      payload,
+      incremental,
+      tenantsById,
+      (obj) => obj.title,
+      Object.values(tenants)
+        .map((tenant): RequiredDataFromCollectionSlug<'galleries'>[] =>
+          getGalleriesData(
+            tenant,
+            images[tenant.slug]['image1'],
+            images[tenant.slug]['image2'],
+            images[tenant.slug]['imageMountain'],
+          ),
+        )
+        .flat(),
+    )
+
     const pages = await upsert(
       'pages',
       payload,
@@ -1038,6 +1067,7 @@ export const seed = async ({
             contactForm: contactForms[tenant.name],
             teams: teams[tenant.slug] || [],
             sponsor: seededSponsors[tenant.slug]['sponsors'],
+            galleryId: galleries[tenant.slug]['Season Highlights'].id,
           }),
           lexicalBlocksPage({
             tenant,

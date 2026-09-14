@@ -136,7 +136,7 @@ Changes needed:
 
 - Ensure `@claude` is in the issue body or comment (not just the title)
 - Check that the GitHub Action workflow ran (look in the Actions tab)
-- The repo must have `ANTHROPIC_API_KEY` configured in secrets
+- The repo must have `CLAUDE_CODE_OAUTH_TOKEN` configured in secrets
 
 ### Claude made incorrect changes
 
