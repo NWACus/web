@@ -9,6 +9,7 @@ import {
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
+import { stationTableContainerClass, stationTableHeaderClass } from './stationTableLayout'
 import { formatStationValue } from './stationTableUnits'
 
 // Renders the last-24h weather-station table: newest-first hourly rows, one
@@ -29,8 +30,11 @@ export function StationNowTable({
   const timeHeader = table.timezoneLabel ? `Time (${table.timezoneLabel})` : 'Time'
 
   return (
-    <Table className="mx-auto w-auto text-xs sm:text-base">
-      <TableHeader>
+    <Table
+      containerClassName={stationTableContainerClass}
+      className="mx-auto w-auto text-xs sm:text-base"
+    >
+      <TableHeader className={stationTableHeaderClass}>
         <TableRow>
           <TableHead className="sticky left-0 z-10 bg-background whitespace-nowrap px-1 align-bottom sm:px-2">
             {timeHeader}

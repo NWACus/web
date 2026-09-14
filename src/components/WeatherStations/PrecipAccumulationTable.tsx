@@ -17,6 +17,7 @@ import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { stationTableContainerClass, stationTableHeaderClass } from './stationTableLayout'
 import { UnitToggle } from './UnitToggle'
 
 // Totals come from the API in inches, elevation in feet; metric converts on display.
@@ -270,8 +271,8 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
       <div className="flex flex-wrap items-center justify-end gap-3">
         <UnitToggle unit={unit} onChange={setUnit} />
       </div>
-      <Table className="mx-auto w-auto text-base">
-        <TableHeader>
+      <Table containerClassName={stationTableContainerClass} className="mx-auto w-auto text-base">
+        <TableHeader className={stationTableHeaderClass}>
           <HeaderRow sort={sort} onSort={onSort} unit={unit} timezoneLabel={table.timezoneLabel} />
         </TableHeader>
         <TableBody>
