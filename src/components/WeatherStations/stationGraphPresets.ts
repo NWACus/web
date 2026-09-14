@@ -112,9 +112,7 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
   },
 ]
 
-// A station group's own floors, by preset key, laid over the defaults above.
-// Legacy tuned these per region (a 225" snow depth axis at Paradise, 85" at
-// Lake Wenatchee); a bound the group doesn't set keeps the preset's.
+// A group's own floors laid over the defaults; a bound it doesn't set keeps the preset's.
 export function applyGroupAxes(
   presets: GraphPreset[],
   graphAxes?: Partial<Record<GraphPresetKey, GraphAxis>>,

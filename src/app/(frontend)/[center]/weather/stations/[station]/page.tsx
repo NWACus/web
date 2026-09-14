@@ -40,8 +40,7 @@ export async function generateStaticParams() {
   }))
 }
 
-// Current sensor issues for this group, shown on every tab. A short window is
-// enough — notes ride along with the station metadata, not the observations.
+// Notes ride with the station metadata, so a 1-hour window is enough.
 async function loadStationNotes(group: WeatherStationGroup) {
   const meta = await fetchStationTimeseries(group.stids, { revalidate, windowHours: 1 })
   return activeStationNotes(meta)

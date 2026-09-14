@@ -14,9 +14,6 @@ function station(stid: string, name: string, notes: unknown[]): unknown {
   }
 }
 
-// Shaped after the real SnowObs payload for Timberline (stid 44), which has
-// carried an active precipitation-gauge note since February 2026 alongside a
-// long-standing static one.
 function responseWith(stations: unknown[]): SnowObsTimeseriesResponse {
   const response = { UNITS: {}, VARIABLES: [], STATION: stations }
   if (!isTimeseriesResponse(response)) throw new Error('bad fixture')

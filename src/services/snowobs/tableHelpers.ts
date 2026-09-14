@@ -9,6 +9,7 @@ import {
   SENSOR_LABELS,
   zonedParts,
 } from './constants'
+import { activeNotesFor } from './stationNotes'
 import type { SnowObsObservations, SnowObsTimeseriesResponse } from './types/schemas'
 
 // A [stid, variable] pair from the station registry describing one table column.
@@ -126,8 +127,7 @@ export type PrecipAccumulationRow = {
   totals: Record<number, number | null>
   /** False when the station reported nothing in the widest window ("missing"). */
   hasData: boolean
-  /** Active SnowObs notes for this station — a broken gauge is the reason a
-   * total looks wrong, so it travels with the row. */
+  /** Active SnowObs notes: why a total may look wrong. */
   notes: string[]
 }
 
@@ -187,17 +187,8 @@ function accumulationRow(
     lastUpdateMs: lastMs > 0 ? lastMs : null,
     totals,
     hasData: Object.values(totals).some((v) => v !== null),
-    notes: activeNotesFor(station),
+    notes: activeNotesFor(station).map((note) => note.note),
   }
-}
-
-// Active notes only; `static` ones describe permanent site characteristics and
-// would flag most of the table, every day.
-function activeNotesFor(station: ResponseStation): string[] {
-  return (station.station_note ?? []).flatMap((note) => {
-    const text = note.note?.trim()
-    return text && note.status === 'active' ? [text] : []
-  })
 }
 
 // North -> south; stations without a latitude sink to the bottom by name.

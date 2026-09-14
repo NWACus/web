@@ -11,9 +11,6 @@ function noteDate(startDate: string | null): string | null {
   return format(raised, 'MMM d, yyyy', { in: tz(NWAC_DISPLAY_TIMEZONE) })
 }
 
-// Current sensor issues for the station, straight from SnowObs. Someone
-// reading a flood-level precipitation total should see the note saying the
-// gauge is broken before they draw a conclusion from it.
 export function StationNotes({ notes }: { notes: StationNote[] }) {
   if (notes.length === 0) return null
 

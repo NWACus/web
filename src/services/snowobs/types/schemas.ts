@@ -7,10 +7,8 @@ const observationSeriesSchema = z.array(z.union([z.number(), z.string(), z.null(
 export const snowObsObservationsSchema = z.record(z.string(), observationSeriesSchema)
 export type SnowObsObservations = z.infer<typeof snowObsObservationsSchema>
 
-// Sensor caveats SnowObs carries per station, maintained by NWAC techs.
-// `active` marks a current issue ("the precipitation gauge is not recording
-// correctly"); `static` marks a permanent characteristic (unheated wind gauges
-// that rime). Unknown statuses pass through rather than failing the response.
+// Tech-maintained sensor caveats: `active` is a current issue, `static` a
+// permanent site characteristic. Unknown statuses pass through.
 export const snowObsStationNoteSchema = z.object({
   status: z.string().nullish(),
   note: z.string().nullish(),

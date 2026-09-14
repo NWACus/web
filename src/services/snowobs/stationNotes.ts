@@ -1,9 +1,6 @@
 import type { SnowObsTimeseriesResponse } from './types/schemas'
 
-// Station notes as SnowObs serves them, surfaced so a reader knows why a
-// number looks wrong. NWAC techs already maintain these — Timberline's gauge,
-// for one, has carried "the precipitation gauge is not recording correctly,
-// disregard values for now" since February 2026.
+// Station notes as SnowObs serves them, so a reader knows why a number looks wrong.
 
 export type StationNote = {
   stid: string
@@ -13,28 +10,28 @@ export type StationNote = {
   startDate: string | null
 }
 
-// Only `active` notes: `static` ones describe permanent characteristics of a
-// site and would read as a standing alarm on every station, every day.
-const ACTIVE_STATUS = 'active'
+type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
 
-// Newest first, so the current issue reads before the long-standing one;
-// undated notes keep their SnowObs order at the end.
+// Only `active` notes: `static` ones describe permanent site characteristics
+// and would read as a standing alarm on most stations, every day.
+export function activeNotesFor(station: ResponseStation): StationNote[] {
+  return (station.station_note ?? []).flatMap((note) => {
+    const text = note.note?.trim()
+    if (!text || note.status !== 'active') return []
+    return [
+      {
+        stid: station.stid,
+        stationName: station.name ?? station.stid,
+        note: text,
+        startDate: note.start_date ?? null,
+      },
+    ]
+  })
+}
+
+// Newest first; undated notes keep their SnowObs order at the end.
 export function activeStationNotes(response: SnowObsTimeseriesResponse): StationNote[] {
-  const notes = response.STATION.flatMap((station) =>
-    (station.station_note ?? []).flatMap((note) => {
-      const text = note.note?.trim()
-      if (!text || note.status !== ACTIVE_STATUS) return []
-      return [
-        {
-          stid: station.stid,
-          stationName: station.name ?? station.stid,
-          note: text,
-          startDate: note.start_date ?? null,
-        },
-      ]
-    }),
-  )
-  return notes.sort((a, b) => raisedAt(b) - raisedAt(a))
+  return response.STATION.flatMap(activeNotesFor).sort((a, b) => raisedAt(b) - raisedAt(a))
 }
 
 function raisedAt(note: StationNote): number {
