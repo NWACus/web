@@ -87,7 +87,7 @@ These specs are written and `test.skip` themselves with a reason until the fixtu
 | --- | --- | --- |
 | A forecast with populated `forecast_avalanche_problems`, non-null `danger`, and a `video` media item | `product_forecast_SNFAC_with_problems` | Problem cards, the locator rose, the sliders, every coloured danger rating, the lightbox's YouTube branch, a video attached to a problem |
 | A forecast whose authored HTML carries an `afp-photoswipe` figure, an `afp-video-modal` figure and a pasted `iframe` | `product_forecast_SNFAC_embedded_media` | Everything #1228 added to the discussion: the expand chip, the play button, an inline provider frame, the blocked-embed note |
-| A weather product at an id a forecast points at, with non-empty `weather_data` | `product_weather_SNFAC_populated` | Both mountain-weather table shapes |
+| A weather product at an id a forecast points at, with non-empty `weather_data` | `product_weather_SNFAC_populated` | Both mountain-weather table shapes, and the print picker's Mountain Weather checkbox |
 | A by-id golden for archive product 184562 | `product_by_id_SNFAC_summary` | The archive's second date |
 | `/v2/public/avalanche-center/{NWAC,SAC}` | `center_NWAC`, `center_SAC` | Nothing today — held in `provisional/` |
 | Map layers with real danger levels, `off_season`, or an active warning | `map_layer_*` | Danger-map styling, outside this suite's scope |
