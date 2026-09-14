@@ -80,6 +80,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   }
   const seeded = await seedStationPages(payload, tenant.id)
   payload.logger.info(seeded, 'station pages seeded')
+  const granted = await grantStationAccess(payload)
+  payload.logger.info({ roles: granted }, 'Admin roles granted station access')
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {

@@ -267,6 +267,8 @@ export const seed = async ({
               'events',
               'eventGroups',
               'eventTags',
+              'stations',
+              'stationGroups',
             ],
             actions: ['*'],
           },
