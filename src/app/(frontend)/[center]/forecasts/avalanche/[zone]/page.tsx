@@ -4,8 +4,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { NACWidget } from '@/components/NACWidget'
-import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
+import { ForecastWidget } from '@/components/NACWidget/ForecastWidget'
 import { NativeForecastPage } from '@/components/forecast/NativeForecastPage'
 import { getForecastZoneDanger } from '@/services/nac/dangerMap/mapLayer'
 import { ProductType } from '@/services/nac/model/forecast'
@@ -94,13 +93,9 @@ export default async function Page({ params }: Args) {
   }
 
   return (
-    <>
-      <WidgetRouterHandler initialPath={`/${zone}/`} widgetPageKey="forecast-zone" />
+    <ForecastWidget center={center} initialPath={`/${zone}/`} widgetPageKey="forecast-zone">
       <Breadcrumbs center={center} path={`/forecasts/avalanche/${zone}`} />
-      <div className="container flex flex-col">
-        <NACWidget center={center} widget={'forecast'} />
-      </div>
-    </>
+    </ForecastWidget>
   )
 }
 

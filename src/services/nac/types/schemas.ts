@@ -81,6 +81,9 @@ export const avalancheCenterForecastWidgetConfigurationSchema = z.object({
   elevInfoUrl: z.string(),
   glossary: z.boolean(),
   tabs: z.array(avalancheCenterForecastWidgetTabSchema),
+  // The first season the center's archive browser offers, as the season's ending year (NWAC: 2020
+  // for the 2019–20 season). Absent for most centers; the legacy widget falls back to 2020.
+  start_year: z.number().optional(),
 })
 
 // Written by dashboard-v2's danger-map settings page (`app/utils/dangerMapSettings.js`), which is
