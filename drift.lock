@@ -313,7 +313,7 @@ sig = "97d56d4516a4a851"
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"
 target = "__tests__/e2e/afp-products/station-map.e2e.spec.ts"
-sig = "6f07d86c29992b2c"
+sig = "ab98aee51c0a4aa1"
 
 [[bindings]]
 doc = "docs/afp-products/e2e-mocks.md"

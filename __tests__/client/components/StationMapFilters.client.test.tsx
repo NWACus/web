@@ -67,24 +67,24 @@ describe('StationMapFilters', () => {
     const labels = screen.getAllByRole('radio').map((radio) => radio.parentElement?.textContent)
     expect(labels).toEqual(['Show All', 'Air Temperature', 'Snow Depth'])
 
-    fireEvent.click(screen.getByLabelText('Air Temperature'))
+    fireEvent.click(screen.getByRole('radio', { name: 'Air Temperature' }))
     expect(onChange).toHaveBeenCalledWith({ variable: 'air_temp' })
   })
 
   it('offers the recency choices', () => {
     const { onChange } = renderFilters()
     fireEvent.click(screen.getByRole('button', { name: /Last Updated/ }))
-    fireEvent.click(screen.getByLabelText('3 hours'))
+    fireEvent.click(screen.getByRole('radio', { name: '3 hours' }))
     expect(onChange).toHaveBeenCalledWith({ withinMinutes: 180 })
   })
 
   it('adds and removes zones', () => {
     const { onChange } = renderFilters({ ...DEFAULT_FILTERS, zones: ['Olympics'] })
     fireEvent.click(screen.getByRole('button', { name: /^Zone/ }))
-    fireEvent.click(screen.getByLabelText('Mt Hood'))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Mt Hood' }))
     expect(onChange).toHaveBeenCalledWith({ zones: ['Olympics', 'Mt Hood'] })
 
-    fireEvent.click(screen.getByLabelText('All Zones'))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'All Zones' }))
     expect(onChange).toHaveBeenCalledWith({ zones: [] })
   })
 
@@ -103,11 +103,14 @@ describe('StationMapFilters', () => {
       type: 'stations',
     })
 
-    expect(screen.getByText('Air Temperature')).toBeInTheDocument()
-    expect(screen.getByText('Within 1 hour')).toBeInTheDocument()
-    expect(screen.getByText('synoptic data')).toBeInTheDocument()
-    expect(screen.getByText('Olympics')).toBeInTheDocument()
-    expect(screen.getByText('stations')).toBeInTheDocument()
+    const chips = screen.getAllByRole('button', { name: /^Remove .* filter$/ })
+    expect(chips.map((chip) => chip.textContent)).toEqual([
+      'Remove synoptic data filter',
+      'Remove Air Temperature filter',
+      'Remove Within 1 hour filter',
+      'Remove Olympics filter',
+      'Remove stations filter',
+    ])
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove Olympics filter' }))
     expect(onChange).toHaveBeenCalledWith({ zones: [] })
@@ -143,26 +146,26 @@ describe('StationMapFilters', () => {
   })
 })
 
-describe("the filter sheet's apply button", () => {
+describe("the filter drawer's apply button", () => {
   const zones = ['Olympics', 'Mt Hood', 'Stevens Pass']
 
-  function openSheet(visibleCounts: { stations: number; webcams: number }) {
+  function openDrawer(visibleCounts: { stations: number; webcams: number }) {
     renderFilters(DEFAULT_FILTERS, zones, visibleCounts)
-    fireEvent.click(screen.getByRole('button', { name: 'Filters' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open filters' }))
   }
 
   it('counts the stations when only stations are on the map', () => {
-    openSheet({ stations: 12, webcams: 0 })
-    expect(screen.getByRole('button', { name: 'View 12 Stations' })).toBeInTheDocument()
+    openDrawer({ stations: 12, webcams: 0 })
+    expect(screen.getByRole('button', { name: 'Show 12 stations' })).toBeInTheDocument()
   })
 
   it('counts the webcams when the type filter leaves only those', () => {
-    openSheet({ stations: 0, webcams: 4 })
-    expect(screen.getByRole('button', { name: 'View 4 Webcams' })).toBeInTheDocument()
+    openDrawer({ stations: 0, webcams: 4 })
+    expect(screen.getByRole('button', { name: 'Show 4 webcams' })).toBeInTheDocument()
   })
 
   it('counts both when both are on the map', () => {
-    openSheet({ stations: 12, webcams: 4 })
-    expect(screen.getByRole('button', { name: 'View 16 Stations & Webcams' })).toBeInTheDocument()
+    openDrawer({ stations: 12, webcams: 4 })
+    expect(screen.getByRole('button', { name: 'Show 16 stations & webcams' })).toBeInTheDocument()
   })
 })
