@@ -251,6 +251,15 @@ const featuresFields: Field[] = [
             'Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.',
         },
       },
+      {
+        name: 'stationMap',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'Render the weather station map natively. Opening viewport, data-source legend and staleness threshold follow the stations settings your forecasters configure in the NAC dashboard.',
+        },
+      },
     ],
   },
 ]

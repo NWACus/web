@@ -1,0 +1,26 @@
+{
+  "status": "success",
+  "msg": "",
+  "webcam": [
+    {
+      "id": 48,
+      "location": {
+        "geometry": { "type": "Point", "coordinates": [-120.741313612, 47.80400446] },
+        "description": "webcam location",
+        "name": "webcam"
+      },
+      "webcam_title": "Dirtyface",
+      "location_id": 990,
+      "webcam_image": [
+        {
+          "id": 66,
+          "webcam_id": 48,
+          "image_title": "Dirtyface",
+          "image_type": "image",
+          "image_source": "https://example.invalid/dirtyface.jpg"
+        }
+      ],
+      "client_id": 11
+    }
+  ]
+}

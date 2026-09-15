@@ -23,7 +23,9 @@ function StationHeader({
       <div>
         <p className="mb-1 text-sm text-muted-foreground">{group.region}</p>
         <div className="prose dark:prose-invert max-w-none">
-          <h1 className="font-bold">{group.displayName}</h1>
+          {/* Sized as the rest of the station pages are. Station names run long — "Stevens Pass -
+              WSDOT Schmidt Haus" takes three lines at full size on a phone, before any reading. */}
+          <h1 className="text-3xl font-bold sm:text-4xl">{group.displayName}</h1>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">

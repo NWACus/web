@@ -4,10 +4,17 @@ import { Button } from '@/components/ui/button'
 import { Filter, FilterX } from 'lucide-react'
 import { useState } from 'react'
 
+/**
+ * The bottom filter drawer the list pages share below their desktop breakpoint. It doesn't hide
+ * itself at any width: each caller wraps it in the `hidden` class of its own breakpoint.
+ */
 type MobileFiltersDrawerProps = {
   docLabel: string
   docCount: number
   hasActiveFilters: boolean
+  /** Drive the drawer from outside, e.g. to close it once a pick inside it is made. */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   children: React.ReactNode
 }
 
@@ -15,9 +22,16 @@ export const MobileFiltersDrawer = ({
   docLabel,
   docCount,
   hasActiveFilters,
+  open,
+  onOpenChange,
   children,
 }: MobileFiltersDrawerProps) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  const isOpen = open ?? uncontrolledOpen
+  const setIsOpen = (next: boolean) => {
+    setUncontrolledOpen(next)
+    onOpenChange?.(next)
+  }
 
   return (
     <>
@@ -35,17 +49,19 @@ export const MobileFiltersDrawer = ({
 
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* Drawer */}
+      {/* Drawer: it stays mounted off-screen so it can slide, so keep it out of reach while closed. */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white rounded-t-2xl shadow-lg transition-transform duration-300 ease-out h-[90vh] flex flex-col ${
+        className={`fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-lg transition-transform duration-300 ease-out h-[90vh] flex flex-col ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
       >
         {/* Handle */}
         <div className="flex justify-center pt-2 pb-1">

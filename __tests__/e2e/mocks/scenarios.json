@@ -130,22 +130,26 @@
     "snfac": {
       "forecast": true,
       "warning": true,
-      "dangerMap": true
+      "dangerMap": true,
+      "stationMap": true
     },
     "dvac": {
       "forecast": false,
       "warning": false,
-      "dangerMap": false
+      "dangerMap": false,
+      "stationMap": false
     },
     "nwac": {
       "forecast": true,
       "warning": true,
-      "dangerMap": true
+      "dangerMap": true,
+      "stationMap": true
     },
     "sac": {
       "forecast": false,
       "warning": false,
-      "dangerMap": false
+      "dangerMap": false,
+      "stationMap": true
     }
   }
 }
