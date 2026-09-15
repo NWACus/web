@@ -10,12 +10,16 @@ import type { EChartOption } from '@/components/charts/EChart'
 import { dangerColor, dangerLevelFromRating, dangerName } from '@/services/nac/dangerScale'
 import type { DangerOverTimePoint } from '@/services/nac/forecastArchive'
 
-/** The chart's pixel height: the legacy plot area plus room for the angled date labels. */
-export const DANGER_CHART_HEIGHT = 260
+/** The chart's pixel height: the legacy plot area, the angled date labels, and the zoom slider. */
+export const DANGER_CHART_HEIGHT = 300
 
 /** Headroom above the plot, and the taller value that clears a drawn-in chart title. */
 const GRID_TOP = 12
 const GRID_TOP_WITH_TITLE = 44
+
+/** Room below the plot for the angled date labels, and the extra a zoom slider needs under them. */
+const GRID_BOTTOM = 56
+const GRID_BOTTOM_WITH_ZOOM = 92
 
 /**
  * Every `yyyy-MM-dd` day of the extent, inclusive. The x-axis is these days as categories rather
@@ -45,14 +49,25 @@ function isDataItem(value: unknown): value is { name?: unknown; value?: unknown 
   return typeof value === 'object' && value !== null
 }
 
-/**
- * `title` draws the zone's name into the chart itself. On screen the card's heading already says
- * it, so the title is only asked for when exporting — a saved PNG travels without the card.
- */
+interface DangerChartOptions {
+  /**
+   * Draws the zone's name into the chart itself. On screen the card's heading already says it, so
+   * the title is only asked for when exporting — a saved PNG travels without the card.
+   */
+  title?: string
+  /**
+   * Adds the zoom slider. A season is more days than a phone has pixels, so the whole-season view
+   * that makes this chart worth reading leaves each bar about two pixels wide — too thin to read
+   * or to tap. The slider narrows the window without taking the overview away, which is ECharts'
+   * own answer for small screens. Off for an export, which should be the season and no chrome.
+   */
+  zoomable?: boolean
+}
+
 export function buildDangerOverTimeOption(
   points: DangerOverTimePoint[],
   extent: { from: string; to: string },
-  title?: string,
+  { title, zoomable = false }: DangerChartOptions = {},
 ): EChartOption {
   const levelByDate = new Map(points.map((point) => [point.date, point.dangerLevel]))
   const days = chartDays(extent)
@@ -67,11 +82,20 @@ export function buildDangerOverTimeOption(
       top: GRID_TOP,
       textStyle: { fontSize: 16, fontWeight: 'bold' },
     },
+    // Opens on the whole season; the reader zooms in from there rather than out.
+    dataZoom: zoomable
+      ? [
+          // `moveOnMouseMove: false` keeps a one-finger drag scrolling the page rather than
+          // panning the chart, which would trap a reader mid-scroll. Pinch still zooms.
+          { type: 'inside', moveOnMouseMove: false, zoomOnMouseWheel: 'ctrl' },
+          { type: 'slider', height: 20, bottom: 8, brushSelect: false },
+        ]
+      : [],
     grid: {
       left: 48,
       right: 16,
       top: title === undefined ? GRID_TOP : GRID_TOP_WITH_TITLE,
-      bottom: 56,
+      bottom: zoomable ? GRID_BOTTOM_WITH_ZOOM : GRID_BOTTOM,
     },
     tooltip: {
       trigger: 'item',

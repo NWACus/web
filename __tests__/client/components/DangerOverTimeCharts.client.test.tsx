@@ -131,13 +131,27 @@ describe('buildDangerOverTimeOption', () => {
 
   it('hides the title on screen, and leaves it headroom when one is asked for', () => {
     const plain = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT)
-    const titled = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, 'Olympics')
+    const titled = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, { title: 'Olympics' })
 
     expect(plain.title).toMatchObject({ show: false })
     expect(titled.title).toMatchObject({ show: true, text: 'Olympics' })
     // The plot has to start lower, or the title lands on top of it.
     expect(titled.grid).toMatchObject({ top: 44 })
     expect(plain.grid).toMatchObject({ top: 12 })
+  })
+
+  it('adds the zoom slider only when asked, and leaves the plot room for it', () => {
+    const plain = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT)
+    const zoomable = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, { zoomable: true })
+
+    expect(plain.dataZoom).toEqual([])
+    expect(zoomable.dataZoom).toMatchObject([
+      // A one-finger drag has to keep scrolling the page, or a reader is trapped on the chart.
+      { type: 'inside', moveOnMouseMove: false },
+      { type: 'slider' },
+    ])
+    expect(zoomable.grid).toMatchObject({ bottom: 92 })
+    expect(plain.grid).toMatchObject({ bottom: 56 })
   })
 })
 
@@ -183,8 +197,11 @@ describe('DangerOverTimeCharts', () => {
 
     // Titled for the image, then put back, so the on-screen chart is never left carrying a
     // heading the card already shows.
-    const titles = mockChart.setOption.mock.calls.map(([option]) => option.title)
-    expect(titles).toMatchObject([{ show: true, text: 'Olympics' }, { show: false }])
+    const [exported, restored] = mockChart.setOption.mock.calls.map(([option]) => option)
+    expect(exported.title).toMatchObject({ show: true, text: 'Olympics' })
+    // No slider in a saved image, and the whole season rather than whatever was zoomed to.
+    expect(exported.dataZoom).toEqual([])
+    expect(restored.title).toMatchObject({ show: false })
   })
 
   it('saves the CSV from an anchor that is in the document', async () => {

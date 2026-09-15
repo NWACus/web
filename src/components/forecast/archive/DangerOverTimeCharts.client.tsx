@@ -82,7 +82,10 @@ function ZoneDangerCard({
   const { zone, points } = zoneData
   const router = useRouter()
   const chartRef = useRef<ECharts | null>(null)
-  const option = useMemo(() => buildDangerOverTimeOption(points, extent), [points, extent])
+  const option = useMemo(
+    () => buildDangerOverTimeOption(points, extent, { zoomable: true }),
+    [points, extent],
+  )
 
   const openForecast = (event: ECElementEvent) => {
     // A bar's category name is its `yyyy-MM-dd` day; the empty days between bars have no element
@@ -141,7 +144,9 @@ function ZoneExportMenu({
 
     // Swap in the titled option, take the image, swap back. Both renders are synchronous because
     // the chart's animation is off, so the reader never sees the title appear on screen.
-    chart.setOption(buildDangerOverTimeOption(points, extent, zone.name), { notMerge: true })
+    chart.setOption(buildDangerOverTimeOption(points, extent, { title: zone.name }), {
+      notMerge: true,
+    })
     const dataUrl = chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#ffffff' })
     chart.setOption(screenOption, { notMerge: true })
 

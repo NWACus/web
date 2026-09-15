@@ -103,11 +103,13 @@ test.describe('Forecast archive danger-over-time charts', () => {
     const canvas = page.locator('canvas')
     await expect(canvas).toHaveCount(1)
 
-    // The one rated day fills the extent, so its Moderate bar spans the plot's width and the
-    // lower two fifths of its height; a click low in the canvas lands on it.
+    // The one rated day fills the extent, so its Moderate bar spans the plot's width. The plot
+    // ends 92px up from the bottom (the date labels and the zoom slider), and a Moderate bar
+    // covers the lower two fifths of it, so just above the axis is on the bar and clear of the
+    // slider.
     const box = await canvas.boundingBox()
     if (!box) throw new Error('chart canvas has no box')
-    await canvas.click({ position: { x: box.width / 2, y: box.height * 0.7 } })
+    await canvas.click({ position: { x: box.width / 2, y: box.height - 100 } })
 
     await expect(page).toHaveURL(/\/forecasts\/avalanche\/banner-summit\/2026-04-05$/)
   })
