@@ -84,10 +84,7 @@ export function WebcamCard({ webcam, active }: { webcam: StationMapWebcam; activ
   const image = webcam.images[current]
 
   return (
-    <article
-      className="block w-full overflow-hidden rounded-md bg-white text-left text-sm text-neutral-900 shadow-md"
-      data-testid="webcam-card"
-    >
+    <article className="flex min-h-0 w-full flex-col text-left" data-testid="webcam-card">
       <header className="border-b px-3 py-2">
         <h3 className="text-base font-bold leading-tight">{webcam.title}</h3>
         {image && (
@@ -101,7 +98,7 @@ export function WebcamCard({ webcam, active }: { webcam: StationMapWebcam; activ
           </div>
         )}
       </header>
-      <div className="p-2">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-2">
         {image ? (
           <WebcamImage image={image} title={webcam.title} />
         ) : (
