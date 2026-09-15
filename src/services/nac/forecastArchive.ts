@@ -18,6 +18,12 @@ import { validDateForProduct, type ArchiveProductSummary } from './archiveDates'
 /** The browser's tenant-relative path: the forecast list, its first tab. */
 export const ARCHIVE_PATH = '/forecasts/avalanche/archive'
 
+/**
+ * How the archive names itself in a breadcrumb trail. Shorter than the page's own heading, because
+ * by the leaf of `Home > Forecasts > Avalanche > … > Danger Over Time` a phone has run out of room.
+ */
+export const ARCHIVE_CRUMB = 'Archive'
+
 /** The danger-over-time tab's tenant-relative path. */
 export const ARCHIVE_DANGER_PATH = `${ARCHIVE_PATH}/danger-over-time`
 

@@ -3,7 +3,7 @@ import type { SearchParams } from 'nuqs/server'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { ArchiveRoute } from '@/components/forecast/archive/ArchiveRoute'
-import { ARCHIVE_PATH } from '@/services/nac/forecastArchive'
+import { ARCHIVE_CRUMB, ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import { centerRouteMetadata, type CenterRouteArgs } from '@/utilities/centerRoutePage'
 
 /**
@@ -25,7 +25,7 @@ export default async function Page({ params, searchParams }: Args) {
       center={center}
       searchParams={searchParams}
       view="forecasts"
-      breadcrumbs={<Breadcrumbs center={center} path={ARCHIVE_PATH} title="Forecast Archive" />}
+      breadcrumbs={<Breadcrumbs center={center} path={ARCHIVE_PATH} title={ARCHIVE_CRUMB} />}
     />
   )
 }

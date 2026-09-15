@@ -3,7 +3,7 @@ import type { SearchParams } from 'nuqs/server'
 
 import { Breadcrumbs } from '@/components/Breadcrumbs/Breadcrumbs'
 import { ArchiveRoute } from '@/components/forecast/archive/ArchiveRoute'
-import { ARCHIVE_DANGER_PATH, ARCHIVE_PATH } from '@/services/nac/forecastArchive'
+import { ARCHIVE_CRUMB, ARCHIVE_DANGER_PATH, ARCHIVE_PATH } from '@/services/nac/forecastArchive'
 import { centerRouteMetadata, type CenterRouteArgs } from '@/utilities/centerRoutePage'
 
 /** Per request for the same reason as the forecast list: the filters are the query string. */
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 const TITLE = 'Danger Over Time'
 
-const BREADCRUMB_LABELS = { [ARCHIVE_PATH]: 'Forecast Archive' }
+const BREADCRUMB_LABELS = { [ARCHIVE_PATH]: ARCHIVE_CRUMB }
 
 type Args = CenterRouteArgs & {
   searchParams: Promise<SearchParams>
