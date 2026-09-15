@@ -13,6 +13,10 @@ import type { DangerOverTimePoint } from '@/services/nac/forecastArchive'
 /** The chart's pixel height: the legacy plot area plus room for the angled date labels. */
 export const DANGER_CHART_HEIGHT = 260
 
+/** Headroom above the plot, and the taller value that clears a drawn-in chart title. */
+const GRID_TOP = 12
+const GRID_TOP_WITH_TITLE = 44
+
 /**
  * Every `yyyy-MM-dd` day of the extent, inclusive. The x-axis is these days as categories rather
  * than a time axis, so a bar is always one day wide and a day without a rating is a gap, however
@@ -41,9 +45,14 @@ function isDataItem(value: unknown): value is { name?: unknown; value?: unknown 
   return typeof value === 'object' && value !== null
 }
 
+/**
+ * `title` draws the zone's name into the chart itself. On screen the card's heading already says
+ * it, so the title is only asked for when exporting — a saved PNG travels without the card.
+ */
 export function buildDangerOverTimeOption(
   points: DangerOverTimePoint[],
   extent: { from: string; to: string },
+  title?: string,
 ): EChartOption {
   const levelByDate = new Map(points.map((point) => [point.date, point.dangerLevel]))
   const days = chartDays(extent)
@@ -51,7 +60,19 @@ export function buildDangerOverTimeOption(
   return {
     // No grow-in: the legacy chart drew at once, and the export should too.
     animation: false,
-    grid: { left: 48, right: 16, top: 12, bottom: 56 },
+    title: {
+      show: title !== undefined,
+      text: title ?? '',
+      left: 'center',
+      top: GRID_TOP,
+      textStyle: { fontSize: 16, fontWeight: 'bold' },
+    },
+    grid: {
+      left: 48,
+      right: 16,
+      top: title === undefined ? GRID_TOP : GRID_TOP_WITH_TITLE,
+      bottom: 56,
+    },
     tooltip: {
       trigger: 'item',
       // ECharts hard-codes z-index:9999999 on its tooltip div, which floats it over the site

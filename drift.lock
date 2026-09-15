@@ -222,6 +222,11 @@ sig = "0866471943652586"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
+target = "src/components/forecast/archive/dangerOverTimeExport.ts"
+sig = "8ac32471c1aa2826"
+
+[[bindings]]
+doc = "docs/afp-products/architecture.md"
 target = "src/components/forecast/forecastPrintSections.ts"
 sig = "82f2b9acb2d74be0"
 

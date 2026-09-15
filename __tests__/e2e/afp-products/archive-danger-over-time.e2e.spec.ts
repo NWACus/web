@@ -1,5 +1,23 @@
+import type { Download } from '@playwright/test'
+import { readFile } from 'fs/promises'
+
 import { expect, test } from './fixture'
 import { loadPage, tenant } from './helpers'
+
+/** The bytes a download actually wrote, from the temp path Playwright saved it to. */
+async function readDownload(download: Download): Promise<Buffer> {
+  const path = await download.path()
+  if (!path) throw new Error('download produced no file')
+  return readFile(path)
+}
+
+const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+
+/** A PNG's pixel size, from the IHDR chunk that has to be its first. */
+function pngSize(png: Buffer): { width: number; height: number } {
+  if (!png.subarray(0, 8).equals(PNG_MAGIC)) throw new Error('not a PNG')
+  return { width: png.readUInt32BE(16), height: png.readUInt32BE(20) }
+}
 
 const ARCHIVE_URL = `${tenant('snfac')}/forecasts/avalanche/archive`
 const DANGER_URL = `${ARCHIVE_URL}/danger-over-time`
@@ -40,12 +58,37 @@ test.describe('Forecast archive danger-over-time charts', () => {
     await loadPage(page, `${DANGER_URL}${SEASON}`)
     await expect(page.locator('canvas')).toHaveCount(2)
 
+    await page.getByRole('button', { name: 'Download Banner Summit chart' }).click()
     const downloadPromise = page.waitForEvent('download')
-    await page.getByRole('button', { name: 'Download Banner Summit chart as PNG image' }).click()
+    await page.getByRole('menuitem', { name: 'PNG image' }).click()
     const download = await downloadPromise
 
     expect(download.suggestedFilename()).toBe(
       'banner-summit-danger-over-time-2026-04-05-to-2026-04-05.png',
+    )
+
+    // A real PNG of the plot, not an empty or truncated file. Whether the zone's name is drawn
+    // into it is asserted in the unit test, which can see the option the export renders from.
+    const { width, height } = pngSize(await readDownload(download))
+    expect(width).toBeGreaterThan(height)
+    expect(height).toBeGreaterThan(100)
+  })
+
+  test('downloads a zone chart as a CSV of its rated days', async ({ page }) => {
+    await loadPage(page, `${DANGER_URL}${SEASON}&zone=banner-summit`)
+    await expect(page.locator('canvas')).toHaveCount(1)
+
+    await page.getByRole('button', { name: 'Download Banner Summit chart' }).click()
+    const downloadPromise = page.waitForEvent('download')
+    await page.getByRole('menuitem', { name: 'CSV data' }).click()
+    const download = await downloadPromise
+
+    expect(download.suggestedFilename()).toBe(
+      'banner-summit-danger-over-time-2026-04-05-to-2026-04-05.csv',
+    )
+    // The corpus holds one rated day for this zone: Apr 5, Moderate.
+    expect((await readDownload(download)).toString('utf8')).toBe(
+      'date,danger_level,danger_rating\n2026-04-05,2,Moderate\n',
     )
   })
 
