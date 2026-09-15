@@ -148,7 +148,7 @@ describe('buildDangerOverTimeOption', () => {
     expect(narrow.yAxis).toMatchObject({ nameLocation: 'end', nameRotate: 0 })
     // The rotated name needs a gutter; flat on top it needs headroom instead.
     expect(wide.grid).toMatchObject({ left: 48, top: 12 })
-    expect(narrow.grid).toMatchObject({ left: 26, top: 34 })
+    expect(narrow.grid).toMatchObject({ left: 14, top: 34 })
   })
 
   it('renders an export at full width whatever the reader is holding', () => {
@@ -167,8 +167,9 @@ describe('buildDangerOverTimeOption', () => {
 
     expect(plain.dataZoom).toEqual([])
     expect(zoomable.dataZoom).toMatchObject([
-      // A one-finger drag has to keep scrolling the page, or a reader is trapped on the chart.
-      { type: 'inside', moveOnMouseMove: false },
+      // Without this ECharts swallows every touchmove over the plot and a vertical swipe stops
+      // scrolling the page — measured, not assumed.
+      { type: 'inside', preventDefaultMouseMove: false },
       { type: 'slider' },
     ])
     expect(zoomable.grid).toMatchObject({ bottom: 92 })

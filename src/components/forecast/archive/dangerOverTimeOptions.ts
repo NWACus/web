@@ -27,7 +27,7 @@ const GRID_BOTTOM_WITH_ZOOM = 92
  * phone cannot spare the wider gutter, so there the name goes above the plot instead.
  */
 const GRID_LEFT = 48
-const GRID_LEFT_NARROW = 26
+const GRID_LEFT_NARROW = 14
 
 /**
  * Every `yyyy-MM-dd` day of the extent, inclusive. The x-axis is these days as categories rather
@@ -105,9 +105,10 @@ export function buildDangerOverTimeOption(
     // Opens on the whole season; the reader zooms in from there rather than out.
     dataZoom: zoomable
       ? [
-          // `moveOnMouseMove: false` keeps a one-finger drag scrolling the page rather than
-          // panning the chart, which would trap a reader mid-scroll. Pinch still zooms.
-          { type: 'inside', moveOnMouseMove: false, zoomOnMouseWheel: 'ctrl' },
+          // `preventDefaultMouseMove: false` is what keeps a vertical swipe scrolling the page:
+          // ECharts otherwise swallows every touchmove over the plot, which traps a reader
+          // mid-scroll whether or not the chart pans. Matches the station graphs otherwise.
+          { type: 'inside', zoomOnMouseWheel: 'ctrl', preventDefaultMouseMove: false },
           { type: 'slider', height: 20, bottom: 8, brushSelect: false },
         ]
       : [],
@@ -143,7 +144,14 @@ export function buildDangerOverTimeOption(
       name: 'Danger Rating',
       // Narrow: sat flat above the plot, where it costs height rather than the width the bars need.
       ...(narrow
-        ? { nameLocation: 'end', nameRotate: 0, nameGap: 12, nameTextStyle: { fontSize: 12 } }
+        ? {
+            nameLocation: 'end',
+            nameRotate: 0,
+            nameGap: 12,
+            nameTextStyle: { fontSize: 12, align: 'left' },
+            // 0-5 is one digit wide, so the ticks sit close to the axis rather than a gutter away.
+            axisLabel: { margin: 4 },
+          }
         : { nameLocation: 'middle', nameGap: 32, nameTextStyle: { fontSize: 14 } }),
       min: 0,
       max: 5,
