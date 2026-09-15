@@ -36,7 +36,7 @@ export function StationSelectGroups({
 }
 
 // Dropdown that navigates to a station's page. Reused on both the
-// stations index and the per-station detail page.
+// accumulated precipitation table and the per-station detail page.
 export function StationPicker({
   pages,
   current,
