@@ -20,8 +20,9 @@ A check of the NAC API on 2026-09-14 found every center in `AVALANCHE_CENTERS` r
 ## Decision
 
 1. **Center timezone is hardcoded** in `src/utilities/tenancy/avalancheCenters.ts`, next to the center's name and custom domain, following [ADR 013](013-hardcoded-tenant-lookup.md). It is typed as one of the event picker's supported timezones, and `America/Phoenix` joins that list. Correctness is checked at PR time with `pnpm check:center-timezones`, which compares the constant with the NAC API, rather than at runtime.
-2. **AvyWeb-owned content uses the center timezone; AFP products use the AFP's.** Events, courses, and posts read `AVALANCHE_CENTERS[slug].timezone`. Native product pages keep passing `metadata.timezone` from the NAC API. The display component in [#1175](https://github.com/NWACus/web/issues/1175) takes a timezone as input and is agnostic to which source supplied it.
-3. **For AFP-derived values that do drift, AvyWeb owns and the AFP advises.** When we build the reconciler in #1038, differences between upstream and AvyWeb should be surfaced to an admin who applies them, not written silently. This amends the "AFP/NAC always wins" authority model drafted in that issue; the "admin always wins for navigation" half stands.
+2. **Tenant-scoped AvyWeb content uses the center timezone; AFP products use the AFP's.** Events and posts read `AVALANCHE_CENTERS[slug].timezone`. Native product pages keep passing `metadata.timezone` from the NAC API. The display component in [#1175](https://github.com/NWACus/web/issues/1175) takes a timezone as input and is agnostic to which source supplied it.
+3. **Courses keep defaulting to the editor's browser timezone.** `startAndEndDateField()` is shared by Events and Courses, but courses belong to a provider ([ADR 015](015-national-course-catalog.md)) and have no tenant, so the admin's selected center says nothing about where the course is held. The center default is opt-in per collection via `startAndEndDateField({ defaultToCenterTimezone: true })`, which only Events passes.
+4. **For AFP-derived values that do drift, AvyWeb owns and the AFP advises.** When we build the reconciler in #1038, differences between upstream and AvyWeb should be surfaced to an admin who applies them, not written silently. This amends the "AFP/NAC always wins" authority model drafted in that issue; the "admin always wins for navigation" half stands.
 
 ## Consequences
 
@@ -29,4 +30,5 @@ A check of the NAC API on 2026-09-14 found every center in `AVALANCHE_CENTERS` r
 - Center admins cannot change a center's timezone. For a geographic constant that is a feature: nobody can shift every event by an hour from the admin panel.
 - Adding a center now requires its timezone, and the type forces it to be a picker option. Run `pnpm check:center-timezones` in the PR that adds it.
 - The `_tz` columns on events and courses are plain text, so adding a picker option needs regenerated types but no migration.
+- Giving Providers their own timezone would let courses default the same way centers do; until then a course provider gets their browser's zone, which is usually the region they teach in.
 - #1038's design needs a pass to replace silent overwrites with a visible diff before it is built.

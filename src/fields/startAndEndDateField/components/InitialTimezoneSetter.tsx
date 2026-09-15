@@ -3,9 +3,9 @@
 import { useTenantSelection } from '@/providers/TenantSelectionProvider/index.client'
 import { getBrowserTimezone } from '@/utilities/getBrowserTimezone'
 import { AVALANCHE_CENTERS, isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
-import { TIMEZONE_OPTIONS } from '@/utilities/timezones'
+import { TIMEZONE_OPTIONS, timezonesAgreeAt } from '@/utilities/timezones'
 import { useField } from '@payloadcms/ui'
-import { UIFieldClientComponent } from 'payload'
+import { UIFieldClientProps } from 'payload'
 import { useEffect, useState } from 'react'
 
 const timezoneLabel = (timezone: string) =>
@@ -25,8 +25,22 @@ export function defaultTimezoneFor(
   return TIMEZONE_OPTIONS.find((option) => option.value === browserTimezone)?.value
 }
 
-export const InitialTimezoneSetter: UIFieldClientComponent = () => {
+/** The instant the editor is scheduling, which is when the two timezones have to be compared. */
+function comparisonInstant(startDate: string | undefined): Date {
+  const startsAt = startDate ? new Date(startDate) : null
+  return startsAt && !Number.isNaN(startsAt.getTime()) ? startsAt : new Date()
+}
+
+type InitialTimezoneSetterProps = UIFieldClientProps & {
+  /** Set by `startAndEndDateField({ defaultToCenterTimezone })` for tenant-scoped collections. */
+  defaultToCenterTimezone?: boolean
+}
+
+export const InitialTimezoneSetter = ({
+  defaultToCenterTimezone = false,
+}: InitialTimezoneSetterProps) => {
   const { selectedTenantSlug } = useTenantSelection()
+  const { value: startDate } = useField<string>({ path: 'startDate' })
   const { value: startDateTz, setValue: setStartDateTz } = useField<string>({
     path: 'startDate_tz',
   })
@@ -44,7 +58,8 @@ export const InitialTimezoneSetter: UIFieldClientComponent = () => {
   useEffect(
     function setInitialStartDateTimezone() {
       if (startDateTz || !setStartDateTz || !browserTimezone) return
-      const initial = defaultTimezoneFor(selectedTenantSlug, browserTimezone)
+      const centerSlug = defaultToCenterTimezone ? selectedTenantSlug : undefined
+      const initial = defaultTimezoneFor(centerSlug, browserTimezone)
       if (initial) {
         // Use setTimeout to let Payload's date field initialize first
         setTimeout(() => {
@@ -52,7 +67,7 @@ export const InitialTimezoneSetter: UIFieldClientComponent = () => {
         }, 0)
       }
     },
-    [browserTimezone, selectedTenantSlug, setStartDateTz, startDateTz],
+    [browserTimezone, defaultToCenterTimezone, selectedTenantSlug, setStartDateTz, startDateTz],
   )
 
   useEffect(
@@ -66,7 +81,11 @@ export const InitialTimezoneSetter: UIFieldClientComponent = () => {
     [endDateTz, registrationDeadlineTz, setEndDateTz, setRegistrationDeadlineTz, startDateTz],
   )
 
-  if (!startDateTz || !browserTimezone || startDateTz === browserTimezone) {
+  if (
+    !startDateTz ||
+    !browserTimezone ||
+    timezonesAgreeAt(startDateTz, browserTimezone, comparisonInstant(startDate))
+  ) {
     return null
   }
 

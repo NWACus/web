@@ -31,9 +31,10 @@ describe('AuthorAvatar date', () => {
   it('uses a Mountain center calendar for a Mountain center', async () => {
     mockUseTenant.mockReturnValue({ tenant: { slug: 'snfac' } })
 
-    render(<AuthorAvatar authors={[]} date={eveningPacificPublish} showDate />)
+    // Late evening Pacific on March 9 is already March 10 in Mountain time.
+    render(<AuthorAvatar authors={[]} date="2026-03-10T06:30:00.000Z" showDate />)
 
-    expect(await screen.findByText('March 9, 2026')).toBeInTheDocument()
+    expect(await screen.findByText('March 10, 2026')).toBeInTheDocument()
   })
 
   it('still renders a date without a tenant in context', async () => {

@@ -23,7 +23,7 @@ jest.mock('../../../src/utilities/getBrowserTimezone', () => ({
   getBrowserTimezone: () => mockGetBrowserTimezone(),
 }))
 
-type TimezonePath = 'startDate_tz' | 'endDate_tz' | 'registrationDeadline_tz'
+type TimezonePath = 'startDate' | 'startDate_tz' | 'endDate_tz' | 'registrationDeadline_tz'
 
 function stubBrowserTimezone(timeZone: string) {
   mockGetBrowserTimezone.mockReturnValue(timeZone)
@@ -31,6 +31,7 @@ function stubBrowserTimezone(timeZone: string) {
 
 function stubFields(values: Partial<Record<TimezonePath, string>>) {
   const setters: Record<TimezonePath, jest.Mock> = {
+    startDate: jest.fn(),
     startDate_tz: jest.fn(),
     endDate_tz: jest.fn(),
     registrationDeadline_tz: jest.fn(),
@@ -42,11 +43,12 @@ function stubFields(values: Partial<Record<TimezonePath, string>>) {
   return setters
 }
 
-function renderSetter() {
+function renderSetter({ defaultToCenterTimezone = true } = {}) {
   return render(
     <InitialTimezoneSetter
       path="initialTimezoneSetter"
       field={{ name: 'initialTimezoneSetter', admin: {} }}
+      defaultToCenterTimezone={defaultToCenterTimezone}
     />,
   )
 }
@@ -75,6 +77,19 @@ describe('InitialTimezoneSetter', () => {
     })
 
     expect(setters.startDate_tz).toHaveBeenCalledWith(US_TIMEZONES.PACIFIC)
+  })
+
+  it('ignores the selected center when the collection is not tenant-scoped', () => {
+    stubBrowserTimezone(US_TIMEZONES.MOUNTAIN)
+    mockUseTenantSelection.mockReturnValue({ selectedTenantSlug: 'nwac' })
+    const setters = stubFields({})
+
+    renderSetter({ defaultToCenterTimezone: false })
+    act(() => {
+      jest.runAllTimers()
+    })
+
+    expect(setters.startDate_tz).toHaveBeenCalledWith(US_TIMEZONES.MOUNTAIN)
   })
 
   it('falls back to the browser timezone when no tenant is selected', () => {
@@ -128,6 +143,46 @@ describe('InitialTimezoneSetter', () => {
       jest.runAllTimers()
     })
 
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('stays quiet when the browser zone is another name for the same offset', () => {
+    stubBrowserTimezone('America/Boise')
+    stubFields({ startDate_tz: US_TIMEZONES.MOUNTAIN, endDate_tz: US_TIMEZONES.MOUNTAIN })
+
+    const { container } = renderSetter()
+    act(() => {
+      jest.runAllTimers()
+    })
+
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('warns an Arizona browser about a summer Mountain event but not a winter one', () => {
+    stubBrowserTimezone(US_TIMEZONES.ARIZONA)
+    stubFields({
+      startDate: '2026-07-15T12:00:00.000Z',
+      startDate_tz: US_TIMEZONES.MOUNTAIN,
+      endDate_tz: US_TIMEZONES.MOUNTAIN,
+    })
+
+    const summer = renderSetter()
+    act(() => {
+      jest.runAllTimers()
+    })
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    summer.unmount()
+
+    stubFields({
+      startDate: '2026-01-15T12:00:00.000Z',
+      startDate_tz: US_TIMEZONES.MOUNTAIN,
+      endDate_tz: US_TIMEZONES.MOUNTAIN,
+    })
+
+    const { container } = renderSetter()
+    act(() => {
+      jest.runAllTimers()
+    })
     expect(container).toBeEmptyDOMElement()
   })
 })
