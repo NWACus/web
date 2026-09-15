@@ -11,5 +11,15 @@ export const DocumentBlock: Block = {
       relationTo: 'documents',
       required: true,
     },
+    {
+      name: 'displayAs',
+      type: 'select',
+      defaultValue: 'download',
+      required: true,
+      options: [
+        { label: 'Download Link', value: 'download' },
+        { label: 'Embed (iframe)', value: 'embed' },
+      ],
+    },
   ],
 }
