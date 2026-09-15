@@ -141,7 +141,7 @@ describe('station notes', () => {
     })
     render(<PrecipAccumulationTable table={{ rows: [row], timezoneLabel: 'PST' }} />)
     const flag = screen.getByLabelText('Timberline has a station note')
-    expect(flag.querySelector('svg')).toHaveClass('lucide-sticky-note')
+    expect(flag.querySelector('svg')).toHaveClass('lucide-info')
   })
 
   it('leaves unflagged stations unmarked', () => {

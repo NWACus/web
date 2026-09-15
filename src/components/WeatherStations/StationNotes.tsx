@@ -2,7 +2,7 @@ import { NWAC_DISPLAY_TIMEZONE } from '@/services/snowobs/constants'
 import type { StationNote } from '@/services/snowobs/tableHelpers'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
-import { StickyNote, TriangleAlert } from 'lucide-react'
+import { Info, TriangleAlert } from 'lucide-react'
 
 function noteDate(startDate: string | null): string | null {
   if (!startDate) return null
@@ -21,7 +21,7 @@ export function NoteIcon({
   return status === 'active' ? (
     <TriangleAlert className={`fill-warning ${className ?? ''}`} aria-hidden />
   ) : (
-    <StickyNote className={`text-muted-foreground ${className ?? ''}`} aria-hidden />
+    <Info className={`text-muted-foreground ${className ?? ''}`} aria-hidden />
   )
 }
 
