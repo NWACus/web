@@ -1,0 +1,59 @@
+{
+  "id": 184563,
+  "published_time": "2026-04-06T11:06:00+00:00",
+  "expires_time": null,
+  "created_at": "2026-04-05T20:27:59+00:00",
+  "updated_at": "2026-04-06T11:06:47+00:00",
+  "author": "Test Forecaster A",
+  "product_type": "weather",
+  "bottom_line": null,
+  "hazard_discussion": null,
+  "weather_discussion": "<p class=\"nac-html-p\">Models do not predict any snowfall through Thursday night. After a warm start to the work week, a dry cold front should move through the area Tuesday. Long-range models predict unsettled spring weather by the weekend. Take 3-5 day forecasts with a big grain of salt in the spring. Some details:</p>\n<p class=\"nac-html-p\"><strong>Monday</strong>: Temperature inversions kept middle and upper elevation locations above freezing Sunday night. Expect mostly clear skies, temperatures in the 40s and possibly lower 50s F, and mostly light S-W winds.</p>\n<p class=\"nac-html-p\"><strong>Tuesday</strong>: Temperature inversions should keep the mountains in the 30s and lower 40s F Monday night. A cold front will produce partly to mostly cloudy skies, and SW-W winds will build to moderate to strong speeds. Temperatures should remain static or warm slightly to the upper 30s and lower 40s F.&nbsp;</p>\n<p class=\"nac-html-p\"><strong>Wednesday</strong>:&nbsp; Tuesday night should bring clearing skies, much colder temperatures in the teens to upper 20s F, and light to moderate NW-W winds. Wednesday, expect clear to partly cloudy skies, temperatures in the 30s and lower 40s F, and breezy, light to moderate NW-W winds.&nbsp;&nbsp;</p>\n<p class=\"nac-html-p\"><strong>Thursday</strong>: Models predict below freezing temperatures in most locations on Wednesday night, followed by clear to partly cloudy skies, warmer temps in the 40s F, and light to moderate W winds on Thursday.&nbsp;&nbsp;</p>\n<p class=\"nac-html-p\"><strong>Friday-Sun:</strong> Longer-range models bring warm, showery weather to the area, with rain-snow lines beginning near 9000'.&nbsp;<strong>&nbsp;</strong></p>\n<p class=\"nac-html-p\">________________________________________________________________________________&nbsp;</p>\n<p class=\"nac-html-p\">Check our <a class=\"nac-html-a\" href=\"https://www.sawtoothavalanche.com/weather/stations/map#/\" target=\"_blank\" rel=\"noopener\">Weather Stations</a> page to view remote weather station data year-round.&nbsp;</p>\n<p class=\"nac-html-p\">We'll continue updating our <a class=\"nac-html-a\" href=\"https://www.sawtoothavalanche.com/weather/storm-totals\" target=\"_blank\" rel=\"noopener\">Storm Totals</a> page so you can easily see how much snow, or rain, falls in the forecast area.&nbsp;</p>\n<p class=\"nac-html-p\">Our <a class=\"nac-html-a\" href=\"https://www.sawtoothavalanche.com/weather/weather-tools\" target=\"_blank\" rel=\"noopener\">Weather Tools</a> page provides links to help you dial in your mountain weather forecast.&nbsp;</p>\n<p>&nbsp;</p>",
+  "announcement": null,
+  "status": "published",
+  "media": null,
+  "weather_data": [],
+  "avalanche_center": {
+    "id": "SNFAC",
+    "name": "Sawtooth Avalanche Center",
+    "url": "https://www.sawtoothavalanche.com/",
+    "city": "Ketchum",
+    "state": "ID"
+  },
+  "forecast_avalanche_problems": [],
+  "danger": [],
+  "forecast_zone": [
+    {
+      "id": 2904,
+      "name": "Galena Summit & Eastern Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/galena-summit-&-eastern-mtns",
+      "state": "ID",
+      "zone_id": "3",
+      "config": null
+    },
+    {
+      "id": 2905,
+      "name": "Soldier & Wood River Valley Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/soldier-&-wood-river-valley-mtns",
+      "state": "ID",
+      "zone_id": "4",
+      "config": null
+    },
+    {
+      "id": 2906,
+      "name": "Sawtooth & Western Smoky Mtns",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/sawtooth-&-western-smoky-mtns",
+      "state": "ID",
+      "zone_id": "2",
+      "config": null
+    },
+    {
+      "id": 2907,
+      "name": "Banner Summit",
+      "url": "https://www.sawtoothavalanche.com/forecasts/avalanche/banner-summit",
+      "state": "ID",
+      "zone_id": "1",
+      "config": null
+    }
+  ]
+}

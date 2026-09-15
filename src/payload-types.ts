@@ -3042,6 +3042,10 @@ export interface Setting {
      * Render the home page’s avalanche danger map natively. Layout, controls and map height follow the danger-map settings your forecasters configure in the NAC dashboard.
      */
     dangerMap?: boolean | null;
+    /**
+     * Render the Mountain Weather page natively, for centers that publish a mountain-weather product through the NAC. Centers without one have no Mountain Weather page either way.
+     */
+    weather?: boolean | null;
   };
   socialMedia?: {
     instagram?: string | null;
@@ -4849,6 +4853,7 @@ export interface SettingsSelect<T extends boolean = true> {
         forecast?: T;
         warning?: T;
         dangerMap?: T;
+        weather?: T;
       };
   socialMedia?:
     | T
