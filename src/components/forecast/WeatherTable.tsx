@@ -8,6 +8,7 @@
 import type { RowColumnWeatherData } from '@/services/nac/model/forecast'
 
 import { WeatherInfoHint } from './WeatherInfoHint'
+import { sanitizeHtml } from './sanitizeHtml'
 
 /** Coerce the wire colspan (string | number | undefined) to a positive integer. */
 function colSpan(value: string | number | undefined): number {
@@ -26,13 +27,15 @@ export function WeatherTable({ table }: { table: RowColumnWeatherData }) {
   return (
     <div className="my-3 overflow-x-auto">
       <table className="w-full min-w-[640px] border-collapse text-sm">
-        <thead>
+        {/* The heavier rule under the heading block wins the border-collapse tie on width. */}
+        <thead className="border-b-2 border-b-muted-foreground">
           {columns.map((headingRow, rowIndex) => (
             <tr key={rowIndex}>
+              {/* Row headings never wrap; the zone name is long enough to eat a phone's whole table width. */}
               {rowIndex === 0 && (
                 <th
                   rowSpan={columns.length}
-                  className="border bg-muted p-2 text-left align-middle font-semibold"
+                  className="border bg-muted px-3 py-2 text-left align-middle font-semibold md:whitespace-nowrap"
                 >
                   {table.zone_name}
                 </th>
@@ -61,9 +64,10 @@ export function WeatherTable({ table }: { table: RowColumnWeatherData }) {
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr key={rowIndex}>
-              <td className="border p-2 text-left align-middle">
+              <td className="whitespace-nowrap border px-3 py-2 text-left align-middle">
                 <span className="font-medium">{row.heading}</span>
-                {row.help && <WeatherInfoHint content={row.help} />}
+                {/* Sanitizing stays on the server; the hint is a client component that only renders it. */}
+                {row.help && <WeatherInfoHint html={sanitizeHtml(row.help)} field={row.heading} />}
               </td>
               {(data[rowIndex] ?? []).map((cell, colIndex) => {
                 const show = cell.value != null && cell.value !== '' && cell.value !== '-'

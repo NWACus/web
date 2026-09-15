@@ -10,10 +10,10 @@ import {
   validDateForProduct,
 } from '@/services/nac/archiveDates'
 import { forecastFreshnessEndpoint } from '@/services/nac/forecastFingerprint'
-import type { ForecastResult } from '@/services/nac/model/forecast'
 import { fetchProductArchive, getAvalancheCenterMetadata } from '@/services/nac/nac'
 import { resolveZoneFromSlug } from '@/services/nac/resolveZone'
-import { getForecastSource, getWarningSource, getWeatherSource } from '@/services/nac/sources'
+import { getForecastSource, getWarningSource } from '@/services/nac/sources'
+import { getWeatherForForecast } from '@/services/nac/weatherForForecast'
 
 import { RevalidateOnView } from '@/components/freshness/RevalidateOnView.client'
 
@@ -22,18 +22,6 @@ import { NativeForecastView } from './NativeForecastView'
 interface NativeForecastPageProps {
   centerSlug: string
   zoneSlug: string
-}
-
-/**
- * The mountain-weather product is issued separately and pointed to by the forecast; fetch it only
- * when the forecast carries a `weather_product_id`. Returns a promise so the caller can run it in
- * parallel with the archive fetch.
- */
-async function fetchWeatherFor(centerSlug: string, forecastResult: ForecastResult) {
-  const weatherProductId = forecastResult.weather_data?.weather_product_id ?? null
-  if (weatherProductId === null) return null
-
-  return getWeatherSource(centerSlug).getWeather(weatherProductId)
 }
 
 export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecastPageProps) {
@@ -76,9 +64,10 @@ export async function NativeForecastPage({ centerSlug, zoneSlug }: NativeForecas
   const currentDate = validDateForProduct(forecastResult.published_time, metadata.timezone)
   const window = initialArchiveWindow(currentDate)
 
+  // The mountain-weather product is issued separately; `getWeatherForForecast` owns how it is found.
   const [archive, weather] = await Promise.all([
     fetchProductArchive(centerSlug, window),
-    fetchWeatherFor(centerSlug, forecastResult),
+    getWeatherForForecast(centerSlug, zone.zone.id, forecastResult, metadata.timezone),
   ])
   const initialDates = buildZoneArchiveDates(archive, zone.zone.id, metadata.timezone)
 

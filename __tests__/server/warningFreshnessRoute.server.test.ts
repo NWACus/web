@@ -38,6 +38,7 @@ import {
 } from '@/services/nac/centerWarnings'
 import { ProductType } from '@/services/nac/model/forecast'
 import { warningFixture } from '../fixtures/warningProducts'
+import { CACHEABLE, answer } from '../helpers/freshnessRouteAnswers'
 
 function group(
   productType: AlertProductType,
@@ -60,8 +61,6 @@ const WARNING_Z1 = [group(ProductType.Warning, 1)]
 const WARNING_Z1_UPDATED = [group(ProductType.Warning, 1, 'Conditions have worsened.')]
 const WARNING_Z1_Z2 = [group(ProductType.Warning, 1), group(ProductType.Watch, 2)]
 
-const CACHEABLE = 'public, max-age=0, s-maxage=30'
-
 function call(fingerprint: string, center = 'nwac') {
   const url = `http://localhost/api/${center}/warning-freshness/${fingerprint}`
   return GET(new Request(url), { params: Promise.resolve({ center, fingerprint }) })
@@ -81,14 +80,6 @@ function check(options: {
   if (options.cached) mockGetCenterWarnings.mockResolvedValue(options.cached)
 
   return call(centerWarningsFingerprint(options.rendered))
-}
-
-async function answer(res: Response) {
-  return {
-    status: res.status,
-    cacheControl: res.headers.get('Cache-Control'),
-    body: await res.json(),
-  }
 }
 
 /** Asserts the endpoint changed nothing and told the viewer their render is still current. */
