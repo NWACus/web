@@ -97,6 +97,16 @@ export function activeNotesFor(station: ResponseStation): StationNote[] {
   })
 }
 
+// Newest first; undated notes keep their SnowObs order at the end.
+export function activeStationNotes(response: SnowObsTimeseriesResponse): StationNote[] {
+  return response.STATION.flatMap(activeNotesFor).sort((a, b) => raisedAt(b) - raisedAt(a))
+}
+
+function raisedAt(note: StationNote): number {
+  const ms = note.startDate ? Date.parse(note.startDate) : Number.NaN
+  return Number.isNaN(ms) ? -Infinity : ms
+}
+
 // Numeric series for a config column; computes cumulative precip on the fly.
 function columnSeries(
   station: ResponseStation | undefined,

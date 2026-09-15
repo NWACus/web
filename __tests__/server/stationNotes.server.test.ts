@@ -1,4 +1,4 @@
-import { activeStationNotes } from '../../src/services/snowobs/stationNotes'
+import { activeStationNotes } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
 
 function station(stid: string, name: string, notes: unknown[]): unknown {

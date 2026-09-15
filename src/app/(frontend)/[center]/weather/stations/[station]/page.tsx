@@ -16,9 +16,8 @@ import {
   type WeatherStationGroup,
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
-import { activeStationNotes } from '@/services/snowobs/stationNotes'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
-import { buildStationTable } from '@/services/snowobs/tableHelpers'
+import { activeStationNotes, buildStationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
