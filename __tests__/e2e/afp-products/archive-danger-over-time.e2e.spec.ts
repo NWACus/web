@@ -49,6 +49,26 @@ test.describe('Forecast archive danger-over-time charts', () => {
     )
   })
 
+  test('a bar opens the dated forecast for that zone-day', async ({ page }) => {
+    // The corpus holds no product-by-id golden for this zone-day, so the destination is stubbed
+    // at the browser and never reaches the mocked upstream. What this asserts is that the bar
+    // asks for the right address; the dated page itself is archive.e2e.spec.ts's business.
+    await page.route('**/forecasts/avalanche/banner-summit/2026-04-05*', (route) =>
+      route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>stub</title>' }),
+    )
+    await loadPage(page, `${DANGER_URL}${SEASON}&zone=banner-summit`)
+    const canvas = page.locator('canvas')
+    await expect(canvas).toHaveCount(1)
+
+    // The one rated day fills the extent, so its Moderate bar spans the plot's width and the
+    // lower two fifths of its height; a click low in the canvas lands on it.
+    const box = await canvas.boundingBox()
+    if (!box) throw new Error('chart canvas has no box')
+    await canvas.click({ position: { x: box.width / 2, y: box.height * 0.7 } })
+
+    await expect(page).toHaveURL(/\/forecasts\/avalanche\/banner-summit\/2026-04-05$/)
+  })
+
   test('the tabs carry the filters between the list and the charts', async ({ page }) => {
     await loadPage(page, `${ARCHIVE_URL}${SEASON}&zone=banner-summit`)
 

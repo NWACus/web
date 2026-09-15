@@ -391,7 +391,8 @@ export interface DangerOverTime {
  * the season's rows, not just the filtered ones), clipped to the selected date range — the legacy
  * chart's two zero-height end points. A zone-day shows the danger of the product its bar links
  * to, the zone-day's latest publication, where the legacy chart took the day's highest rating
- * across publications; the rows are already collapsed that way (`buildArchiveRows`).
+ * across publications; the rows are already collapsed that way (`buildArchiveRows`). So a day
+ * whose rated forecast was followed by an unrated summary is a gap here, not the legacy's bar.
  */
 export function buildDangerOverTime(
   seasonRows: ArchiveRow[],

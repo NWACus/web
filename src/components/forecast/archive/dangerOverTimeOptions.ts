@@ -49,6 +49,8 @@ export function buildDangerOverTimeOption(
   const days = chartDays(extent)
 
   return {
+    // No grow-in: the legacy chart drew at once, and the export should too.
+    animation: false,
     grid: { left: 48, right: 16, top: 12, bottom: 56 },
     tooltip: {
       trigger: 'item',

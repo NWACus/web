@@ -47,11 +47,14 @@ export function EChart({
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const instanceRef = useRef<echarts.ECharts | null>(null)
-  // Read through a ref so a new handler doesn't re-create the chart.
+  // Read through refs so a new handler doesn't re-create the chart, and a re-created chart
+  // (a group change) starts from the current option rather than empty.
   const onClickRef = useRef(onClick)
+  const optionRef = useRef(option)
   useEffect(() => {
     onClickRef.current = onClick
-  }, [onClick])
+    optionRef.current = option
+  }, [onClick, option])
 
   useEffect(() => {
     const container = containerRef.current
@@ -64,6 +67,7 @@ export function EChart({
       echarts.connect(group)
     }
     chart.on('click', (event) => onClickRef.current?.(event))
+    chart.setOption(optionRef.current, { notMerge: true })
     const observer = new ResizeObserver(() => chart.resize())
     observer.observe(container)
 
