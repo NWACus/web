@@ -20,6 +20,33 @@ export type GraphPreset = {
   defaultHidden?: boolean
 }
 
+// Graphs-tab comparison cap; the graph-data route derives its station cap from this.
+export const MAX_COMPARE_STATIONS = 3
+
+// Optional per-page floors, set on the station page in the admin. Each one
+// replaces the matching preset's default `axis.max`; still a floor, not a
+// ceiling, so a bigger reading widens the axis just as it does by default.
+export type GraphAxisOverrides = {
+  snowDepthMax?: number | null
+  snowfall24Max?: number | null
+  precipMax?: number | null
+}
+
+const AXIS_OVERRIDE_BY_PRESET: Record<string, keyof GraphAxisOverrides> = {
+  snowdepth: 'snowDepthMax',
+  snow24: 'snowfall24Max',
+  precip: 'precipMax',
+}
+
+export function applyGraphAxes(presets: GraphPreset[], overrides: GraphAxisOverrides): GraphPreset[] {
+  return presets.map((preset) => {
+    const key = AXIS_OVERRIDE_BY_PRESET[preset.key]
+    const max = key ? overrides[key] : null
+    if (max == null) return preset
+    return { ...preset, axis: { ...preset.axis, max } }
+  })
+}
+
 // Every station gets the full preset list — loggers report more sensors than
 // the registry's NOW-table columns. Charts with no data hide themselves, and
 // the default-hidden ones sort last to keep the Edit graphs list tidy.

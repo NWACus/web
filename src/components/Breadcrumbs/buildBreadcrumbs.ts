@@ -23,7 +23,7 @@ const NATIVE_ROUTE_ROOTS = ['blog', 'events', 'forecasts', 'observations', 'weat
 
 const KNOWN_PATHS_WITHOUT_PAGES = ['/forecasts', '/weather', '/observations/avalanches']
 
-// Only NWAC has a /weather/stations index page, so only its crumb links.
+// Only NWAC has a page at /weather/stations, so only its crumb links.
 const STATIONS_INDEX_CENTER = 'nwac'
 
 export function buildBreadcrumbs({

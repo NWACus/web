@@ -39,7 +39,7 @@ describe('buildBreadcrumbs', () => {
       ])
     })
 
-    it('links the stations crumb on NWAC, which has a stations index page', () => {
+    it('links the stations crumb on NWAC, which has a page at /weather/stations', () => {
       const items = buildBreadcrumbs({ center: 'nwac', path: '/weather/stations/map' })
 
       expect(items).toEqual([

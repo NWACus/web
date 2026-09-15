@@ -91,6 +91,8 @@ export interface Config {
     globalRoles: GlobalRole;
     globalRoleAssignments: GlobalRoleAssignment;
     tenants: Tenant;
+    stationGroups: StationGroup;
+    stations: Station;
     navigations: Navigation;
     settings: Setting;
     redirects: Redirect;
@@ -119,6 +121,9 @@ export interface Config {
       roles: 'roleAssignments';
       globalRoleAssignments: 'globalRoleAssignments';
     };
+    stationGroups: {
+      stations: 'stations';
+    };
   };
   collectionsSelect: {
     homePages: HomePagesSelect<false> | HomePagesSelect<true>;
@@ -144,6 +149,8 @@ export interface Config {
     globalRoles: GlobalRolesSelect<false> | GlobalRolesSelect<true>;
     globalRoleAssignments: GlobalRoleAssignmentsSelect<false> | GlobalRoleAssignmentsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    stationGroups: StationGroupsSelect<false> | StationGroupsSelect<true>;
+    stations: StationsSelect<false> | StationsSelect<true>;
     navigations: NavigationsSelect<false> | NavigationsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -2132,6 +2139,81 @@ export interface GlobalRole {
   createdAt: string;
 }
 /**
+ * The weather station pages. Assign stations to a page from the Stations list; the table columns follow what those stations report.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationGroups".
+ */
+export interface StationGroup {
+  id: number;
+  tenant: number | Tenant;
+  displayName: string;
+  /**
+   * Auto-generated from displayName. Must be unique; lowercase letters, numbers, and hyphens only.
+   */
+  slug: string;
+  /**
+   * Set on each station. Ordered by "group order", then elevation.
+   */
+  stations?: {
+    docs?: (number | Station)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Optional per-page floors for the graph axes, in inches. The axis always covers at least this much and widens for bigger readings. Blank uses the site default.
+   */
+  graphAxes?: {
+    snowDepthMax?: number | null;
+    snowfall24Max?: number | null;
+    precipMax?: number | null;
+  };
+  /**
+   * The hardware is gone but the history is still queryable, so the page stays up for downloads.
+   */
+  archived?: boolean | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stations".
+ */
+export interface Station {
+  id: number;
+  tenant: number | Tenant;
+  /**
+   * The page this station appears on. A station with no page is on the site nowhere.
+   */
+  group?: (number | null) | StationGroup;
+  /**
+   * Position among the stations on its page, lowest first. Ties and blanks fall back to elevation, highest first.
+   */
+  groupOrder?: number | null;
+  /**
+   * Drop this gauge from the Accumulated Precipitation page while it has a long-term fault. Day-to-day gaps show as "missing" on their own.
+   */
+  hiddenOnPrecipTable?: boolean | null;
+  /**
+   * SnowObs station id.
+   */
+  stid: string;
+  /**
+   * The SnowObs source this station came from.
+   */
+  source: string;
+  name?: string | null;
+  elevation?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  weatherStationPartner?: string | null;
+  lastSyncedAt?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigations".
  */
@@ -3340,6 +3422,14 @@ export interface PayloadLockedDocument {
         value: number | Tenant;
       } | null)
     | ({
+        relationTo: 'stationGroups';
+        value: number | StationGroup;
+      } | null)
+    | ({
+        relationTo: 'stations';
+        value: number | Station;
+      } | null)
+    | ({
         relationTo: 'navigations';
         value: number | Navigation;
       } | null)
@@ -4308,6 +4398,48 @@ export interface TenantsSelect<T extends boolean = true> {
         lastRunAt?: T;
         failed?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stationGroups_select".
+ */
+export interface StationGroupsSelect<T extends boolean = true> {
+  tenant?: T;
+  displayName?: T;
+  slug?: T;
+  stations?: T;
+  graphAxes?:
+    | T
+    | {
+        snowDepthMax?: T;
+        snowfall24Max?: T;
+        precipMax?: T;
+      };
+  archived?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stations_select".
+ */
+export interface StationsSelect<T extends boolean = true> {
+  tenant?: T;
+  group?: T;
+  groupOrder?: T;
+  hiddenOnPrecipTable?: T;
+  stid?: T;
+  source?: T;
+  name?: T;
+  elevation?: T;
+  latitude?: T;
+  longitude?: T;
+  weatherStationPartner?: T;
+  lastSyncedAt?: T;
+  contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
 }

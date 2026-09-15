@@ -1,8 +1,8 @@
 'use client'
 
-import { getStationGroup } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
+import type { StationPageSummary } from '@/services/stations/getStationPages'
 import { cn } from '@/utilities/ui'
 import { subHours } from 'date-fns'
 import { Loader2, X } from 'lucide-react'
@@ -181,6 +181,7 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <div className="hidden sm:contents">
           <CompareSelect
+            pages={props.pages}
             currentSlug={props.currentSlug}
             compareSlugs={compareSlugs}
             onCompareChange={onCompareChange}
@@ -189,6 +190,7 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
         {compareSlugs.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
             <CompareChips
+              pages={props.pages}
               compareSlugs={compareSlugs}
               onRemove={(slug) => onCompareChange(compareSlugs.filter((s) => s !== slug))}
             />
@@ -208,11 +210,15 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
   )
 }
 
-// The page's stids plus each comparison group's, deduped in selection order.
-function combinedStids(stids: string[], compareSlugs: string[]): string[] {
+// The page's stids plus each comparison page's, deduped in selection order.
+function combinedStids(
+  stids: string[],
+  compareSlugs: string[],
+  pages: StationPageSummary[],
+): string[] {
   const combined = [...stids]
   for (const slug of compareSlugs) {
-    for (const stid of getStationGroup(slug)?.stids ?? []) {
+    for (const stid of pages.find((page) => page.slug === slug)?.stids ?? []) {
       if (!combined.includes(stid)) combined.push(stid)
     }
   }
@@ -223,18 +229,23 @@ export function StationGraphs({
   stids,
   presets,
   currentSlug,
+  pages,
   tabs,
 }: {
   stids: string[]
   presets: GraphPreset[]
   currentSlug: string
+  pages: StationPageSummary[]
   tabs?: ReactNode
 }) {
   const [graphPeriod, setStationPeriod] = useState(DEFAULT_GRAPH_PERIOD)
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
   const [unitSystem, changeUnitSystem] = useUnitSystem()
 
-  const allStids = useMemo(() => combinedStids(stids, compareSlugs), [stids, compareSlugs])
+  const allStids = useMemo(
+    () => combinedStids(stids, compareSlugs, pages),
+    [stids, compareSlugs, pages],
+  )
   const variables = useMemo(
     () => Array.from(new Set(presets.flatMap((p) => p.variables))),
     [presets],
@@ -254,6 +265,7 @@ export function StationGraphs({
     <div className="flex flex-col gap-6">
       <GraphsToolbar
         tabs={tabs}
+        pages={pages}
         graphPeriod={graphPeriod}
         onPeriodChange={setStationPeriod}
         unitSystem={unitSystem}
