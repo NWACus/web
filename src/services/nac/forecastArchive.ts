@@ -10,12 +10,19 @@
  */
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns/format'
+import { isValid } from 'date-fns/isValid'
 import { parseISO } from 'date-fns/parseISO'
 
 import { validDateForProduct, type ArchiveProductSummary } from './archiveDates'
 
-/** The browser's tenant-relative path. */
+/** The browser's tenant-relative path: the forecast list, its first tab. */
 export const ARCHIVE_PATH = '/forecasts/avalanche/archive'
+
+/** The danger-over-time tab's tenant-relative path. */
+export const ARCHIVE_DANGER_PATH = `${ARCHIVE_PATH}/danger-over-time`
+
+/** The browser's tabs, each a route of its own sharing the same filter query. */
+export type ArchiveView = 'forecasts' | 'danger'
 
 /** Rows per page, matching the legacy browser. */
 export const ARCHIVE_PAGE_SIZE = 50
@@ -121,8 +128,18 @@ function unique<T>(values: T[]): T[] {
   return Array.from(new Set(values))
 }
 
+/**
+ * A real calendar date within the window. The shape check alone lets `2026-02-30` through, which
+ * sorts inside the window but throws the moment it is formatted.
+ */
 function dateWithin(value: string | null, from: string, to: string): value is string {
-  return value !== null && DATE_PATTERN.test(value) && value >= from && value <= to
+  return (
+    value !== null &&
+    DATE_PATTERN.test(value) &&
+    isValid(parseISO(value)) &&
+    value >= from &&
+    value <= to
+  )
 }
 
 /**
@@ -343,6 +360,73 @@ export function paginateArchiveRows(
   const start = (page - 1) * pageSize
 
   return { rows: rows.slice(start, start + pageSize), page, pageCount, total }
+}
+
+/** One charted day: a zone's rated valid date and its danger level 1–5. */
+export interface DangerOverTimePoint {
+  date: string
+  dangerLevel: number
+}
+
+export interface ZoneDangerOverTime {
+  zone: ArchiveZone
+  /** Ascending by date; only rated days, so a gap is a day without a rating. */
+  points: DangerOverTimePoint[]
+}
+
+export interface DangerOverTime {
+  /** The inclusive date range every chart spans. */
+  extent: { from: string; to: string }
+  /** In the center's zone order; only zones with at least one rated day in the filtered rows. */
+  zones: ZoneDangerOverTime[]
+}
+
+/**
+ * The danger-over-time tab's data: per zone, the danger level of each rated day in the filtered
+ * rows, matching the legacy `ArchiveVisual`. Unrated rows (level 0, which also holds the folded
+ * general-information products) are not charted, as in the legacy chart, so a zone with none is
+ * left out and `null` means there is nothing to chart at all.
+ *
+ * Every chart spans the same range: the season's first rated day through its last (over *all*
+ * the season's rows, not just the filtered ones), clipped to the selected date range — the legacy
+ * chart's two zero-height end points. A zone-day shows the danger of the product its bar links
+ * to, the zone-day's latest publication, where the legacy chart took the day's highest rating
+ * across publications; the rows are already collapsed that way (`buildArchiveRows`).
+ */
+export function buildDangerOverTime(
+  seasonRows: ArchiveRow[],
+  filteredRows: ArchiveRow[],
+  range: { from: string; to: string },
+  zones: ArchiveZone[],
+): DangerOverTime | null {
+  const rated = filteredRows.filter((row) => row.dangerLevel > 0)
+  if (rated.length === 0) return null
+
+  const charted = zones.flatMap((zone) => {
+    const points = rated
+      .filter((row) => row.zoneId === zone.id)
+      .map(({ date, dangerLevel }) => ({ date, dangerLevel }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+    return points.length > 0 ? [{ zone, points }] : []
+  })
+  if (charted.length === 0) return null
+
+  return { extent: ratedExtent(seasonRows, range), zones: charted }
+}
+
+/** The season's rated span clipped to the selected range. Strings compare as dates. */
+function ratedExtent(
+  seasonRows: ArchiveRow[],
+  range: { from: string; to: string },
+): { from: string; to: string } {
+  let from = range.to
+  let to = range.from
+  for (const row of seasonRows) {
+    if (row.dangerLevel === 0) continue
+    if (row.date < from) from = row.date
+    if (row.date > to) to = row.date
+  }
+  return { from: from > range.from ? from : range.from, to: to < range.to ? to : range.to }
 }
 
 /** Where a row links: the dated forecast view for its zone and valid date. */

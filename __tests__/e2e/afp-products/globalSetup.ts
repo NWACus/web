@@ -41,6 +41,7 @@ async function warmServer(port: string) {
     ['snfac', '/forecasts/avalanche'],
     ['snfac', '/forecasts/avalanche/banner-summit'],
     ['snfac', '/forecasts/avalanche/archive?season=2026'],
+    ['snfac', '/forecasts/avalanche/archive/danger-over-time?season=2026'],
     ['nwac', '/forecasts/avalanche'],
     ['nwac', '/forecasts/avalanche/olympics'],
     ['dvac', '/forecasts/avalanche/olympics'],
