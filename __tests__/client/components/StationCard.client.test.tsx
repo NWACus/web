@@ -56,10 +56,12 @@ describe('StationCard', () => {
     ])
   })
 
-  it('links the whole card to the native station page', () => {
+  it('links to the native station page in a new tab', () => {
     render(<StationCard station={station} context={context} />)
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/weather/stations/white-chuck')
-    expect(screen.getByText('View station')).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: 'View station' })
+    expect(link).toHaveAttribute('href', '/weather/stations/white-chuck')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
   it('is a plain card for a station with no native page', () => {
