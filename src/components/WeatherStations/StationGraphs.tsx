@@ -24,7 +24,7 @@ function ChartSkeleton() {
   return <div className="h-80 animate-pulse rounded-md bg-muted" />
 }
 
-const EChart = dynamic(() => import('./EChart').then((m) => m.EChart), {
+const EChart = dynamic(() => import('@/components/charts/EChart').then((m) => m.EChart), {
   ssr: false,
   loading: () => <ChartSkeleton />,
 })
