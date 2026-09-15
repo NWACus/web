@@ -7,7 +7,17 @@ interface EventFormData {
   endDate?: string | Date
 }
 
-export const startAndEndDateField = (): RowField => ({
+type StartAndEndDateFieldOptions = {
+  /**
+   * Default a new document's timezone to the selected center's rather than the editor's browser.
+   * Only correct for tenant-scoped collections — see ADR 020.
+   */
+  defaultToCenterTimezone?: boolean
+}
+
+export const startAndEndDateField = ({
+  defaultToCenterTimezone = false,
+}: StartAndEndDateFieldOptions = {}): RowField => ({
   type: 'row',
   fields: [
     {
@@ -63,8 +73,10 @@ export const startAndEndDateField = (): RowField => ({
       name: 'initialTimezoneSetter',
       admin: {
         components: {
-          Field:
-            '@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter',
+          Field: {
+            path: '@/fields/startAndEndDateField/components/InitialTimezoneSetter#InitialTimezoneSetter',
+            clientProps: { defaultToCenterTimezone },
+          },
         },
       },
     },

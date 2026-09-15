@@ -3,7 +3,7 @@ import type { Tenant } from '@/payload-types'
 import { convertWebpToPng, isWebpMedia } from '@/utilities/convertWebpToPng'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { isValidRelationship } from '@/utilities/relationships'
-import { US_TIMEZONES } from '@/utilities/timezones'
+import { AVALANCHE_CENTERS } from '@/utilities/tenancy/avalancheCenters'
 import type { Payload } from 'payload'
 import type { OgDocType } from './buildOgImageUrl'
 
@@ -82,9 +82,11 @@ export async function getOgDocData({
       if (names.length) parts.push(`By ${names.join(', ')}`)
     }
     if (doc.showDate && doc.publishedAt) {
-      // Posts don't store a timezone, so pin to Pacific: OG images render server-side
+      // Posts don't store a timezone, so use the center's: OG images render server-side
       // (UTC on Vercel), and an evening publish would otherwise show the next day's date.
-      parts.push(formatDateTime(doc.publishedAt, US_TIMEZONES.PACIFIC, 'MMM d, yyyy'))
+      parts.push(
+        formatDateTime(doc.publishedAt, AVALANCHE_CENTERS[tenant.slug].timezone, 'MMM d, yyyy'),
+      )
     }
   } else if (type === 'event' && 'startDate' in doc) {
     if (doc.startDate) {
