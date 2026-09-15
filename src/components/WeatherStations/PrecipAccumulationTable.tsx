@@ -1,5 +1,6 @@
 'use client'
 
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type {
@@ -10,6 +11,7 @@ import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { NoteIcon, StationNoteList } from './StationNotes'
 import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
@@ -150,7 +152,10 @@ function StationRow({ row, unit }: { row: PrecipAccumulationRow; unit: Unit }) {
   return (
     <TableRow className="bg-background even:bg-muted">
       <TableCell className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-2 py-1.5 font-medium">
-        {row.name}
+        <span className="inline-flex items-center gap-1">
+          {row.name}
+          {row.notes.length > 0 && <StationNoteFlag row={row} />}
+        </span>
       </TableCell>
       <AccumulationCells row={row} unit={unit} />
       <TableCell
@@ -277,6 +282,34 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
           ))}
         </TableBody>
       </StationTableFrame>
+      <StationNoteLegend rows={rows} />
     </div>
+  )
+}
+
+// The note itself lives on the station page; the flag gets the reader there.
+function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
+  const status = row.notes.some((note) => note.status === 'active') ? 'active' : 'static'
+  return (
+    <Popover>
+      <PopoverTrigger className="inline-flex" aria-label={`${row.name} has a station note`}>
+        <NoteIcon status={status} className="h-3.5 w-3.5" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto max-w-sm p-3">
+        <StationNoteList notes={row.notes} />
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function StationNoteLegend({ rows }: { rows: PrecipAccumulationRow[] }) {
+  if (!rows.some((row) => row.notes.length > 0)) return null
+  return (
+    <p className="mt-3 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+      <NoteIcon status="active" className="h-3.5 w-3.5 shrink-0" />
+      marks a station with a current issue,
+      <NoteIcon status="static" className="h-3.5 w-3.5 shrink-0" />
+      marks a station with a standing note.
+    </p>
   )
 }

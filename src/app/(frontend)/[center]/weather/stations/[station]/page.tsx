@@ -17,7 +17,7 @@ import {
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
-import { buildStationTable } from '@/services/snowobs/tableHelpers'
+import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -34,6 +34,12 @@ export async function generateStaticParams() {
     center: STATIONS_TENANT_SLUG,
     station: group.slug,
   }))
+}
+
+// Notes ride with the station metadata, so a 1-hour window is enough.
+async function loadStationNotes(group: WeatherStationGroup) {
+  const meta = await fetchStationTimeseries(group.stids, { revalidate, windowHours: 1 })
+  return stationNotes(meta.STATION)
 }
 
 // Datalogger dropdown options for the CSV form: the group's station ids labeled with
@@ -149,7 +155,10 @@ export default async function Page({ params, searchParams }: Args) {
     notFound()
   }
 
-  const view = await resolveTabView(group, rangeParam, periodParam)
+  const [view, notes] = await Promise.all([
+    resolveTabView(group, rangeParam, periodParam),
+    loadStationNotes(group),
+  ])
 
   return (
     <>
@@ -158,7 +167,12 @@ export default async function Page({ params, searchParams }: Args) {
         path={`/weather/stations/${station}`}
         title={group.displayName}
       />
-      <StationPageView group={group} table={view.table} tabContent={view.tabContent} />
+      <StationPageView
+        group={group}
+        table={view.table}
+        notes={notes}
+        tabContent={view.tabContent}
+      />
     </>
   )
 }
