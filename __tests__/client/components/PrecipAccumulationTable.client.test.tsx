@@ -118,7 +118,16 @@ function note(text: string, status: 'active' | 'static' = 'active') {
 }
 
 describe('station notes', () => {
-  it('flags a station carrying an active note and links the flag to its page', () => {
+  beforeAll(() => {
+    class ResizeObserverStub {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    }
+    globalThis.ResizeObserver = ResizeObserverStub
+  })
+
+  it('opens the notes in a popover with a link to the station page', () => {
     const broken = buildRow({
       stid: '44',
       name: 'Timberline',
@@ -127,13 +136,20 @@ describe('station notes', () => {
     render(<PrecipAccumulationTable table={{ rows: [broken], timezoneLabel: 'PST' }} />)
 
     const flag = screen.getByLabelText('Timberline has a station note')
-    expect(flag).toHaveAttribute('href', '/weather/stations/timberline-base')
-    expect(flag).toHaveAttribute('title', 'The precipitation gauge is not recording correctly.')
     expect(flag.querySelector('svg')).toHaveClass('lucide-triangle-alert')
     expect(screen.getByText(/current issue/)).toBeInTheDocument()
+
+    fireEvent.click(flag)
+    expect(
+      screen.getByText('The precipitation gauge is not recording correctly.'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open the station page' })).toHaveAttribute(
+      'href',
+      '/weather/stations/timberline-base',
+    )
   })
 
-  it('uses the note icon for a station with only a standing note', () => {
+  it('uses the info icon for a station with only a standing note', () => {
     const row = buildRow({
       stid: '44',
       name: 'Timberline',

@@ -1,5 +1,6 @@
 'use client'
 
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { getStationGroupByStid } from '@/constants/weatherStations'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
@@ -12,7 +13,7 @@ import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
-import { NoteIcon } from './StationNotes'
+import { NoteIcon, StationNoteList } from './StationNotes'
 import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
@@ -289,21 +290,27 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
 }
 
 // The note itself lives on the station page; the flag gets the reader there.
+// The notes open in place; the station page is a click further for context.
 function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
   const group = getStationGroupByStid(row.stid)
   const status = row.notes.some((note) => note.status === 'active') ? 'active' : 'static'
-  const props = {
-    className: 'inline-flex',
-    title: row.notes.map((note) => note.note).join(' '),
-    'aria-label': `${row.name} has a station note`,
-  }
-  const icon = <NoteIcon status={status} className="h-3.5 w-3.5" />
-  return group ? (
-    <Link href={`/weather/stations/${group.slug}`} {...props}>
-      {icon}
-    </Link>
-  ) : (
-    <span {...props}>{icon}</span>
+  return (
+    <Popover>
+      <PopoverTrigger className="inline-flex" aria-label={`${row.name} has a station note`}>
+        <NoteIcon status={status} className="h-3.5 w-3.5" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto max-w-sm p-3">
+        <StationNoteList notes={row.notes} />
+        {group && (
+          <Link
+            href={`/weather/stations/${group.slug}`}
+            className="mt-2 inline-block text-sm text-primary hover:underline"
+          >
+            Open the station page
+          </Link>
+        )}
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -314,7 +321,7 @@ function StationNoteLegend({ rows }: { rows: PrecipAccumulationRow[] }) {
       <NoteIcon status="active" className="h-3.5 w-3.5 shrink-0" />
       marks a station with a current issue,
       <NoteIcon status="static" className="h-3.5 w-3.5 shrink-0" />
-      one with a standing note. Open the station&apos;s page to read them.
+      marks a station with a standing note. Click one to read it.
     </p>
   )
 }
