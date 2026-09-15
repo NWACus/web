@@ -98,8 +98,10 @@ export async function syncStations(
       continue
     }
 
-    // Skip no-op writes: the database is remote SQLite, so every update is a
-    // round trip, and station identity changes about never.
+    // An unchanged station still gets its timestamp, so "last synced" means
+    // last checked, not last changed. No page reads the row, so skip the cache
+    // bust; the write itself is cheap enough for a button pressed a few times a
+    // season.
     if (
       unchanged(
         identityFrom({
@@ -109,6 +111,12 @@ export async function syncStations(
         identity,
       )
     ) {
+      await payload.update({
+        collection: 'stations',
+        id: current.id,
+        data: { lastSyncedAt },
+        context: { disableRevalidate: true },
+      })
       result.unchanged++
       continue
     }
