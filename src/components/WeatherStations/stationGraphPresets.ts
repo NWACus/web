@@ -1,18 +1,8 @@
-export type GraphAxis = { min?: number; max?: number }
-
-export type GraphPresetKey =
-  | 'temp'
-  | 'wind'
-  | 'winddir'
-  | 'precip'
-  | 'snow24'
-  | 'intersnow'
-  | 'snowdepth'
-  | 'pyranometer'
-  | 'pressure'
-  | 'equiptemp'
-  | 'rh'
-  | 'battery'
+/** `min` pins the bottom of the axis (0 for amounts). `minSpan` is the least
+ * range the axis shows, so a quiet week doesn't stretch sensor noise to full
+ * height; a pinned axis grows upward to reach it, an unpinned one centres the
+ * data. Data past either widens the axis. */
+export type GraphAxis = { min?: number; minSpan?: number }
 
 export type GraphPreset = {
   key: string
@@ -20,8 +10,6 @@ export type GraphPreset = {
   variables: string[]
   /** Dots instead of a connected line (wind direction wraps at 360°). */
   symbolsOnly?: boolean
-  /** Bounds the axis always covers, from the legacy plotter's
-   * `getVariableBounds`. A floor, not a ceiling: real data widens the axis. */
   axis?: GraphAxis
   /** Horizontal reference line (legacy: 32°F freezing line on temperature). */
   refLine?: number
@@ -40,13 +28,20 @@ export type GraphPreset = {
 // the registry's NOW-table columns. Charts with no data hide themselves, and
 // the default-hidden ones sort last to keep the Edit graphs list tidy.
 export const STATION_GRAPH_PRESETS: GraphPreset[] = [
-  { key: 'temp', title: 'Temperature', variables: ['air_temp'], refLine: 32, allowNegative: true },
+  {
+    key: 'temp',
+    title: 'Temperature',
+    variables: ['air_temp'],
+    refLine: 32,
+    allowNegative: true,
+    axis: { minSpan: 10 },
+  },
   {
     key: 'wind',
     title: 'Wind Speed',
     variables: ['wind_speed_min', 'wind_speed', 'wind_gust'],
     band: { lower: 'wind_speed_min', upper: 'wind_gust' },
-    axis: { min: 0 },
+    axis: { min: 0, minSpan: 10 },
   },
   { key: 'winddir', title: 'Wind Direction', variables: ['wind_direction'], symbolsOnly: true },
   {
@@ -54,25 +49,25 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     title: 'Precipitation',
     variables: ['precip_accum_one_hour'],
     bar: true,
-    axis: { min: 0, max: 0.35 },
+    axis: { min: 0, minSpan: 0.1 },
   },
   {
     key: 'snow24',
     title: '24 Hour Snow Total',
     variables: ['snow_depth_24h'],
-    axis: { min: 0, max: 24 },
+    axis: { min: 0, minSpan: 6 },
   },
   {
     key: 'intersnow',
     title: 'Intermittent Snow',
     variables: ['intermittent_snow'],
-    axis: { min: 0 },
+    axis: { min: 0, minSpan: 6 },
   },
   {
     key: 'snowdepth',
     title: 'Total Snow Depth',
     variables: ['snow_depth'],
-    axis: { min: 0, max: 150 },
+    axis: { min: 0, minSpan: 12 },
   },
   // Legacy also plotted a `net_solar` "Solar Radiation" chart. SnowObs doesn't
   // serve that variable for the NWAC source, so only the pyranometer remains —
@@ -81,13 +76,13 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     key: 'pyranometer',
     title: 'Solar Pyranometer',
     variables: ['solar_radiation'],
-    axis: { min: 0 },
+    axis: { min: 0, minSpan: 100 },
   },
   {
     key: 'pressure',
     title: 'Barometric Pressure',
     variables: ['pressure'],
-    axis: { min: 950, max: 1050 },
+    axis: { minSpan: 10 },
   },
   {
     key: 'equiptemp',
@@ -95,32 +90,20 @@ export const STATION_GRAPH_PRESETS: GraphPreset[] = [
     variables: ['equip_temperature'],
     refLine: 32,
     allowNegative: true,
+    axis: { minSpan: 10 },
   },
   {
     key: 'rh',
     title: 'Relative Humidity',
     variables: ['relative_humidity'],
-    axis: { min: 0, max: 100 },
+    axis: { minSpan: 20 },
     defaultHidden: true,
   },
   {
     key: 'battery',
     title: 'Battery Voltage',
     variables: ['battery_voltage'],
-    axis: { min: 8, max: 16 },
+    axis: { minSpan: 2 },
     defaultHidden: true,
   },
 ]
-
-// A group's own floors laid over the defaults; a bound it doesn't set keeps the preset's.
-export function applyGroupAxes(
-  presets: GraphPreset[],
-  graphAxes?: Partial<Record<GraphPresetKey, GraphAxis>>,
-): GraphPreset[] {
-  if (!graphAxes) return presets
-  const overrides: Partial<Record<string, GraphAxis>> = graphAxes
-  return presets.map((preset) => {
-    const override = overrides[preset.key]
-    return override ? { ...preset, axis: { ...preset.axis, ...override } } : preset
-  })
-}

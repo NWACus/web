@@ -1,4 +1,3 @@
-import type { GraphAxis, GraphPresetKey } from '@/components/WeatherStations/stationGraphPresets'
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
 
 // These station groups are NWAC's SnowObs loggers, so the pages are NWAC-only.
@@ -34,9 +33,6 @@ export type WeatherStationGroup = {
   /** Unique SnowObs station ids fetched for this group. */
   stids: string[]
   columns: StationColumnConfig[]
-  /** Graph axis floors that differ from the preset defaults, from the legacy
-   * plotter's per-region presets. Still floors: data beyond them widens the axis. */
-  graphAxes?: Partial<Record<GraphPresetKey, GraphAxis>>
   /** The physical station is gone but its history is still queryable, so the
    * page stays up for downloads only. SnowObs carries the decommission note. */
   archived?: boolean
@@ -67,7 +63,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'mtbakerskiarea',
     displayName: 'Mt. Baker Ski Area',
     region: 'Mt Baker',
-    graphAxes: { snowdepth: { max: 215 } },
     stids: ['6', '5'],
     columns: [
       ['6', 'air_temp'],
@@ -89,7 +84,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'newhalem',
     displayName: 'Newhalem',
     region: 'SR20 West',
-    graphAxes: { snowdepth: { max: 100 } },
     stids: ['59'],
     columns: [
       ['59', 'air_temp'],
@@ -106,7 +100,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'whitechuck',
     displayName: 'White Chuck',
     region: 'Mountain Loop',
-    graphAxes: { snowdepth: { max: 200 } },
     stids: ['57'],
     columns: [
       ['57', 'air_temp'],
@@ -168,7 +161,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'gracelakes',
     displayName: 'Grace Lakes & Old Faithful',
     region: 'Stevens Pass',
-    graphAxes: { snowdepth: { max: 200 } },
     stids: ['14', '51'],
     columns: [
       ['14', 'air_temp'],
@@ -186,7 +178,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'stevensskiarea',
     displayName: 'Stevens Pass Ski Area - Tye Mill Chair, Skyline Chair',
     region: 'Stevens Pass',
-    graphAxes: { snowdepth: { max: 175 } },
     stids: ['18', '17'],
     columns: [
       ['18', 'air_temp'],
@@ -203,7 +194,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'alpental',
     displayName: 'Alpental Ski Area',
     region: 'Snoqualmie Pass',
-    graphAxes: { snowdepth: { max: 200 } },
     stids: ['3', '2', '1'],
     columns: [
       ['3', 'air_temp'],
@@ -261,7 +251,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'crystalskiarea',
     displayName: 'Crystal Mt. Ski Area',
     region: 'Crystal Mt.',
-    graphAxes: { snowdepth: { max: 215 } },
     stids: ['29', '28'],
     columns: [
       ['29', 'air_temp'],
@@ -314,7 +303,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'paradise',
     displayName: 'Paradise',
     region: 'Mt Rainier',
-    graphAxes: { snowdepth: { max: 225 } },
     stids: ['35', '36'],
     columns: [
       ['35', 'air_temp'],
@@ -334,7 +322,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'sunrise',
     displayName: 'Sunrise',
     region: 'Mt Rainier',
-    graphAxes: { snowdepth: { max: 200 } },
     stids: ['30', '31'],
     columns: [
       ['30', 'air_temp'],
@@ -353,7 +340,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'chinookpass',
     displayName: 'Chinook Pass',
     region: 'Chinook Pass',
-    graphAxes: { snowdepth: { max: 225 } },
     stids: ['32', '33'],
     columns: [
       ['32', 'air_temp'],
@@ -373,7 +359,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'whitepass',
     displayName: 'White Pass Ski Area',
     region: 'White Pass',
-    graphAxes: { snowdepth: { max: 175 } },
     stids: ['39', '37', '49'],
     columns: [
       ['39', 'air_temp'],
@@ -411,7 +396,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'mazama',
     displayName: 'Mazama',
     region: 'Washington Pass',
-    graphAxes: { snowdepth: { max: 100 }, snow24: { max: 20 } },
     stids: ['7'],
     columns: [
       ['7', 'air_temp'],
@@ -430,7 +414,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'washingtonpass',
     displayName: 'Washington Pass',
     region: 'Washington Pass',
-    graphAxes: { precip: { max: 0.28 } },
     stids: ['9', '8'],
     columns: [
       ['9', 'air_temp'],
@@ -451,7 +434,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'blewettpass',
     displayName: 'Blewett Pass',
     region: 'Lake Wenatchee to Mission Ridge',
-    graphAxes: { snowdepth: { max: 100 } },
     stids: ['48'],
     columns: [
       ['48', 'air_temp'],
@@ -483,7 +465,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'lakewenatchee',
     displayName: 'Lake Wenatchee',
     region: 'Lake Wenatchee to Mission Ridge',
-    graphAxes: { snowdepth: { max: 85 }, snow24: { max: 20 } },
     stids: ['11'],
     columns: [
       ['11', 'air_temp'],
@@ -498,7 +479,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'missionridge',
     displayName: 'Mission Ridge Ski Area',
     region: 'Lake Wenatchee to Mission Ridge',
-    graphAxes: { snowdepth: { max: 100 }, snow24: { max: 20 }, precip: { max: 0.28 } },
     stids: ['25', '26', '24'],
     columns: [
       ['25', 'air_temp'],
@@ -520,7 +500,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'tumwater',
     displayName: 'Tumwater Mt. & Leavenworth',
     region: 'Lake Wenatchee to Mission Ridge',
-    graphAxes: { snowdepth: { max: 85 }, snow24: { max: 20 } },
     stids: ['19', '53'],
     columns: [
       ['19', 'air_temp'],
@@ -542,7 +521,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'mthoodmeadows',
     displayName: 'Mt. Hood Meadows Ski Area',
     region: 'Mt Hood',
-    graphAxes: { snowdepth: { max: 200 } },
     stids: ['42', '43'],
     columns: [
       ['42', 'air_temp'],
@@ -579,7 +557,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'timberlinebase',
     displayName: 'Timberline Lodge',
     region: 'Mt Hood',
-    graphAxes: { snowdepth: { max: 225 } },
     stids: ['44', '56'],
     columns: [
       ['44', 'air_temp'],
@@ -598,7 +575,6 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
     legacySlug: 'timberlineupper',
     displayName: 'Timberline - Magic Mile Chair',
     region: 'Mt Hood',
-    graphAxes: { snowdepth: { max: 225 } },
     stids: ['45'],
     columns: [
       ['45', 'air_temp'],

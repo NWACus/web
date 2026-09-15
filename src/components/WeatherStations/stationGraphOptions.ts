@@ -106,15 +106,19 @@ function niceStep(rough: number): number {
   return 10 * magnitude
 }
 
-// `floor` is a floor and not a ceiling: real data beyond it widens the axis
-// instead of clipping, where legacy rendered a 0.6in/hr hour flat-topped at the
-// 0.35 bound.
-function axisSpan(series: GraphSeries[], floor?: GraphPreset['axis']): Bounds | null {
+// The data's own range, pinned at `axis.min` when set and stretched to
+// `axis.minSpan`; never clipped, where legacy flat-topped a 0.6in/hr hour.
+function axisSpan(series: GraphSeries[], axis?: GraphPreset['axis']): Bounds | null {
   const extent = dataExtent(series)
-  const mins = [extent?.min, floor?.min].filter(isFiniteNumber)
-  const maxes = [extent?.max, floor?.max].filter(isFiniteNumber)
-  if (mins.length === 0 || maxes.length === 0) return null
-  return { min: Math.min(...mins), max: Math.max(...maxes) }
+  if (!extent) return null
+  const pinned = axis?.min
+  const min = pinned === undefined ? extent.min : Math.min(extent.min, pinned)
+  const max = Math.max(extent.max, min)
+  const shortfall = (axis?.minSpan ?? 0) - (max - min)
+  if (shortfall <= 0) return { min, max }
+  return pinned === undefined
+    ? { min: min - shortfall / 2, max: max + shortfall / 2 }
+    : { min, max: max + shortfall }
 }
 
 function roundOutward({ min, max }: Bounds): Bounds {
@@ -126,8 +130,8 @@ function roundOutward({ min, max }: Bounds): Bounds {
 
 // Resolved once per data load, and passed to ECharts explicitly, so panning and
 // zooming leave the axis where it is.
-function frozenAxisBounds(series: GraphSeries[], floor?: GraphPreset['axis']): Bounds | null {
-  const span = axisSpan(series, floor)
+function frozenAxisBounds(series: GraphSeries[], axis?: GraphPreset['axis']): Bounds | null {
+  const span = axisSpan(series, axis)
   return span && roundOutward(span)
 }
 
@@ -313,8 +317,8 @@ export function buildChartOption(
       position: i === 0 ? 'left' : 'right',
       scale: true,
       splitLine: { show: i === 0 },
-      // Only the first axis takes the preset's floor; a second axis is a
-      // different unit the floor doesn't describe.
+      // Only the first axis takes the preset's bounds; a second axis is a
+      // different unit they don't describe.
       ...frozenAxisBounds(
         data.series.filter((s) => axisIndexFor(s.unit, axes) === i),
         i === 0 ? preset.axis : undefined,
