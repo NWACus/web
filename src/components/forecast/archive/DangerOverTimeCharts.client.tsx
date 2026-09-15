@@ -64,7 +64,10 @@ function downloadDataUrl(dataUrl: string, filename: string) {
   const link = document.createElement('a')
   link.download = filename
   link.href = dataUrl
+  // Firefox only follows a click on an anchor that is in the document.
+  document.body.appendChild(link)
   link.click()
+  link.remove()
 }
 
 function ZoneDangerCard({

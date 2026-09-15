@@ -10,17 +10,23 @@ import {
 } from '@/components/forecast/archive/dangerOverTimeOptions'
 import type { DangerOverTime } from '@/services/nac/forecastArchive'
 import '@testing-library/jest-dom'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 
-// The ECharts canvas never mounts in these tests.
+// The ECharts canvas never mounts in these tests; the stub stands in for the live instance so
+// the download control has an export to save.
 jest.mock('next/dynamic', () => () => {
-  const Noop = () => null
-  return Noop
+  const Stub = ({ chartRef }: { chartRef?: { current: unknown } }) => {
+    if (chartRef) chartRef.current = { getDataURL: () => STUB_DATA_URL }
+    return null
+  }
+  return Stub
 })
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn() }),
 }))
+
+const STUB_DATA_URL = 'data:image/png;base64,stub'
 
 const EXTENT = { from: '2026-04-03', to: '2026-04-07' }
 
@@ -105,6 +111,33 @@ describe('DangerOverTimeCharts', () => {
     expect(dangerChartFilename('olympics', EXTENT)).toBe(
       'olympics-danger-over-time-2026-04-03-to-2026-04-07.png',
     )
+  })
+
+  it("saves the zone's chart from an anchor that is in the document", () => {
+    const clicked: { inDocument: boolean; download: string; href: string }[] = []
+    jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      // Firefox ignores a click on a detached anchor, so attachment is part of the contract.
+      clicked.push({
+        inDocument: document.body.contains(this),
+        download: this.download,
+        href: this.href,
+      })
+    })
+
+    render(<DangerOverTimeCharts data={DATA} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Download Olympics chart as PNG image' }))
+
+    expect(clicked).toEqual([
+      {
+        inDocument: true,
+        download: 'olympics-danger-over-time-2026-04-03-to-2026-04-07.png',
+        href: STUB_DATA_URL,
+      },
+    ])
+    // The anchor is a means, not a leftover.
+    expect(document.querySelector('a[download]')).toBeNull()
   })
 })
 
