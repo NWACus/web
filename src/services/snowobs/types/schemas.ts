@@ -7,8 +7,8 @@ const observationSeriesSchema = z.array(z.union([z.number(), z.string(), z.null(
 export const snowObsObservationsSchema = z.record(z.string(), observationSeriesSchema)
 export type SnowObsObservations = z.infer<typeof snowObsObservationsSchema>
 
-// Tech-maintained sensor caveats: `active` is a current issue, `static` a
-// permanent site characteristic. Unknown statuses pass through.
+// `active` = a current issue
+// `static` = a permanent site characteristic
 export const snowObsStationNoteSchema = z.object({
   status: z.string().nullish(),
   note: z.string().nullish(),

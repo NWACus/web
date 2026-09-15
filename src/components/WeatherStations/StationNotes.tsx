@@ -14,9 +14,6 @@ function noteDate(startDate: string | null): string | null {
 export function StationNotes({ notes }: { notes: StationNote[] }) {
   if (notes.length === 0) return null
 
-  // Only worth naming the logger when the group has more than one reporting.
-  const multipleStations = new Set(notes.map((n) => n.stationName)).size > 1
-
   return (
     <aside className="rounded-md border-l-4 border-warning bg-warning/30 px-3 py-2">
       <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold">
@@ -28,7 +25,6 @@ export function StationNotes({ notes }: { notes: StationNote[] }) {
           const raised = noteDate(note.startDate)
           return (
             <li key={`${note.stid}-${note.note}`}>
-              {multipleStations && <span className="font-medium">{note.stationName}: </span>}
               {note.note}
               {raised && <span className="text-muted-foreground"> ({raised})</span>}
             </li>

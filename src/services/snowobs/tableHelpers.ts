@@ -71,7 +71,7 @@ function timezoneLabelFor(iso: string): string {
 
 type ResponseStation = SnowObsTimeseriesResponse['STATION'][number]
 
-// Station notes as SnowObs serves them, so a reader knows why a number looks wrong.
+// Station notes as SnowObs serves them
 export type StationNote = {
   stid: string
   stationName: string
@@ -80,9 +80,6 @@ export type StationNote = {
   startDate: string | null
 }
 
-// Only `active` notes: `static` ones describe permanent site characteristics
-// and would read as a standing alarm on most stations, every day. Newest
-// first; undated notes keep their SnowObs order at the end.
 export function activeStationNotes(stations: ResponseStation[]): StationNote[] {
   return stations
     .flatMap((station) =>
