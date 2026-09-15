@@ -7,6 +7,8 @@
 import { dangerLevelFromRating, dangerName } from '@/services/nac/dangerScale'
 import type { DangerOverTimePoint } from '@/services/nac/forecastArchive'
 
+import { chartDays } from './dangerOverTimeOptions'
+
 /** The name a zone's export saves under, e.g. `olympics-danger-over-time-2026-04-03-to-2026-04-07.csv`. */
 export function dangerExportFilename(
   zoneSlug: string,
@@ -22,17 +24,25 @@ function csvCell(value: string): string {
 }
 
 /**
- * The zone's charted days as CSV, one row per rated day in chart order. Only the rated days, so
- * the file says exactly what the bars say: a day missing here is a day the chart leaves as a gap.
+ * The zone's charted days as CSV: every day of the extent in order, an unrated one carrying level
+ * 0 and "No Rating" rather than being left out. That mirrors the chart, whose x-axis is every day
+ * and whose unrated days are rendered gaps — and it keeps the date column continuous, so the file
+ * plots as a series. Every zone spans the same extent, so two zones' files line up row for row.
+ *
+ * A day with an unrated product and a day with no product at all both read as "No Rating"; the
+ * column says whether a danger rating was published, which for both of them is no.
  */
-export function dangerCsv(points: DangerOverTimePoint[]): string {
+export function dangerCsv(
+  points: DangerOverTimePoint[],
+  extent: { from: string; to: string },
+): string {
+  const levelByDate = new Map(points.map((point) => [point.date, point.dangerLevel]))
   const rows = [
     ['date', 'danger_level', 'danger_rating'],
-    ...points.map((point) => [
-      point.date,
-      String(point.dangerLevel),
-      dangerName(dangerLevelFromRating(point.dangerLevel)),
-    ]),
+    ...chartDays(extent).map((day) => {
+      const level = levelByDate.get(day) ?? 0
+      return [day, String(level), dangerName(dangerLevelFromRating(level))]
+    }),
   ]
 
   // Trailing newline: a CSV without one appends to the previous line when files are concatenated.

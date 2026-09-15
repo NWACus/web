@@ -81,6 +81,16 @@ function recordSavedFiles() {
   return saved
 }
 
+/** jsdom's Blob has no `text()`, so the saved bytes come back through a FileReader. */
+function readBlob(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(reader.error)
+    reader.readAsText(blob)
+  })
+}
+
 // Opened from the keyboard: jsdom has no PointerEvent, and this is the path that proves the
 // menu is reachable without a mouse.
 function openDownloadMenu(zoneName: string) {
@@ -177,10 +187,14 @@ describe('DangerOverTimeCharts', () => {
     expect(titles).toMatchObject([{ show: true, text: 'Olympics' }, { show: false }])
   })
 
-  it('saves the CSV from an anchor that is in the document', () => {
+  it('saves the CSV from an anchor that is in the document', async () => {
     const saved = recordSavedFiles()
     const objectUrl = 'blob:danger-csv'
-    global.URL.createObjectURL = jest.fn().mockReturnValue(objectUrl)
+    let savedBlob: Blob | undefined
+    global.URL.createObjectURL = jest.fn((blob: Blob | MediaSource) => {
+      if (blob instanceof Blob) savedBlob = blob
+      return objectUrl
+    })
     global.URL.revokeObjectURL = jest.fn()
 
     render(<DangerOverTimeCharts data={DATA} />)
@@ -194,6 +208,8 @@ describe('DangerOverTimeCharts', () => {
         href: objectUrl,
       },
     ])
+    // The saved bytes are the zone's whole extent, not only its two rated days.
+    expect(savedBlob && (await readBlob(savedBlob))).toBe(dangerCsv(DATA.zones[0].points, EXTENT))
     // The chart is not touched for a CSV — the points are already on the client.
     expect(mockChart.setOption).not.toHaveBeenCalled()
   })
@@ -209,16 +225,31 @@ describe('danger-over-time export', () => {
     )
   })
 
-  it('writes a header and one row per rated day, naming the rating', () => {
-    expect(dangerCsv(DATA.zones[0].points)).toBe(
-      ['date,danger_level,danger_rating', '2026-04-03,2,Moderate', '2026-04-05,4,High', ''].join(
-        '\n',
-      ),
+  it('writes every day of the extent, an unrated one included as No Rating', () => {
+    // The chart's x-axis is every day and its unrated days are gaps, so the file is the same
+    // continuous series rather than only the days that carry a bar.
+    expect(dangerCsv(DATA.zones[0].points, EXTENT)).toBe(
+      [
+        'date,danger_level,danger_rating',
+        '2026-04-03,2,Moderate',
+        '2026-04-04,0,No Rating',
+        '2026-04-05,4,High',
+        '2026-04-06,0,No Rating',
+        '2026-04-07,0,No Rating',
+        '',
+      ].join('\n'),
     )
   })
 
-  it('writes the header alone when there is nothing to export', () => {
-    expect(dangerCsv([])).toBe('date,danger_level,danger_rating\n')
+  it('writes the extent even when the zone has no rated day in it', () => {
+    expect(dangerCsv([], { from: '2026-04-03', to: '2026-04-04' })).toBe(
+      [
+        'date,danger_level,danger_rating',
+        '2026-04-03,0,No Rating',
+        '2026-04-04,0,No Rating',
+        '',
+      ].join('\n'),
+    )
   })
 })
 

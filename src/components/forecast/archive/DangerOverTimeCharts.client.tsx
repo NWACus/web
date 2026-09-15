@@ -12,7 +12,7 @@
  * the card's heading supplies on screen but a saved file would otherwise travel without.
  */
 import type { ECElementEvent, ECharts } from 'echarts/core'
-import { Download, FileSpreadsheet, ImageIcon, MapPin } from 'lucide-react'
+import { ChevronDown, Download, FileSpreadsheet, ImageIcon, MapPin } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, type RefObject } from 'react'
@@ -150,7 +150,7 @@ function ZoneExportMenu({
 
   const downloadCsv = () => {
     const url = URL.createObjectURL(
-      new Blob([dangerCsv(points)], { type: 'text/csv;charset=utf-8' }),
+      new Blob([dangerCsv(points, extent)], { type: 'text/csv;charset=utf-8' }),
     )
     saveUrl(url, dangerExportFilename(zone.slug, extent, 'csv'))
     // Revoking in the same tick can cancel the save.
@@ -163,11 +163,18 @@ function ZoneExportMenu({
         <Button
           type="button"
           variant="ghost"
-          size="icon"
+          size="clear"
+          // Quiet enough to sit beside the zone's name rather than compete with it.
+          className="group h-8 gap-1 px-2"
           title="Download"
           aria-label={`Download ${zone.name} chart`}
         >
-          <Download className="h-5 w-5" aria-hidden="true" />
+          <Download className="h-4 w-4" aria-hidden="true" />
+          {/* The caret is what says "menu" rather than "saves a file on click". */}
+          <ChevronDown
+            className="h-3.5 w-3.5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
+            aria-hidden="true"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
