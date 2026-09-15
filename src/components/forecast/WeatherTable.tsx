@@ -8,6 +8,7 @@
 import type { RowColumnWeatherData } from '@/services/nac/model/forecast'
 
 import { WeatherInfoHint } from './WeatherInfoHint'
+import { WeatherValue } from './WeatherValue'
 import { sanitizeHtml } from './sanitizeHtml'
 
 /** Coerce the wire colspan (string | number | undefined) to a positive integer. */
@@ -78,8 +79,7 @@ export function WeatherTable({ table }: { table: RowColumnWeatherData }) {
                     className="border p-2 text-center align-middle"
                   >
                     {show && cell.prefix && <span className="font-medium">{cell.prefix} </span>}
-                    {cell.value}
-                    {show && row.unit && <span className="text-muted-foreground"> {row.unit}</span>}
+                    <WeatherValue value={cell.value} unit={row.unit} />
                   </td>
                 )
               })}

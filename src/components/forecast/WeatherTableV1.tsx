@@ -8,6 +8,7 @@ import type { InlineWeatherData } from '@/services/nac/model/forecast'
 
 import { sanitizeHtml } from './sanitizeHtml'
 import { WeatherInfoHint } from './WeatherInfoHint'
+import { WeatherValue } from './WeatherValue'
 
 /**
  * Static help for the well-known inline fields (hardcoded in the legacy widget), in the same HTML
@@ -55,19 +56,14 @@ export function WeatherTableV1({ table }: { table: InlineWeatherData }) {
                 <td key={i} className="border p-2 text-center align-middle">
                   {typeof value === 'string' ? (
                     <span>
-                      {value}
-                      {row.unit && value !== '' && (
-                        <span className="text-muted-foreground"> {row.unit}</span>
-                      )}
+                      <WeatherValue value={value} unit={row.unit} />
                     </span>
                   ) : (
                     <span className="flex flex-col gap-1">
                       {value.map((split, j) => (
                         <span key={j}>
-                          <span className="font-medium">{split.label}:</span> {split.value}
-                          {row.unit && split.value !== '' && (
-                            <span className="text-muted-foreground"> {row.unit}</span>
-                          )}
+                          <span className="font-medium">{split.label}:</span>{' '}
+                          <WeatherValue value={split.value} unit={row.unit} />
                         </span>
                       ))}
                     </span>
