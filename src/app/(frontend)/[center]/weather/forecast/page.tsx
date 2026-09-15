@@ -3,21 +3,39 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { NACWidget } from '@/components/NACWidget'
 import { WidgetRouterHandler } from '@/components/NACWidget/WidgetRouterHandler.client'
+import { NativeWeatherPage } from '@/components/forecast/NativeWeatherPage'
 import {
   assertCenterPlatform,
   centerRouteMetadata,
   centerStaticParams,
   type CenterRouteArgs,
 } from '@/utilities/centerRoutePage'
+import { getNativeProductFlag } from '@/utilities/getNativeProductFlag'
 
-export const dynamic = 'force-static'
+// Short ISR backstop (5 min), matching the forecast routes: the native page renders the current
+// weather product, so it must not be frozen at build time. The revalidate-on-view path catches a
+// correction faster than this.
+export const revalidate = 300
 
 export const generateStaticParams = centerStaticParams
 
 export default async function Page({ params }: CenterRouteArgs) {
   const { center } = await params
 
+  // The AFP's capability flag gates above our rollout flag: a center with no NAC weather product
+  // (NWAC authors its own) has no Mountain Weather page whatever Settings says.
   await assertCenterPlatform(center, 'weather')
+
+  const useNative = await getNativeProductFlag(center, 'weather')
+
+  if (useNative) {
+    return (
+      <>
+        <Breadcrumbs center={center} path="/weather/forecast" />
+        <NativeWeatherPage centerSlug={center} />
+      </>
+    )
+  }
 
   return (
     <>

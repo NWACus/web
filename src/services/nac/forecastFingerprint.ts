@@ -6,7 +6,7 @@
  */
 import { createHash } from 'node:crypto'
 
-import type { ForecastResult, WarningProduct } from './model/forecast'
+import type { ForecastResult, WarningProduct, Weather } from './model/forecast'
 
 function sha1(value: unknown): string {
   return createHash('sha1').update(JSON.stringify(value)).digest('hex')
@@ -41,7 +41,9 @@ export function forecastPageFingerprint(
  * upstream forecast re-fetch — so each side needs its own comparison against what the shared cache
  * is serving. This is not an address; pages ask about the pair above.
  */
-export function productFingerprint(product: ForecastResult | WarningProduct | null): string {
+export function productFingerprint(
+  product: ForecastResult | WarningProduct | Weather | null,
+): string {
   return sha1(product)
 }
 
@@ -63,4 +65,19 @@ export function forecastFreshnessEndpoint(
 ): string {
   const fingerprint = forecastPageFingerprint(forecast, warning)
   return `/api/${centerSlug}/forecast-freshness/${encodeURIComponent(zoneSlug)}/${fingerprint}`
+}
+
+/**
+ * The address the standalone Mountain Weather page asks freshness about: a fingerprint of the
+ * center's current weather product, `null` included so "none published" has an address of its
+ * own. Center-scoped rather than per zone because one weather product covers every zone — the
+ * page shows one product, so it asks one question. Server-only.
+ */
+export function weatherPageFingerprint(weather: Weather | null): string {
+  return sha1({ weather })
+}
+
+/** The weather freshness endpoint a center's Mountain Weather page asks about. */
+export function weatherFreshnessEndpoint(centerSlug: string, weather: Weather | null): string {
+  return `/api/${centerSlug}/weather-freshness/${weatherPageFingerprint(weather)}`
 }
