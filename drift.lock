@@ -183,7 +183,7 @@ sig = "afa29bc8184dea8e"
 [[bindings]]
 doc = "docs/afp-products/architecture.md"
 target = "src/components/charts/EChart.tsx"
-sig = "717fec43e84c2a80"
+sig = "b1f0bc9db83681c4"
 
 [[bindings]]
 doc = "docs/afp-products/architecture.md"

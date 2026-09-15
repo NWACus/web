@@ -92,9 +92,11 @@ test.describe('Forecast archive danger-over-time charts', () => {
     )
   })
 
-  test('a bar opens the dated forecast for that zone-day', async ({ page }) => {
+  test("a bar's tooltip opens the dated forecast, and the bar itself does not", async ({
+    page,
+  }) => {
     // The corpus holds no product-by-id golden for this zone-day, so the destination is stubbed
-    // at the browser and never reaches the mocked upstream. What this asserts is that the bar
+    // at the browser and never reaches the mocked upstream. What this asserts is that the tooltip
     // asks for the right address; the dated page itself is archive.e2e.spec.ts's business.
     await page.route('**/forecasts/avalanche/banner-summit/2026-04-05*', (route) =>
       route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>stub</title>' }),
@@ -110,6 +112,13 @@ test.describe('Forecast archive danger-over-time charts', () => {
     const box = await canvas.boundingBox()
     if (!box) throw new Error('chart canvas has no box')
     await canvas.click({ position: { x: box.width / 2, y: box.height - 100 } })
+
+    // The bar alone must not navigate — brushing one on a phone should not move the reader.
+    await expect(page).toHaveURL(/danger-over-time/)
+
+    const tooltip = page.locator('a[data-forecast-link]')
+    await expect(tooltip).toHaveAttribute('href', '/forecasts/avalanche/banner-summit/2026-04-05')
+    await tooltip.click()
 
     await expect(page).toHaveURL(/\/forecasts\/avalanche\/banner-summit\/2026-04-05$/)
   })

@@ -5,6 +5,7 @@ import {
   buildDangerOverTimeOption,
   chartDays,
   dangerTooltip,
+  dangerTooltipLink,
 } from '@/components/forecast/archive/dangerOverTimeOptions'
 import type { DangerOverTime } from '@/services/nac/forecastArchive'
 import '@testing-library/jest-dom'
@@ -55,6 +56,16 @@ type DataItem = { value: number; itemStyle: { color: string } } | null
 
 function isDataItems(value: unknown): value is DataItem[] {
   return Array.isArray(value)
+}
+
+/** Runs an ECharts tooltip formatter the way ECharts would, with one data item. */
+function format(tooltip: unknown, params: { name: string; value: number }): string {
+  if (typeof tooltip !== 'object' || tooltip === null || !('formatter' in tooltip)) {
+    throw new Error('expected a tooltip with a formatter')
+  }
+  const { formatter } = tooltip
+  if (typeof formatter !== 'function') throw new Error('expected a formatter function')
+  return String(formatter(params))
 }
 
 function seriesData(option: Record<string, unknown>): DataItem[] {
@@ -127,6 +138,38 @@ describe('buildDangerOverTimeOption', () => {
 
     expect(option.yAxis).toMatchObject({ min: 0, max: 5, interval: 1, name: 'Danger Rating' })
     expect(dangerTooltip('2026-04-05', 4)).toBe('Apr 5 - High')
+  })
+
+  it('makes the tooltip a link to the day, and leaves the bar itself inert', () => {
+    const option = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, {
+      hrefForDate: (date) => `/forecasts/avalanche/olympics/${date}`,
+    })
+    const tooltip = option.tooltip
+
+    // Enterable, or the pointer cannot reach the link without the tooltip hiding on the way.
+    expect(tooltip).toMatchObject({ enterable: true })
+    expect(format(tooltip, { name: '2026-04-05', value: 4 })).toBe(
+      '<a href="/forecasts/avalanche/olympics/2026-04-05" data-forecast-link ' +
+        'style="color:inherit;text-decoration:underline">Apr 5 - High</a>',
+    )
+  })
+
+  it('leaves the tooltip as plain text for an export, which has no links', () => {
+    const option = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, { title: 'Olympics' })
+
+    expect(option.tooltip).toMatchObject({ enterable: false })
+    expect(format(option.tooltip, { name: '2026-04-05', value: 4 })).toBe('Apr 5 - High')
+  })
+
+  it('escapes a zone slug that would otherwise close the href early', () => {
+    // Three of Sawtooth's four zone slugs carry an `&`, and the slugs come from upstream zone
+    // URLs rather than from us.
+    expect(
+      dangerTooltipLink('2026-04-05', 2, '/forecasts/avalanche/soldier-&-wood/2026-04-05'),
+    ).toContain('href="/forecasts/avalanche/soldier-&amp;-wood/2026-04-05"')
+    expect(dangerTooltipLink('2026-04-05', 2, '/a/"onmouseover="alert(1)')).toContain(
+      'href="/a/&quot;onmouseover=&quot;alert(1)"',
+    )
   })
 
   it('hides the title on screen, and leaves it headroom when one is asked for', () => {

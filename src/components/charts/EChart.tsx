@@ -9,7 +9,7 @@ import {
   TitleComponent,
   TooltipComponent,
 } from 'echarts/components'
-import type { ComposeOption, ECElementEvent } from 'echarts/core'
+import type { ComposeOption } from 'echarts/core'
 import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useEffect, useRef, type RefObject } from 'react'
@@ -33,28 +33,23 @@ export function EChart({
   option,
   height = 380,
   group,
-  onClick,
   chartRef,
 }: {
   option: EChartOption
   height?: number
   /** Charts sharing a group id zoom/pan together (echarts.connect). */
   group?: string
-  /** Called with the ECharts event when a rendered element (a bar, a point) is clicked. */
-  onClick?: (event: ECElementEvent) => void
   /** Receives the live instance, for callers that need it directly (an image export). */
   chartRef?: RefObject<echarts.ECharts | null>
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const instanceRef = useRef<echarts.ECharts | null>(null)
-  // Read through refs so a new handler doesn't re-create the chart, and a re-created chart
-  // (a group change) starts from the current option rather than empty.
-  const onClickRef = useRef(onClick)
+  // Read through a ref so a re-created chart (a group change) starts from the current option
+  // rather than empty.
   const optionRef = useRef(option)
   useEffect(() => {
-    onClickRef.current = onClick
     optionRef.current = option
-  }, [onClick, option])
+  }, [option])
 
   useEffect(() => {
     const container = containerRef.current
@@ -66,7 +61,6 @@ export function EChart({
       chart.group = group
       echarts.connect(group)
     }
-    chart.on('click', (event) => onClickRef.current?.(event))
     chart.setOption(optionRef.current, { notMerge: true })
     const observer = new ResizeObserver(() => chart.resize())
     observer.observe(container)

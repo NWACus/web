@@ -45,6 +45,21 @@ export function dangerTooltip(date: string, dangerLevel: number): string {
   return `${format(parseISO(date), 'MMM d')} - ${dangerName(dangerLevelFromRating(dangerLevel))}`
 }
 
+// Zone slugs come from upstream zone URLs and are not ours to trust in an HTML attribute — three
+// of Sawtooth's four carry an `&`. Escapes the characters that could close the attribute early.
+function escapeAttribute(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+}
+
+/**
+ * The tooltip as a link to that day's forecast. The bar itself does not navigate: a chart you can
+ * fall into by brushing a bar is hostile on a phone, where the tooltip is also the only way to
+ * read which day a two-pixel bar belongs to.
+ */
+export function dangerTooltipLink(date: string, dangerLevel: number, href: string): string {
+  return `<a href="${escapeAttribute(href)}" data-forecast-link style="color:inherit;text-decoration:underline">${dangerTooltip(date, dangerLevel)}</a>`
+}
+
 /** Headroom the plot needs: for a drawn-in title, or for the axis name when it sits flat on top. */
 function gridTop({ title, narrow }: { title?: string; narrow: boolean }): number {
   if (title !== undefined) return GRID_TOP_WITH_TITLE
@@ -82,12 +97,17 @@ interface DangerChartOptions {
    * at the card's full width whatever the reader is holding.
    */
   narrow?: boolean
+  /**
+   * Makes each tooltip a link to that day's forecast. Absent — as for an export — the tooltip is
+   * the plain text the legacy chart showed.
+   */
+  hrefForDate?: (date: string) => string
 }
 
 export function buildDangerOverTimeOption(
   points: DangerOverTimePoint[],
   extent: { from: string; to: string },
-  { title, zoomable = false, narrow = false }: DangerChartOptions = {},
+  { title, zoomable = false, narrow = false, hrefForDate }: DangerChartOptions = {},
 ): EChartOption {
   const levelByDate = new Map(points.map((point) => [point.date, point.dangerLevel]))
   const days = chartDays(extent)
@@ -120,13 +140,20 @@ export function buildDangerOverTimeOption(
     },
     tooltip: {
       trigger: 'item',
+      // Enterable so the pointer can reach the link inside without the tooltip hiding on the way.
+      enterable: hrefForDate !== undefined,
+      hideDelay: 300,
       // ECharts hard-codes z-index:9999999 on its tooltip div, which floats it over the site
       // header and dialogs. extraCssText lands after that default.
       extraCssText: 'z-index: 10;',
-      formatter: (params: unknown) =>
-        isDataItem(params) && typeof params.name === 'string' && typeof params.value === 'number'
-          ? dangerTooltip(params.name, params.value)
-          : '',
+      formatter: (params: unknown) => {
+        if (!isDataItem(params)) return ''
+        const { name, value } = params
+        if (typeof name !== 'string' || typeof value !== 'number') return ''
+        return hrefForDate === undefined
+          ? dangerTooltip(name, value)
+          : dangerTooltipLink(name, value, hrefForDate(name))
+      },
     },
     xAxis: {
       type: 'category',
@@ -162,7 +189,8 @@ export function buildDangerOverTimeOption(
         type: 'bar',
         // The legacy chart's 10% band padding.
         barCategoryGap: '10%',
-        cursor: 'pointer',
+        // Not a pointer: the bar raises the tooltip, and the link inside it is what navigates.
+        cursor: 'default',
         emphasis: { itemStyle: { opacity: 0.5 } },
         data: days.map((day) => {
           const level = levelByDate.get(day)

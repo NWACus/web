@@ -3,15 +3,15 @@
 /**
  * The archive's "Danger Over Time" tab: one card per zone, stacked, each a bar chart of the
  * zone's daily danger rating across the selected range, rebuilding the legacy widget's
- * `ArchiveVisual` (inventory row F8). A bar opens that zone-day's forecast, as the legacy bars
- * did, and the card's download menu saves the chart, as the legacy save button did.
+ * `ArchiveVisual` (inventory row F8). A bar's tooltip links to that zone-day's forecast, and the
+ * card's download menu saves the chart, as the legacy save button did.
  *
  * Two deliberate divergences. The legacy button wrote a fixed `chart.png`; here the menu offers
  * the chart as a PNG or its days as a CSV, each named for the zone and range so a reader saving
  * several can tell them apart. And the PNG carries the zone's name drawn into the image, which
  * the card's heading supplies on screen but a saved file would otherwise travel without.
  */
-import type { ECElementEvent, ECharts } from 'echarts/core'
+import type { ECharts } from 'echarts/core'
 import { ChevronDown, Download, FileSpreadsheet, ImageIcon, MapPin } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
@@ -85,15 +85,29 @@ function ZoneDangerCard({
   const chartRef = useRef<ECharts | null>(null)
   const narrow = useIsNarrowViewport()
   const option = useMemo(
-    () => buildDangerOverTimeOption(points, extent, { zoomable: true, narrow }),
-    [points, extent, narrow],
+    () =>
+      buildDangerOverTimeOption(points, extent, {
+        zoomable: true,
+        narrow,
+        hrefForDate: (date) => archiveRowHref({ zoneSlug: zone.slug, date }),
+      }),
+    [points, extent, narrow, zone.slug],
   )
 
-  const openForecast = (event: ECElementEvent) => {
-    // A bar's category name is its `yyyy-MM-dd` day; the empty days between bars have no element
-    // to click, so any click lands on a rated day.
-    if (typeof event.name !== 'string') return
-    router.push(archiveRowHref({ zoneSlug: zone.slug, date: event.name }))
+  /**
+   * ECharts builds its tooltip as plain DOM inside the chart's container, so the link it holds is
+   * a real `<a>` that would navigate the whole document. Caught here and handed to the router
+   * instead, which keeps the client-side transition — and still works if this never runs.
+   */
+  const routeFromTooltip = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!(event.target instanceof Element)) return
+    const link = event.target.closest('a[data-forecast-link]')
+    if (!(link instanceof HTMLAnchorElement)) return
+
+    const href = link.getAttribute('href')
+    if (!href) return
+    event.preventDefault()
+    router.push(href)
   }
 
   return (
@@ -113,13 +127,8 @@ function ZoneDangerCard({
           chartRef={chartRef}
         />
       </div>
-      <div className="p-2 sm:p-4">
-        <EChart
-          option={option}
-          height={DANGER_CHART_HEIGHT}
-          onClick={openForecast}
-          chartRef={chartRef}
-        />
+      <div className="p-2 sm:p-4" onClick={routeFromTooltip}>
+        <EChart option={option} height={DANGER_CHART_HEIGHT} chartRef={chartRef} />
       </div>
     </section>
   )
