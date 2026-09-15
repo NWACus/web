@@ -9,9 +9,10 @@ import type {
 } from '@/services/snowobs/tableHelpers'
 import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
-import { ChevronDown, ChevronsUpDown, ChevronUp, TriangleAlert } from 'lucide-react'
+import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
+import { NoteIcon } from './StationNotes'
 import { StationTableFrame, StationTableHeader } from './StationTableFrame'
 import { UnitToggle } from './UnitToggle'
 
@@ -290,12 +291,13 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
 // The note itself lives on the station page; the flag gets the reader there.
 function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
   const group = getStationGroupByStid(row.stid)
+  const status = row.notes.some((note) => note.status === 'active') ? 'active' : 'static'
   const props = {
     className: 'inline-flex',
-    title: row.notes.join(' '),
+    title: row.notes.map((note) => note.note).join(' '),
     'aria-label': `${row.name} has a station note`,
   }
-  const icon = <TriangleAlert className="h-3.5 w-3.5 fill-warning" aria-hidden />
+  const icon = <NoteIcon status={status} className="h-3.5 w-3.5" />
   return group ? (
     <Link href={`/weather/stations/${group.slug}`} {...props}>
       {icon}
@@ -308,10 +310,11 @@ function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
 function StationNoteLegend({ rows }: { rows: PrecipAccumulationRow[] }) {
   if (!rows.some((row) => row.notes.length > 0)) return null
   return (
-    <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
-      <TriangleAlert className="h-3.5 w-3.5 shrink-0 fill-warning" aria-hidden />
-      Stations marked with a warning have an active station note. Open the station&apos;s page to
-      read it.
+    <p className="mt-3 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+      <NoteIcon status="active" className="h-3.5 w-3.5 shrink-0" />
+      marks a station with a current issue,
+      <NoteIcon status="static" className="h-3.5 w-3.5 shrink-0" />
+      one with a standing note. Open the station&apos;s page to read them.
     </p>
   )
 }

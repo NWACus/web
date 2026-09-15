@@ -2,7 +2,7 @@ import { NWAC_DISPLAY_TIMEZONE } from '@/services/snowobs/constants'
 import type { StationNote } from '@/services/snowobs/tableHelpers'
 import { tz } from '@date-fns/tz'
 import { format } from 'date-fns'
-import { TriangleAlert } from 'lucide-react'
+import { StickyNote, TriangleAlert } from 'lucide-react'
 
 function noteDate(startDate: string | null): string | null {
   if (!startDate) return null
@@ -11,22 +11,36 @@ function noteDate(startDate: string | null): string | null {
   return format(raised, 'MMM d, yyyy', { in: tz(NWAC_DISPLAY_TIMEZONE) })
 }
 
+export function NoteIcon({
+  status,
+  className,
+}: {
+  status: StationNote['status']
+  className?: string
+}) {
+  return status === 'active' ? (
+    <TriangleAlert className={`fill-warning ${className ?? ''}`} aria-hidden />
+  ) : (
+    <StickyNote className={`text-muted-foreground ${className ?? ''}`} aria-hidden />
+  )
+}
+
 export function StationNotes({ notes }: { notes: StationNote[] }) {
   if (notes.length === 0) return null
 
   return (
     <aside className="rounded-md border-l-4 border-warning bg-warning/30 px-3 py-2">
-      <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold">
-        <TriangleAlert className="h-4 w-4 fill-warning" aria-hidden />
-        Station notes
-      </h2>
+      <h2 className="mb-1 text-sm font-semibold">Station notes</h2>
       <ul className="flex flex-col gap-1 text-sm">
         {notes.map((note) => {
           const raised = noteDate(note.startDate)
           return (
-            <li key={`${note.stid}-${note.note}`}>
-              {note.note}
-              {raised && <span className="text-muted-foreground"> ({raised})</span>}
+            <li key={`${note.stid}-${note.note}`} className="flex items-start gap-2">
+              <NoteIcon status={note.status} className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                {note.note}
+                {raised && <span className="text-muted-foreground"> ({raised})</span>}
+              </span>
             </li>
           )
         })}

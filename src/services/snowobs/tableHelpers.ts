@@ -76,27 +76,45 @@ export type StationNote = {
   stid: string
   stationName: string
   note: string
+  /** `active` is a current issue, `static` a permanent site characteristic. */
+  status: 'active' | 'static'
   /** ISO date the note was raised; null when SnowObs didn't record one. */
   startDate: string | null
 }
 
-export function activeStationNotes(stations: ResponseStation[]): StationNote[] {
+// Active notes first, then newest first; undated notes keep their SnowObs order.
+// A note whose end date has passed is over, whatever its status says.
+export function stationNotes(stations: ResponseStation[], now = new Date()): StationNote[] {
   return stations
     .flatMap((station) =>
       (station.station_note ?? []).flatMap((note) => {
         const text = note.note?.trim()
-        if (!text || note.status !== 'active') return []
+        const status = noteStatus(note.status)
+        if (!text || !status || hasEnded(note.end_date, now)) return []
         return [
           {
             stid: station.stid,
             stationName: station.name ?? station.stid,
             note: text,
+            status,
             startDate: note.start_date ?? null,
           },
         ]
       }),
     )
-    .sort((a, b) => raisedAt(b) - raisedAt(a))
+    .sort(
+      (a, b) =>
+        Number(b.status === 'active') - Number(a.status === 'active') || raisedAt(b) - raisedAt(a),
+    )
+}
+
+function noteStatus(status: string | null | undefined): StationNote['status'] | null {
+  return status === 'active' || status === 'static' ? status : null
+}
+
+function hasEnded(endDate: string | null | undefined, now: Date): boolean {
+  const ms = endDate ? Date.parse(endDate) : Number.NaN
+  return !Number.isNaN(ms) && ms < now.getTime()
 }
 
 function raisedAt(note: StationNote): number {
@@ -159,8 +177,8 @@ export type PrecipAccumulationRow = {
   totals: Record<number, number | null>
   /** False when the station reported nothing in the widest window ("missing"). */
   hasData: boolean
-  /** Active SnowObs notes: why a total may look wrong. */
-  notes: string[]
+  /** SnowObs notes: why a total may look wrong. */
+  notes: StationNote[]
 }
 
 export type PrecipAccumulationTable = {
@@ -219,7 +237,7 @@ function accumulationRow(
     lastUpdateMs: lastMs > 0 ? lastMs : null,
     totals,
     hasData: Object.values(totals).some((v) => v !== null),
-    notes: activeStationNotes([station]).map((note) => note.note),
+    notes: stationNotes([station]),
   }
 }
 

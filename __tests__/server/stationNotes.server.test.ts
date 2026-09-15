@@ -1,4 +1,4 @@
-import { activeStationNotes } from '../../src/services/snowobs/tableHelpers'
+import { stationNotes } from '../../src/services/snowobs/tableHelpers'
 import type { SnowObsTimeseriesResponse } from '../../src/services/snowobs/types/schemas'
 
 function station(stid: string, name: string, notes: unknown[]): unknown {
@@ -24,8 +24,8 @@ function isTimeseriesResponse(value: unknown): value is SnowObsTimeseriesRespons
   return typeof value === 'object' && value !== null && 'STATION' in value
 }
 
-describe('activeStationNotes', () => {
-  it('keeps active notes and drops static site characteristics', () => {
+describe('stationNotes', () => {
+  it('keeps active and static notes, active first, and drops the rest', () => {
     const response = responseWith([
       station('44', 'Timberline Lodge', [
         {
@@ -34,6 +34,7 @@ describe('activeStationNotes', () => {
           start_date: '2021-12-01T08:00:00Z',
           end_date: null,
         },
+        { status: 'retired', note: 'Old sensor removed.', start_date: null, end_date: null },
         {
           status: 'active',
           note: 'The precipitation gauge is not recording correctly.',
@@ -43,12 +44,20 @@ describe('activeStationNotes', () => {
       ]),
     ])
 
-    expect(activeStationNotes(response.STATION)).toEqual([
+    expect(stationNotes(response.STATION)).toEqual([
       {
         stid: '44',
         stationName: 'Timberline Lodge',
         note: 'The precipitation gauge is not recording correctly.',
+        status: 'active',
         startDate: '2026-02-25T08:00:00Z',
+      },
+      {
+        stid: '44',
+        stationName: 'Timberline Lodge',
+        note: 'The Timberline precipitation gauge continues to under-report.',
+        status: 'static',
+        startDate: '2021-12-01T08:00:00Z',
       },
     ])
   })
@@ -58,7 +67,24 @@ describe('activeStationNotes', () => {
       station('4', 'Hurricane Ridge', []),
       station('5', 'Heather Meadows', [{ status: 'active', note: '   ', start_date: null }]),
     ])
-    expect(activeStationNotes(response.STATION)).toEqual([])
+    expect(stationNotes(response.STATION)).toEqual([])
+  })
+
+  it('drops a note once its end date has passed', () => {
+    const now = new Date('2026-09-15T00:00:00Z')
+    const response = responseWith([
+      station('44', 'Timberline Lodge', [
+        { status: 'active', note: 'Over.', start_date: null, end_date: '2026-09-01T00:00:00Z' },
+        { status: 'active', note: 'Still on.', start_date: null, end_date: '2026-10-01T00:00:00Z' },
+        { status: 'static', note: 'Open ended.', start_date: null, end_date: null },
+        { status: 'active', note: 'Bad date.', start_date: null, end_date: 'soon' },
+      ]),
+    ])
+    expect(stationNotes(response.STATION, now).map((n) => n.note)).toEqual([
+      'Still on.',
+      'Bad date.',
+      'Open ended.',
+    ])
   })
 
   it('orders notes newest first, undated last', () => {
@@ -69,10 +95,6 @@ describe('activeStationNotes', () => {
         { status: 'active', note: 'New.', start_date: '2026-02-25T08:00:00Z' },
       ]),
     ])
-    expect(activeStationNotes(response.STATION).map((n) => n.note)).toEqual([
-      'New.',
-      'Old.',
-      'Undated.',
-    ])
+    expect(stationNotes(response.STATION).map((n) => n.note)).toEqual(['New.', 'Old.', 'Undated.'])
   })
 })

@@ -113,19 +113,35 @@ describe('PrecipAccumulationTable', () => {
   })
 })
 
+function note(text: string, status: 'active' | 'static' = 'active') {
+  return { stid: '44', stationName: 'Timberline', note: text, status, startDate: null }
+}
+
 describe('station notes', () => {
   it('flags a station carrying an active note and links the flag to its page', () => {
     const broken = buildRow({
       stid: '44',
       name: 'Timberline',
-      notes: ['The precipitation gauge is not recording correctly.'],
+      notes: [note('The precipitation gauge is not recording correctly.')],
     })
     render(<PrecipAccumulationTable table={{ rows: [broken], timezoneLabel: 'PST' }} />)
 
     const flag = screen.getByLabelText('Timberline has a station note')
     expect(flag).toHaveAttribute('href', '/weather/stations/timberline-base')
     expect(flag).toHaveAttribute('title', 'The precipitation gauge is not recording correctly.')
-    expect(screen.getByText(/have an active station note/)).toBeInTheDocument()
+    expect(flag.querySelector('svg')).toHaveClass('lucide-triangle-alert')
+    expect(screen.getByText(/current issue/)).toBeInTheDocument()
+  })
+
+  it('uses the note icon for a station with only a standing note', () => {
+    const row = buildRow({
+      stid: '44',
+      name: 'Timberline',
+      notes: [note('Unheated wind gauge rimes over in storms.', 'static')],
+    })
+    render(<PrecipAccumulationTable table={{ rows: [row], timezoneLabel: 'PST' }} />)
+    const flag = screen.getByLabelText('Timberline has a station note')
+    expect(flag.querySelector('svg')).toHaveClass('lucide-sticky-note')
   })
 
   it('leaves unflagged stations unmarked', () => {
@@ -135,6 +151,6 @@ describe('station notes', () => {
       />,
     )
     expect(screen.queryByLabelText(/has a station note/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/have an active station note/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/current issue/)).not.toBeInTheDocument()
   })
 })

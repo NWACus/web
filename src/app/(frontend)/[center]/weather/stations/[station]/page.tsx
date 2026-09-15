@@ -17,7 +17,7 @@ import {
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import type { StationTable } from '@/services/snowobs/tableHelpers'
-import { activeStationNotes, buildStationTable } from '@/services/snowobs/tableHelpers'
+import { buildStationTable, stationNotes } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -39,7 +39,7 @@ export async function generateStaticParams() {
 // Notes ride with the station metadata, so a 1-hour window is enough.
 async function loadStationNotes(group: WeatherStationGroup) {
   const meta = await fetchStationTimeseries(group.stids, { revalidate, windowHours: 1 })
-  return activeStationNotes(meta.STATION)
+  return stationNotes(meta.STATION)
 }
 
 // Datalogger dropdown options for the CSV form: the group's station ids labeled with
