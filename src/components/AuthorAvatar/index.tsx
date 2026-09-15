@@ -6,8 +6,8 @@ import { formatAuthors } from '@/utilities/formatAuthors'
 import { getAuthorInitials } from '@/utilities/getAuthorInitials'
 import { getDocumentById } from '@/utilities/getDocumentById'
 import { cn } from '@/utilities/ui'
-import { format, parseISO } from 'date-fns'
 import { MediaAvatar } from '../Media/AvatarImageMedia'
+import { PublishedDate } from './PublishedDate'
 
 export const AuthorAvatar = (props: {
   authors: Post['authors']
@@ -78,9 +78,7 @@ export const AuthorAvatar = (props: {
               {formatAuthors(combinedAuthorsNames.map((name) => ({ name })))}
             </p>
           )}
-          {showDate && date && (
-            <p className="text-xs text-brand-400">{format(parseISO(date), 'MMMM d, yyyy')}</p>
-          )}
+          {showDate && date && <PublishedDate date={date} />}
         </div>
       </div>
     </>

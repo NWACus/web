@@ -70,7 +70,7 @@ export const Events: CollectionConfig = {
         },
       },
     },
-    startAndEndDateField(),
+    startAndEndDateField({ defaultToCenterTimezone: true }),
     locationField(),
     MetaImageField({
       hasGenerateFn: true,

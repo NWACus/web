@@ -16,42 +16,139 @@
  * - SOAIX (Southern Oregon Avalanche Info Exchange) — no config object at all
  * - UAC (Utah Avalanche Center) — no config object at all
  */
+import { US_TIMEZONES, type USTimezone } from '@/utilities/timezones'
+
 type AvalancheCenterInfo = {
   readonly name: string
   readonly customDomain: string
+  /**
+   * IANA timezone the center operates in, as reported by the NAC center metadata API.
+   * Verify against the API with `pnpm check:center-timezones` when adding or changing a center.
+   */
+  readonly timezone: USTimezone
 }
 
 export const AVALANCHE_CENTERS = {
-  bac: { name: 'Bridgeport Avalanche Center', customDomain: 'bridgeportavalanchecenter.org' },
-  btac: { name: 'Bridger-Teton Avalanche Center', customDomain: 'bridgertetonavalanchecenter.org' },
-  caac: { name: 'Coastal Alaska Avalanche Center', customDomain: 'coastalakavalanche.org' },
-  cbac: { name: 'Crested Butte Avalanche Center', customDomain: 'cbavalanchecenter.org' },
-  cnfaic: { name: 'Chugach National Forest Avalanche Center', customDomain: 'www.cnfaic.org' },
-  coaa: { name: 'Central Oregon Avalanche Center', customDomain: 'www.coavalanche.org' },
-  dvac: { name: 'Death Valley Avalanche Center', customDomain: 'www.avy-fx-demo.org' }, // The "template tenant" - not a real avalanche center
-  esac: { name: 'Eastern Sierra Avalanche Center', customDomain: 'www.esavalanche.org' },
-  fac: { name: 'Flathead Avalanche Center', customDomain: 'www.flatheadavalanche.org' },
-  gnfac: { name: 'Gallatin NF Avalanche Center', customDomain: 'www.mtavalanche.com' },
-  hac: { name: 'Haines Avalanche Center', customDomain: 'alaskasnow.org' },
-  hpac: { name: 'Hatcher Pass Avalanche Center', customDomain: 'hpavalanche.org' },
+  bac: {
+    name: 'Bridgeport Avalanche Center',
+    customDomain: 'bridgeportavalanchecenter.org',
+    timezone: US_TIMEZONES.PACIFIC,
+  },
+  btac: {
+    name: 'Bridger-Teton Avalanche Center',
+    customDomain: 'bridgertetonavalanchecenter.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  caac: {
+    name: 'Coastal Alaska Avalanche Center',
+    customDomain: 'coastalakavalanche.org',
+    timezone: US_TIMEZONES.ALASKA,
+  },
+  cbac: {
+    name: 'Crested Butte Avalanche Center',
+    customDomain: 'cbavalanchecenter.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  cnfaic: {
+    name: 'Chugach National Forest Avalanche Center',
+    customDomain: 'www.cnfaic.org',
+    timezone: US_TIMEZONES.ALASKA,
+  },
+  coaa: {
+    name: 'Central Oregon Avalanche Center',
+    customDomain: 'www.coavalanche.org',
+    timezone: US_TIMEZONES.PACIFIC,
+  },
+  dvac: {
+    name: 'Death Valley Avalanche Center',
+    customDomain: 'www.avy-fx-demo.org',
+    timezone: US_TIMEZONES.PACIFIC,
+  }, // The "template tenant" - not a real avalanche center
+  esac: {
+    name: 'Eastern Sierra Avalanche Center',
+    customDomain: 'www.esavalanche.org',
+    timezone: US_TIMEZONES.PACIFIC,
+  },
+  fac: {
+    name: 'Flathead Avalanche Center',
+    customDomain: 'www.flatheadavalanche.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  gnfac: {
+    name: 'Gallatin NF Avalanche Center',
+    customDomain: 'www.mtavalanche.com',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  hac: {
+    name: 'Haines Avalanche Center',
+    customDomain: 'alaskasnow.org',
+    timezone: US_TIMEZONES.ALASKA,
+  },
+  hpac: {
+    name: 'Hatcher Pass Avalanche Center',
+    customDomain: 'hpavalanche.org',
+    timezone: US_TIMEZONES.ALASKA,
+  },
   ipac: {
     name: 'Idaho Panhandle Avalanche Center',
     customDomain: 'www.idahopanhandleavalanche.org',
+    timezone: US_TIMEZONES.PACIFIC,
   },
-  kpac: { name: 'Kachina Peaks Avalanche Center', customDomain: 'kachinapeaks.org' },
-  msac: { name: 'Mount Shasta Avalanche Center', customDomain: 'www.shastaavalanche.org' },
+  kpac: {
+    name: 'Kachina Peaks Avalanche Center',
+    customDomain: 'kachinapeaks.org',
+    timezone: US_TIMEZONES.ARIZONA,
+  },
+  msac: {
+    name: 'Mount Shasta Avalanche Center',
+    customDomain: 'www.shastaavalanche.org',
+    timezone: US_TIMEZONES.PACIFIC,
+  },
   mwac: {
     name: 'Mount Washington Avalanche Center',
     customDomain: 'www.mountwashingtonavalanchecenter.org',
+    timezone: US_TIMEZONES.EASTERN,
   },
-  nwac: { name: 'Northwest Avalanche Center', customDomain: 'nwac.us' },
-  pac: { name: 'Payette Avalanche Center', customDomain: 'payetteavalanche.org' },
-  sac: { name: 'Sierra Avalanche Center', customDomain: 'www.sierraavalanchecenter.org' },
-  snfac: { name: 'Sawtooth Avalanche Center', customDomain: 'www.sawtoothavalanche.com' },
-  tac: { name: 'Taos Avalanche Center', customDomain: 'taosavalanchecenter.org' },
-  vac: { name: 'Valdez Avalanche Center', customDomain: 'alaskasnow.org' },
-  wac: { name: 'Wallowa Avalanche Center', customDomain: 'wallowaavalanchecenter.org' },
-  wcmac: { name: 'West Central Montana Avalanche Center', customDomain: 'missoulaavalanche.org' },
+  nwac: {
+    name: 'Northwest Avalanche Center',
+    customDomain: 'nwac.us',
+    timezone: US_TIMEZONES.PACIFIC,
+  },
+  pac: {
+    name: 'Payette Avalanche Center',
+    customDomain: 'payetteavalanche.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  sac: {
+    name: 'Sierra Avalanche Center',
+    customDomain: 'www.sierraavalanchecenter.org',
+    timezone: US_TIMEZONES.PACIFIC,
+  },
+  snfac: {
+    name: 'Sawtooth Avalanche Center',
+    customDomain: 'www.sawtoothavalanche.com',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  tac: {
+    name: 'Taos Avalanche Center',
+    customDomain: 'taosavalanchecenter.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
+  vac: {
+    name: 'Valdez Avalanche Center',
+    customDomain: 'alaskasnow.org',
+    timezone: US_TIMEZONES.ALASKA,
+  },
+  wac: {
+    name: 'Wallowa Avalanche Center',
+    customDomain: 'wallowaavalanchecenter.org',
+    timezone: US_TIMEZONES.PACIFIC,
+  },
+  wcmac: {
+    name: 'West Central Montana Avalanche Center',
+    customDomain: 'missoulaavalanche.org',
+    timezone: US_TIMEZONES.MOUNTAIN,
+  },
 } satisfies Record<string, AvalancheCenterInfo>
 
 export type ValidTenantSlug = keyof typeof AVALANCHE_CENTERS
