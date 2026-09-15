@@ -8,6 +8,15 @@ jest.mock('../../../src/utilities/useAnalytics', () => ({
 }))
 
 describe('Breadcrumbs', () => {
+  beforeAll(() => {
+    // jsdom has no ResizeObserver; the trail only uses it to notice when it overflows.
+    global.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    }
+  })
+
   it('renders nothing for the center home path', () => {
     const { container } = render(<Breadcrumbs center="dvac" path="/" />)
 
