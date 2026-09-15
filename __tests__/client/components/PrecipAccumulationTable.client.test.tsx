@@ -127,7 +127,7 @@ describe('station notes', () => {
     globalThis.ResizeObserver = ResizeObserverStub
   })
 
-  it('opens the notes in a popover with a link to the station page', () => {
+  it('opens the notes in a popover', () => {
     const broken = buildRow({
       stid: '44',
       name: 'Timberline',
@@ -143,10 +143,6 @@ describe('station notes', () => {
     expect(
       screen.getByText('The precipitation gauge is not recording correctly.'),
     ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open the station page' })).toHaveAttribute(
-      'href',
-      '/weather/stations/timberline-base',
-    )
   })
 
   it('uses the info icon for a station with only a standing note', () => {

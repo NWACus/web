@@ -2,7 +2,6 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
-import { getStationGroupByStid } from '@/constants/weatherStations'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import type {
   PrecipAccumulationTable as PrecipAccumulationData,
@@ -11,7 +10,6 @@ import type {
 import { PRECIP_ACCUMULATION_WINDOWS } from '@/services/snowobs/tableHelpers'
 import { cn } from '@/utilities/ui'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
-import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { NoteIcon, StationNoteList } from './StationNotes'
 import { StationTableFrame, StationTableHeader } from './StationTableFrame'
@@ -290,9 +288,7 @@ export function PrecipAccumulationTable({ table }: { table: PrecipAccumulationDa
 }
 
 // The note itself lives on the station page; the flag gets the reader there.
-// The notes open in place; the station page is a click further for context.
 function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
-  const group = getStationGroupByStid(row.stid)
   const status = row.notes.some((note) => note.status === 'active') ? 'active' : 'static'
   return (
     <Popover>
@@ -301,14 +297,6 @@ function StationNoteFlag({ row }: { row: PrecipAccumulationRow }) {
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto max-w-sm p-3">
         <StationNoteList notes={row.notes} />
-        {group && (
-          <Link
-            href={`/weather/stations/${group.slug}`}
-            className="mt-2 inline-block text-sm text-primary hover:underline"
-          >
-            Open the station page
-          </Link>
-        )}
       </PopoverContent>
     </Popover>
   )
@@ -321,7 +309,7 @@ function StationNoteLegend({ rows }: { rows: PrecipAccumulationRow[] }) {
       <NoteIcon status="active" className="h-3.5 w-3.5 shrink-0" />
       marks a station with a current issue,
       <NoteIcon status="static" className="h-3.5 w-3.5 shrink-0" />
-      marks a station with a standing note. Click one to read it.
+      marks a station with a standing note.
     </p>
   )
 }

@@ -612,11 +612,6 @@ export function getStationGroup(slug: string): WeatherStationGroup | undefined {
   return STATION_GROUPS_BY_SLUG.get(slug)
 }
 
-export function getStationGroupByStid(stid: string): WeatherStationGroup | undefined {
-  const groups = NWAC_WEATHER_STATION_GROUPS.filter((g) => g.stids.includes(stid))
-  return groups.find((g) => !g.archived) ?? groups[0]
-}
-
 export const MAX_COMPARE_STATIONS = 3
 
 // Every live station with a configured hourly-precip column — the row set for
