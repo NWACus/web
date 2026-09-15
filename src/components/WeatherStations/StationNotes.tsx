@@ -48,7 +48,7 @@ export function StationNotes({ notes }: { notes: StationNote[] }) {
   if (notes.length === 0) return null
 
   return (
-    <aside className="rounded-md border-l-4 border-warning bg-warning/30 px-3 py-2">
+    <aside className="rounded-md border-l-4 border-callout px-3 py-2">
       <h2 className="mb-1 text-sm font-semibold">Station notes</h2>
       <StationNoteList notes={notes} />
     </aside>
