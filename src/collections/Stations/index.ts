@@ -23,7 +23,13 @@ import { syncStationsNow } from './endpoints/syncStationsNow'
 // relationship picker.
 export const Stations: CollectionConfig = {
   slug: 'stations',
-  access: accessByTenantRole('stations'),
+  access: {
+    ...accessByTenantRole('stations'),
+    // Rows come from SnowObs and nowhere else. Hides "Create New" in the admin
+    // and refuses API creates; the update path uses the local API, which
+    // bypasses access, so it is unaffected.
+    create: () => false,
+  },
   admin: {
     baseListFilter: filterByTenant,
     group: 'Weather',
