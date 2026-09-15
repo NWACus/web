@@ -35,7 +35,12 @@ export function ArchiveTabs({ active, query }: ArchiveTabsProps) {
   const search = serializeArchiveSearchParams({ ...query, page: null })
 
   return (
-    <nav className="flex flex-col gap-1 border-b sm:flex-row" aria-label="Archive views">
+    <nav
+      // Stacked, the rule sits flush under the last tab and reads as its underline, so it is
+      // pushed down to sit midway between the tabs and what follows.
+      className="flex flex-col gap-1 border-b pb-5 sm:flex-row sm:pb-0"
+      aria-label="Archive views"
+    >
       {TABS.map(({ view, label, path, Icon }) => {
         const isActive = view === active
         return (
