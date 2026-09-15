@@ -230,7 +230,6 @@ function Markers({ surface }: { surface: Surface }) {
 }
 
 function SelectedPanel({ surface }: { surface: Surface }) {
-  if (surface.selectedIndex < 0) return null
   const { view } = surface
   return (
     <InfoPanel
