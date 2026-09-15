@@ -3,9 +3,10 @@
  * reading's time (flagged when older than the center's threshold), and every current reading in
  * the widget's variable order.
  */
-import { Calendar, ChevronRight, Mountain, Tag, TriangleAlert } from 'lucide-react'
+import { Calendar, ExternalLink, Mountain, Tag, TriangleAlert } from 'lucide-react'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+
+import { Button } from '@/components/ui/button'
 
 import {
   formatObservedAt,
@@ -98,10 +99,10 @@ function ReadingRows({ station, context }: CardProps) {
           const shown = variable === 'wind_direction' ? windDirectionLabel(value) : value
           return (
             <tr key={variable} className={cn(index % 2 === 0 && 'bg-neutral-100')}>
-              <th scope="row" className="px-2 py-0.5 text-left font-semibold">
+              <th scope="row" className="px-2 py-1 text-left font-semibold md:py-1.5">
                 {names.get(variable) ?? variable} ({shortUnit(context.units[variable])})
               </th>
-              <td className="px-2 py-0.5 text-right tabular-nums">{shown ?? '—'}</td>
+              <td className="px-2 py-1 text-right tabular-nums md:py-1.5">{shown ?? '—'}</td>
             </tr>
           )
         })}
@@ -110,42 +111,29 @@ function ReadingRows({ station, context }: CardProps) {
   )
 }
 
-const CARD_CLASS =
-  'block w-full overflow-hidden rounded-md bg-white text-left text-sm text-neutral-900 shadow-md'
-
-/** The whole card is the link when there is a page to go to, as the widget's card opened the station. */
-function CardShell({ href, children }: { href: string | null; children: ReactNode }) {
-  if (!href) {
-    return (
-      <article className={CARD_CLASS} data-testid="station-card">
-        {children}
-      </article>
-    )
-  }
+/** The link to the station's own page, in a new tab so the map and its selection stay put. */
+function StationLink({ href }: { href: string }) {
   return (
-    <Link
-      href={href}
-      className={cn(CARD_CLASS, 'transition-shadow hover:shadow-[0_5px_15px_rgba(0,0,0,0.35)]')}
-      data-testid="station-card"
-    >
-      {children}
-    </Link>
+    <footer className="flex shrink-0 justify-end border-t px-3 py-2">
+      <Button asChild size="sm" variant="outline">
+        <Link href={href} target="_blank" rel="noopener noreferrer">
+          View station
+          <ExternalLink className="ml-1 h-3 w-3" aria-hidden="true" />
+        </Link>
+      </Button>
+    </footer>
   )
 }
 
 export function StationCard({ station, context }: CardProps) {
   return (
-    <CardShell href={station.href}>
+    // `min-h-0` lets the readings scroll under the pinned header and footer at the panel's height limit.
+    <article className="flex min-h-0 w-full flex-col text-left" data-testid="station-card">
       <CardHeader station={station} context={context} />
-      <div className="max-h-[200px] overflow-y-auto py-1">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain py-1">
         <ReadingRows station={station} context={context} />
       </div>
-      {station.href && (
-        <footer className="flex items-center justify-end gap-1 border-t px-3 py-1.5 text-xs font-semibold text-primary">
-          View station
-          <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        </footer>
-      )}
-    </CardShell>
+      {station.href && <StationLink href={station.href} />}
+    </article>
   )
 }
