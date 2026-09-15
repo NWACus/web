@@ -17,12 +17,12 @@ type Args = {
 // CRAP is inflated by the lack of unit coverage on this route handler.
 // fallow-ignore-next-line complexity
 export async function GET(request: Request, { params }: Args) {
-  const { station } = await params
+  const { center, station } = await params
   const url = new URL(request.url)
   const stid = url.searchParams.get('stid')
   const year = Number(url.searchParams.get('year'))
 
-  const group = getStationGroup(station)
+  const group = getStationGroup(center, station)
   if (!group) {
     return new Response('Unknown station', { status: 404 })
   }
@@ -45,7 +45,7 @@ export async function GET(request: Request, { params }: Args) {
   const start = new Date(new TZDate(year, 0, 1, 0, 0, 0, 0, TZ).getTime())
   const end = new Date(new TZDate(year, 11, 31, 23, 59, 59, 999, TZ).getTime())
 
-  const response = await fetchStationTimeseries([stid], {
+  const response = await fetchStationTimeseries(center, [stid], {
     start,
     end,
     revalidate: 3600,

@@ -997,9 +997,6 @@ export const seed = async ({
           return [
             ...zonePages,
             builtInPage(tenant, 'Weather Stations', '/weather/stations/map'),
-            ...(tenant.slug === 'nwac'
-              ? [builtInPage(tenant, 'Weather Data', '/weather/stations')]
-              : []),
             builtInPage(tenant, 'Recent Observations', '/observations'),
             builtInPage(tenant, 'Submit Observations', '/observations/submit'),
             builtInPage(tenant, 'Blog', '/blog'),
@@ -1239,6 +1236,18 @@ export const seed = async ({
             'A list of weather links.',
             'weather-tools',
           ),
+          // Only NWAC has native station pages; this page fronts them at /weather/stations.
+          ...(tenant.slug === 'nwac'
+            ? [
+                page(
+                  tenant,
+                  images[tenant.slug]['image2'],
+                  'Weather Data',
+                  'Current conditions and history from the NWAC weather station network.',
+                  'stations',
+                ),
+              ]
+            : []),
         ])
         .flat(),
     )

@@ -9,7 +9,6 @@ import { snowObsTimeseriesResponseSchema } from './types/schemas'
 const SNOWOBS_API = 'https://api.snowobs.com/wx/v1'
 // Doubles as the center slug whose AFP config carries the token; #1169 splits the
 // two when a second center gets these pages.
-const NWAC_SOURCE = 'nwac'
 
 export class SnowObsError extends Error {
   constructor(
@@ -38,15 +37,18 @@ type FetchOptions = {
   rawData?: boolean
 }
 
-// The token lives in the center's AFP config (`widget_config.stations.token`), the same
-// public token the legacy nwac.us widgets use. It is the only source — no env override.
-async function resolveSnowObsToken(): Promise<string> {
-  const metadata = await getAvalancheCenterMetadata(NWAC_SOURCE)
+type SnowObsAccess = { source: string; token: string }
+
+// A center's loggers report under its own slug as the SnowObs source. The token
+// lives in its AFP config (`widget_config.stations.token`), the same public
+// token the legacy widgets use.
+async function resolveSnowObsAccess(centerSlug: string): Promise<SnowObsAccess> {
+  const metadata = await getAvalancheCenterMetadata(centerSlug)
   const token = metadata.widget_config.stations?.token
   if (!token) {
-    throw new SnowObsError(`No SnowObs token in the AFP config for ${NWAC_SOURCE}`)
+    throw new SnowObsError(`No SnowObs token in the AFP config for ${centerSlug}`)
   }
-  return token
+  return { source: centerSlug, token }
 }
 
 // Build the timeseries request URL. Defaults to a trailing window (last 24h)
@@ -55,15 +57,15 @@ async function resolveSnowObsToken(): Promise<string> {
 // start/end (CSV export) overrides the trailing window untouched.
 // CRAP is inflated by the lack of unit coverage on this URL builder.
 // fallow-ignore-next-line complexity
-function buildTimeseriesUrl(stids: string[], options: FetchOptions, token: string): string {
+function buildTimeseriesUrl(stids: string[], options: FetchOptions, access: SnowObsAccess): string {
   const bucketMs = Math.max(options.revalidate ?? 600, 1) * 1000
   const endMs = Math.floor(Date.now() / bucketMs) * bucketMs
   const end = options.end ?? new Date(endMs)
   const start = options.start ?? subHours(end, options.windowHours ?? 24)
 
   const params = new URLSearchParams({
-    token,
-    source: NWAC_SOURCE,
+    token: access.token,
+    source: access.source,
     stid: stids.join(','),
     start_date: formatSnowObsDate(start),
     end_date: formatSnowObsDate(end),
@@ -106,13 +108,14 @@ function toSnowObsError(error: unknown, stids: string[]): SnowObsError {
 
 // Fetches a SnowObs timeseries server-side (token stays off the client) and validates it.
 export async function fetchStationTimeseries(
+  centerSlug: string,
   stids: string[],
   options: FetchOptions = {},
 ): Promise<SnowObsTimeseriesResponse> {
   const revalidate = options.revalidate ?? 600
 
   try {
-    const url = buildTimeseriesUrl(stids, options, await resolveSnowObsToken())
+    const url = buildTimeseriesUrl(stids, options, await resolveSnowObsAccess(centerSlug))
     const res = await fetch(url, { next: { revalidate } })
     return await parseTimeseriesResponse(res, stids)
   } catch (error) {

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { getStationGroup, MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
+import { MAX_COMPARE_STATIONS } from '@/constants/weatherStations'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -45,6 +45,7 @@ import { DEFAULT_GRAPH_PERIOD, GRAPH_PERIODS } from './stationPeriods'
 import { StationSelectGroups, stationSelectTriggerClass } from './StationPicker'
 import { UnitToggle } from './UnitToggle'
 import type { useChartArrangement } from './useChartArrangement'
+import { useStationRegistry } from './useStationRegistry'
 
 const rowButtonClass =
   'rounded-md p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground'
@@ -126,7 +127,10 @@ export function CompareChips({
   compareSlugs: string[]
   onRemove: (slug: string) => void
 }) {
-  const selected = compareSlugs.flatMap((slug) => getStationGroup(slug) ?? [])
+  const registry = useStationRegistry()
+  const selected = compareSlugs.flatMap(
+    (slug) => registry?.groups.find((group) => group.slug === slug) ?? [],
+  )
 
   return selected.map((group) => (
     <span key={group.slug} className={chipClass}>

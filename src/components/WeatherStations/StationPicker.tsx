@@ -9,9 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { NWAC_STATION_REGIONS, NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
 import { cn } from '@/utilities/ui'
 import { useRouter } from 'next/navigation'
+import { useStationRegistry } from './useStationRegistry'
 
 // Restores the native-select look on the shadcn SelectTrigger.
 export const stationSelectTriggerClass =
@@ -24,8 +24,10 @@ export function StationSelectGroups({
   excludeSlugs?: string[]
   excludeArchived?: boolean
 }) {
-  return NWAC_STATION_REGIONS.map((region) => {
-    const groups = NWAC_WEATHER_STATION_GROUPS.filter(
+  const registry = useStationRegistry()
+  if (!registry) return null
+  return registry.regions.map((region) => {
+    const groups = registry.groups.filter(
       (group) =>
         group.region === region &&
         !excludeSlugs.includes(group.slug) &&

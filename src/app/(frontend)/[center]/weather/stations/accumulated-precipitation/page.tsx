@@ -3,7 +3,7 @@ import type { Metadata, ResolvedMetadata } from 'next/types'
 
 import { PrecipAccumulationTable } from '@/components/WeatherStations/PrecipAccumulationTable'
 import { StationPicker } from '@/components/WeatherStations/StationPicker'
-import { PRECIP_STATION_STIDS, STATIONS_TENANT_SLUG } from '@/constants/weatherStations'
+import { getStationRegistry, precipStationStids } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
 import { buildPrecipAccumulationTable } from '@/services/snowobs/tableHelpers'
 import { notFound } from 'next/navigation'
@@ -39,16 +39,18 @@ function PageHeader() {
 export default async function Page({ params }: Args) {
   const { center } = await params
 
-  if (center !== STATIONS_TENANT_SLUG) {
+  const registry = getStationRegistry(center)
+  if (!registry) {
     notFound()
   }
 
   // One 72h fetch covers every trailing window (1H..72H are sums over it).
-  const response = await fetchStationTimeseries(PRECIP_STATION_STIDS, {
+  const stids = precipStationStids(registry)
+  const response = await fetchStationTimeseries(center, stids, {
     revalidate: REVALIDATE_SECONDS,
     windowHours: 72,
   })
-  const table = buildPrecipAccumulationTable(response, PRECIP_STATION_STIDS)
+  const table = buildPrecipAccumulationTable(response, stids)
 
   return (
     <>
