@@ -140,6 +140,27 @@ describe('buildDangerOverTimeOption', () => {
     expect(plain.grid).toMatchObject({ top: 12 })
   })
 
+  it('lays the axis name flat above the plot on a phone, handing its gutter to the bars', () => {
+    const wide = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT)
+    const narrow = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, { narrow: true })
+
+    expect(wide.yAxis).toMatchObject({ nameLocation: 'middle', nameGap: 32 })
+    expect(narrow.yAxis).toMatchObject({ nameLocation: 'end', nameRotate: 0 })
+    // The rotated name needs a gutter; flat on top it needs headroom instead.
+    expect(wide.grid).toMatchObject({ left: 48, top: 12 })
+    expect(narrow.grid).toMatchObject({ left: 26, top: 34 })
+  })
+
+  it('renders an export at full width whatever the reader is holding', () => {
+    // `narrow` is the on-screen layout; a saved PNG is never cramped, so the title wins the space.
+    const exported = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, {
+      title: 'Olympics',
+      narrow: true,
+    })
+
+    expect(exported.grid).toMatchObject({ top: 44 })
+  })
+
   it('adds the zoom slider only when asked, and leaves the plot room for it', () => {
     const plain = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT)
     const zoomable = buildDangerOverTimeOption(DATA.zones[0].points, EXTENT, { zoomable: true })

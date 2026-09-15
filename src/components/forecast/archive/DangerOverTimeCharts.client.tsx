@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useRef, type RefObject } from 'react'
 
 import type { EChartOption } from '@/components/charts/EChart'
+import { useIsNarrowViewport } from '@/components/charts/useIsNarrowViewport'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -82,9 +83,10 @@ function ZoneDangerCard({
   const { zone, points } = zoneData
   const router = useRouter()
   const chartRef = useRef<ECharts | null>(null)
+  const narrow = useIsNarrowViewport()
   const option = useMemo(
-    () => buildDangerOverTimeOption(points, extent, { zoomable: true }),
-    [points, extent],
+    () => buildDangerOverTimeOption(points, extent, { zoomable: true, narrow }),
+    [points, extent, narrow],
   )
 
   const openForecast = (event: ECElementEvent) => {

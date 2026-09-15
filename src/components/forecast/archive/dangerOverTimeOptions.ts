@@ -16,10 +16,18 @@ export const DANGER_CHART_HEIGHT = 300
 /** Headroom above the plot, and the taller value that clears a drawn-in chart title. */
 const GRID_TOP = 12
 const GRID_TOP_WITH_TITLE = 44
+const GRID_TOP_NARROW = 34
 
 /** Room below the plot for the angled date labels, and the extra a zoom slider needs under them. */
 const GRID_BOTTOM = 56
 const GRID_BOTTOM_WITH_ZOOM = 92
+
+/**
+ * Room to the left of the plot for the 0–5 ticks, and for the rotated axis name beside them. A
+ * phone cannot spare the wider gutter, so there the name goes above the plot instead.
+ */
+const GRID_LEFT = 48
+const GRID_LEFT_NARROW = 26
 
 /**
  * Every `yyyy-MM-dd` day of the extent, inclusive. The x-axis is these days as categories rather
@@ -35,6 +43,12 @@ export function chartDays(extent: { from: string; to: string }): string[] {
 /** "Apr 5 - Moderate", the legacy chart's tooltip. */
 export function dangerTooltip(date: string, dangerLevel: number): string {
   return `${format(parseISO(date), 'MMM d')} - ${dangerName(dangerLevelFromRating(dangerLevel))}`
+}
+
+/** Headroom the plot needs: for a drawn-in title, or for the axis name when it sits flat on top. */
+function gridTop({ title, narrow }: { title?: string; narrow: boolean }): number {
+  if (title !== undefined) return GRID_TOP_WITH_TITLE
+  return narrow ? GRID_TOP_NARROW : GRID_TOP
 }
 
 /** A bar's data item: its level, coloured by the danger scale. */
@@ -62,12 +76,18 @@ interface DangerChartOptions {
    * own answer for small screens. Off for an export, which should be the season and no chrome.
    */
   zoomable?: boolean
+  /**
+   * Lays the chart out for a phone: the axis name goes flat above the plot rather than rotated
+   * beside it, which hands its gutter back to the bars. Never set for an export, which is rendered
+   * at the card's full width whatever the reader is holding.
+   */
+  narrow?: boolean
 }
 
 export function buildDangerOverTimeOption(
   points: DangerOverTimePoint[],
   extent: { from: string; to: string },
-  { title, zoomable = false }: DangerChartOptions = {},
+  { title, zoomable = false, narrow = false }: DangerChartOptions = {},
 ): EChartOption {
   const levelByDate = new Map(points.map((point) => [point.date, point.dangerLevel]))
   const days = chartDays(extent)
@@ -92,9 +112,9 @@ export function buildDangerOverTimeOption(
         ]
       : [],
     grid: {
-      left: 48,
+      left: narrow ? GRID_LEFT_NARROW : GRID_LEFT,
       right: 16,
-      top: title === undefined ? GRID_TOP : GRID_TOP_WITH_TITLE,
+      top: gridTop({ title, narrow }),
       bottom: zoomable ? GRID_BOTTOM_WITH_ZOOM : GRID_BOTTOM,
     },
     tooltip: {
@@ -121,9 +141,10 @@ export function buildDangerOverTimeOption(
     yAxis: {
       type: 'value',
       name: 'Danger Rating',
-      nameLocation: 'middle',
-      nameGap: 32,
-      nameTextStyle: { fontSize: 14 },
+      // Narrow: sat flat above the plot, where it costs height rather than the width the bars need.
+      ...(narrow
+        ? { nameLocation: 'end', nameRotate: 0, nameGap: 12, nameTextStyle: { fontSize: 12 } }
+        : { nameLocation: 'middle', nameGap: 32, nameTextStyle: { fontSize: 14 } }),
       min: 0,
       max: 5,
       interval: 1,
