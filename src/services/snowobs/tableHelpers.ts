@@ -81,25 +81,25 @@ export type StationNote = {
 }
 
 // Only `active` notes: `static` ones describe permanent site characteristics
-// and would read as a standing alarm on most stations, every day.
-export function activeNotesFor(station: ResponseStation): StationNote[] {
-  return (station.station_note ?? []).flatMap((note) => {
-    const text = note.note?.trim()
-    if (!text || note.status !== 'active') return []
-    return [
-      {
-        stid: station.stid,
-        stationName: station.name ?? station.stid,
-        note: text,
-        startDate: note.start_date ?? null,
-      },
-    ]
-  })
-}
-
-// Newest first; undated notes keep their SnowObs order at the end.
-export function activeStationNotes(response: SnowObsTimeseriesResponse): StationNote[] {
-  return response.STATION.flatMap(activeNotesFor).sort((a, b) => raisedAt(b) - raisedAt(a))
+// and would read as a standing alarm on most stations, every day. Newest
+// first; undated notes keep their SnowObs order at the end.
+export function activeStationNotes(stations: ResponseStation[]): StationNote[] {
+  return stations
+    .flatMap((station) =>
+      (station.station_note ?? []).flatMap((note) => {
+        const text = note.note?.trim()
+        if (!text || note.status !== 'active') return []
+        return [
+          {
+            stid: station.stid,
+            stationName: station.name ?? station.stid,
+            note: text,
+            startDate: note.start_date ?? null,
+          },
+        ]
+      }),
+    )
+    .sort((a, b) => raisedAt(b) - raisedAt(a))
 }
 
 function raisedAt(note: StationNote): number {
@@ -222,7 +222,7 @@ function accumulationRow(
     lastUpdateMs: lastMs > 0 ? lastMs : null,
     totals,
     hasData: Object.values(totals).some((v) => v !== null),
-    notes: activeNotesFor(station).map((note) => note.note),
+    notes: activeStationNotes([station]).map((note) => note.note),
   }
 }
 

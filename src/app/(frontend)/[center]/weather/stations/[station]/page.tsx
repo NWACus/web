@@ -39,7 +39,7 @@ export async function generateStaticParams() {
 // Notes ride with the station metadata, so a 1-hour window is enough.
 async function loadStationNotes(group: WeatherStationGroup) {
   const meta = await fetchStationTimeseries(group.stids, { revalidate, windowHours: 1 })
-  return activeStationNotes(meta)
+  return activeStationNotes(meta.STATION)
 }
 
 // Datalogger dropdown options for the CSV form: the group's station ids labeled with

@@ -43,7 +43,7 @@ describe('activeStationNotes', () => {
       ]),
     ])
 
-    expect(activeStationNotes(response)).toEqual([
+    expect(activeStationNotes(response.STATION)).toEqual([
       {
         stid: '44',
         stationName: 'Timberline Lodge',
@@ -58,7 +58,7 @@ describe('activeStationNotes', () => {
       station('4', 'Hurricane Ridge', []),
       station('5', 'Heather Meadows', [{ status: 'active', note: '   ', start_date: null }]),
     ])
-    expect(activeStationNotes(response)).toEqual([])
+    expect(activeStationNotes(response.STATION)).toEqual([])
   })
 
   it('orders notes newest first, undated last', () => {
@@ -69,6 +69,10 @@ describe('activeStationNotes', () => {
         { status: 'active', note: 'New.', start_date: '2026-02-25T08:00:00Z' },
       ]),
     ])
-    expect(activeStationNotes(response).map((n) => n.note)).toEqual(['New.', 'Old.', 'Undated.'])
+    expect(activeStationNotes(response.STATION).map((n) => n.note)).toEqual([
+      'New.',
+      'Old.',
+      'Undated.',
+    ])
   })
 })
