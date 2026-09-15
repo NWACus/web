@@ -14,7 +14,7 @@ import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { useEffect, useRef } from 'react'
 
-// Tree-shaken ECharts: only what the station charts use.
+// Tree-shaken ECharts: only what the site's charts use.
 echarts.use([
   LineChart,
   BarChart,
