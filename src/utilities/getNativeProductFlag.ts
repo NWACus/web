@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 /** Products with a per-tenant native-vs-widget rollout flag (Control 1). */
-export type NativeProduct = 'forecast' | 'warning' | 'dangerMap'
+export type NativeProduct = 'forecast' | 'warning' | 'dangerMap' | 'weather'
 
 /**
  * Reads the per-tenant × per-product native rollout flag from Settings.
