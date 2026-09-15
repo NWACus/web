@@ -81,8 +81,10 @@ function isFiniteNumber(v: number | null | undefined): v is number {
   return v !== null && v !== undefined && Number.isFinite(v)
 }
 
+// Daily series draw their means, so the axis is sized to those and not to a
+// day's extremes that never appear on the chart.
 function plottedValues(s: GraphSeries): (number | null)[] {
-  return s.kind === 'raw' ? s.points.map(([, v]) => v) : s.days.flatMap(([, lo, , hi]) => [lo, hi])
+  return s.kind === 'raw' ? s.points.map(([, v]) => v) : s.days.map(([, , mean]) => mean)
 }
 
 // Reduced rather than spread into Math.min — a season of hourly data across

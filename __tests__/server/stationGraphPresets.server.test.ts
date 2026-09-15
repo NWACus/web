@@ -53,6 +53,28 @@ describe('axis bounds', () => {
     expect(max).toBeGreaterThanOrEqual(120)
   })
 
+  it('sizes a daily series to the means it draws, not the day extremes', () => {
+    const daily: GraphData = {
+      series: [
+        {
+          kind: 'daily',
+          stid: '1',
+          stationName: 'Station 1',
+          variable: 'precip_accum_one_hour',
+          label: 'Station 1',
+          unit: 'in',
+          days: [
+            [1_700_000_000_000, 0, 0.2, 5.2],
+            [1_700_086_400_000, 0, 0.4, 0.6],
+          ],
+        },
+      ],
+      aggregated: true,
+      timezone: 'x',
+    }
+    expect(axisBounds(daily, preset('precip')).max).toBeLessThan(1)
+  })
+
   it('centres an unpinned axis on flat data', () => {
     expect(axisBounds(data('air_temp', [30, 30, 30]), preset('temp'))).toEqual({ min: 25, max: 35 })
   })
