@@ -1,6 +1,6 @@
 'use client'
 
-import { getStationGroup } from '@/constants/weatherStations'
+import type { StationRegistry } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import type { UnitSystem } from '@/services/snowobs/metricUnits'
 import { cn } from '@/utilities/ui'
@@ -19,6 +19,7 @@ import { DEFAULT_GRAPH_PERIOD } from './stationPeriods'
 import { StationViewBar } from './StationViewBar'
 import { UnitToggle, useUnitSystem } from './UnitToggle'
 import { useChartArrangement } from './useChartArrangement'
+import { useStationRegistry } from './useStationRegistry'
 
 function ChartSkeleton() {
   return <div className="h-80 animate-pulse rounded-md bg-muted" />
@@ -209,10 +210,14 @@ function GraphsToolbar(props: EditViewProps & { tabs?: ReactNode }) {
 }
 
 // The page's stids plus each comparison group's, deduped in selection order.
-function combinedStids(stids: string[], compareSlugs: string[]): string[] {
+function combinedStids(
+  registry: StationRegistry | undefined,
+  stids: string[],
+  compareSlugs: string[],
+): string[] {
   const combined = [...stids]
   for (const slug of compareSlugs) {
-    for (const stid of getStationGroup(slug)?.stids ?? []) {
+    for (const stid of registry?.groups.find((g) => g.slug === slug)?.stids ?? []) {
       if (!combined.includes(stid)) combined.push(stid)
     }
   }
@@ -234,7 +239,11 @@ export function StationGraphs({
   const [compareSlugs, setCompareSlugs] = useState<string[]>([])
   const [unitSystem, changeUnitSystem] = useUnitSystem()
 
-  const allStids = useMemo(() => combinedStids(stids, compareSlugs), [stids, compareSlugs])
+  const registry = useStationRegistry()
+  const allStids = useMemo(
+    () => combinedStids(registry, stids, compareSlugs),
+    [registry, stids, compareSlugs],
+  )
   const variables = useMemo(
     () => Array.from(new Set(presets.flatMap((p) => p.variables))),
     [presets],

@@ -22,7 +22,7 @@ export async function GET(request: Request, { params }: Args) {
   const stid = url.searchParams.get('stid')
   const year = Number(url.searchParams.get('year'))
 
-  const group = getStationGroup(station)
+  const group = getStationGroup(center, station)
   if (!group) {
     return new Response('Unknown station', { status: 404 })
   }

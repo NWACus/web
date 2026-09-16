@@ -1,11 +1,10 @@
 import type { StationColumnConfig } from '@/services/snowobs/tableHelpers'
+import type { ValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
+import { isValidTenantSlug } from '@/utilities/tenancy/avalancheCenters'
 
-// These station groups are NWAC's SnowObs loggers, so the pages are NWAC-only.
-export const STATIONS_TENANT_SLUG = 'nwac'
-
-// Canonical region order for grouping the station index, matching the legacy
+// Canonical region order for grouping the station pickers, matching the legacy
 // nwac.us /weatherdata/ directory.
-export const NWAC_STATION_REGIONS = [
+const NWAC_STATION_REGIONS = [
   'Olympics',
   'Mt Baker',
   'SR20 West',
@@ -22,14 +21,12 @@ export const NWAC_STATION_REGIONS = [
   'Mt Hood',
 ] as const
 
-export type StationRegion = (typeof NWAC_STATION_REGIONS)[number]
-
 export type WeatherStationGroup = {
   slug: string
   /** Old nwac.us /weatherdata/<slug>/now/ slug, kept for future redirects. */
   legacySlug: string
   displayName: string
-  region: StationRegion
+  region: string
   /** Unique SnowObs station ids fetched for this group. */
   stids: string[]
   columns: StationColumnConfig[]
@@ -39,7 +36,7 @@ export type WeatherStationGroup = {
 }
 
 // Ported from the legacy nwac_weatherstation plugin's station_group_tables_config.
-export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
+const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
   {
     slug: 'hurricane-ridge',
     legacySlug: 'hurricaneridge',
@@ -606,10 +603,27 @@ export const NWAC_WEATHER_STATION_GROUPS: WeatherStationGroup[] = [
   },
 ]
 
-const STATION_GROUPS_BY_SLUG = new Map(NWAC_WEATHER_STATION_GROUPS.map((g) => [g.slug, g]))
+/** A center's station pages: its region order and the groups each page shows. */
+export type StationRegistry = {
+  regions: readonly string[]
+  groups: WeatherStationGroup[]
+}
 
-export function getStationGroup(slug: string): WeatherStationGroup | undefined {
-  return STATION_GROUPS_BY_SLUG.get(slug)
+// One entry per center with native station pages. A center's SnowObs source
+// lives beside its other facts in AVALANCHE_CENTERS.
+const STATION_REGISTRIES: Partial<Record<ValidTenantSlug, StationRegistry>> = {
+  nwac: { regions: NWAC_STATION_REGIONS, groups: NWAC_WEATHER_STATION_GROUPS },
+}
+
+export const CENTERS_WITH_STATIONS: ValidTenantSlug[] =
+  Object.keys(STATION_REGISTRIES).filter(isValidTenantSlug)
+
+export function getStationRegistry(center: string): StationRegistry | undefined {
+  return isValidTenantSlug(center) ? STATION_REGISTRIES[center] : undefined
+}
+
+export function getStationGroup(center: string, slug: string): WeatherStationGroup | undefined {
+  return getStationRegistry(center)?.groups.find((g) => g.slug === slug)
 }
 
 export const MAX_COMPARE_STATIONS = 3
@@ -619,11 +633,14 @@ export const MAX_COMPARE_STATIONS = 3
 // /data-portal/accumulations/precipitation/). Archived stations are left out:
 // a decommissioned gauge would sit there reading "missing" forever, which is
 // why legacy omits them too.
-export const PRECIP_STATION_STIDS = Array.from(
-  new Set(
-    NWAC_WEATHER_STATION_GROUPS.filter((g) => !g.archived)
-      .flatMap((g) => g.columns)
-      .filter(([, variable]) => variable === 'precip_accum_one_hour')
-      .map(([stid]) => stid),
-  ),
-)
+export function precipStationStids(registry: StationRegistry): string[] {
+  return Array.from(
+    new Set(
+      registry.groups
+        .filter((g) => !g.archived)
+        .flatMap((g) => g.columns)
+        .filter(([, variable]) => variable === 'precip_accum_one_hour')
+        .map(([stid]) => stid),
+    ),
+  )
+}

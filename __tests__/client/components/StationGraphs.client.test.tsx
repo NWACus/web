@@ -1,6 +1,6 @@
 import { StationGraphs } from '@/components/WeatherStations/StationGraphs'
 import { buildChartOption } from '@/components/WeatherStations/stationGraphOptions'
-import { NWAC_WEATHER_STATION_GROUPS } from '@/constants/weatherStations'
+import { getStationRegistry } from '@/constants/weatherStations'
 import type { GraphData } from '@/services/snowobs/graph'
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -13,6 +13,16 @@ jest.mock('next/dynamic', () => () => {
   const Noop = () => null
   return Noop
 })
+
+jest.mock('../../../src/providers/TenantProvider', () => ({
+  useTenant: () => ({ tenant: { slug: 'nwac' } }),
+}))
+
+function nwacGroups() {
+  const registry = getStationRegistry('nwac')
+  if (!registry) throw new Error('NWAC has no station registry')
+  return registry.groups
+}
 
 // jsdom lacks the layout APIs Radix Select's positioning touches.
 beforeAll(() => {
@@ -195,7 +205,7 @@ describe('buildChartOption wind band', () => {
 })
 
 describe('StationGraphs compare picker', () => {
-  const [current, other, third, fourth, fifth] = NWAC_WEATHER_STATION_GROUPS
+  const [current, other, third, fourth, fifth] = nwacGroups()
   if (!fifth) throw new Error('registry needs at least five groups')
 
   const emptyData: GraphData = { series: [], aggregated: false, timezone: 'x' }
@@ -273,7 +283,7 @@ describe('StationGraphs compare picker', () => {
 })
 
 describe('StationGraphs chart arrangement', () => {
-  const current = NWAC_WEATHER_STATION_GROUPS[0]
+  const current = nwacGroups()[0]
   const fetchMock = jest.fn()
   // One response serves both charts: a series per preset variable.
   const dataWithSeries: GraphData = {

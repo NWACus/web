@@ -1,50 +1,61 @@
 import {
+  CENTERS_WITH_STATIONS,
   getStationGroup,
-  NWAC_STATION_REGIONS,
-  NWAC_WEATHER_STATION_GROUPS,
-  PRECIP_STATION_STIDS,
+  getStationRegistry,
+  precipStationStids,
 } from '../../src/constants/weatherStations'
 
+function nwac() {
+  const registry = getStationRegistry('nwac')
+  if (!registry) throw new Error('NWAC has no station registry')
+  return registry
+}
+
 describe('weather station registry', () => {
-  it('has 32 station groups', () => {
-    expect(NWAC_WEATHER_STATION_GROUPS).toHaveLength(32)
+  it('has 32 NWAC station groups and no other center yet', () => {
+    expect(nwac().groups).toHaveLength(32)
+    expect(CENTERS_WITH_STATIONS).toEqual(['nwac'])
+    expect(getStationRegistry('sac')).toBeUndefined()
+    expect(getStationRegistry('not-a-center')).toBeUndefined()
   })
 
   it('keeps archived stations off the accumulated precipitation table', () => {
-    const helens = NWAC_WEATHER_STATION_GROUPS.find((g) => g.slug === 'mt-st-helens')
+    const helens = getStationGroup('nwac', 'mt-st-helens')
+    const stids = precipStationStids(nwac())
     expect(helens?.archived).toBe(true)
-    expect(helens?.stids.every((stid) => !PRECIP_STATION_STIDS.includes(stid))).toBe(true)
+    expect(helens?.stids.every((stid) => !stids.includes(stid))).toBe(true)
   })
 
   it('has unique slugs and legacy slugs', () => {
-    const slugs = NWAC_WEATHER_STATION_GROUPS.map((g) => g.slug)
-    const legacy = NWAC_WEATHER_STATION_GROUPS.map((g) => g.legacySlug)
+    const slugs = nwac().groups.map((g) => g.slug)
+    const legacy = nwac().groups.map((g) => g.legacySlug)
     expect(new Set(slugs).size).toBe(slugs.length)
     expect(new Set(legacy).size).toBe(legacy.length)
   })
 
-  it('assigns every group to a known region', () => {
-    for (const group of NWAC_WEATHER_STATION_GROUPS) {
-      expect(NWAC_STATION_REGIONS).toContain(group.region)
+  it('files every group under a listed region', () => {
+    for (const group of nwac().groups) {
+      expect(nwac().regions).toContain(group.region)
     }
   })
 
-  it('derives stids from the columns and lists them uniquely', () => {
-    for (const group of NWAC_WEATHER_STATION_GROUPS) {
-      const fromColumns = [...new Set(group.columns.map(([stid]) => stid))]
-      expect(group.stids).toEqual(fromColumns)
-      expect(group.stids.length).toBeGreaterThan(0)
+  it('only configures columns for stids the group fetches', () => {
+    for (const group of nwac().groups) {
+      for (const [stid] of group.columns) {
+        expect(group.stids).toContain(stid)
+      }
     }
   })
 
-  it('excludes precip_cumsum columns (the transform derives them)', () => {
-    for (const group of NWAC_WEATHER_STATION_GROUPS) {
-      expect(group.columns.some(([, sensor]) => sensor === 'precip_cumsum')).toBe(false)
+  it('has no duplicate stids within a group', () => {
+    for (const group of nwac().groups) {
+      expect(new Set(group.stids).size).toBe(group.stids.length)
     }
   })
 
-  it('looks groups up by slug', () => {
-    expect(getStationGroup('hurricane-ridge')?.displayName).toBe('Hurricane Ridge')
-    expect(getStationGroup('nope')).toBeUndefined()
+  it('looks up groups by center and slug', () => {
+    expect(getStationGroup('nwac', 'hurricane-ridge')?.displayName).toBe('Hurricane Ridge')
+    expect(getStationGroup('nwac', 'nope')).toBeUndefined()
+    expect(getStationGroup('sac', 'hurricane-ridge')).toBeUndefined()
   })
 })

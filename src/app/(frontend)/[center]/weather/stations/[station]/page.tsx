@@ -10,9 +10,9 @@ import { StationRangeTabs } from '@/components/WeatherStations/StationRangeTabs'
 import { StationTableView } from '@/components/WeatherStations/StationTableView'
 import { StationViewBar } from '@/components/WeatherStations/StationViewBar'
 import {
+  CENTERS_WITH_STATIONS,
   getStationGroup,
-  NWAC_WEATHER_STATION_GROUPS,
-  STATIONS_TENANT_SLUG,
+  getStationRegistry,
   type WeatherStationGroup,
 } from '@/constants/weatherStations'
 import { fetchStationTimeseries } from '@/services/snowobs/snowobs'
@@ -30,10 +30,9 @@ type Args = {
 }
 
 export async function generateStaticParams() {
-  return NWAC_WEATHER_STATION_GROUPS.map((group) => ({
-    center: STATIONS_TENANT_SLUG,
-    station: group.slug,
-  }))
+  return CENTERS_WITH_STATIONS.flatMap((center) =>
+    (getStationRegistry(center)?.groups ?? []).map((group) => ({ center, station: group.slug })),
+  )
 }
 
 type StationPage = { center: string; group: WeatherStationGroup }
@@ -152,11 +151,7 @@ export default async function Page({ params, searchParams }: Args) {
   const { center, station } = await params
   const { range: rangeParam, period: periodParam } = await searchParams
 
-  if (center !== STATIONS_TENANT_SLUG) {
-    notFound()
-  }
-
-  const group = getStationGroup(station)
+  const group = getStationGroup(center, station)
   if (!group) {
     notFound()
   }
@@ -195,7 +190,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { center, station } = await props.params
   const parentMeta = await parent
-  const group = getStationGroup(station)
+  const group = getStationGroup(center, station)
 
   const parentTitle = resolveParentTitle(parentMeta)
   const routeTitle = group ? group.displayName : 'Weather Station'
