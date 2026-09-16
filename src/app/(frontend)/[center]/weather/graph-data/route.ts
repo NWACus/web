@@ -90,7 +90,7 @@ export async function GET(
   const { stids, vars, from, to } = parsed
 
   try {
-    const response = await fetchStationTimeseries(stids, {
+    const response = await fetchStationTimeseries(center, stids, {
       start: from,
       end: to,
       revalidate: REVALIDATE_SECONDS,

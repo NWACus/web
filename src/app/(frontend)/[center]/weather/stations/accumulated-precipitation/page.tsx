@@ -44,7 +44,7 @@ export default async function Page({ params }: Args) {
   }
 
   // One 72h fetch covers every trailing window (1H..72H are sums over it).
-  const response = await fetchStationTimeseries(PRECIP_STATION_STIDS, {
+  const response = await fetchStationTimeseries(center, PRECIP_STATION_STIDS, {
     revalidate: REVALIDATE_SECONDS,
     windowHours: 72,
   })

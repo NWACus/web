@@ -36,18 +36,21 @@ export async function generateStaticParams() {
   }))
 }
 
+type StationPage = { center: string; group: WeatherStationGroup }
+
 // Notes ride with the station metadata, so a 1-hour window is enough.
-async function loadStationNotes(group: WeatherStationGroup) {
-  const meta = await fetchStationTimeseries(group.stids, { revalidate, windowHours: 1 })
+async function loadStationNotes({ center, group }: StationPage) {
+  const meta = await fetchStationTimeseries(center, group.stids, { revalidate, windowHours: 1 })
   return stationNotes(meta.STATION)
 }
 
 // Datalogger dropdown options for the CSV form: the group's station ids labeled with
 // each logger's name + elevation (from a cheap 1-hour metadata fetch).
-async function loadDataloggers(
-  group: WeatherStationGroup,
-): Promise<{ stid: string; label: string }[]> {
-  const meta = await fetchStationTimeseries(group.stids, { windowHours: 1 })
+async function loadDataloggers({
+  center,
+  group,
+}: StationPage): Promise<{ stid: string; label: string }[]> {
+  const meta = await fetchStationTimeseries(center, group.stids, { windowHours: 1 })
   return group.stids.map((stid) => {
     const station = meta.STATION.find((s) => s.stid === stid)
     if (!station?.name) return { stid, label: stid }
@@ -70,7 +73,7 @@ type TabView = {
   tabContent?: ReactNode
 }
 
-async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
+async function csvTabView(page: StationPage): Promise<TabView> {
   return {
     table: null,
     tabContent: (
@@ -79,8 +82,8 @@ async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
           <StationRangeTabs activeKey="csv" />
         </StationViewBar>
         <StationCsvForm
-          slug={group.slug}
-          dataloggers={await loadDataloggers(group)}
+          slug={page.group.slug}
+          dataloggers={await loadDataloggers(page)}
           years={csvYears()}
         />
       </>
@@ -88,7 +91,7 @@ async function csvTabView(group: WeatherStationGroup): Promise<TabView> {
   }
 }
 
-function graphsTabView(group: WeatherStationGroup): TabView {
+function graphsTabView({ group }: StationPage): TabView {
   return {
     table: null,
     tabContent: (
@@ -102,9 +105,12 @@ function graphsTabView(group: WeatherStationGroup): TabView {
   }
 }
 
-async function tableTabView(group: WeatherStationGroup, periodParam?: string): Promise<TabView> {
+async function tableTabView(
+  { center, group }: StationPage,
+  periodParam?: string,
+): Promise<TabView> {
   const period = resolveTablePeriod(periodParam)
-  const response = await fetchStationTimeseries(group.stids, {
+  const response = await fetchStationTimeseries(center, group.stids, {
     revalidate,
     windowHours: period.hoursBack(new Date()),
     rawData: true,
@@ -127,19 +133,19 @@ function defaultTabKey(group: WeatherStationGroup): string {
   return group.archived ? 'csv' : 'table'
 }
 
-const TAB_VIEWS: Record<string, (group: WeatherStationGroup) => TabView | Promise<TabView>> = {
+const TAB_VIEWS: Record<string, (page: StationPage) => TabView | Promise<TabView>> = {
   csv: csvTabView,
   graphs: graphsTabView,
 }
 
 async function resolveTabView(
-  group: WeatherStationGroup,
+  page: StationPage,
   rangeParam?: string,
   periodParam?: string,
 ): Promise<TabView> {
-  const build = TAB_VIEWS[rangeParam ?? defaultTabKey(group)]
+  const build = TAB_VIEWS[rangeParam ?? defaultTabKey(page.group)]
   // Anything else is the table, including legacy `?range=24h` links.
-  return build ? build(group) : tableTabView(group, periodParam ?? rangeParam)
+  return build ? build(page) : tableTabView(page, periodParam ?? rangeParam)
 }
 
 export default async function Page({ params, searchParams }: Args) {
@@ -155,9 +161,10 @@ export default async function Page({ params, searchParams }: Args) {
     notFound()
   }
 
+  const page = { center, group }
   const [view, notes] = await Promise.all([
-    resolveTabView(group, rangeParam, periodParam),
-    loadStationNotes(group),
+    resolveTabView(page, rangeParam, periodParam),
+    loadStationNotes(page),
   ])
 
   return (
