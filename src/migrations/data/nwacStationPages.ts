@@ -1,9 +1,10 @@
 // Seed data for the NWAC station pages: the 32 pages and their station
 // assignments as they stood in the retired src/constants/weatherStations.ts
 // registry, plus a snapshot of SnowObs station identity taken 2026-09-14 so a
-// migration can create the rows without a network call. The sync overwrites
-// the identity fields on its first run; the page assignments are NWAC's and
-// are never touched by it.
+// migration can create the rows without a network call. The snapshot is the
+// whole catalogue; only the stations a page lists become rows. The sync
+// overwrites the identity fields on its first run; the page assignments are
+// NWAC's and are never touched by it.
 //
 // Read by the migration and the local seed script only. Nothing at runtime
 // imports this file.

@@ -65,9 +65,14 @@ export async function seedStationPages(
     page.stids.forEach((stid, order) => assignment.set(stid, { slug: page.slug, order }))
   }
 
+  // Only the stations a page shows. The snapshot is the whole SnowObs catalogue,
+  // and the rest of it (a retired logger, 5-minute duplicates of hourly
+  // stations) has no place on the site; the sync brings in what SnowObs tracks.
   for (const snapshot of NWAC_STATION_SNAPSHOT) {
     const target = assignment.get(snapshot.stid)
-    const pageId = target ? pageIdBySlug.get(target.slug) : undefined
+    if (!target) continue
+    const pageId = pageIdBySlug.get(target.slug)
+    if (pageId == null) continue
     const current = stationByStid.get(snapshot.stid)
 
     if (!current) {
@@ -77,16 +82,17 @@ export async function seedStationPages(
           tenant: tenantId,
           source: SOURCE,
           ...snapshot,
-          ...(pageId != null && target ? { page: pageId, pageOrder: target.order } : {}),
+          page: pageId,
+          pageOrder: target.order,
         },
         context,
       })
       result.stationsCreated++
-      if (pageId != null) result.stationsAssigned++
+      result.stationsAssigned++
       continue
     }
 
-    if (current.page != null || pageId == null || !target) continue
+    if (current.page != null) continue
     await payload.update({
       collection: 'stations',
       id: current.id,

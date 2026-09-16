@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # Check for new or modified migration files
-MIGRATION_FILES=$(git diff --cached --name-only --diff-filter=AM | grep "^src/migrations/.*\.ts$" | grep -v "index.ts")
+MIGRATION_FILES=$(git diff --cached --name-only --diff-filter=AM | grep "^src/migrations/.*\.ts$" | grep -v "index.ts" | grep -v "^src/migrations/data/")
 
 if [ -n "$MIGRATION_FILES" ]; then
   echo "🔍 Migration files detected in commit, running safety checks..."

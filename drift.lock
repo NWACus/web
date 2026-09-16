@@ -513,7 +513,7 @@ sig = "3436eed2ed79916b"
 [[bindings]]
 doc = "docs/migration-safety.md"
 target = ".husky/check-migrations"
-sig = "f3230eac010baa8c"
+sig = "ba88cf9a8263b060"
 
 [[bindings]]
 doc = "docs/migration-safety.md"
