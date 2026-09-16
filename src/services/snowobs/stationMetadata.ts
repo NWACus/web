@@ -42,7 +42,14 @@ type MetadataOptions = {
 }
 
 /**
- * Every station SnowObs holds for a source -- including ones no page shows.
+ * The stations SnowObs is tracking for a source -- the center's own list,
+ * including ones no page shows.
+ *
+ * `station/tracking/` rather than `station/metadata/`: metadata is the whole
+ * catalogue under the source, and for NWAC that adds a retired logger, six
+ * 5-minute duplicates of hourly stations and an untracked USFS site that the
+ * center doesn't consider its stations. Tracking is the list SnowObs keeps per
+ * client, which is what the SnowObs site shows too. Both return the same shape.
  *
  * SnowObs is the source of truth for what a station *is*: its id, name,
  * coordinates, elevation and partner. Which page shows it is NWAC's decision
@@ -54,7 +61,7 @@ export async function fetchStationMetadata(
   options: MetadataOptions = {},
 ): Promise<SnowObsStationMetadata[]> {
   const params = new URLSearchParams({ token, source })
-  const url = `${SNOWOBS_API}/station/metadata/?${params.toString()}`
+  const url = `${SNOWOBS_API}/station/tracking/?${params.toString()}`
 
   let res: Response
   try {

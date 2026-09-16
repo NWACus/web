@@ -66,7 +66,7 @@ export function SyncStationsButton() {
   return (
     <div className="snowobs-sync">
       <p className="snowobs-sync__hint">
-        Every station SnowObs holds for this center. Names, elevations and coordinates come from
+        Every station SnowObs tracks for this center. Names, elevations and coordinates come from
         SnowObs and are read-only; assign a page and any flags here.
       </p>
       {onList && (

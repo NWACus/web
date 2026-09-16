@@ -50,7 +50,7 @@ function unchanged(existing: StationIdentity, next: StationIdentity): boolean {
 }
 
 /**
- * Upsert every station SnowObs holds for one tenant's source.
+ * Upsert every station SnowObs tracks for one tenant's source.
  *
  * Never deletes. A station that disappears upstream keeps its row, because a
  * page may point at it, and a station going quiet is a fault to report rather
