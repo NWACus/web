@@ -8,16 +8,16 @@ import {
 } from '@/services/stations/revalidate'
 import { getTenantFilter } from '@/utilities/collectionFilters'
 import { CollectionConfig } from 'payload'
+import { syncStationsNow } from './endpoints/syncStationsNow'
 
 // One row per SnowObs station. SnowObs is the source of truth for what a
-// station *is*, so the identity fields are read-only (seeded from a snapshot
-// here; the SnowObs sync that refreshes them is a follow-up); the rest of the
-// row is NWAC's decisions about it -- which page shows it, and whether its
-// gauge belongs on the precip table.
+// station *is*, so the identity fields are read-only and overwritten by the
+// sync; the rest of the row is NWAC's decisions about it -- which page shows
+// it, and whether its gauge belongs on the precip table.
 //
 // The public pages never read these rows. They read station names, elevations
 // and coordinates from the SnowObs timeseries response, so this table can be
-// wiped and reseeded without any page going stale. It exists so admins have a
+// wiped and re-synced without any page going stale. It exists so admins have a
 // table to make those decisions in.
 //
 // Rows are per tenant even though a logger can be shared: a second center that
@@ -26,12 +26,23 @@ import { CollectionConfig } from 'payload'
 // relationship picker.
 export const Stations: CollectionConfig = {
   slug: 'stations',
-  access: accessByTenantRole('stations'),
+  access: {
+    ...accessByTenantRole('stations'),
+    // Rows come from SnowObs and nowhere else. Hides "Create New" in the admin
+    // and refuses API creates; the update path uses the local API, which
+    // bypasses access, so it is unaffected.
+    create: () => false,
+  },
   admin: {
     baseListFilter: filterByTenant,
     group: 'Weather',
     defaultColumns: ['name', 'stid', 'page', 'elevation', 'hiddenOnPrecipTable', 'lastSyncedAt'],
     useAsTitle: 'name',
+    components: {
+      // Renders where the collection description normally does: under the
+      // title, above the search bar. Carries the description text itself.
+      Description: '@/collections/Stations/components/SyncStationsButton#SyncStationsButton',
+    },
   },
   defaultSort: 'name',
   indexes: [{ fields: ['tenant', 'source', 'stid'], unique: true }],
@@ -67,8 +78,8 @@ export const Stations: CollectionConfig = {
       },
     },
     {
-      // `stid` is unique only within a source; the compound index above holds
-      // the real constraint.
+      // `stid` is unique only within a source; the compound index below holds
+      // the real constraint, so two syncs at once can't both create a row.
       name: 'stid',
       type: 'text',
       required: true,
@@ -108,6 +119,13 @@ export const Stations: CollectionConfig = {
       admin: { readOnly: true, position: 'sidebar' },
     },
     contentHashField(),
+  ],
+  endpoints: [
+    {
+      path: '/sync',
+      method: 'post',
+      handler: syncStationsNow,
+    },
   ],
   hooks: {
     afterChange: [revalidateStationPages],

@@ -42,7 +42,7 @@ type SnowObsAccess = { source: string; token: string }
 // A center's loggers report under its own slug as the SnowObs source. The token
 // lives in its AFP config (`widget_config.stations.token`), the same public
 // token the legacy widgets use.
-async function resolveSnowObsAccess(centerSlug: string): Promise<SnowObsAccess> {
+export async function resolveSnowObsAccess(centerSlug: string): Promise<SnowObsAccess> {
   const metadata = await getAvalancheCenterMetadata(centerSlug)
   const token = metadata.widget_config.stations?.token
   if (!token) {
